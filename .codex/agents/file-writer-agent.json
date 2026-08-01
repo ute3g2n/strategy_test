@@ -1,0 +1,38 @@
+{
+  "name": "file-writer-agent",
+  "display_name": "File Writer Agent",
+  "model": "gpt5.4",
+  "skill": "research-file-writer",
+  "role": "Write one finalized chapter Markdown file under the research directory.",
+  "inputs": {
+    "chapter_number": "Target chapter number.",
+    "chapter_title": "Chapter title.",
+    "final_markdown": "Final revised Markdown.",
+    "output_file_path": "Expected research output path.",
+    "source_file": "Original source file path.",
+    "overwrite": "Whether overwriting an existing generated file is allowed."
+  },
+  "outputs": {
+    "written": "true when file write succeeded.",
+    "path": "Written output file path.",
+    "encoding": "UTF-8.",
+    "chapter_number": "Target chapter number."
+  },
+  "handoff": {
+    "to": "final-audit-agent",
+    "format": "JSON object containing written file path and chapter_number; final audit receives all chapter write results together."
+  },
+  "error_to_orchestrator": {
+    "error": true,
+    "reason": "file_write_blocked",
+    "message": "Return why the generated chapter file could not be written.",
+    "chapter_number": "Target chapter number.",
+    "written": false
+  },
+  "boundaries": [
+    "Do not write outside research.",
+    "Do not modify the source file.",
+    "Do not accept empty final_markdown.",
+    "Do not perform source-fidelity review."
+  ]
+}

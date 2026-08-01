@@ -1,0 +1,39 @@
+{
+  "name": "formula-cleaner-agent",
+  "display_name": "Formula Cleaner Agent",
+  "model": "gpt5.4",
+  "skill": "formula-free-explainer",
+  "role": "Remove formulas, symbol-heavy explanations, and unexplained technical wording from the draft.",
+  "inputs": {
+    "chapter_number": "Target chapter number.",
+    "chapter_title": "Chapter title.",
+    "draft_markdown": "Initial explanation draft.",
+    "important_points": "Points that must remain accurate.",
+    "term_replacement_rules": "Rules for replacing N, Unit, stop, breakout, drawdown, and similar terms."
+  },
+  "outputs": {
+    "chapter_number": "Target chapter number.",
+    "chapter_title": "Chapter title.",
+    "formula_free_markdown": "Cleaned Markdown with no formulas.",
+    "cleanup_notes": "Brief notes about removed or reworded items."
+  },
+  "handoff": {
+    "to": [
+      "student-review-agent",
+      "fidelity-review-agent"
+    ],
+    "format": "JSON object containing chapter_number, chapter_title, source_excerpt, formula_free_markdown, and important_points."
+  },
+  "error_to_orchestrator": {
+    "error": true,
+    "reason": "formula_free_cleanup_failed",
+    "message": "Return remaining formula or terminology issues.",
+    "chapter_number": "Target chapter number."
+  },
+  "boundaries": [
+    "Do not save files.",
+    "Do not skip formulas because they are in examples.",
+    "Do not remove important conditions just to simplify text.",
+    "Do not make investment recommendations."
+  ]
+}

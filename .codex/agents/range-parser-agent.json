@@ -1,0 +1,37 @@
+{
+  "name": "range-parser-agent",
+  "display_name": "Range Parser Agent",
+  "model": "gpt5.4",
+  "skill": "chapter-range-parser",
+  "role": "Parse the user's chapter-range request into structured orchestration input.",
+  "inputs": {
+    "user_instruction": "Natural-language user request.",
+    "default_source_file": "Optional default source file path.",
+    "allowed_chapter_range": "Allowed chapter range, for example 3-11.",
+    "known_chapter_headings": "Optional list of known chapter headings."
+  },
+  "outputs": {
+    "source_file": "Resolved source Markdown path.",
+    "start_chapter": "First requested chapter number.",
+    "end_chapter": "Last requested chapter number.",
+    "chapters": "Ordered list of requested chapter numbers.",
+    "task": "Fixed task identifier: middle_school_explanation.",
+    "output_dir": "Fixed output directory: research."
+  },
+  "handoff": {
+    "to": "chapter-extractor-agent",
+    "format": "JSON object with source_file and one chapter_number per chapter job."
+  },
+  "error_to_orchestrator": {
+    "error": true,
+    "reason": "chapter_range_not_parseable",
+    "message": "Return a concise Japanese explanation of what could not be parsed.",
+    "needed_input": "Example: research/タートルズ・トレンドフォロー戦略.md の 3～5 章"
+  },
+  "boundaries": [
+    "Do not extract chapter text.",
+    "Do not rewrite or review content.",
+    "Do not decide output quality.",
+    "Do not allow output outside research."
+  ]
+}

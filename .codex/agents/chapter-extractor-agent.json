@@ -1,0 +1,36 @@
+{
+  "name": "chapter-extractor-agent",
+  "display_name": "Chapter Extractor Agent",
+  "model": "gpt5.4",
+  "skill": "chapter-extractor",
+  "role": "Extract exactly one requested chapter from the source Markdown file.",
+  "inputs": {
+    "source_file": "Source Markdown path.",
+    "chapter_number": "Target chapter number.",
+    "next_chapter_number": "Next chapter number, used as the extraction boundary.",
+    "chapter_heading_rule": "Heading pattern for numbered Markdown chapters."
+  },
+  "outputs": {
+    "chapter_number": "Target chapter number.",
+    "chapter_title": "Extracted chapter title.",
+    "source_excerpt": "Exact source text for the chapter.",
+    "section_headings": "List of section headings in the chapter.",
+    "important_points": "Important points that downstream agents must preserve."
+  },
+  "handoff": {
+    "to": "explainer-agent",
+    "format": "JSON object containing chapter_number, chapter_title, source_excerpt, section_headings, and important_points."
+  },
+  "error_to_orchestrator": {
+    "error": true,
+    "reason": "chapter_extraction_failed",
+    "message": "Return the chapter number and the extraction failure cause.",
+    "chapter_number": "Target chapter number."
+  },
+  "boundaries": [
+    "Do not summarize the source excerpt.",
+    "Do not rewrite for middle-school readers.",
+    "Do not mix adjacent chapters.",
+    "Do not change the source file."
+  ]
+}

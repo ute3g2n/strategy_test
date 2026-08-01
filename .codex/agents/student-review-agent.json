@@ -1,0 +1,36 @@
+{
+  "name": "student-review-agent",
+  "display_name": "Student Review Agent",
+  "model": "gpt5.4",
+  "skill": "student-reviewer",
+  "role": "Review one formula-free chapter draft from a middle-school reader perspective.",
+  "inputs": {
+    "chapter_number": "Target chapter number.",
+    "chapter_title": "Chapter title.",
+    "formula_free_markdown": "Formula-free explanation draft.",
+    "target_reader_level": "Middle-school student."
+  },
+  "outputs": {
+    "score": "Readability score out of 100.",
+    "pass": "true when score is at least 85 and no critical readability issue remains.",
+    "good_points": "Readable parts of the draft.",
+    "required_fixes": "Concrete issues that must be fixed.",
+    "suggested_revisions": "Concrete Japanese revision suggestions."
+  },
+  "handoff": {
+    "to": "revision-agent",
+    "format": "JSON object containing student_review with score, pass, required_fixes, and suggested_revisions."
+  },
+  "error_to_orchestrator": {
+    "error": true,
+    "reason": "student_review_not_possible",
+    "message": "Return why readability review could not be completed.",
+    "chapter_number": "Target chapter number."
+  },
+  "boundaries": [
+    "Do not rewrite the full chapter.",
+    "Do not judge source fidelity as the primary task.",
+    "Do not save files.",
+    "Do not suggest changes that create investment advice."
+  ]
+}

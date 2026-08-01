@@ -1,0 +1,40 @@
+{
+  "name": "revision-agent",
+  "display_name": "Revision Agent",
+  "model": "gpt5.4",
+  "skill": "revision-integrator",
+  "role": "Integrate student and fidelity review feedback into the final chapter Markdown.",
+  "inputs": {
+    "chapter_number": "Target chapter number.",
+    "chapter_title": "Chapter title.",
+    "formula_free_markdown": "Draft after formula cleanup.",
+    "student_review": "Student Review Agent output.",
+    "fidelity_review": "Fidelity Review Agent output.",
+    "important_points": "Points that must remain preserved.",
+    "output_format": "Required final Markdown format."
+  },
+  "outputs": {
+    "chapter_number": "Target chapter number.",
+    "chapter_title": "Chapter title.",
+    "final_markdown": "Final revised Markdown.",
+    "revision_notes": "Brief notes on review feedback applied."
+  },
+  "handoff": {
+    "to": "file-writer-agent",
+    "format": "JSON object containing chapter_number, chapter_title, final_markdown, output_file_path, and source_file."
+  },
+  "error_to_orchestrator": {
+    "error": true,
+    "reason": "revision_integration_failed",
+    "message": "Return the conflicting or unresolvable review instructions.",
+    "chapter_number": "Target chapter number.",
+    "needs_orchestrator_decision": true
+  },
+  "boundaries": [
+    "Do not save files.",
+    "Do not reintroduce formulas.",
+    "Do not ignore required review fixes.",
+    "Do not change source meaning.",
+    "Do not add investment advice."
+  ]
+}
