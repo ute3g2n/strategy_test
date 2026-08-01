@@ -1,0 +1,174 @@
+{
+  "name": "middle-school-explanation-orchestrator",
+  "display_name": "Middle School Explanation Orchestrator",
+  "model": "gpt5.5",
+  "purpose": "Coordinate chapter-range requests that convert selected chapters from research/タートルズ・トレンドフォロー戦略.md into middle-school-friendly Japanese Markdown files.",
+  "trigger_examples": [
+    "research/タートルズ・トレンドフォロー戦略.md の 3 章を中学生でも分かるように解説して",
+    "research/タートルズ・トレンドフォロー戦略.md の 3～5 章を中学生でも分かるように解説して",
+    "タートルズ・トレンドフォロー戦略.md の第6章から第8章を中学生向けに説明して"
+  ],
+  "global_constraints": {
+    "source_file_must_not_be_modified": true,
+    "output_directory": "research",
+    "final_outputs_must_be_formula_free": true,
+    "must_not_be_investment_advice": true,
+    "preserve_source_meaning": true,
+    "max_revision_loops": 3,
+    "subagent_model": "gpt5.4"
+  },
+  "agents": {
+    "range_parser": {
+      "display_name": "Range Parser Agent",
+      "file": ".codex/agents/range-parser-agent.json",
+      "skill": "chapter-range-parser"
+    },
+    "chapter_extractor": {
+      "display_name": "Chapter Extractor Agent",
+      "file": ".codex/agents/chapter-extractor-agent.json",
+      "skill": "chapter-extractor"
+    },
+    "explainer": {
+      "display_name": "Explainer Agent",
+      "file": ".codex/agents/explainer-agent.json",
+      "skill": "middle-school-rewriter"
+    },
+    "formula_cleaner": {
+      "display_name": "Formula Cleaner Agent",
+      "file": ".codex/agents/formula-cleaner-agent.json",
+      "skill": "formula-free-explainer"
+    },
+    "student_review": {
+      "display_name": "Student Review Agent",
+      "file": ".codex/agents/student-review-agent.json",
+      "skill": "student-reviewer"
+    },
+    "fidelity_review": {
+      "display_name": "Fidelity Review Agent",
+      "file": ".codex/agents/fidelity-review-agent.json",
+      "skill": "fidelity-reviewer"
+    },
+    "revision": {
+      "display_name": "Revision Agent",
+      "file": ".codex/agents/revision-agent.json",
+      "skill": "revision-integrator"
+    },
+    "file_writer": {
+      "display_name": "File Writer Agent",
+      "file": ".codex/agents/file-writer-agent.json",
+      "skill": "research-file-writer"
+    },
+    "final_audit": {
+      "display_name": "Final Audit Agent",
+      "file": ".codex/agents/final-audit-agent.json",
+      "skill": "final-output-auditor"
+    }
+  },
+  "workflow": [
+    {
+      "step": "parse_request",
+      "agent": "range_parser",
+      "mode": "single",
+      "input": {
+        "user_instruction": "{{user_instruction}}",
+        "default_source_file": "research/タートルズ・トレンドフォロー戦略.md",
+        "allowed_chapter_range": "3-11"
+      },
+      "output": "chapter_range_payload",
+      "on_error": "return_to_user"
+    },
+    {
+      "step": "create_chapter_jobs",
+      "mode": "orchestrator",
+      "description": "Create one independent job per requested chapter. Each job carries source_file, chapter_number, next_chapter_number, expected output path, and shared quality criteria."
+    },
+    {
+      "step": "process_chapters",
+      "mode": "parallel_by_chapter",
+      "per_chapter_sequence": [
+        {
+          "agent": "chapter_extractor",
+          "output": "chapter_source_payload"
+        },
+        {
+          "agent": "explainer",
+          "output": "draft_payload"
+        },
+        {
+          "agent": "formula_cleaner",
+          "output": "formula_free_payload"
+        },
+        {
+          "mode": "parallel_reviews",
+          "agents": [
+            {
+              "agent": "student_review",
+              "output": "student_review_payload"
+            },
+            {
+              "agent": "fidelity_review",
+              "output": "fidelity_review_payload"
+            }
+          ]
+        },
+        {
+          "agent": "revision",
+          "output": "final_markdown_payload"
+        },
+        {
+          "agent": "file_writer",
+          "output": "file_write_payload"
+        }
+      ],
+      "on_error": "return_failed_chapter_to_orchestrator"
+    },
+    {
+      "step": "final_audit",
+      "agent": "final_audit",
+      "mode": "single_after_all_chapters",
+      "input": {
+        "chapters": "{{chapter_range_payload.chapters}}",
+        "expected_output_files": "{{all_expected_output_files}}",
+        "written_files": "{{all_file_write_payloads}}",
+        "source_file": "{{chapter_range_payload.source_file}}"
+      },
+      "output": "audit_payload"
+    },
+    {
+      "step": "revision_loop",
+      "mode": "conditional",
+      "condition": "audit_payload.pass == false",
+      "max_attempts": 3,
+      "description": "For each file requiring revision, rerun revision, student review, fidelity review, file writer, and final audit for only the failed chapter."
+    },
+    {
+      "step": "final_report",
+      "mode": "orchestrator",
+      "description": "Report saved files, audit result, any revision loops used, and unresolved issues."
+    }
+  ],
+  "chapter_job_payload": {
+    "source_file": "{{chapter_range_payload.source_file}}",
+    "chapter_number": "{{chapter_number}}",
+    "next_chapter_number": "{{chapter_number + 1}}",
+    "output_file_path": "research/中学生向け_第{{zero_padded_chapter_number}}章_{{safe_chapter_title}}.md",
+    "quality_criteria": {
+      "student_readability_score_min": 85,
+      "source_fidelity_score_min": 90,
+      "no_formulas": true,
+      "no_investment_advice": true,
+      "preserve_risk_warnings": true
+    }
+  },
+  "final_report_format": {
+    "language": "ja",
+    "include": [
+      "対象ファイル",
+      "対象章",
+      "保存ファイル一覧",
+      "最終監査結果",
+      "修正ループ回数",
+      "未解決事項"
+    ]
+  }
+}
