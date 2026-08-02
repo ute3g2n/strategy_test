@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D11 共通実行モデル設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code, pre { font-family: Consolas, "Courier New", monospace; }
+    pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .warn { border-left-color: #b45309; background: #fff7ed; }
+    .ok { border-left-color: #15803d; background: #f0fdf4; }
+    .toc ul { columns: 2; }
+    details { border: 1px solid #d9e2ec; padding: 10px 12px; margin: 10px 0; background: #fbfdff; }
+    summary { font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>D11 共通実行モデル設計書</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 初期レビュー反映済み / <strong>作成日:</strong> 2026-08-03 / <strong>ステップ:</strong> P1-07</p>
+    <p><strong>オーケストレータ:</strong> <code>AutoTradePhase1_Orchestrator_v0_1</code></p>
+    <p><strong>担当:</strong> <code>AutoTradePhase1_A05_ExecutionModelArchitect_v0_1</code>, <code>AutoTradePhase1_A10_QaArchitect_v0_1</code></p>
+    <p><strong>使用Skill:</strong> <code>autotrade_phase1_skill_execution_model_v0_1</code>, <code>autotrade_phase1_skill_test_strategy_v0_1</code>, <code>autotrade_phase1_skill_html_doc_writer_v0_1</code></p>
+  </div>
+
+  <section id="summary">
+    <h2>要約</h2>
+    <p>本書は、Backtest / Shadow / Paper / Liveを同じイベント意味論で実行するためのPhase 1共通実行モデルを定義する。証券会社内蔵バックテストへ依存せず、履歴イベントリプレイとリアルタイムイベント処理を同じPort、同じ状態遷移、同じ監査単位で扱う。</p>
+    <p>Phase 1では、取引エンジン実装クラス、スレッドモデル、永続化テーブル、Broker API詳細を固定しない。固定するのは、Run、Manifest、Event Stream、Environment差分、Gate、復旧時に必要な最小監査情報である。</p>
+  </section>
+
+  <nav class="toc">
+    <h2>目次</h2>
+    <ul>
+      <li><a href="#inputs">入力</a></li>
+      <li><a href="#scope">対象と非対象</a></li>
+      <li><a href="#principles">設計原則</a></li>
+      <li><a href="#modes">実行モード</a></li>
+      <li><a href="#event-loop">イベント処理モデル</a></li>
+      <li><a href="#manifest">Run Manifest</a></li>
+      <li><a href="#environment">環境差分の吸収</a></li>
+      <li><a href="#recovery">再起動復旧</a></li>
+      <li><a href="#gates">品質Gate</a></li>
+      <li><a href="#traceability">要件追跡</a></li>
+      <li><a href="#decisions">設計判断</a></li>
+      <li><a href="#unknowns">未確定事項</a></li>
+      <li><a href="#review">レビュー履歴</a></li>
+      <li><a href="#links">関連文書リンク</a></li>
+      <li><a href="#handoff">後続Phase引き継ぎ</a></li>
+    </ul>
+  </nav>
+
+  <section id="inputs">
+    <h2>入力</h2>
+    <ul>
+      <li><a href="../01_要件追跡/01_要件追跡マトリクス.html">D02 要件追跡マトリクス</a></li>
+      <li><a href="../02_全体設計/02_システム全体構成設計書.html">D03 システム全体構成設計書</a></li>
+      <li><a href="../03_ドメイン設計/03_モジュール責務データフロー設計書.html">D05 モジュール責務データフロー設計書</a></li>
+      <li><a href="../04_共通モデル/04_共通ドメインモデル設計書.html">D06 共通ドメインモデル設計書</a></li>
+      <li><a href="../05_戦略設計/05_Strategy_Plugin_Interface設計書.html">D08 Strategy Plugin Interface設計書</a></li>
+      <li><a href="../06_アダプター境界/06_Adapter境界設計書.html">D10 Adapter境界設計書</a></li>
+    </ul>
+  </section>
+
+  <section id="scope">
+    <h2>対象と非対象</h2>
+    <table>
+      <tr><th>区分</th><th>内容</th></tr>
+      <tr><td>対象</td><td>Backtest / Shadow / Paper / Live共通のRun概念、イベント入力、状態遷移、監査証跡、復旧単位、環境差分、品質Gate。</td></tr>
+      <tr><td>非対象</td><td>個別エンジン採用決定、Broker接続実装、注文例外全パターン、低レベル並行処理、DB物理設計、Live本番運用手順全文。</td></tr>
+      <tr><td>詳細設計バックログ</td><td>Phase 2でデータ再生とCatalog詳細、Phase 3でBacktest実装、Phase 4でPaper/Live接続と再同期詳細を決める。</td></tr>
+    </table>
+  </section>
+
+  <section id="principles">
+    <h2>設計原則</h2>
+    <table>
+      <tr><th>ID</th><th>原則</th><th>理由</th></tr>
+      <tr><td>EXE-PR-01</td><td>履歴リプレイとリアルタイム処理は同じEvent Engineへ入力する。</td><td>Backtest専用コードがLive前提を壊すことを防ぐ。</td></tr>
+      <tr><td>EXE-PR-02</td><td>Backtestは証券会社内蔵バックテストへ依存しない。</td><td>Broker変更やAPI制約から研究再現性を分離する。</td></tr>
+      <tr><td>EXE-PR-03</td><td>Shadow / Paper / Liveの差分はAdapterとEnvironment Profileで吸収する。</td><td>Strategy、Risk、OMSの意味論を実行モードで分岐させない。</td></tr>
+      <tr><td>EXE-PR-04</td><td>すべてのRunはManifestで再現可能性を説明できる。</td><td>データ、設定、コード、Gate結果を監査可能にする。</td></tr>
+      <tr><td>EXE-PR-05</td><td>安全停止はイベントとして記録し、復旧前にReconciliationを必須にする。</td><td>状態不明のまま新規注文へ進む事故を避ける。</td></tr>
+    </table>
+  </section>
+
+  <section id="modes">
+    <h2>実行モード</h2>
+    <table>
+      <tr><th>モード</th><th>MarketEvent入力</th><th>OrderEvent入力</th><th>外部副作用</th><th>主なGate</th></tr>
+      <tr><td>Backtest</td><td>保存済みRaw / Normalizedから決定的に再生する。</td><td>Simulatorが生成する。</td><td>なし。</td><td>データバージョン固定、Look-ahead禁止、Golden test一致。</td></tr>
+      <tr><td>Shadow</td><td>Live相当の市場データを読む。</td><td>注文送信せず仮想ExecutionReportを生成する。</td><td>なし。</td><td>Heartbeat、遅延、欠損、Intent監査。</td></tr>
+      <tr><td>Paper</td><td>Live相当の市場データを読む。</td><td>Broker Paperまたは検証口座から正規化する。</td><td>Paper注文のみ。</td><td>Paper権限、Kill Switch、Open Order再同期。</td></tr>
+      <tr><td>Live</td><td>Live市場データを読む。</td><td>Broker Adapterから正規化する。</td><td>実注文。</td><td>Phase 1では設計対象外。Phase 5以降のHuman Gate必須。</td></tr>
+    </table>
+  </section>
+
+  <section id="event-loop">
+    <h2>イベント処理モデル</h2>
+    <pre>Event Source
+  -> Event Envelope(event_id, run_id, source, event_time_utc, received_at_utc, seq, checksum)
+  -> Event Store append
+  -> Event Engine dispatch
+  -> Strategy / Risk / OMS / Adapter ports
+  -> Output Events and Decisions append
+  -> Health and Gate evaluation</pre>
+    <table>
+      <tr><th>論点</th><th>方針</th></tr>
+      <tr><td>順序</td><td>同一source内はsource_seqを優先する。sourceを跨ぐ順序はevent_time_utcとreceived_at_utcを併記し、決定的な並べ替え規則をManifestに残す。</td></tr>
+      <tr><td>重複</td><td>event_id、source_seq、checksumの組み合わせで重複排除する。排除した事実も監査イベントとして残す。</td></tr>
+      <tr><td>Timer</td><td>バー確定、Heartbeat、日次締め、ReconciliationをTimerEventで表現し、市場データと同じEvent Engineに流す。</td></tr>
+      <tr><td>Health</td><td>Adapter遅延、データ欠損、Broker状態不明、Store書込失敗はHealthEventとして扱い、停止判断の入力にする。</td></tr>
+    </table>
+  </section>
+
+  <section id="manifest">
+    <h2>Run Manifest</h2>
+    <table>
+      <tr><th>項目</th><th>意味</th><th>必須度</th></tr>
+      <tr><td>run_id</td><td>1回の実行を識別するID。Backtest / Shadow / Paper / Liveで共通。</td><td>必須</td></tr>
+      <tr><td>experiment_manifest_id</td><td>研究・検証目的、対象市場、検証範囲、評価観点への参照。</td><td>Backtest / Shadowで必須</td></tr>
+      <tr><td>data_version</td><td>Raw Store、Normalized Store、Catalog、roll ruleのバージョン。</td><td>必須</td></tr>
+      <tr><td>config_version</td><td>Strategy Config、Risk Config、OMS Config、Environment Profileのバージョン。</td><td>必須</td></tr>
+      <tr><td>code_revision</td><td>実行コードのcommit SHAまたは成果物版。</td><td>必須</td></tr>
+      <tr><td>engine_profile</td><td>採用候補エンジン、実行モード、シミュレータ設定、Adapter設定。</td><td>必須</td></tr>
+      <tr><td>gate_results</td><td>機械GateとHuman Gateの結果、承認者、日時。</td><td>昇格時必須</td></tr>
+    </table>
+  </section>
+
+  <section id="environment">
+    <h2>環境差分の吸収</h2>
+    <table>
+      <tr><th>差分</th><th>吸収場所</th><th>Coreへ漏らさないもの</th></tr>
+      <tr><td>Broker接続、Paper口座、Live口座</td><td>Broker Adapter / Environment Profile</td><td>Broker固有orderId、clientId、認証情報、接続手順。</td></tr>
+      <tr><td>Market Data取得元、遅延、欠損</td><td>Market Data Adapter / Catalog / Data Quality</td><td>ベンダ固有symbol、配信API型、再取得ジョブ詳細。</td></tr>
+      <tr><td>約定モデル</td><td>Simulator Profile / PoC設定</td><td>Backtest専用の便宜的FillをStrategy判断へ混入しない。</td></tr>
+      <tr><td>通知、監視、停止</td><td>Monitoring / Ops Profile</td><td>通知先、Secret、環境固有URL。</td></tr>
+    </table>
+  </section>
+
+  <section id="recovery">
+    <h2>再起動復旧</h2>
+    <table>
+      <tr><th>復旧対象</th><th>最低限必要な情報</th><th>復旧後の扱い</th></tr>
+      <tr><td>Event Engine</td><td>最後に処理済みのevent_id、source_seq、Manifest、Event Store位置。</td><td>未処理イベントから再開する。</td></tr>
+      <tr><td>Strategy</td><td>strategy snapshot、config_version、最後にemitしたintent_id。</td><td>snapshot復元後、重複Intentを禁止する。</td></tr>
+      <tr><td>OMS</td><td>client_order_id、Order状態、外部ID対応、未完了注文。</td><td>Broker照合完了まで新規注文停止。</td></tr>
+      <tr><td>Portfolio / Risk</td><td>Position、AccountSnapshot、RiskSnapshot、Kill Switch状態。</td><td>状態差分がある場合はHuman Gateへ送る。</td></tr>
+    </table>
+  </section>
+
+  <section id="gates">
+    <h2>品質Gate</h2>
+    <table>
+      <tr><th>Gate</th><th>合格条件</th><th>失敗時</th></tr>
+      <tr><td>Replay Gate</td><td>同一Manifestで同一OrderIntent系列を再現できる。</td><td>データまたは非決定性を調査する。</td></tr>
+      <tr><td>Bias Gate</td><td>Look-ahead、survivorship bias、未確定バー参照が検出されない。</td><td>該当検証を無効にする。</td></tr>
+      <tr><td>Recovery Gate</td><td>再起動後に重複注文、欠落Fill、Position不一致が発生しない。</td><td>Paper昇格不可。</td></tr>
+      <tr><td>Safety Gate</td><td>Heartbeat欠損、Broker状態不明、Data欠損でfail-closedする。</td><td>PoC候補から減点または除外する。</td></tr>
+      <tr><td>Human Gate</td><td>PoC採点、Unknown、運用リスク、Phase 2/4バックログを人間が承認する。</td><td>次Phaseへ進めない。</td></tr>
+    </table>
+  </section>
+
+  <section id="traceability">
+    <h2>要件追跡</h2>
+    <table>
+      <tr><th>追跡ID</th><th>対応</th></tr>
+      <tr><td>REQ-Q02</td><td>研究用コードと本番運用コードをRun Manifest、Environment Profile、Adapter境界で分離する。</td></tr>
+      <tr><td>REQ-Q07</td><td>Broker依存を実行モデルへ混ぜず、Paper/Live差分をAdapterで吸収する。</td></tr>
+      <tr><td>REQ-Q19 / REQ-OD03</td><td>ロール規則、連続足、データバージョンをManifest管理する。</td></tr>
+      <tr><td>REQ-Q25-Q27</td><td>安全停止、監査、復旧、Human Gateを共通実行モデルへ含める。</td></tr>
+      <tr><td>REQ-OD02</td><td>取引エンジン最終決定に必要な証拠条件をD12 PoC評価設計へ接続する。</td></tr>
+    </table>
+  </section>
+
+  <section id="decisions">
+    <h2>設計判断</h2>
+    <details open><summary>DEC-P1-EXE-01: イベント駆動をBacktestからLiveまで共通化する</summary><p>Strategy、Risk、OMSを同じEvent Envelopeで動かし、モード差分はEvent Source、Adapter、Environment Profileで吸収する。</p></details>
+    <details open><summary>DEC-P1-EXE-02: Broker内蔵Backtestへ依存しない</summary><p>研究再現性、データ版管理、Broker変更耐性を確保するため、内部Event StoreとSimulatorを正本にする。</p></details>
+    <details open><summary>DEC-P1-EXE-03: Run Manifestを昇格判定の単位にする</summary><p>PoC、Backtest、Shadow、Paperの結果を比較可能にし、Phase 1でエンジン採否を判断できる証跡を残す。</p></details>
+  </section>
+
+  <section id="unknowns">
+    <h2>未確定事項</h2>
+    <table>
+      <tr><th>ID</th><th>内容</th><th>処理方針</th></tr>
+      <tr><td>UNK-P1-EXE-01</td><td>採用候補エンジンごとのEvent Store拡張性と永続化方式。</td><td>P1-07 PoC評価、Phase 3実装候補調査で確認する。</td></tr>
+      <tr><td>UNK-P1-EXE-02</td><td>Paper接続時のBroker再同期に必要な最小頻度。</td><td>Phase 4 Broker詳細設計で確認する。</td></tr>
+      <tr><td>UNK-P1-EXE-03</td><td>ShadowでLive相当データをどの遅延許容で扱うか。</td><td>Phase 2 Market Data詳細設計で決める。</td></tr>
+    </table>
+  </section>
+
+  <section id="review">
+    <h2>レビュー履歴</h2>
+    <table>
+      <tr><th>日付</th><th>観点</th><th>反映内容</th></tr>
+      <tr><td>2026-08-03</td><td>A12 要件対応・整合性</td><td>D03、D06、D10のイベント、ID、Adapter境界、fail-closed方針と整合するよう修正。</td></tr>
+      <tr><td>2026-08-03</td><td>A13 安全性</td><td>Live実資金機能をPhase 1対象外とし、Paper昇格前のRecovery GateとSafety Gateを明示。</td></tr>
+    </table>
+  </section>
+
+  <section id="links">
+    <h2>関連文書リンク</h2>
+    <ul>
+      <li><a href="./07_取引エンジンPoC評価設計書.html">D12 取引エンジンPoC評価設計書</a></li>
+      <li><a href="../06_アダプター境界/06_Adapter境界設計書.html">D10 Adapter境界設計書</a></li>
+      <li><a href="../05_戦略設計/05_Turtle_Golden_test設計書.html">D09 Turtle Golden test設計書</a></li>
+    </ul>
+  </section>
+
+  <section id="handoff">
+    <h2>後続Phase引き継ぎ</h2>
+    <p>Phase 2はデータバージョン、Catalog、リプレイ入力を本書のManifestに接続する。Phase 3はBacktest実装とGolden testを本書のReplay Gateへ接続する。Phase 4はPaper接続、Broker再同期、Kill Switchを本書のRecovery GateとSafety Gateへ接続する。</p>
+  </section>
+</main>
+</body>
+</html>

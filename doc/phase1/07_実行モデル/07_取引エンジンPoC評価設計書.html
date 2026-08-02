@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D12 取引エンジンPoC評価設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code, pre { font-family: Consolas, "Courier New", monospace; }
+    pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .warn { border-left-color: #b45309; background: #fff7ed; }
+    .ok { border-left-color: #15803d; background: #f0fdf4; }
+    .toc ul { columns: 2; }
+    details { border: 1px solid #d9e2ec; padding: 10px 12px; margin: 10px 0; background: #fbfdff; }
+    summary { font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>D12 取引エンジンPoC評価設計書</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 初期レビュー反映済み / <strong>作成日:</strong> 2026-08-03 / <strong>ステップ:</strong> P1-07</p>
+    <p><strong>オーケストレータ:</strong> <code>AutoTradePhase1_Orchestrator_v0_1</code></p>
+    <p><strong>担当:</strong> <code>AutoTradePhase1_A06_EnginePocAnalyst_v0_1</code>, <code>AutoTradePhase1_A10_QaArchitect_v0_1</code></p>
+    <p><strong>使用Skill:</strong> <code>autotrade_phase1_skill_poc_design_v0_1</code>, <code>autotrade_phase1_skill_official_research_v0_1</code>, <code>autotrade_phase1_skill_test_strategy_v0_1</code>, <code>autotrade_phase1_skill_html_doc_writer_v0_1</code></p>
+  </div>
+
+  <section id="summary">
+    <h2>要約</h2>
+    <p>本書は、NautilusTrader、LEAN / QuantConnect系、その他候補エンジンをPhase 1で比較するためのPoC評価設計である。目的は「好みで決める」ことではなく、OD-02 取引エンジン最終決定に足る証拠条件を明確にすることである。</p>
+    <p>PoCは実資金機能へ踏み込まない。Paper接続を扱う場合も、接続性、注文状態、再同期、安全停止の検証に限定し、Live注文や実運用Runbookの確定は後続Phaseへ送る。</p>
+  </section>
+
+  <nav class="toc">
+    <h2>目次</h2>
+    <ul>
+      <li><a href="#inputs">入力</a></li>
+      <li><a href="#scope">対象と非対象</a></li>
+      <li><a href="#official">公式一次情報</a></li>
+      <li><a href="#candidates">候補エンジン評価観点</a></li>
+      <li><a href="#scenarios">PoCシナリオ</a></li>
+      <li><a href="#scorecard">採点表</a></li>
+      <li><a href="#human-gate">Human Gate</a></li>
+      <li><a href="#evidence">最終決定の証拠条件</a></li>
+      <li><a href="#traceability">要件追跡</a></li>
+      <li><a href="#decisions">設計判断</a></li>
+      <li><a href="#unknowns">未確定事項</a></li>
+      <li><a href="#review">レビュー履歴</a></li>
+      <li><a href="#links">関連文書リンク</a></li>
+      <li><a href="#handoff">後続Phase引き継ぎ</a></li>
+    </ul>
+  </nav>
+
+  <section id="inputs">
+    <h2>入力</h2>
+    <ul>
+      <li><a href="./07_共通実行モデル設計書.html">D11 共通実行モデル設計書</a></li>
+      <li><a href="../05_戦略設計/05_Turtle_Golden_test設計書.html">D09 Turtle Golden test設計書</a></li>
+      <li><a href="../06_アダプター境界/06_Adapter境界設計書.html">D10 Adapter境界設計書</a></li>
+      <li><a href="../01_要件追跡/01_要件追跡マトリクス.html">D02 要件追跡マトリクス</a></li>
+    </ul>
+  </section>
+
+  <section id="scope">
+    <h2>対象と非対象</h2>
+    <table>
+      <tr><th>区分</th><th>内容</th></tr>
+      <tr><td>対象</td><td>NautilusTrader、LEAN / QuantConnect系、その他候補のPoC評価軸、シナリオ、採点、Human Gate、最終決定に必要な証拠条件。</td></tr>
+      <tr><td>非対象</td><td>実資金Live接続、Broker認証情報、全Broker対応、クラウド運用契約、商用費用の最終見積、全注文タイプ網羅。</td></tr>
+      <tr><td>詳細設計バックログ</td><td>Phase 3でBacktest実装適合、Phase 4でPaper接続・再同期、Phase 5以降でLive運用適合を検証する。</td></tr>
+    </table>
+  </section>
+
+  <section id="official">
+    <h2>公式一次情報</h2>
+    <table>
+      <tr><th>対象</th><th>確認事項</th><th>URL</th><th>確認日</th><th>Phase 1での扱い</th></tr>
+      <tr><td>NautilusTrader</td><td>BacktestとLiveで同じactors、strategies、execution algorithmsを使う方針、Live運用時のreconciliation。</td><td><a href="https://nautilustrader.io/docs/latest/concepts/live/">NautilusTrader Live Trading</a></td><td>2026-08-03</td><td>共通実行モデルとの親和性を評価する。</td></tr>
+      <tr><td>NautilusTrader</td><td>event-driven design、fail-fast recovery、backtesting、live tradingの概念。</td><td><a href="https://nautilustrader.io/docs/latest/">NautilusTrader Documentation</a></td><td>2026-08-03</td><td>イベント駆動、復旧、Adapter構造を評価する。</td></tr>
+      <tr><td>NautilusTrader</td><td>Data、Execution、Live TradingでAdapterを使う構造。</td><td><a href="https://nautilustrader.io/docs/latest/concepts/adapters/">NautilusTrader Adapters</a></td><td>2026-08-03</td><td>D10 Adapter境界との適合を確認する。</td></tr>
+      <tr><td>LEAN</td><td>Open-source engine、research / backtesting / live trading、Python 3.11 / C#対応。</td><td><a href="https://www.quantconnect.com/docs/v2/lean-engine/getting-started">LEAN Engine Getting Started</a></td><td>2026-08-03</td><td>実装言語、ローカル運用、拡張性を評価する。</td></tr>
+      <tr><td>QuantConnect / LEAN</td><td>Brokerage接続、Paper Trading、Interactive Brokersなどの対応範囲。</td><td><a href="https://www.quantconnect.com/docs/v2/cloud-platform/live-trading/brokerages">QuantConnect Brokerages</a></td><td>2026-08-03</td><td>Broker依存とクラウド/ローカル差分を評価する。</td></tr>
+    </table>
+  </section>
+
+  <section id="candidates">
+    <h2>候補エンジン評価観点</h2>
+    <table>
+      <tr><th>観点</th><th>NautilusTraderで確認すること</th><th>LEAN / QuantConnect系で確認すること</th><th>合否判断</th></tr>
+      <tr><td>共通実行</td><td>BacktestとLiveでStrategy / Executionの意味論が揃うか。</td><td>Research、Backtest、LiveのAPI差分とローカル実行差分が許容できるか。</td><td>D11 Event Envelopeを無理なく実装できること。</td></tr>
+      <tr><td>Adapter境界</td><td>Data Adapter、Execution Adapterで外部依存を閉じ込められるか。</td><td>Brokerage / Data provider連携を内部Portへ隔離できるか。</td><td>D10の外部ID非漏洩を満たすこと。</td></tr>
+      <tr><td>再現性</td><td>同一データ、同一設定でリプレイ結果が決定的か。</td><td>ローカルBacktestとクラウド/CLI差分を説明できるか。</td><td>Run Manifestで再実行可能であること。</td></tr>
+      <tr><td>注文状態</td><td>Entry / Add / Stop / Exit、部分約定、取消、拒否をモデル化できるか。</td><td>Brokerageごとの注文状態差分を標準状態へ写像できるか。</td><td>D06の注文ライフサイクルに写像できること。</td></tr>
+      <tr><td>安全停止</td><td>Heartbeat欠損、接続断、状態不明で停止できるか。</td><td>Brokerage / data provider障害を検知し、停止イベントを出せるか。</td><td>fail-closedをテストで示すこと。</td></tr>
+      <tr><td>運用性</td><td>ログ、監査、再起動、設定管理が十分か。</td><td>ローカル運用、クラウド依存、CLI、ログ取得が十分か。</td><td>Paper昇格前に運用証跡を残せること。</td></tr>
+      <tr><td>拡張性</td><td>Python/Rust境界、カスタムデータ、複数市場に耐えるか。</td><td>Python/C#、データプロバイダ、Brokerage追加に耐えるか。</td><td>Phase 2-4の詳細設計を塞がないこと。</td></tr>
+    </table>
+  </section>
+
+  <section id="scenarios">
+    <h2>PoCシナリオ</h2>
+    <table>
+      <tr><th>ID</th><th>シナリオ</th><th>入力</th><th>期待結果</th><th>禁止事項</th></tr>
+      <tr><td>POC-01</td><td>1市場20日breakout</td><td>固定OHLCV、固定Strategy Config、固定Risk Config。</td><td>Entry / Exit Intent系列がGolden testと一致する。</td><td>未確定バー、未来データ、手修正データを使わない。</td></tr>
+      <tr><td>POC-02</td><td>1分足リプレイ</td><td>1分足MarketEvent、TimerEvent、欠損フラグ。</td><td>同一Manifestで同一結果。欠損時はHealthEventを出す。</td><td>順序非決定性を黙認しない。</td></tr>
+      <tr><td>POC-03</td><td>Entry / Add / Stop / Exit</td><td>N、Donchian、0.5N追加、2N Stop。</td><td>OrderIntent、Risk判定、OMS状態がD06/D08/D09と一致する。</td><td>StrategyがRisk/OMS責務を持たない。</td></tr>
+      <tr><td>POC-04</td><td>部分約定</td><td>部分Fill、残数量、約定時刻。</td><td>Position、Order状態、監査ログが正しく更新される。</td><td>部分約定を全約定として扱わない。</td></tr>
+      <tr><td>POC-05</td><td>再起動復旧</td><td>途中停止後のEvent Store、Strategy snapshot、Open Order。</td><td>重複注文なく復旧し、状態不明時は新規注文を止める。</td><td>復旧不能状態で継続しない。</td></tr>
+      <tr><td>POC-06</td><td>IBKR Paper接続</td><td>Paper口座、最小数量、権限、Broker Adapter試験設定。</td><td>Order Ack、Fill、Cancel、Positionが標準イベントへ写像される。</td><td>実資金Live注文を行わない。</td></tr>
+      <tr><td>POC-07</td><td>Open order / Fill / Position再同期</td><td>Broker側未完了注文、約定、内部OMS状態。</td><td>差分検出、ExternalIdMapping、UnknownExternalStateを記録する。</td><td>差分を自動で都合よく補正しない。</td></tr>
+      <tr><td>POC-08</td><td>Heartbeat通知</td><td>Market Data遅延、Broker接続断、Event Store書込失敗。</td><td>HealthEvent、通知、fail-closedが発火する。</td><td>通知のみで取引継続しない。</td></tr>
+    </table>
+  </section>
+
+  <section id="scorecard">
+    <h2>採点表</h2>
+    <table>
+      <tr><th>カテゴリ</th><th>重み</th><th>採点基準</th><th>最低条件</th></tr>
+      <tr><td>共通実行モデル適合</td><td>20</td><td>D11のEvent Envelope、Manifest、Mode差分吸収を自然に実装できる。</td><td>15点以上</td></tr>
+      <tr><td>データ再現性</td><td>15</td><td>Raw/Normalized/Catalog版を固定し、同一リプレイを再現できる。</td><td>10点以上</td></tr>
+      <tr><td>注文・約定モデル</td><td>15</td><td>Entry/Add/Stop/Exit、部分約定、取消、拒否を標準状態へ写像できる。</td><td>10点以上</td></tr>
+      <tr><td>Broker / Data Adapter境界</td><td>15</td><td>D10の外部ID隔離、Adapter責務、非責務を満たす。</td><td>10点以上</td></tr>
+      <tr><td>安全停止・復旧</td><td>15</td><td>Heartbeat、接続断、状態不明、再起動復旧でfail-closedできる。</td><td>12点以上</td></tr>
+      <tr><td>開発運用性</td><td>10</td><td>ローカル実行、CI、ログ、テスト、設定管理が扱いやすい。</td><td>6点以上</td></tr>
+      <tr><td>将来拡張性</td><td>10</td><td>複数市場、複数Broker、Strategy Plugin、研究/本番境界を塞がない。</td><td>6点以上</td></tr>
+    </table>
+    <div class="warn">
+      <p><strong>除外条件:</strong> 実資金なしで安全停止を検証できない、同一Manifestのリプレイ結果が安定しない、Broker外部IDがStrategy/Riskへ漏れる、Look-aheadを防げない候補は総点に関係なく採用不可とする。</p>
+    </div>
+  </section>
+
+  <section id="human-gate">
+    <h2>Human Gate</h2>
+    <table>
+      <tr><th>Gate</th><th>承認対象</th><th>承認者が確認すること</th></tr>
+      <tr><td>H1-2</td><td>PoC評価基準</td><td>採点表、シナリオ、除外条件がOD-02判断に十分か。</td></tr>
+      <tr><td>H1-3</td><td>PoC結果</td><td>ログ、Manifest、再現手順、失敗シナリオ、Unknownが揃っているか。</td></tr>
+      <tr><td>H1-4</td><td>取引エンジン最終決定</td><td>採用理由、不採用理由、Phase 2-4への影響、移行コストが明確か。</td></tr>
+    </table>
+  </section>
+
+  <section id="evidence">
+    <h2>取引エンジン最終決定の証拠条件</h2>
+    <ol>
+      <li>全PoCシナリオのManifest、入力データ、設定、ログ、期待結果、実結果が保存されている。</li>
+      <li>同一Manifestで少なくとも2回再実行し、OrderIntent系列、Order状態、Position結果が一致している。</li>
+      <li>部分約定、再起動復旧、Open order / Fill / Position再同期、Heartbeat欠損の失敗注入テストが通過している。</li>
+      <li>公式一次情報に基づく制約と、未確認事項が台帳化されている。</li>
+      <li>採用候補がPhase 2 Market Data、Phase 3 Strategy / Backtest、Phase 4 Broker / Paperの設計を塞がないことを説明できる。</li>
+      <li>除外条件に該当しないことをA12/A13観点でレビュー済みである。</li>
+    </ol>
+  </section>
+
+  <section id="traceability">
+    <h2>要件追跡</h2>
+    <table>
+      <tr><th>追跡ID</th><th>対応</th></tr>
+      <tr><td>REQ-OD02</td><td>取引エンジン最終決定に必要なPoCシナリオ、採点表、Human Gate、証拠条件を定義する。</td></tr>
+      <tr><td>REQ-Q02</td><td>研究用Backtestと本番運用を同じ意味論で比較しつつ、実資金機能はPhase 1 PoCから除外する。</td></tr>
+      <tr><td>REQ-Q07</td><td>IBKR Paper接続はBroker Adapter境界検証として扱い、採用候補のBroker依存漏れを確認する。</td></tr>
+      <tr><td>REQ-Q25-Q27</td><td>安全停止、Heartbeat、再起動復旧、監査ログをPoC必須シナリオに含める。</td></tr>
+      <tr><td>REQ-POL03</td><td>外部仕様は公式一次情報で確認し、Phase 1では詳細APIを固定しすぎない。</td></tr>
+    </table>
+  </section>
+
+  <section id="decisions">
+    <h2>設計判断</h2>
+    <details open><summary>DEC-P1-POC-01: PoCで最終決定の証拠を作る</summary><p>エンジン選定を嗜好や知名度で決めず、再現性、安全停止、Adapter境界、運用性の証拠で決める。</p></details>
+    <details open><summary>DEC-P1-POC-02: Paper接続は検証までに限定する</summary><p>IBKR Paper接続は注文状態と再同期の検証に使うが、実資金Live接続や運用手順の確定には進めない。</p></details>
+    <details open><summary>DEC-P1-POC-03: 除外条件を総点より優先する</summary><p>高機能でも、安全停止、再現性、ID境界、Look-ahead防止を満たさない候補は採用不可とする。</p></details>
+  </section>
+
+  <section id="unknowns">
+    <h2>未確定事項</h2>
+    <table>
+      <tr><th>ID</th><th>内容</th><th>処理方針</th></tr>
+      <tr><td>UNK-P1-POC-01</td><td>NautilusTraderとLEANでDatabento/IBKR連携をどの範囲まで標準機能で扱えるか。</td><td>公式docsと小規模PoCで確認し、足りない部分はAdapter実装バックログへ送る。</td></tr>
+      <tr><td>UNK-P1-POC-02</td><td>対象市場の注文タイプ、取引時間、手数料、スリッページ設定の最小セット。</td><td>Phase 2/3の対象市場確定後に詳細化する。</td></tr>
+      <tr><td>UNK-P1-POC-03</td><td>クラウドQuantConnect利用とローカルLEAN利用の運用制約差。</td><td>PoC時にライセンス、データ、Broker接続、ログ取得を比較する。</td></tr>
+    </table>
+  </section>
+
+  <section id="review">
+    <h2>レビュー履歴</h2>
+    <table>
+      <tr><th>日付</th><th>観点</th><th>反映内容</th></tr>
+      <tr><td>2026-08-03</td><td>A12 要件対応</td><td>OD-02、Q02、Q07、Q25-Q27、P1-06 Adapter境界との対応を追跡表へ反映。</td></tr>
+      <tr><td>2026-08-03</td><td>A13 安全性</td><td>実資金LiveをPoC対象外とし、除外条件、fail-closed、Human Gateを明示。</td></tr>
+    </table>
+  </section>
+
+  <section id="links">
+    <h2>関連文書リンク</h2>
+    <ul>
+      <li><a href="./07_共通実行モデル設計書.html">D11 共通実行モデル設計書</a></li>
+      <li><a href="../06_アダプター境界/06_Adapter境界設計書.html">D10 Adapter境界設計書</a></li>
+      <li><a href="../05_戦略設計/05_Turtle_Golden_test設計書.html">D09 Turtle Golden test設計書</a></li>
+    </ul>
+  </section>
+
+  <section id="handoff">
+    <h2>後続Phase引き継ぎ</h2>
+    <p>Phase 1終盤でPoC結果を本書の採点表に記録し、OD-02の採否判断を行う。Phase 2はデータ入力、Phase 3はBacktest実装、Phase 4はPaper接続とBroker再同期を、ここで定義したPoCシナリオと証拠条件に接続する。</p>
+  </section>
+</main>
+</body>
+</html>
