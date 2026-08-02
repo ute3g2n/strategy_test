@@ -1,5 +1,4 @@
-const { execFileSync, spawn } = require("node:child_process");
-const fs = require("node:fs");
+const { execFileSync } = require("node:child_process");
 const path = require("node:path");
 
 const root = path.resolve(__dirname, "..");
@@ -28,16 +27,23 @@ if (hasWatcher()) {
   process.exit(0);
 }
 
-const out = fs.openSync(logPath, "a");
-const err = fs.openSync(errPath, "a");
-const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
+function psQuote(value) {
+  return `'${value.replace(/'/g, "''")}'`;
+}
 
-const child = spawn(npmCommand, ["run", "watch-commit"], {
-  cwd: root,
-  detached: true,
-  stdio: ["ignore", out, err],
-  windowsHide: true,
-});
+const startCommand = [
+  "Start-Process",
+  "-FilePath npm.cmd",
+  "-ArgumentList @('run','watch-commit')",
+  `-WorkingDirectory ${psQuote(root)}`,
+  `-RedirectStandardOutput ${psQuote(logPath)}`,
+  `-RedirectStandardError ${psQuote(errPath)}`,
+  "-WindowStyle Hidden",
+  "-PassThru | Select-Object -ExpandProperty Id",
+].join(" ");
 
-child.unref();
-console.log(`watch-commit started. pid=${child.pid}`);
+const pid = execFileSync("powershell.exe", ["-NoProfile", "-Command", startCommand], {
+  encoding: "utf8",
+}).trim();
+
+console.log(`watch-commit started. pid=${pid}`);
