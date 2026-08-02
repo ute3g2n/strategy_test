@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D18 テスト戦略 品質Gate設計書</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code { font-family: Consolas, "Courier New", monospace; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .warn { border-left-color: #b45309; background: #fff7ed; }
+    .toc ul { columns: 2; }
+    details { border: 1px solid #d9e2ec; padding: 10px 12px; margin: 10px 0; background: #fbfdff; }
+    summary { font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>D18 テスト戦略 品質Gate設計書</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 初期レビュー反映済み / <strong>作成日:</strong> 2026-08-03 / <strong>ステップ:</strong> P1-10</p>
+    <p><strong>オーケストレータ:</strong> <code>AutoTradePhase1_Orchestrator_v0_1</code></p>
+    <p><strong>担当:</strong> <code>AutoTradePhase1_A10_QaArchitect_v0_1</code></p>
+    <p><strong>使用Skill:</strong> <code>autotrade_phase1_skill_test_strategy_v0_1</code>, <code>autotrade_phase1_skill_golden_test_v0_1</code>, <code>autotrade_phase1_skill_design_reviewer_v0_1</code></p>
+  </div>
+
+  <section id="summary">
+    <h2>要約</h2>
+    <p>本書は、Phase 2以降の実装完了判定を曖昧にしないため、テスト種別、品質Gate、Human Gate、再現証跡を定義する。テストは利益最大化の道具ではなく、再現性、安全性、責務境界、移行可否を判定するために使う。</p>
+  </section>
+
+  <nav class="toc">
+    <h2>目次</h2>
+    <ul>
+      <li><a href="#inputs">入力</a></li>
+      <li><a href="#test-types">テスト種別</a></li>
+      <li><a href="#golden">Golden test</a></li>
+      <li><a href="#bias">バイアス防止</a></li>
+      <li><a href="#migration-gates">移行Gate</a></li>
+      <li><a href="#human-machine">Human Gateと機械Gate</a></li>
+      <li><a href="#evidence">証跡と再現性</a></li>
+      <li><a href="#traceability">要件追跡</a></li>
+      <li><a href="#decisions">設計判断</a></li>
+      <li><a href="#unknowns">未確定事項</a></li>
+      <li><a href="#review">レビュー履歴</a></li>
+      <li><a href="#handoff">後続Phase引き継ぎ</a></li>
+    </ul>
+  </nav>
+
+  <section id="inputs">
+    <h2>入力</h2>
+    <ul>
+      <li><a href="../05_戦略設計/05_Turtle_Golden_test設計書.html">D09 Turtle Golden test設計書</a></li>
+      <li><a href="../07_実行モデル/07_共通実行モデル設計書.html">D11 共通実行モデル設計書</a></li>
+      <li><a href="../07_実行モデル/07_取引エンジンPoC評価設計書.html">D12 取引エンジンPoC評価設計書</a></li>
+      <li><a href="../08_リスク口座管理/08_Risk_Account責務境界設計書.html">D13 Risk / Account責務境界設計書</a></li>
+      <li><a href="../09_非機能要件/09_セキュリティ安全停止設計書.html">D17 セキュリティ安全停止設計書</a></li>
+    </ul>
+  </section>
+
+  <section id="test-types">
+    <h2>テスト種別</h2>
+    <table>
+      <tr><th>種別</th><th>対象</th><th>合格条件</th></tr>
+      <tr><td>Unit test</td><td>N、True Range、Donchian、状態遷移、ID生成、丸め。</td><td>境界値、欠損値、時刻、重複を含む。</td></tr>
+      <tr><td>Golden test</td><td>Turtle Strategy、OrderIntent、Risk入力、期待出力。</td><td>固定入力で期待結果が一致し、後出し変更できない。</td></tr>
+      <tr><td>Integration test</td><td>Event Engine、Strategy、Risk、OMS、Adapter port。</td><td>責務境界を迂回しない。</td></tr>
+      <tr><td>Replay test</td><td>履歴イベントリプレイ、run_id、Manifest、データ版。</td><td>同一Manifestで同一結果。</td></tr>
+      <tr><td>Reconciliation test</td><td>Open Order、Fill、Position、Account差分。</td><td>不整合時に新規注文停止。</td></tr>
+      <tr><td>Failure injection test</td><td>Market data欠損、Broker断、Event queue停止、Secret漏洩疑い。</td><td>fail-closedする。</td></tr>
+      <tr><td>Operational rehearsal</td><td>通知、Cancel、Kill Switch、復旧、手動介入。</td><td>Human Gateに必要な証跡が残る。</td></tr>
+    </table>
+  </section>
+
+  <section id="golden">
+    <h2>Golden test必須観点</h2>
+    <table>
+      <tr><th>観点</th><th>固定入力</th><th>期待出力</th></tr>
+      <tr><td>N / True Range</td><td>ギャップ、limit move、欠損を含むOHLC。</td><td>N更新時刻、TR、欠損時fail-closed。</td></tr>
+      <tr><td>Donchian</td><td>20/55日Entry、10/20日Exit、確定バー。</td><td>Look-aheadなしのbreakout判定。</td></tr>
+      <tr><td>System 1勝ちブレイクフィルター</td><td>直近勝ち/負けの固定系列。</td><td>skipまたはentryの一貫判定。</td></tr>
+      <tr><td>0.5N追加</td><td>0.49N、0.5N、0.51Nの価格系列。</td><td>追加OrderIntent候補。</td></tr>
+      <tr><td>2N Stop</td><td>Entry後の逆行、Gap、Stop跨ぎ。</td><td>保守的約定とStop Intent。</td></tr>
+      <tr><td>4/6/10/12 Unit上限</td><td>市場、方向、相関、総Unitが上限近傍。</td><td>上限到達時のRiskRejectedまたは縮小。</td></tr>
+      <tr><td>ロール損益</td><td>限月切替、価格差、手数料。</td><td>ロール由来PnLの分離記録。</td></tr>
+      <tr><td>データ異常</td><td>欠損、重複、時刻逆行、異常価格。</td><td>対象範囲のfail-closed。</td></tr>
+    </table>
+  </section>
+
+  <section id="bias">
+    <h2>バイアス防止</h2>
+    <table>
+      <tr><th>リスク</th><th>禁止事項</th><th>Gate</th></tr>
+      <tr><td>Look-ahead</td><td>未確定バー、未来のロール情報、未来の勝敗結果を参照する。</td><td>Replay Gateで検出。</td></tr>
+      <tr><td>Survivorship bias</td><td>生存銘柄だけで検証する。</td><td>Data Gateで対象Universe版を固定。</td></tr>
+      <tr><td>Data snooping</td><td>検証結果を見てfixtureや期待値を変える。</td><td>Golden fixture変更Human Gate。</td></tr>
+      <tr><td>候補別パラメータ最適化</td><td>候補ごとに有利な探索範囲を後付けする。</td><td>Experiment Manifest事前固定。</td></tr>
+    </table>
+  </section>
+
+  <section id="migration-gates">
+    <h2>移行Gate</h2>
+    <table>
+      <tr><th>移行</th><th>機械Gate</th><th>Human Gate</th></tr>
+      <tr><td>Backtest → Shadow</td><td>Golden test、Replay test、Bias Gate、コスト/ロール反映。</td><td>検証結果、Unknown、対象市場の承認。</td></tr>
+      <tr><td>Shadow → Paper</td><td>Heartbeat、リアルタイム遅延、Intent/Risk判定一致、通知。</td><td>30営業日以上の観測結果とPaper設定承認。</td></tr>
+      <tr><td>Paper → 少額Live</td><td>90日以上安定、Stop/Kill Switch/復旧リハーサル、DD15%ストレス確認。</td><td>Live採用Risk値、Runbook、手動介入承認。</td></tr>
+      <tr><td>少額Live → 本番Live</td><td>90日以上、Paper/Live差分説明、監査ログ完全性。</td><td>本番移行承認、残Unknownの明示許容。</td></tr>
+    </table>
+  </section>
+
+  <section id="human-machine">
+    <h2>Human Gateと機械Gate</h2>
+    <table>
+      <tr><th>区分</th><th>役割</th><th>禁止事項</th></tr>
+      <tr><td>機械Gate</td><td>再現性、一致、不整合、しきい値、停止条件を自動判定する。</td><td>Unknownを自動承認しない。</td></tr>
+      <tr><td>Human Gate</td><td>未確定事項、運用リスク、Live値、Runbook、例外許容を承認する。</td><td>機械Gate失敗を根拠なしに上書きしない。</td></tr>
+    </table>
+  </section>
+
+  <section id="evidence">
+    <h2>テスト証跡と再現性</h2>
+    <table>
+      <tr><th>証跡</th><th>必須項目</th></tr>
+      <tr><td>Test Manifest</td><td>test_id、run_id、data_version、config_version、code_revision、engine_profile。</td></tr>
+      <tr><td>Input Snapshot</td><td>Raw/Normalized data ref、fixture checksum、calendar、roll rule。</td></tr>
+      <tr><td>Output Snapshot</td><td>SignalEvent、OrderIntent、RiskDecision、OrderState、Position、PnL。</td></tr>
+      <tr><td>Review Record</td><td>承認者、指摘、採用/保留/却下、残リスク。</td></tr>
+    </table>
+  </section>
+
+  <section id="traceability">
+    <h2>要件追跡</h2>
+    <table>
+      <tr><th>追跡ID</th><th>対応</th></tr>
+      <tr><td>REQ-Q09-Q16</td><td>Turtle関連Golden test、Unit、Stop、ボラ縮小候補をGate化。</td></tr>
+      <tr><td>REQ-Q24</td><td>BacktestからLiveまでの移行Gateを定義。</td></tr>
+      <tr><td>REQ-Q25-Q27</td><td>Failure injection、Reconciliation、安全停止、Operational rehearsalを必須化。</td></tr>
+    </table>
+  </section>
+
+  <section id="decisions">
+    <h2>設計判断</h2>
+    <details open><summary>DEC-P1-QA-01: Golden fixtureは後出し変更禁止</summary><p>変更が必要な場合は、理由、差分、承認者、影響範囲を記録する。</p></details>
+    <details open><summary>DEC-P1-QA-02: Human Gateと機械Gateを分ける</summary><p>自動テストで測れない運用判断と、自動判定すべき不整合を混ぜない。</p></details>
+  </section>
+
+  <section id="unknowns">
+    <h2>未確定事項</h2>
+    <table>
+      <tr><th>ID</th><th>内容</th><th>決定タイミング</th></tr>
+      <tr><td>UNK-P1-QA-01</td><td>Phase 2以降で使うテスト実行基盤とレポート形式。</td><td>Phase 2開始前</td></tr>
+      <tr><td>UNK-P1-QA-02</td><td>Paper/Live移行時の許容差分しきい値。</td><td>Phase 6 / Phase 7</td></tr>
+    </table>
+  </section>
+
+  <section id="review">
+    <h2>レビュー履歴</h2>
+    <table>
+      <tr><th>日付</th><th>観点</th><th>反映内容</th></tr>
+      <tr><td>2026-08-03</td><td>A12相当</td><td>P1-01からP1-09の主要成果物へ品質Gateを対応付けた。</td></tr>
+      <tr><td>2026-08-03</td><td>A13相当</td><td>Live前に危険なGate漏れとして、Reconciliation、Failure injection、Operational rehearsalを必須化した。</td></tr>
+    </table>
+  </section>
+
+  <section id="handoff">
+    <h2>後続Phase引き継ぎ</h2>
+    <p>Phase 2以降の各実装ステップは、本書のGateを完了条件に含める。特にPhase 4以降はReconciliation testとFailure injection test、Phase 6以降はOperational rehearsalを必須とする。</p>
+  </section>
+</main>
+</body>
+</html>

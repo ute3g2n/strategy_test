@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D20 Phase 2以降ロードマップ</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>D20 Phase 2以降ロードマップ</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 初期レビュー反映済み / <strong>作成日:</strong> 2026-08-03 / <strong>ステップ:</strong> P1-11</p>
+    <p><strong>担当:</strong> <code>AutoTradePhase1_A00_Orchestrator_v0_1</code>, <code>AutoTradePhase1_A01_RequirementsCurator_v0_1</code>, <code>AutoTradePhase1_A12_ConsistencyReviewer_v0_1</code></p>
+    <p><strong>使用Skill:</strong> <code>autotrade_phase1_skill_orchestration_v0_1</code>, <code>autotrade_phase1_skill_traceability_v0_1</code>, <code>autotrade_phase1_skill_design_reviewer_v0_1</code></p>
+  </div>
+
+  <h2>要約</h2>
+  <p>本書は、Phase 2以降の開始条件、作成成果物、完了Gateを定義する。Phase 1成果物は、後続Phaseの設計と実装を安全に進めるための入力として扱う。</p>
+
+  <h2>ロードマップ</h2>
+  <table>
+    <tr><th>Phase</th><th>開始入力条件</th><th>作成成果物</th><th>完了Gate</th></tr>
+    <tr><td>Phase 2 Market Data基盤</td><td>D10、D11、D18、OD-01初期方針。</td><td>Market Data詳細設計、Raw/Normalized Store、Catalog、Roll rule、Data quality test。</td><td>Replay可能なデータセット、欠損検知、OD-03更新。</td></tr>
+    <tr><td>Phase 3 Strategy / Backtest基盤</td><td>D08、D09、D11、D12、D18、Phase 2データ。</td><td>Strategy実装、Backtest基盤、Golden fixture、Experiment Manifest、PoC結果。</td><td>Golden test、Replay test、Bias Gate、OD-02決定。</td></tr>
+    <tr><td>Phase 4 Broker / Paper Trading基盤</td><td>D10、D11、D13、D17、Phase 3実装候補。</td><td>Broker Adapter詳細、OMS詳細、Paper接続、Reconciliation、Cancel / Replace。</td><td>Paper接続PoC、Open Order / Fill / Position再同期、fail-closed確認。</td></tr>
+    <tr><td>Phase 5 Portfolio / Risk / Account管理</td><td>D13、D18、Phase 4 Paper基盤。</td><td>RiskConfig、Account正本化、Portfolio制限、1N/ボラ/DDしきい値。</td><td>OD-04、OD-05、Risk Gate、誤発注防止テスト。</td></tr>
+    <tr><td>Phase 6 Forward Test運用</td><td>D14-D18、Phase 5 Risk基盤。</td><td>Shadow/Paper運用手順、監視、通知、日次レポート、復旧訓練。</td><td>Shadow 30営業日以上、Paper安定運用、OD-06/OD-07/OD-08更新。</td></tr>
+    <tr><td>Phase 7 Live移行準備</td><td>Phase 6運用証跡、D17、D18。</td><td>Live Runbook、Kill Switch、手動介入、Secretローテーション、監査保全。</td><td>Paper 90日以上、DD15%ストレス確認、Live前Human Gate。</td></tr>
+    <tr><td>Phase 8 Live運用</td><td>Phase 7承認、少額Live計画。</td><td>少額Live、本番Live、継続監視、インシデントレビュー、変更管理。</td><td>少額Live 90日以上、本番移行承認、継続監査。</td></tr>
+  </table>
+
+  <h2>Human Gate一覧</h2>
+  <table>
+    <tr><th>Gate</th><th>位置</th><th>確認内容</th></tr>
+    <tr><td>HG-P2</td><td>Phase 2開始前</td><td>対象市場、データ取得元、Raw不変保存方針。</td></tr>
+    <tr><td>HG-P3</td><td>Phase 3完了時</td><td>OD-02取引エンジン決定、Backtest再現性、Bias防止。</td></tr>
+    <tr><td>HG-P4</td><td>Paper接続前</td><td>Broker権限、Paper secret、OMS/Reconciliation、安全停止。</td></tr>
+    <tr><td>HG-P5</td><td>Paper評価前</td><td>1N採用値、年率ボラ制御、最大DD、RiskConfig。</td></tr>
+    <tr><td>HG-P7</td><td>Live前</td><td>Runbook、Kill Switch、手動介入、監査ログ、残Unknown。</td></tr>
+  </table>
+
+  <h2>Phase 1固定事項</h2>
+  <table>
+    <tr><th>領域</th><th>固定内容</th></tr>
+    <tr><td>責務境界</td><td>Strategy、Risk、OMS、Account、Adapterの依存方向。</td></tr>
+    <tr><td>実行モデル</td><td>Backtest / Shadow / Paper / Live共通Event EnvelopeとManifest。</td></tr>
+    <tr><td>安全</td><td>fail-closed、Kill Switch、Secret分離、監査ログ。</td></tr>
+    <tr><td>品質</td><td>Golden test、Replay test、Reconciliation test、Failure injection、移行Gate。</td></tr>
+  </table>
+
+  <h2>レビュー履歴</h2>
+  <table>
+    <tr><th>日付</th><th>観点</th><th>反映内容</th></tr>
+    <tr><td>2026-08-03</td><td>A12</td><td>Phase別の入力条件、成果物、完了GateをD19バックログと対応させた。</td></tr>
+    <tr><td>2026-08-03</td><td>A13相当</td><td>Live前に残せない安全項目をHuman Gateへ明示した。</td></tr>
+  </table>
+</main>
+</body>
+</html>
