@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D08 Strategy Plugin Interface設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code, pre { font-family: Consolas, "Courier New", monospace; }
+    pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .warn { border-left-color: #b45309; background: #fff7ed; }
+    .ok { border-left-color: #15803d; background: #f0fdf4; }
+    .toc ul { columns: 2; }
+    details { border: 1px solid #d9e2ec; padding: 10px 12px; margin: 10px 0; background: #fbfdff; }
+    summary { font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>D08 Strategy Plugin Interface設計書</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 初版レビュー反映済み / <strong>作成日:</strong> 2026-08-02 / <strong>ステップ:</strong> P1-05</p>
+    <p><strong>オーケストレータ:</strong> <code>AutoTradePhase1_Orchestrator_v0_1</code></p>
+    <p><strong>担当:</strong> <code>AutoTradePhase1_A04_StrategyArchitect_v0_1</code>, <code>AutoTradePhase1_A10_QaArchitect_v0_1</code></p>
+    <p><strong>使用Skill:</strong> <code>autotrade_phase1_skill_strategy_design_v0_1</code>, <code>autotrade_phase1_skill_golden_test_v0_1</code>, <code>autotrade_phase1_skill_test_strategy_v0_1</code></p>
+  </div>
+
+  <section id="summary">
+    <h2>概要</h2>
+    <p>本書は、Strategy Plugin InterfaceのPhase 1仕様を定義する。目的は、原典 System 1、原典 System 2、現代版候補を同じ実行基盤、同じ共通ドメインモデル、同じGolden testで比較できるようにすることである。</p>
+    <p>Strategyは市場イベント、戦略設定、限定されたPortfolio / Riskビューを読み、SignalEvent、OrderIntent、またはTargetPositionを出力する。Broker接続、注文送信、口座正本、安全停止の最終判定、Secrets管理は担当しない。</p>
+  </section>
+
+  <nav class="toc">
+    <h2>目次</h2>
+    <ul>
+      <li><a href="#inputs">入力</a></li>
+      <li><a href="#scope">対象と非対象</a></li>
+      <li><a href="#ai-parts">指定AI部品適用記録</a></li>
+      <li><a href="#interface">Interfaceライフサイクル</a></li>
+      <li><a href="#outputs">OrderIntent / TargetPosition</a></li>
+      <li><a href="#config">Strategy Config</a></li>
+      <li><a href="#variants">System 1 / System 2 / 現代版比較</a></li>
+      <li><a href="#turtle-rules">Turtleルール表現</a></li>
+      <li><a href="#not-owned">Strategyが担当しない責務</a></li>
+      <li><a href="#traceability">要件追跡</a></li>
+      <li><a href="#decisions">設計判断</a></li>
+      <li><a href="#unknowns">未確定事項</a></li>
+      <li><a href="#review">レビュー履歴</a></li>
+      <li><a href="#links">関連文書リンク</a></li>
+      <li><a href="#handoff">後続Phase引き継ぎ</a></li>
+    </ul>
+  </nav>
+
+  <section id="inputs">
+    <h2>入力</h2>
+    <ul>
+      <li><a href="../02_全体設計/02_システム全体構成設計書.html">D03 システム全体構成設計書</a></li>
+      <li><a href="../03_ドメイン設計/03_ドメイン分割設計書.html">D04 ドメイン分割設計書</a></li>
+      <li><a href="../03_ドメイン設計/03_モジュール責務データフロー設計書.html">D05 モジュール責務データフロー設計書</a></li>
+      <li><a href="../04_共通モデル/04_共通ドメインモデル設計書.html">D06 共通ドメインモデル設計書</a></li>
+      <li><a href="../01_要件追跡/01_要件追跡マトリクス.html">D02 要件追跡マトリクス</a></li>
+    </ul>
+  </section>
+
+  <section id="scope">
+    <h2>対象と非対象</h2>
+    <table>
+      <tr><th>区分</th><th>内容</th></tr>
+      <tr><td>対象</td><td>Strategy Plugin Interface、Strategy出力、Strategy Config、Turtleルール表現、原典/現代版比較軸、Strategy非責務、Phase 3実装前提。</td></tr>
+      <tr><td>非対象</td><td>Broker API、OMS内部状態遷移、Risk最終判定ロジック、具体的なPythonクラス、データベース物理設計、パラメータ最適化結果。</td></tr>
+      <tr><td>詳細設計バックログ</td><td>Phase 3で実装言語の型定義、YAMLスキーマ、Backtest Engine連携、fixture形式、例外型を詳細化する。</td></tr>
+    </table>
+  </section>
+
+  <section id="ai-parts">
+    <h2>指定AI部品適用記録</h2>
+    <table>
+      <tr><th>種別</th><th>完全名</th><th>適用内容</th></tr>
+      <tr><td>オーケストレータ</td><td><code>AutoTradePhase1_Orchestrator_v0_1</code></td><td>P1-05をP1-03/P1-04後のG2設計として扱い、Strategyを基盤から分離した。</td></tr>
+      <tr><td>サブエージェント</td><td><code>AutoTradePhase1_A04_StrategyArchitect_v0_1</code></td><td>Strategy Plugin Interface、Turtleルール、Strategy Config、非責務を設計した。</td></tr>
+      <tr><td>サブエージェント</td><td><code>AutoTradePhase1_A10_QaArchitect_v0_1</code></td><td>Golden test、Look-ahead防止、Backtest専用化防止、品質Gateとの接続を確認した。</td></tr>
+      <tr><td>Skill</td><td><code>autotrade_phase1_skill_strategy_design_v0_1</code></td><td>Strategyロジックを基盤、Broker、Account正本、安全停止から分離した。</td></tr>
+      <tr><td>Skill</td><td><code>autotrade_phase1_skill_golden_test_v0_1</code></td><td>N、True Range、Donchian、0.5N追加、2N Stop、Unit上限を検証可能な形にした。</td></tr>
+      <tr><td>Skill</td><td><code>autotrade_phase1_skill_test_strategy_v0_1</code></td><td>Look-ahead、data snooping、Backtest専用設計化を禁止事項へ反映した。</td></tr>
+    </table>
+  </section>
+
+  <section id="interface">
+    <h2>Interfaceライフサイクル</h2>
+    <table>
+      <tr><th>メソッド</th><th>目的</th><th>入力</th><th>出力</th><th>制約</th></tr>
+      <tr><td><code>initialize</code></td><td>新規実行の初期状態を作る。</td><td>Strategy Config、run_id、strategy_id、対象Instrument、初期Portfolio View。</td><td>初期StrategyState、HealthEvent。</td><td>外部API接続を開始しない。</td></tr>
+      <tr><td><code>restore</code></td><td>保存済みsnapshotから復旧する。</td><td>snapshot、run_id、復旧対象時刻。</td><td>復旧済みStrategyState、復旧HealthEvent。</td><td>snapshotだけで再現できない隠れ状態を持たない。</td></tr>
+      <tr><td><code>on_market_event</code></td><td>MarketEventを取り込み、N、Donchian、Entry/Exit条件を更新する。</td><td>MarketEvent、Catalog View、StrategyState。</td><td>更新済みStrategyState、SignalEvent候補。</td><td>bar_close_time前の未来データを読まない。</td></tr>
+      <tr><td><code>on_order_event</code></td><td>OMSからの注文状態イベントを取り込む。</td><td>OrderStateChanged、Fill要約、client_order_id。</td><td>戦略内の未完了意図メモ、HealthEvent。</td><td>Order正本をStrategy側で持たない。</td></tr>
+      <tr><td><code>on_account_event</code></td><td>Strategy判断用の限定Account / Portfolio Viewを取り込む。</td><td>Portfolio View、Risk View、AccountSnapshot要約。</td><td>StrategyStateの参照ビュー更新。</td><td>口座正本やBroker残高未照合値を直接使わない。</td></tr>
+      <tr><td><code>on_timer</code></td><td>バー確定、日次締め、Heartbeatなどを処理する。</td><td>TimerEvent、business_date、bar_close_time。</td><td>SignalEvent、HealthEvent、snapshot要求。</td><td>Timerを使って外部副作用を起こさない。</td></tr>
+      <tr><td><code>emit_intents</code></td><td>蓄積状態からOrderIntentまたはTargetPositionを出力する。</td><td>StrategyState、Risk View、実行モード。</td><td>OrderIntent一覧、TargetPosition一覧、判断根拠。</td><td>Riskを通過した注文として扱わない。</td></tr>
+      <tr><td><code>snapshot</code></td><td>復旧可能な戦略状態を出力する。</td><td>StrategyState、last_event_id。</td><td>StrategySnapshot。</td><td>Broker状態、Secrets、外部接続状態を含めない。</td></tr>
+      <tr><td><code>health</code></td><td>戦略状態の自己診断を返す。</td><td>StrategyState、last_event_time、expected_timer。</td><td>HealthEvent、severity、reason_code。</td><td>停止の最終判断はMonitoring / Operationsへ渡す。</td></tr>
+    </table>
+  </section>
+
+  <section id="outputs">
+    <h2>OrderIntent / TargetPosition</h2>
+    <table>
+      <tr><th>項目</th><th>OrderIntent最低項目</th><th>TargetPosition最低項目</th><th>備考</th></tr>
+      <tr><td>識別子</td><td>intent_id, run_id, strategy_id, instrument_id</td><td>target_id, run_id, strategy_id, instrument_id</td><td>Broker注文IDは含めない。</td></tr>
+      <tr><td>方向</td><td>side: long / short / exit</td><td>target_side, target_net_units</td><td>REQ-Q04のロング/ショート両方向を表す。</td></tr>
+      <tr><td>数量</td><td>target_units, unit_size_hint</td><td>target_units, current_units_observed</td><td>最終数量調整はRisk / OMSが担当する。</td></tr>
+      <tr><td>価格文脈</td><td>signal_price, breakout_level, stop_level_hint</td><td>reference_price, stop_level_hint</td><td>注文価格そのものではなく判断根拠。</td></tr>
+      <tr><td>根拠</td><td>rule_id, signal_event_id, rationale_ref</td><td>rule_id, signal_event_id, rationale_ref</td><td>Golden testで期待出力を照合する。</td></tr>
+      <tr><td>時刻</td><td>intent_time_utc, bar_close_time, business_date</td><td>decided_at_utc, bar_close_time, business_date</td><td>Look-ahead検出の基礎。</td></tr>
+      <tr><td>制約メモ</td><td>pyramid_step, max_unit_limit, win_breakout_filter_applied</td><td>target_reason, reduction_reason</td><td>Riskの最終判定ではない。</td></tr>
+    </table>
+  </section>
+
+  <section id="config">
+    <h2>Strategy Config</h2>
+    <table>
+      <tr><th>カテゴリ</th><th>主要項目</th><th>例</th><th>Phase 1で固定すること</th></tr>
+      <tr><td>識別</td><td>strategy_id, strategy_family, strategy_variant, strategy_version</td><td>strat_turtle_system1_original_v0_1</td><td>比較軸をIDに含める。</td></tr>
+      <tr><td>対象</td><td>instrument_universe, market_group, trade_direction</td><td>futures_core, long_short</td><td>銘柄選定はCatalog参照。Strategy内で外部記号分岐しない。</td></tr>
+      <tr><td>エントリー</td><td>entry_system, entry_channel_days, entry_timing</td><td>system1_20day_intraday, close_confirmed</td><td>intraday breakoutと終値確認を比較可能にする。</td></tr>
+      <tr><td>Exit</td><td>exit_channel_days, stop_n_multiple</td><td>10day_exit, 2N_stop</td><td>ExitとStopを区別する。</td></tr>
+      <tr><td>N計算</td><td>true_range_method, n_window, warmup_bars</td><td>classic_tr, 20, 20</td><td>Golden testで固定入力から検証する。</td></tr>
+      <tr><td>Pyramiding</td><td>add_unit_n_interval, max_units_market, max_units_direction, max_units_total</td><td>0.5N, 4, 6, 12</td><td>4/6/10/12 Unit上限を表現できる。</td></tr>
+      <tr><td>Filter</td><td>system1_win_breakout_filter, whipsaw_mode, volatility_reduction_mode</td><td>enabled, compare_only</td><td>比較対象として固定し、最適化結果は持たない。</td></tr>
+      <tr><td>運用</td><td>run_mode, snapshot_interval, health_timeout</td><td>backtest, every_bar, 2x_expected_timer</td><td>実行モード差分をStrategyロジックに混ぜない。</td></tr>
+    </table>
+  </section>
+
+  <section id="variants">
+    <h2>System 1 / System 2 / 現代版比較</h2>
+    <table>
+      <tr><th>候補</th><th>Entry</th><th>Exit</th><th>Filter</th><th>比較対象にする理由</th></tr>
+      <tr><td>原典 System 1</td><td>短期Donchian breakout。原典は20日系を基準。</td><td>短期Exit。原典は10日系を基準。</td><td>勝ちブレイクフィルターを比較対象に含める。</td><td>REQ-Q01, REQ-Q12の原典再現の中心。</td></tr>
+      <tr><td>原典 System 2</td><td>長期Donchian breakout。原典は55日系を基準。</td><td>長期Exit。原典は20日系を基準。</td><td>System 1とは異なる長期追随として扱う。</td><td>トレンド期間差による比較軸。</td></tr>
+      <tr><td>現代版候補 A</td><td>終値確認Entry。</td><td>終値確認Exitまたは原典Exit。</td><td>Look-ahead禁止、滑りやGapに保守的。</td><td>REQ-Q13の現代版比較。</td></tr>
+      <tr><td>現代版候補 B</td><td>intraday breakout維持。</td><td>原典Exit。</td><td>Whipsaw、ボラ急上昇時縮小を比較対象にする。</td><td>REQ-Q15の比較。</td></tr>
+    </table>
+  </section>
+
+  <section id="turtle-rules">
+    <h2>Turtleルール表現</h2>
+    <table>
+      <tr><th>論点</th><th>Phase 1仕様</th><th>Golden test接続</th></tr>
+      <tr><td>N</td><td>True Rangeの移動平均として扱う。初期化期間、丸め、欠損時の扱いをConfigで固定する。</td><td>N計算fixtureで期待Nを照合。</td></tr>
+      <tr><td>True Range</td><td>max(high-low, abs(high-prev_close), abs(low-prev_close))を基準にする。</td><td>Gapを含む固定入力を必須にする。</td></tr>
+      <tr><td>Donchian Channel</td><td>Entry/Exitそれぞれ独立したlookbackを持つ。現在バーを含めるかはLook-ahead防止のため明示する。</td><td>breakout直前、同値、超過の3ケースを固定。</td></tr>
+      <tr><td>0.5N追加</td><td>最後のEntryまたは追加単価から0.5N進んだ時に追加候補を出す。</td><td>pyramid_stepとmax unit到達を照合。</td></tr>
+      <tr><td>2N Stop</td><td>Entry基準または最後の追加基準から2N逆行時のStop候補を出す。採用方式はvariantで明示する。</td><td>Stop発火、未発火、Gap超過を検証。</td></tr>
+      <tr><td>勝ちブレイクフィルター</td><td>System 1の直前ブレイクが勝ちなら次の同方向ブレイクを無視する比較候補を表現する。</td><td>勝ち/負け判定fixtureを分離。</td></tr>
+      <tr><td>4/6/10/12 Unit上限</td><td>単一市場、同方向、相関グループ、総量の上限をStrategy Hintとして出す。最終判定はRisk。</td><td>Strategy出力とRisk期待入力を分けて検証。</td></tr>
+    </table>
+  </section>
+
+  <section id="not-owned">
+    <h2>Strategyが担当しない責務</h2>
+    <table>
+      <tr><th>非責務</th><th>担当先</th><th>理由</th></tr>
+      <tr><td>Broker接続、注文送信、取消送信。</td><td>Broker Adapter / OMS</td><td>StrategyをBacktest / Paper / Liveで共通化するため。</td></tr>
+      <tr><td>口座残高、入出金、Broker残高の正本管理。</td><td>Account / Reconciliation</td><td>未照合値をStrategy判断に混ぜないため。</td></tr>
+      <tr><td>Risk最終判定、Kill Switch解除、Unit上限の強制。</td><td>Risk / Operations</td><td>Strategyに自己承認を許さないため。</td></tr>
+      <tr><td>Secrets、APIキー、通知先、運用停止手順。</td><td>Operations / Monitoring</td><td>運用責務と戦略判断を分離するため。</td></tr>
+      <tr><td>銘柄記号変換、ロール正本、外部データ取得。</td><td>Catalog / Market Data Adapter</td><td>Strategyを外部ベンダ差分から守るため。</td></tr>
+    </table>
+  </section>
+
+  <section id="traceability">
+    <h2>要件追跡</h2>
+    <table>
+      <tr><th>追跡ID</th><th>本書での扱い</th></tr>
+      <tr><td>REQ-Q01</td><td>原典版と現代版候補をStrategy Variantとして比較可能にする。</td></tr>
+      <tr><td>REQ-Q04</td><td>long / short / exitをOrderIntent / TargetPositionで表現する。</td></tr>
+      <tr><td>REQ-Q09</td><td>1NリスクはStrategy Hintに留め、Riskが最終判定する。</td></tr>
+      <tr><td>REQ-Q11-Q15</td><td>System 1/2、勝ちブレイクフィルター、intraday/終値確認、pyramiding、2N/Whipsaw/ボラ縮小を比較軸化する。</td></tr>
+      <tr><td>REQ-Q17</td><td>口座管理はStrategy非責務として境界を明確化する。</td></tr>
+      <tr><td>REQ-Q18</td><td>4/6/10/12 Unit上限をConfigとStrategy Hintで表現する。</td></tr>
+      <tr><td>REQ-Q23</td><td>戦略別YAMLと共通設定の分離をConfigカテゴリへ反映する。</td></tr>
+      <tr><td>REQ-POL04</td><td>Strategy差し替え、共通ドメイン、責務分離、監査、安全停止境界を固定する。</td></tr>
+    </table>
+  </section>
+
+  <section id="decisions">
+    <h2>設計判断</h2>
+    <details open><summary>DEC-P1-STR-01: Strategy出力はOrderIntentまたはTargetPositionまでに限定する</summary><p>Strategyが注文そのものを発行するとRisk、OMS、Broker Adapterを迂回できてしまうため、発注可能な注文ではなく意図または目標ポジションとして出力する。</p></details>
+    <details open><summary>DEC-P1-STR-02: Strategy Configは比較軸を明示し、最適化結果を埋め込まない</summary><p>Phase 1の目的は比較可能な境界の固定であり、候補資産別のパラメータ最適化ではない。</p></details>
+    <details open><summary>DEC-P1-STR-03: on_market_eventは未来バーを読めない契約にする</summary><p>Look-aheadを構造的に防ぐため、MarketEventのbar_close_timeとsource_seqを処理可能範囲の境界にする。</p></details>
+  </section>
+
+  <section id="unknowns">
+    <h2>未確定事項</h2>
+    <table>
+      <tr><th>ID</th><th>内容</th><th>扱い</th></tr>
+      <tr><td>UNK-P1-STR-01</td><td>OrderIntent方式とTargetPosition方式の最終採用。</td><td>Phase 3実装でBacktest / Risk / OMS接続の扱いやすさを比較する。</td></tr>
+      <tr><td>UNK-P1-STR-02</td><td>2N Stop基準を初回Entry、平均建値、最後の追加単価のどれにするか。</td><td>Golden testでvariant別に期待出力を固定し、Phase 3で比較する。</td></tr>
+      <tr><td>UNK-P1-STR-03</td><td>現代版候補の最小セット。</td><td>REQ-Q11-Q15の比較軸を満たす範囲でPhase 3前に確定する。</td></tr>
+    </table>
+  </section>
+
+  <section id="review">
+    <h2>レビュー履歴</h2>
+    <table>
+      <tr><th>日付</th><th>観点</th><th>結果</th></tr>
+      <tr><td>2026-08-02</td><td>A12 要件追跡・用語整合観点</td><td>D03-D06のOrderIntent、MarketEvent、Risk、OMS、Adapter境界と整合するよう修正。</td></tr>
+      <tr><td>2026-08-02</td><td>A13 Red Team観点</td><td>過剰最適化、Look-ahead、Backtest専用設計化を禁止事項と設計判断へ反映。</td></tr>
+    </table>
+  </section>
+
+  <section id="links">
+    <h2>関連文書リンク</h2>
+    <ul>
+      <li><a href="./05_Turtle_Golden_test設計書.html">D09 Turtle Golden test設計書</a></li>
+      <li><a href="../04_共通モデル/04_共通ドメインモデル設計書.html">D06 共通ドメインモデル設計書</a></li>
+      <li><a href="../03_ドメイン設計/03_ドメイン分割設計書.html">D04 ドメイン分割設計書</a></li>
+    </ul>
+  </section>
+
+  <section id="handoff">
+    <h2>後続Phase引き継ぎ</h2>
+    <p>Phase 3では、本書をStrategy実装とBacktest接続の前提仕様として使う。実装時に型やYAMLスキーマを追加する場合も、StrategyがBroker、Account正本、Risk最終判定、安全停止解除を担当しない境界は変更しない。</p>
+  </section>
+</main>
+</body>
+</html>

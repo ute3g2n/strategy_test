@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D09 Turtle Golden test設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code, pre { font-family: Consolas, "Courier New", monospace; }
+    pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .warn { border-left-color: #b45309; background: #fff7ed; }
+    .ok { border-left-color: #15803d; background: #f0fdf4; }
+    .toc ul { columns: 2; }
+    details { border: 1px solid #d9e2ec; padding: 10px 12px; margin: 10px 0; background: #fbfdff; }
+    summary { font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>D09 Turtle Golden test設計書</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 初版レビュー反映済み / <strong>作成日:</strong> 2026-08-02 / <strong>ステップ:</strong> P1-05</p>
+    <p><strong>オーケストレータ:</strong> <code>AutoTradePhase1_Orchestrator_v0_1</code></p>
+    <p><strong>担当:</strong> <code>AutoTradePhase1_A04_StrategyArchitect_v0_1</code>, <code>AutoTradePhase1_A10_QaArchitect_v0_1</code></p>
+    <p><strong>使用Skill:</strong> <code>autotrade_phase1_skill_strategy_design_v0_1</code>, <code>autotrade_phase1_skill_golden_test_v0_1</code>, <code>autotrade_phase1_skill_test_strategy_v0_1</code></p>
+  </div>
+
+  <section id="summary">
+    <h2>概要</h2>
+    <p>本書は、Turtle戦略のGolden test設計を定義する。目的は、Phase 3でStrategyとBacktestを実装する前に、N、True Range、Donchian Channel、Entry、Exit、0.5N追加、2N Stop、勝ちブレイクフィルター、Unit上限を固定入力と期待出力で検証できる状態にすることである。</p>
+    <p>Golden testは成績追求のテストではない。ルール計算、状態遷移、Look-ahead防止、Backtest専用化防止を確認するための再現性テストである。</p>
+  </section>
+
+  <nav class="toc">
+    <h2>目次</h2>
+    <ul>
+      <li><a href="#inputs">入力</a></li>
+      <li><a href="#scope">対象と非対象</a></li>
+      <li><a href="#fixed-inputs">固定入力</a></li>
+      <li><a href="#expected">期待出力</a></li>
+      <li><a href="#cases">Golden test一覧</a></li>
+      <li><a href="#tolerance">許容誤差</a></li>
+      <li><a href="#prohibited">禁止事項</a></li>
+      <li><a href="#quality-gates">品質Gate</a></li>
+      <li><a href="#traceability">要件追跡</a></li>
+      <li><a href="#decisions">設計判断</a></li>
+      <li><a href="#unknowns">未確定事項</a></li>
+      <li><a href="#review">レビュー履歴</a></li>
+      <li><a href="#links">関連文書リンク</a></li>
+      <li><a href="#handoff">後続Phase引き継ぎ</a></li>
+    </ul>
+  </nav>
+
+  <section id="inputs">
+    <h2>入力</h2>
+    <ul>
+      <li><a href="./05_Strategy_Plugin_Interface設計書.html">D08 Strategy Plugin Interface設計書</a></li>
+      <li><a href="../04_共通モデル/04_共通ドメインモデル設計書.html">D06 共通ドメインモデル設計書</a></li>
+      <li><a href="../01_要件追跡/01_要件追跡マトリクス.html">D02 要件追跡マトリクス</a></li>
+      <li><a href="../03_ドメイン設計/03_モジュール責務データフロー設計書.html">D05 モジュール責務データフロー設計書</a></li>
+    </ul>
+  </section>
+
+  <section id="scope">
+    <h2>対象と非対象</h2>
+    <table>
+      <tr><th>区分</th><th>内容</th></tr>
+      <tr><td>対象</td><td>N、True Range、Donchian Channel、System 1/2 Entry、Exit、0.5N追加、2N Stop、勝ちブレイクフィルター、4/6/10/12 Unit上限、intraday breakoutと終値確認Entryの比較。</td></tr>
+      <tr><td>非対象</td><td>実データでの収益性評価、銘柄別最適化、手数料やスリッページの最終値、Broker約定仕様の全例外。</td></tr>
+      <tr><td>詳細設計バックログ</td><td>Phase 3でfixtureファイル形式、テストランナー、許容誤差の実装、CI統合、失敗時レポート形式を決める。</td></tr>
+    </table>
+  </section>
+
+  <section id="fixed-inputs">
+    <h2>固定入力</h2>
+    <table>
+      <tr><th>入力種別</th><th>必須項目</th><th>固定方法</th></tr>
+      <tr><td>MarketEvent系列</td><td>instrument_id, event_time_utc, exchange_time_local, business_date, bar_close_time, open, high, low, close, volume, source_seq</td><td>小さな人工OHLC系列をfixture化し、各テストで全入力を明示する。</td></tr>
+      <tr><td>Catalog View</td><td>tick_size, point_value, currency, tradable, roll_marker</td><td>Strategyが外部記号を見ないようInstrumentIdで固定する。</td></tr>
+      <tr><td>Strategy Config</td><td>variant, entry_channel_days, exit_channel_days, n_window, stop_n_multiple, add_unit_n_interval, unit_limit</td><td>各ケースでConfig差分を明示し、暗黙デフォルトを禁止する。</td></tr>
+      <tr><td>Portfolio View</td><td>current_units, last_entry_price, last_add_price, direction_exposure, group_exposure</td><td>Unit上限と追加判定のために最小ビューだけを渡す。</td></tr>
+      <tr><td>OrderEvent系列</td><td>client_order_id, order_state, filled_qty, fill_price, fill_time_utc</td><td>StrategyがOrder正本を持たないことを確認する範囲で使う。</td></tr>
+      <tr><td>TimerEvent</td><td>timer_kind, scheduled_time_utc, fired_time_utc, business_date</td><td>終値確認Entryと日次締めの発火点を固定する。</td></tr>
+    </table>
+  </section>
+
+  <section id="expected">
+    <h2>期待出力</h2>
+    <table>
+      <tr><th>出力</th><th>照合項目</th><th>照合しない項目</th></tr>
+      <tr><td>N / True Range計算</td><td>各バーのTR、N、warmup完了フラグ。</td><td>表示用丸め、実装内部キャッシュ。</td></tr>
+      <tr><td>Donchian Channel</td><td>entry_channel_high/low、exit_channel_high/low、現在バー除外の有無。</td><td>描画用系列。</td></tr>
+      <tr><td>SignalEvent</td><td>signal_type、direction、rule_id、bar_close_time、rationale_ref。</td><td>ログ文言の完全一致。</td></tr>
+      <tr><td>OrderIntent / TargetPosition</td><td>instrument_id、side、target_units、signal_price、breakout_level、stop_level_hint、reason_code。</td><td>Risk後の最終注文数量、Broker注文ID。</td></tr>
+      <tr><td>HealthEvent</td><td>lookahead_detected、missing_input、invalid_config、stale_timer。</td><td>通知先、運用Runbook。</td></tr>
+      <tr><td>Snapshot</td><td>last_event_id、N状態、channel状態、open_position_hint、win_breakout_state。</td><td>Broker状態、Secrets、外部接続状態。</td></tr>
+    </table>
+  </section>
+
+  <section id="cases">
+    <h2>Golden test一覧</h2>
+    <table>
+      <tr><th>ID</th><th>対象</th><th>固定入力</th><th>期待出力</th><th>禁止事項</th></tr>
+      <tr><td>GT-TUR-001</td><td>True Range</td><td>通常バー、上Gap、下Gapを含む3系列。</td><td>max(high-low, abs(high-prev_close), abs(low-prev_close))が一致。</td><td>当日closeをprev_closeとして使わない。</td></tr>
+      <tr><td>GT-TUR-002</td><td>N計算</td><td>warmup不足、warmup完了、欠損バー。</td><td>N、warmup_complete、欠損時HealthEvent。</td><td>未来バーでNを補完しない。</td></tr>
+      <tr><td>GT-TUR-003</td><td>Donchian Channel</td><td>lookback境界、同値高値、超過高値。</td><td>現在バーを除外したchannelとbreakout判定。</td><td>現在バーをchannel計算に含めない。</td></tr>
+      <tr><td>GT-TUR-004</td><td>System 1 Entry</td><td>20日系breakout、勝ちブレイク状態ON/OFF。</td><td>勝ちブレイクフィルター適用時はSignal抑制。</td><td>フィルター状態をBacktest結果から後付けしない。</td></tr>
+      <tr><td>GT-TUR-005</td><td>System 2 Entry</td><td>55日系breakout。</td><td>長期breakoutのSignalEventとOrderIntent。</td><td>System 1設定を混ぜない。</td></tr>
+      <tr><td>GT-TUR-006</td><td>intraday breakout</td><td>高値がchannelを日中超過し、終値は戻るケース。</td><td>intraday variantだけEntry Signal。</td><td>終値確認variantでEntryしない。</td></tr>
+      <tr><td>GT-TUR-007</td><td>終値確認Entry</td><td>終値がchannelを超えるケース。</td><td>close_confirmed variantでEntry Signal。</td><td>bar_close_time前にSignalを出さない。</td></tr>
+      <tr><td>GT-TUR-008</td><td>0.5N追加</td><td>last_add_priceから0.49N、0.5N、0.51N進むケース。</td><td>0.5N以上で追加OrderIntent候補。</td><td>N更新タイミングを都合よく変えない。</td></tr>
+      <tr><td>GT-TUR-009</td><td>2N Stop</td><td>Entryから1.99N、2.0N、Gapで2N超過。</td><td>2N以上でExit / Stop intent。</td><td>Gap超過を理想価格で約定した前提にしない。</td></tr>
+      <tr><td>GT-TUR-010</td><td>Unit上限</td><td>市場4、方向6、相関10、総量12に近いPortfolio View。</td><td>上限到達時の追加抑制Hint。</td><td>StrategyがRisk最終判定を代替しない。</td></tr>
+      <tr><td>GT-TUR-011</td><td>Snapshot / Restore</td><td>追加途中、フィルター状態あり、未完了意図あり。</td><td>restore後に同じ次イベントで同じSignal / Intent。</td><td>メモリだけの隠れ状態を使わない。</td></tr>
+      <tr><td>GT-TUR-012</td><td>Look-ahead防止</td><td>未来バーにだけbreakoutが存在する系列。</td><td>未来バー到達前はSignalなし。</td><td>fixture全体を先読みしない。</td></tr>
+    </table>
+  </section>
+
+  <section id="tolerance">
+    <h2>許容誤差</h2>
+    <table>
+      <tr><th>対象</th><th>許容誤差</th><th>理由</th></tr>
+      <tr><td>True Range / N</td><td>原則 decimal 同値。実装言語都合で浮動小数の場合は絶対誤差 1e-9 以下。</td><td>丸め差を許しすぎるとUnitやStop境界が崩れるため。</td></tr>
+      <tr><td>Channel値</td><td>tick_size未満の差は不可。価格系列は入力値と完全一致。</td><td>breakout判定の境界値だから。</td></tr>
+      <tr><td>Signal時刻</td><td>完全一致。</td><td>Look-ahead検出に直結するため。</td></tr>
+      <tr><td>OrderIntent方向と単位</td><td>完全一致。</td><td>RiskとOMSへの契約だから。</td></tr>
+      <tr><td>ログ文言</td><td>完全一致不要。</td><td>rationale_ref、rule_id、reason_codeで検証する。</td></tr>
+    </table>
+  </section>
+
+  <section id="prohibited">
+    <h2>禁止事項</h2>
+    <table>
+      <tr><th>禁止事項</th><th>検出方法</th></tr>
+      <tr><td>Backtest結果を見て期待値やfixtureを変更する。</td><td>fixture versionとレビュー履歴を固定し、差分レビューを必須にする。</td></tr>
+      <tr><td>Look-ahead、survivorship bias、data snoopingを許す。</td><td>未来バー、銘柄入替、対象Universe固定のテストを含める。</td></tr>
+      <tr><td>銘柄別最適化パラメータをGolden test成功条件にする。</td><td>Golden testはルール正しさのみを判定し、成績閾値を持たない。</td></tr>
+      <tr><td>Broker約定やRisk最終判定をStrategy Golden testへ混ぜる。</td><td>Strategy出力はOrderIntent / TargetPositionまでに限定する。</td></tr>
+      <tr><td>Gap時に理想価格で約定した前提をStrategy内に置く。</td><td>StrategyはSignal価格とStop Hintまで、約定モデルはBacktest / Broker側で検証する。</td></tr>
+    </table>
+  </section>
+
+  <section id="quality-gates">
+    <h2>品質Gate</h2>
+    <table>
+      <tr><th>Gate</th><th>条件</th><th>失敗時</th></tr>
+      <tr><td>Machine Gate G-STR-01</td><td>GT-TUR-001からGT-TUR-012が全件Pass。</td><td>Strategy実装をPhase 3完了扱いにしない。</td></tr>
+      <tr><td>Machine Gate G-STR-02</td><td>Look-ahead検出テストが意図通りSignalなしになる。</td><td>Backtest結果を信頼しない。</td></tr>
+      <tr><td>Machine Gate G-STR-03</td><td>snapshot / restore後の出力が一致。</td><td>Paper / Live候補へ進めない。</td></tr>
+      <tr><td>Human Gate H-STR-01</td><td>原典System 1/2と現代版候補の差分がレビュー済み。</td><td>比較実装を追加しない。</td></tr>
+      <tr><td>Human Gate H-STR-02</td><td>Unknownが台帳化され、Pass扱いされていない。</td><td>Phase 3前提仕様として凍結しない。</td></tr>
+    </table>
+  </section>
+
+  <section id="traceability">
+    <h2>要件追跡</h2>
+    <table>
+      <tr><th>追跡ID</th><th>本書での扱い</th></tr>
+      <tr><td>REQ-Q01</td><td>原典版と現代版を同じfixtureで比較できるようにする。</td></tr>
+      <tr><td>REQ-Q09</td><td>NとUnit関連の計算をGolden testに含める。</td></tr>
+      <tr><td>REQ-Q12</td><td>System 1勝ちブレイクフィルターを専用fixtureで検証する。</td></tr>
+      <tr><td>REQ-Q13</td><td>intraday breakoutと終値確認Entryの比較fixtureを分ける。</td></tr>
+      <tr><td>REQ-Q14</td><td>0.5N追加とpyramidingを検証する。</td></tr>
+      <tr><td>REQ-Q15</td><td>2N Stop、Whipsaw、ボラ急上昇時縮小を比較対象として扱う。</td></tr>
+      <tr><td>REQ-Q18</td><td>4/6/10/12 Unit上限を固定入力と期待出力に含める。</td></tr>
+      <tr><td>REQ-POL04</td><td>Strategy差し替え、責務分離、監査、テスト可能性を満たす。</td></tr>
+    </table>
+  </section>
+
+  <section id="decisions">
+    <h2>設計判断</h2>
+    <details open><summary>DEC-P1-GT-01: Golden testは成績ではなくルール再現性を判定する</summary><p>成績閾値を成功条件にするとパラメータ最適化と混ざるため、固定入力に対する計算、Signal、Intent、状態遷移を判定する。</p></details>
+    <details open><summary>DEC-P1-GT-02: Look-ahead防止テストを必須Gateにする</summary><p>トレンドフォローのBacktestは未来情報混入に弱いため、未来バーだけで成立するbreakoutを明示的に禁止する。</p></details>
+    <details open><summary>DEC-P1-GT-03: Strategy Golden testとRisk / OMS testを分ける</summary><p>Strategyの責務境界を守るため、Risk最終判定、注文送信、約定モデルは別設計で検証する。</p></details>
+  </section>
+
+  <section id="unknowns">
+    <h2>未確定事項</h2>
+    <table>
+      <tr><th>ID</th><th>内容</th><th>扱い</th></tr>
+      <tr><td>UNK-P1-GT-01</td><td>fixtureファイル形式をCSV、JSON、YAMLのどれにするか。</td><td>Phase 3実装前にテストランナーと合わせて決める。</td></tr>
+      <tr><td>UNK-P1-GT-02</td><td>Whipsaw、ボラ急上昇時縮小の最小fixture数。</td><td>Phase 3で候補実装範囲と合わせて確定する。</td></tr>
+      <tr><td>UNK-P1-GT-03</td><td>Gap時の保守的約定モデルをGolden testにどこまで含めるか。</td><td>Strategy側はSignal / Intentまでに限定し、Backtest実行モデル設計へ送る。</td></tr>
+    </table>
+  </section>
+
+  <section id="review">
+    <h2>レビュー履歴</h2>
+    <table>
+      <tr><th>日付</th><th>観点</th><th>結果</th></tr>
+      <tr><td>2026-08-02</td><td>A12 要件追跡・用語整合観点</td><td>D08、D06、要件追跡IDとの用語整合を確認。</td></tr>
+      <tr><td>2026-08-02</td><td>A13 Red Team観点</td><td>過剰最適化、Look-ahead、Backtest専用設計化、fixture後付け変更を禁止事項へ反映。</td></tr>
+    </table>
+  </section>
+
+  <section id="links">
+    <h2>関連文書リンク</h2>
+    <ul>
+      <li><a href="./05_Strategy_Plugin_Interface設計書.html">D08 Strategy Plugin Interface設計書</a></li>
+      <li><a href="../04_共通モデル/04_共通ドメインモデル設計書.html">D06 共通ドメインモデル設計書</a></li>
+      <li><a href="../01_要件追跡/01_要件追跡マトリクス.html">D02 要件追跡マトリクス</a></li>
+    </ul>
+  </section>
+
+  <section id="handoff">
+    <h2>後続Phase引き継ぎ</h2>
+    <p>Phase 3では、本書のGolden test一覧をStrategy実装とBacktest基盤の最初の受け入れ条件にする。テスト追加は歓迎するが、GT-TUR-001からGT-TUR-012の意味を弱める変更はA12/A13観点の再レビューを必須とする。</p>
+  </section>
+</main>
+</body>
+</html>
