@@ -43,6 +43,7 @@ class MinuteBar:
     low: float
     close: float
     volume: float
+    symbol: str = ""
 
 
 @dataclass(frozen=True)
@@ -65,3 +66,10 @@ class BacktestResult:
     final_equity: float
     max_drawdown: float
     notes: str
+
+
+@dataclass(frozen=True)
+class SplitBars:
+    development: list[DailyBar]
+    validation: list[DailyBar]
+    holdout: list[DailyBar]

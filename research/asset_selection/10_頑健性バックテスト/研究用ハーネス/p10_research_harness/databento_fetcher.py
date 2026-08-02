@@ -74,6 +74,57 @@ def fetch_databento_csv(
     }
 
 
+def fetch_databento_metadata(
+    symbols: list[str],
+    start: str,
+    end: str,
+    output_dir: Path,
+    dataset: str = "GLBX.MDP3",
+) -> dict[str, Any]:
+    env_report = check_databento_environment()
+    if not env_report["ready"]:
+        return {
+            "kind": "databento_metadata_fetch_report",
+            "research_only": True,
+            "status": "blocked_environment_not_ready",
+            "environment": env_report,
+            "requested_symbols": symbols,
+        }
+
+    import databento as db  # type: ignore[import-not-found]
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    client = db.Historical()
+    outputs: list[dict[str, str]] = []
+    for schema in ["definition", "statistics"]:
+        schema_dir = output_dir / schema
+        schema_dir.mkdir(parents=True, exist_ok=True)
+        for symbol in symbols:
+            parent_symbol = _to_parent_symbol(symbol)
+            data = client.timeseries.get_range(
+                dataset=dataset,
+                symbols=parent_symbol,
+                schema=schema,
+                stype_in="parent",
+                start=start,
+                end=end,
+            )
+            frame = data.to_df(price_type="float", pretty_ts=True, map_symbols=True)
+            path = schema_dir / f"{symbol}_{schema}.csv"
+            frame.reset_index().to_csv(path, index=False)
+            outputs.append({"symbol": symbol, "schema": schema, "path": str(path)})
+
+    return {
+        "kind": "databento_metadata_fetch_report",
+        "research_only": True,
+        "status": "completed",
+        "dataset": dataset,
+        "start": start,
+        "end": end,
+        "outputs": outputs,
+    }
+
+
 def _to_parent_symbol(symbol: str) -> str:
     if symbol.endswith(".FUT"):
         return symbol
@@ -88,7 +139,9 @@ def _normalize_ohlcv_frame(frame: Any) -> Any:
     missing = [column for column in required if column not in data.columns]
     if missing:
         raise ValueError(f"Databento OHLCV output is missing columns: {', '.join(missing)}")
-    return data[required]
+    if "symbol" not in data.columns:
+        data["symbol"] = ""
+    return data[required + ["symbol"]]
 
 
 def _first_existing_column(frame: Any, candidates: list[str]) -> str:

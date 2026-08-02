@@ -3,11 +3,11 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from .data_loader import aggregate_daily_bars, load_minute_bars
-from .databento_fetcher import check_databento_environment, fetch_databento_csv
+from .data_loader import aggregate_daily_bars, load_minute_bars, split_without_opening_holdout, write_continuous_minute_csv
+from .databento_fetcher import check_databento_environment, fetch_databento_csv, fetch_databento_metadata
 from .engine import run_backtest
 from .manifest import load_data_requirements, load_experiments
-from .reports import write_json, write_report, write_runbook, write_summary_csv
+from .reports import write_json, write_protocol_completion_report, write_report, write_runbook, write_summary_csv
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -32,6 +32,17 @@ def main() -> int:
     fetch_parser.add_argument("--schema", default="ohlcv-1m")
     fetch_parser.add_argument("--symbols", nargs="*")
 
+    metadata_parser = subparsers.add_parser("fetch-databento-metadata")
+    metadata_parser.add_argument("--start", required=True)
+    metadata_parser.add_argument("--end", required=True)
+    metadata_parser.add_argument("--output-dir", required=True)
+    metadata_parser.add_argument("--dataset", default="GLBX.MDP3")
+    metadata_parser.add_argument("--symbols", nargs="*")
+
+    continuous_parser = subparsers.add_parser("build-continuous")
+    continuous_parser.add_argument("--source-dir", required=True)
+    continuous_parser.add_argument("--output-dir", required=True)
+
     run_parser = subparsers.add_parser("run")
     run_parser.add_argument("--bars-dir", required=True)
 
@@ -53,6 +64,16 @@ def main() -> int:
             schema=args.schema,
             symbols=args.symbols,
         )
+    if args.command == "fetch-databento-metadata":
+        return fetch_databento_metadata_command(
+            start=args.start,
+            end=args.end,
+            output_dir=Path(args.output_dir),
+            dataset=args.dataset,
+            symbols=args.symbols,
+        )
+    if args.command == "build-continuous":
+        return build_continuous(Path(args.source_dir), Path(args.output_dir))
     if args.command == "run":
         return run(Path(args.bars_dir))
     return 1
@@ -131,6 +152,50 @@ def fetch_databento(
     return 0 if result["status"] == "completed" else 4
 
 
+def fetch_databento_metadata_command(
+    start: str,
+    end: str,
+    output_dir: Path,
+    dataset: str,
+    symbols: list[str] | None,
+) -> int:
+    requirements = load_data_requirements()
+    target_symbols = symbols or [item.symbol for item in requirements]
+    result = fetch_databento_metadata(
+        symbols=target_symbols,
+        start=start,
+        end=end,
+        output_dir=output_dir,
+        dataset=dataset,
+    )
+    write_json(RUNS_ROOT / "databento_metadata_fetch_report.json", result)
+    return 0 if result["status"] == "completed" else 4
+
+
+def build_continuous(source_dir: Path, output_dir: Path) -> int:
+    requirements = load_data_requirements()
+    reports = {}
+    missing = []
+    for item in requirements:
+        source_path = source_dir / f"{item.symbol}.csv"
+        if not source_path.exists():
+            missing.append(item.symbol)
+            continue
+        reports[item.symbol] = write_continuous_minute_csv(source_path, output_dir / f"{item.symbol}.csv")
+
+    payload = {
+        "kind": "continuous_build_report",
+        "research_only": True,
+        "source_dir": str(source_dir),
+        "output_dir": str(output_dir),
+        "reports": reports,
+        "missing_symbols": missing,
+        "status": "completed" if not missing else "blocked_missing_input_csv",
+    }
+    write_json(RUNS_ROOT / "continuous_build_report.json", payload)
+    return 0 if not missing else 3
+
+
 def run(bars_dir: Path) -> int:
     requirements = load_data_requirements()
     experiments = load_experiments()
@@ -155,7 +220,9 @@ def run(bars_dir: Path) -> int:
         for symbol in experiment.symbols:
             minute_bars = load_minute_bars(bars_dir / f"{symbol}.csv")
             daily_bars = aggregate_daily_bars(minute_bars)
-            results.append(run_backtest(symbol, daily_bars, experiment))
+            split = split_without_opening_holdout(daily_bars)
+            runnable_bars = split.development + split.validation
+            results.append(run_backtest(symbol, runnable_bars, experiment))
 
     write_summary_csv(RUNS_ROOT / "backtest_summary.csv", results)
     write_report(RUNS_ROOT / "backtest_report.md", results, [])
@@ -166,6 +233,12 @@ def run(bars_dir: Path) -> int:
             "research_only": True,
             "status": "completed",
             "results": len(results),
+            "holdout_status": "sealed_not_used",
         },
+    )
+    write_protocol_completion_report(
+        RUNS_ROOT / "p10_protocol_completion_report.md",
+        results=results,
+        bars_dir=bars_dir,
     )
     return 0
