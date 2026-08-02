@@ -30,7 +30,7 @@
   <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
   <h1>D03 システム全体構成設計書</h1>
   <div class="meta">
-    <p><strong>文書状態:</strong> v0.1 復元版 / <strong>作成日:</strong> 2026-08-02 / <strong>復元日:</strong> 2026-08-02 / <strong>ステップ:</strong> P1-03</p>
+    <p><strong>文書状態:</strong> v0.2 指定AI部品適用改訂版 / <strong>作成日:</strong> 2026-08-02 / <strong>復元日:</strong> 2026-08-02 / <strong>改訂日:</strong> 2026-08-02 / <strong>ステップ:</strong> P1-03</p>
     <p><strong>担当:</strong> AutoTradePhase1_A02_SystemArchitect_v0_1, AutoTradePhase1_A03_DomainArchitect_v0_1</p>
     <p><strong>使用Skill:</strong> autotrade_phase1_skill_architecture_writer_v0_1, autotrade_phase1_skill_domain_modeling_v0_1, autotrade_phase1_skill_html_doc_writer_v0_1</p>
   </div>
@@ -38,6 +38,7 @@
   <section id="summary">
     <h2>概要</h2>
     <p>本書は、タートルズ・トレンドフォロー自動売買システムのPhase 1における全体アーキテクチャを固定する。主眼は、研究から本番運用へ進む道筋、主要モジュールの関係、依存方向、Broker依存とMarket Data依存の隔離である。</p>
+    <p>本改訂では、<code>AutoTradePhase1_Orchestrator_v0_1</code> のPhase 1制約に従い、<code>AutoTradePhase1_A02_SystemArchitect_v0_1</code> が全体構成と依存方向を、<code>AutoTradePhase1_A03_DomainArchitect_v0_1</code> がドメイン境界と共通概念を担当したものとして整理する。外部依存、研究コード、本番運用コードの混入を防ぐことを最優先の設計制約とする。</p>
   </section>
 
   <nav class="toc">
@@ -46,8 +47,11 @@
       <li><a href="#inputs">入力</a></li>
       <li><a href="#scope">対象と非対象</a></li>
       <li><a href="#architecture">全体構成</a></li>
+      <li><a href="#orchestration">指定AI部品適用記録</a></li>
+      <li><a href="#principles">アーキテクチャ原則</a></li>
       <li><a href="#research-prod">研究コードと本番運用コードの境界</a></li>
       <li><a href="#runtime-common">実行モード共通化</a></li>
+      <li><a href="#control-points">安全停止と統制点</a></li>
       <li><a href="#traceability">要件追跡</a></li>
       <li><a href="#decisions">設計判断</a></li>
       <li><a href="#unknowns">未確定事項</a></li>
@@ -76,6 +80,19 @@
     </table>
   </section>
 
+  <section id="orchestration">
+    <h2>指定AI部品適用記録</h2>
+    <table>
+      <tr><th>種別</th><th>完全名</th><th>本書での適用内容</th></tr>
+      <tr><td>オーケストレータ</td><td><code>AutoTradePhase1_Orchestrator_v0_1</code></td><td>P1-03をP1-01/P1-02完了後のG1設計として扱い、Phase 1で固定する境界と後続Phaseへ送る詳細を分離した。</td></tr>
+      <tr><td>サブエージェント</td><td><code>AutoTradePhase1_A02_SystemArchitect_v0_1</code></td><td>モジュラーモノリス、イベント駆動、Adapter方式、研究/本番境界、依存方向を定義した。</td></tr>
+      <tr><td>サブエージェント</td><td><code>AutoTradePhase1_A03_DomainArchitect_v0_1</code></td><td>D04/D05/D06と整合するドメイン境界、イベント、ID、Strategy責務を確認した。</td></tr>
+      <tr><td>Skill</td><td><code>autotrade_phase1_skill_architecture_writer_v0_1</code></td><td>全体構成、モジュール責務、データフロー、依存方向、後続Phaseの詳細化対象を整理した。</td></tr>
+      <tr><td>Skill</td><td><code>autotrade_phase1_skill_domain_modeling_v0_1</code></td><td>Strategy、OMS、Risk、Account、Adapterの責務混在を避け、共通ドメイン概念をD04/D06へ接続した。</td></tr>
+      <tr><td>Skill</td><td><code>autotrade_phase1_skill_html_doc_writer_v0_1</code></td><td>単体で読めるHTML、目次、設計判断、未確定事項、レビュー履歴、関連文書リンクを維持した。</td></tr>
+    </table>
+  </section>
+
   <section id="architecture">
     <h2>全体構成</h2>
     <p>Phase 1では、モジュラーモノリスを基本構造とし、内部の判断履歴はイベント駆動で扱い、外部依存はAdapterで隔離する。初期段階では分散システム化よりも、検証再現性、責務境界、監査性を優先する。</p>
@@ -92,6 +109,18 @@
     </table>
   </section>
 
+  <section id="principles">
+    <h2>アーキテクチャ原則</h2>
+    <table>
+      <tr><th>原則</th><th>固定する判断</th><th>禁止すること</th></tr>
+      <tr><td>Core First</td><td>取引判断、注文意図、注文状態、約定、ポジション、口座断面、リスク断面は内部モデルを正本にする。</td><td>Broker SDK型やData Provider型をCore Domainへ持ち込むこと。</td></tr>
+      <tr><td>Event Journal</td><td>入力、判断、Risk判定、注文状態、約定、照合、安全停止をイベントとして記録する。</td><td>Liveだけに存在する隠れ状態で判断すること。</td></tr>
+      <tr><td>Adapter Boundary</td><td>外部API差分、認証、レート制限、外部IDはAdapterで吸収する。</td><td>StrategyやRiskがBroker固有ID、Data Provider固有記号、APIキーを参照すること。</td></tr>
+      <tr><td>Mode Parity</td><td>Backtest / Shadow / Paper / Liveは同じイベント意味論と注文状態を使う。</td><td>Backtest専用の都合をLive設計へ無検証で流用すること。</td></tr>
+      <tr><td>Human Gate</td><td>Shadow、Paper、Live移行前にはレビュー済み成果物、Unknown台帳、実行ログを確認する。</td><td>UnknownをPass扱いして次Phaseへ進むこと。</td></tr>
+    </table>
+  </section>
+
   <section id="research-prod">
     <h2>研究コードと本番運用コードの境界</h2>
     <table>
@@ -99,6 +128,14 @@
       <tr><td>研究用コード</td><td>市場候補探索、パラメータ比較、ノートブック、検証ハーネス、候補戦略分析。</td><td>本番注文、Broker認証情報参照、Live状態の直接更新、監査ログ正本への書き込み。</td></tr>
       <tr><td>本番運用コード</td><td>バージョン固定された設定、正規化データ、イベントジャーナル、Risk、OMS、Broker Adapter、Reconciliation、安全停止。</td><td>再現不能な手動補正、研究スクリプトからの注文発行、未レビュー戦略のLive接続。</td></tr>
       <tr><td>共有境界</td><td>読み取り専用の共通ドメイン概念、Strategy Plugin Interface、Golden test fixture。</td><td>研究側から本番DBや本番Adapterを直接importすること。</td></tr>
+    </table>
+    <h3>研究成果の昇格フロー</h3>
+    <table>
+      <tr><th>段階</th><th>入力</th><th>昇格条件</th><th>出力</th></tr>
+      <tr><td>Research Candidate</td><td>ノートブック、探索スクリプト、候補パラメータ。</td><td>再現可能なデータ範囲、run_id、設定差分、評価指標が記録されている。</td><td>候補Strategy仕様、検証TODO。</td></tr>
+      <tr><td>Reviewed Strategy</td><td>候補Strategy仕様、Golden test、比較結果。</td><td>Strategy Plugin Interfaceに適合し、Risk/OMS/Adapterへ直接依存していない。</td><td>バージョン固定されたStrategy設定。</td></tr>
+      <tr><td>Paper Ready</td><td>Reviewed Strategy、Paper設定、監視条件。</td><td>Risk上限、安全停止、Reconciliation、通知が有効である。</td><td>Paper実行manifest。</td></tr>
+      <tr><td>Live Candidate</td><td>Paper結果、未確定事項台帳、運用チェックリスト。</td><td>Human Gateを通過し、Unknownが残る場合は明示的な許容判断がある。</td><td>Live移行候補。</td></tr>
     </table>
   </section>
 
@@ -110,6 +147,26 @@
       <tr><td>Strategy Plugin Interface</td><td>戦略差し替えとTurtle比較を同じ入口で扱う。</td><td>Strategy Module</td></tr>
       <tr><td>Risk、OMSの判断順序</td><td>BacktestとLiveの挙動差を監査可能にする。</td><td>Execution Mode Adapter</td></tr>
       <tr><td>イベントジャーナル、監視イベント</td><td>再現性、障害調査、照合の基礎にする。</td><td>Storage Adapter、Monitoring Adapter</td></tr>
+    </table>
+    <h3>実行モード別の副作用境界</h3>
+    <table>
+      <tr><th>モード</th><th>Market Data</th><th>Broker副作用</th><th>監査要求</th><th>Human Gate</th></tr>
+      <tr><td>Backtest</td><td>保存済みデータを再生する。</td><td>なし。Simulatorのみ。</td><td>run_id、データバージョン、設定バージョンを必須記録。</td><td>不要。ただしPoC評価前にレビュー。</td></tr>
+      <tr><td>Shadow</td><td>Live相当の入力を読む。</td><td>注文送信なし。</td><td>Signal、OrderIntent相当、Risk判定を記録。</td><td>Paper移行前に必須。</td></tr>
+      <tr><td>Paper</td><td>Live相当の入力を読む。</td><td>Paper口座へ送信。</td><td>注文状態、約定、Reconciliation、通知を記録。</td><td>Live移行前に必須。</td></tr>
+      <tr><td>Live</td><td>Live入力を読む。</td><td>Live口座へ送信。</td><td>全イベント、全停止判断、Secretsアクセス境界を記録。</td><td>必須。手動承認なしに移行しない。</td></tr>
+    </table>
+  </section>
+
+  <section id="control-points">
+    <h2>安全停止と統制点</h2>
+    <table>
+      <tr><th>統制点</th><th>発火条件</th><th>担当モジュール</th><th>停止後の扱い</th></tr>
+      <tr><td>Risk Reject</td><td>1Nリスク、最大DD、ユニット上限、日次損失上限に抵触。</td><td>Risk</td><td>OrderIntentを拒否し、Strategyへ結果イベントを返す。</td></tr>
+      <tr><td>OMS Guard</td><td>重複注文、状態不整合、取消不能状態、未完了注文過多。</td><td>OMS</td><td>新規注文を止め、Reconciliationを要求する。</td></tr>
+      <tr><td>Broker Guard</td><td>API拒否、接続断、外部注文状態不明、認証失敗。</td><td>Broker Adapter</td><td>UnknownExternalStateを発行し、自動再開しない。</td></tr>
+      <tr><td>Reconciliation Stop</td><td>内部PositionとBroker残高が閾値以上に乖離。</td><td>Reconciliation</td><td>売買停止、差異イベント、手動確認待ち。</td></tr>
+      <tr><td>Operational Kill Switch</td><td>監視異常、Heartbeat欠落、Secrets異常、手動停止。</td><td>Monitoring / Operations</td><td>全新規注文を停止し、未完了注文の扱いをRunbookへ送る。</td></tr>
     </table>
   </section>
 
@@ -139,6 +196,8 @@
       <tr><td>UNK-P1-ARCH-01</td><td>最終的なBacktest / 実行エンジン選定。</td><td>共通イベントモデルを満たすことを条件にPhase 2以降で比較決定する。</td></tr>
       <tr><td>UNK-P1-ARCH-02</td><td>Live時のインフラ配置と監視製品。</td><td>監視イベントと安全停止点を先に固定し、具体製品は後続Phaseへ送る。</td></tr>
       <tr><td>UNK-P1-ARCH-03</td><td>初期BrokerとMarket Data APIの最終仕様。</td><td>Adapter Portで閉じ込め、外部仕様差分はAdapter設計で詳細化する。</td></tr>
+      <tr><td>UNK-P1-ARCH-04</td><td>本番デプロイ単位を単一プロセス、複数プロセス、分離サービスのどこまで分けるか。</td><td>Phase 1では論理境界のみ固定し、運用負荷と監視要件を見てPhase 5以降で判断する。</td></tr>
+      <tr><td>UNK-P1-ARCH-05</td><td>研究成果を本番設定へ昇格する承認ワークフローの具体ツール。</td><td>昇格条件だけPhase 1で固定し、ツール選定は運用設計へ送る。</td></tr>
     </table>
   </section>
 
@@ -148,6 +207,7 @@
       <tr><th>日付</th><th>観点</th><th>結果</th></tr>
       <tr><td>2026-08-02</td><td>A12整合性観点</td><td>要件追跡、Phase 1スコープ、D04/D05との参照関係を確認。</td></tr>
       <tr><td>2026-08-02</td><td>A13 Red Team観点</td><td>密結合、Broker依存漏れ、安全停止漏れ、過剰詳細化を確認。Blocking指摘なし。</td></tr>
+      <tr><td>2026-08-02</td><td>指定AI部品適用改訂</td><td>A02/A03と指定Skillの責務に基づき、昇格フロー、統制点、実行モード別副作用境界、詳細設計バックログを追記。</td></tr>
     </table>
   </section>
 

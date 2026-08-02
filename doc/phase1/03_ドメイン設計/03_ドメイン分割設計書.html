@@ -29,7 +29,7 @@
   <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
   <h1>D04 ドメイン分割設計書</h1>
   <div class="meta">
-    <p><strong>文書状態:</strong> v0.1 復元版 / <strong>作成日:</strong> 2026-08-02 / <strong>復元日:</strong> 2026-08-02 / <strong>ステップ:</strong> P1-03</p>
+    <p><strong>文書状態:</strong> v0.2 指定AI部品適用改訂版 / <strong>作成日:</strong> 2026-08-02 / <strong>復元日:</strong> 2026-08-02 / <strong>改訂日:</strong> 2026-08-02 / <strong>ステップ:</strong> P1-03</p>
     <p><strong>担当:</strong> AutoTradePhase1_A02_SystemArchitect_v0_1, AutoTradePhase1_A03_DomainArchitect_v0_1</p>
     <p><strong>使用Skill:</strong> autotrade_phase1_skill_architecture_writer_v0_1, autotrade_phase1_skill_domain_modeling_v0_1, autotrade_phase1_skill_html_doc_writer_v0_1</p>
   </div>
@@ -37,6 +37,7 @@
   <section id="summary">
     <h2>概要</h2>
     <p>本書は、自動売買システムの境界づけられたコンテキスト、共通ドメイン概念、責務分離を定義する。Strategyを売買判断の入口に限定し、Account、Risk、OMS、Broker、Market Data、Monitoringを分離する。</p>
+    <p>本改訂では、<code>AutoTradePhase1_A03_DomainArchitect_v0_1</code> の責務に沿って、各コンテキストの所有データ、発行イベント、受け取るCommand、禁止依存を明確化する。A02の全体構成とD06の共通ドメインモデルを接続し、後続のStrategy、Risk、OMS、Adapter設計が同じ境界を参照できる状態にする。</p>
   </section>
 
   <nav class="toc">
@@ -44,6 +45,8 @@
     <ul>
       <li><a href="#inputs">入力</a></li>
       <li><a href="#contexts">境界づけられたコンテキスト</a></li>
+      <li><a href="#context-map">コンテキストマップ</a></li>
+      <li><a href="#ownership">所有データとイベント</a></li>
       <li><a href="#ubiquitous">共通ドメイン概念</a></li>
       <li><a href="#strategy">Strategyの責務</a></li>
       <li><a href="#dependency">依存方向</a></li>
@@ -65,6 +68,20 @@
     </ul>
   </section>
 
+  <section id="context-map">
+    <h2>コンテキストマップ</h2>
+    <table>
+      <tr><th>上流</th><th>下流</th><th>関係</th><th>契約</th></tr>
+      <tr><td>Market Data</td><td>Event Engine</td><td>Published Language</td><td>正規化済みMarketEventと品質フラグを渡す。</td></tr>
+      <tr><td>Catalog</td><td>Market Data / Strategy / Risk / OMS</td><td>Shared Kernel</td><td>InstrumentId、取引可能性、営業日、契約メタデータを共有する。</td></tr>
+      <tr><td>Strategy</td><td>Risk</td><td>Customer / Supplier</td><td>StrategyはOrderIntentを出し、Riskは許可、拒否、縮小を判断する。</td></tr>
+      <tr><td>Risk</td><td>OMS</td><td>Conformist</td><td>OMSはRiskDecisionを前提にOrderPlanを作る。Riskを迂回しない。</td></tr>
+      <tr><td>OMS</td><td>Broker Integration</td><td>Anti-Corruption Layer</td><td>内部OrderRequestをBroker固有形式へ変換する。</td></tr>
+      <tr><td>Broker Integration</td><td>Reconciliation</td><td>Published Language</td><td>ExecutionReportとBroker状態の正規化ビューを渡す。</td></tr>
+      <tr><td>Operations / Monitoring</td><td>全コンテキスト</td><td>Observer / Control</td><td>HealthEvent、KillSwitchState、監査イベントを扱う。</td></tr>
+    </table>
+  </section>
+
   <section id="contexts">
     <h2>境界づけられたコンテキスト</h2>
     <table>
@@ -77,6 +94,21 @@
       <tr><td>Broker Integration</td><td>Broker API変換、注文送信、約定取得、エラー分類。</td><td>Strategy判断、Risk上限変更。</td></tr>
       <tr><td>Reconciliation</td><td>内部状態とBroker状態、注文、約定、残高の照合。</td><td>新規売買シグナル生成。</td></tr>
       <tr><td>Operations / Monitoring</td><td>メトリクス、アラート、監査ログ、安全停止、Secrets境界。</td><td>研究用パラメータ探索。</td></tr>
+    </table>
+  </section>
+
+  <section id="ownership">
+    <h2>所有データとイベント</h2>
+    <table>
+      <tr><th>コンテキスト</th><th>所有データ</th><th>発行イベント</th><th>受け取るCommand</th><th>禁止依存</th></tr>
+      <tr><td>Market Data</td><td>Raw取得記録、正規化系列、品質フラグ。</td><td>MarketEvent, DataQualityEvent</td><td>IngestData, RebuildSeries</td><td>Strategy設定、Broker注文状態。</td></tr>
+      <tr><td>Catalog</td><td>InstrumentId、外部記号対応、営業日、取引可能性、契約メタデータ。</td><td>CatalogUpdated, InstrumentTradabilityChanged</td><td>RegisterInstrument, UpdateCalendar</td><td>Broker SDK型、Data Provider SDK型のCore露出。</td></tr>
+      <tr><td>Strategy</td><td>戦略状態、シグナル根拠、Strategy設定バージョン。</td><td>SignalEvent, OrderIntentCreated</td><td>EvaluateMarketEvent, ResetStrategyState</td><td>Broker API、Secrets、口座正本、注文状態正本。</td></tr>
+      <tr><td>Portfolio / Risk</td><td>RiskSnapshot、Exposure、DD状態、KillSwitchState。</td><td>RiskAccepted, RiskRejected, KillSwitchActivated</td><td>AssessOrderIntent, UpdateRiskLimit</td><td>Strategyの売買ロジック、Broker固有注文変換。</td></tr>
+      <tr><td>OMS</td><td>Order、OrderState、client_order_id、未完了注文。</td><td>OrderPlanned, OrderSubmitted, OrderStateChanged</td><td>CreateOrderPlan, CancelOrder</td><td>Risk迂回発注、Strategy直接発注。</td></tr>
+      <tr><td>Broker Integration</td><td>Broker注文ID対応、Broker接続状態、外部応答正規化。</td><td>ExecutionReportReceived, BrokerConnectionChanged</td><td>SubmitOrder, CancelBrokerOrder, QueryBrokerState</td><td>Strategy判断、Risk上限変更。</td></tr>
+      <tr><td>Reconciliation</td><td>照合結果、差異イベント、復旧待ち状態。</td><td>ReconciliationPassed, ReconciliationMismatch, RecoveryRequired</td><td>ReconcileState</td><td>差異の黙殺、自動補正のみでの再開。</td></tr>
+      <tr><td>Operations / Monitoring</td><td>メトリクス、アラート、監査ビュー、運用停止状態。</td><td>HealthEvent, AlertRaised, ManualStopRequested</td><td>ObserveComponent, TriggerKillSwitch</td><td>売買判断ロジック、Strategyパラメータ探索。</td></tr>
     </table>
   </section>
 
@@ -102,6 +134,14 @@
       <tr><td>説明可能な判断根拠の出力。</td><td>リスク上限の最終判定、注文重複防止の最終責任。</td></tr>
     </table>
     <div class="note warn"><p><strong>境界ルール:</strong> StrategyからBroker AdapterやMarket Data Adapterを直接参照してはならない。</p></div>
+    <h3>Strategyが読んでよいビュー</h3>
+    <table>
+      <tr><th>ビュー</th><th>含めてよい情報</th><th>含めない情報</th></tr>
+      <tr><td>Market View</td><td>確定済みバー、価格、N計算に必要な時系列、取引可能性。</td><td>Data Provider認証情報、Provider固有レスポンス。</td></tr>
+      <tr><td>Portfolio View</td><td>Strategy判断に必要な現在数量、ユニット利用状況、方向別Exposure要約。</td><td>口座残高正本、Broker残高の未照合値。</td></tr>
+      <tr><td>Risk View</td><td>発注可能/停止中、KillSwitchState、DD状態の要約。</td><td>Risk上限をStrategy側で変更できる操作。</td></tr>
+      <tr><td>Config View</td><td>Strategy ID、パラメータ、対象Instrument、実行モード。</td><td>Secrets、Broker接続先、注文送信権限。</td></tr>
+    </table>
   </section>
 
   <section id="dependency">
@@ -138,6 +178,8 @@
       <tr><td>UNK-P1-DOM-01</td><td>先物ロール規則、continuous signal、取引対象の最終選定。</td><td>Catalogコンテキストへ閉じ込め、Phase 2で詳細化する。</td></tr>
       <tr><td>UNK-P1-DOM-02</td><td>Portfolio Snapshotに含める最小項目。</td><td>Risk設計で詳細化する。</td></tr>
       <tr><td>UNK-P1-DOM-03</td><td>イベント保存の物理スキーマ。</td><td>Phase 1ではイベント正本化の方針のみ固定し、物理設計は後続へ送る。</td></tr>
+      <tr><td>UNK-P1-DOM-04</td><td>Strategyへ渡すPortfolio Viewの最小属性。</td><td>Risk / Account設計で確定する。ただしAccount正本をStrategyへ渡さない方針は固定。</td></tr>
+      <tr><td>UNK-P1-DOM-05</td><td>コンテキスト間Command/Eventの物理配送方式。</td><td>Phase 1では論理イベントを固定し、同期呼び出し、キュー、永続ログの選定は実装Phaseへ送る。</td></tr>
     </table>
   </section>
 
@@ -147,6 +189,7 @@
       <tr><th>日付</th><th>観点</th><th>結果</th></tr>
       <tr><td>2026-08-02</td><td>A12整合性観点</td><td>D03の依存方向、D05のモジュール責務、D06の共通モデルと矛盾しないよう確認。</td></tr>
       <tr><td>2026-08-02</td><td>A13 Red Team観点</td><td>StrategyからBroker / Market Dataへ直接依存する経路を禁止事項として明記。</td></tr>
+      <tr><td>2026-08-02</td><td>指定AI部品適用改訂</td><td>A03とdomain modeling Skillの責務に基づき、コンテキストマップ、所有データ、発行イベント、Command、禁止依存を追記。</td></tr>
     </table>
   </section>
 

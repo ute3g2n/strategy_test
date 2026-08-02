@@ -28,7 +28,7 @@
   <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
   <h1>D05 モジュール責務データフロー設計書</h1>
   <div class="meta">
-    <p><strong>文書状態:</strong> v0.1 復元版 / <strong>作成日:</strong> 2026-08-02 / <strong>復元日:</strong> 2026-08-02 / <strong>ステップ:</strong> P1-03</p>
+    <p><strong>文書状態:</strong> v0.2 指定AI部品適用改訂版 / <strong>作成日:</strong> 2026-08-02 / <strong>復元日:</strong> 2026-08-02 / <strong>改訂日:</strong> 2026-08-02 / <strong>ステップ:</strong> P1-03</p>
     <p><strong>担当:</strong> AutoTradePhase1_A02_SystemArchitect_v0_1, AutoTradePhase1_A03_DomainArchitect_v0_1</p>
     <p><strong>使用Skill:</strong> autotrade_phase1_skill_architecture_writer_v0_1, autotrade_phase1_skill_domain_modeling_v0_1, autotrade_phase1_skill_html_doc_writer_v0_1</p>
   </div>
@@ -36,6 +36,7 @@
   <section id="summary">
     <h2>概要</h2>
     <p>本書は、Data IngestionからMonitoringまでの主要モジュール責務とデータフローを定義する。Phase 1では、各モジュールが何を受け取り、何を出し、何を担当しないかを固定する。</p>
+    <p>本改訂では、<code>AutoTradePhase1_A02_SystemArchitect_v0_1</code> がモジュール責務と依存方向を、<code>AutoTradePhase1_A03_DomainArchitect_v0_1</code> がドメインイベントと所有状態を確認したものとして、データ正本、イベントジャーナル、障害時の停止伝播を明確化する。</p>
   </section>
 
   <nav class="toc">
@@ -44,8 +45,10 @@
       <li><a href="#inputs">入力</a></li>
       <li><a href="#modules">モジュール責務</a></li>
       <li><a href="#flow">データフロー</a></li>
+      <li><a href="#contracts">モジュール契約</a></li>
       <li><a href="#mode">実行モード差分</a></li>
       <li><a href="#boundaries">Broker依存とMarket Data依存</a></li>
+      <li><a href="#failure-flow">障害時フロー</a></li>
       <li><a href="#traceability">要件追跡</a></li>
       <li><a href="#decisions">設計判断</a></li>
       <li><a href="#unknowns">未確定事項</a></li>
@@ -96,6 +99,19 @@
     <p>重要な判断はイベントジャーナルへ記録する。失敗、拒否、差異、安全停止も正常系と同じくイベントとして扱う。</p>
   </section>
 
+  <section id="contracts">
+    <h2>モジュール契約</h2>
+    <table>
+      <tr><th>契約</th><th>提供モジュール</th><th>利用モジュール</th><th>最低保証</th><th>失敗時</th></tr>
+      <tr><td>MarketEvent Stream</td><td>Event Engine</td><td>Strategy, Monitoring</td><td>instrument_id、event_time_utc、source_seq、品質フラグを含む。</td><td>欠損または順序不能はHealthEventへ変換し、Strategyへ流さない。</td></tr>
+      <tr><td>OrderIntent Intake</td><td>Strategy Plugin</td><td>Risk</td><td>side、quantity/target_units、strategy_id、reason_codeを含む。</td><td>必須属性不足はRiskRejectedとして記録する。</td></tr>
+      <tr><td>RiskDecision</td><td>Risk</td><td>OMS, Monitoring</td><td>accepted/rejected、理由、risk_snapshot_id、適用ルールを含む。</td><td>RiskSnapshot不明時は新規注文を拒否する。</td></tr>
+      <tr><td>OrderRequest</td><td>OMS</td><td>Broker Adapter</td><td>client_order_id、instrument_id、side、quantity、time_in_forceを含む。</td><td>状態不整合時はBroker送信せずOMS Guardで停止する。</td></tr>
+      <tr><td>ExecutionReport</td><td>Broker Adapter</td><td>OMS, Reconciliation</td><td>client_order_id対応、外部注文ID、約定/拒否/取消/不明状態を含む。</td><td>外部状態不明時はUnknownExternalStateを発行する。</td></tr>
+      <tr><td>ReconciliationResult</td><td>Reconciliation</td><td>OMS, Risk, Monitoring</td><td>差異有無、対象、重要度、復旧要求を含む。</td><td>重大差異はKillSwitch候補としてMonitoringへ送る。</td></tr>
+    </table>
+  </section>
+
   <section id="mode">
     <h2>実行モード差分</h2>
     <table>
@@ -114,6 +130,18 @@
       <tr><td>Broker API</td><td>Broker Adapter</td><td>ExecutionReport、Broker状態の正規化ビュー、エラー分類</td><td>SDK型、認証情報、Broker固有注文IDの直接参照</td></tr>
       <tr><td>Market Data API</td><td>Market Data Adapter、Data Ingestion</td><td>Raw取得記録、正規化前データ、品質フラグ</td><td>Provider固有型、レート制限実装、APIキー</td></tr>
       <tr><td>銘柄記号差分</td><td>Catalog</td><td>InstrumentIdと対応表</td><td>Strategy内でのProvider記号分岐</td></tr>
+    </table>
+  </section>
+
+  <section id="failure-flow">
+    <h2>障害時フロー</h2>
+    <table>
+      <tr><th>障害</th><th>検知場所</th><th>発行イベント</th><th>停止範囲</th><th>復旧条件</th></tr>
+      <tr><td>Market Data欠損</td><td>Normalization / Event Engine</td><td>DataQualityEvent, HealthEvent</td><td>対象InstrumentのStrategy評価を停止。</td><td>欠損が補正され、再生イベントの順序が確定する。</td></tr>
+      <tr><td>Risk計算不能</td><td>Risk</td><td>RiskRejected, HealthEvent</td><td>全新規OrderIntentを拒否。</td><td>RiskSnapshotが復旧し、KillSwitchStateが解除可能になる。</td></tr>
+      <tr><td>Broker接続断</td><td>Broker Adapter</td><td>BrokerConnectionChanged, UnknownExternalState</td><td>新規注文送信を停止。</td><td>Broker状態照会とReconciliationが完了する。</td></tr>
+      <tr><td>内部/外部Position差異</td><td>Reconciliation</td><td>ReconciliationMismatch, RecoveryRequired</td><td>対象口座または全体の新規注文を停止。</td><td>差異原因が記録され、手動または承認済み手順で解消する。</td></tr>
+      <tr><td>監視Heartbeat欠落</td><td>Monitoring</td><td>HealthEvent, ManualStopRequested</td><td>運用ポリシーに従い新規注文を停止。</td><td>監視復旧、未完了注文確認、Human Gate通過。</td></tr>
     </table>
   </section>
 
@@ -143,6 +171,8 @@
       <tr><td>UNK-P1-FLOW-01</td><td>Brokerごとの注文タイプ、約定通知、拒否理由の詳細。</td><td>Adapter詳細設計で確定する。</td></tr>
       <tr><td>UNK-P1-FLOW-02</td><td>Normalizationの欠損補完、ロール、休日処理の具体規則。</td><td>データ設計とGolden test設計へ送る。</td></tr>
       <tr><td>UNK-P1-FLOW-03</td><td>Monitoringの具体メトリクス名とアラート閾値。</td><td>非機能要件、運用設計で詳細化する。</td></tr>
+      <tr><td>UNK-P1-FLOW-04</td><td>イベントジャーナルの物理保存方式と保持期間。</td><td>Phase 1ではイベント正本原則のみ固定し、運用・非機能設計で決める。</td></tr>
+      <tr><td>UNK-P1-FLOW-05</td><td>重大差異発生時に未完了注文を自動取消するか、手動確認を優先するか。</td><td>Broker Adapter設計とLive Runbookで詳細化する。</td></tr>
     </table>
   </section>
 
@@ -152,6 +182,7 @@
       <tr><th>日付</th><th>観点</th><th>結果</th></tr>
       <tr><td>2026-08-02</td><td>A12整合性観点</td><td>D03、D04、D06との用語と参照関係を確認。</td></tr>
       <tr><td>2026-08-02</td><td>A13 Red Team観点</td><td>Strategy直結発注、Broker依存漏れ、差異の黙殺、安全停止漏れを禁止事項と判断に反映。</td></tr>
+      <tr><td>2026-08-02</td><td>指定AI部品適用改訂</td><td>A02/A03と指定Skillに基づき、モジュール契約、障害時フロー、失敗時の停止伝播、後続Phase詳細化対象を追記。</td></tr>
     </table>
   </section>
 
