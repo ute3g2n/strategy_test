@@ -1,0 +1,173 @@
+{
+  "kind": "p10_research_runbook",
+  "research_only": true,
+  "requirements": [
+    {
+      "symbol": "MCL",
+      "product_name": "Micro WTI Crude Oil futures",
+      "venue": "NYMEX",
+      "settlement": "Financial",
+      "notes": "WTIは金融決済。初期候補の主軸。"
+    },
+    {
+      "symbol": "MZC",
+      "product_name": "Micro Corn futures",
+      "venue": "CBOT",
+      "settlement": "Financial",
+      "notes": "Micro Agは開始時期が新しいため長期Backtest不足に注意。"
+    },
+    {
+      "symbol": "MZS",
+      "product_name": "Micro Soybean futures",
+      "venue": "CBOT",
+      "settlement": "Financial",
+      "notes": "Micro Agは短期履歴。標準契約ZSによる参考研究は別実験扱い。"
+    },
+    {
+      "symbol": "MZW",
+      "product_name": "Micro Wheat futures",
+      "venue": "CBOT",
+      "settlement": "Financial",
+      "notes": "Micro Agは短期履歴。P10では長期評価と短期評価を分ける。"
+    },
+    {
+      "symbol": "M6A",
+      "product_name": "Micro AUD/USD futures",
+      "venue": "CME",
+      "settlement": "Physical",
+      "notes": "物理決済のため満期前ロールを必須にする。"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "EXP-P09-0001",
+      "experiment_name": "原典System1_到達判定_2N",
+      "symbols": [
+        "MCL",
+        "MZC",
+        "MZS",
+        "MZW",
+        "M6A"
+      ],
+      "strategy_family": "原典System 1",
+      "entry_rule": "20日ブレイク。日中到達判定。前回勝ちフィルターあり",
+      "exit_rule": "10日反対ブレイク",
+      "stop_rule": "2N",
+      "unit_risk": "1.0%",
+      "pyramiding_rule": "0.5N間隔、最大4 Unit",
+      "roll_rule": "出来高/建玉優先、FNDまたは最終取引日前に強制ロール",
+      "cost_model": "標準コスト、悲観コスト、ストレスコスト",
+      "data_range": "取得可能全期間",
+      "development_window": "最初の60%",
+      "validation_window": "次の20%",
+      "holdout_window": "最後の20%",
+      "trial_policy": "固定。結果を見て追加しない",
+      "executable": "可",
+      "notes": "原典再現の主実験。"
+    },
+    {
+      "experiment_id": "EXP-P09-0002",
+      "experiment_name": "原典System2_到達判定_2N",
+      "symbols": [
+        "MCL",
+        "MZC",
+        "MZS",
+        "MZW",
+        "M6A"
+      ],
+      "strategy_family": "原典System 2",
+      "entry_rule": "55日ブレイク。日中到達判定",
+      "exit_rule": "20日反対ブレイク",
+      "stop_rule": "2N",
+      "unit_risk": "1.0%",
+      "pyramiding_rule": "0.5N間隔、最大4 Unit",
+      "roll_rule": "出来高/建玉優先、FNDまたは最終取引日前に強制ロール",
+      "cost_model": "標準コスト、悲観コスト、ストレスコスト",
+      "data_range": "取得可能全期間",
+      "development_window": "最初の60%",
+      "validation_window": "次の20%",
+      "holdout_window": "最後の20%",
+      "trial_policy": "固定。結果を見て追加しない",
+      "executable": "可",
+      "notes": "低頻度で頑健性を見る主実験。"
+    },
+    {
+      "experiment_id": "EXP-P09-0003",
+      "experiment_name": "現代System1_終値確認_2N",
+      "symbols": [
+        "MCL",
+        "MZC",
+        "MZS",
+        "MZW",
+        "M6A"
+      ],
+      "strategy_family": "現代System 1",
+      "entry_rule": "20日ブレイク。日足終値確認。前回勝ちフィルターあり/なしを別集計",
+      "exit_rule": "10日反対ブレイク",
+      "stop_rule": "2N",
+      "unit_risk": "0.25%;0.5%;1.0%を同一シグナルで比較",
+      "pyramiding_rule": "0.5N間隔、最大4 Unit。ただし最小契約制約で実行不可なら0 Unit",
+      "roll_rule": "出来高/建玉優先、FNDまたは最終取引日前に強制ロール",
+      "cost_model": "標準コスト、悲観コスト、ストレスコスト",
+      "data_range": "取得可能全期間",
+      "development_window": "最初の60%",
+      "validation_window": "次の20%",
+      "holdout_window": "最後の20%",
+      "trial_policy": "事前定義の3リスクだけ許可",
+      "executable": "可",
+      "notes": "候補別最適化ではなく同一リスク集合の実行可能性比較。"
+    },
+    {
+      "experiment_id": "EXP-P09-0004",
+      "experiment_name": "現代System2_終値確認_2N",
+      "symbols": [
+        "MCL",
+        "MZC",
+        "MZS",
+        "MZW",
+        "M6A"
+      ],
+      "strategy_family": "現代System 2",
+      "entry_rule": "55日ブレイク。日足終値確認",
+      "exit_rule": "20日反対ブレイク",
+      "stop_rule": "2N",
+      "unit_risk": "0.25%;0.5%;1.0%を同一シグナルで比較",
+      "pyramiding_rule": "0.5N間隔、最大4 Unit。ただし最小契約制約で実行不可なら0 Unit",
+      "roll_rule": "出来高/建玉優先、FNDまたは最終取引日前に強制ロール",
+      "cost_model": "標準コスト、悲観コスト、ストレスコスト",
+      "data_range": "取得可能全期間",
+      "development_window": "最初の60%",
+      "validation_window": "次の20%",
+      "holdout_window": "最後の20%",
+      "trial_policy": "事前定義の3リスクだけ許可",
+      "executable": "可",
+      "notes": "原典より約定頻度を抑えた比較実験。"
+    },
+    {
+      "experiment_id": "EXP-P09-0005",
+      "experiment_name": "参考_長期標準契約代理データ",
+      "symbols": [
+        "CL",
+        "ZC",
+        "ZS",
+        "ZW",
+        "6A"
+      ],
+      "strategy_family": "参考研究",
+      "entry_rule": "原典System1/2と同じ",
+      "exit_rule": "原典System1/2と同じ",
+      "stop_rule": "2N",
+      "unit_risk": "正規化して参考比較",
+      "pyramiding_rule": "参考のみ",
+      "roll_rule": "標準契約でロール",
+      "cost_model": "参考コスト",
+      "data_range": "長期履歴",
+      "development_window": "固定しない",
+      "validation_window": "固定しない",
+      "holdout_window": "なし",
+      "trial_policy": "参考のみ。採用判断に使わない",
+      "executable": "条件付き",
+      "notes": "Micro Agの履歴不足を補う参考研究。正式ランキングには使わない。"
+    }
+  ]
+}

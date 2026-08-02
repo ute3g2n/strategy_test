@@ -1,0 +1,20 @@
+{
+  "kind": "dry_run_report",
+  "research_only": true,
+  "symbols": [
+    "MCL",
+    "MZC",
+    "MZS",
+    "MZW",
+    "M6A"
+  ],
+  "experiments": [
+    "EXP-P09-0001",
+    "EXP-P09-0002",
+    "EXP-P09-0003",
+    "EXP-P09-0004",
+    "EXP-P09-0005"
+  ],
+  "next_step": "run --bars-dir <local_csv_directory>",
+  "note": "DatabentoとIBKRの本接続は未実装。ローカルCSVが必要。"
+}
