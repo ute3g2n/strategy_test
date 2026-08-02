@@ -1,3 +1,2 @@
-﻿"実行ID","ステップID","ロール","開始日時","完了日時","状態","入力","出力","Web使用","メモ","承認ID","HumanGateID","Gate名","判断","判断日時","承認者","承認範囲","条件","次ステップ"
-"RUN-P05-20260802-0001","P05","エクスポージャー・取引手段対応整理者","2026-08-02T15:14:39.3532820+09:00","2026-08-02T15:14:39.3532820+09:00","完了","research/asset_selection/04_証拠検証/04_verified_universe_v0.1_2026-08-02.csv; research/asset_selection/04_証拠検証/04_evidence_registry_v0.1_2026-08-02.csv; research/asset_selection/02_分類とスキーマ/02_taxonomy_v0.1_2026-08-02.md","research/asset_selection/05_エクスポージャーと取引手段の対応/05_エクスポージャーと取引手段の対応_v0.1_2026-08-02.csv; research/asset_selection/05_エクスポージャーと取引手段の対応/05_重複と代替関係レポート_v0.1_2026-08-02.md; research/asset_selection/05_エクスポージャーと取引手段の対応/05_id_migration_map_v0.1_2026-08-02.csv","いいえ","Mapped verified universe into exposure clusters and proxy groups. Primary/Fallback not selected in P05. No exposure IDs renamed.",,,,,,,,,
-
+﻿"実行ID","ステップID","ロール","開始日時","完了日時","状態","入力","出力","Web使用","メモ"
+"RUN-P05-20260802-0001","P05","エクスポージャー・取引手段対応整理者","2026-08-02T15:14:39+09:00","2026-08-02T15:14:39+09:00","完了","04_検証済み候補群、04_証拠台帳、02_分類体系","05_エクスポージャー取引手段対応表、05_重複と代替関係レポート、05_ID移行表","いいえ","エクスポージャー群と代替関係を整理。Primary/Fallbackは未決定。"
