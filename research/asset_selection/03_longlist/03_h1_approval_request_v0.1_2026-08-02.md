@@ -1,7 +1,7 @@
 # H1 Approval Request - P03 Longlist v0.1
 
 - Step ID: P03
-- Status: Waiting for Human Gate H1 approval
+- Status: Approved with conditions on 2026-08-02
 - Created at: 2026-08-02T13:36:30+09:00
 
 ## 承認対象
@@ -49,3 +49,21 @@ H1 Decision:
 - notes:
 ```
 
+## Actual Decision
+
+```text
+H1 Decision:
+- decision: approved_with_conditions
+- approver: owner
+- decision_at: 2026-08-02
+- approved_scope:
+  - research/asset_selection/03_longlist/03_longlist_candidates_v0.1_2026-08-02.csv
+  - research/asset_selection/03_longlist/03_longlist_coverage_report_v0.1_2026-08-02.md
+  - research/asset_selection/sources/03_source_index_v0.1_2026-08-02.csv
+- conditions:
+  - P04は先物Trackを主Trackとして進める
+  - ETF/CFD/Spot FX/Crypto spotは必要時に別Trackで追加調査する
+- rejected_reasons:
+- next_allowed_step: P04
+- notes:
+```

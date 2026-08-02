@@ -2,7 +2,7 @@
 
 - Step ID: P03
 - Role: Longlist Builder
-- Status: H1 approval pending
+- Status: H1 approved with conditions on 2026-08-02
 - Created at: 2026-08-02T13:36:30+09:00
 - Candidate file: `research/asset_selection/03_longlist/03_longlist_candidates_v0.1_2026-08-02.csv`
 - Source index: `research/asset_selection/sources/03_source_index_v0.1_2026-08-02.csv`
@@ -112,8 +112,8 @@ P03の機械実行プロンプトで想定していた「100〜200程度の資�
 |---|---|---|
 | H0 | Approved | 2026-08-02にユーザー承認済み |
 | P03 Longlist作成 | Complete | Candidate 154 rows / Unique exposure 129件を作成 |
-| H1 | Pending | Longlist coverageのユーザー承認待ち |
-| P04開始可否 | Blocked until H1 | H1承認後にEligibility/API/Access検証へ進む |
+| H1 | Approved with conditions | 2026-08-02にユーザー承認。先物Track主導でP04へ進行 |
+| P04開始可否 | Unblocked | H1承認済みのためEligibility/API/Access検証へ進行可能 |
 
 ## 9. H1で承認してほしい内容
 
@@ -123,4 +123,3 @@ H1では、次を承認対象とする。
 2. P03 v0.1は先物中心であり、ETF/CFD/Spot FX/Crypto spotは必要に応じて別Trackで扱う方針でよいか。
 3. P04で、各Candidateの「日本居住者アクセス」「Broker/API対応」「口座種別」「ショート可否」「最小取引単位」「データ取得方法」を検証する方針でよいか。
 4. P03拡張が必要な場合、追加対象Venue/Asset classを指定するか。
-
