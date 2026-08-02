@@ -1,0 +1,52 @@
+column_name,required,type,allowed_values,description
+candidate_id,yes,string,,Stable candidate ID. One Exposure x Vehicle x Broker/Venue.
+exposure_id,yes,string,,Stable exposure ID.
+vehicle_id,yes,string,,Stable vehicle ID.
+exposure_name_ja,yes,string,,Japanese exposure name.
+exposure_name_en,yes,string,,English exposure name.
+asset_class,yes,enum,"equity_index;rates;fx;energy;metals;grains_oilseeds;softs;livestock;volatility;crypto;real_estate;environmental_power;other_review",Asset class taxonomy value.
+risk_cluster,yes,string,,Risk cluster used for concentration and Turtle unit grouping.
+economic_driver,no,string,,Main economic driver.
+region,no,string,,Primary region or global.
+base_currency,no,string,,Exposure base currency.
+vehicle_type,yes,enum,"future_standard;future_micro;future_mini;spot_fx;etf;etn;cfd;crypto_spot;crypto_perp;crypto_future;other_review",Tradable vehicle type.
+symbol,yes,string,,Exchange or broker symbol.
+exchange_or_venue,yes,string,,Exchange or venue.
+broker,yes,string,,Broker or possible broker.
+broker_contract_id,no,string,,Broker contract ID such as IBKR conId if known.
+currency,yes,string,,Trading or quote currency.
+long_available,no,enum,"true;false;unknown",Long availability.
+short_available,no,enum,"true;false;unknown",Short availability.
+api_order_available,no,enum,"true;false;unknown",API order capability.
+api_account_available,no,enum,"true;false;unknown",API account and position capability.
+japan_resident_eligible,no,enum,"true;false;unknown",Japan resident eligibility.
+trading_hours,no,string,,Trading hours or reference.
+tick_size,no,number,,Minimum tick size.
+contract_multiplier,no,number,,Contract multiplier.
+minimum_quantity,no,number,,Minimum tradable quantity.
+last_trade_rule,no,string,,Last trade rule.
+first_notice_rule,no,string,,First notice rule.
+physical_delivery_risk,no,enum,"none;low;medium;high;unknown",Physical delivery risk.
+margin_initial_jpy,no,number,,Initial margin in JPY.
+margin_maintenance_jpy,no,number,,Maintenance margin in JPY.
+median_daily_volume,no,number,,Median daily volume.
+median_open_interest,no,number,,Median open interest.
+median_spread,no,number,,Median spread.
+history_start,no,string,,Historical data start date.
+minute_data_available,no,enum,"true;false;unknown",1-minute historical data availability.
+realtime_data_available,no,enum,"true;false;unknown",Realtime data availability.
+estimated_monthly_data_cost_jpy,no,number,,Estimated monthly data cost in JPY.
+commission_roundtrip_jpy,no,number,,Estimated roundtrip commission in JPY.
+funding_borrow_roll_method,no,string,,Funding borrow or roll method.
+evidence_confidence,no,enum,"A;B;C;Unknown",Evidence confidence.
+evidence_ids,no,string,,Semicolon-separated evidence IDs.
+hard_gate_status,no,enum,"pass;fail;conditional;pending_evidence;research_only",Hard Gate status.
+hard_gate_reasons,no,string,,Hard Gate reason summary.
+structural_score,no,number,,Pre-backtest structural score.
+robustness_score,no,number,,Trend robustness score.
+final_score,no,number,,Final score.
+rank_stability,no,string,,Rank stability summary.
+selection_status,no,enum,"selected_primary;selected_fallback;reserve;research_only;excluded;pending",Selection status.
+review_notes,no,string,,Review notes.
+created_at,yes,string,,Creation timestamp.
+updated_at,yes,string,,Update timestamp.

@@ -1,0 +1,23 @@
+column_name,required,type,allowed_values,description
+evidence_id,yes,string,,Stable evidence ID.
+source_id,yes,string,,Stable source ID.
+candidate_id,no,string,,Related candidate ID if applicable.
+exposure_id,no,string,,Related exposure ID if applicable.
+vehicle_id,no,string,,Related vehicle ID if applicable.
+fact_type,yes,enum,"japan_resident_eligibility;broker_product_availability;api_order_capability;api_account_position_capability;long_short_availability;contract_specification;trading_hours_calendar;first_notice_last_trade;delivery_settlement_risk;margin_requirement;commission_fee;spread_liquidity;historical_data_availability;minute_data_availability;realtime_data_availability;data_license_cost;borrow_funding_roll_cost;delisting_survivorship;regulatory_tax_note;other_note",Type of fact verified.
+fact_claim_ja,yes,string,,Japanese statement of the fact being supported.
+source_url,yes,string,,Source URL.
+source_title,yes,string,,Source title.
+publisher,yes,string,,Publisher.
+source_type,yes,enum,"exchange;broker;regulator;tax_authority;data_vendor;issuer;documentation;paper;industry;other",Source type.
+primary_or_secondary,yes,enum,"primary;secondary",Primary or secondary source.
+accessed_at,yes,string,,Access timestamp.
+published_date,no,string,,Published date if available.
+effective_date,no,string,,Effective date if available.
+expiry_date,no,string,,Recheck deadline or evidence expiry.
+quoted_or_summarized_point_ja,yes,string,,Short Japanese summary of the relevant point.
+confidence,yes,enum,"A;B;C;Unknown",Evidence confidence.
+conflict_status,yes,enum,"none;minor_conflict;major_conflict;unresolved;stale",Conflict or stale status.
+conflict_with_evidence_ids,no,string,,Semicolon-separated conflicting evidence IDs.
+verified_by_role,yes,string,,Role that verified the evidence.
+verification_notes,no,string,,Notes.
