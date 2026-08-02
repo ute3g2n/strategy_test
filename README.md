@@ -15,6 +15,26 @@ npm run watch-start
 
 すでに監視が動いている場合は、新しい監視プロセスを増やさずに終了します。
 
+### ワンコマンドで状態確認
+
+監視中かどうかを確認します。
+
+```bash
+npm run watch-status
+```
+
+監視中の場合は、次のように表示されます。
+
+```text
+watch-commit is running. pid=<PID> name=node.exe
+```
+
+停止中の場合は、次のように表示されます。
+
+```text
+watch-commit is stopped.
+```
+
 ### ワンコマンドで終了
 
 バックグラウンドで動いている監視を終了します。

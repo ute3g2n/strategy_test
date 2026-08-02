@@ -5,6 +5,7 @@
   "scripts": {
     "watch-commit": "chokidar \"**/*\" -i \"**/.git/**\" -i \"**/node_modules/**\" -i \"**/.env\" -i \"**/.env.*\" -i \"**/*.log\" --debounce 3000 -c \"./auto-commit.cmd\"",
     "watch-start": "node scripts/watch-start.js",
+    "watch-status": "node scripts/watch-status.js",
     "watch-stop": "node scripts/watch-stop.js"
   },
   "devDependencies": {
