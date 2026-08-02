@@ -1,0 +1,14 @@
+source_id,source_url,source_title,publisher,source_type,accessed_at,notes
+SRC-CME-0001,https://www.cmegroup.com/markets/products,CME Group Product Slate,CME Group,exchange,2026-08-02T13:29:22+09:00,Official CME product slate for broad futures discovery
+SRC-CME-0002,https://www.cmegroup.com/markets/microsuite.html,CME Micro futures and options,CME Group,exchange,2026-08-02T13:29:22+09:00,Official CME micro products overview
+SRC-JPX-0001,https://www.jpx.co.jp/english/derivatives/products/list/,List of Products Derivatives,Japan Exchange Group,exchange,2026-08-02T13:29:22+09:00,Official JPX OSE and TOCOM derivatives product list
+SRC-JPX-0002,https://www.jpx.co.jp/english/derivatives/products/,Products Derivatives,Japan Exchange Group,exchange,2026-08-02T13:29:22+09:00,Official JPX derivatives products overview
+SRC-ICE-0001,https://www.ice.com/futures-us,ICE Futures U.S.,Intercontinental Exchange,exchange,2026-08-02T13:29:22+09:00,Official ICE Futures U.S. overview for softs energy FX and equity index discovery
+SRC-EUREX-0001,https://www.eurex.com/ex-en/markets/productSearch,Product Overview,Eurex,exchange,2026-08-02T13:29:22+09:00,Official Eurex product search overview
+SRC-EUREX-0002,https://www.eurex.com/ex-en/rules-regs/eurex-derivatives-us/direct-market-access-from-the-us,Direct market access from the U.S.,Eurex,exchange,2026-08-02T13:29:22+09:00,Official Eurex list of available derivatives categories and examples
+SRC-SGX-0001,https://www.sgx.com/index.html,Singapore Exchange derivatives,Singapore Exchange,exchange,2026-08-02T13:29:22+09:00,Official SGX derivatives page for equity index FX rates commodities discovery
+SRC-SGX-0002,https://www.sgx.com/derivatives/products/fx,FX Futures and Options,Singapore Exchange,exchange,2026-08-02T13:29:22+09:00,Official SGX FX futures and options product page
+SRC-CBOE-0001,https://www.cboe.com/tradable-products/vix/vix-futures/,VIX Futures,Cboe,exchange,2026-08-02T13:29:22+09:00,Official Cboe VIX futures product page
+SRC-CBOE-0002,https://www.cboe.com/tradable-products/vix/vix-futures/specifications,VIX Futures Contract Specifications,Cboe,exchange,2026-08-02T13:29:22+09:00,Official Cboe VIX futures contract specifications
+SRC-IBKR-0001,https://www.interactivebrokers.com/en/trading/products-exchanges.php,Products Exchanges and Contracts Search,Interactive Brokers,broker,2026-08-02T13:29:22+09:00,Official IBKR product and exchange discovery page
+SRC-NASDAQ-0001,https://www.nasdaq.com/solutions/nasdaq-commodities-data,Global Commodities Market Data,Nasdaq,data_vendor,2026-08-02T13:29:22+09:00,Nasdaq official commodities market data coverage overview
