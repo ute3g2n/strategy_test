@@ -58,6 +58,15 @@
     <tr><td>Kill Switch解除</td><td>発火原因、解決証跡、承認者、解除時刻。</td><td>StrategyやOMS単独解除は禁止。</td></tr>
   </table>
 
+  <h2>手動介入後の自動再開条件</h2>
+  <table>
+    <tr><th>条件</th><th>必須内容</th><th>未充足時</th></tr>
+    <tr><td>ManualInterventionEvent</td><td>手動操作、対象注文、対象ポジション、Broker画面証跡、operator、approved_byを記録する。</td><td>自動再開禁止。</td></tr>
+    <tr><td>ReconciliationPassed</td><td>Open Order、Fill、Position、AccountSnapshotの内部状態とBroker状態が一致する。</td><td>新規注文停止を継続。</td></tr>
+    <tr><td>AccountSnapshot更新</td><td>手動介入後のCash、Margin、NAV、Positionを更新し、Risk判断の入力にする。</td><td>Riskは全OrderIntentを拒否する。</td></tr>
+    <tr><td>Human承認</td><td>停止原因、解決証跡、再開範囲、最初の注文制限を承認する。</td><td>Bot停止または戦略停止を継続。</td></tr>
+  </table>
+
   <h2>Phase 6 / Phase 7 Runbookバックログ</h2>
   <table>
     <tr><th>ID</th><th>Phase</th><th>詳細化するRunbook</th></tr>
@@ -65,6 +74,7 @@
     <tr><td>RB-P6-02</td><td>Phase 6</td><td>PaperでのCancel、再同期、不整合検知、レポート手順。</td></tr>
     <tr><td>RB-P7-01</td><td>Phase 7</td><td>Live移行前Kill Switch、手動介入、Broker GUI確認手順。</td></tr>
     <tr><td>RB-P7-02</td><td>Phase 7</td><td>Secretローテーション、権限棚卸し、監査ログ保全。</td></tr>
+    <tr><td>RB-P7-03</td><td>Phase 7</td><td>Kill Switch解除後のウォームアップ期間、最初の注文制限、段階的再開手順。</td></tr>
   </table>
 
   <h2>要件追跡</h2>
@@ -78,6 +88,7 @@
   <table>
     <tr><th>日付</th><th>観点</th><th>反映内容</th></tr>
     <tr><td>2026-08-03</td><td>A13相当</td><td>状態不明時の新規注文停止、Broker GUI最終介入、Kill Switch解除のHuman Gateを明記。</td></tr>
+    <tr><td>2026-08-03</td><td>P1-12指摘 FIX-P1-13-002 / 005</td><td>手動介入後の自動再開条件とKill Switch解除後の段階的再開バックログを追加。</td></tr>
   </table>
 </main>
 </body>

@@ -40,9 +40,9 @@
     <tr><td>BL-P3-02</td><td>Phase 3 Strategy / Backtest基盤</td><td>System 1/2、modernized候補、2N、Whipsaw、ボラ急上昇時縮小の比較設計。</td><td>D08、D09</td><td>候補別パラメータ最適化防止Gate。</td></tr>
     <tr><td>BL-P4-01</td><td>Phase 4 Broker / Paper Trading基盤</td><td>Broker Adapter詳細、IBKR Paper接続、注文状態、Cancel / Replace、外部ID対応。</td><td>D10、D11、D13</td><td>Paper接続PoC、Reconciliation test。</td></tr>
     <tr><td>BL-P4-02</td><td>Phase 4 Broker / Paper Trading基盤</td><td>Open Order / Fill / Position / Account再同期設計。</td><td>D06、D10、D13、D17</td><td>状態不明時fail-closed。</td></tr>
-    <tr><td>BL-P5-01</td><td>Phase 5 Portfolio / Risk / Account管理</td><td>RiskConfig、1N採用値、年率ボラ10%、DD、日次損失、相関集中、Account正本化。</td><td>D13、D18</td><td>OD-04/OD-05解消、Risk Gate通過。</td></tr>
+    <tr><td>BL-P5-01</td><td>Phase 5 Portfolio / Risk / Account管理</td><td>RiskConfig、1N採用値、年率ボラ10%、DD、日次損失、相関集中、Account正本化、Kill Switch解除後のウォームアップ制限。</td><td>D13、D18</td><td>OD-04/OD-05解消、Risk Gate通過。</td></tr>
     <tr><td>BL-P6-01</td><td>Phase 6 Forward Test運用</td><td>Shadow / Paper運用監視、通知、日次レポート、復旧訓練。</td><td>D14、D16、D17、D18</td><td>30営業日以上のShadow観測、Paper安定運用。</td></tr>
-    <tr><td>BL-P7-01</td><td>Phase 7 Live移行準備</td><td>Live Runbook、Kill Switch解除、Broker GUI手動介入、Secretローテーション、監査ログ保全。</td><td>D14-D18</td><td>Live前Human Gate。</td></tr>
+    <tr><td>BL-P7-01</td><td>Phase 7 Live移行準備</td><td>Live Runbook、Kill Switch解除、Broker GUI手動介入、手動介入後の再開条件、Secretローテーション、監査ログ保全。</td><td>D14-D18</td><td>Live前Human Gate。</td></tr>
     <tr><td>BL-P8-01</td><td>Phase 8 Live運用</td><td>運用改善、インシデントレビュー、Risk値見直し、監査ログ継続更新。</td><td>Phase 7成果物</td><td>定期レビューと変更承認。</td></tr>
   </table>
 
@@ -50,7 +50,7 @@
   <table>
     <tr><th>OD</th><th>内容</th><th>決定タイミング</th><th>関連バックログ</th></tr>
     <tr><td>OD-01</td><td>対象アセット最終確定</td><td>Phase 2開始前からPhase 2中</td><td>BL-P2-01</td></tr>
-    <tr><td>OD-02</td><td>取引エンジン最終決定</td><td>Phase 1 PoC完了時</td><td>BL-P3-01</td></tr>
+    <tr><td>OD-02</td><td>取引エンジン最終決定</td><td>Phase 1では評価基準を承認する。最終決定はPoC証拠条件の充足後に行う。</td><td>BL-P3-01</td></tr>
     <tr><td>OD-03</td><td>ロール規則</td><td>Phase 2</td><td>BL-P2-02</td></tr>
     <tr><td>OD-04</td><td>1NリスクのLive採用値</td><td>Paper前</td><td>BL-P5-01</td></tr>
     <tr><td>OD-05</td><td>年率10%ボラ目標を強制制御へ入れるか</td><td>Risk設計時</td><td>BL-P5-01</td></tr>
@@ -64,6 +64,7 @@
     <tr><th>日付</th><th>観点</th><th>反映内容</th></tr>
     <tr><td>2026-08-03</td><td>A12</td><td>各Phaseの入力、成果物、Gate、ODを対応付けた。</td></tr>
     <tr><td>2026-08-03</td><td>A13相当</td><td>安全停止、Secret、監査、Risk Gateを危険な先送りにしないようPhase 1固定事項と後続詳細を分離した。</td></tr>
+    <tr><td>2026-08-03</td><td>P1-12指摘 FIX-P1-13-001 / 005</td><td>OD-02を評価基準承認と最終決定に分離し、Kill Switch解除後のウォームアップ制限をバックログ化。</td></tr>
   </table>
 </main>
 </body>

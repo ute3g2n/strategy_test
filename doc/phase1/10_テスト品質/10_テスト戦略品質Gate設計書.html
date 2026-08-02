@@ -78,6 +78,7 @@
       <tr><td>Reconciliation test</td><td>Open Order、Fill、Position、Account差分。</td><td>不整合時に新規注文停止。</td></tr>
       <tr><td>Failure injection test</td><td>Market data欠損、Broker断、Event queue停止、Secret漏洩疑い。</td><td>fail-closedする。</td></tr>
       <tr><td>Operational rehearsal</td><td>通知、Cancel、Kill Switch、復旧、手動介入。</td><td>Human Gateに必要な証跡が残る。</td></tr>
+      <tr><td>Secret security test</td><td>Secret scan、ログマスク、Paper/Live namespace分離、HTML成果物確認。</td><td>Secret実値が検出されない。マスク失敗時はCRITICAL。</td></tr>
     </table>
   </section>
 
@@ -138,6 +139,16 @@
     </table>
   </section>
 
+  <section id="manual-intervention-gate">
+    <h2>手動介入後再開Gate</h2>
+    <table>
+      <tr><th>Gate</th><th>合格条件</th><th>失敗時</th></tr>
+      <tr><td>ManualInterventionEvent Gate</td><td>手動Cancel、手動ポジション調整、Broker GUI操作が監査イベントとして残っている。</td><td>自動再開不可。</td></tr>
+      <tr><td>Reconciliation Gate</td><td>Open Order、Fill、Position、AccountSnapshotがReconciliationPassedになる。</td><td>新規注文停止を継続。</td></tr>
+      <tr><td>Warm-up Gate</td><td>Kill Switch解除後のウォームアップ期間と最初の注文制限がHuman承認されている。</td><td>Live再開不可。</td></tr>
+    </table>
+  </section>
+
   <section id="traceability">
     <h2>要件追跡</h2>
     <table>
@@ -166,10 +177,11 @@
   <section id="review">
     <h2>レビュー履歴</h2>
     <table>
-      <tr><th>日付</th><th>観点</th><th>反映内容</th></tr>
-      <tr><td>2026-08-03</td><td>A12相当</td><td>P1-01からP1-09の主要成果物へ品質Gateを対応付けた。</td></tr>
-      <tr><td>2026-08-03</td><td>A13相当</td><td>Live前に危険なGate漏れとして、Reconciliation、Failure injection、Operational rehearsalを必須化した。</td></tr>
-    </table>
+    <tr><th>日付</th><th>観点</th><th>反映内容</th></tr>
+    <tr><td>2026-08-03</td><td>A12相当</td><td>P1-01からP1-09の主要成果物へ品質Gateを対応付けた。</td></tr>
+    <tr><td>2026-08-03</td><td>A13相当</td><td>Live前に危険なGate漏れとして、Reconciliation、Failure injection、Operational rehearsalを必須化した。</td></tr>
+    <tr><td>2026-08-03</td><td>P1-12指摘 FIX-P1-13-002 / 003 / 005</td><td>Secret security test、手動介入後再開Gate、Warm-up Gateを追加。</td></tr>
+  </table>
   </section>
 
   <section id="handoff">

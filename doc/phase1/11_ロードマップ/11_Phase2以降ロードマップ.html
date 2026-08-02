@@ -34,7 +34,7 @@
   <table>
     <tr><th>Phase</th><th>開始入力条件</th><th>作成成果物</th><th>完了Gate</th></tr>
     <tr><td>Phase 2 Market Data基盤</td><td>D10、D11、D18、OD-01初期方針。</td><td>Market Data詳細設計、Raw/Normalized Store、Catalog、Roll rule、Data quality test。</td><td>Replay可能なデータセット、欠損検知、OD-03更新。</td></tr>
-    <tr><td>Phase 3 Strategy / Backtest基盤</td><td>D08、D09、D11、D12、D18、Phase 2データ。</td><td>Strategy実装、Backtest基盤、Golden fixture、Experiment Manifest、PoC結果。</td><td>Golden test、Replay test、Bias Gate、OD-02決定。</td></tr>
+    <tr><td>Phase 3 Strategy / Backtest基盤</td><td>D08、D09、D11、D12、D18、Phase 2データ、P1-07のPoC評価基準。</td><td>Strategy実装、Backtest基盤、Golden fixture、Experiment Manifest、PoC結果。</td><td>Golden test、Replay test、Bias Gate、OD-02最終決定の証拠条件充足。</td></tr>
     <tr><td>Phase 4 Broker / Paper Trading基盤</td><td>D10、D11、D13、D17、Phase 3実装候補。</td><td>Broker Adapter詳細、OMS詳細、Paper接続、Reconciliation、Cancel / Replace。</td><td>Paper接続PoC、Open Order / Fill / Position再同期、fail-closed確認。</td></tr>
     <tr><td>Phase 5 Portfolio / Risk / Account管理</td><td>D13、D18、Phase 4 Paper基盤。</td><td>RiskConfig、Account正本化、Portfolio制限、1N/ボラ/DDしきい値。</td><td>OD-04、OD-05、Risk Gate、誤発注防止テスト。</td></tr>
     <tr><td>Phase 6 Forward Test運用</td><td>D14-D18、Phase 5 Risk基盤。</td><td>Shadow/Paper運用手順、監視、通知、日次レポート、復旧訓練。</td><td>Shadow 30営業日以上、Paper安定運用、OD-06/OD-07/OD-08更新。</td></tr>
@@ -46,7 +46,7 @@
   <table>
     <tr><th>Gate</th><th>位置</th><th>確認内容</th></tr>
     <tr><td>HG-P2</td><td>Phase 2開始前</td><td>対象市場、データ取得元、Raw不変保存方針。</td></tr>
-    <tr><td>HG-P3</td><td>Phase 3完了時</td><td>OD-02取引エンジン決定、Backtest再現性、Bias防止。</td></tr>
+    <tr><td>HG-P3</td><td>Phase 3完了時</td><td>OD-02取引エンジン最終決定、Backtest再現性、Bias防止、PoC証拠条件。</td></tr>
     <tr><td>HG-P4</td><td>Paper接続前</td><td>Broker権限、Paper secret、OMS/Reconciliation、安全停止。</td></tr>
     <tr><td>HG-P5</td><td>Paper評価前</td><td>1N採用値、年率ボラ制御、最大DD、RiskConfig。</td></tr>
     <tr><td>HG-P7</td><td>Live前</td><td>Runbook、Kill Switch、手動介入、監査ログ、残Unknown。</td></tr>
@@ -66,6 +66,7 @@
     <tr><th>日付</th><th>観点</th><th>反映内容</th></tr>
     <tr><td>2026-08-03</td><td>A12</td><td>Phase別の入力条件、成果物、完了GateをD19バックログと対応させた。</td></tr>
     <tr><td>2026-08-03</td><td>A13相当</td><td>Live前に残せない安全項目をHuman Gateへ明示した。</td></tr>
+    <tr><td>2026-08-03</td><td>P1-12指摘 FIX-P1-13-001</td><td>OD-02をPhase 1評価基準承認とPhase 3証拠条件充足後の最終決定に分離。</td></tr>
   </table>
 </main>
 </body>
