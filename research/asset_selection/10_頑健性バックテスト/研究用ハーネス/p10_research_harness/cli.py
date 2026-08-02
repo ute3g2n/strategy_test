@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 
 from .data_loader import aggregate_daily_bars, load_minute_bars
+from .databento_fetcher import check_databento_environment, fetch_databento_csv
 from .engine import run_backtest
 from .manifest import load_data_requirements, load_experiments
 from .reports import write_json, write_report, write_runbook, write_summary_csv
@@ -21,6 +22,15 @@ def main() -> int:
     subparsers.add_parser("validate")
     subparsers.add_parser("build-runbook")
     subparsers.add_parser("dry-run")
+    subparsers.add_parser("check-databento-env")
+
+    fetch_parser = subparsers.add_parser("fetch-databento")
+    fetch_parser.add_argument("--start", required=True)
+    fetch_parser.add_argument("--end", required=True)
+    fetch_parser.add_argument("--output-dir", required=True)
+    fetch_parser.add_argument("--dataset", default="GLBX.MDP3")
+    fetch_parser.add_argument("--schema", default="ohlcv-1m")
+    fetch_parser.add_argument("--symbols", nargs="*")
 
     run_parser = subparsers.add_parser("run")
     run_parser.add_argument("--bars-dir", required=True)
@@ -32,6 +42,17 @@ def main() -> int:
         return build_runbook()
     if args.command == "dry-run":
         return dry_run()
+    if args.command == "check-databento-env":
+        return check_databento_env()
+    if args.command == "fetch-databento":
+        return fetch_databento(
+            start=args.start,
+            end=args.end,
+            output_dir=Path(args.output_dir),
+            dataset=args.dataset,
+            schema=args.schema,
+            symbols=args.symbols,
+        )
     if args.command == "run":
         return run(Path(args.bars_dir))
     return 1
@@ -80,6 +101,34 @@ def dry_run() -> int:
     }
     write_json(RUNS_ROOT / "dry_run_report.json", payload)
     return 0
+
+
+def check_databento_env() -> int:
+    report = check_databento_environment()
+    write_json(RUNS_ROOT / "databento_environment_report.json", report)
+    return 0 if report["ready"] else 4
+
+
+def fetch_databento(
+    start: str,
+    end: str,
+    output_dir: Path,
+    dataset: str,
+    schema: str,
+    symbols: list[str] | None,
+) -> int:
+    requirements = load_data_requirements()
+    target_symbols = symbols or [item.symbol for item in requirements]
+    result = fetch_databento_csv(
+        symbols=target_symbols,
+        start=start,
+        end=end,
+        output_dir=output_dir,
+        dataset=dataset,
+        schema=schema,
+    )
+    write_json(RUNS_ROOT / "databento_fetch_report.json", result)
+    return 0 if result["status"] == "completed" else 4
 
 
 def run(bars_dir: Path) -> int:

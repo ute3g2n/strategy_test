@@ -1,0 +1,11 @@
+{
+  "kind": "databento_environment_report",
+  "research_only": true,
+  "package": "databento",
+  "package_available": true,
+  "api_key_env": "DATABENTO_API_KEY",
+  "api_key_available": true,
+  "ready": true,
+  "install_command": "pip install -U databento",
+  "note": "This helper only creates research CSV inputs for P10 asset selection."
+}

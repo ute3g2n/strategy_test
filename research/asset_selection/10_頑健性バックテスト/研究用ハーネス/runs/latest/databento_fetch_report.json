@@ -1,0 +1,36 @@
+{
+  "kind": "databento_fetch_report",
+  "research_only": true,
+  "status": "completed",
+  "dataset": "GLBX.MDP3",
+  "schema": "ohlcv-1m",
+  "start": "2026-07-01",
+  "end": "2026-08-01",
+  "outputs": [
+    {
+      "symbol": "MCL",
+      "parent_symbol": "MCL.FUT",
+      "path": "research\\asset_selection\\10_頑健性バックテスト\\研究用ハーネス\\data\\databento_5symbols_2026-07\\MCL.csv"
+    },
+    {
+      "symbol": "MZC",
+      "parent_symbol": "MZC.FUT",
+      "path": "research\\asset_selection\\10_頑健性バックテスト\\研究用ハーネス\\data\\databento_5symbols_2026-07\\MZC.csv"
+    },
+    {
+      "symbol": "MZS",
+      "parent_symbol": "MZS.FUT",
+      "path": "research\\asset_selection\\10_頑健性バックテスト\\研究用ハーネス\\data\\databento_5symbols_2026-07\\MZS.csv"
+    },
+    {
+      "symbol": "MZW",
+      "parent_symbol": "MZW.FUT",
+      "path": "research\\asset_selection\\10_頑健性バックテスト\\研究用ハーネス\\data\\databento_5symbols_2026-07\\MZW.csv"
+    },
+    {
+      "symbol": "M6A",
+      "parent_symbol": "M6A.FUT",
+      "path": "research\\asset_selection\\10_頑健性バックテスト\\研究用ハーネス\\data\\databento_5symbols_2026-07\\M6A.csv"
+    }
+  ]
+}
