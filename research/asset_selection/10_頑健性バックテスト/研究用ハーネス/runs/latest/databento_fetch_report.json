@@ -8,9 +8,9 @@
   "end": "2026-08-01",
   "outputs": [
     {
-      "symbol": "M6A",
-      "parent_symbol": "M6A.FUT",
-      "path": "research\\asset_selection\\10_頑健性バックテスト\\研究用ハーネス\\data\\databento_protocol_raw\\M6A.csv"
+      "symbol": "MCL",
+      "parent_symbol": "MCL.FUT",
+      "path": "research\\asset_selection\\10_頑健性バックテスト\\研究用ハーネス\\data\\databento_protocol_raw\\MCL.csv"
     }
   ]
 }
