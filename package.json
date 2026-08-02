@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "watch-commit": "chokidar \"**/*\" -i \"**/.git/**\" -i \"**/node_modules/**\" -i \"**/.env\" -i \"**/.env.*\" -i \"**/*.log\" --debounce 3000 -c \"bash ./auto-commit.sh\""
+    "watch-commit": "chokidar \"**/*\" -i \"**/.git/**\" -i \"**/node_modules/**\" -i \"**/.env\" -i \"**/.env.*\" -i \"**/*.log\" --debounce 3000 -c \"auto-commit.cmd\""
   },
   "devDependencies": {
     "chokidar-cli": "^3.0.0"
