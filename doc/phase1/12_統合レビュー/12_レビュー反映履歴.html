@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P1-13 レビュー反映履歴</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    .meta { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>P1-13 レビュー反映履歴</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 / <strong>作成日:</strong> 2026-08-03 / <strong>ステップ:</strong> P1-13</p>
+    <p><strong>担当:</strong> <code>AutoTradePhase1_A14_RevisionIntegrator_v0_1</code>, <code>AutoTradePhase1_A00_Orchestrator_v0_1</code>, <code>AutoTradePhase1_A12_ConsistencyReviewer_v0_1</code></p>
+  </div>
+
+  <h2>反映一覧</h2>
+  <table>
+    <tr><th>修正ID</th><th>判断</th><th>反映先</th><th>内容</th><th>保留・却下理由</th></tr>
+    <tr><td>FIX-P1-13-001</td><td>採用</td><td>D19、補助ロードマップ、D20</td><td>OD-02を「評価基準承認」と「PoC証拠条件充足後の最終決定」に分離。</td><td>なし</td></tr>
+    <tr><td>FIX-P1-13-002</td><td>採用</td><td>D17、D18</td><td>ManualInterventionEvent、ReconciliationPassed、AccountSnapshot更新、Human承認を自動再開条件に追加。</td><td>なし</td></tr>
+    <tr><td>FIX-P1-13-003</td><td>採用</td><td>D15、D18</td><td>Secret scan、Log redaction test、Secret namespace test、Secret security testを追加。</td><td>なし</td></tr>
+    <tr><td>FIX-P1-13-004</td><td>採用</td><td>D07、D20</td><td>D07を独立成果物として補完し、D01-D20対応表をD20へ追加。</td><td>なし</td></tr>
+    <tr><td>FIX-P1-13-005</td><td>部分採用</td><td>D17、D18、D19、D20</td><td>Kill Switch解除後のウォームアップ期間と最初の注文制限をPhase 5/7バックログとHuman Gateへ追加。</td><td>具体的な期間・制限値はLive前Runbookで決めるためPhase 1では固定しない。</td></tr>
+  </table>
+
+  <h2>P1-09相当レビュー表記の整理</h2>
+  <p>P1-09とP1-10の成果物にある「A12/A13相当」は、当時の発火制御上、正式なA12/A13起動ではなく自己点検を意味する。P1-12でA12/A13指定の統合レビューとレッドチーム監査を正式に実施し、P1-13で必要な修正を反映した。</p>
+
+  <h2>残リスク</h2>
+  <table>
+    <tr><th>ID</th><th>内容</th><th>扱い</th></tr>
+    <tr><td>RR-P1-13-001</td><td>取引エンジン最終決定は未完了。</td><td>Phase 1ではPoC評価基準を承認し、最終決定は証拠条件充足後に行う。</td></tr>
+    <tr><td>RR-P1-13-002</td><td>Kill Switch解除後のウォームアップ期間と注文制限値は未確定。</td><td>Phase 5/7詳細設計で決定。Live前Human Gate必須。</td></tr>
+  </table>
+</main>
+</body>
+</html>

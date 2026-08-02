@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D20 Phase 1完了判定とPhase 2移行承認書</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code { font-family: Consolas, "Courier New", monospace; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .warn { border-left-color: #b45309; background: #fff7ed; }
+    .ok { border-left-color: #15803d; background: #f0fdf4; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>D20 Phase 1完了判定とPhase 2移行承認書</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 Human Gate提出版 / <strong>作成日:</strong> 2026-08-03 / <strong>ステップ:</strong> P1-13</p>
+    <p><strong>担当:</strong> <code>AutoTradePhase1_A14_RevisionIntegrator_v0_1</code>, <code>AutoTradePhase1_A00_Orchestrator_v0_1</code>, <code>AutoTradePhase1_A12_ConsistencyReviewer_v0_1</code></p>
+    <p><strong>使用Skill:</strong> <code>autotrade_phase1_skill_revision_integrator_v0_1</code>, <code>autotrade_phase1_skill_orchestration_v0_1</code>, <code>autotrade_phase1_skill_design_reviewer_v0_1</code></p>
+  </div>
+
+  <section id="judgement">
+    <h2>完了判定</h2>
+    <div class="ok">
+      <p><strong>判定:</strong> Phase 1成果物はHuman Gate H1-4へ提出可能。</p>
+      <p><strong>Phase 2移行:</strong> 人間レビュー担当者が本書のHuman Gate項目を承認した場合、Phase 2 Market Data基盤の詳細設計へ進行可能。</p>
+    </div>
+    <p>OD-02取引エンジン最終決定は、Phase 1では評価基準が承認対象であり、最終決定はPoC証拠条件を満たした後に行う。これは未解決リスクではなく、D12とD19/D20で管理される決定ゲートである。</p>
+  </section>
+
+  <section id="artifact-map">
+    <h2>D01-D20成果物対応表</h2>
+    <table>
+      <tr><th>ID</th><th>成果物</th><th>ファイル</th><th>状態</th></tr>
+      <tr><td>D01</td><td>全HTML成果物インデックス</td><td><a href="../../index.html">doc/index.html</a></td><td>存在確認済み</td></tr>
+      <tr><td>D02</td><td>要件追跡マトリクス</td><td><a href="../01_要件追跡/01_要件追跡マトリクス.html">01_要件追跡マトリクス.html</a></td><td>存在確認済み</td></tr>
+      <tr><td>D03</td><td>システム全体構成設計書</td><td><a href="../02_全体設計/02_システム全体構成設計書.html">02_システム全体構成設計書.html</a></td><td>存在確認済み</td></tr>
+      <tr><td>D04</td><td>ドメイン分割設計書</td><td><a href="../03_ドメイン設計/03_ドメイン分割設計書.html">03_ドメイン分割設計書.html</a></td><td>存在確認済み</td></tr>
+      <tr><td>D05</td><td>モジュール責務データフロー設計書</td><td><a href="../03_ドメイン設計/03_モジュール責務データフロー設計書.html">03_モジュール責務データフロー設計書.html</a></td><td>存在確認済み</td></tr>
+      <tr><td>D06</td><td>共通ドメインモデル設計書</td><td><a href="../04_共通モデル/04_共通ドメインモデル設計書.html">04_共通ドメインモデル設計書.html</a></td><td>存在確認済み</td></tr>
+      <tr><td>D07</td><td>イベント・注文・口座・ID・時系列設計書</td><td><a href="../04_共通モデル/04_イベント注文口座ID時系列設計書.html">04_イベント注文口座ID時系列設計書.html</a></td><td>P1-13補完済み</td></tr>
+      <tr><td>D08</td><td>Strategy Plugin Interface設計書</td><td><a href="../05_戦略設計/05_Strategy_Plugin_Interface設計書.html">05_Strategy_Plugin_Interface設計書.html</a></td><td>存在確認済み</td></tr>
+      <tr><td>D09</td><td>Turtle Golden test設計書</td><td><a href="../05_戦略設計/05_Turtle_Golden_test設計書.html">05_Turtle_Golden_test設計書.html</a></td><td>存在確認済み</td></tr>
+      <tr><td>D10</td><td>Broker / Market Data Adapter境界設計書</td><td><a href="../06_アダプター境界/06_Adapter境界設計書.html">06_Adapter境界設計書.html</a></td><td>存在確認済み</td></tr>
+      <tr><td>D11</td><td>共通実行モデル設計書</td><td><a href="../07_実行モデル/07_共通実行モデル設計書.html">07_共通実行モデル設計書.html</a></td><td>存在確認済み</td></tr>
+      <tr><td>D12</td><td>取引エンジンPoC評価設計書</td><td><a href="../07_実行モデル/07_取引エンジンPoC評価設計書.html">07_取引エンジンPoC評価設計書.html</a></td><td>存在確認済み</td></tr>
+      <tr><td>D13</td><td>Risk / Account責務境界設計書</td><td><a href="../08_リスク口座管理/08_Risk_Account責務境界設計書.html">08_Risk_Account責務境界設計書.html</a></td><td>存在確認済み</td></tr>
+      <tr><td>D14</td><td>非機能要件設計書</td><td><a href="../09_非機能要件/09_非機能要件設計書.html">09_非機能要件設計書.html</a></td><td>存在確認済み</td></tr>
+      <tr><td>D15</td><td>設定 Secrets 環境分離設計書</td><td><a href="../09_非機能要件/09_設定Secrets環境分離設計書.html">09_設定Secrets環境分離設計書.html</a></td><td>P1-13修正反映済み</td></tr>
+      <tr><td>D16</td><td>監視監査設計書</td><td><a href="../09_非機能要件/09_監視監査設計書.html">09_監視監査設計書.html</a></td><td>存在確認済み</td></tr>
+      <tr><td>D17</td><td>セキュリティ安全停止設計書</td><td><a href="../09_非機能要件/09_セキュリティ安全停止設計書.html">09_セキュリティ安全停止設計書.html</a></td><td>P1-13修正反映済み</td></tr>
+      <tr><td>D18</td><td>テスト戦略品質Gate設計書</td><td><a href="../10_テスト品質/10_テスト戦略品質Gate設計書.html">10_テスト戦略品質Gate設計書.html</a></td><td>P1-13修正反映済み</td></tr>
+      <tr><td>D19</td><td>詳細設計バックログ</td><td><a href="../11_ロードマップ/11_詳細設計バックログ.html">11_詳細設計バックログ.html</a></td><td>P1-13修正反映済み</td></tr>
+      <tr><td>D20</td><td>Phase 1完了判定とPhase 2移行承認書</td><td><a href="./12_Phase1完了判定とPhase2移行承認書.html">12_Phase1完了判定とPhase2移行承認書.html</a></td><td>本書</td></tr>
+    </table>
+  </section>
+
+  <section id="gate">
+    <h2>Phase 1完了Gate確認</h2>
+    <table>
+      <tr><th>Gate</th><th>判定</th><th>根拠</th></tr>
+      <tr><td>D01からD20が存在する</td><td>Pass</td><td>本書のD01-D20成果物対応表。</td></tr>
+      <tr><td>未対応のPhase 1必須項目がない</td><td>Pass</td><td>D02要件追跡マトリクス、P1-12統合レビュー。</td></tr>
+      <tr><td>主要境界が矛盾していない</td><td>Pass</td><td>D08、D10、D11、D13の責務境界が整合。</td></tr>
+      <tr><td>固定しない詳細がバックログ化されている</td><td>Pass</td><td>D19詳細設計バックログ。</td></tr>
+      <tr><td>取引エンジンPoC評価基準が明確</td><td>Pass</td><td>D12。最終決定はPoC証拠条件充足後。</td></tr>
+      <tr><td>安全停止、Secrets、監査ログ、再現性の最低基準が明記</td><td>Pass</td><td>D14-D18。P1-13でSecret検出Gateと手動介入後再開Gateを補強。</td></tr>
+      <tr><td>Phase 2 Human Gateが明確</td><td>Pass</td><td>D19、補助ロードマップ、下記Human Gate項目。</td></tr>
+    </table>
+  </section>
+
+  <section id="human-gate">
+    <h2>H1-4承認項目</h2>
+    <table>
+      <tr><th>項目</th><th>承認内容</th></tr>
+      <tr><td>Phase 1完了</td><td>D01-D20とP1-12/P1-13成果物をHuman Gate提出版として扱う。</td></tr>
+      <tr><td>Phase 2移行</td><td>Phase 2 Market Data基盤の詳細設計へ進む。</td></tr>
+      <tr><td>OD-02</td><td>取引エンジンは未決定。Phase 1ではPoC評価基準のみ承認する。</td></tr>
+      <tr><td>残Unknown</td><td>OD-01からOD-08をD19に従って各Phaseで解消する。</td></tr>
+      <tr><td>安全条件</td><td>Secret検出Gate、手動介入後再開Gate、Kill Switch解除後ウォームアップを後続Phaseで必須化する。</td></tr>
+    </table>
+  </section>
+</main>
+</body>
+</html>
