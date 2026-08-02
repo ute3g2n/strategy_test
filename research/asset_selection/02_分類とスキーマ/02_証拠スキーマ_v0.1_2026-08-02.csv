@@ -1,23 +1,11 @@
-column_name,required,type,allowed_values,description
-evidence_id,yes,string,,Stable evidence ID.
-source_id,yes,string,,Stable source ID.
-candidate_id,no,string,,Related candidate ID if applicable.
-exposure_id,no,string,,Related exposure ID if applicable.
-vehicle_id,no,string,,Related vehicle ID if applicable.
-fact_type,yes,enum,"japan_resident_eligibility;broker_product_availability;api_order_capability;api_account_position_capability;long_short_availability;contract_specification;trading_hours_calendar;first_notice_last_trade;delivery_settlement_risk;margin_requirement;commission_fee;spread_liquidity;historical_data_availability;minute_data_availability;realtime_data_availability;data_license_cost;borrow_funding_roll_cost;delisting_survivorship;regulatory_tax_note;other_note",Type of fact verified.
-fact_claim_ja,yes,string,,Japanese statement of the fact being supported.
-source_url,yes,string,,Source URL.
-source_title,yes,string,,Source title.
-publisher,yes,string,,Publisher.
-source_type,yes,enum,"exchange;broker;regulator;tax_authority;data_vendor;issuer;documentation;paper;industry;other",Source type.
-primary_or_secondary,yes,enum,"primary;secondary",Primary or secondary source.
-accessed_at,yes,string,,Access timestamp.
-published_date,no,string,,Published date if available.
-effective_date,no,string,,Effective date if available.
-expiry_date,no,string,,Recheck deadline or evidence expiry.
-quoted_or_summarized_point_ja,yes,string,,Short Japanese summary of the relevant point.
-confidence,yes,enum,"A;B;C;Unknown",Evidence confidence.
-conflict_status,yes,enum,"none;minor_conflict;major_conflict;unresolved;stale",Conflict or stale status.
-conflict_with_evidence_ids,no,string,,Semicolon-separated conflicting evidence IDs.
-verified_by_role,yes,string,,Role that verified the evidence.
-verification_notes,no,string,,Notes.
+﻿"項目名","必須","型","許容値","説明"
+"証拠ID","必須","文字列","","安定した証拠ID。"
+"情報源ID","必須","文字列","","情報源ID。"
+"候補ID","任意","文字列","","関連候補ID。"
+"事実種別","必須","列挙","日本居住者可否;Broker取扱;API;契約仕様;取引時間;証拠金;手数料;データ可否;その他","証拠が支える事実の種類。"
+"日本語の主張","必須","文字列","","証拠で支える事実。"
+"URL","必須","文字列","","情報源URL。"
+"情報源タイトル","必須","文字列","","ページまたは資料名。"
+"発行者","必須","文字列","","取引所、Broker、Data Vendorなど。"
+"信頼度","必須","列挙","A;B;C;不明","証拠信頼度。"
+"矛盾状態","必須","列挙","なし;軽微な矛盾;重大な矛盾;未解決;古い","矛盾または陳腐化の状態。"

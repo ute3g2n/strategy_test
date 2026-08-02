@@ -1,2 +1,2 @@
-approval_id,human_gate_id,gate_name,input_files,decision,decision_at,approver,approved_scope,rejected_reasons,conditions,next_allowed_step,notes
-APR-H0-20260802-0001,H0,Research Charter Approval,"research/asset_selection/01_charter/01_research_charter_v0.1_2026-08-02.md; research/asset_selection/01_charter/01_h0_approval_checklist_v0.1_2026-08-02.md",approved,2026-08-02T13:19:57+09:00,owner,01_research_charter_v0.1_2026-08-02.md,,none,P02,User replied approved and instructed to proceed to P02.
+﻿"実行ID","ステップID","ロール","開始日時","完了日時","状態","入力","出力","Web使用","メモ","承認ID","HumanGateID","Gate名","判断","判断日時","承認者","承認範囲","条件","次ステップ"
+,,,,,,,,,"User replied approved and instructed to proceed to P02.","APR-H0-20260802-0001","H0","Research Charter Approval","approved","2026-08-02T13:19:57+09:00","owner","01_research_charter_v0.1_2026-08-02.md","none","P02"
