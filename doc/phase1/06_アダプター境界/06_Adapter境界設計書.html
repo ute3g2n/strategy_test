@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D10 Broker / Market Data Adapter境界設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code, pre { font-family: Consolas, "Courier New", monospace; }
+    pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .warn { border-left-color: #b45309; background: #fff7ed; }
+    .ok { border-left-color: #15803d; background: #f0fdf4; }
+    .toc ul { columns: 2; }
+    details { border: 1px solid #d9e2ec; padding: 10px 12px; margin: 10px 0; background: #fbfdff; }
+    summary { font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>D10 Broker / Market Data Adapter境界設計書</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 初版レビュー反映済み / <strong>作成日:</strong> 2026-08-03 / <strong>ステップ:</strong> P1-06</p>
+    <p><strong>オーケストレータ:</strong> <code>AutoTradePhase1_Orchestrator_v0_1</code></p>
+    <p><strong>担当:</strong> <code>AutoTradePhase1_A07_AdapterArchitect_v0_1</code></p>
+    <p><strong>使用Skill:</strong> <code>autotrade_phase1_skill_adapter_boundary_v0_1</code>, <code>autotrade_phase1_skill_official_research_v0_1</code>, <code>autotrade_phase1_skill_html_doc_writer_v0_1</code></p>
+  </div>
+
+  <section id="summary">
+    <h2>概要</h2>
+    <p>本書は、Broker AdapterとMarket Data AdapterのPhase 1境界を定義する。目的は、IBKRやDatabentoなどの外部仕様をCore Domain、Strategy、Risk、OMSへ漏らさず、Phase 2のMarket Data詳細設計とPhase 4のBroker詳細設計へ引き継げる境界を固定することである。</p>
+    <p>Phase 1では、IBKR API全エンドポイント、Databento全ジョブ、注文例外の全パターン、Live Runbook全文は固定しない。固定するのは、外部IDと内部IDの対応、Portの入出力、fail-closed方針、公式一次情報で確認すべき制約リストである。</p>
+  </section>
+
+  <nav class="toc">
+    <h2>目次</h2>
+    <ul>
+      <li><a href="#inputs">入力</a></li>
+      <li><a href="#scope">対象と非対象</a></li>
+      <li><a href="#ai-parts">指定AI部品適用記録</a></li>
+      <li><a href="#broker">Broker Adapter</a></li>
+      <li><a href="#market-data">Market Data Adapter</a></li>
+      <li><a href="#common-events">共通入力イベント</a></li>
+      <li><a href="#id-mapping">注文ID対応</a></li>
+      <li><a href="#data-layers">Market Dataレイヤー</a></li>
+      <li><a href="#external-constraints">公式一次情報確認リスト</a></li>
+      <li><a href="#fail-closed">Fail-closed</a></li>
+      <li><a href="#backlog">詳細化バックログ</a></li>
+      <li><a href="#traceability">要件追跡</a></li>
+      <li><a href="#decisions">設計判断</a></li>
+      <li><a href="#unknowns">未確定事項</a></li>
+      <li><a href="#review">レビュー履歴</a></li>
+      <li><a href="#links">関連文書リンク</a></li>
+      <li><a href="#handoff">後続Phase引き継ぎ</a></li>
+    </ul>
+  </nav>
+
+  <section id="inputs">
+    <h2>入力</h2>
+    <ul>
+      <li><a href="../02_全体設計/02_システム全体構成設計書.html">D03 システム全体構成設計書</a></li>
+      <li><a href="../03_ドメイン設計/03_ドメイン分割設計書.html">D04 ドメイン分割設計書</a></li>
+      <li><a href="../03_ドメイン設計/03_モジュール責務データフロー設計書.html">D05 モジュール責務データフロー設計書</a></li>
+      <li><a href="../04_共通モデル/04_共通ドメインモデル設計書.html">D06 共通ドメインモデル設計書</a></li>
+      <li><a href="../05_戦略設計/05_Strategy_Plugin_Interface設計書.html">D08 Strategy Plugin Interface設計書</a></li>
+      <li><a href="../01_要件追跡/01_要件追跡マトリクス.html">D02 要件追跡マトリクス</a></li>
+    </ul>
+  </section>
+
+  <section id="scope">
+    <h2>対象と非対象</h2>
+    <table>
+      <tr><th>区分</th><th>内容</th></tr>
+      <tr><td>対象</td><td>Broker Adapter責務、Market Data Adapter責務、内部ID/外部ID対応、Backtest / Paper / Live共通イベント、Raw / Normalized / Tradable / Signal / Derived / Experimentレイヤー、公式確認リスト、Phase 2/4バックログ。</td></tr>
+      <tr><td>非対象</td><td>IBKR API全エンドポイント、Databento全ジョブ定義、注文タイプ別パラメータ完全表、実装クラス、接続ライブラリ選定、Live Runbook全文。</td></tr>
+      <tr><td>詳細設計バックログ</td><td>Phase 2でMarket Data取得、正規化、Catalog、ロールを詳細化する。Phase 4でBroker注文、約定、拒否、取消、再同期、Paper接続を詳細化する。</td></tr>
+    </table>
+  </section>
+
+  <section id="ai-parts">
+    <h2>指定AI部品適用記録</h2>
+    <table>
+      <tr><th>種別</th><th>完全名</th><th>適用内容</th></tr>
+      <tr><td>オーケストレータ</td><td><code>AutoTradePhase1_Orchestrator_v0_1</code></td><td>P1-06をP1-03/P1-04後のG2設計として扱い、Adapter境界をPhase 2/4へ引き渡す設計にした。</td></tr>
+      <tr><td>サブエージェント</td><td><code>AutoTradePhase1_A07_AdapterArchitect_v0_1</code></td><td>Broker AdapterとMarket Data Adapterの責務、非責務、ID対応、fail-closed境界を定義した。</td></tr>
+      <tr><td>Skill</td><td><code>autotrade_phase1_skill_adapter_boundary_v0_1</code></td><td>外部BrokerとMarket Data Vendorへの依存をAdapterへ閉じ込める方針を適用した。</td></tr>
+      <tr><td>Skill</td><td><code>autotrade_phase1_skill_official_research_v0_1</code></td><td>外部仕様は詳細固定せず、公式一次情報で確認が必要な制約として台帳化した。</td></tr>
+      <tr><td>Skill</td><td><code>autotrade_phase1_skill_html_doc_writer_v0_1</code></td><td>単体で読めるHTML、目次、設計判断、未確定事項、レビュー履歴、関連文書リンクを維持した。</td></tr>
+    </table>
+  </section>
+
+  <section id="broker">
+    <h2>Broker Adapter</h2>
+    <table>
+      <tr><th>区分</th><th>内容</th></tr>
+      <tr><td>責務</td><td>内部OrderRequestをBroker固有注文へ変換する。Broker注文ID、permId、clientId等の外部識別子を内部client_order_idへ関連付ける。Broker応答をExecutionReportへ正規化する。接続断、拒否、約定、取消、状態不明を分類する。</td></tr>
+      <tr><td>非責務</td><td>Strategy判断、Risk上限判断、口座正本の単独決定、未照合Positionの自動補正、Secrets平文保持、Human Gateの代替。</td></tr>
+      <tr><td>入力Port</td><td>SubmitOrder、CancelOrder、QueryOpenOrders、QueryExecutions、QueryAccountSnapshot、QueryPositions、PingBroker。</td></tr>
+      <tr><td>出力イベント</td><td>OrderSubmittedToBroker、BrokerAcknowledged、ExecutionReportReceived、BrokerRejected、BrokerConnectionChanged、UnknownExternalState、BrokerRateLimited。</td></tr>
+      <tr><td>内部へ漏らさないもの</td><td>Broker SDK型、APIセッション、認証情報、raw callback payload、Broker固有注文IDを正本IDとして扱うこと。</td></tr>
+    </table>
+  </section>
+
+  <section id="market-data">
+    <h2>Market Data Adapter</h2>
+    <table>
+      <tr><th>区分</th><th>内容</th></tr>
+      <tr><td>責務</td><td>外部Market Data API、ファイル、Live streamからRaw取得記録を生成する。ベンダ記号と内部InstrumentIdの対応をCatalogへ渡す。取得時刻、配信時刻、イベント時刻、品質フラグを保持する。</td></tr>
+      <tr><td>非責務</td><td>Strategy判断、Risk判断、注文発行、Broker状態照合、研究用に都合のよい補正を正本Rawへ上書きすること。</td></tr>
+      <tr><td>入力Port</td><td>FetchHistoricalRange、SubscribeLiveMarketData、ResolveSymbols、FetchInstrumentDefinitions、FetchTradingCalendar、LoadRawFile。</td></tr>
+      <tr><td>出力イベント</td><td>RawMarketDataReceived、MarketDataGapDetected、SymbolMappingResolved、InstrumentDefinitionUpdated、MarketDataConnectionChanged、DataVendorRateLimited。</td></tr>
+      <tr><td>内部へ漏らさないもの</td><td>Data Vendor SDK型、raw_symbolを内部正本IDとして扱うこと、APIキー、レート制限リトライ実装、ベンダ固有schemaをStrategyへ直接渡すこと。</td></tr>
+    </table>
+  </section>
+
+  <section id="common-events">
+    <h2>Backtest / Paper / Liveで共通化する入力イベント</h2>
+    <table>
+      <tr><th>イベント</th><th>生成元</th><th>共通項目</th><th>モード差分</th></tr>
+      <tr><td>MarketEvent</td><td>Market Data Adapter / Replay</td><td>event_id, run_id, instrument_id, event_time_utc, exchange_time_local, bar_close_time, price fields, quality_flags</td><td>Backtestは保存済みRaw/Normalizedを再生し、Paper/LiveはLive取得または準Live取得を使う。</td></tr>
+      <tr><td>TimerEvent</td><td>Clock Adapter / Replay Clock</td><td>timer_kind, scheduled_time_utc, fired_time_utc, business_date</td><td>Backtestは決定的なreplay clock、Paper/Liveは実時計を使う。</td></tr>
+      <tr><td>OrderEvent</td><td>OMS / Broker Adapter / Simulator</td><td>client_order_id, order_state, event_time_utc, reason_code</td><td>BacktestはSimulator、Paper/LiveはBroker Adapterから正規化する。</td></tr>
+      <tr><td>ExecutionReport</td><td>Broker Adapter / Simulator</td><td>client_order_id, fill_qty, fill_price, remaining_qty, broker_exec_ref, event_time_utc</td><td>Backtestは約定モデル、Paper/LiveはBroker応答を正規化する。</td></tr>
+      <tr><td>HealthEvent</td><td>全Adapter</td><td>component_name, health_state, severity, observed_at_utc, reason_code</td><td>Paper/Liveでは安全停止候補として扱う。Backtestでもfail-closed挙動を検証する。</td></tr>
+    </table>
+  </section>
+
+  <section id="id-mapping">
+    <h2>Broker側注文IDと内部client_order_idの対応</h2>
+    <table>
+      <tr><th>ID</th><th>所有者</th><th>用途</th><th>Phase 1方針</th></tr>
+      <tr><td>client_order_id</td><td>OMS</td><td>内部注文の正本ID。</td><td>全モードで必須。Broker注文IDとは分離する。</td></tr>
+      <tr><td>broker_order_id</td><td>Broker Adapter</td><td>Broker API上の注文ID。</td><td>内部正本IDにしない。対応表で保持する。</td></tr>
+      <tr><td>broker_perm_id</td><td>Broker Adapter</td><td>Broker側の永続的またはホスト側識別子。</td><td>照合補助キーとして扱う。内部Orderの主キーにしない。</td></tr>
+      <tr><td>broker_client_id</td><td>Broker Adapter</td><td>Broker接続クライアント識別。</td><td>接続設定と監査に保持する。Strategy / Riskへ渡さない。</td></tr>
+      <tr><td>execution_id</td><td>Broker Adapter</td><td>約定応答識別。</td><td>Fillの重複排除補助キーにする。内部fill_idとは分離する。</td></tr>
+    </table>
+    <div class="note warn">
+      <p><strong>境界ルール:</strong> 外部IDが欠落、重複、再利用、未確定の場合は、Adapterが <code>UnknownExternalState</code> または照合要求を発行し、新規注文をfail-closedへ誘導する。</p>
+    </div>
+  </section>
+
+  <section id="data-layers">
+    <h2>Market DataのRaw / Normalized / Tradable / Signal / Derived / Experimentレイヤー</h2>
+    <table>
+      <tr><th>レイヤー</th><th>意味</th><th>所有者</th><th>Adapterとの関係</th></tr>
+      <tr><td>Raw</td><td>外部から取得した原データと取得メタデータ。</td><td>Market Data Adapter / Raw Store</td><td>上書き不可。外部payload、取得時刻、source、checksumを保持する。</td></tr>
+      <tr><td>Normalized</td><td>共通schemaへ変換されたOHLCV、tick、definition、status。</td><td>Normalization</td><td>Adapterは変換入力を提供し、正規化規則はData設計で管理する。</td></tr>
+      <tr><td>Tradable</td><td>取引可能性、営業日、契約、ロール、停止状態。</td><td>Catalog</td><td>Market Dataのdefinitionやstatusを使うが、StrategyへはInstrumentIdで渡す。</td></tr>
+      <tr><td>Signal</td><td>Strategyが読む確定済み市場ビュー。</td><td>Event Engine / Strategy</td><td>ベンダ固有型を含めない。bar_close_timeとquality_flagsを必須にする。</td></tr>
+      <tr><td>Derived</td><td>N、Channel、特徴量、集計済み派生系列。</td><td>Strategy / Analytics</td><td>Rawへ逆書きしない。計算バージョンを持つ。</td></tr>
+      <tr><td>Experiment</td><td>研究用の候補変換、仮説検証、比較データ。</td><td>Research</td><td>本番正本にしない。昇格にはGolden testとレビューが必要。</td></tr>
+    </table>
+  </section>
+
+  <section id="external-constraints">
+    <h2>公式一次情報で確認が必要な外部制約のリスト</h2>
+    <table>
+      <tr><th>対象</th><th>確認項目</th><th>公式一次情報</th><th>確認日</th><th>Phase 1での扱い</th></tr>
+      <tr><td>IBKR TWS API</td><td>orderStatus、openOrder、active order取得、取消済み/約定済み注文の取得可否。</td><td><a href="https://www.interactivebrokers.eu/campus/ibkr-api-page/twsapi-doc/">IBKR Campus TWS API Documentation</a></td><td>2026-08-03</td><td>状態正規化と再同期バックログへ送る。</td></tr>
+      <tr><td>IBKR TWS API</td><td>nextValidId、orderId、clientId、permId、複数client時のID管理。</td><td><a href="https://interactivebrokers.github.io/tws-api/order_submission.html">IBKR TWS API Placing Orders</a></td><td>2026-08-03</td><td>外部IDを内部正本にしない方針を固定。</td></tr>
+      <tr><td>Databento Symbology</td><td>raw_symbol、instrument_id、parent、continuousの対応、日付範囲ごとのsymbol mapping。</td><td><a href="https://databento.com/docs/standards-and-conventions/symbology">Databento Symbology</a></td><td>2026-08-03</td><td>CatalogとInstrumentId対応の詳細化対象。</td></tr>
+      <tr><td>Databento Schemas</td><td>definition、OHLCV、statistics、status等のschemaと時刻項目。</td><td><a href="https://databento.com/docs/knowledge-base">Databento Schemas and data formats</a></td><td>2026-08-03</td><td>Raw / Normalized / Tradable分離の確認対象。</td></tr>
+      <tr><td>Databento Normalization / DBN</td><td>normalized schema、DBN、metadata header、rawとnormalizedのトレードオフ。</td><td><a href="https://databento.com/docs/knowledge-base/new-users/dbn-encoding/getting-started-with-dbn">Databento DBN and normalization</a></td><td>2026-08-03</td><td>Phase 2で保存形式と変換規則を決める。</td></tr>
+    </table>
+  </section>
+
+  <section id="fail-closed">
+    <h2>Fail-closed</h2>
+    <table>
+      <tr><th>条件</th><th>検知場所</th><th>出力</th><th>停止範囲</th></tr>
+      <tr><td>Broker接続断、order status不明、cancel結果不明。</td><td>Broker Adapter</td><td>BrokerConnectionChanged, UnknownExternalState</td><td>新規注文停止。Reconciliation完了まで再開しない。</td></tr>
+      <tr><td>Market Data欠損、symbol mapping部分解決、definition不整合。</td><td>Market Data Adapter / Catalog</td><td>MarketDataGapDetected, SymbolMappingPartial, HealthEvent</td><td>対象InstrumentのStrategy評価停止。</td></tr>
+      <tr><td>外部ID対応表の重複、欠落、矛盾。</td><td>Broker Adapter / Reconciliation</td><td>ExternalIdMappingConflict</td><td>対象注文または口座単位で新規注文停止。</td></tr>
+      <tr><td>API rate limit、認証失敗、権限不足。</td><td>各Adapter</td><td>AdapterAccessDenied, AdapterRateLimited</td><td>自動リトライ上限後に停止し、Human Gateへ送る。</td></tr>
+      <tr><td>Raw取得チェックサム不一致、再取得差分。</td><td>Market Data Adapter / Raw Store</td><td>RawDataIntegrityMismatch</td><td>対象データ範囲のBacktest / Signal生成を停止。</td></tr>
+    </table>
+  </section>
+
+  <section id="backlog">
+    <h2>Phase 2 / Phase 4 詳細化バックログ</h2>
+    <table>
+      <tr><th>ID</th><th>Phase</th><th>詳細化対象</th><th>完了条件</th></tr>
+      <tr><td>BL-P2-MD-01</td><td>Phase 2</td><td>Databento dataset、schema、stype_in/out、symbol mapping取得方式。</td><td>InstrumentId対応、partial/not_found処理、Raw保存仕様が確定。</td></tr>
+      <tr><td>BL-P2-MD-02</td><td>Phase 2</td><td>Raw Store、Normalized Store、checksum、metadata、データ品質フラグ。</td><td>再現可能なBacktest入力を構築できる。</td></tr>
+      <tr><td>BL-P2-MD-03</td><td>Phase 2</td><td>continuous contractとroll ruleの扱い。</td><td>TradableとSignalで使う系列の責務が分離される。</td></tr>
+      <tr><td>BL-P4-BR-01</td><td>Phase 4</td><td>IBKR orderId、clientId、permId、execution id対応表。</td><td>client_order_idとの対応と重複排除が実装可能。</td></tr>
+      <tr><td>BL-P4-BR-02</td><td>Phase 4</td><td>注文状態、拒否、取消、部分約定、状態不明、再同期。</td><td>D06の注文状態へ正規化できる。</td></tr>
+      <tr><td>BL-P4-BR-03</td><td>Phase 4</td><td>Paper口座接続、権限、接続監視、手動介入時の扱い。</td><td>Paper実行でfail-closedとReconciliationを検証できる。</td></tr>
+    </table>
+  </section>
+
+  <section id="traceability">
+    <h2>要件追跡</h2>
+    <table>
+      <tr><th>追跡ID</th><th>本書での扱い</th></tr>
+      <tr><td>REQ-Q02</td><td>対象アセットと初期市場はCatalog / Market Data詳細設計へ引き継ぐ。</td></tr>
+      <tr><td>REQ-Q07</td><td>IBKRを第一候補としつつ、Phase 1ではBroker Adapter境界だけを固定する。</td></tr>
+      <tr><td>REQ-Q19 / REQ-OD03</td><td>ロール規則とcontinuous signalはMarket Dataレイヤー分離とPhase 2バックログへ反映する。</td></tr>
+      <tr><td>REQ-Q20</td><td>初期市場の十分な履歴をMarket Data Adapter / Raw Storeの要件へ接続する。</td></tr>
+      <tr><td>REQ-Q25-Q27</td><td>接続断、新規注文、停止系、HeartbeatをAdapter HealthEventへ反映する。</td></tr>
+      <tr><td>REQ-Q29</td><td>テストは証券会社バックテストへ依存せず、Adapter境界を再現可能にする。</td></tr>
+      <tr><td>REQ-POL03</td><td>IBKR API全エンドポイントとDatabento全ジョブをPhase 1で固定しない。</td></tr>
+      <tr><td>REQ-POL04</td><td>Adapter境界、責務分離、監査、Secrets、安全停止をPhase 1で固定する。</td></tr>
+    </table>
+  </section>
+
+  <section id="decisions">
+    <h2>設計判断</h2>
+    <details open><summary>DEC-P1-ADP-01: 外部IDは内部正本IDにしない</summary><p>Broker注文IDやData Vendorのinstrument_id/raw_symbolは、再利用、日付依存、client依存、取得範囲依存があるため、内部正本IDとは分離して対応表で扱う。</p></details>
+    <details open><summary>DEC-P1-ADP-02: AdapterはStrategy判断を持たない</summary><p>Adapterは変換、送受信、分類、正規化に限定する。売買判断、Risk上限、Unit上限、口座正本の判断は担当しない。</p></details>
+    <details open><summary>DEC-P1-ADP-03: 状態不明は明示的にUnknownExternalStateへ落とす</summary><p>接続断や外部ID対応不明を成功扱いしない。Reconciliation完了前の新規注文はfail-closedへ誘導する。</p></details>
+    <details open><summary>DEC-P1-ADP-04: RawとNormalizedを分離する</summary><p>取得データの再現性を守るため、Rawは上書き不可とし、正規化や研究派生は別レイヤーで管理する。</p></details>
+  </section>
+
+  <section id="unknowns">
+    <h2>未確定事項</h2>
+    <table>
+      <tr><th>ID</th><th>内容</th><th>扱い</th></tr>
+      <tr><td>UNK-P1-ADP-01</td><td>IBKR接続方式、clientId運用、Master Client ID運用。</td><td>Phase 4で公式仕様とPaper接続検証により確定。</td></tr>
+      <tr><td>UNK-P1-ADP-02</td><td>Databento dataset、schema、continuous symbology採用範囲。</td><td>Phase 2で対象市場とロール規則と合わせて確定。</td></tr>
+      <tr><td>UNK-P1-ADP-03</td><td>API rate limit時の自動リトライ回数、停止閾値、通知先。</td><td>非機能・運用設計で詳細化。</td></tr>
+      <tr><td>UNK-P1-ADP-04</td><td>Paper / LiveでBroker手動注文を取り込むか、禁止するか。</td><td>Phase 4 Broker詳細設計とLive Runbookで判断。</td></tr>
+    </table>
+  </section>
+
+  <section id="review">
+    <h2>レビュー履歴</h2>
+    <table>
+      <tr><th>日付</th><th>観点</th><th>結果</th></tr>
+      <tr><td>2026-08-03</td><td>A12 全体構成・共通モデル整合観点</td><td>D03-D06のAdapter Boundary、client_order_id、InstrumentId、UnknownExternalState、MarketEventと整合するよう記述。</td></tr>
+      <tr><td>2026-08-03</td><td>A13 Red Team観点</td><td>Broker依存漏れ、Data Vendor依存漏れ、安全停止漏れを確認し、外部ID漏洩禁止、fail-closed、Raw分離を設計判断へ反映。</td></tr>
+    </table>
+  </section>
+
+  <section id="links">
+    <h2>関連文書リンク</h2>
+    <ul>
+      <li><a href="../02_全体設計/02_システム全体構成設計書.html">D03 システム全体構成設計書</a></li>
+      <li><a href="../03_ドメイン設計/03_モジュール責務データフロー設計書.html">D05 モジュール責務データフロー設計書</a></li>
+      <li><a href="../04_共通モデル/04_共通ドメインモデル設計書.html">D06 共通ドメインモデル設計書</a></li>
+      <li><a href="../05_戦略設計/05_Strategy_Plugin_Interface設計書.html">D08 Strategy Plugin Interface設計書</a></li>
+    </ul>
+  </section>
+
+  <section id="handoff">
+    <h2>後続Phase引き継ぎ</h2>
+    <p>Phase 2ではMarket Data Adapter、Raw Store、Normalization、Catalog、continuous/roll規則を本書のレイヤー分離に従って詳細化する。Phase 4ではBroker Adapter、注文ID対応、注文状態正規化、Paper接続、再同期、fail-closedを本書の境界に従って詳細化する。</p>
+  </section>
+</main>
+</body>
+</html>
