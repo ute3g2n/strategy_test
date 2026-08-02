@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D05 モジュール責務データフロー設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .toc ul { columns: 2; }
+    details { border: 1px solid #d9e2ec; padding: 10px 12px; margin: 10px 0; background: #fbfdff; }
+    summary { font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>D05 モジュール責務データフロー設計書</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 復元版 / <strong>作成日:</strong> 2026-08-02 / <strong>復元日:</strong> 2026-08-02 / <strong>ステップ:</strong> P1-03</p>
+    <p><strong>担当:</strong> AutoTradePhase1_A02_SystemArchitect_v0_1, AutoTradePhase1_A03_DomainArchitect_v0_1</p>
+    <p><strong>使用Skill:</strong> autotrade_phase1_skill_architecture_writer_v0_1, autotrade_phase1_skill_domain_modeling_v0_1, autotrade_phase1_skill_html_doc_writer_v0_1</p>
+  </div>
+
+  <section id="summary">
+    <h2>概要</h2>
+    <p>本書は、Data IngestionからMonitoringまでの主要モジュール責務とデータフローを定義する。Phase 1では、各モジュールが何を受け取り、何を出し、何を担当しないかを固定する。</p>
+  </section>
+
+  <nav class="toc">
+    <h2>目次</h2>
+    <ul>
+      <li><a href="#inputs">入力</a></li>
+      <li><a href="#modules">モジュール責務</a></li>
+      <li><a href="#flow">データフロー</a></li>
+      <li><a href="#mode">実行モード差分</a></li>
+      <li><a href="#boundaries">Broker依存とMarket Data依存</a></li>
+      <li><a href="#traceability">要件追跡</a></li>
+      <li><a href="#decisions">設計判断</a></li>
+      <li><a href="#unknowns">未確定事項</a></li>
+      <li><a href="#review">レビュー履歴</a></li>
+      <li><a href="#links">関連文書リンク</a></li>
+      <li><a href="#handoff">後続Phase引き継ぎ</a></li>
+    </ul>
+  </nav>
+
+  <section id="inputs">
+    <h2>入力</h2>
+    <ul>
+      <li><a href="../02_全体設計/02_システム全体構成設計書.html">D03 システム全体構成設計書</a></li>
+      <li><a href="./03_ドメイン分割設計書.html">D04 ドメイン分割設計書</a></li>
+      <li><a href="../04_共通モデル/04_共通ドメインモデル設計書.html">D06 共通ドメインモデル設計書</a></li>
+    </ul>
+  </section>
+
+  <section id="modules">
+    <h2>モジュール責務</h2>
+    <table>
+      <tr><th>モジュール</th><th>入力</th><th>出力</th><th>担当しないこと</th></tr>
+      <tr><td>Data Ingestion</td><td>外部データAPI、ファイル、手動投入データ</td><td>取得イベント、取得メタデータ</td><td>正規化後データの正本判断、売買判断</td></tr>
+      <tr><td>Raw Store</td><td>取得イベント</td><td>不変のRawデータ、監査可能な取得履歴</td><td>上書き補正、戦略向け特徴量生成</td></tr>
+      <tr><td>Normalization</td><td>Rawデータ、Calendar、Catalog</td><td>正規化済みOHLCV、欠損情報、品質フラグ</td><td>Broker注文、リスク判定</td></tr>
+      <tr><td>Catalog</td><td>銘柄、取引所、市場、ロール規則、ID対応</td><td>InstrumentId、契約メタデータ、取引可能性</td><td>約定正本管理</td></tr>
+      <tr><td>Event Engine</td><td>正規化データ、時刻、実行モード</td><td>MarketEvent、TimerEvent、SystemEvent</td><td>Broker固有変換</td></tr>
+      <tr><td>Strategy Plugin</td><td>MarketEvent、戦略状態、Portfolio Snapshot</td><td>Signal、OrderIntent、判断根拠</td><td>発注、Risk上限変更、安全停止解除</td></tr>
+      <tr><td>Portfolio / Risk</td><td>OrderIntent、現在ポジション、口座制約</td><td>RiskDecision、許可済みOrderIntent、拒否理由</td><td>戦略シグナル生成、Broker API呼び出し</td></tr>
+      <tr><td>OMS</td><td>RiskDecision、OrderIntent、ExecutionReport</td><td>OrderPlan、OrderRequest、注文状態</td><td>Broker認証、Market Data取得</td></tr>
+      <tr><td>Broker Adapter</td><td>OrderRequest、Broker設定</td><td>Broker注文、ExecutionReport、Broker状態</td><td>Strategy判断、Risk上限判断</td></tr>
+      <tr><td>Reconciliation</td><td>内部注文状態、ExecutionReport、Broker残高</td><td>照合結果、差異イベント、停止要求</td><td>差異を黙って補正すること</td></tr>
+      <tr><td>Monitoring</td><td>SystemEvent、RiskDecision、照合結果、稼働状態</td><td>メトリクス、アラート、監査ビュー、安全停止通知</td><td>売買ロジック、Secretsの平文保持</td></tr>
+    </table>
+  </section>
+
+  <section id="flow">
+    <h2>データフロー</h2>
+    <pre>1. External Market Data -> Data Ingestion -> Raw Store
+2. Raw Store -> Normalization -> Catalog-resolved Market Series
+3. Market Series -> Event Engine -> MarketEvent
+4. MarketEvent -> Strategy Plugin -> Signal / OrderIntent
+5. OrderIntent -> Portfolio / Risk -> RiskDecision
+6. Approved Intent -> OMS -> OrderRequest
+7. OrderRequest -> Broker Adapter -> ExecutionReport
+8. ExecutionReport -> OMS / Reconciliation -> State Update or Stop Request
+9. Significant Events -> Monitoring / Event Journal</pre>
+    <p>重要な判断はイベントジャーナルへ記録する。失敗、拒否、差異、安全停止も正常系と同じくイベントとして扱う。</p>
+  </section>
+
+  <section id="mode">
+    <h2>実行モード差分</h2>
+    <table>
+      <tr><th>モード</th><th>共通部分</th><th>差し替える部分</th></tr>
+      <tr><td>Backtest</td><td>Event Engine、Strategy、Risk、OMS状態遷移、監査イベント</td><td>Clock、Broker AdapterをSimulatorへ差し替え</td></tr>
+      <tr><td>Shadow</td><td>Live相当のMarketEvent、Strategy、Risk、監視</td><td>注文送信を無効化し、Broker状態は読み取り中心</td></tr>
+      <tr><td>Paper</td><td>OrderIntent、Risk、OMS、Reconciliation、Monitoring</td><td>Broker AdapterをPaper口座へ接続</td></tr>
+      <tr><td>Live</td><td>Paperと同じ実行骨格、監査、安全停止</td><td>Live Broker Adapter、厳格なSecrets、Human Gate</td></tr>
+    </table>
+  </section>
+
+  <section id="boundaries">
+    <h2>Broker依存とMarket Data依存</h2>
+    <table>
+      <tr><th>依存</th><th>閉じ込め先</th><th>内部へ渡してよいもの</th><th>内部へ漏らさないもの</th></tr>
+      <tr><td>Broker API</td><td>Broker Adapter</td><td>ExecutionReport、Broker状態の正規化ビュー、エラー分類</td><td>SDK型、認証情報、Broker固有注文IDの直接参照</td></tr>
+      <tr><td>Market Data API</td><td>Market Data Adapter、Data Ingestion</td><td>Raw取得記録、正規化前データ、品質フラグ</td><td>Provider固有型、レート制限実装、APIキー</td></tr>
+      <tr><td>銘柄記号差分</td><td>Catalog</td><td>InstrumentIdと対応表</td><td>Strategy内でのProvider記号分岐</td></tr>
+    </table>
+  </section>
+
+  <section id="traceability">
+    <h2>要件追跡</h2>
+    <table>
+      <tr><th>追跡ID</th><th>本書での扱い</th></tr>
+      <tr><td>REQ-Q03</td><td>市場数拡張をCatalog、Data Ingestion、Normalizationで吸収。</td></tr>
+      <tr><td>REQ-Q07</td><td>Paper / Liveを同じOMS、Risk、Broker Adapter境界で扱う。</td></tr>
+      <tr><td>REQ-Q17, REQ-Q21</td><td>Strategy Pluginと責務分離へ反映。</td></tr>
+      <tr><td>REQ-Q22, REQ-Q24, REQ-Q29</td><td>Monitoring、Reconciliation、安全停止、監査イベントへ反映。</td></tr>
+      <tr><td>REQ-POL04</td><td>Adapter境界、責務分離、安全停止、Secretsを後続設計の前提として固定。</td></tr>
+    </table>
+  </section>
+
+  <section id="decisions">
+    <h2>設計判断</h2>
+    <details open><summary>DEC-P1-FLOW-01: OrderIntentはRiskとOMSを通過するまで注文ではない</summary><p>Strategy出力をそのままBrokerへ渡す経路を禁止し、安全停止、ポジション制限、注文重複防止を中央で扱う。</p></details>
+    <details open><summary>DEC-P1-FLOW-02: Raw Storeは不変とする</summary><p>データ補正や再取得があってもRaw履歴を上書きしない。補正はNormalization以降の派生として扱う。</p></details>
+    <details><summary>DEC-P1-FLOW-03: Reconciliationは差異をイベント化する</summary><p>内部状態とBroker状態の不一致は黙って補正せず、照合結果と停止要求として扱う。</p></details>
+  </section>
+
+  <section id="unknowns">
+    <h2>未確定事項</h2>
+    <table>
+      <tr><th>ID</th><th>内容</th><th>扱い</th></tr>
+      <tr><td>UNK-P1-FLOW-01</td><td>Brokerごとの注文タイプ、約定通知、拒否理由の詳細。</td><td>Adapter詳細設計で確定する。</td></tr>
+      <tr><td>UNK-P1-FLOW-02</td><td>Normalizationの欠損補完、ロール、休日処理の具体規則。</td><td>データ設計とGolden test設計へ送る。</td></tr>
+      <tr><td>UNK-P1-FLOW-03</td><td>Monitoringの具体メトリクス名とアラート閾値。</td><td>非機能要件、運用設計で詳細化する。</td></tr>
+    </table>
+  </section>
+
+  <section id="review">
+    <h2>レビュー履歴</h2>
+    <table>
+      <tr><th>日付</th><th>観点</th><th>結果</th></tr>
+      <tr><td>2026-08-02</td><td>A12整合性観点</td><td>D03、D04、D06との用語と参照関係を確認。</td></tr>
+      <tr><td>2026-08-02</td><td>A13 Red Team観点</td><td>Strategy直結発注、Broker依存漏れ、差異の黙殺、安全停止漏れを禁止事項と判断に反映。</td></tr>
+    </table>
+  </section>
+
+  <section id="links">
+    <h2>関連文書リンク</h2>
+    <ul>
+      <li><a href="../02_全体設計/02_システム全体構成設計書.html">D03 システム全体構成設計書</a></li>
+      <li><a href="./03_ドメイン分割設計書.html">D04 ドメイン分割設計書</a></li>
+      <li><a href="../04_共通モデル/04_共通ドメインモデル設計書.html">D06 共通ドメインモデル設計書</a></li>
+    </ul>
+  </section>
+
+  <section id="handoff">
+    <h2>後続Phase引き継ぎ</h2>
+    <p>Phase 2以降は、各モジュールのPort、イベントスキーマ、テストfixture、例外分類、監視メトリクスを詳細化する。Phase 1で固定した責務境界をまたぐ実装は設計レビューで差し戻す。</p>
+  </section>
+</main>
+</body>
+</html>

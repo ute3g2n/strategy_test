@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D04 ドメイン分割設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .warn { border-left-color: #b45309; background: #fff7ed; }
+    .toc ul { columns: 2; }
+    details { border: 1px solid #d9e2ec; padding: 10px 12px; margin: 10px 0; background: #fbfdff; }
+    summary { font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>D04 ドメイン分割設計書</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 復元版 / <strong>作成日:</strong> 2026-08-02 / <strong>復元日:</strong> 2026-08-02 / <strong>ステップ:</strong> P1-03</p>
+    <p><strong>担当:</strong> AutoTradePhase1_A02_SystemArchitect_v0_1, AutoTradePhase1_A03_DomainArchitect_v0_1</p>
+    <p><strong>使用Skill:</strong> autotrade_phase1_skill_architecture_writer_v0_1, autotrade_phase1_skill_domain_modeling_v0_1, autotrade_phase1_skill_html_doc_writer_v0_1</p>
+  </div>
+
+  <section id="summary">
+    <h2>概要</h2>
+    <p>本書は、自動売買システムの境界づけられたコンテキスト、共通ドメイン概念、責務分離を定義する。Strategyを売買判断の入口に限定し、Account、Risk、OMS、Broker、Market Data、Monitoringを分離する。</p>
+  </section>
+
+  <nav class="toc">
+    <h2>目次</h2>
+    <ul>
+      <li><a href="#inputs">入力</a></li>
+      <li><a href="#contexts">境界づけられたコンテキスト</a></li>
+      <li><a href="#ubiquitous">共通ドメイン概念</a></li>
+      <li><a href="#strategy">Strategyの責務</a></li>
+      <li><a href="#dependency">依存方向</a></li>
+      <li><a href="#traceability">要件追跡</a></li>
+      <li><a href="#decisions">設計判断</a></li>
+      <li><a href="#unknowns">未確定事項</a></li>
+      <li><a href="#review">レビュー履歴</a></li>
+      <li><a href="#links">関連文書リンク</a></li>
+      <li><a href="#handoff">後続Phase引き継ぎ</a></li>
+    </ul>
+  </nav>
+
+  <section id="inputs">
+    <h2>入力</h2>
+    <ul>
+      <li><a href="../02_全体設計/02_システム全体構成設計書.html">D03 システム全体構成設計書</a></li>
+      <li><a href="../01_要件追跡/01_要件追跡マトリクス.html">D02 要件追跡マトリクス</a></li>
+      <li><a href="../04_共通モデル/04_共通ドメインモデル設計書.html">D06 共通ドメインモデル設計書</a></li>
+    </ul>
+  </section>
+
+  <section id="contexts">
+    <h2>境界づけられたコンテキスト</h2>
+    <table>
+      <tr><th>コンテキスト</th><th>責務</th><th>持たない責務</th></tr>
+      <tr><td>Market Data</td><td>外部データ取得、Raw保存、正規化、欠損と時刻の扱い。</td><td>売買判断、Risk判断、注文発行。</td></tr>
+      <tr><td>Catalog</td><td>取引対象、市場、銘柄ID、連続足、ロール規則、メタデータ。</td><td>Brokerポジション正本化。</td></tr>
+      <tr><td>Strategy</td><td>入力イベントからSignalとOrderIntentを生成する。</td><td>資金移動、最終注文、Broker API呼び出し、安全停止解除。</td></tr>
+      <tr><td>Portfolio / Risk</td><td>資金、ポジション、リスク上限、注文意図の許可または拒否。</td><td>戦略ロジック、Broker固有変換。</td></tr>
+      <tr><td>OMS</td><td>OrderIntentからOrderPlanとOrderRequestを生成し、注文状態を管理する。</td><td>Broker認証、約定正本の単独判断。</td></tr>
+      <tr><td>Broker Integration</td><td>Broker API変換、注文送信、約定取得、エラー分類。</td><td>Strategy判断、Risk上限変更。</td></tr>
+      <tr><td>Reconciliation</td><td>内部状態とBroker状態、注文、約定、残高の照合。</td><td>新規売買シグナル生成。</td></tr>
+      <tr><td>Operations / Monitoring</td><td>メトリクス、アラート、監査ログ、安全停止、Secrets境界。</td><td>研究用パラメータ探索。</td></tr>
+    </table>
+  </section>
+
+  <section id="ubiquitous">
+    <h2>共通ドメイン概念</h2>
+    <table>
+      <tr><th>概念</th><th>意味</th><th>Phase 1で固定すること</th></tr>
+      <tr><td>InstrumentId</td><td>取引対象を内部で一意に表すID。</td><td>Broker記号、Data Provider記号とは分離する。</td></tr>
+      <tr><td>MarketEvent</td><td>価格、出来高、足確定、欠損、ロールなどの入力イベント。</td><td>Strategy入力はMarketEventまたは派生状態に限定する。</td></tr>
+      <tr><td>Signal</td><td>Strategyが算出した方向、強度、根拠。</td><td>注文ではなく判断材料として扱う。</td></tr>
+      <tr><td>OrderIntent</td><td>Strategyが希望する注文意図。</td><td>RiskとOMS通過前は発注可能な注文ではない。</td></tr>
+      <tr><td>ExecutionReport</td><td>約定、拒否、取消、失敗などBroker応答。</td><td>Reconciliationと監査の入力にする。</td></tr>
+    </table>
+  </section>
+
+  <section id="strategy">
+    <h2>Strategyの責務</h2>
+    <table>
+      <tr><th>Strategyが担当する</th><th>Strategyが担当しない</th></tr>
+      <tr><td>ブレイクアウト、N、チャネル、ユニットなど戦略固有の判断。</td><td>口座残高の正本管理。</td></tr>
+      <tr><td>MarketEventとPortfolio Snapshotを読んだOrderIntent生成。</td><td>Broker API呼び出しと注文ID管理。</td></tr>
+      <tr><td>戦略状態の保存に必要な最小状態の宣言。</td><td>安全停止、Secrets、監視通知、Reconciliation。</td></tr>
+      <tr><td>説明可能な判断根拠の出力。</td><td>リスク上限の最終判定、注文重複防止の最終責任。</td></tr>
+    </table>
+    <div class="note warn"><p><strong>境界ルール:</strong> StrategyからBroker AdapterやMarket Data Adapterを直接参照してはならない。</p></div>
+  </section>
+
+  <section id="dependency">
+    <h2>依存方向</h2>
+    <pre>Adapters -> Application Services -> Core Domain
+                 |
+                 +-> Strategy Plugin Interface</pre>
+    <p>Core Domainは外部依存を知らない。AdaptersはPort実装として差し替え可能にし、Broker依存とMarket Data依存を閉じ込める。</p>
+  </section>
+
+  <section id="traceability">
+    <h2>要件追跡</h2>
+    <table>
+      <tr><th>追跡ID</th><th>本書での扱い</th></tr>
+      <tr><td>REQ-Q17</td><td>共通ドメインモデルとStrategy境界に反映。</td></tr>
+      <tr><td>REQ-Q21</td><td>Strategy差し替えとTurtle比較の前提としてStrategy責務を限定。</td></tr>
+      <tr><td>REQ-Q23</td><td>Backtest、Shadow、Paper、Liveの共通概念をRunModeとして扱う。</td></tr>
+      <tr><td>REQ-Q28</td><td>研究コードと本番運用コードの分離に関係する境界をD03と連携。</td></tr>
+      <tr><td>REQ-POL04</td><td>責務分離、共通ドメイン、Adapter境界、監査、安全停止の方針を反映。</td></tr>
+    </table>
+  </section>
+
+  <section id="decisions">
+    <h2>設計判断</h2>
+    <details open><summary>DEC-P1-DOM-01: Strategyは内部モデルだけに依存する</summary><p>Strategyの再利用性と検証再現性を守るため、外部API、DB、通知、Broker状態の直接参照を禁止する。</p></details>
+    <details open><summary>DEC-P1-DOM-02: Account状態はPortfolio / RiskとReconciliationで扱う</summary><p>Strategyが資金や約定正本を持つとLive差分が混入するため、口座状態はStrategy外に置く。</p></details>
+    <details><summary>DEC-P1-DOM-03: ID変換はAdapter境界で行う</summary><p>内部IDを正本にし、Broker記号、Data Provider記号、取引所記号はAdapterまたはCatalogで変換する。</p></details>
+  </section>
+
+  <section id="unknowns">
+    <h2>未確定事項</h2>
+    <table>
+      <tr><th>ID</th><th>内容</th><th>扱い</th></tr>
+      <tr><td>UNK-P1-DOM-01</td><td>先物ロール規則、continuous signal、取引対象の最終選定。</td><td>Catalogコンテキストへ閉じ込め、Phase 2で詳細化する。</td></tr>
+      <tr><td>UNK-P1-DOM-02</td><td>Portfolio Snapshotに含める最小項目。</td><td>Risk設計で詳細化する。</td></tr>
+      <tr><td>UNK-P1-DOM-03</td><td>イベント保存の物理スキーマ。</td><td>Phase 1ではイベント正本化の方針のみ固定し、物理設計は後続へ送る。</td></tr>
+    </table>
+  </section>
+
+  <section id="review">
+    <h2>レビュー履歴</h2>
+    <table>
+      <tr><th>日付</th><th>観点</th><th>結果</th></tr>
+      <tr><td>2026-08-02</td><td>A12整合性観点</td><td>D03の依存方向、D05のモジュール責務、D06の共通モデルと矛盾しないよう確認。</td></tr>
+      <tr><td>2026-08-02</td><td>A13 Red Team観点</td><td>StrategyからBroker / Market Dataへ直接依存する経路を禁止事項として明記。</td></tr>
+    </table>
+  </section>
+
+  <section id="links">
+    <h2>関連文書リンク</h2>
+    <ul>
+      <li><a href="../02_全体設計/02_システム全体構成設計書.html">D03 システム全体構成設計書</a></li>
+      <li><a href="./03_モジュール責務データフロー設計書.html">D05 モジュール責務データフロー設計書</a></li>
+      <li><a href="../04_共通モデル/04_共通ドメインモデル設計書.html">D06 共通ドメインモデル設計書</a></li>
+    </ul>
+  </section>
+
+  <section id="handoff">
+    <h2>後続Phase引き継ぎ</h2>
+    <p>Phase 2以降は、本書のコンテキスト境界を崩さず、共通ドメイン型、イベントスキーマ、Strategy Plugin Interface、Adapter Portを詳細化する。</p>
+  </section>
+</main>
+</body>
+</html>

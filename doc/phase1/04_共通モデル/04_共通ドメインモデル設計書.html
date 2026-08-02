@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D06 共通ドメインモデル設計書</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code, pre { font-family: Consolas, "Courier New", monospace; }
+    pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .warn { border-left-color: #b45309; background: #fff7ed; }
+    .ok { border-left-color: #15803d; background: #f0fdf4; }
+    .toc ul { columns: 2; }
+    details { border: 1px solid #d9e2ec; padding: 10px 12px; margin: 10px 0; background: #fbfdff; }
+    summary { font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>D06 共通ドメインモデル設計書</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 初版レビュー反映済み / <strong>作成日:</strong> 2026-08-02 / <strong>ステップ:</strong> P1-04</p>
+    <p><strong>担当:</strong> AutoTradePhase1_A03_DomainArchitect_v0_1, AutoTradePhase1_A05_ExecutionModelArchitect_v0_1, AutoTradePhase1_A08_RiskAccountArchitect_v0_1</p>
+    <p><strong>使用Skill:</strong> autotrade_phase1_skill_domain_modeling_v0_1, autotrade_phase1_skill_execution_model_v0_1, autotrade_phase1_skill_risk_account_design_v0_1</p>
+  </div>
+
+  <section id="summary">
+    <h2>要約</h2>
+    <p>本書は、Backtest / Shadow / Paper / Live で共通に使う概念モデル、状態、イベント、識別子、時系列の意味を固定する。実装クラスやBroker固有の例外は固定せず、Strategy、OMS、Risk、Adapterが同じ用語とイベント意味論を共有できることを目的とする。</p>
+  </section>
+
+  <nav class="toc">
+    <h2>目次</h2>
+    <ul>
+      <li><a href="#inputs">入力</a></li>
+      <li><a href="#scope">対象と非対象</a></li>
+      <li><a href="#concepts">概念モデル</a></li>
+      <li><a href="#order-state">注文ライフサイクル</a></li>
+      <li><a href="#identifiers">識別子命名方針</a></li>
+      <li><a href="#time">時刻と営業日</a></li>
+      <li><a href="#ordering">順不同、重複、復旧</a></li>
+      <li><a href="#source-of-truth">正本管理方針</a></li>
+      <li><a href="#traceability">要件追跡</a></li>
+      <li><a href="#decisions">設計判断</a></li>
+      <li><a href="#unknowns">未確定事項</a></li>
+      <li><a href="#review">レビュー履歴</a></li>
+      <li><a href="#links">関連文書リンク</a></li>
+      <li><a href="#handoff">後続Phase引き継ぎ</a></li>
+    </ul>
+  </nav>
+
+  <section id="inputs">
+    <h2>入力</h2>
+    <ul>
+      <li><a href="../01_要件追跡/01_要件追跡マトリクス.html">01_要件追跡マトリクス.html</a></li>
+      <li><a href="../01_要件追跡/01_Phase1スコープ定義.html">01_Phase1スコープ定義.html</a></li>
+      <li><a href="../00_実行基盤/00_HTMLスタイルガイド.html">00_HTMLスタイルガイド.html</a></li>
+      <li>plan/Phase1_実行計画書_v0.1_2026-08-02.md</li>
+    </ul>
+  </section>
+
+  <section id="scope">
+    <h2>対象と非対象</h2>
+    <table>
+      <tr><th>区分</th><th>内容</th></tr>
+      <tr><td>対象</td><td>MarketEvent、SignalEvent、OrderIntent、Order、Fill、Position、AccountSnapshot、RiskSnapshot、TimerEvent、HealthEvent、注文状態、識別子、時刻意味論、復旧の最小情報。</td></tr>
+      <tr><td>非対象</td><td>実装クラス、DBテーブル詳細、Broker例外コード、注文タイプごとの細かい制約、Live専用運用手順。</td></tr>
+      <tr><td>詳細設計バックログ</td><td>注文例外パターン、部分約定の細則、証拠金計算、通貨換算、Broker別差異はPhase 4以降で詳細化する。</td></tr>
+    </table>
+  </section>
+
+  <section id="concepts">
+    <h2>概念モデル</h2>
+    <table>
+      <tr><th>概念</th><th>意味</th><th>必須属性の最小集合</th><th>備考</th></tr>
+      <tr><td>MarketEvent</td><td>Strategyと実行系へ流す市場入力イベント。</td><td>event_id, run_id, instrument_id, event_time_utc, exchange_time_local, event_kind, source_seq</td><td>価格足、ティック、ロール、欠損通知を含む。</td></tr>
+      <tr><td>SignalEvent</td><td>Strategyが内部判断として出すシグナル。</td><td>event_id, run_id, strategy_id, instrument_id, signal_type, decided_at_utc, rationale_ref</td><td>発注命令ではない。</td></tr>
+      <tr><td>OrderIntent</td><td>Strategyが希望する売買意図。</td><td>intent_id, run_id, strategy_id, instrument_id, side, target_units, intent_time_utc, reason_code</td><td>RiskとOMS通過前は注文ではない。</td></tr>
+      <tr><td>Order</td><td>OMSが管理する内部注文。</td><td>client_order_id, run_id, instrument_id, side, quantity, order_state, submitted_at_utc</td><td>Broker注文IDはAdapter側の関連付けで保持。</td></tr>
+      <tr><td>Fill</td><td>約定結果。</td><td>fill_id, client_order_id, instrument_id, filled_qty, fill_price, fill_time_utc, broker_exec_ref</td><td>部分約定を許容する。</td></tr>
+      <tr><td>Position</td><td>内部ポジション状態。</td><td>position_id, instrument_id, net_qty, avg_cost, realized_pnl, unrealized_pnl_mark_time</td><td>正本は内部集計、外部照合はReconciliationで行う。</td></tr>
+      <tr><td>AccountSnapshot</td><td>口座残高と制約の時点断面。</td><td>account_snapshot_id, account_ref, snapshot_time_utc, equity, cash, margin_used, margin_available</td><td>Strategyへは必要最小の要約のみ渡す。</td></tr>
+      <tr><td>RiskSnapshot</td><td>現在のリスク利用状況。</td><td>risk_snapshot_id, snapshot_time_utc, current_exposure, dd_ratio, kill_switch_state, risk_version</td><td>Risk判定の根拠に使う。</td></tr>
+      <tr><td>TimerEvent</td><td>市場入力に依らない定時イベント。</td><td>event_id, run_id, timer_kind, scheduled_time_utc, fired_time_utc</td><td>バー確定、ハートビート、日次締めなど。</td></tr>
+      <tr><td>HealthEvent</td><td>監視・障害状態イベント。</td><td>event_id, run_id, component_name, health_state, observed_at_utc, severity</td><td>停止要求の根拠になり得る。</td></tr>
+    </table>
+    <div class="note">
+      <p><strong>モデル境界:</strong> StrategyはMarketEvent、PortfolioやAccountの要約、RiskSnapshotの必要最小情報を読む。Order、Fill、Broker固有応答はStrategyの入力にしない。</p>
+    </div>
+  </section>
+
+  <section id="order-state">
+    <h2>注文ライフサイクルの標準状態</h2>
+    <pre>Draft
+  -> RiskAccepted
+  -> Planned
+  -> Submitted
+  -> Acknowledged
+  -> PartiallyFilled
+  -> Filled
+
+Submitted / Acknowledged / PartiallyFilled
+  -> CancelRequested
+  -> Cancelled
+
+Draft / RiskAccepted / Planned / Submitted / Acknowledged
+  -> Rejected
+
+Any active state
+  -> Expired
+  -> Failed
+  -> UnknownExternalState</pre>
+    <table>
+      <tr><th>状態</th><th>意味</th><th>遷移責務</th></tr>
+      <tr><td>Draft</td><td>OMS未確定の意図。</td><td>OMS</td></tr>
+      <tr><td>RiskAccepted</td><td>Riskで許可された。</td><td>Risk</td></tr>
+      <tr><td>Planned</td><td>注文計画が確定した。</td><td>OMS</td></tr>
+      <tr><td>Submitted</td><td>Broker送信要求済み。</td><td>Adapter</td></tr>
+      <tr><td>Acknowledged</td><td>Broker受付済み。</td><td>Adapter</td></tr>
+      <tr><td>PartiallyFilled</td><td>一部約定。</td><td>Adapter / Reconciliation</td></tr>
+      <tr><td>Filled</td><td>完全約定。</td><td>Adapter / Reconciliation</td></tr>
+      <tr><td>CancelRequested</td><td>取消要求送信済み。</td><td>OMS</td></tr>
+      <tr><td>Cancelled</td><td>取消完了。</td><td>Adapter / Reconciliation</td></tr>
+      <tr><td>Rejected</td><td>送信前後の拒否。</td><td>Risk / Adapter</td></tr>
+      <tr><td>Expired</td><td>期限切れ。</td><td>OMS / Adapter</td></tr>
+      <tr><td>Failed</td><td>送信失敗または処理失敗。</td><td>OMS / Adapter</td></tr>
+      <tr><td>UnknownExternalState</td><td>外部状態が不明で照合待ち。</td><td>Reconciliation</td></tr>
+    </table>
+  </section>
+
+  <section id="identifiers">
+    <h2>識別子命名方針</h2>
+    <table>
+      <tr><th>ID</th><th>命名方針</th><th>不変条件</th></tr>
+      <tr><td>event_id</td><td>`evt_{run}_{stream}_{seq}`</td><td>run内で一意。重複判定キーに使う。</td></tr>
+      <tr><td>client_order_id</td><td>`coid_{run}_{strategy}_{instrument}_{ordinal}`</td><td>OMS正本。Broker注文IDとは分離する。</td></tr>
+      <tr><td>run_id</td><td>`run_{mode}_{yyyymmddThhmmssZ}_{manifest}`</td><td>1回の実行単位を一意に識別する。</td></tr>
+      <tr><td>strategy_id</td><td>`strat_{family}_{variant}_{version}`</td><td>設定とコード版を追跡可能にする。</td></tr>
+      <tr><td>instrument_id</td><td>`inst_{asset}_{venue}_{symbol_family}`</td><td>Broker記号、Data Provider記号から独立させる。</td></tr>
+    </table>
+    <div class="note warn">
+      <p><strong>Phase 1ルール:</strong> 外部系のIDを内部正本IDとして使わない。Broker注文ID、約定ID、データベンダ記号は関連属性として保持し、内部IDと分離する。</p>
+    </div>
+  </section>
+
+  <section id="time">
+    <h2>UTC、取引所現地時刻、営業日、バー確定時刻の扱い</h2>
+    <table>
+      <tr><th>概念</th><th>定義</th><th>扱い</th></tr>
+      <tr><td>event_time_utc</td><td>イベント正本時刻。</td><td>永続化、順序判定、監査はUTCで行う。</td></tr>
+      <tr><td>exchange_time_local</td><td>取引所現地時刻。</td><td>市場カレンダー判定、営業日判定、バー境界で使う。</td></tr>
+      <tr><td>business_date</td><td>取引所カレンダー上の営業日。</td><td>日次集計、日跨ぎ判定、先物ロールの文脈に使う。</td></tr>
+      <tr><td>bar_close_time</td><td>バーが確定した時刻。</td><td>Strategyが日足や時間足を読む起点にする。</td></tr>
+      <tr><td>observed_at_utc</td><td>監視系が観測した時刻。</td><td>HealthEventや遅延監視に使う。</td></tr>
+    </table>
+    <p>市場入力がティックであっても日足であっても、内部の順序と監査はUTCを正本とする。営業日とバー確定判定は、取引所現地時刻と市場カレンダーに依存する。</p>
+  </section>
+
+  <section id="ordering">
+    <h2>順不同イベント、重複イベント、再起動後復旧</h2>
+    <table>
+      <tr><th>論点</th><th>方針</th></tr>
+      <tr><td>順不同イベント</td><td>`event_time_utc` と `source_seq` を併用して整列する。整列不能な場合は `HealthEvent` を出し、Strategyへ直接流さない。</td></tr>
+      <tr><td>重複イベント</td><td>`event_id` を第一キー、補助的に `(stream, source_seq, event_time_utc)` を使い冪等処理する。</td></tr>
+      <tr><td>再起動後復旧</td><td>最低限 `run_id`, 最新処理位置、未完了注文状態、Position, AccountSnapshot, RiskSnapshot, 最終TimerEvent, 重複判定用水位を復旧する。</td></tr>
+      <tr><td>イベント再生</td><td>Backtestと障害復旧の両方で同じ意味論を使う。Realtime専用の隠れ状態を持ち込まない。</td></tr>
+    </table>
+    <div class="note ok">
+      <p><strong>復旧原則:</strong> 再起動後は、未完了注文と正本スナップショットを復元し、必要に応じてBroker照会で `UnknownExternalState` を解消してから売買を再開する。</p>
+    </div>
+  </section>
+
+  <section id="source-of-truth">
+    <h2>約定、口座、ポジションの正本管理方針</h2>
+    <table>
+      <tr><th>対象</th><th>Phase 1での正本方針</th><th>補足</th></tr>
+      <tr><td>Order / Fill</td><td>内部イベントジャーナルを正本とし、Broker状態と照合する。</td><td>Broker応答は外部事実だが、内部では冪等に取り込む。</td></tr>
+      <tr><td>Position</td><td>内部集計状態を正本とし、Broker残高とReconciliationで定期照合する。</td><td>差異は自動黙殺せず、差異イベント化する。</td></tr>
+      <tr><td>AccountSnapshot</td><td>外部口座事実を受けた時点断面を内部保持する。</td><td>Strategyへは要約ビューだけを渡す。</td></tr>
+      <tr><td>RiskSnapshot</td><td>Riskモジュールが計算した内部状態を正本とする。</td><td>kill switch やDD指標の判断根拠を保持する。</td></tr>
+    </table>
+  </section>
+
+  <section id="traceability">
+    <h2>要件追跡</h2>
+    <table>
+      <tr><th>追跡ID</th><th>本書での扱い</th></tr>
+      <tr><td>REQ-Q04</td><td>ロング・ショート両方向を side と Position モデルで共通に扱う。</td></tr>
+      <tr><td>REQ-Q17</td><td>口座管理責務を概念モデルで分離し、Strategy直結を禁止する。</td></tr>
+      <tr><td>REQ-Q23</td><td>設定駆動と実行モード差分を run_id と共通イベント意味論に反映する。</td></tr>
+      <tr><td>REQ-Q29</td><td>異常時の再起動、照合、復旧に必要な最小情報を固定する。</td></tr>
+      <tr><td>REQ-POL04</td><td>共通ドメイン、責務分離、監査、Phase 1固定項目を反映する。</td></tr>
+    </table>
+  </section>
+
+  <section id="decisions">
+    <h2>設計判断</h2>
+    <details open>
+      <summary>DEC-P1-DM-01: 実行モード差分より先に意味論を統一する</summary>
+      <p>Backtest、Shadow、Paper、Liveで同じイベントと状態を使い、差分はAdapter、Clock、接続先に閉じ込める。</p>
+    </details>
+    <details open>
+      <summary>DEC-P1-DM-02: 内部IDを正本にし、外部IDは関連属性として扱う</summary>
+      <p>Brokerとデータベンダの識別子は変更や再利用があり得るため、内部で不変のIDを採用する。</p>
+    </details>
+    <details open>
+      <summary>DEC-P1-DM-03: 注文の不明状態を明示的に表す</summary>
+      <p>`UnknownExternalState` を置き、障害時や再起動時に曖昧さを隠さない。Reconciliation完了前に新規売買を進めない判断を可能にする。</p>
+    </details>
+  </section>
+
+  <section id="unknowns">
+    <h2>未確定事項</h2>
+    <table>
+      <tr><th>ID</th><th>内容</th><th>扱い</th></tr>
+      <tr><td>UNK-P1-DM-01</td><td>Broker別の注文例外、部分約定イベント粒度、取消制約。</td><td>Phase 4以降のAdapter詳細設計へ送る。</td></tr>
+      <tr><td>UNK-P1-DM-02</td><td>証拠金、通貨換算、先物ロール時のPosition継承ルール。</td><td>Risk / Account詳細設計とData設計で詳細化する。</td></tr>
+      <tr><td>UNK-P1-DM-03</td><td>HealthEventのアラート閾値、停止段階、通知先。</td><td>非機能・運用設計で詳細化する。</td></tr>
+    </table>
+  </section>
+
+  <section id="review">
+    <h2>レビュー履歴</h2>
+    <table>
+      <tr><th>日付</th><th>観点</th><th>結果</th></tr>
+      <tr><td>2026-08-02</td><td>A12 用語とID一貫性観点</td><td>event_id, run_id, strategy_id, instrument_id, client_order_idの役割を分離し、概念名と属性名を統一した。</td></tr>
+      <tr><td>2026-08-02</td><td>A13 再現性・監査・障害復旧観点</td><td>UTC正本、冪等処理、再起動復旧最小情報、UnknownExternalState を追加し、復旧前の曖昧状態を隠さない方針へ修正した。</td></tr>
+    </table>
+  </section>
+
+  <section id="links">
+    <h2>関連文書リンク</h2>
+    <ul>
+      <li><a href="../01_要件追跡/01_要件追跡マトリクス.html">D02 要件追跡マトリクス</a></li>
+      <li><a href="../01_要件追跡/01_Phase1スコープ定義.html">D02 Phase 1スコープ定義</a></li>
+      <li><a href="../00_実行基盤/00_HTMLスタイルガイド.html">HTMLスタイルガイド</a></li>
+    </ul>
+  </section>
+
+  <section id="handoff">
+    <h2>後続Phase引き継ぎ</h2>
+    <p>Phase 4以降では、本書の概念モデルを壊さずに、注文例外パターン、Brokerマッピング、照合規則、Risk詳細指標、Position継承規則を追加する。新しい属性や状態を追加する場合は、既存の `event_id`、`run_id`、注文状態、UTC正本原則と矛盾しないことをレビュー条件にする。</p>
+  </section>
+</main>
+</body>
+</html>

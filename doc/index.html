@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ドキュメント インデックス</title>
+  <title>ドキュメントインデックス</title>
   <style>
     :root { color-scheme: light; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px; max-width: 1200px; color: #1f2937; }
-    h1, h2 { color: #111827; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px auto; max-width: 1200px; color: #1f2937; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2 { color: #111827; letter-spacing: 0; }
     h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
     h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin-top: 32px; }
     ul { padding-left: 20px; }
@@ -19,14 +20,15 @@
   </style>
 </head>
 <body>
+<main>
   <h1>ドキュメント インデックス</h1>
-
   <div class="note">
-    <p>このファイルは、<code>doc/</code> 配下のHTML成果物の共通入口である。新しいHTML成果物を追加した場合は、この一覧も同時に更新する。</p>
+    <p>このファイルは、<code>doc/</code> 配下のHTML成果物への共通入口である。新しいHTML成果物を追加した場合は、この一覧も同時に更新する。</p>
+    <p><strong>復元状態:</strong> P1-02で作成したインデックス構造を復元し、現在存在するPhase 1 HTML成果物へのリンクを再検証済み。</p>
   </div>
 
   <h2>Phase 1</h2>
-  <p class="muted">タートルズ・トレンドフォロー自動トレードシステムの Phase 1 設計成果物。</p>
+  <p class="muted">タートルズ・トレンドフォロー自動売買システムの Phase 1 設計成果物。</p>
 
   <h2>00 実行基盤</h2>
   <ul>
@@ -39,11 +41,35 @@
     <li><a href="./phase1/00_実行基盤/00_実行基盤検証結果.html">00_実行基盤検証結果.html</a></li>
   </ul>
 
+  <h2>P1-02 成果物</h2>
+  <ul>
+    <li><a href="./phase1/00_実行基盤/00_HTMLスタイルガイド.html">Phase 1 HTMLスタイルガイド</a></li>
+    <li><a href="./phase1/00_実行基盤/00_HTML設計書テンプレート.html">Phase 1 HTML設計書テンプレート</a></li>
+    <li><a href="./index.html">全HTML成果物インデックス</a></li>
+  </ul>
+
   <h2>01 要件追跡</h2>
   <ul>
     <li><a href="./phase1/01_要件追跡/01_Phase1スコープ定義.html">01_Phase1スコープ定義.html</a></li>
     <li><a href="./phase1/01_要件追跡/01_要件追跡マトリクス.html">01_要件追跡マトリクス.html</a></li>
     <li><a href="./phase1/01_要件追跡/01_未確定事項台帳.html">01_未確定事項台帳.html</a></li>
   </ul>
+
+  <h2>02 全体設計</h2>
+  <ul>
+    <li><a href="./phase1/02_全体設計/02_システム全体構成設計書.html">02_システム全体構成設計書.html</a></li>
+  </ul>
+
+  <h2>03 ドメイン設計</h2>
+  <ul>
+    <li><a href="./phase1/03_ドメイン設計/03_ドメイン分割設計書.html">03_ドメイン分割設計書.html</a></li>
+    <li><a href="./phase1/03_ドメイン設計/03_モジュール責務データフロー設計書.html">03_モジュール責務データフロー設計書.html</a></li>
+  </ul>
+
+  <h2>04 共通モデル</h2>
+  <ul>
+    <li><a href="./phase1/04_共通モデル/04_共通ドメインモデル設計書.html">04_共通ドメインモデル設計書.html</a></li>
+  </ul>
+</main>
 </body>
 </html>

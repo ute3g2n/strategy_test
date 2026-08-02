@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D03 システム全体構成設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code, pre { font-family: Consolas, "Courier New", monospace; }
+    pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .warn { border-left-color: #b45309; background: #fff7ed; }
+    .toc ul { columns: 2; }
+    details { border: 1px solid #d9e2ec; padding: 10px 12px; margin: 10px 0; background: #fbfdff; }
+    summary { font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>D03 システム全体構成設計書</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 復元版 / <strong>作成日:</strong> 2026-08-02 / <strong>復元日:</strong> 2026-08-02 / <strong>ステップ:</strong> P1-03</p>
+    <p><strong>担当:</strong> AutoTradePhase1_A02_SystemArchitect_v0_1, AutoTradePhase1_A03_DomainArchitect_v0_1</p>
+    <p><strong>使用Skill:</strong> autotrade_phase1_skill_architecture_writer_v0_1, autotrade_phase1_skill_domain_modeling_v0_1, autotrade_phase1_skill_html_doc_writer_v0_1</p>
+  </div>
+
+  <section id="summary">
+    <h2>概要</h2>
+    <p>本書は、タートルズ・トレンドフォロー自動売買システムのPhase 1における全体アーキテクチャを固定する。主眼は、研究から本番運用へ進む道筋、主要モジュールの関係、依存方向、Broker依存とMarket Data依存の隔離である。</p>
+  </section>
+
+  <nav class="toc">
+    <h2>目次</h2>
+    <ul>
+      <li><a href="#inputs">入力</a></li>
+      <li><a href="#scope">対象と非対象</a></li>
+      <li><a href="#architecture">全体構成</a></li>
+      <li><a href="#research-prod">研究コードと本番運用コードの境界</a></li>
+      <li><a href="#runtime-common">実行モード共通化</a></li>
+      <li><a href="#traceability">要件追跡</a></li>
+      <li><a href="#decisions">設計判断</a></li>
+      <li><a href="#unknowns">未確定事項</a></li>
+      <li><a href="#review">レビュー履歴</a></li>
+      <li><a href="#links">関連文書リンク</a></li>
+      <li><a href="#handoff">後続Phase引き継ぎ</a></li>
+    </ul>
+  </nav>
+
+  <section id="inputs">
+    <h2>入力</h2>
+    <ul>
+      <li><a href="../01_要件追跡/01_要件追跡マトリクス.html">D02 要件追跡マトリクス</a></li>
+      <li><a href="../01_要件追跡/01_Phase1スコープ定義.html">Phase 1スコープ定義</a></li>
+      <li><a href="../00_実行基盤/00_HTMLスタイルガイド.html">HTMLスタイルガイド</a></li>
+      <li>plan/Phase1_実行計画書_v0.1_2026-08-02.md</li>
+    </ul>
+  </section>
+
+  <section id="scope">
+    <h2>対象と非対象</h2>
+    <table>
+      <tr><th>区分</th><th>内容</th></tr>
+      <tr><td>対象</td><td>全体構成、モジュール分割、依存方向、研究コードと本番運用コードの境界、Backtest / Shadow / Paper / Live共通化方針、Broker依存とMarket Data依存の閉じ込め方針。</td></tr>
+      <tr><td>非対象</td><td>実装クラス、Broker APIのフィールド詳細、Data Provider API詳細、DB物理設計、クラウド具体構成、Live Runbook詳細。</td></tr>
+    </table>
+  </section>
+
+  <section id="architecture">
+    <h2>全体構成</h2>
+    <p>Phase 1では、モジュラーモノリスを基本構造とし、内部の判断履歴はイベント駆動で扱い、外部依存はAdapterで隔離する。初期段階では分散システム化よりも、検証再現性、責務境界、監査性を優先する。</p>
+    <pre>Market Data Adapter
+  -> Data Ingestion -> Raw Store -> Normalization -> Catalog
+  -> Event Engine -> Strategy Plugin -> Risk -> OMS
+  -> Broker Adapter -> Reconciliation -> Monitoring</pre>
+    <table>
+      <tr><th>構成要素</th><th>責務</th><th>依存方向</th></tr>
+      <tr><td>Core Domain</td><td>イベント、注文意図、注文、約定、ポジション、口座断面、リスク断面の概念を保持する。</td><td>外部API、DB、通知、UIに依存しない。</td></tr>
+      <tr><td>Application Services</td><td>Backtest、Shadow、Paper、Liveの実行ユースケースを組み立てる。</td><td>Core Domainへ依存し、AdapterはPort経由で扱う。</td></tr>
+      <tr><td>Adapters</td><td>Broker、Market Data、通知、永続化など外部依存を内部モデルへ変換する。</td><td>外部仕様の差分を閉じ込める。</td></tr>
+      <tr><td>Operations</td><td>監視、安全停止、監査ログ、Secrets境界、復旧判断を扱う。</td><td>実行状態を観測し、停止制御点を持つ。</td></tr>
+    </table>
+  </section>
+
+  <section id="research-prod">
+    <h2>研究コードと本番運用コードの境界</h2>
+    <table>
+      <tr><th>領域</th><th>許可すること</th><th>禁止すること</th></tr>
+      <tr><td>研究用コード</td><td>市場候補探索、パラメータ比較、ノートブック、検証ハーネス、候補戦略分析。</td><td>本番注文、Broker認証情報参照、Live状態の直接更新、監査ログ正本への書き込み。</td></tr>
+      <tr><td>本番運用コード</td><td>バージョン固定された設定、正規化データ、イベントジャーナル、Risk、OMS、Broker Adapter、Reconciliation、安全停止。</td><td>再現不能な手動補正、研究スクリプトからの注文発行、未レビュー戦略のLive接続。</td></tr>
+      <tr><td>共有境界</td><td>読み取り専用の共通ドメイン概念、Strategy Plugin Interface、Golden test fixture。</td><td>研究側から本番DBや本番Adapterを直接importすること。</td></tr>
+    </table>
+  </section>
+
+  <section id="runtime-common">
+    <h2>Backtest / Shadow / Paper / Live で共通化する部分</h2>
+    <table>
+      <tr><th>共通化する部分</th><th>理由</th><th>差分の閉じ込め先</th></tr>
+      <tr><td>イベント封筒、時刻、銘柄ID、価格イベント</td><td>検証と本番の入力差を小さくする。</td><td>Market Data Adapter、Clock Adapter</td></tr>
+      <tr><td>Strategy Plugin Interface</td><td>戦略差し替えとTurtle比較を同じ入口で扱う。</td><td>Strategy Module</td></tr>
+      <tr><td>Risk、OMSの判断順序</td><td>BacktestとLiveの挙動差を監査可能にする。</td><td>Execution Mode Adapter</td></tr>
+      <tr><td>イベントジャーナル、監視イベント</td><td>再現性、障害調査、照合の基礎にする。</td><td>Storage Adapter、Monitoring Adapter</td></tr>
+    </table>
+  </section>
+
+  <section id="traceability">
+    <h2>要件追跡</h2>
+    <table>
+      <tr><th>追跡ID</th><th>本書での扱い</th></tr>
+      <tr><td>REQ-Q01</td><td>研究からLiveまで進める自動売買基盤として反映。</td></tr>
+      <tr><td>REQ-Q03</td><td>市場数拡張をCatalogとAdapter境界で吸収する方針へ反映。</td></tr>
+      <tr><td>REQ-Q07</td><td>PaperとLiveを共通実行骨格で扱う。</td></tr>
+      <tr><td>REQ-Q22, REQ-Q24, REQ-Q29</td><td>監視、安全停止、監査、復旧の構成要素へ反映。</td></tr>
+      <tr><td>REQ-POL01, REQ-POL04</td><td>全体アーキテクチャ、責務境界、Adapter境界、監査、安全停止をPhase 1で固定。</td></tr>
+    </table>
+  </section>
+
+  <section id="decisions">
+    <h2>設計判断</h2>
+    <details open><summary>DEC-P1-ARCH-01: モジュラーモノリス、イベント駆動、Adapter方式を採用する</summary><p>初期段階では単一デプロイ単位で責務境界を明確化し、イベント記録により再現性と監査性を確保する。外部依存はAdapterへ閉じ込める。</p></details>
+    <details open><summary>DEC-P1-ARCH-02: 研究用コードは本番注文経路から分離する</summary><p>研究側は探索速度を優先できる一方、本番側は監査性、安全停止、Secrets境界を優先するため、接点をStrategy Plugin Interfaceと検証済み設定に限定する。</p></details>
+    <details><summary>DEC-P1-ARCH-03: Strategyは注文意図までを出力する</summary><p>StrategyはSignalとOrderIntentを作る。Risk、OMS、Broker Adapter、ReconciliationはStrategy外に置く。</p></details>
+  </section>
+
+  <section id="unknowns">
+    <h2>未確定事項</h2>
+    <table>
+      <tr><th>ID</th><th>内容</th><th>扱い</th></tr>
+      <tr><td>UNK-P1-ARCH-01</td><td>最終的なBacktest / 実行エンジン選定。</td><td>共通イベントモデルを満たすことを条件にPhase 2以降で比較決定する。</td></tr>
+      <tr><td>UNK-P1-ARCH-02</td><td>Live時のインフラ配置と監視製品。</td><td>監視イベントと安全停止点を先に固定し、具体製品は後続Phaseへ送る。</td></tr>
+      <tr><td>UNK-P1-ARCH-03</td><td>初期BrokerとMarket Data APIの最終仕様。</td><td>Adapter Portで閉じ込め、外部仕様差分はAdapter設計で詳細化する。</td></tr>
+    </table>
+  </section>
+
+  <section id="review">
+    <h2>レビュー履歴</h2>
+    <table>
+      <tr><th>日付</th><th>観点</th><th>結果</th></tr>
+      <tr><td>2026-08-02</td><td>A12整合性観点</td><td>要件追跡、Phase 1スコープ、D04/D05との参照関係を確認。</td></tr>
+      <tr><td>2026-08-02</td><td>A13 Red Team観点</td><td>密結合、Broker依存漏れ、安全停止漏れ、過剰詳細化を確認。Blocking指摘なし。</td></tr>
+    </table>
+  </section>
+
+  <section id="links">
+    <h2>関連文書リンク</h2>
+    <ul>
+      <li><a href="../03_ドメイン設計/03_ドメイン分割設計書.html">D04 ドメイン分割設計書</a></li>
+      <li><a href="../03_ドメイン設計/03_モジュール責務データフロー設計書.html">D05 モジュール責務データフロー設計書</a></li>
+      <li><a href="../04_共通モデル/04_共通ドメインモデル設計書.html">D06 共通ドメインモデル設計書</a></li>
+    </ul>
+  </section>
+
+  <section id="handoff">
+    <h2>後続Phase引き継ぎ</h2>
+    <p>Phase 2以降は、本書の依存方向を維持したまま、Adapter Port、イベントスキーマ、状態永続化、監視イベント、安全停止の実装詳細を具体化する。</p>
+  </section>
+</main>
+</body>
+</html>
