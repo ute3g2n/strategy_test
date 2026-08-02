@@ -1,0 +1,6 @@
+"シナリオID","シナリオ名","想定対象","想定構成","公開価格で確認できた費用アンカー","非公開/変動費","向いている段階","総評"
+"B01","最小構成","海外先物の初期3〜5候補","Databento historical/live補助 + IBKR live execution","Databento Standard $199/月、CME historical from $0.50/GB、IBKRは口座残高要件 $500 + 市場データ購読料","IBKRの取引所別購読料、執行手数料、必要なら追加履歴取得費","初期Backtest、Forward test準備","最も現実的。まずはこの帯で十分。"
+"B02","日本市場を含む標準構成","海外先物 + OSE/TOCOMを候補に残す","Databento + IBKR + JPX DataCube（履歴）","B01に加え、JPXヒストリカルは価格表参照","JPX DataCube購入費、必要ならJPXリアルタイム契約費","日本市場を含めた候補比較","市場データアダプタ分離が必須になる。"
+"B03","日本市場Live対応構成","OSE/TOCOMをLive対象に含める","Databento + IBKR + JPX DataCube + JPXリアルタイム情報","B02に加え、JPXリアルタイム料金はRate Table参照","JPX直結/間接利用の契約費、運用費、ライセンス対応","Forward test後半〜Live直前","導入負荷が上がる。初手ではなく、対象市場が確定してからでよい。"
+"B04","直結上位構成","CME系を高品質直結で扱う","CME DataMine + CME MDP + 執行Broker + 必要に応じJPX","公開固定額は本調査で確保できず","ILA、非表示利用、接続、運用体制、配信契約","最終候補の深掘り、将来拡張","Phase0では過剰。上位候補確定後に再評価。"
+"B05","商談前提代替構成","Databento以外の代替主軸検討","dxFeed または Barchart + IBKR","Barchartはusage-based明記、dxFeedはtrial/問い合わせ中心","詳細料金、ライセンス、取引所別費用","代替案の見積取得時","現時点では主軸にしない。"
