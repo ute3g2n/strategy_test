@@ -7,16 +7,22 @@
 
 ### 開始方法
 
-通常の起動:
+PowerShell または Git Bash で通常起動する場合:
 
-```powershell
+```bash
 npm run watch-commit
 ```
 
-Windows でバックグラウンド起動する場合:
+PowerShell でバックグラウンド起動する場合:
 
 ```powershell
 Start-Process -FilePath npm.cmd -ArgumentList 'run watch-commit' -WorkingDirectory C:\project\strategy_test -WindowStyle Hidden
+```
+
+Git Bash でバックグラウンド起動する場合:
+
+```bash
+nohup npm run watch-commit > watch-commit.log 2> watch-commit.err.log &
 ```
 
 ### 停止方法
@@ -27,7 +33,7 @@ Start-Process -FilePath npm.cmd -ArgumentList 'run watch-commit' -WorkingDirecto
 Ctrl+C
 ```
 
-バックグラウンド起動している場合は、まず関連する `node` と `cmd` の
+PowerShell でバックグラウンド起動している場合は、まず関連する `node` と `cmd` の
 プロセス ID を確認します。
 
 ```powershell
@@ -44,6 +50,18 @@ Stop-Process -Id <PID1>,<PID2>,<PID3>,<PID4>
 
 ```powershell
 Stop-Process -Id 19652,37176,27272,35932
+```
+
+Git Bash でバックグラウンド起動している場合は、プロセス ID を確認します。
+
+```bash
+ps -ef | grep chokidar
+```
+
+該当するプロセス ID を指定して停止します。
+
+```bash
+kill <PID>
 ```
 
 ### 監視の仕様
