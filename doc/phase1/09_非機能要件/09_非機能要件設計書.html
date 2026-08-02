@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D14 非機能要件設計書</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code { font-family: Consolas, "Courier New", monospace; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .warn { border-left-color: #b45309; background: #fff7ed; }
+    .toc ul { columns: 2; }
+    details { border: 1px solid #d9e2ec; padding: 10px 12px; margin: 10px 0; background: #fbfdff; }
+    summary { font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>D14 非機能要件設計書</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 初期レビュー反映済み / <strong>作成日:</strong> 2026-08-03 / <strong>ステップ:</strong> P1-09</p>
+    <p><strong>オーケストレータ:</strong> <code>AutoTradePhase1_Orchestrator_v0_1</code></p>
+    <p><strong>担当:</strong> <code>AutoTradePhase1_A09_OpsSecurityArchitect_v0_1</code></p>
+    <p><strong>使用Skill:</strong> <code>autotrade_phase1_skill_ops_security_v0_1</code>, <code>autotrade_phase1_skill_html_doc_writer_v0_1</code></p>
+  </div>
+
+  <section id="summary">
+    <h2>要約</h2>
+    <p>本書は、自動トレードシステムの非機能要件をPhase 1で固定する。対象は、可用性、復旧、監査、セキュリティ、環境分離、運用観測性、安全停止である。詳細なLive RunbookはPhase 7へ送るが、安全停止と監査証跡は後付けにしない。</p>
+  </section>
+
+  <nav class="toc">
+    <h2>目次</h2>
+    <ul>
+      <li><a href="#inputs">入力</a></li>
+      <li><a href="#scope">対象と非対象</a></li>
+      <li><a href="#environments">環境分離</a></li>
+      <li><a href="#availability">可用性と復旧</a></li>
+      <li><a href="#audit">監査証跡</a></li>
+      <li><a href="#security">セキュリティ最低基準</a></li>
+      <li><a href="#traceability">要件追跡</a></li>
+      <li><a href="#decisions">設計判断</a></li>
+      <li><a href="#unknowns">未確定事項</a></li>
+      <li><a href="#review">レビュー履歴</a></li>
+      <li><a href="#handoff">後続Phase引き継ぎ</a></li>
+    </ul>
+  </nav>
+
+  <section id="inputs">
+    <h2>入力</h2>
+    <ul>
+      <li><a href="../01_要件追跡/01_要件追跡マトリクス.html">D02 要件追跡マトリクス</a></li>
+      <li><a href="../02_全体設計/02_システム全体構成設計書.html">D03 システム全体構成設計書</a></li>
+      <li><a href="../07_実行モデル/07_共通実行モデル設計書.html">D11 共通実行モデル設計書</a></li>
+      <li><a href="../08_リスク口座管理/08_Risk_Account責務境界設計書.html">D13 Risk / Account責務境界設計書</a></li>
+    </ul>
+  </section>
+
+  <section id="scope">
+    <h2>対象と非対象</h2>
+    <table>
+      <tr><th>区分</th><th>内容</th></tr>
+      <tr><td>対象</td><td>Windows研究環境、東京クラウドVM、Backtest / Shadow / Paper / Live設定分離、監査証跡、RPO / RTO、安全停止の最低基準。</td></tr>
+      <tr><td>非対象</td><td>クラウド事業者の最終選定、詳細Runbook全文、監視サービスの製品選定、Live障害対応手順の全分岐。</td></tr>
+    </table>
+  </section>
+
+  <section id="environments">
+    <h2>環境分離</h2>
+    <table>
+      <tr><th>環境</th><th>役割</th><th>禁止事項</th></tr>
+      <tr><td>Windows研究環境</td><td>調査、ノートブック、ローカルBacktest、fixture作成、設計レビュー。</td><td>Broker Live secretの保持、Live注文、監査正本の直接更新。</td></tr>
+      <tr><td>東京クラウドVM Shadow</td><td>Live相当入力でSignal、Intent、Risk判定を観測する。</td><td>Brokerへの注文送信。</td></tr>
+      <tr><td>東京クラウドVM Paper</td><td>Paper口座でOMS、Broker Adapter、Reconciliation、安全停止を検証する。</td><td>Live secret混入、実資金口座接続。</td></tr>
+      <tr><td>東京クラウドVM Live</td><td>Phase 7以降の承認後に少額Live、本番Liveを運用する。</td><td>未承認Strategy、未承認RiskConfig、未解決Critical Unknownでの稼働。</td></tr>
+    </table>
+  </section>
+
+  <section id="availability">
+    <h2>可用性と復旧</h2>
+    <table>
+      <tr><th>対象</th><th>RPO</th><th>RTO</th><th>Phase 1方針</th></tr>
+      <tr><td>運用イベント、注文、ポジション、口座スナップショット</td><td>15分以内</td><td>4時間以内</td><td>Event Storeとバックアップ成否を監視対象にする。</td></tr>
+      <tr><td>研究データ、Raw Market Data</td><td>24時間以内</td><td>翌営業日以内</td><td>Rawは不変保存し、再取得可能性をCatalogへ残す。</td></tr>
+      <tr><td>設定、Manifest、Runbook</td><td>変更ごと</td><td>4時間以内</td><td>Git管理対象とSecret管理対象を分離する。</td></tr>
+    </table>
+  </section>
+
+  <section id="audit">
+    <h2>監査証跡</h2>
+    <table>
+      <tr><th>イベント</th><th>必須項目</th><th>保持方針</th></tr>
+      <tr><td>Run開始/終了</td><td>run_id、manifest_id、config_version、code_revision、operator。</td><td>全モードで保存。</td></tr>
+      <tr><td>Strategy判断</td><td>strategy_id、event_id、SignalEvent、OrderIntent、reason_code。</td><td>BacktestからLiveまで保存。</td></tr>
+      <tr><td>Risk判断</td><td>RiskDecision、入力snapshot id、判定理由、変更前後数量。</td><td>改ざん検知可能な形で保存。</td></tr>
+      <tr><td>OMS / Broker</td><td>client_order_id、注文状態、外部ID対応、ExecutionReport。</td><td>外部IDはCoreへ漏らさず照合用に保持。</td></tr>
+      <tr><td>安全停止</td><td>発火理由、停止範囲、解除要求、承認者、解除時刻。</td><td>解除はHuman Gateとして保存。</td></tr>
+    </table>
+  </section>
+
+  <section id="security">
+    <h2>セキュリティ最低基準</h2>
+    <table>
+      <tr><th>領域</th><th>最低基準</th></tr>
+      <tr><td>Secret</td><td>Secret Managerを使う。Paper secretとLive secretを分離する。Git、ログ、例外、HTML成果物へ秘匿情報を保存しない。</td></tr>
+      <tr><td>権限</td><td>環境ごとに最小権限を設定する。研究環境からLive権限へ到達しない。</td></tr>
+      <tr><td>ログ</td><td>Account id、token、API key、接続文字列はマスクする。マスク失敗はCRITICAL扱い。</td></tr>
+      <tr><td>変更管理</td><td>設定変更はManifestと変更履歴に残す。Live設定はHuman Gateを必須にする。</td></tr>
+    </table>
+  </section>
+
+  <section id="traceability">
+    <h2>要件追跡</h2>
+    <table>
+      <tr><th>追跡ID</th><th>対応</th></tr>
+      <tr><td>REQ-Q22</td><td>Shadow / Paper / Liveは東京クラウドVMで分離する。</td></tr>
+      <tr><td>REQ-Q25-Q27</td><td>安全停止、監査、復旧を非機能要件として固定する。</td></tr>
+      <tr><td>REQ-Q24</td><td>Shadow → Paper → 少額Liveの移行Gateを運用品質と接続する。</td></tr>
+      <tr><td>REQ-POL03</td><td>Live Runbook全文はPhase 1で固定しない。</td></tr>
+    </table>
+  </section>
+
+  <section id="decisions">
+    <h2>設計判断</h2>
+    <details open><summary>DEC-P1-NFR-01: 安全停止と監査はPhase 1から必須化する</summary><p>後続Phaseで実装を追加する前提でも、イベント、ID、証跡、停止条件を今の段階で境界に入れる。</p></details>
+    <details open><summary>DEC-P1-NFR-02: 研究環境と運用環境を分離する</summary><p>研究コードからBroker Live権限へ到達できる構成を禁止する。</p></details>
+  </section>
+
+  <section id="unknowns">
+    <h2>未確定事項</h2>
+    <table>
+      <tr><th>ID</th><th>内容</th><th>決定タイミング</th></tr>
+      <tr><td>UNK-P1-NFR-01</td><td>東京クラウドVMの具体構成、リージョン、可用性構成。</td><td>Shadow前 / OD-06</td></tr>
+      <tr><td>UNK-P1-NFR-02</td><td>RPO / RTOを満たすバックアップ方式。</td><td>Phase 6運用設計</td></tr>
+      <tr><td>UNK-P1-NFR-03</td><td>Live前の監査ログ保持期間と保全方式。</td><td>Phase 7</td></tr>
+    </table>
+  </section>
+
+  <section id="review">
+    <h2>レビュー履歴</h2>
+    <table>
+      <tr><th>日付</th><th>観点</th><th>反映内容</th></tr>
+      <tr><td>2026-08-03</td><td>A12相当: 要件追跡</td><td>Q22、Q24、Q25-Q27、POL03への対応を明記。</td></tr>
+      <tr><td>2026-08-03</td><td>A13相当: 安全・秘密情報</td><td>Secret混入禁止、環境分離、fail-closedを最低基準化。</td></tr>
+    </table>
+  </section>
+
+  <section id="handoff">
+    <h2>後続Phase引き継ぎ</h2>
+    <p>Phase 6ではForward Test運用の監視、バックアップ、復旧訓練を詳細化する。Phase 7ではLive移行Runbook、手動介入、監査ログ保全、RTO確認を詳細化する。</p>
+  </section>
+</main>
+</body>
+</html>

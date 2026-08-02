@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D17 セキュリティ安全停止設計書</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .warn { border-left-color: #b45309; background: #fff7ed; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>D17 セキュリティ安全停止設計書</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 初期レビュー反映済み / <strong>作成日:</strong> 2026-08-03 / <strong>ステップ:</strong> P1-09</p>
+    <p><strong>担当:</strong> <code>AutoTradePhase1_A09_OpsSecurityArchitect_v0_1</code> / <strong>使用Skill:</strong> <code>autotrade_phase1_skill_ops_security_v0_1</code>, <code>autotrade_phase1_skill_html_doc_writer_v0_1</code></p>
+  </div>
+
+  <h2>要約</h2>
+  <p>本書は、安全停止の段階、発火条件、手動介入境界を固定する。障害時は「継続してよい証拠」がない限り、新規注文を止めるfail-closedを採用する。</p>
+
+  <h2>停止レベル</h2>
+  <table>
+    <tr><th>レベル</th><th>内容</th><th>主な発火条件</th></tr>
+    <tr><td>新規注文停止</td><td>既存注文の監視とCancelは許可し、新規OrderPlanを作らない。</td><td>Market data欠損、Account stale、RiskConfig不明。</td></tr>
+    <tr><td>一括Cancel</td><td>未完了注文のCancelをBroker Adapterへ要求する。</td><td>Broker状態不明、誤発注疑い、Kill Switch。</td></tr>
+    <tr><td>戦略停止</td><td>対象StrategyのSignal / Intent生成を止める。</td><td>Strategy heartbeat欠損、例外連続、snapshot失敗。</td></tr>
+    <tr><td>Bot停止</td><td>自動処理全体を停止し、復旧Gateへ送る。</td><td>Event Store書込失敗、Secret漏洩疑い、複数重大異常。</td></tr>
+    <tr><td>Broker GUI最終介入</td><td>自動系が信頼できない場合、人間がBroker GUIで確認・介入する。</td><td>自動Cancel不能、外部状態不明、想定外ポジション。</td></tr>
+  </table>
+
+  <h2>Fail-closed方針</h2>
+  <table>
+    <tr><th>異常</th><th>既定動作</th><th>解除条件</th></tr>
+    <tr><td>Market data欠損</td><td>対象Instrumentの新規Signal停止。</td><td>欠損範囲、補完不可範囲、再開時刻を記録。</td></tr>
+    <tr><td>Broker接続断</td><td>新規注文停止。Open Order再同期を要求。</td><td>ReconciliationPassedとHuman確認。</td></tr>
+    <tr><td>Position / Order不整合</td><td>対象口座またはInstrument単位で停止。</td><td>差分原因、修正方法、監査ログ保存。</td></tr>
+    <tr><td>Secret漏洩疑い</td><td>Bot停止、Secretローテーション。</td><td>漏洩範囲特定、再発防止、承認。</td></tr>
+    <tr><td>最大DD超過</td><td>Kill Switch、必要に応じて一括Cancel。</td><td>Live前Runbookに従う。Phase 1では解除を固定しない。</td></tr>
+  </table>
+
+  <h2>手動介入</h2>
+  <table>
+    <tr><th>介入</th><th>記録項目</th><th>注意</th></tr>
+    <tr><td>手動Cancel</td><td>operator、client_order_id、broker_order_ref、理由、時刻。</td><td>内部OMSへ手動介入イベントとして戻す。</td></tr>
+    <tr><td>手動ポジション調整</td><td>対象Instrument、数量、Broker画面証跡、承認者。</td><td>自動再開前にReconciliation必須。</td></tr>
+    <tr><td>Kill Switch解除</td><td>発火原因、解決証跡、承認者、解除時刻。</td><td>StrategyやOMS単独解除は禁止。</td></tr>
+  </table>
+
+  <h2>Phase 6 / Phase 7 Runbookバックログ</h2>
+  <table>
+    <tr><th>ID</th><th>Phase</th><th>詳細化するRunbook</th></tr>
+    <tr><td>RB-P6-01</td><td>Phase 6</td><td>Forward Testの日次監視、Heartbeat、通知確認、復旧訓練。</td></tr>
+    <tr><td>RB-P6-02</td><td>Phase 6</td><td>PaperでのCancel、再同期、不整合検知、レポート手順。</td></tr>
+    <tr><td>RB-P7-01</td><td>Phase 7</td><td>Live移行前Kill Switch、手動介入、Broker GUI確認手順。</td></tr>
+    <tr><td>RB-P7-02</td><td>Phase 7</td><td>Secretローテーション、権限棚卸し、監査ログ保全。</td></tr>
+  </table>
+
+  <h2>要件追跡</h2>
+  <table>
+    <tr><th>追跡ID</th><th>対応</th></tr>
+    <tr><td>REQ-Q25-Q27</td><td>新規注文停止、一括Cancel、戦略停止、Bot停止、Broker GUI介入を定義。</td></tr>
+    <tr><td>REQ-Q24</td><td>Paper前、Live前の安全停止リハーサルをGate化する。</td></tr>
+  </table>
+
+  <h2>レビュー履歴</h2>
+  <table>
+    <tr><th>日付</th><th>観点</th><th>反映内容</th></tr>
+    <tr><td>2026-08-03</td><td>A13相当</td><td>状態不明時の新規注文停止、Broker GUI最終介入、Kill Switch解除のHuman Gateを明記。</td></tr>
+  </table>
+</main>
+</body>
+</html>
