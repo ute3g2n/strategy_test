@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D13 Risk / Account 責務境界設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code, pre { font-family: Consolas, "Courier New", monospace; }
+    pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .warn { border-left-color: #b45309; background: #fff7ed; }
+    .ok { border-left-color: #15803d; background: #f0fdf4; }
+    .toc ul { columns: 2; }
+    details { border: 1px solid #d9e2ec; padding: 10px 12px; margin: 10px 0; background: #fbfdff; }
+    summary { font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>D13 Risk / Account 責務境界設計書</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 初期レビュー反映済み / <strong>作成日:</strong> 2026-08-03 / <strong>ステップ:</strong> P1-08</p>
+    <p><strong>オーケストレータ:</strong> <code>AutoTradePhase1_Orchestrator_v0_1</code></p>
+    <p><strong>担当:</strong> <code>AutoTradePhase1_A08_RiskAccountArchitect_v0_1</code></p>
+    <p><strong>使用Skill:</strong> <code>autotrade_phase1_skill_risk_account_design_v0_1</code>, <code>autotrade_phase1_skill_domain_modeling_v0_1</code></p>
+    <p><strong>発火制御:</strong> 本書作成では上記完全名のAI部品だけを前提とし、A12/A13は起動せず、レビュー欄の観点を自己点検として反映した。</p>
+  </div>
+
+  <section id="summary">
+    <h2>要約</h2>
+    <p>本書は、Strategy、Portfolio、Risk、Account、OMSの責務境界をPhase 1で固定する。中心方針は、Strategyを売買意図の生成に限定し、口座正本、Risk最終判定、注文状態、Broker照合をStrategyから分離することである。</p>
+    <p>1Nリスク、年率ボラティリティ目標10%、最大DD15%は、Phase 1では「扱う場所」と「決定ゲート」を固定する。Live採用値や強制制御の詳細は、Paper前またはRisk詳細設計時の未確定事項として台帳化する。</p>
+  </section>
+
+  <nav class="toc">
+    <h2>目次</h2>
+    <ul>
+      <li><a href="#inputs">入力</a></li>
+      <li><a href="#scope">対象と非対象</a></li>
+      <li><a href="#principles">境界原則</a></li>
+      <li><a href="#responsibility">責務分担</a></li>
+      <li><a href="#flow">注文判断フロー</a></li>
+      <li><a href="#strategy">Strategy境界</a></li>
+      <li><a href="#portfolio">Portfolio境界</a></li>
+      <li><a href="#account">Account境界</a></li>
+      <li><a href="#risk">Risk境界</a></li>
+      <li><a href="#oms">OMS境界</a></li>
+      <li><a href="#risk-values">1N / 年率ボラ / 最大DD</a></li>
+      <li><a href="#gates">Paper前 / Live前決定項目</a></li>
+      <li><a href="#tests">検証観点</a></li>
+      <li><a href="#traceability">要件追跡</a></li>
+      <li><a href="#decisions">設計判断</a></li>
+      <li><a href="#unknowns">未確定事項</a></li>
+      <li><a href="#review">レビュー履歴</a></li>
+      <li><a href="#links">関連文書リンク</a></li>
+      <li><a href="#handoff">後続Phase引き継ぎ</a></li>
+    </ul>
+  </nav>
+
+  <section id="inputs">
+    <h2>入力</h2>
+    <ul>
+      <li><a href="../01_要件追跡/01_要件追跡マトリクス.html">D02 要件追跡マトリクス</a></li>
+      <li><a href="../03_ドメイン設計/03_ドメイン分割設計書.html">D04 ドメイン分割設計書</a></li>
+      <li><a href="../04_共通モデル/04_共通ドメインモデル設計書.html">D06 共通ドメインモデル設計書</a></li>
+      <li><a href="../05_戦略設計/05_Strategy_Plugin_Interface設計書.html">D08 Strategy Plugin Interface設計書</a></li>
+      <li><a href="../06_アダプター境界/06_Adapter境界設計書.html">D10 Adapter境界設計書</a></li>
+      <li><a href="../07_実行モデル/07_共通実行モデル設計書.html">D11 共通実行モデル設計書</a></li>
+    </ul>
+  </section>
+
+  <section id="scope">
+    <h2>対象と非対象</h2>
+    <table>
+      <tr><th>区分</th><th>内容</th></tr>
+      <tr><td>対象</td><td>Strategy、Portfolio、Risk、Account、OMSの責務境界、所有データ、入力、出力、禁止依存、Risk Gate、Paper前/Live前の決定項目。</td></tr>
+      <tr><td>非対象</td><td>実装クラス、DB物理設計、Broker API詳細、税務・会計処理、Live採用パラメータ最終値、全注文例外パターン。</td></tr>
+      <tr><td>詳細設計バックログ</td><td>Phase 4でOMS / Reconciliation詳細、Phase 5でPortfolio / Risk / Account詳細、Phase 7でLive前運用リスク値を確定する。</td></tr>
+    </table>
+  </section>
+
+  <section id="principles">
+    <h2>境界原則</h2>
+    <table>
+      <tr><th>ID</th><th>原則</th><th>理由</th></tr>
+      <tr><td>RAC-PR-01</td><td>Risk GuardはStrategy Intentより常に優先する。</td><td>Strategyが自己承認して誤発注する経路を塞ぐ。</td></tr>
+      <tr><td>RAC-PR-02</td><td>Account of RecordはStrategy内に置かない。</td><td>未照合の残高やBroker差分が売買判断へ混入することを防ぐ。</td></tr>
+      <tr><td>RAC-PR-03</td><td>OMSは注文状態の正本を持つが、Risk上限を変更しない。</td><td>注文管理とリスク統制の責務を分離する。</td></tr>
+      <tr><td>RAC-PR-04</td><td>Kill Switch中は新規注文を生成・送信しない。</td><td>停止状態での誤発注をfail-closedにする。</td></tr>
+      <tr><td>RAC-PR-05</td><td>Paper前・Live前のリスク値は証跡付きHuman Gateで決める。</td><td>Live採用値を根拠なしに固定しない。</td></tr>
+    </table>
+  </section>
+
+  <section id="responsibility">
+    <h2>責務分担</h2>
+    <table>
+      <tr><th>コンポーネント</th><th>責務</th><th>持たない責務</th><th>主な出力</th></tr>
+      <tr><td>Strategy</td><td>MarketEvent、限定Portfolio View、限定Risk ViewからSignalEvent、OrderIntent、TargetPosition候補を生成する。</td><td>最終注文数量、口座正本、Risk最終承認、Broker送信、Kill Switch解除。</td><td>SignalEvent、OrderIntentCreated、StrategyHealth。</td></tr>
+      <tr><td>Portfolio</td><td>資産配分、相関集中、方向別Exposure、Instrument/Group/Total Unit利用状況、ポジション上限ビューを管理する。</td><td>Broker残高の正本化、注文送信、Strategyパラメータ探索。</td><td>PortfolioSnapshot、ExposureSummary、LimitUsage。</td></tr>
+      <tr><td>Account</td><td>Cash、Margin、NAV、入出金、口座通貨、AccountSnapshotの正本を管理する。</td><td>シグナル生成、注文送信、Risk上限の自動緩和。</td><td>AccountSnapshot、CashChanged、MarginChanged、NavUpdated。</td></tr>
+      <tr><td>Risk</td><td>日次損失、最大DD、注文数量、1N、ボラ目標、ポジション上限、Kill Switch状態を評価し、OrderIntentを許可・拒否・縮小する。</td><td>Strategyロジック、Broker固有注文変換、Account正本の作成。</td><td>RiskAccepted、RiskRejected、RiskReduced、KillSwitchActivated。</td></tr>
+      <tr><td>OMS</td><td>Risk通過後のOrderPlan生成、client_order_id採番、注文状態遷移、重複防止、Cancel / Replace、Open Order再同期を扱う。</td><td>Risk迂回、Strategy直接発注、Broker外部IDのCore漏洩。</td><td>OrderPlanned、OrderSubmitted、OrderStateChanged、CancelRequested。</td></tr>
+    </table>
+  </section>
+
+  <section id="flow">
+    <h2>注文判断フロー</h2>
+    <pre>MarketEvent / TimerEvent
+  -> Strategy: SignalEvent + OrderIntent
+  -> Portfolio: exposure and limit view
+  -> Account: cash, margin, NAV snapshot
+  -> Risk: accept / reject / reduce / kill switch
+  -> OMS: order plan, idempotency, state transition
+  -> Broker Adapter: external submission
+  -> Reconciliation: order, fill, position, account consistency</pre>
+    <table>
+      <tr><th>停止条件</th><th>停止する場所</th><th>扱い</th></tr>
+      <tr><td>Kill Switch Active</td><td>Risk / OMS</td><td>新規OrderIntentはRiskRejected。OMSは新規OrderPlanを作らない。</td></tr>
+      <tr><td>AccountSnapshot未取得または古い</td><td>Risk</td><td>数量計算を止める。Portfolio Viewだけで代替しない。</td></tr>
+      <tr><td>Position / Order不整合</td><td>Reconciliation / OMS / Risk</td><td>対象Instrumentまたは口座単位で新規注文停止。</td></tr>
+      <tr><td>重複client_order_id</td><td>OMS</td><td>送信前に拒否し、監査イベントを出す。</td></tr>
+    </table>
+  </section>
+
+  <section id="strategy">
+    <h2>Strategy境界</h2>
+    <table>
+      <tr><th>項目</th><th>Phase 1方針</th></tr>
+      <tr><td>Unit</td><td>N、breakout、追加条件、上限到達のHintを出せる。ただし最終Unit数と数量丸めはRisk / OMSが決める。</td></tr>
+      <tr><td>Signal</td><td>System 1 / System 2 / modernizedのSignalEventを生成する。Signalは注文承認ではない。</td></tr>
+      <tr><td>OrderIntent</td><td>instrument_id、side、intent_type、desired_quantityまたはtarget_position、n_value、risk_budget、reason_codeを出す。</td></tr>
+      <tr><td>禁止</td><td>口座残高を正本として持つ、Risk上限を変更する、Kill Switchを解除する、Broker Adapterへ直接送信する。</td></tr>
+    </table>
+  </section>
+
+  <section id="portfolio">
+    <h2>Portfolio境界</h2>
+    <table>
+      <tr><th>項目</th><th>Phase 1方針</th></tr>
+      <tr><td>資産配分</td><td>対象市場、資産クラス、通貨、相関グループごとの利用枠を管理する。配分アルゴリズム詳細はPhase 5へ送る。</td></tr>
+      <tr><td>相関集中</td><td>同方向、同一セクター、同一通貨、同一商品群の集中をLimitUsageとして出す。</td></tr>
+      <tr><td>ポジション上限</td><td>4/6/10/12 Unit上限などの原典制約と、現代版上限を比較可能にする。</td></tr>
+      <tr><td>Strategyへ渡すView</td><td>current_units、last_entry_price、last_add_price、direction_exposure、group_exposure、limit_usageの要約だけを渡す。</td></tr>
+    </table>
+  </section>
+
+  <section id="account">
+    <h2>Account境界</h2>
+    <table>
+      <tr><th>項目</th><th>Phase 1方針</th></tr>
+      <tr><td>Cash</td><td>通貨別Cash残高、入出金、換算レート参照時刻をAccountSnapshotへ記録する。</td></tr>
+      <tr><td>Margin</td><td>margin_used、margin_available、margin_requirement_sourceを保持する。Broker未照合値は正本にしない。</td></tr>
+      <tr><td>NAV</td><td>NAV、equity、unrealized_pnl、realized_pnl、snapshot_time_utcを保持し、DD計算の入力にする。</td></tr>
+      <tr><td>入出金</td><td>Deposit / WithdrawalはAccountイベントとして記録し、StrategyではなくRiskとPortfolioの基準額更新に使う。</td></tr>
+      <tr><td>禁止</td><td>StrategyがCash、Margin、NAVを直接更新すること。Broker照合前の値でLive新規注文を許可すること。</td></tr>
+    </table>
+  </section>
+
+  <section id="risk">
+    <h2>Risk境界</h2>
+    <table>
+      <tr><th>項目</th><th>Phase 1方針</th></tr>
+      <tr><td>日次損失</td><td>営業日単位でrealized/unrealizedを含む損失監視を行う。具体的なしきい値はPhase 5で決める。</td></tr>
+      <tr><td>最大DD</td><td>最大DD15%をLive前必須ストレス確認基準として扱う。自動停止しきい値はPhase 5/7で確定する。</td></tr>
+      <tr><td>注文数量</td><td>OrderIntentをAccountSnapshot、PortfolioSnapshot、Instrument制約、RiskConfigで検査し、accept/reject/reduceを返す。</td></tr>
+      <tr><td>Kill Switch</td><td>Active中は新規注文禁止。解除はHuman Gateを通す。StrategyやOMS単独では解除できない。</td></tr>
+      <tr><td>監査</td><td>RiskDecisionには入力snapshot id、config_version、理由、変更前後数量、判定時刻を残す。</td></tr>
+    </table>
+  </section>
+
+  <section id="oms">
+    <h2>OMS境界</h2>
+    <table>
+      <tr><th>項目</th><th>Phase 1方針</th></tr>
+      <tr><td>注文状態遷移</td><td>D06のDraft、RiskAccepted、Planned、Submitted、Acknowledged、PartiallyFilled、Filled、CancelRequested、Cancelled、Rejected、UnknownExternalStateへ写像する。</td></tr>
+      <tr><td>重複防止</td><td>intent_id、client_order_id、idempotency_key、run_idで二重送信を防ぐ。</td></tr>
+      <tr><td>Cancel / Replace</td><td>Phase 1では責務境界だけを固定する。詳細状態とBroker差分はPhase 4へ送る。</td></tr>
+      <tr><td>再同期</td><td>Open Order、Fill、Position、Accountの差分をReconciliationへ渡し、状態不明時は新規注文を止める。</td></tr>
+      <tr><td>禁止</td><td>RiskRejectedを送信すること。Broker order idを内部Order主キーにすること。</td></tr>
+    </table>
+  </section>
+
+  <section id="risk-values">
+    <h2>1N / 年率ボラ / 最大DDの扱い</h2>
+    <table>
+      <tr><th>項目</th><th>Phase 1で固定すること</th><th>Phase 1で固定しないこと</th><th>決定タイミング</th></tr>
+      <tr><td>1Nリスク</td><td>原典基準として1Nリスク1%を保持し、0.5% / 0.25%などの比較候補をRiskConfigで表現可能にする。</td><td>Live採用値、契約粒度ごとの丸め、手数料・スリッページ反映後の最終数量。</td><td>Paper前 / OD-04</td></tr>
+      <tr><td>年率ボラ目標10%</td><td>参考基準としてPortfolio / Riskで扱う場所を固定する。</td><td>強制制御に入れるか、監視指標に留めるか。</td><td>Risk設計時 / OD-05</td></tr>
+      <tr><td>最大DD15%</td><td>Live前ストレス確認基準として必須化し、RiskSnapshotにDD状態を含める。</td><td>日次停止、週次停止、縮小、強制クローズの具体しきい値。</td><td>Paper前からLive前</td></tr>
+    </table>
+  </section>
+
+  <section id="gates">
+    <h2>Paper前 / Live前に最終決定すべきリスク項目</h2>
+    <table>
+      <tr><th>ID</th><th>項目</th><th>Paper前</th><th>Live前</th></tr>
+      <tr><td>RG-01</td><td>1Nリスク採用値、比較候補、最小/最大注文数量。</td><td>必須</td><td>再承認必須</td></tr>
+      <tr><td>RG-02</td><td>年率ボラ10%を強制制御へ入れるか。</td><td>方針決定</td><td>運用値承認</td></tr>
+      <tr><td>RG-03</td><td>日次損失、週次損失、最大DDの停止しきい値。</td><td>Paper値必須</td><td>Live値必須</td></tr>
+      <tr><td>RG-04</td><td>Kill Switch発火条件、解除権限、解除手順。</td><td>検証必須</td><td>承認必須</td></tr>
+      <tr><td>RG-05</td><td>Position / Order / Account不整合時の停止単位。</td><td>検証必須</td><td>承認必須</td></tr>
+      <tr><td>RG-06</td><td>相関グループ、Unit上限、通貨別Exposure上限。</td><td>初期値必須</td><td>Live値必須</td></tr>
+    </table>
+  </section>
+
+  <section id="tests">
+    <h2>検証観点</h2>
+    <table>
+      <tr><th>観点</th><th>確認内容</th></tr>
+      <tr><td>共通モデル整合</td><td>OrderIntent、Order、Fill、Position、AccountSnapshot、RiskSnapshot、HealthEventの所有者がD06と矛盾しない。</td></tr>
+      <tr><td>Strategy整合</td><td>D08/D09のStrategy出力がRisk/OMSを迂回しない。</td></tr>
+      <tr><td>Adapter整合</td><td>D10のBroker外部IDがRisk/Strategyへ漏れず、OMS/Reconciliationに閉じる。</td></tr>
+      <tr><td>Fail-closed</td><td>Kill Switch、Account stale、Reconciliation mismatch、重複注文時に新規注文が止まる。</td></tr>
+      <tr><td>誤発注リスク</td><td>RiskRejected、UnknownExternalState、重複client_order_id、未照合Positionで送信できない。</td></tr>
+    </table>
+  </section>
+
+  <section id="traceability">
+    <h2>要件追跡</h2>
+    <table>
+      <tr><th>追跡ID</th><th>対応</th></tr>
+      <tr><td>REQ-Q05</td><td>Live初期資金100万円未満はAccount / RiskのLive前承認項目として扱う。</td></tr>
+      <tr><td>REQ-Q09</td><td>原典基準1Nリスク1%をRiskConfig候補として保持する。</td></tr>
+      <tr><td>REQ-Q10 / REQ-OD05</td><td>年率ボラ目標10%をPortfolio / Risk境界で扱い、強制制御化は未確定事項にする。</td></tr>
+      <tr><td>REQ-Q16 / REQ-OD04</td><td>UnitリスクLive採用値はPaper前Gateで決める。</td></tr>
+      <tr><td>REQ-Q24</td><td>Shadow、Paper、少額Liveへの移行時にRisk / Account / OMS Gateを通す。</td></tr>
+      <tr><td>REQ-Q25-Q27</td><td>Kill Switch、安全停止、復旧、監査証跡を責務境界に含める。</td></tr>
+      <tr><td>REQ-POL03</td><td>注文例外やLive運用値の詳細をPhase 1で固定しすぎない。</td></tr>
+    </table>
+  </section>
+
+  <section id="decisions">
+    <h2>設計判断</h2>
+    <details open><summary>DEC-P1-RAC-01: StrategyはOrderIntentまでに限定する</summary><p>StrategyはUnitとSignalの候補を出すが、口座正本、Risk承認、注文状態、Broker送信を担当しない。</p></details>
+    <details open><summary>DEC-P1-RAC-02: Risk Guardはすべての発注経路で必須にする</summary><p>Backtest / Shadow / Paper / Liveのどのモードでも、OrderIntentはRiskを通過しなければOMSへ進めない。</p></details>
+    <details open><summary>DEC-P1-RAC-03: AccountSnapshotを数量判断の必須入力にする</summary><p>古いまたは未照合の口座情報で注文数量を決めることを禁止する。</p></details>
+    <details open><summary>DEC-P1-RAC-04: Kill Switch解除はHuman Gateへ送る</summary><p>停止は機械的に発火してよいが、解除は誤再開を防ぐため人間の承認と監査証跡を必須にする。</p></details>
+  </section>
+
+  <section id="unknowns">
+    <h2>未確定事項</h2>
+    <table>
+      <tr><th>ID</th><th>内容</th><th>決定タイミング</th></tr>
+      <tr><td>UNK-P1-RAC-01</td><td>1NリスクのLive採用値。</td><td>Paper前 / OD-04</td></tr>
+      <tr><td>UNK-P1-RAC-02</td><td>年率ボラ目標10%を強制制御に入れるか。</td><td>Risk詳細設計時 / OD-05</td></tr>
+      <tr><td>UNK-P1-RAC-03</td><td>日次損失、週次損失、最大DD到達時の停止・縮小・強制クローズ具体値。</td><td>Phase 5 / Live前</td></tr>
+      <tr><td>UNK-P1-RAC-04</td><td>相関グループ定義、通貨別Exposure上限、商品群別上限。</td><td>Phase 2対象市場確定後、Phase 5で決定</td></tr>
+      <tr><td>UNK-P1-RAC-05</td><td>Broker PaperとLiveでMargin / NAV算出差が出る場合の正本化ルール。</td><td>Phase 4 Paper接続検証後</td></tr>
+    </table>
+  </section>
+
+  <section id="review">
+    <h2>レビュー履歴</h2>
+    <table>
+      <tr><th>日付</th><th>観点</th><th>反映内容</th></tr>
+      <tr><td>2026-08-03</td><td>A12相当: 共通モデル、Strategy設計、Adapter設計との整合性</td><td>D06のAccountSnapshot/RiskSnapshot/Order状態、D08のOrderIntent、D10の外部ID分離と矛盾しないよう責務表を調整。</td></tr>
+      <tr><td>2026-08-03</td><td>A13相当: Fail-closedと誤発注リスク</td><td>Kill Switch中の新規注文禁止、Account stale、Reconciliation mismatch、重複注文時の停止を明示。</td></tr>
+    </table>
+  </section>
+
+  <section id="links">
+    <h2>関連文書リンク</h2>
+    <ul>
+      <li><a href="../05_戦略設計/05_Strategy_Plugin_Interface設計書.html">D08 Strategy Plugin Interface設計書</a></li>
+      <li><a href="../07_実行モデル/07_共通実行モデル設計書.html">D11 共通実行モデル設計書</a></li>
+      <li><a href="../06_アダプター境界/06_Adapter境界設計書.html">D10 Adapter境界設計書</a></li>
+    </ul>
+  </section>
+
+  <section id="handoff">
+    <h2>後続Phase引き継ぎ</h2>
+    <p>Phase 4ではOMS、Cancel / Replace、再同期、Broker Paper差分を本書のOMS境界に従って詳細化する。Phase 5ではPortfolio / Risk / Accountの計算詳細、しきい値、RiskConfig、AccountSnapshot正本化を詳細化する。Live前には、1N採用値、年率ボラ目標の強制制御化、最大DD15%の停止運用、Kill Switch解除手順をHuman Gateで承認する。</p>
+  </section>
+</main>
+</body>
+</html>
