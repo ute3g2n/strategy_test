@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P1-12 統合レビュー結果</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code { font-family: Consolas, "Courier New", monospace; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .warn { border-left-color: #b45309; background: #fff7ed; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>P1-12 統合レビュー結果</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 / <strong>作成日:</strong> 2026-08-03 / <strong>ステップ:</strong> P1-12</p>
+    <p><strong>担当:</strong> <code>AutoTradePhase1_A12_ConsistencyReviewer_v0_1</code>, <code>AutoTradePhase1_A13_RedTeamReviewer_v0_1</code></p>
+    <p><strong>使用Skill:</strong> <code>autotrade_phase1_skill_design_reviewer_v0_1</code>, <code>autotrade_phase1_skill_red_team_review_v0_1</code>, <code>autotrade_phase1_skill_traceability_v0_1</code></p>
+  </div>
+
+  <h2>総評</h2>
+  <p>P1-01からP1-11までの成果物は、Strategy、Adapter、Execution Model、Risk / Account、Ops / Security、QA、Roadmapの主要境界を概ね分離できている。致命的な責務逆転は見つからない。</p>
+  <p>ただし、Phase 1完了前に補強すべき点として、取引エンジン最終決定の表現、手動介入後の再開条件、Secret漏洩検知テスト、D01-D20対応表の明示が必要である。</p>
+
+  <h2>統合レビュー指摘</h2>
+  <table>
+    <tr><th>指摘ID</th><th>重要度</th><th>対象設計書</th><th>該当箇所</th><th>問題内容</th><th>修正方針</th><th>Human Gate要否</th></tr>
+    <tr><td>IR-P1-12-001</td><td>High</td><td>D19 / D20</td><td>OD-02決定タイミング</td><td>取引エンジン最終決定が「Phase 1 PoC完了時」と読めるが、現在のP1-07は評価基準定義でありPoC実行結果ではない。</td><td>Phase 1完了時点ではOD-02を「評価基準承認済み、最終決定はPoC証拠収集後」と明記する。</td><td>Yes: H1-2 / H1-4</td></tr>
+    <tr><td>IR-P1-12-002</td><td>Medium</td><td>D17 / D18</td><td>Broker GUI手動介入、Operational rehearsal</td><td>Broker GUI最終介入後、内部OMS / Account / Positionへ復帰する条件がやや薄い。</td><td>手動介入後はManualInterventionEvent、ReconciliationPassed、Human承認が揃うまで再開不可と追記する。</td><td>Yes: Live前</td></tr>
+    <tr><td>IR-P1-12-003</td><td>Medium</td><td>D15 / D18</td><td>Secret混入禁止、Failure injection</td><td>SecretをGitやログへ出さない方針はあるが、検出テストとGateの接続が不足している。</td><td>D18へSecret redaction / leak scan Gateを追加し、D15から参照する。</td><td>No</td></tr>
+    <tr><td>IR-P1-12-004</td><td>Medium</td><td>P1-13完了判定</td><td>D01-D20存在確認</td><td>ファイル名とD番号の対応が分散しており、人間がD01-D20の充足を一目で確認しにくい。</td><td>P1-13の完了判定書にD01-D20対応表を作る。</td><td>Yes: H1-4</td></tr>
+    <tr><td>IR-P1-12-005</td><td>Low</td><td>D14-D17</td><td>レビュー履歴</td><td>P1-09では発火制御上A12/A13を起動していないため「A12/A13相当」と書かれている。実態は正しいが、最終版で誤解されやすい。</td><td>完了判定書とレビュー反映履歴で、相当観点は自己点検でありP1-12で正式レビュー済みと整理する。</td><td>No</td></tr>
+  </table>
+
+  <h2>確認済み観点</h2>
+  <table>
+    <tr><th>観点</th><th>結果</th></tr>
+    <tr><td>要件追跡漏れ</td><td>主要なREQ-Q、REQ-OD、REQ-POLはD02、D13、D18、D19で追跡されている。</td></tr>
+    <tr><td>責務境界</td><td>StrategyはOrderIntentまで、Riskは承認/拒否/縮小、OMSは注文状態、Adapterは外部依存隔離で整合。</td></tr>
+    <tr><td>Broker / Market Data依存</td><td>D10でAdapter境界へ閉じており、Coreへ外部IDを漏らさない方針がある。</td></tr>
+    <tr><td>再現性</td><td>D11とD18でrun_id、Manifest、Replay、証跡が定義済み。</td></tr>
+    <tr><td>Phase範囲</td><td>詳細化しすぎる項目はD19へ送られている。</td></tr>
+  </table>
+
+  <h2>後続</h2>
+  <p>P1-13では、上記5件の指摘について採用・部分採用を判断し、D15、D17、D18、D19、D20、およびP1-13完了判定書へ反映する。</p>
+</main>
+</body>
+</html>

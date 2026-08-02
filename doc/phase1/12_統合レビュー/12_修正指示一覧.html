@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P1-12 修正指示一覧</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; text-decoration: none; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    .meta { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>P1-12 修正指示一覧</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 / <strong>作成日:</strong> 2026-08-03 / <strong>ステップ:</strong> P1-12</p>
+    <p><strong>完了条件:</strong> P1-13が修正反映を開始できる粒度で指摘が整理されていること。</p>
+  </div>
+
+  <h2>P1-13向け修正指示</h2>
+  <table>
+    <tr><th>修正ID</th><th>元指摘</th><th>対象</th><th>指示</th><th>受入条件</th></tr>
+    <tr><td>FIX-P1-13-001</td><td>IR-P1-12-001 / RT-P1-12-001</td><td>D19、D20、完了判定書</td><td>OD-02を「Phase 1では評価基準承認、最終決定はPoC証拠条件充足後」と修正する。</td><td>OD-02が決定済みに見えない。</td></tr>
+    <tr><td>FIX-P1-13-002</td><td>IR-P1-12-002 / RT-P1-12-002</td><td>D17、D18</td><td>Broker GUI手動介入後の自動再開禁止、ManualInterventionEvent、ReconciliationPassed、Human承認を追加する。</td><td>手動介入後に内部状態へ復帰する条件が明確。</td></tr>
+    <tr><td>FIX-P1-13-003</td><td>IR-P1-12-003 / RT-P1-12-003</td><td>D15、D18</td><td>Secret redaction、Secret scan、ログマスク検証をGateへ追加する。</td><td>Secret漏洩検出が品質Gateに含まれる。</td></tr>
+    <tr><td>FIX-P1-13-004</td><td>IR-P1-12-004</td><td>完了判定書</td><td>D01-D20対応表を作成し、存在確認とPhase 2入力可否を記録する。</td><td>人間がPhase 1成果物充足を確認できる。</td></tr>
+    <tr><td>FIX-P1-13-005</td><td>RT-P1-12-004</td><td>D19、完了判定書</td><td>Kill Switch解除後のウォームアップ期間、最初の注文制限をPhase 5/7詳細バックログへ追加する。</td><td>Live前Human Gateの確認対象に入る。</td></tr>
+  </table>
+</main>
+</body>
+</html>
