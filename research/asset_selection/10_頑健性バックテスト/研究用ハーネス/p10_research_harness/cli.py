@@ -38,6 +38,7 @@ def main() -> int:
     metadata_parser.add_argument("--output-dir", required=True)
     metadata_parser.add_argument("--dataset", default="GLBX.MDP3")
     metadata_parser.add_argument("--symbols", nargs="*")
+    metadata_parser.add_argument("--schemas", nargs="*", default=None)
 
     continuous_parser = subparsers.add_parser("build-continuous")
     continuous_parser.add_argument("--source-dir", required=True)
@@ -71,6 +72,7 @@ def main() -> int:
             output_dir=Path(args.output_dir),
             dataset=args.dataset,
             symbols=args.symbols,
+            schemas=args.schemas,
         )
     if args.command == "build-continuous":
         return build_continuous(Path(args.source_dir), Path(args.output_dir))
@@ -158,6 +160,7 @@ def fetch_databento_metadata_command(
     output_dir: Path,
     dataset: str,
     symbols: list[str] | None,
+    schemas: list[str] | None,
 ) -> int:
     requirements = load_data_requirements()
     target_symbols = symbols or [item.symbol for item in requirements]
@@ -167,6 +170,7 @@ def fetch_databento_metadata_command(
         end=end,
         output_dir=output_dir,
         dataset=dataset,
+        schemas=schemas,
     )
     write_json(RUNS_ROOT / "databento_metadata_fetch_report.json", result)
     return 0 if result["status"] == "completed" else 4

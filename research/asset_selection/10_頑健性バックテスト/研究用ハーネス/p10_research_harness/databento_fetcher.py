@@ -80,6 +80,7 @@ def fetch_databento_metadata(
     end: str,
     output_dir: Path,
     dataset: str = "GLBX.MDP3",
+    schemas: list[str] | None = None,
 ) -> dict[str, Any]:
     env_report = check_databento_environment()
     if not env_report["ready"]:
@@ -96,7 +97,8 @@ def fetch_databento_metadata(
     output_dir.mkdir(parents=True, exist_ok=True)
     client = db.Historical()
     outputs: list[dict[str, str]] = []
-    for schema in ["definition", "statistics"]:
+    target_schemas = schemas or ["definition", "statistics"]
+    for schema in target_schemas:
         schema_dir = output_dir / schema
         schema_dir.mkdir(parents=True, exist_ok=True)
         for symbol in symbols:
