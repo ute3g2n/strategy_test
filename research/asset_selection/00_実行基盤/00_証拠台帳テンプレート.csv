@@ -1,2 +1,2 @@
-evidence_id,source_id,candidate_id,exposure_id,vehicle_id,fact_type,fact_claim_ja,source_url,source_title,publisher,source_type,primary_or_secondary,accessed_at,published_date,effective_date,expiry_date,quoted_or_summarized_point_ja,confidence,conflict_status,conflict_with_evidence_ids,verified_by_role,verification_notes
-
+﻿"証拠ID","情報源ID","候補ID","エクスポージャーID","取引手段ID","事実種別","日本語の主張","URL","情報源タイトル","発行者","情報源種別","一次二次","確認日時","公開日","有効日","再確認期限","要点日本語要約","信頼度","矛盾状態","矛盾先証拠ID","検証者ロール","検証メモ"
+"","","","","","","","","","","","","","","","","","","","","",""
