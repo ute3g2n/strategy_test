@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>未確定事項台帳</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px; max-width: 1180px; color: #1f2937; }
+    h1, h2, h3 { color: #111827; line-height: 1.35; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin-top: 32px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 10px; vertical-align: top; }
+    th { background: #f3f4f6; }
+    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+    .meta, .decision, .unknown, .handoff { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .unknown { border-left-color: #d97706; background: #fffbeb; }
+    .handoff { border-left-color: #059669; background: #ecfdf5; }
+  </style>
+</head>
+<body>
+  <h1>未確定事項台帳</h1>
+
+  <section class="meta">
+    <p><strong>作成日:</strong> 2026-08-02<br>
+    <strong>文書状態:</strong> v0.1 初版<br>
+    <strong>成果物ID:</strong> D02-UNK<br>
+    <strong>担当サブエージェント完全名:</strong> <code>AutoTradePhase1_A01_RequirementsCurator_v0_1</code><br>
+    <strong>使用Skill完全名:</strong> <code>autotrade_phase1_skill_source_reader_v0_1</code>, <code>autotrade_phase1_skill_traceability_v0_1</code>, <code>autotrade_phase1_skill_html_doc_writer_v0_1</code></p>
+  </section>
+
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#summary">概要</a></li>
+    <li><a href="#inputs">入力</a></li>
+    <li><a href="#scope">対象と非対象</a></li>
+    <li><a href="#requirements">要件追跡</a></li>
+    <li><a href="#decisions">設計判断</a></li>
+    <li><a href="#unknowns">未確定事項</a></li>
+    <li><a href="#review">レビュー履歴</a></li>
+    <li><a href="#handoff">後続Phase引き継ぎ</a></li>
+  </ol>
+
+  <h2 id="summary">1. 概要</h2>
+  <p>Phase 1時点で確定できない事項を一覧化し、決定タイミング、必要証拠、暫定扱い、影響先設計書を明示する。Unknownはすべて Pass 扱いしない。</p>
+
+  <h2 id="inputs">2. 入力</h2>
+  <ul>
+    <li><code>plan/自動トレードシステム_要件定義書.md</code></li>
+    <li><code>plan/Phase分割と設計書整備方針_v0.1_2026-08-02.md</code></li>
+    <li><code>doc/phase1/01_要件追跡/01_要件追跡マトリクス.html</code></li>
+  </ul>
+
+  <h2 id="scope">3. 対象と非対象</h2>
+  <table>
+    <thead><tr><th>区分</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>対象</td><td>Q2, Q16, Q19, Q21, OD-01-08 と、それらに紐づくPhase方針上の未確定判断。</td></tr>
+      <tr><td>非対象</td><td>Phase 1で既に固定済みの責務境界や基本方針。</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="requirements">4. 要件追跡</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>未確定事項ID</th>
+        <th>原要求ID</th>
+        <th>内容</th>
+        <th>必要証拠 / 決定条件</th>
+        <th>決定タイミング</th>
+        <th>影響設計書</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>UNK-01</td><td>Q2 / OD-01</td><td>対象アセットと初期 3-5 市場の最終確定</td><td>Phase 0 の資産調査、データ取得可否、取引可否、証拠金、最小数量</td><td>Phase 0 完了時</td><td>D10, D11, D13, D19, D20</td></tr>
+      <tr><td>UNK-02</td><td>Q16 / OD-04</td><td>1N リスクの Live 採用値</td><td>契約粒度、DD試験、Paper安定運用結果</td><td>Paper前</td><td>D09, D13, D18, D20</td></tr>
+      <tr><td>UNK-03</td><td>Q19 / OD-03</td><td>限月選択、ロール規則、continuous signal 方式</td><td>資産調査、データ仕様、Phase 2詳細設計</td><td>Phase 2</td><td>D10, D11, D19, D20</td></tr>
+      <tr><td>UNK-04</td><td>Q21 / OD-02</td><td>取引エンジン最終決定</td><td>PoCシナリオ評価、再同期、復旧、IBKR Paper接続</td><td>Phase 1 PoC完了時</td><td>D11, D12, D20</td></tr>
+      <tr><td>UNK-05</td><td>OD-05</td><td>年率 10% ボラ目標を強制制御へ入れるか</td><td>Risk設計、シミュレーション、運用方針</td><td>Risk設計時</td><td>D13, D18, D20</td></tr>
+      <tr><td>UNK-06</td><td>OD-06</td><td>東京クラウドの OS / VM 形式</td><td>Shadow運用要件、コスト、運用制約、監視要件</td><td>Shadow前</td><td>D14, D15, D17, D20</td></tr>
+      <tr><td>UNK-07</td><td>OD-07</td><td>Push 通知サービス</td><td>コスト、運用、通知信頼性、秘密情報管理</td><td>Shadow前</td><td>D16, D17, D19</td></tr>
+      <tr><td>UNK-08</td><td>OD-08</td><td>Paper / Live の最小運用日数しきい値</td><td>移行判定基準、運用実績、ストレス確認</td><td>移行判定前</td><td>D18, D20</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="decisions">5. 設計判断</h2>
+  <section class="decision">
+    <p><strong>設計判断ID:</strong> DEC-P1-03<br>
+    <strong>判断:</strong> 未確定事項は、設計書本文に埋めて曖昧化せず、独立台帳で決定条件とタイミングを持たせる。<br>
+    <strong>根拠:</strong> Phase 1の設計凍結と、後続Phaseでの詳細化を両立させるため。<br>
+    <strong>影響:</strong> P1-12統合レビューでは、本台帳にない Unknown の新規発生を Fail とする。</p>
+  </section>
+
+  <h2 id="unknowns">6. 未確定事項</h2>
+  <section class="unknown">
+    <p><strong>未確定事項ID:</strong> UNK-P1-LEDGER-01<br>
+    <strong>内容:</strong> UnknownはPhase 1内で解消しないものを含む。<br>
+    <strong>決定タイミング:</strong> 各行記載のとおり。<br>
+    <strong>暫定扱い:</strong> Unknown。Pass扱いしない。</p>
+  </section>
+
+  <h2 id="review">7. レビュー履歴</h2>
+  <table>
+    <thead><tr><th>日時</th><th>レビュアー完全名</th><th>観点</th><th>結果</th></tr></thead>
+    <tbody>
+      <tr><td>2026-08-02</td><td><code>AutoTradePhase1_A12_ConsistencyReviewer_v0_1</code></td><td>RC-03, RC-04, RC-11</td><td>Pass。未確定事項ごとに決定条件、決定タイミング、影響設計書を確認。UnknownのPass扱いなし。</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="handoff">8. 後続Phase引き継ぎ</h2>
+  <section class="handoff">
+    <p>P1-11の詳細設計バックログは、本台帳の各項目を受け取り、対応Phase開始時に再掲する。P1-20相当の移行判定では、本台帳の未解消項目をHuman Gate確認対象にする。</p>
+  </section>
+</body>
+</html>

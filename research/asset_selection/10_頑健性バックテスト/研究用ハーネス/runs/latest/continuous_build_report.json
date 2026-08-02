@@ -1,0 +1,40 @@
+{
+  "kind": "continuous_build_report",
+  "research_only": true,
+  "source_dir": "research\\asset_selection\\10_頑健性バックテスト\\研究用ハーネス\\data\\databento_protocol_raw",
+  "output_dir": "research\\asset_selection\\10_頑健性バックテスト\\研究用ハーネス\\data\\databento_protocol_continuous",
+  "reports": {
+    "MCL": {
+      "source_rows": 4435453,
+      "direct_contract_rows": 3419335,
+      "continuous_rows": 1766479,
+      "selection_rule": "スプレッドを除外し、同一分で出来高最大の限月を代表系列として採用"
+    },
+    "MZC": {
+      "source_rows": 67670,
+      "direct_contract_rows": 65733,
+      "continuous_rows": 48432,
+      "selection_rule": "スプレッドを除外し、同一分で出来高最大の限月を代表系列として採用"
+    },
+    "MZS": {
+      "source_rows": 128445,
+      "direct_contract_rows": 124377,
+      "continuous_rows": 81297,
+      "selection_rule": "スプレッドを除外し、同一分で出来高最大の限月を代表系列として採用"
+    },
+    "MZW": {
+      "source_rows": 47862,
+      "direct_contract_rows": 45378,
+      "continuous_rows": 37178,
+      "selection_rule": "スプレッドを除外し、同一分で出来高最大の限月を代表系列として採用"
+    },
+    "M6A": {
+      "source_rows": 2849699,
+      "direct_contract_rows": 2846327,
+      "continuous_rows": 2687776,
+      "selection_rule": "スプレッドを除外し、同一分で出来高最大の限月を代表系列として採用"
+    }
+  },
+  "missing_symbols": [],
+  "status": "completed"
+}

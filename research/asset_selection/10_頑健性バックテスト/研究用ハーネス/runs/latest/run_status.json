@@ -2,5 +2,6 @@
   "kind": "run_status",
   "research_only": true,
   "status": "completed",
-  "results": 20
+  "results": 20,
+  "holdout_status": "sealed_not_used"
 }

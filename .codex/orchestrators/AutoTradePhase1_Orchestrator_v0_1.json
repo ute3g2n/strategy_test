@@ -1,0 +1,57 @@
+{
+  "name": "AutoTradePhase1_Orchestrator_v0_1",
+  "display_name": "Auto Trade Phase 1 Orchestrator v0.1",
+  "model": "gpt-5.5",
+  "purpose": "Coordinate Phase 1 design-document creation for the Turtle trend-following automated trading system using only explicitly named Phase 1 agents and skills.",
+  "trigger_examples": [
+    "P1-01を実行して",
+    "Phase 1の要件追跡マトリクスを作成して",
+    "AutoTradePhase1_Orchestrator_v0_1でP1-03から進めて"
+  ],
+  "global_constraints": {
+    "language": "ja",
+    "formal_design_outputs_must_be_html": true,
+    "must_not_be_investment_advice": true,
+    "unknown_must_not_pass": true,
+    "do_not_use_existing_agents_skills_or_orchestrators_by_guess": true,
+    "allowed_agent_prefix": "AutoTradePhase1_",
+    "allowed_skill_prefix": "autotrade_phase1_skill_",
+    "do_not_change_default_orchestrator": true,
+    "phase1_scope": "Freeze architecture, domain boundaries, quality criteria, non-functional requirements, and major interfaces. Move overly detailed implementation topics to the detailed design backlog."
+  },
+  "agents": {
+    "A00": { "file": ".codex/agents/AutoTradePhase1_A00_Orchestrator_v0_1.json", "skill": "autotrade_phase1_skill_orchestration_v0_1" },
+    "A01": { "file": ".codex/agents/AutoTradePhase1_A01_RequirementsCurator_v0_1.json", "skill": "autotrade_phase1_skill_source_reader_v0_1" },
+    "A02": { "file": ".codex/agents/AutoTradePhase1_A02_SystemArchitect_v0_1.json", "skill": "autotrade_phase1_skill_architecture_writer_v0_1" },
+    "A03": { "file": ".codex/agents/AutoTradePhase1_A03_DomainArchitect_v0_1.json", "skill": "autotrade_phase1_skill_domain_modeling_v0_1" },
+    "A04": { "file": ".codex/agents/AutoTradePhase1_A04_StrategyArchitect_v0_1.json", "skill": "autotrade_phase1_skill_strategy_design_v0_1" },
+    "A05": { "file": ".codex/agents/AutoTradePhase1_A05_ExecutionModelArchitect_v0_1.json", "skill": "autotrade_phase1_skill_execution_model_v0_1" },
+    "A06": { "file": ".codex/agents/AutoTradePhase1_A06_EnginePocAnalyst_v0_1.json", "skill": "autotrade_phase1_skill_poc_design_v0_1" },
+    "A07": { "file": ".codex/agents/AutoTradePhase1_A07_AdapterArchitect_v0_1.json", "skill": "autotrade_phase1_skill_adapter_boundary_v0_1" },
+    "A08": { "file": ".codex/agents/AutoTradePhase1_A08_RiskAccountArchitect_v0_1.json", "skill": "autotrade_phase1_skill_risk_account_design_v0_1" },
+    "A09": { "file": ".codex/agents/AutoTradePhase1_A09_OpsSecurityArchitect_v0_1.json", "skill": "autotrade_phase1_skill_ops_security_v0_1" },
+    "A10": { "file": ".codex/agents/AutoTradePhase1_A10_QaArchitect_v0_1.json", "skill": "autotrade_phase1_skill_test_strategy_v0_1" },
+    "A11": { "file": ".codex/agents/AutoTradePhase1_A11_HtmlDocumentEngineer_v0_1.json", "skill": "autotrade_phase1_skill_html_doc_writer_v0_1" },
+    "A12": { "file": ".codex/agents/AutoTradePhase1_A12_ConsistencyReviewer_v0_1.json", "skill": "autotrade_phase1_skill_design_reviewer_v0_1" },
+    "A13": { "file": ".codex/agents/AutoTradePhase1_A13_RedTeamReviewer_v0_1.json", "skill": "autotrade_phase1_skill_red_team_review_v0_1" },
+    "A14": { "file": ".codex/agents/AutoTradePhase1_A14_RevisionIntegrator_v0_1.json", "skill": "autotrade_phase1_skill_revision_integrator_v0_1" }
+  },
+  "workflow": [
+    { "step": "P1-00", "mode": "completed_by_existing_html_specs", "outputs": "plan/phase1/00_実行基盤/*.html" },
+    { "step": "P1-00B", "mode": "completed_by_definition_files", "outputs": ".codex/agents, .codex/skills, .codex/orchestrators" },
+    { "step": "P1-01", "mode": "single", "agents": ["A01", "A12"], "human_gate_after": "H1-1" },
+    { "step": "P1-02", "mode": "single", "agents": ["A11", "A12"] },
+    { "step": "P1-03", "mode": "parallel_allowed_after_P1_02", "agents": ["A02", "A03", "A12", "A13"] },
+    { "step": "P1-04", "mode": "parallel_allowed_after_P1_02", "agents": ["A03", "A05", "A08", "A12", "A13"] },
+    { "step": "P1-05", "mode": "parallel_after_architecture_draft", "agents": ["A04", "A10", "A12", "A13"] },
+    { "step": "P1-06", "mode": "parallel_after_architecture_draft", "agents": ["A07", "A12", "A13"] },
+    { "step": "P1-07", "mode": "parallel_after_architecture_draft", "agents": ["A05", "A06", "A10", "A12", "A13"], "human_gate_after": "H1-2" },
+    { "step": "P1-08", "mode": "parallel_after_core_drafts", "agents": ["A08", "A12", "A13"] },
+    { "step": "P1-09", "mode": "parallel_after_core_drafts", "agents": ["A09", "A12", "A13"] },
+    { "step": "P1-10", "mode": "parallel_after_core_drafts", "agents": ["A10", "A12", "A13"] },
+    { "step": "P1-11", "mode": "single_after_reviewed_drafts", "agents": ["A00", "A01", "A12", "A13"] },
+    { "step": "P1-12", "mode": "integrated_review", "agents": ["A12", "A13"], "human_gate_after": "H1-3" },
+    { "step": "P1-13", "mode": "revision_and_final_gate", "agents": ["A14", "A00", "A12"], "human_gate_after": "H1-4" }
+  ],
+  "human_gates": ["H1-0", "H1-1", "H1-2", "H1-3", "H1-4"]
+}

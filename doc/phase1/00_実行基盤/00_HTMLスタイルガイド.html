@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 1 HTMLスタイルガイド</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px; max-width: 1200px; color: #1f2937; }
+    h1, h2, h3 { color: #111827; line-height: 1.35; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin-top: 32px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 10px; vertical-align: top; }
+    th { background: #f3f4f6; }
+    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+    .meta, .decision, .unknown, .handoff, .related, .nav { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .unknown { border-left-color: #d97706; background: #fffbeb; }
+    .handoff { border-left-color: #059669; background: #ecfdf5; }
+    .related { border-left-color: #7c3aed; background: #f5f3ff; }
+    .nav { border-left-color: #1d4ed8; background: #eff6ff; }
+  </style>
+</head>
+<body>
+  <h1>Phase 1 HTMLスタイルガイド</h1>
+
+  <section class="nav">
+    <p><strong>インデックス:</strong> <a href="../../index.html">doc/index.html</a></p>
+  </section>
+
+  <section class="meta">
+    <p><strong>作成日:</strong> 2026-08-02<br>
+    <strong>文書状態:</strong> v0.1 初版<br>
+    <strong>成果物ID:</strong> D01-STYLE<br>
+    <strong>担当サブエージェント完全名:</strong> <code>AutoTradePhase1_A11_HtmlDocumentEngineer_v0_1</code><br>
+    <strong>使用Skill完全名:</strong> <code>autotrade_phase1_skill_html_doc_writer_v0_1</code>, <code>autotrade_phase1_skill_traceability_v0_1</code></p>
+  </section>
+
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#summary">概要</a></li>
+    <li><a href="#inputs">入力</a></li>
+    <li><a href="#scope">適用範囲</a></li>
+    <li><a href="#requirements">必須構造</a></li>
+    <li><a href="#decisions">設計判断</a></li>
+    <li><a href="#unknowns">未確定事項</a></li>
+    <li><a href="#review">レビュー履歴</a></li>
+    <li><a href="#related">関連文書リンク</a></li>
+    <li><a href="#handoff">後続Phase引き継ぎ</a></li>
+  </ol>
+
+  <h2 id="summary">1. 概要</h2>
+  <p>Phase 1で作成するすべてのHTML設計書に共通適用する見た目、構造、導線、記述ルールを定義する。単体可読性を保ちつつ、`doc/index.html` を共通入口とする。</p>
+
+  <h2 id="inputs">2. 入力</h2>
+  <ul>
+    <li><code>doc/phase1/00_実行基盤/00_HTML設計書テンプレート.html</code></li>
+    <li><code>doc/index.html</code></li>
+    <li><code>doc/phase1/00_実行基盤/00_レビュー観点チェックリスト.html</code></li>
+  </ul>
+
+  <h2 id="scope">3. 適用範囲</h2>
+  <table>
+    <thead><tr><th>区分</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>対象</td><td>Phase 1 の正式設計書HTML、テンプレートHTML、レビュー結果HTML、検証結果HTML。</td></tr>
+      <tr><td>非対象</td><td>CSVログ、Markdown計画書、JSON定義ファイル。</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="requirements">4. 必須構造</h2>
+  <table>
+    <thead><tr><th>項目</th><th>必須内容</th></tr></thead>
+    <tbody>
+      <tr><td>文書メタ情報</td><td>作成日、文書状態、成果物ID、担当サブエージェント完全名、使用Skill完全名。</td></tr>
+      <tr><td>導線</td><td>各HTMLは単体で読めること。`doc/index.html` へのリンクを持つこと。Phase単位のインデックスがある場合はそのリンクも持つこと。</td></tr>
+      <tr><td>目次</td><td>概要、入力、対象と非対象、要件追跡、設計判断、未確定事項、レビュー履歴、関連文書リンク、後続Phase引き継ぎ。</td></tr>
+      <tr><td>スタイル</td><td>CSSはHTML内に埋め込む。外部CDNに依存しない。表は長文でも読める余白を持たせる。</td></tr>
+      <tr><td>追跡性</td><td>要件ID、設計判断ID、未確定事項ID、成果物IDを本文で参照できること。</td></tr>
+      <tr><td>関連文書</td><td>参照文書や近い成果物へのリンクやパスを持つこと。</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="decisions">5. 設計判断</h2>
+  <section class="decision">
+    <p><strong>設計判断ID:</strong> DEC-P1-HTML-01<br>
+    <strong>判断:</strong> Phase 1のHTML成果物は、共通テンプレートを使い、`doc/index.html` を唯一の全体入口とする。<br>
+    <strong>根拠:</strong> 設計書の配置規則と、レビュー時の到達性、追跡性、保守性を統一するため。<br>
+    <strong>影響:</strong> 以後のP1-03以降のHTMLは、作成時点で `doc/index.html` への導線と関連文書リンクを含める。</p>
+  </section>
+
+  <h2 id="unknowns">6. 未確定事項</h2>
+  <section class="unknown">
+    <p><strong>未確定事項ID:</strong> UNK-P1-HTML-01<br>
+    <strong>内容:</strong> 将来、Phase 2以降でHTMLの表示密度や索引構造を分割する可能性がある。<br>
+    <strong>決定タイミング:</strong> Phase 2以降のHTML成果物が増えた時点。<br>
+    <strong>暫定扱い:</strong> Unknown。Pass扱いしない。</p>
+  </section>
+
+  <h2 id="review">7. レビュー履歴</h2>
+  <table>
+    <thead><tr><th>日時</th><th>レビュアー完全名</th><th>観点</th><th>結果</th></tr></thead>
+    <tbody>
+      <tr><td>2026-08-02</td><td><code>AutoTradePhase1_A12_ConsistencyReviewer_v0_1</code></td><td>RC-02, RC-03</td><td>Pass。テンプレートとインデックスが、後続設計書で再利用できる構造であることを確認。</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="related">8. 関連文書リンク</h2>
+  <section class="related">
+    <p><a href="./00_HTML設計書テンプレート.html">00_HTML設計書テンプレート.html</a><br>
+    <a href="./00_レビュー観点チェックリスト.html">00_レビュー観点チェックリスト.html</a><br>
+    <a href="../../index.html">doc/index.html</a></p>
+  </section>
+
+  <h2 id="handoff">9. 後続Phase引き継ぎ</h2>
+  <section class="handoff">
+    <p>P1-03以降の各設計書は、本ガイドに従って作成する。新しいHTMLを追加したステップでは、同時に `doc/index.html` のリンク一覧も更新する。</p>
+  </section>
+</body>
+</html>

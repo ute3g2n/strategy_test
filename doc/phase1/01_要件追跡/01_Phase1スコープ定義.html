@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 1 スコープ定義</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px; max-width: 1180px; color: #1f2937; }
+    h1, h2, h3 { color: #111827; line-height: 1.35; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin-top: 32px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 10px; vertical-align: top; }
+    th { background: #f3f4f6; }
+    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+    .meta, .decision, .unknown, .handoff { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .unknown { border-left-color: #d97706; background: #fffbeb; }
+    .handoff { border-left-color: #059669; background: #ecfdf5; }
+  </style>
+</head>
+<body>
+  <h1>Phase 1 スコープ定義</h1>
+
+  <section class="meta">
+    <p><strong>作成日:</strong> 2026-08-02<br>
+    <strong>文書状態:</strong> v0.1 初版<br>
+    <strong>成果物ID:</strong> D02-SCOPE<br>
+    <strong>担当サブエージェント完全名:</strong> <code>AutoTradePhase1_A01_RequirementsCurator_v0_1</code><br>
+    <strong>使用Skill完全名:</strong> <code>autotrade_phase1_skill_source_reader_v0_1</code>, <code>autotrade_phase1_skill_traceability_v0_1</code>, <code>autotrade_phase1_skill_html_doc_writer_v0_1</code></p>
+  </section>
+
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#summary">概要</a></li>
+    <li><a href="#inputs">入力</a></li>
+    <li><a href="#scope">対象と非対象</a></li>
+    <li><a href="#requirements">要件追跡</a></li>
+    <li><a href="#decisions">設計判断</a></li>
+    <li><a href="#unknowns">未確定事項</a></li>
+    <li><a href="#review">レビュー履歴</a></li>
+    <li><a href="#handoff">後続Phase引き継ぎ</a></li>
+  </ol>
+
+  <h2 id="summary">1. 概要</h2>
+  <p>Phase 1では、全体アーキテクチャ、ドメイン分割、責務境界、共通実行モデル、品質Gate、非機能要件を凍結する。一方で、実APIの全パラメータ、Databento取得ジョブ詳細、Backtest Engineの全クラス、注文例外パターン、Live運用Runbook全文などは固定せず、詳細設計バックログへ送る。</p>
+
+  <h2 id="inputs">2. 入力</h2>
+  <ul>
+    <li><code>plan/自動トレードシステム_要件定義書.md</code></li>
+    <li><code>plan/Phase分割と設計書整備方針_v0.1_2026-08-02.md</code></li>
+    <li><code>doc/phase1/00_実行基盤/00_Phase1オーケストレータ仕様.html</code></li>
+    <li><code>doc/phase1/00_実行基盤/00_サブエージェント定義.html</code></li>
+    <li><code>doc/phase1/00_実行基盤/00_Skill定義.html</code></li>
+  </ul>
+
+  <h2 id="scope">3. 対象と非対象</h2>
+  <table>
+    <thead><tr><th>区分</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>対象</td><td>全体アーキテクチャ、ドメイン分割、モジュール責務、データフロー、Strategy差し替え方式、Broker / Market Data Adapter境界、Backtest / Shadow / Paper / Live 共通実行モデル、Risk / Account / OMS責務境界、設定 / Secrets / 環境分離、監査証跡、メトリクス、アラート、安全停止、テスト戦略、Phase 2以降の詳細設計バックログ。</td></tr>
+      <tr><td>非対象</td><td>IBKR API全エンドポイント実装詳細、Databentoジョブ仕様、Backtest Engine全クラス設計、注文状態遷移の全例外、Live運用Runbook全文、UI / Dashboard細部、実資金運用パラメータ最終値。</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="requirements">4. 要件追跡</h2>
+  <table>
+    <thead><tr><th>分類</th><th>追跡ID</th><th>概要</th><th>Phase 1扱い</th><th>主担当成果物</th></tr></thead>
+    <tbody>
+      <tr><td>目的</td><td>REQ-OBJ-01</td><td>要件定義の目的 1-7 を設計入力へ変換する。</td><td>固定</td><td>D02, D03, D04, D06-D18</td></tr>
+      <tr><td>確定要件</td><td>REQ-Q-SET</td><td>Q1-Q30 のうち確定・参考基準の項目を設計境界へ割り付ける。</td><td>固定</td><td>D02, D03, D06-D18</td></tr>
+      <tr><td>未確定要件</td><td>REQ-Q-UNK</td><td>Q2, Q16, Q19, Q21 を Unknown として台帳化する。</td><td>Unknown管理</td><td>D02, D19</td></tr>
+      <tr><td>ゲート</td><td>REQ-OD-01</td><td>OD-01-08 の決定タイミングを追跡する。</td><td>固定</td><td>D02, D19, D20</td></tr>
+      <tr><td>Phase方針</td><td>REQ-POL-01</td><td>Phase 1で決めるもの / 決めないもの / 実装順序 / 失敗回避を明文化する。</td><td>固定</td><td>D02, D03-D20</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="decisions">5. 設計判断</h2>
+  <section class="decision">
+    <p><strong>設計判断ID:</strong> DEC-P1-01<br>
+    <strong>判断:</strong> Phase 1は「後続Phaseの憲法」を作る段階として扱い、責務境界、インターフェース、品質基準、非機能要件を固定し、実装詳細は詳細設計バックログへ送る。<br>
+    <strong>根拠:</strong> <code>plan/Phase分割と設計書整備方針_v0.1_2026-08-02.md</code> の 1, 4, 5 節と、要件定義書の Phase 1ロードマップ。<br>
+    <strong>影響:</strong> P1-03以降の各設計書は、境界と判断条件を主対象とし、実装クラスやAPI細部を固定しない。</p>
+  </section>
+
+  <h2 id="unknowns">6. 未確定事項</h2>
+  <section class="unknown">
+    <p><strong>未確定事項ID:</strong> UNK-P1-SCOPE-01<br>
+    <strong>内容:</strong> 取引エンジン最終決定、対象アセット最終確定、1N Live採用値、ロール規則、東京クラウド形式、Push通知サービス、Paper / Live最小運用日数しきい値。<br>
+    <strong>決定タイミング:</strong> Phase 0, Phase 1 PoC, Phase 2, Paper前, Shadow前, 移行判定前。<br>
+    <strong>暫定扱い:</strong> Unknown。Pass扱いしない。</p>
+  </section>
+
+  <h2 id="review">7. レビュー履歴</h2>
+  <table>
+    <thead><tr><th>日時</th><th>レビュアー完全名</th><th>観点</th><th>結果</th></tr></thead>
+    <tbody>
+      <tr><td>2026-08-02</td><td><code>AutoTradePhase1_A12_ConsistencyReviewer_v0_1</code></td><td>RC-02, RC-03, RC-04, RC-10, RC-11</td><td>Pass。Phase 1対象 / 非対象の分離、Unknown台帳化、詳細化境界の明示を確認。</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="handoff">8. 後続Phase引き継ぎ</h2>
+  <section class="handoff">
+    <p>P1-03以降は、本書をスコープ境界の正本として参照する。P1-11では、本書の「非対象」項目を詳細設計バックログへ必ず再掲する。</p>
+  </section>
+</body>
+</html>

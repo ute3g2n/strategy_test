@@ -3,9 +3,34 @@
   "research_only": true,
   "status": "completed",
   "dataset": "GLBX.MDP3",
-  "start": "2026-07-01",
+  "start": "2025-02-24",
   "end": "2026-08-01",
   "outputs": [
+    {
+      "symbol": "MCL",
+      "schema": "definition",
+      "path": "research\\asset_selection\\10_頑健性バックテスト\\研究用ハーネス\\data\\databento_protocol_metadata\\definition\\MCL_definition.csv"
+    },
+    {
+      "symbol": "MZC",
+      "schema": "definition",
+      "path": "research\\asset_selection\\10_頑健性バックテスト\\研究用ハーネス\\data\\databento_protocol_metadata\\definition\\MZC_definition.csv"
+    },
+    {
+      "symbol": "MZS",
+      "schema": "definition",
+      "path": "research\\asset_selection\\10_頑健性バックテスト\\研究用ハーネス\\data\\databento_protocol_metadata\\definition\\MZS_definition.csv"
+    },
+    {
+      "symbol": "MZW",
+      "schema": "definition",
+      "path": "research\\asset_selection\\10_頑健性バックテスト\\研究用ハーネス\\data\\databento_protocol_metadata\\definition\\MZW_definition.csv"
+    },
+    {
+      "symbol": "M6A",
+      "schema": "definition",
+      "path": "research\\asset_selection\\10_頑健性バックテスト\\研究用ハーネス\\data\\databento_protocol_metadata\\definition\\M6A_definition.csv"
+    },
     {
       "symbol": "MCL",
       "schema": "statistics",

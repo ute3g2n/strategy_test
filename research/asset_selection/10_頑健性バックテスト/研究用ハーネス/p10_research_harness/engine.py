@@ -77,8 +77,9 @@ def run_backtest(symbol: str, bars: list[DailyBar], experiment: Experiment) -> B
 
 
 def _parse_periods(experiment: Experiment) -> tuple[int, int]:
-    if "System 1" in experiment.experiment_name:
+    label = f"{experiment.experiment_name} {experiment.strategy_family}"
+    if "System 1" in label or "System1" in label:
         return 20, 10
-    if "System 2" in experiment.experiment_name:
+    if "System 2" in label or "System2" in label:
         return 55, 20
     return 20, 10

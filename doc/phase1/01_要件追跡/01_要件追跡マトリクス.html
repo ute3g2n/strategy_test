@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>要件追跡マトリクス</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px; max-width: 1400px; color: #1f2937; }
+    h1, h2, h3 { color: #111827; line-height: 1.35; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin-top: 32px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 13px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 9px; vertical-align: top; }
+    th { background: #f3f4f6; position: sticky; top: 0; }
+    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+    .meta, .decision, .unknown, .handoff { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .unknown { border-left-color: #d97706; background: #fffbeb; }
+    .handoff { border-left-color: #059669; background: #ecfdf5; }
+  </style>
+</head>
+<body>
+  <h1>要件追跡マトリクス</h1>
+
+  <section class="meta">
+    <p><strong>作成日:</strong> 2026-08-02<br>
+    <strong>文書状態:</strong> v0.1 初版<br>
+    <strong>成果物ID:</strong> D02<br>
+    <strong>担当サブエージェント完全名:</strong> <code>AutoTradePhase1_A01_RequirementsCurator_v0_1</code><br>
+    <strong>使用Skill完全名:</strong> <code>autotrade_phase1_skill_source_reader_v0_1</code>, <code>autotrade_phase1_skill_traceability_v0_1</code>, <code>autotrade_phase1_skill_html_doc_writer_v0_1</code></p>
+  </section>
+
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#summary">概要</a></li>
+    <li><a href="#inputs">入力</a></li>
+    <li><a href="#scope">対象と非対象</a></li>
+    <li><a href="#requirements">要件追跡</a></li>
+    <li><a href="#decisions">設計判断</a></li>
+    <li><a href="#unknowns">未確定事項</a></li>
+    <li><a href="#review">レビュー履歴</a></li>
+    <li><a href="#handoff">後続Phase引き継ぎ</a></li>
+  </ol>
+
+  <h2 id="summary">1. 概要</h2>
+  <p>Q1-Q30、OD-01-08、Phase方針を一意の追跡IDへ変換し、Phase 1成果物 D01-D20 のどこで扱うか、Phase 1で固定するか、詳細設計へ送るかを定義する。後続の全設計書は本マトリクスを正本参照とする。</p>
+
+  <h2 id="inputs">2. 入力</h2>
+  <ul>
+    <li><code>plan/自動トレードシステム_要件定義書.md</code></li>
+    <li><code>plan/Phase分割と設計書整備方針_v0.1_2026-08-02.md</code></li>
+  </ul>
+
+  <h2 id="scope">3. 対象と非対象</h2>
+  <table>
+    <thead><tr><th>区分</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>対象</td><td>Q1-Q30、OD-01-08、Phase 1で整備する全体設計方針、Phase 1で決めるもの / 決めないもの、実装順序の基本方針、避けたい失敗。</td></tr>
+      <tr><td>非対象</td><td>Phase 2以降の詳細設計書本文、PoC結果そのもの、未実施の資産調査結果そのもの。</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="requirements">4. 要件追跡</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>追跡ID</th>
+        <th>原要求ID</th>
+        <th>要件概要</th>
+        <th>状態</th>
+        <th>Phase 1扱い</th>
+        <th>主担当成果物</th>
+        <th>後続詳細化先</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>REQ-Q01</td><td>Q1</td><td>原典版と現代版を並行比較</td><td>確定</td><td>固定</td><td>D08, D09, D11, D18</td><td>Phase 3 比較候補実装</td></tr>
+      <tr><td>REQ-Q02</td><td>Q2</td><td>対象アセットは別途調査で決定</td><td>未確定</td><td>Unknown管理</td><td>D02, D19</td><td>Phase 0 / OD-01</td></tr>
+      <tr><td>REQ-Q03</td><td>Q3</td><td>初期 3-5 市場、安定後に 20-40 市場</td><td>確定</td><td>固定</td><td>D03, D11, D14</td><td>Phase 6-8 運用拡大</td></tr>
+      <tr><td>REQ-Q04</td><td>Q4</td><td>ロング・ショート両方向</td><td>確定</td><td>固定</td><td>D06, D08, D18</td><td>Phase 3 実装</td></tr>
+      <tr><td>REQ-Q05</td><td>Q5</td><td>Live 初期資金は 100万円未満</td><td>確定</td><td>固定</td><td>D13, D14, D17</td><td>Paper前 / Live前精緻化</td></tr>
+      <tr><td>REQ-Q06</td><td>Q6</td><td>初期月額費用 1万円未満、段階拡大</td><td>確定</td><td>固定</td><td>D12, D14, D19</td><td>Phase 5-6 予算見直し</td></tr>
+      <tr><td>REQ-Q07</td><td>Q7</td><td>IBKR を第一候補</td><td>確定</td><td>固定</td><td>D10, D12</td><td>Phase 4 詳細設計</td></tr>
+      <tr><td>REQ-Q08</td><td>Q8</td><td>最大ドローダウン目標 15%</td><td>確定</td><td>固定</td><td>D13, D17, D18</td><td>Phase 5 実装詳細</td></tr>
+      <tr><td>REQ-Q09</td><td>Q9</td><td>原典基準として 1N リスク 1% を保持</td><td>確定</td><td>固定</td><td>D08, D09, D13</td><td>OD-04 / Paper前</td></tr>
+      <tr><td>REQ-Q10</td><td>Q10</td><td>年率ボラ目標 10%</td><td>参考基準</td><td>固定</td><td>D13, D18</td><td>OD-05 / Risk設計時</td></tr>
+      <tr><td>REQ-Q11</td><td>Q11</td><td>戦略比較は段階的に拡大</td><td>確定</td><td>固定</td><td>D08, D09, D19</td><td>Phase 3 実装</td></tr>
+      <tr><td>REQ-Q12</td><td>Q12</td><td>System 1 勝ちブレイクフィルターは比較対象</td><td>確定</td><td>固定</td><td>D08, D09, D18</td><td>Phase 3 実装</td></tr>
+      <tr><td>REQ-Q13</td><td>Q13</td><td>原典版は intraday、現代版は終値確認も比較</td><td>確定</td><td>固定</td><td>D08, D09, D11</td><td>Phase 3 実装</td></tr>
+      <tr><td>REQ-Q14</td><td>Q14</td><td>ピラミッディングは複数方式を比較</td><td>確定</td><td>固定</td><td>D08, D09, D18</td><td>Phase 3 実装</td></tr>
+      <tr><td>REQ-Q15</td><td>Q15</td><td>2N、Whipsaw、ボラ急上昇時縮小版を比較</td><td>確定</td><td>固定</td><td>D08, D09, D18</td><td>Phase 3 実装</td></tr>
+      <tr><td>REQ-Q16</td><td>Q16</td><td>Unit リスクは契約粒度と DD 試験後に最終決定</td><td>未確定</td><td>Unknown管理</td><td>D02, D13, D19</td><td>Paper前 / OD-04</td></tr>
+      <tr><td>REQ-Q17</td><td>Q17</td><td>戦略は入出金を除く全口座管理を担当</td><td>確定</td><td>要境界明確化</td><td>D06, D08, D13</td><td>Phase 5 詳細化</td></tr>
+      <tr><td>REQ-Q18</td><td>Q18</td><td>原典 4/6/10/12 Unit 上限を採用</td><td>確定</td><td>固定</td><td>D08, D09, D13</td><td>Phase 3-5 実装</td></tr>
+      <tr><td>REQ-Q19</td><td>Q19</td><td>限月選択とロール規則は資産調査後に決定</td><td>未確定</td><td>Unknown管理</td><td>D02, D10, D19</td><td>Phase 2 / OD-03</td></tr>
+      <tr><td>REQ-Q20</td><td>Q20</td><td>初期 3-5 市場は全期間 1分足</td><td>確定</td><td>固定</td><td>D10, D11, D14</td><td>Phase 2 詳細設計</td></tr>
+      <tr><td>REQ-Q21</td><td>Q21</td><td>取引エンジンは PoC で決定</td><td>未確定</td><td>Unknown管理</td><td>D02, D12, D20</td><td>Phase 1 PoC / OD-02</td></tr>
+      <tr><td>REQ-Q22</td><td>Q22</td><td>Shadow / Paper / Live は東京クラウド VM</td><td>確定</td><td>固定</td><td>D11, D14, D15</td><td>OD-06 / Shadow前</td></tr>
+      <tr><td>REQ-Q23</td><td>Q23</td><td>設定は戦略別 YAML、共通設定と分離</td><td>確定</td><td>固定</td><td>D08, D15</td><td>Phase 2-4 詳細化</td></tr>
+      <tr><td>REQ-Q24</td><td>Q24</td><td>Shadow → Paper → 少額Live の順に移行</td><td>確定</td><td>固定</td><td>D11, D17, D18</td><td>Phase 6-8 運用</td></tr>
+      <tr><td>REQ-Q25</td><td>Q25</td><td>監視は新規注文、接続断、停止系を重視</td><td>確定</td><td>固定</td><td>D14, D16, D17</td><td>Phase 6-7 詳細化</td></tr>
+      <tr><td>REQ-Q26</td><td>Q26</td><td>Bot 実行中の異常監視と強制停止手段が必要</td><td>確定</td><td>固定</td><td>D16, D17</td><td>Phase 6-7 詳細化</td></tr>
+      <tr><td>REQ-Q27</td><td>Q27</td><td>Push 通知と Heartbeat 監視を実施</td><td>確定</td><td>固定</td><td>D16, D17</td><td>OD-07 / Shadow前</td></tr>
+      <tr><td>REQ-Q28</td><td>Q28</td><td>Secret Manager を使う</td><td>確定</td><td>固定</td><td>D15, D17</td><td>Phase 5 詳細化</td></tr>
+      <tr><td>REQ-Q29</td><td>Q29</td><td>テストは証券会社バックテストに依存しない</td><td>確定</td><td>固定</td><td>D11, D18</td><td>Phase 3 実装</td></tr>
+      <tr><td>REQ-Q30</td><td>Q30</td><td>本番移行前に最終チェックリストを通す</td><td>確定</td><td>固定</td><td>D18, D20</td><td>Phase 7 移行判定</td></tr>
+      <tr><td>REQ-OD01</td><td>OD-01</td><td>対象アセットと初期 3-5 市場</td><td>未確定事項ゲート</td><td>Unknown管理</td><td>D02, D19, D20</td><td>Phase 0</td></tr>
+      <tr><td>REQ-OD02</td><td>OD-02</td><td>取引エンジン最終決定</td><td>未確定事項ゲート</td><td>Unknown管理</td><td>D12, D20</td><td>Phase 1</td></tr>
+      <tr><td>REQ-OD03</td><td>OD-03</td><td>ロール規則と continuous signal 方式</td><td>未確定事項ゲート</td><td>Unknown管理</td><td>D10, D19, D20</td><td>Phase 2</td></tr>
+      <tr><td>REQ-OD04</td><td>OD-04</td><td>1N リスクの Live 採用値</td><td>未確定事項ゲート</td><td>Unknown管理</td><td>D13, D19, D20</td><td>Paper前</td></tr>
+      <tr><td>REQ-OD05</td><td>OD-05</td><td>年率 10% ボラ目標を強制制御へ入れるか</td><td>未確定事項ゲート</td><td>Unknown管理</td><td>D13, D19, D20</td><td>Risk設計時</td></tr>
+      <tr><td>REQ-OD06</td><td>OD-06</td><td>東京クラウドの OS / VM 形式</td><td>未確定事項ゲート</td><td>Unknown管理</td><td>D15, D19, D20</td><td>Shadow前</td></tr>
+      <tr><td>REQ-OD07</td><td>OD-07</td><td>Push 通知サービス</td><td>未確定事項ゲート</td><td>Unknown管理</td><td>D16, D19</td><td>Shadow前</td></tr>
+      <tr><td>REQ-OD08</td><td>OD-08</td><td>Paper / Live の最小運用日数しきい値</td><td>未確定事項ゲート</td><td>Unknown管理</td><td>D18, D20</td><td>移行判定前</td></tr>
+      <tr><td>REQ-POL01</td><td>方針 1</td><td>Phase 1で全体アーキテクチャ、ドメイン分割、品質基準、非機能要件、主要インターフェースを凍結</td><td>確定</td><td>固定</td><td>D03-D18</td><td>なし</td></tr>
+      <tr><td>REQ-POL02</td><td>方針 2</td><td>詳細設計と実装はPhaseごとに分割</td><td>確定</td><td>固定</td><td>D19, D20</td><td>Phase 2-8</td></tr>
+      <tr><td>REQ-POL03</td><td>方針 4</td><td>IBKR API全エンドポイント、Databento全ジョブ、Backtest Engine全クラス、注文例外、Live Runbook、UI細部はPhase 1で固定しない</td><td>確定</td><td>詳細化抑制</td><td>D02, D19</td><td>Phase 2-7</td></tr>
+      <tr><td>REQ-POL04</td><td>方針 5</td><td>研究コードと本番コードの境界、Strategy差し替え、共通ドメイン、Adapter境界、責務分離、監査、Secrets、安全停止はPhase 1で必ず決める</td><td>確定</td><td>固定</td><td>D03-D18</td><td>なし</td></tr>
+      <tr><td>REQ-POL05</td><td>方針 6</td><td>実装順序は Backtest基盤 → Data → Strategy → Paper Adapter → Risk / Account → 監視 → Live最小構成</td><td>確定</td><td>固定</td><td>D19, D20</td><td>Phase 2-8</td></tr>
+      <tr><td>REQ-POL06</td><td>方針 7</td><td>避けたい失敗群をレビュー観点へ反映</td><td>確定</td><td>固定</td><td>D18, D20</td><td>Phase 2-8 継続監視</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="decisions">5. 設計判断</h2>
+  <section class="decision">
+    <p><strong>設計判断ID:</strong> DEC-P1-02<br>
+    <strong>判断:</strong> Q系要件は <code>REQ-Qxx</code>、未確定事項ゲートは <code>REQ-ODxx</code>、Phase方針は <code>REQ-POLxx</code> として一意ID化する。<br>
+    <strong>根拠:</strong> P1-03以降の設計書が同じ追跡体系を使う必要があるため。<br>
+    <strong>影響:</strong> 後続成果物は本ID体系を必須参照とし、独自の別体系を新設しない。</p>
+  </section>
+
+  <h2 id="unknowns">6. 未確定事項</h2>
+  <section class="unknown">
+    <p><strong>未確定事項ID:</strong> UNK-P1-MATRIX-01<br>
+    <strong>内容:</strong> REQ-Q02, REQ-Q16, REQ-Q19, REQ-Q21, REQ-OD01-08 は確定扱いできない。<br>
+    <strong>決定タイミング:</strong> 各行の後続詳細化先に従う。<br>
+    <strong>暫定扱い:</strong> Unknown。Pass扱いしない。</p>
+  </section>
+
+  <h2 id="review">7. レビュー履歴</h2>
+  <table>
+    <thead><tr><th>日時</th><th>レビュアー完全名</th><th>観点</th><th>結果</th></tr></thead>
+    <tbody>
+      <tr><td>2026-08-02</td><td><code>AutoTradePhase1_A12_ConsistencyReviewer_v0_1</code></td><td>RC-03, RC-04, RC-10</td><td>Pass。Q1-Q30、OD-01-08、Phase方針の追跡ID重複なし。Phase 1対象と詳細化先の分離を確認。</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="handoff">8. 後続Phase引き継ぎ</h2>
+  <section class="handoff">
+    <p>D03以降の全設計書は、本マトリクスの追跡IDを参照する。P1-12統合レビューでは、本マトリクスに未対応の Phase 1必須項目がないことを完了条件に使う。</p>
+  </section>
+</body>
+</html>

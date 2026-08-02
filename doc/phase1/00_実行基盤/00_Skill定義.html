@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Phase 1 Skill定義</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px; color: #1f2937; }
+    h1, h2 { color: #111827; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 10px; vertical-align: top; }
+    th { background: #f3f4f6; }
+    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Phase 1 Skill定義</h1>
+  <p><strong>作成日:</strong> 2026-08-02<br>
+  <strong>文書状態:</strong> v0.1 初版<br>
+  <strong>発火制御:</strong> 下表の完全名以外のSkillを使用しない。</p>
+
+  <h2>1. Skill一覧</h2>
+  <table>
+    <thead><tr><th>Skill完全名</th><th>目的</th><th>主な規約</th></tr></thead>
+    <tbody>
+      <tr><td><code>autotrade_phase1_skill_orchestration_v0_1</code></td><td>ステップDAG、並列化、成果物依存、Gate管理</td><td>依存未充足時は停止。Human Gate前進行は禁止。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_source_reader_v0_1</code></td><td>参照元読み取り</td><td>要件定義書とPhase方針を優先。引用ではなく要約と追跡IDで扱う。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_traceability_v0_1</code></td><td>追跡性管理</td><td>要件ID、設計判断ID、未確定事項ID、成果物IDを必ず付与する。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_official_research_v0_1</code></td><td>外部仕様調査</td><td>公式一次情報を優先し、URL、取得日、確認対象を残す。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_html_doc_writer_v0_1</code></td><td>HTML設計書作成</td><td>単体で読めるHTML、内蔵CSS、目次、表、相互リンクを作る。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_architecture_writer_v0_1</code></td><td>全体構成設計</td><td>モジュラーモノリス、イベント駆動、アダプター方式の責務を明確化する。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_domain_modeling_v0_1</code></td><td>ドメインモデル設計</td><td>Entity、Value Object、Event、Command、State、ID、Timeを分離する。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_strategy_design_v0_1</code></td><td>Strategy設計</td><td>Strategy Pluginの責務と非責務を明確化し、基盤との密結合を避ける。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_golden_test_v0_1</code></td><td>Golden test設計</td><td>N、Donchian、Unit、Stop、Pyramiding等の固定入力と期待出力を定義する。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_adapter_boundary_v0_1</code></td><td>Adapter境界設計</td><td>Broker / Market Data依存を内部モデルから切り離す。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_execution_model_v0_1</code></td><td>共通実行モデル設計</td><td>Backtest、Shadow、Paper、Liveで共通化するイベント処理を定義する。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_poc_design_v0_1</code></td><td>取引エンジンPoC設計</td><td>評価軸、採点、検証シナリオ、Human Gateを固定する。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_risk_account_design_v0_1</code></td><td>Risk / Account責務分離</td><td>Strategy、Portfolio、Risk、Account、OMSの責務混線を避ける。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_ops_security_v0_1</code></td><td>運用・セキュリティ設計</td><td>Secrets、監視、通知、Fail-closed、安全停止を最初から設計へ含める。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_test_strategy_v0_1</code></td><td>テスト戦略設計</td><td>Golden test、Integration、Replay、Failure injection、Gateを定義する。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_design_reviewer_v0_1</code></td><td>整合性レビュー</td><td>用語、ID、責務、追跡性、Phase範囲を確認する。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_red_team_review_v0_1</code></td><td>レッドチーム監査</td><td>事故、安全性、Unknown、過剰固定、危険な先送りを批判的に確認する。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_revision_integrator_v0_1</code></td><td>修正統合</td><td>指摘ごとに採用、部分採用、保留、却下を記録し、最終版へ反映する。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. 詳細設計バックログ送りルール</h2>
+  <ul>
+    <li>実APIの全パラメータや例外パターンは、該当Phaseの詳細設計へ送る。</li>
+    <li>Phase 1では境界、責務、品質基準、判断条件を固定する。</li>
+    <li>後続Phaseへ送る場合は、バックログID、理由、決定タイミング、依存成果物を記録する。</li>
+  </ul>
+</body>
+</html>

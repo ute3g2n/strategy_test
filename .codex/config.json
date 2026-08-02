@@ -5,6 +5,11 @@
       "name": "middle-school-explanation-orchestrator",
       "file": ".codex/orchestrators/middle-school-explanation-orchestrator.json",
       "model": "gpt5.5"
+    },
+    {
+      "name": "AutoTradePhase1_Orchestrator_v0_1",
+      "file": ".codex/orchestrators/AutoTradePhase1_Orchestrator_v0_1.json",
+      "model": "gpt-5.5"
     }
   ],
   "agents_dir": ".codex/agents",
