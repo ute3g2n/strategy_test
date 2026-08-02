@@ -5,13 +5,39 @@
 このリポジトリには、ファイル変更を検知して自動的に `git commit` と
 `git push` を行う監視コマンドがあります。
 
-### 開始方法
+### ワンコマンドで開始
+
+バックグラウンドで監視を開始します。
+
+```bash
+npm run watch-start
+```
+
+すでに監視が動いている場合は、新しい監視プロセスを増やさずに終了します。
+
+### ワンコマンドで終了
+
+バックグラウンドで動いている監視を終了します。
+
+```bash
+npm run watch-stop
+```
+
+### 手動で通常起動する場合
 
 PowerShell または Git Bash で通常起動する場合:
 
 ```bash
 npm run watch-commit
 ```
+
+停止する場合は、起動中のターミナルで次を押します。
+
+```text
+Ctrl+C
+```
+
+### 従来のバックグラウンド起動
 
 PowerShell でバックグラウンド起動する場合:
 
@@ -25,16 +51,9 @@ Git Bash でバックグラウンド起動する場合:
 nohup npm run watch-commit > watch-commit.log 2> watch-commit.err.log &
 ```
 
-### 停止方法
+### 従来のバックグラウンド停止
 
-通常起動している場合は、起動中のターミナルで次を押します。
-
-```text
-Ctrl+C
-```
-
-PowerShell でバックグラウンド起動している場合は、まず関連する `node` と `cmd` の
-プロセス ID を確認します。
+PowerShell でプロセス ID を確認する場合:
 
 ```powershell
 Get-Process node,cmd -ErrorAction SilentlyContinue | Select-Object Id,ProcessName,StartTime
@@ -46,13 +65,7 @@ Get-Process node,cmd -ErrorAction SilentlyContinue | Select-Object Id,ProcessNam
 Stop-Process -Id <PID1>,<PID2>,<PID3>,<PID4>
 ```
 
-例:
-
-```powershell
-Stop-Process -Id 19652,37176,27272,35932
-```
-
-Git Bash でバックグラウンド起動している場合は、プロセス ID を確認します。
+Git Bash でプロセス ID を確認する場合:
 
 ```bash
 ps -ef | grep chokidar
@@ -69,4 +82,4 @@ kill <PID>
 - `.git`、`node_modules`、`.env`、`.env.*`、`*.log` は監視対象外です。
 - 連続変更による過剰なコミットを防ぐため、3秒待ってから実行します。
 - コミットメッセージは `auto: update by Codex [YYYY-MM-DD HH:MM:SS]` 形式です。
-- 実際の処理は `auto-commit.cmd` 経由で `auto-commit.sh` を実行します。
+- 実際のコミット処理は `auto-commit.cmd` 経由で `auto-commit.sh` を実行します。
