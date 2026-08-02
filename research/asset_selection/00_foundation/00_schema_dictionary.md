@@ -96,6 +96,87 @@ verified_by_role
 verification_notes
 ```
 
+## Gate Result Schema
+
+```text
+gate_run_id
+candidate_id
+gate_id
+gate_name
+gate_status
+gate_reason
+required_evidence_ids
+blocking_unknowns
+capital_scenario_jpy
+calculation_version
+checked_at
+checked_by_role
+review_notes
+```
+
+## Score Schema
+
+```text
+score_run_id
+candidate_id
+scorecard_version
+execution_liquidity_score
+capital_fit_score
+access_operations_score
+data_quality_cost_score
+diversification_score
+trend_robustness_score
+base_score
+evidence_factor
+operational_penalty
+final_score
+confidence
+score_reason
+metric_refs
+evidence_ids
+scored_at
+scored_by_role
+```
+
+## Prompt Run Log Schema
+
+```text
+run_id
+step_id
+role
+prompt_version
+prompt_text_path
+input_files
+output_files
+model_or_agent
+started_at
+finished_at
+status
+errors
+assumptions
+human_gate_required
+rerun_reason
+parent_run_id
+notes
+```
+
+## Human Approval Log Schema
+
+```text
+approval_id
+human_gate_id
+gate_name
+input_files
+decision
+decision_at
+approver
+approved_scope
+rejected_reasons
+conditions
+next_allowed_step
+notes
+```
+
 ## Gate Status
 
 | 値 | 意味 |
@@ -124,6 +205,16 @@ verification_notes
 | `major_conflict` | 判断結果が変わる可能性あり |
 | `unresolved` | 未解決 |
 
+## Unknown / Pending / Conflict Rule
+
+| 状態 | 扱い |
+|---|---|
+| `Unknown` | Critical項目ではGate通過不可。推定でPassにしない |
+| `pending_evidence` | 追加調査対象。担当Role、必要Source、期限を記録する |
+| `minor_conflict` | 判断影響が軽微な矛盾。理由を記録して条件付きで継続可能 |
+| `major_conflict` | 判断結果が変わる可能性がある矛盾。Critical項目なら保留 |
+| `unresolved` | 未解決。Critical項目なら後続Gateへ進めない |
+
 ## Selection Status
 
 | 値 | 意味 |
@@ -135,3 +226,13 @@ verification_notes
 | `excluded` | 除外 |
 | `pending` | 判断保留 |
 
+## Human Gate
+
+| Gate | 承認対象 | 未承認時に禁止する作業 |
+|---|---|---|
+| `H0` | Scope、Hard Gate、Scorecard、Bias対策 | Web Longlist調査 |
+| `H1` | Longlist coverage、重複、Source方針 | 詳細Evidence検証 |
+| `H2` | Hard Gate除外、Capital threshold、Data予算 | Data購入、詳細Data取得 |
+| `H3` | Backtest Protocol、Holdout、試行回数 | 頑健性Backtest |
+| `H4` | 30～50件、監査Finding、例外 | 最終選定凍結 |
+| `H5` | 初期3～5件、費用、未解決事項 | 実装・Paper準備 |
