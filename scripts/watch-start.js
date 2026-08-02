@@ -13,7 +13,7 @@ function hasWatcher() {
       [
         "-NoProfile",
         "-Command",
-        "Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*chokidar*' -and $_.CommandLine -like '*strategy_test*' } | Select-Object -First 1 -ExpandProperty ProcessId",
+        "Get-CimInstance Win32_Process | Where-Object { ($_.Name -eq 'node.exe' -or $_.Name -eq 'cmd.exe') -and $_.CommandLine -like '*chokidar*' -and $_.CommandLine -like '*strategy_test*' } | Select-Object -First 1 -ExpandProperty ProcessId",
       ],
       { encoding: "utf8" },
     );

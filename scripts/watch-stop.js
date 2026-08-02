@@ -3,7 +3,8 @@ const { execFileSync } = require("node:child_process");
 const command = [
   "$processes = Get-CimInstance Win32_Process |",
   "Where-Object {",
-  "  ($_.CommandLine -like '*chokidar*' -or $_.CommandLine -like '*watch-commit*')",
+  "  ($_.Name -eq 'node.exe' -or $_.Name -eq 'cmd.exe')",
+  "  -and ($_.CommandLine -like '*chokidar*' -or $_.CommandLine -like '*watch-commit*')",
   "  -and $_.CommandLine -like '*strategy_test*'",
   "};",
   "if (-not $processes) { Write-Output 'watch-commit is not running.'; exit 0 }",
