@@ -77,6 +77,10 @@ function renderMarkdown(md) {
         i += 1;
       }
       i += 1;
+      if (lang === "mermaid") {
+        out.push(`<div class="mermaid">${escapeHtml(code.join("\n"))}</div>`);
+        continue;
+      }
       out.push(
         `<pre><code${lang ? ` class="language-${escapeHtml(lang)}"` : ""}>${escapeHtml(
           code.join("\n")
@@ -206,6 +210,7 @@ function main() {
     a { color: #1d4ed8; text-decoration: none; }
     a:hover { text-decoration: underline; }
     .meta { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .mermaid { background: #fff; border: 1px solid #d1d5db; padding: 16px; margin: 20px 0; overflow-x: auto; }
     .toc ul { list-style: none; padding-left: 0; }
     .toc li { margin: 6px 0; }
     .toc .lvl-2 { padding-left: 12px; }
@@ -223,6 +228,8 @@ function main() {
   ${renderToc(rendered.toc)}
   ${rendered.html}
 </main>
+<script src="../assets/mermaid.min.js"></script>
+<script src="../assets/mermaid-init.js"></script>
 </body>
 </html>
 `;
