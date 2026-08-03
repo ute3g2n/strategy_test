@@ -1,0 +1,62 @@
+{
+  "name": "AutoTradePhasePlanning_Orchestrator_v0_1",
+  "display_name": "Auto Trade Phase Planning Orchestrator v0.1",
+  "model": "gpt-5.5",
+  "purpose": "Coordinate creation of phase execution plans before each project phase starts.",
+  "global_constraints": {
+    "language": "ja",
+    "phase_execution_plan_required_before_each_phase": true,
+    "execution_plan_must_have_multiple_steps": true,
+    "each_step_prompt_must_be_directly_runnable": true,
+    "must_name_orchestrator_agents_skills_explicitly": true,
+    "formal_design_outputs_must_be_html": true,
+    "html_outputs_must_be_under_doc": true,
+    "plans_and_logs_must_be_under_plan": true,
+    "doc_index_must_be_updated": true,
+    "unknown_must_not_pass": true,
+    "do_not_change_default_orchestrator": true
+  },
+  "agents": {
+    "A05": {
+      "file": ".codex/agents/AutoTrade_A05_PhaseExecutionPlanner_v0_1.json",
+      "primary_skill": "autotrade_skill_phase_execution_planning_v0_1"
+    },
+    "A10": {
+      "file": ".codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json",
+      "primary_skill": "autotrade_skill_source_reader_v0_1"
+    },
+    "A80": {
+      "file": ".codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json",
+      "primary_skill": "autotrade_skill_html_doc_writer_v0_1"
+    },
+    "A90": {
+      "file": ".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json",
+      "primary_skill": "autotrade_skill_design_review_v0_1"
+    }
+  },
+  "skills": [
+    "autotrade_skill_phase_execution_planning_v0_1",
+    "autotrade_skill_source_reader_v0_1",
+    "autotrade_skill_traceability_v0_1",
+    "autotrade_skill_orchestration_v0_1",
+    "autotrade_skill_html_doc_writer_v0_1",
+    "autotrade_skill_design_review_v0_1",
+    "autotrade_skill_red_team_review_v0_1",
+    "autotrade_skill_revision_integration_v0_1"
+  ],
+  "workflow_policy": [
+    "Validate that all named components exist.",
+    "Read requirement definition, previous phase outputs, backlog, current component inventory, and project rules.",
+    "Draft the phase execution plan with multiple runnable steps.",
+    "Review the plan for missing dependencies, over/under decomposition, unsafe phase scope, missing Human Gates, and missing doc/index.html rules.",
+    "Revise the plan and write the final Markdown under plan/.",
+    "Write or update HTML guidance/prompt artifacts under doc/ and update doc/index.html."
+  ],
+  "stop_conditions": [
+    "A named component does not exist and the current step is not a creation step.",
+    "The requested phase scope cannot be inferred from available inputs.",
+    "The plan would require treating Unknown as Pass.",
+    "A name collision would require overwriting an existing component.",
+    "Changing default_orchestrator would be required without explicit approval."
+  ]
+}
