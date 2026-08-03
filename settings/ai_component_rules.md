@@ -60,6 +60,13 @@
 - 依頼プロンプトの標準雛形は `doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html` を参照する。
 - 実体更新だけで終わらせず、`doc/ai_foundation/03` から `08`、`doc/index.html`、必要に応じて `AGENTS.md` と `README.md` を同じ変更セットで更新する。
 
+## 設計書セット作成ルール
+
+- Phase内で複数の正式HTML設計書をセットとして作成または更新する場合は、標準として `AutoTradeProject_DesignDocSet_Orchestrator_v0_1`、`AutoTrade_A81_DesignDocSetWriter_v0_1`、`autotrade_skill_design_doc_set_writer_v0_1` を使用する。
+- 単体HTML作成とレビュー反映には `AutoTrade_A80_DocumentIntegrator_v0_1` を使い、設計書セット全体の共通メタ、相互リンク、Unknown、レビュー履歴、`doc/index.html` 導線の整合は `AutoTrade_A81_DesignDocSetWriter_v0_1` が主担当する。
+- 技術領域の設計判断は、Adapter、Architecture、Execution、QAなどの領域Agentが担当し、A81は承認済み内容の文書セット統合を担当する。
+- 正式HTML成果物は `doc/index.html` から到達できるようにし、UnknownをPassにせず、レビュー指摘の採否を記録する。
+
 ## 安全ルール
 
 - 投資助言、売買推奨、特定商品の推奨をしない。
