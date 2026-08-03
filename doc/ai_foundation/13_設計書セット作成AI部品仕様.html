@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>13 設計書セット作成AI部品仕様</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px auto; max-width: 1280px; color: #1f2937; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin-top: 32px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 10px; vertical-align: top; }
+    th { background: #f3f4f6; }
+    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+    pre { background: #111827; color: #f9fafb; padding: 16px; overflow-x: auto; }
+    .meta { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .ok { color: #047857; font-weight: 700; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>13 設計書セット作成AI部品仕様</h1>
+  <section class="meta">
+    <p><strong>文書ID:</strong> AF-D13<br>
+    <strong>作成日:</strong> 2026-08-04<br>
+    <strong>文書状態:</strong> v0.1 / 設計書セット作成AI部品 反映済み<br>
+    <strong>対象:</strong> <code>autotrade_skill_design_doc_set_writer_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code></p>
+  </section>
+
+  <h2>1. 目的</h2>
+  <p>Phase 2以降では、1つのPhase内で複数の正式HTML設計書を作成する場面が多い。本仕様は、複数HTMLを個別作成で散らさず、設計書セットとして共通メタ情報、相互リンク、追跡ID、Unknown、レビュー履歴、<code>doc/index.html</code> 導線を揃えるためのAI部品を定義する。</p>
+
+  <h2>2. 再利用判断</h2>
+  <table>
+    <thead><tr><th>既存部品</th><th>再利用する責務</th><th>不足した責務</th></tr></thead>
+    <tbody>
+      <tr><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>単体HTML作成、レビュー反映、index更新。</td><td>Phase内の複数設計書をセット単位で整合させる責務が弱い。</td></tr>
+      <tr><td><code>autotrade_skill_html_doc_writer_v0_1</code></td><td>単体HTMLの必須構成と導線維持。</td><td>文書セット全体の共通メタ、相互リンク、成果物ID対応表の統制が不足。</td></tr>
+      <tr><td><code>AutoTradeProject_Orchestrator_v0_1</code></td><td>Phase横断のDAG、Gate、レビュー統合。</td><td>設計書大量作成ステップだけを軽く回す専用Runbookがない。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. 新設部品</h2>
+  <table>
+    <thead><tr><th>区分</th><th>完全名</th><th>責務</th><th>モデル</th></tr></thead>
+    <tbody>
+      <tr><td>Skill</td><td><code>autotrade_skill_design_doc_set_writer_v0_1</code></td><td>複数HTML設計書の共通メタ、相互リンク、Unknown、レビュー履歴、doc/index導線を揃える。</td><td>-</td></tr>
+      <tr><td>Agent</td><td><code>AutoTrade_A81_DesignDocSetWriter_v0_1</code></td><td>Phase内の設計書セットを作成・更新し、追跡性とリンク整合を保つ。</td><td><code>gpt-5.4</code></td></tr>
+      <tr><td>Orchestrator</td><td><code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code></td><td>複数HTML設計書の作成、レビュー、レビュー反映、Human Gate、index更新を統括する。</td><td><code>gpt-5.5</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. 相関図</h2>
+  <pre>AutoTradeProject_DesignDocSet_Orchestrator_v0_1
+  |
+  +-- AutoTrade_A10_RequirementsCurator_v0_1
+  |     +-- autotrade_skill_source_reader_v0_1
+  |     +-- autotrade_skill_traceability_v0_1
+  |
+  +-- AutoTrade_A80_DocumentIntegrator_v0_1
+  |     +-- autotrade_skill_html_doc_writer_v0_1
+  |     +-- autotrade_skill_revision_integration_v0_1
+  |
+  +-- AutoTrade_A81_DesignDocSetWriter_v0_1
+  |     +-- autotrade_skill_design_doc_set_writer_v0_1
+  |     +-- autotrade_skill_source_reader_v0_1
+  |     +-- autotrade_skill_traceability_v0_1
+  |     +-- autotrade_skill_html_doc_writer_v0_1
+  |     +-- autotrade_skill_revision_integration_v0_1
+  |
+  +-- AutoTrade_A90_DesignReviewer_v0_1
+        +-- autotrade_skill_design_review_v0_1
+        +-- autotrade_skill_red_team_review_v0_1
+        +-- autotrade_skill_traceability_v0_1</pre>
+
+  <h2>5. 標準フロー</h2>
+  <pre>1. Validate explicit component names and Phase Runbook
+2. Load document set plan, sources, existing HTML, and doc/index.html
+3. Extract requirements, decisions, Unknowns, and artifact IDs
+4. Draft or update the HTML document set
+5. Run design review and red-team review
+6. Integrate adopted findings with revision records
+7. Update doc/index.html and record Human Gate status</pre>
+
+  <h2>6. 停止条件</h2>
+  <ul>
+    <li>指定AI部品が存在せず、現在ステップが作成ステップでもない。</li>
+    <li>設計書セットの対象範囲を入力から推定できない。</li>
+    <li>正式HTMLが <code>doc/index.html</code> から到達不能になる。</li>
+    <li>UnknownをPass扱いしないと成果物を完了できない。</li>
+    <li>Secret、API key、Account IDをHTMLやログへ出す必要がある。</li>
+    <li><code>default_orchestrator</code> 変更が必要になる。</li>
+  </ul>
+
+  <h2>7. Phase 2への適用方針</h2>
+  <p>Phase 2では、P2-D01からP2-D08、およびP2-D11からP2-D14のような設計・レビュー・完了判定HTML群に適用する。P2-05やP2-07の実装そのものは <code>AutoTradeProject_Orchestrator_v0_1</code> を中心に扱い、設計書セット化が必要なHTML部分だけ本部品で整える。</p>
+
+  <h2>8. レビュー結果</h2>
+  <table>
+    <thead><tr><th>観点</th><th>結果</th><th>反映内容</th></tr></thead>
+    <tbody>
+      <tr><td>作りすぎ</td><td class="ok">Pass</td><td>Phase専用部品ではなく、汎用の1 Skill、1 Agent、1 Orchestratorに限定した。</td></tr>
+      <tr><td>既存部品との重複</td><td class="ok">Pass</td><td>A80は単体HTML統合、A81は設計書セット統制として境界を分けた。</td></tr>
+      <tr><td>発火制御</td><td class="ok">Pass</td><td>完全名指定、未存在時停止、Unknown禁止、default変更禁止を停止条件に含めた。</td></tr>
+      <tr><td>仕様追従</td><td class="ok">Pass</td><td>AF-D03からAF-D08、<code>settings/ai_component_rules.md</code>、<code>.codex/config.json</code>、<code>doc/index.html</code> へ反映する。</td></tr>
+    </tbody>
+  </table>
+</main>
+</body>
+</html>
