@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>タートルズ・トレンドフォロー自動トレードシステム 要件定義書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 40px auto; max-width: 1200px; color: #1f2937; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3, h4 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin-top: 32px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 10px; vertical-align: top; }
+    th { background: #f3f4f6; }
+    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+    pre { background: #111827; color: #f9fafb; padding: 16px; overflow-x: auto; }
+    blockquote { border-left: 4px solid #2563eb; padding: 8px 14px; background: #eff6ff; margin: 16px 0; }
+    a { color: #1d4ed8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .meta { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .toc ul { list-style: none; padding-left: 0; }
+    .toc li { margin: 6px 0; }
+    .toc .lvl-2 { padding-left: 12px; }
+    .toc .lvl-3 { padding-left: 24px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>タートルズ・トレンドフォロー自動トレードシステム 要件定義書</h1>
+  <section class="meta">
+    <p><strong>文書種別:</strong> 要件定義書 HTML化成果物<br>
+    <strong>元ファイル:</strong> <code>plan/自動トレードシステム_要件定義書.md</code><br>
+    <strong>保存先:</strong> <code>doc/requirements/01_自動トレードシステム要件定義書.html</code></p>
+  </section>
+  <nav class="toc"><h2>目次</h2><ul><li class="lvl-1"><a href="#タートルズ-トレンドフォロー自動トレードシステム-要件定義書">タートルズ・トレンドフォロー自動トレードシステム 要件定義書</a></li><li class="lvl-2"><a href="#1-エグゼクティブサマリー">1. エグゼクティブサマリー</a></li><li class="lvl-2"><a href="#2-目的と非目的">2. 目的と非目的</a></li><li class="lvl-3"><a href="#2-1-目的">2.1 目的</a></li><li class="lvl-3"><a href="#2-2-非目的">2.2 非目的</a></li><li class="lvl-2"><a href="#3-ヒアリングで確定した主要方針">3. ヒアリングで確定した主要方針</a></li><li class="lvl-2"><a href="#4-システム全体像">4. システム全体像</a></li><li class="lvl-3"><a href="#4-1-基盤が担当する責務">4.1 基盤が担当する責務</a></li><li class="lvl-3"><a href="#4-2-戦略プラグインが担当する責務">4.2 戦略プラグインが担当する責務</a></li><li class="lvl-3"><a href="#4-3-戦略が担当しない責務">4.3 戦略が担当しない責務</a></li><li class="lvl-2"><a href="#5-戦略プラグイン要件">5. 戦略プラグイン要件</a></li><li class="lvl-3"><a href="#5-1-インターフェース">5.1 インターフェース</a></li><li class="lvl-3"><a href="#5-2-orderintent-の最低項目">5.2 `OrderIntent` の最低項目</a></li><li class="lvl-3"><a href="#5-3-strategy-config-の主要項目">5.3 Strategy Config の主要項目</a></li><li class="lvl-2"><a href="#6-戦略比較と評価対象">6. 戦略比較と評価対象</a></li><li class="lvl-3"><a href="#6-1-比較対象">6.1 比較対象</a></li><li class="lvl-3"><a href="#6-2-原典再現で守るべき要素">6.2 原典再現で守るべき要素</a></li><li class="lvl-3"><a href="#6-3-モダナイズ候補">6.3 モダナイズ候補</a></li><li class="lvl-2"><a href="#7-対象アセット要件">7. 対象アセット要件</a></li><li class="lvl-3"><a href="#7-1-phase-0-の位置づけ">7.1 Phase 0 の位置づけ</a></li><li class="lvl-3"><a href="#7-2-初期候補の扱い">7.2 初期候補の扱い</a></li><li class="lvl-3"><a href="#7-3-今後の確定事項">7.3 今後の確定事項</a></li><li class="lvl-2"><a href="#8-データ要件">8. データ要件</a></li><li class="lvl-3"><a href="#8-1-基本方針">8.1 基本方針</a></li><li class="lvl-3"><a href="#8-2-レイヤー">8.2 レイヤー</a></li><li class="lvl-3"><a href="#8-3-粒度">8.3 粒度</a></li><li class="lvl-3"><a href="#8-4-データベンダー">8.4 データベンダー</a></li><li class="lvl-3"><a href="#8-5-データ品質チェック">8.5 データ品質チェック</a></li><li class="lvl-2"><a href="#9-バックテスト要件">9. バックテスト要件</a></li><li class="lvl-3"><a href="#9-1-方針">9.1 方針</a></li><li class="lvl-3"><a href="#9-2-必須要件">9.2 必須要件</a></li><li class="lvl-3"><a href="#9-3-p10-研究用ハーネス">9.3 P10 研究用ハーネス</a></li><li class="lvl-2"><a href="#10-oms-と執行要件">10. OMS と執行要件</a></li><li class="lvl-3"><a href="#10-1-注文ライフサイクル">10.1 注文ライフサイクル</a></li><li class="lvl-3"><a href="#10-2-必須機能">10.2 必須機能</a></li><li class="lvl-3"><a href="#10-3-証券会社側-stop">10.3 証券会社側 Stop</a></li><li class="lvl-2"><a href="#11-ハードリスクガード">11. ハードリスクガード</a></li><li class="lvl-2"><a href="#12-監視-通知-障害対応">12. 監視・通知・障害対応</a></li><li class="lvl-3"><a href="#12-1-監視対象">12.1 監視対象</a></li><li class="lvl-3"><a href="#12-2-通知レベル">12.2 通知レベル</a></li><li class="lvl-3"><a href="#12-3-手動介入">12.3 手動介入</a></li><li class="lvl-2"><a href="#13-shadow-paper-live-移行">13. Shadow / Paper / Live 移行</a></li><li class="lvl-3"><a href="#13-1-backtest-から-shadow">13.1 Backtest から Shadow</a></li><li class="lvl-3"><a href="#13-2-shadow-から-paper">13.2 Shadow から Paper</a></li><li class="lvl-3"><a href="#13-3-paper-から-少額live">13.3 Paper から 少額Live</a></li><li class="lvl-3"><a href="#13-4-少額live-から-本番live">13.4 少額Live から 本番Live</a></li><li class="lvl-2"><a href="#14-セキュリティ要件">14. セキュリティ要件</a></li><li class="lvl-2"><a href="#15-バックアップと復旧">15. バックアップと復旧</a></li><li class="lvl-3"><a href="#15-1-対象">15.1 対象</a></li><li class="lvl-3"><a href="#15-2-方針">15.2 方針</a></li><li class="lvl-3"><a href="#15-3-目標値">15.3 目標値</a></li><li class="lvl-2"><a href="#16-取引エンジン-poc-要件">16. 取引エンジン PoC 要件</a></li><li class="lvl-3"><a href="#16-1-比較候補">16.1 比較候補</a></li><li class="lvl-3"><a href="#16-2-poc-シナリオ">16.2 PoC シナリオ</a></li><li class="lvl-3"><a href="#16-3-評価項目">16.3 評価項目</a></li><li class="lvl-2"><a href="#17-テスト要件">17. テスト要件</a></li><li class="lvl-3"><a href="#17-1-自動テスト">17.1 自動テスト</a></li><li class="lvl-3"><a href="#17-2-結合テスト">17.2 結合テスト</a></li><li class="lvl-2"><a href="#18-fail-closed-方針">18. Fail-Closed 方針</a></li><li class="lvl-2"><a href="#19-実装ロードマップ">19. 実装ロードマップ</a></li><li class="lvl-3"><a href="#phase-0-未確定事項の解消">Phase 0: 未確定事項の解消</a></li><li class="lvl-3"><a href="#phase-1-ドメイン設計と戦略-golden-test">Phase 1: ドメイン設計と戦略 Golden test</a></li><li class="lvl-3"><a href="#phase-2-データ基盤">Phase 2: データ基盤</a></li><li class="lvl-3"><a href="#phase-3-backtest-検証">Phase 3: Backtest / 検証</a></li><li class="lvl-3"><a href="#phase-4-oms-ibkr-paper">Phase 4: OMS / IBKR Paper</a></li><li class="lvl-3"><a href="#phase-5-東京クラウド-shadow-paper">Phase 5: 東京クラウド / Shadow / Paper</a></li><li class="lvl-3"><a href="#phase-6-少額live-から本番live">Phase 6: 少額Live から本番Live</a></li><li class="lvl-2"><a href="#20-未確定事項ゲート">20. 未確定事項ゲート</a></li><li class="lvl-2"><a href="#21-参考資料">21. 参考資料</a></li><li class="lvl-2"><a href="#22-次の作業">22. 次の作業</a></li></ul></nav>
+  <h1 id="タートルズ-トレンドフォロー自動トレードシステム-要件定義書">タートルズ・トレンドフォロー自動トレードシステム 要件定義書</h1>
+<ul><li>文書状態: 初版ドラフト</li><li>基準日: 2026-08-02</li><li>原典資料: <code>research/タートルズ・トレンドフォロー戦略.md</code></li><li>ヒアリング原文: <code>plan/chat_history/2026-08-02_自動トレードシステム要件ヒアリング.md</code></li><li>用途: バックテスト、Shadow、Paper、少額Live、本番運用へ段階移行するシステムの設計基準</li></ul>
+<blockquote><p>本書はシステム設計と研究用の要件定義書であり、投資助言ではない。先物、FX、CFD、暗号資産等には、証拠金を上回る損失、ギャップ、流動性枯渇、取引停止、追証、限月交代、取引所・証券会社の信用リスクがある。</p></blockquote>
+<hr>
+<h2 id="1-エグゼクティブサマリー">1. エグゼクティブサマリー</h2>
+<p>本システムは、タートルズ・トレンドフォロー戦略の原典再現版と現代化候補を、同一のイベント駆動基盤上で比較し、検証済みの戦略だけを Shadow、Paper、少額Live へ段階移行させるための自動トレードシステムである。</p>
+<p>暫定的な第一候補構成は次のとおりである。</p>
+<table><thead><tr><th>項目</th><th>暫定方針</th></tr></thead><tbody><tr><td>証券会社</td><td>Interactive Brokers Japan を第一候補</td></tr><tr><td>取引エンジン</td><td>NautilusTrader と LEAN を PoC で比較して決定</td></tr><tr><td>戦略実装</td><td>Python を第一候補</td></tr><tr><td>研究環境</td><td>Windows PC</td></tr><tr><td>Shadow / Paper / Live</td><td>東京リージョンのクラウド VM</td></tr><tr><td>データ</td><td>証券会社と独立した履歴データを取得し、Parquet で不変保管</td></tr><tr><td>初期対象市場</td><td>3〜5市場、安定後に20〜40市場へ拡大</td></tr><tr><td>データ粒度</td><td>初期対象は全期間 1分足、日足は別途生成</td></tr><tr><td>実行方式</td><td>モジュラーモノリス、イベント駆動、アダプター方式</td></tr><tr><td>リスク</td><td>原典 Unit 制限、基盤側ハードリスクガード、最大 DD 15%</td></tr><tr><td>運用段階</td><td>Shadow → Paper → 少額Live → 本番Live</td></tr><tr><td>監視</td><td>新規注文・停止系・接続断・心拍停止を即時通知</td></tr><tr><td>セキュリティ</td><td>Secret Manager、最小権限、証跡監査</td></tr></tbody></table>
+<p>本システムは、バックテストを証券会社の内部 API に依存して実装しない。履歴データと実運用イベントを共通エンジンへ入力し、証券会社の Paper / Live はリアルタイム執行と口座管理に使用する。</p>
+<hr>
+<h2 id="2-目的と非目的">2. 目的と非目的</h2>
+<h3 id="2-1-目的">2.1 目的</h3>
+<ol><li>タートルズ戦略ルールを、実装可能な形へ明文化する。</li><li>原典版と現代版を同一基盤で比較できるようにする。</li><li>戦略ロジックを交換可能にし、データ、執行、監視、セキュリティを共通化する。</li><li>バックテストから Live までの運用移行手順を確立する。</li><li>障害、誤発注、限月交代、証券会社停止を考慮した運用基盤を整備する。</li><li>小口資金で開始し、実績確認後に段階拡大できるようにする。</li><li>初期資金100万円未満を前提に、実運用可能な資産候補を別途調査し最適化する。</li></ol>
+<h3 id="2-2-非目的">2.2 非目的</h3>
+<ul><li>超低遅延の HFT システムは対象外</li><li>取引所マイクロ秒級データを常時処理する分散基盤は対象外</li><li>最初からマルチブローカー Active-Active 構成を組むことは対象外</li><li>AI 裁量売買シグナル生成を本システムの中核要件にはしない</li></ul>
+<hr>
+<h2 id="3-ヒアリングで確定した主要方針">3. ヒアリングで確定した主要方針</h2>
+<table><thead><tr><th>ID</th><th>要件</th><th>状態</th></tr></thead><tbody><tr><td>Q1</td><td>原典版と現代版を並行比較</td><td>確定</td></tr><tr><td>Q2</td><td>対象アセットは別途調査で決定</td><td>未確定</td></tr><tr><td>Q3</td><td>初期 3〜5 市場、安定後に 20〜40 市場</td><td>確定</td></tr><tr><td>Q4</td><td>ロング・ショート両方向</td><td>確定</td></tr><tr><td>Q5</td><td>Live 初期資金は 100万円未満</td><td>確定</td></tr><tr><td>Q6</td><td>初期月額費用 1万円未満、段階拡大</td><td>確定</td></tr><tr><td>Q7</td><td>IBKR を第一候補</td><td>確定</td></tr><tr><td>Q8</td><td>最大ドローダウン目標 15%</td><td>確定</td></tr><tr><td>Q9</td><td>原典基準として 1N リスク 1% を保持</td><td>確定</td></tr><tr><td>Q10</td><td>年率ポートフォリオ・ボラティリティ目標 10%</td><td>参考基準</td></tr><tr><td>Q11</td><td>戦略比較は段階的に拡大</td><td>確定</td></tr><tr><td>Q12</td><td>System 1 勝ちブレイクフィルターは比較対象</td><td>確定</td></tr><tr><td>Q13</td><td>原典版は intraday、現代版は終値確認も比較</td><td>確定</td></tr><tr><td>Q14</td><td>ピラミッディングは複数方式を比較</td><td>確定</td></tr><tr><td>Q15</td><td>2N、Whipsaw、ボラ急上昇時縮小版を比較</td><td>確定</td></tr><tr><td>Q16</td><td>Unit リスクは契約粒度と DD 試験後に最終決定</td><td>未確定</td></tr><tr><td>Q17</td><td>戦略は入出金を除く全口座管理を担当</td><td>確定</td></tr><tr><td>Q18</td><td>ポートフォリオ上限は原典 4/6/10/12 Unit を採用</td><td>確定</td></tr><tr><td>Q19</td><td>限月選択とロール規則は資産調査後に決定</td><td>未確定</td></tr><tr><td>Q20</td><td>初期 3〜5 市場は全期間 1分足</td><td>確定</td></tr><tr><td>Q21</td><td>取引エンジンは PoC で決定</td><td>未確定</td></tr><tr><td>Q22</td><td>Shadow / Paper / Live は東京クラウド VM</td><td>確定</td></tr><tr><td>Q23</td><td>設定は戦略別 YAML、共通設定と分離</td><td>確定</td></tr><tr><td>Q24</td><td>Shadow → Paper → 少額Live の順に移行</td><td>確定</td></tr><tr><td>Q25</td><td>監視は新規注文、接続断、停止系を重視</td><td>確定</td></tr><tr><td>Q26</td><td>Bot 実行中の異常監視と強制停止手段が必要</td><td>確定</td></tr><tr><td>Q27</td><td>Push 通知と Heartbeat 監視を実施</td><td>確定</td></tr><tr><td>Q28</td><td>Secret Manager を使う</td><td>確定</td></tr><tr><td>Q29</td><td>テストは証券会社バックテストに依存しない</td><td>確定</td></tr><tr><td>Q30</td><td>本番移行前に最終チェックリストを通す</td><td>確定</td></tr></tbody></table>
+<hr>
+<h2 id="4-システム全体像">4. システム全体像</h2>
+<pre><code class="language-mermaid">flowchart LR
+    V[&quot;データベンダー&quot;] --&gt; I[&quot;Data Ingestion&quot;]
+    I --&gt; R[&quot;Raw Immutable Store&quot;]
+    R --&gt; N[&quot;Normalization / Instrument Master&quot;]
+    N --&gt; C[&quot;Versioned Data Catalog&quot;]
+    C --&gt; E[&quot;Common Event Engine&quot;]
+
+    S[&quot;Strategy Plugin&quot;] --&gt; E
+    E --&gt; PR[&quot;Portfolio / Strategy Risk&quot;]
+    PR --&gt; GR[&quot;Platform Hard Risk Gate&quot;]
+    GR --&gt; OMS[&quot;OMS&quot;]
+    OMS --&gt; BA[&quot;Broker Adapter&quot;]
+    BA --&gt; BK[&quot;IBKR Paper / Live&quot;]
+
+    BK --&gt; EX[&quot;Order / Fill / Account Events&quot;]
+    EX --&gt; J[&quot;Durable Event Journal&quot;]
+    J --&gt; RC[&quot;Reconciliation&quot;]
+    RC --&gt; E
+
+    E --&gt; OB[&quot;Logs / Metrics / Alerts&quot;]
+    OB --&gt; OP[&quot;Operator&quot;]
+    OP --&gt; KS[&quot;Emergency Controls&quot;]
+    KS --&gt; GR</code></pre>
+<h3 id="4-1-基盤が担当する責務">4.1 基盤が担当する責務</h3>
+<ul><li>データ取得、時刻正規化、欠損検知、重複排除</li><li>銘柄マスター、限月カレンダー、証拠金、ティックサイズ、最小取引単位</li><li>イベント配信、時系列イベント、タイマー、一意イベント ID</li><li>証券会社接続、注文状態遷移、約定反映、口座情報同期</li><li>障害時の再起動後リカバリー</li><li>基盤側ハードリスクガード</li><li>通知、Heartbeat、監査ログ</li><li>Secret 管理、バックアップ、復旧</li></ul>
+<h3 id="4-2-戦略プラグインが担当する責務">4.2 戦略プラグインが担当する責務</h3>
+<ul><li>対象市場ごとのシグナル判定</li><li>Entry、Exit、再Entry、ピラミッディング</li><li>ATR/N、Donchian Channel 等の戦略指標計算</li><li>Unit サイズ、Notional Account、損失時縮小</li><li>原典の 4/6/10/12 Unit 上限の適用</li><li>戦略ごとの設定ファイル、内部状態、評価指標</li><li><code>OrderIntent</code> または <code>TargetPosition</code> の生成</li></ul>
+<h3 id="4-3-戦略が担当しない責務">4.3 戦略が担当しない責務</h3>
+<ul><li>証券会社 API の接続管理</li><li>口座残高の正本管理</li><li>注文再送制御や重複注文防止</li><li>決済後キャッシュ移動や入出金</li><li>Kill Switch 実行中の新規注文遮断</li></ul>
+<hr>
+<h2 id="5-戦略プラグイン要件">5. 戦略プラグイン要件</h2>
+<h3 id="5-1-インターフェース">5.1 インターフェース</h3>
+<pre><code class="language-text">StrategyPlugin
+  initialize(config, instrument_catalog)
+  restore(strategy_state)
+  on_market_event(event, portfolio_snapshot)
+  on_order_event(order_event, portfolio_snapshot)
+  on_account_event(account_event)
+  on_timer(timer_event)
+  emit_intents() -&gt; list[OrderIntent]
+  snapshot() -&gt; StrategyState
+  health() -&gt; StrategyHealth</code></pre>
+<h3 id="5-2-orderintent-の最低項目">5.2 <code>OrderIntent</code> の最低項目</h3>
+<ul><li><code>strategy_id</code></li><li><code>strategy_version</code></li><li><code>instrument_id</code></li><li><code>desired_side</code></li><li><code>desired_quantity</code> または <code>target_position</code></li><li><code>intent_type</code>: <code>entry</code> / <code>add</code> / <code>stop</code> / <code>channel_exit</code> / <code>roll</code> / <code>emergency</code></li><li><code>signal_timestamp</code></li><li><code>decision_price</code></li><li><code>n_value</code></li><li><code>channel_level</code></li><li><code>risk_budget</code></li><li><code>reason_code</code></li></ul>
+<h3 id="5-3-strategy-config-の主要項目">5.3 Strategy Config の主要項目</h3>
+<ul><li><code>system_family</code>: <code>system1</code> / <code>system2</code> / <code>modernized</code></li><li><code>entry_mode</code>: <code>intraday_breakout</code> / <code>close_confirm</code></li><li><code>entry_channel_days</code></li><li><code>exit_channel_days</code></li><li><code>system1_skip_last_winner</code>: <code>true</code> / <code>false</code></li><li><code>pyramiding_mode</code></li><li><code>max_units</code></li><li><code>stop_mode</code></li><li><code>unit_risk_fraction</code></li><li><code>portfolio_cap_mode</code></li><li><code>roll_rule_id</code></li></ul>
+<hr>
+<h2 id="6-戦略比較と評価対象">6. 戦略比較と評価対象</h2>
+<h3 id="6-1-比較対象">6.1 比較対象</h3>
+<ul><li>原典 System 1</li><li>原典 System 2</li><li>現代版での終値確認 Entry</li><li>ピラミッディング差分</li><li>Stop 差分</li><li>Unit リスク差分</li></ul>
+<h3 id="6-2-原典再現で守るべき要素">6.2 原典再現で守るべき要素</h3>
+<ul><li>Donchian breakout の基本思想</li><li>N の算出と Unit sizing</li><li>0.5N ごとの追加</li><li>2N Stop の比較対象維持</li><li>Notional Account による縮小</li><li>4/6/10/12 Unit 上限</li></ul>
+<h3 id="6-3-モダナイズ候補">6.3 モダナイズ候補</h3>
+<ul><li>終値確認 Entry</li><li>Volatility regime に応じた Stop の縮小</li><li>Unit リスクを 1.0% / 0.5% / 0.25% で比較</li><li>期間違いのチャネル</li><li>コスト、ロール、ギャップを現代市場前提で再評価</li></ul>
+<hr>
+<h2 id="7-対象アセット要件">7. 対象アセット要件</h2>
+<h3 id="7-1-phase-0-の位置づけ">7.1 Phase 0 の位置づけ</h3>
+<p>現代に適した取引アセットの調査と評価は、第0段階で独立に実施する。詳細は次を参照する。</p>
+<ul><li><code>plan/第0段階_現代に適した取引アセット調査計画書.md</code></li><li><code>plan/第0段階_ステップ0前_実行基盤準備.md</code></li><li><code>plan/第0段階_機械実行用プロンプト列.md</code></li></ul>
+<h3 id="7-2-初期候補の扱い">7.2 初期候補の扱い</h3>
+<p>P08 と P09 までの段階では、初期 5候補として次を扱う。</p>
+<ul><li><code>MCL</code></li><li><code>MZC</code></li><li><code>MZS</code></li><li><code>MZW</code></li><li><code>M6A</code></li></ul>
+<p>ただし、<code>MZC / MZS / MZW</code> は履歴期間が短く、長期検証は別枠評価とする。</p>
+<h3 id="7-3-今後の確定事項">7.3 今後の確定事項</h3>
+<ul><li>日本居住者が実際に取引可能か</li><li>証拠金水準</li><li>最小数量</li><li>取引時間</li><li>ロール規則</li><li>Databento / IBKR での取得可否</li></ul>
+<hr>
+<h2 id="8-データ要件">8. データ要件</h2>
+<h3 id="8-1-基本方針">8.1 基本方針</h3>
+<ul><li>証券会社 API はリアルタイム確認用とし、履歴データの正本にはしない</li><li>履歴データは外部データベンダーから取得し、Raw で不変保管する</li><li>正規化済みデータ、研究用派生データ、実行用データを分離する</li></ul>
+<h3 id="8-2-レイヤー">8.2 レイヤー</h3>
+<table><thead><tr><th>レイヤー</th><th>内容</th></tr></thead><tbody><tr><td>Raw</td><td>ベンダー取得そのままの不変データ</td></tr><tr><td>Normalized</td><td>UTC、共通カラム、共通 ID、品質検査済み</td></tr><tr><td>Tradable</td><td>限月、出来高、証拠金、価格単位を付与した実運用候補データ</td></tr><tr><td>Signal</td><td>バックテストや戦略実行に使う連続系列</td></tr><tr><td>Derived</td><td>N、チャネル、ロールマップ等の派生指標</td></tr><tr><td>Experiment</td><td>実験単位の固定入力セット</td></tr></tbody></table>
+<h3 id="8-3-粒度">8.3 粒度</h3>
+<ul><li>初期 3〜5 市場は全期間 1分足</li><li>日足は 1分足から生成</li><li>1分足で判定不能な順序問題は、必要に応じてティックデータや保守的約定ルールで補う</li></ul>
+<h3 id="8-4-データベンダー">8.4 データベンダー</h3>
+<ul><li>第一候補: Databento</li><li>補完候補: IBKR 履歴データ、JPX / J-Quants、無料データ源</li></ul>
+<p>Databento の研究用取得補助は次で確認済み。</p>
+<ul><li><code>research/asset_selection/10_頑健性バックテスト/10_Databento取得補助レポート_v0.1_2026-08-02.md</code></li></ul>
+<h3 id="8-5-データ品質チェック">8.5 データ品質チェック</h3>
+<ul><li>欠損バー</li><li>重複バー</li><li>タイムゾーン不整合</li><li>異常価格</li><li>異常出来高</li><li>ロール前後の不連続</li><li>原典指標算出に必要な最小履歴不足</li></ul>
+<hr>
+<h2 id="9-バックテスト要件">9. バックテスト要件</h2>
+<h3 id="9-1-方針">9.1 方針</h3>
+<ul><li>バックテストは証券会社内蔵バックテストに依存しない</li><li>共通イベントエンジンへ履歴イベントを流して再現する</li><li>戦略評価は Backtest、Paper、Live で同一ロジックを使う</li></ul>
+<h3 id="9-2-必須要件">9.2 必須要件</h3>
+<ul><li>Look-ahead 防止</li><li>Survivorship bias 防止</li><li>取引コストの明示</li><li>ロール損益の明示</li><li>保守的約定ルール</li><li>実験マニフェスト固定</li><li>Holdout / Walk-forward の実施</li></ul>
+<h3 id="9-3-p10-研究用ハーネス">9.3 P10 研究用ハーネス</h3>
+<p>P10 で実装したものは本番実装ではなく、第0段階のアセット選定と比較検証のための研究用ハーネスである。</p>
+<ul><li>実装場所: <code>research/asset_selection/10_頑健性バックテスト/研究用ハーネス/</code></li><li>Databento <code>ohlcv-1m</code> 取得確認済み</li><li>5銘柄の短期 CSV 生成確認済み</li><li><code>run</code> 実行確認済み</li></ul>
+<p>未解決事項:</p>
+<ul><li>親シンボル取得のため複数限月が混在する可能性がある</li><li><code>definition</code> と <code>statistics</code> の保存は未実装</li><li>ロール規則を連続足へ実装していない</li></ul>
+<hr>
+<h2 id="10-oms-と執行要件">10. OMS と執行要件</h2>
+<h3 id="10-1-注文ライフサイクル">10.1 注文ライフサイクル</h3>
+<ul><li><code>Created</code></li><li><code>PendingSubmit</code></li><li><code>Submitted</code></li><li><code>PartiallyFilled</code></li><li><code>Filled</code></li><li><code>CancelRequested</code></li><li><code>Cancelled</code></li><li><code>Rejected</code></li><li><code>Expired</code></li><li><code>Error</code></li></ul>
+<h3 id="10-2-必須機能">10.2 必須機能</h3>
+<ul><li>一意な client order id</li><li>重複送信防止</li><li>Cancel / Replace 対応</li><li>部分約定対応</li><li>約定イベントの順不同耐性</li><li>再起動後の open order 再同期</li><li>Position / Cash / Margin の再同期</li></ul>
+<h3 id="10-3-証券会社側-stop">10.3 証券会社側 Stop</h3>
+<p>可能な限り、証券会社ネイティブの Stop を活用する。ただし、Paper 環境と Live 環境で挙動差があるため、Paper の結果だけで本番挙動を確定しない。</p>
+<hr>
+<h2 id="11-ハードリスクガード">11. ハードリスクガード</h2>
+<p>基盤側のガードは戦略より優先する。</p>
+<ul><li>日次損失上限</li><li>1市場あたり最大想定損失上限</li><li>全口座の最大リスク総量</li><li>注文数量上限</li><li>同一方向エクスポージャ上限</li><li>市場別・資産群別のポジション上限</li><li>Kill Switch 中の新規注文禁止</li><li>データ異常時の新規注文禁止</li><li>Paper 評価未通過戦略の Live 禁止</li></ul>
+<hr>
+<h2 id="12-監視-通知-障害対応">12. 監視・通知・障害対応</h2>
+<h3 id="12-1-監視対象">12.1 監視対象</h3>
+<ul><li>Market data 最終受信時刻</li><li>Broker 接続状態</li><li>Strategy heartbeat</li><li>Event queue 深さ</li><li>Position / Order 不整合</li><li>NAV / PnL / DD</li><li>新規注文、取消、拒否</li><li>バックアップ成否</li></ul>
+<h3 id="12-2-通知レベル">12.2 通知レベル</h3>
+<table><thead><tr><th>レベル</th><th>条件</th><th>通知</th></tr></thead><tbody><tr><td>INFO</td><td>日次サマリー、正常ロール</td><td>メールまたは Dashboard</td></tr><tr><td>WARNING</td><td>データ遅延、接続再試行、軽微不整合</td><td>Push 通知</td></tr><tr><td>CRITICAL</td><td>接続断、心拍停止、注文拒否、ポジション不整合</td><td>即時 Push とメール</td></tr><tr><td>EMERGENCY</td><td>Kill Switch、想定外のポジション、最大損失超過</td><td>即時通知と運用手順発火</td></tr></tbody></table>
+<h3 id="12-3-手動介入">12.3 手動介入</h3>
+<p>次の手段を必須とする。</p>
+<ul><li>新規注文停止</li><li>一括 Cancel</li><li>戦略停止</li><li>Bot 停止</li><li>Broker GUI による最終介入</li></ul>
+<hr>
+<h2 id="13-shadow-paper-live-移行">13. Shadow / Paper / Live 移行</h2>
+<h3 id="13-1-backtest-から-shadow">13.1 Backtest から Shadow</h3>
+<ul><li>指標再現性確認</li><li>Look-ahead / bias 検査通過</li><li>コスト、ロール、ギャップ反映</li><li>Holdout で劣化が許容範囲</li></ul>
+<h3 id="13-2-shadow-から-paper">13.2 Shadow から Paper</h3>
+<ul><li>リアルタイムシグナルと後追い計算の一致</li><li>30営業日以上の安定観測</li><li>Heartbeat、通知、障害検知が動作</li></ul>
+<h3 id="13-3-paper-から-少額live">13.3 Paper から 少額Live</h3>
+<ul><li>Paper 安定運用 90日以上</li><li>異常停止や未解決ポジション不整合がゼロ</li><li>Stop、Kill Switch、復旧手順をリハーサル済み</li><li>最大 DD 15% のストレス確認済み</li></ul>
+<h3 id="13-4-少額live-から-本番live">13.4 少額Live から 本番Live</h3>
+<ul><li>少額Live 90日以上</li><li>Paper と Live の挙動差が説明可能</li><li>実コストと想定コストの差分が許容範囲</li></ul>
+<hr>
+<h2 id="14-セキュリティ要件">14. セキュリティ要件</h2>
+<ul><li>Secret は Secret Manager で管理</li><li>Live secret と Paper secret を分離</li><li>MFA を有効化</li><li>最小権限原則</li><li>API key、token、account id を Git やログへ保存しない</li><li>SSH / RDP は制限付き</li><li>証跡監査ログを保持</li></ul>
+<hr>
+<h2 id="15-バックアップと復旧">15. バックアップと復旧</h2>
+<h3 id="15-1-対象">15.1 対象</h3>
+<ul><li>PostgreSQL の取引・注文・ポジション・イベント</li><li>設定ファイルと schema</li><li>Instrument master とロールマップ</li><li>実験 manifest、runbook、レポート</li></ul>
+<h3 id="15-2-方針">15.2 方針</h3>
+<ul><li>設定変更は履歴管理する</li><li>日次 Full backup を取得する</li><li>復旧手順を文書化し、定期的に復旧テストする</li></ul>
+<h3 id="15-3-目標値">15.3 目標値</h3>
+<ul><li>運用イベント RPO: 15分以内</li><li>研究データ RPO: 24時間以内</li><li>Live RTO: 4時間以内</li></ul>
+<hr>
+<h2 id="16-取引エンジン-poc-要件">16. 取引エンジン PoC 要件</h2>
+<h3 id="16-1-比較候補">16.1 比較候補</h3>
+<ul><li>NautilusTrader</li><li>LEAN / QuantConnect 系</li></ul>
+<h3 id="16-2-poc-シナリオ">16.2 PoC シナリオ</h3>
+<ol><li>1市場の 20日 breakout</li><li>1分足リプレイ</li><li>Entry / Add / Stop / Exit</li><li>部分約定</li><li>プロセス再起動と復旧</li><li>IBKR Paper 接続</li><li>Open order / Fill / Position 再同期</li><li>Heartbeat と通知</li></ol>
+<h3 id="16-3-評価項目">16.3 評価項目</h3>
+<table><thead><tr><th>項目</th><th>重み</th></tr></thead><tbody><tr><td>イベント再現性</td><td>20%</td></tr><tr><td>IBKR 接続と再同期の安定性</td><td>20%</td></tr><tr><td>障害復旧性</td><td>15%</td></tr><tr><td>ロール表現のしやすさ</td><td>15%</td></tr><tr><td>コストと保守性</td><td>10%</td></tr><tr><td>Python 親和性</td><td>10%</td></tr><tr><td>監視連携</td><td>5%</td></tr><tr><td>ライセンスと運用制約</td><td>5%</td></tr></tbody></table>
+<hr>
+<h2 id="17-テスト要件">17. テスト要件</h2>
+<h3 id="17-1-自動テスト">17.1 自動テスト</h3>
+<ul><li>N、True Range、Donchian の Golden test</li><li>System 1 勝ちブレイクフィルター</li><li>0.5N 追加</li><li>2N Stop</li><li>4/6/10/12 Unit 上限</li><li>Gap 時の保守的約定</li><li>ロール損益連結</li><li>データ異常時の fail-closed</li></ul>
+<h3 id="17-2-結合テスト">17.2 結合テスト</h3>
+<ul><li>Broker Paper で Entry / Add / Stop / Exit</li><li>Gateway 再接続後の復旧</li><li>Position 不整合時の検知</li><li>Kill Switch 発火</li></ul>
+<hr>
+<h2 id="18-fail-closed-方針">18. Fail-Closed 方針</h2>
+<p>障害時は「止まる」を優先する。</p>
+<ol><li>新規 Entry を停止</li><li>追加注文を停止</li><li>Broker 側 Stop は維持</li><li>通知を発火</li><li>手順書に従って復旧</li></ol>
+<hr>
+<h2 id="19-実装ロードマップ">19. 実装ロードマップ</h2>
+<h3 id="phase-0-未確定事項の解消">Phase 0: 未確定事項の解消</h3>
+<ol><li>現代に適した取引アセットの調査計画と評価</li><li>Databento / IBKR での取得可否確認</li><li>初期 3〜5 候補の絞り込み</li></ol>
+<h3 id="phase-1-ドメイン設計と戦略-golden-test">Phase 1: ドメイン設計と戦略 Golden test</h3>
+<ol><li>イベント、注文、口座、ID、時系列の定義</li><li>N、Channel、Unit、Filter、Stop、Exit</li><li>戦略 plugin interface</li></ol>
+<h3 id="phase-2-データ基盤">Phase 2: データ基盤</h3>
+<ol><li>Raw download</li><li>Instrument master</li><li>Normalization</li><li>1分足 catalog</li><li>Continuous signal series と roll map</li></ol>
+<h3 id="phase-3-backtest-検証">Phase 3: Backtest / 検証</h3>
+<ol><li>原典版実装</li><li>比較候補実装</li><li>コスト、ロール、ギャップ反映</li><li>Walk-forward / Holdout</li></ol>
+<h3 id="phase-4-oms-ibkr-paper">Phase 4: OMS / IBKR Paper</h3>
+<ol><li>Order state machine</li><li>IBKR adapter</li><li>Reconciliation</li><li>Broker-native Stop</li></ol>
+<h3 id="phase-5-東京クラウド-shadow-paper">Phase 5: 東京クラウド / Shadow / Paper</h3>
+<ol><li>Infrastructure 構築</li><li>Secret、監視、バックアップ</li><li>Shadow 評価</li><li>Paper 評価</li></ol>
+<h3 id="phase-6-少額live-から本番live">Phase 6: 少額Live から本番Live</h3>
+<ol><li>少額Live</li><li>運用 KPI 評価</li><li>資金拡大判断</li></ol>
+<hr>
+<h2 id="20-未確定事項ゲート">20. 未確定事項ゲート</h2>
+<table><thead><tr><th>ID</th><th>未確定事項</th><th>決定タイミング</th><th>Live 前必須</th></tr></thead><tbody><tr><td>OD-01</td><td>対象アセットと初期 3〜5 市場</td><td>Phase 0</td><td>Yes</td></tr><tr><td>OD-02</td><td>取引エンジン最終決定</td><td>Phase 1</td><td>Yes</td></tr><tr><td>OD-03</td><td>ロール規則と continuous signal 方式</td><td>Phase 2</td><td>Yes</td></tr><tr><td>OD-04</td><td>1N リスクの Live 採用値</td><td>Paper 前</td><td>Yes</td></tr><tr><td>OD-05</td><td>年率 10% ボラ目標を強制制御へ入れるか</td><td>Risk 設計時</td><td>Yes</td></tr><tr><td>OD-06</td><td>東京クラウドの OS / VM 形式</td><td>Shadow 前</td><td>Yes</td></tr><tr><td>OD-07</td><td>Push 通知サービス</td><td>Shadow 前</td><td>No</td></tr><tr><td>OD-08</td><td>Paper / Live の最小運用日数しきい値</td><td>移行判定前</td><td>Yes</td></tr></tbody></table>
+<hr>
+<h2 id="21-参考資料">21. 参考資料</h2>
+<ul><li><code>research/タートルズ・トレンドフォロー戦略.md</code></li><li><code>plan/chat_history/2026-08-02_自動トレードシステム要件ヒアリング.md</code></li><li><code>plan/第0段階_現代に適した取引アセット調査計画書.md</code></li><li><code>plan/第0段階_ステップ0前_実行基盤準備.md</code></li><li><code>plan/第0段階_機械実行用プロンプト列.md</code></li><li><code>research/asset_selection/09_バックテスト手順/09_バックテスト手順書_v0.1_2026-08-02.md</code></li><li><code>research/asset_selection/10_頑健性バックテスト/10_研究用ハーネス方針_v0.1_2026-08-02.md</code></li><li><code>research/asset_selection/10_頑健性バックテスト/10_Databento取得補助レポート_v0.1_2026-08-02.md</code></li></ul>
+<hr>
+<h2 id="22-次の作業">22. 次の作業</h2>
+<ol><li>Phase 0 の資産候補選定を完了する</li><li>取引エンジン PoC の評価軸を固定する</li><li>ドメイン設計書とモジュール分割案を作成する</li><li>ロール規則と連続足生成仕様を確定する</li><li>Paper 前提の OMS / Reconciliation 詳細設計へ進む</li></ol>
+</main>
+</body>
+</html>
