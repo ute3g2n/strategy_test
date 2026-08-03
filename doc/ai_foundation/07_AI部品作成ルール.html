@@ -25,7 +25,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D07<br>
     <strong>作成日:</strong> 2026-08-04<br>
-    <strong>文書状態:</strong> v0.1 / AF-02レビュー反映済み<br>
+    <strong>文書状態:</strong> v0.2 / AI部品ライフサイクル基盤 反映済み<br>
     <strong>後続実体化先:</strong> <code>settings/ai_component_rules.md</code></p>
   </section>
 
@@ -46,6 +46,7 @@
   <ul>
     <li>まず汎用Skill、汎用Agent、汎用Orchestratorで対応できるか確認する。</li>
     <li>汎用化できる作業規約は <code>autotrade_skill_*_v0_1</code> として作る。</li>
+    <li>AI部品の作成・変更は、原則として「既存再利用調査 → 作成または変更 → 対象ドキュメント更新」の順で進める。</li>
     <li>Phase専用部品は、汎用部品では不十分な理由、利用期限、凍結条件、HTML仕様書がある場合だけ作る。</li>
     <li>既存名と衝突する場合は上書きせず、衝突として報告する。</li>
     <li>既存Phase 1部品はfrozen / legacy / phase1証跡として扱い、削除、移動、上書き、リネームをしない。</li>
@@ -58,6 +59,13 @@
     <li>完全名で指定されていない既存Skill、既存Agent、既存Orchestratorを推測で起動しない。</li>
     <li>指定部品が存在しない場合は、現在ステップが作成ステップかどうかを確認する。作成ステップでなければ停止する。</li>
     <li>Phase専用部品を使う場合は、理由、利用期限、凍結条件をプロンプトまたは仕様書に明記する。</li>
+  </ul>
+
+  <h2>4.1 AI部品ライフサイクル標準部品</h2>
+  <ul>
+    <li>Skill / Agent / Orchestrator の作成または変更では、標準として <code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code>、<code>AutoTrade_A06_AiComponentEngineer_v0_1</code>、<code>autotrade_skill_ai_component_lifecycle_v0_1</code> を使用する。</li>
+    <li>既存の調査には <code>source_reader</code>、追跡には <code>traceability</code>、HTML追従には <code>html_doc_writer</code>、レビューには <code>design_review</code> を再利用する。</li>
+    <li>依頼プロンプトの標準雛形は <code>doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html</code> を参照する。</li>
   </ul>
 
   <h2>5. 成果物ルール</h2>
@@ -108,6 +116,7 @@ Phase Runbook:
       <tr><td>Phase専用条件</td><td class="ok">Pass</td><td>理由、利用期限、凍結条件を必須化。</td></tr>
       <tr><td>証跡保護</td><td class="ok">Pass</td><td>Phase 1専用部品の削除、移動、上書き、リネーム禁止を明記。</td></tr>
       <tr><td>プロジェクト適用</td><td class="ok">Pass</td><td>AF-03で <code>settings/ai_component_rules.md</code> と <code>AGENTS.md</code> へ反映する方針を明記。</td></tr>
+      <tr><td>AI部品保守運用</td><td class="ok">Pass</td><td>AI部品作成・変更専用の標準Orchestrator / Agent / Skill と依頼プロンプトを追加した。</td></tr>
     </tbody>
   </table>
 </main>
