@@ -1,105 +1,127 @@
 # strategy_test
 
+## 概要
+
+このリポジトリは、タートルズ・トレンドフォロー自動売買システムの要件整理、設計、AI実行基盤整備、研究用成果物管理を行うための作業場所です。
+
+いまのAI実行基盤は、Phase 1専用部品を証跡として残しつつ、Phase 2以降で再利用できる汎用部品へ整理した状態です。
+
+## 最初に見る場所
+
+人間もAIエージェントも、最初は次を確認すると全体像をつかみやすいです。
+
+1. `README.md`
+2. `settings/language.md`
+3. `settings/ai_component_rules.md`
+4. `doc/index.html`
+5. 必要に応じて `plan/` 配下の計画書
+
+## どこに何があるか
+
+- `doc/`
+  正式なHTML成果物の保存先。
+- `doc/index.html`
+  すべての正式HTML成果物の入口。
+- `doc/ai_foundation/`
+  AI実行基盤の棚卸し、移行方針、仕様、作成ルール、検証結果。
+- `doc/phase1/`
+  Phase 1の正式HTML成果物。
+- `plan/`
+  計画書、実行プロンプト、ログ、台帳。
+- `settings/`
+  言語ルール、AI部品ルールなどのプロジェクト共通設定。
+- `.codex/skills/`
+  実行可能なSkill定義。
+- `.codex/agents/`
+  実行可能なAgent定義。
+- `.codex/orchestrators/`
+  実行可能なOrchestrator定義。
+- `research/`
+  調査や研究系の原稿、派生成果物。
+- `scripts/`
+  補助スクリプト。
+
+## AI実行基盤
+
+### 標準で使う部品
+
+- Orchestrator:
+  `AutoTradeProject_Orchestrator_v0_1`
+- Agents:
+  `AutoTrade_A10_RequirementsCurator_v0_1`
+  `AutoTrade_A20_ArchitectureDomainArchitect_v0_1`
+  `AutoTrade_A30_StrategyQaArchitect_v0_1`
+  `AutoTrade_A40_ExecutionEnginePocArchitect_v0_1`
+  `AutoTrade_A50_AdapterArchitect_v0_1`
+  `AutoTrade_A60_RiskAccountArchitect_v0_1`
+  `AutoTrade_A70_OpsSecurityArchitect_v0_1`
+  `AutoTrade_A80_DocumentIntegrator_v0_1`
+  `AutoTrade_A90_DesignReviewer_v0_1`
+- Skills:
+  `.codex/skills/autotrade_skill_*_v0_1/`
+
+### 証跡として残す部品
+
+- `AutoTradePhase1_*`
+- `autotrade_phase1_skill_*_v0_1`
+
+これらは `frozen / legacy / phase1証跡` として扱います。新しいPhaseの標準部品としては使わず、既存成果物との対応を保つために残しています。
+
+## 代表的な入口文書
+
+- [HTML成果物インデックス](./doc/index.html)
+- [AI実行基盤 現状棚卸し](./doc/ai_foundation/01_AI実行基盤現状棚卸し.html)
+- [AI部品整理方針・移行マップ](./doc/ai_foundation/02_AI部品整理方針移行マップ.html)
+- [プロジェクト汎用Skill仕様](./doc/ai_foundation/03_プロジェクト汎用Skill仕様.html)
+- [プロジェクト汎用サブエージェント仕様](./doc/ai_foundation/04_プロジェクト汎用サブエージェント仕様.html)
+- [プロジェクト汎用オーケストレータ仕様](./doc/ai_foundation/05_プロジェクト汎用オーケストレータ仕様.html)
+- [AI部品相関図・発火制御図](./doc/ai_foundation/06_AI部品相関図発火制御図.html)
+- [AI部品作成ルール](./doc/ai_foundation/07_AI部品作成ルール.html)
+- [AI実行基盤整理検証結果](./doc/ai_foundation/08_AI実行基盤整理検証結果.html)
+
+## AGENTS.md と README.md の更新タイミング
+
+`AGENTS.md` と `README.md` は常に更新する必要はありません。次のような変化が入ったときに追記または修正します。
+
+- 標準のAI実行基盤が変わったとき
+- ディレクトリ構成や保存ルールが変わったとき
+- 最初に読むべき入口資料が変わったとき
+- 人間またはAIが初回に迷いやすい構成変更が入ったとき
+
+軽微な成果物追加やログ増加だけでは、毎回更新しなくてよいです。
+
 ## 自動コミット監視
 
-このリポジトリには、ファイル変更を検知して自動的に `git commit` と
-`git push` を行う監視コマンドがあります。
+このリポジトリには、ファイル変更を監視して自動的に `git commit` と `git push` を行う補助コマンドがあります。
 
-### ワンコマンドで開始
-
-バックグラウンドで監視を開始します。
+### バックグラウンドで起動
 
 ```bash
 npm run watch-start
 ```
 
-すでに監視が動いている場合は、新しい監視プロセスを増やさずに終了します。
-
-### ワンコマンドで状態確認
-
-監視中かどうかを確認します。
+### 状態確認
 
 ```bash
 npm run watch-status
 ```
 
-監視中の場合は、次のように表示されます。
-
-```text
-watch-commit is running. pid=<PID> name=node.exe
-```
-
-停止中の場合は、次のように表示されます。
-
-```text
-watch-commit is stopped.
-```
-
-### ワンコマンドで終了
-
-バックグラウンドで動いている監視を終了します。
+### 停止
 
 ```bash
 npm run watch-stop
 ```
 
-### 手動で通常起動する場合
-
-PowerShell または Git Bash で通常起動する場合:
+### 前面で起動
 
 ```bash
 npm run watch-commit
 ```
 
-停止する場合は、起動中のターミナルで次を押します。
+停止するときは `Ctrl+C` を使います。
 
-```text
-Ctrl+C
-```
-
-### 従来のバックグラウンド起動
-
-PowerShell でバックグラウンド起動する場合:
-
-```powershell
-Start-Process -FilePath npm.cmd -ArgumentList 'run watch-commit' -WorkingDirectory C:\project\strategy_test -WindowStyle Hidden
-```
-
-Git Bash でバックグラウンド起動する場合:
-
-```bash
-nohup npm run watch-commit > watch-commit.log 2> watch-commit.err.log &
-```
-
-### 従来のバックグラウンド停止
-
-PowerShell でプロセス ID を確認する場合:
-
-```powershell
-Get-Process node,cmd -ErrorAction SilentlyContinue | Select-Object Id,ProcessName,StartTime
-```
-
-確認したプロセス ID を指定して停止します。
-
-```powershell
-Stop-Process -Id <PID1>,<PID2>,<PID3>,<PID4>
-```
-
-Git Bash でプロセス ID を確認する場合:
-
-```bash
-ps -ef | grep chokidar
-```
-
-該当するプロセス ID を指定して停止します。
-
-```bash
-kill <PID>
-```
-
-### 監視の仕様
+## 自動コミットの注意
 
 - `.git`、`node_modules`、`.env`、`.env.*`、`*.log` は監視対象外です。
-- 連続変更による過剰なコミットを防ぐため、3秒待ってから実行します。
+- 連続変更による過剰なコミットを避けるため、一定時間まとめてから実行します。
 - コミットメッセージは `auto: update by Codex [YYYY-MM-DD HH:MM:SS]` 形式です。
-- 実際のコミット処理は `auto-commit.cmd` 経由で `auto-commit.sh` を実行します。
