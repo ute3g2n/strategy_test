@@ -23,6 +23,7 @@
 - `.codex/skills/autotrade_skill_*_v0_1/SKILL.md`
 - `.codex/agents/AutoTrade_A*.json`
 - `.codex/orchestrators/AutoTradeProject_Orchestrator_v0_1.json`
+- `.codex/orchestrators/AutoTradeProject_DesignDocSet_Orchestrator_v0_1.json`
 - `.codex/orchestrators/AutoTradePhasePlanning_Orchestrator_v0_1.json`
 - `settings/ai_component_rules.md`
 
@@ -37,20 +38,23 @@ PX-PLAN-00で指定されたAI部品はすべて存在するため、不足部�
 | 種別 | 完全名 | 確認結果 |
 |---|---|---|
 | Orchestrator | `AutoTradePhasePlanning_Orchestrator_v0_1` | 存在 |
+| Orchestrator | `AutoTradeProject_DesignDocSet_Orchestrator_v0_1` | 存在 |
 | Agent | `AutoTrade_A05_PhaseExecutionPlanner_v0_1` | 存在 |
 | Agent | `AutoTrade_A10_RequirementsCurator_v0_1` | 存在 |
 | Agent | `AutoTrade_A80_DocumentIntegrator_v0_1` | 存在 |
+| Agent | `AutoTrade_A81_DesignDocSetWriter_v0_1` | 存在 |
 | Agent | `AutoTrade_A90_DesignReviewer_v0_1` | 存在 |
 | Skill | `autotrade_skill_phase_execution_planning_v0_1` | 存在 |
 | Skill | `autotrade_skill_source_reader_v0_1` | 存在 |
 | Skill | `autotrade_skill_traceability_v0_1` | 存在 |
 | Skill | `autotrade_skill_orchestration_v0_1` | 存在 |
 | Skill | `autotrade_skill_html_doc_writer_v0_1` | 存在 |
+| Skill | `autotrade_skill_design_doc_set_writer_v0_1` | 存在 |
 | Skill | `autotrade_skill_design_review_v0_1` | 存在 |
 | Skill | `autotrade_skill_red_team_review_v0_1` | 存在 |
 | Skill | `autotrade_skill_revision_integration_v0_1` | 存在 |
 
-Phase 2専用AI部品は作成しない。理由は、Market Data基盤の計画、設計、実装、レビューは既存のプロジェクト汎用Orchestrator、Agent、Skillで扱えるためである。既存の `AutoTradePhase1_*` と `autotrade_phase1_skill_*` は参照対象として読むだけにし、実行部品としては起動しない。
+Phase 2専用AI部品は作成しない。理由は、Market Data基盤の計画、設計、実装、レビューは既存または今回追加したプロジェクト汎用Orchestrator、Agent、Skillで扱えるためである。設計書作成が多いステップでは `AutoTradeProject_DesignDocSet_Orchestrator_v0_1`、`AutoTrade_A81_DesignDocSetWriter_v0_1`、`autotrade_skill_design_doc_set_writer_v0_1` を標準使用する。既存の `AutoTradePhase1_*` と `autotrade_phase1_skill_*` は参照対象として読むだけにし、実行部品としては起動しない。
 
 ---
 
