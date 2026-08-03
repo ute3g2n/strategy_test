@@ -48,6 +48,7 @@
         padding: 16px;
         background: #fff;
         min-height: 180px;
+        height: auto;
       }
       .diagram-viewport .mermaid {
         min-width: 100%;
@@ -112,6 +113,7 @@
           svg.style.height = `${height}px`;
           const scaledHeight = Math.max(height * scale + 32, 180);
           viewport.style.minHeight = `${scaledHeight}px`;
+          viewport.style.height = `${scaledHeight}px`;
         }
         label.textContent = mode === "fit" ? `幅合わせ ${Math.round(scale * 100)}%` : `${Math.round(scale * 100)}%`;
       };
