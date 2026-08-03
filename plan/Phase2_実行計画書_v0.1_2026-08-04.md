@@ -221,16 +221,17 @@ UnknownはPassにしない。各Unknownには担当ステップ、決定タイ�
 ```text
 ステップID: P2-01
 ロール: Phase 2 要件・スコープ整理者
-使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
-担当サブエージェント完全名: AutoTrade_A10_RequirementsCurator_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A90_DesignReviewer_v0_1
+使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A10_RequirementsCurator_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1
 使用モデル: gpt-5.5
-使用Skill完全名: autotrade_skill_source_reader_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1
+使用Skill完全名: autotrade_skill_source_reader_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1
 
 Phase Runbook:
 - phase_id: Phase 2
 - step_id: P2-01
 - output_root: doc/phase2/
 - log_root: plan/phase2/ログ/
+- document_set_id: P2-REQ-DOCSET
 - detail_boundary: Market Data基盤のスコープ、追跡ID、Unknown、対象候補を固定する。実装詳細やDatabento全APIパラメータは固定しすぎない。
 - human_gate_policy: H2-0でPhase 2スコープ、対象候補、Unknown台帳を承認する。
 
@@ -281,16 +282,17 @@ Phase 2 Market Data基盤のスコープ、入力条件、成果物、要件追�
 ```text
 ステップID: P2-02
 ロール: Market Data公式仕様調査者
-使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
-担当サブエージェント完全名: AutoTrade_A50_AdapterArchitect_v0_1, AutoTrade_A10_RequirementsCurator_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A90_DesignReviewer_v0_1
+使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A50_AdapterArchitect_v0_1, AutoTrade_A10_RequirementsCurator_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1
 使用モデル: gpt-5.5
-使用Skill完全名: autotrade_skill_adapter_boundary_v0_1, autotrade_skill_official_research_v0_1, autotrade_skill_source_reader_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1
+使用Skill完全名: autotrade_skill_adapter_boundary_v0_1, autotrade_skill_official_research_v0_1, autotrade_skill_source_reader_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1
 
 Phase Runbook:
 - phase_id: Phase 2
 - step_id: P2-02
 - output_root: doc/phase2/
 - log_root: plan/phase2/ログ/
+- document_set_id: P2-DATASOURCE-DOCSET
 - detail_boundary: Databentoのdataset、schema、symbology、metadata、rate limit、品質情報をPhase 2設計に必要な範囲で確認する。外部仕様をCoreへ直結させない。
 - human_gate_policy: H2-2で外部API実取得、費用、entitlement、Secret取り扱いを承認する。
 
@@ -334,16 +336,17 @@ Databentoの公式一次情報を確認し、Phase 2 Market Data基盤に必要�
 ```text
 ステップID: P2-03
 ロール: Market Data基盤詳細設計者
-使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
-担当サブエージェント完全名: AutoTrade_A50_AdapterArchitect_v0_1, AutoTrade_A20_ArchitectureDomainArchitect_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A90_DesignReviewer_v0_1
+使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A50_AdapterArchitect_v0_1, AutoTrade_A20_ArchitectureDomainArchitect_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1
 使用モデル: gpt-5.5
-使用Skill完全名: autotrade_skill_adapter_boundary_v0_1, autotrade_skill_architecture_writer_v0_1, autotrade_skill_domain_modeling_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1
+使用Skill完全名: autotrade_skill_adapter_boundary_v0_1, autotrade_skill_architecture_writer_v0_1, autotrade_skill_domain_modeling_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1
 
 Phase Runbook:
 - phase_id: Phase 2
 - step_id: P2-03
 - output_root: doc/phase2/
 - log_root: plan/phase2/ログ/
+- document_set_id: P2-MARKET-DATA-DESIGN-DOCSET
 - detail_boundary: Market Data Adapter、Raw/Normalized Store、Instrument Catalogを実装可能な粒度で詳細化する。Strategyロジック、Broker接続、Backtest Engine本体は対象外。
 - human_gate_policy: H2-1でroll/continuous方式と合わせてデータ基盤方式を承認する。
 
@@ -390,16 +393,17 @@ Phase 2 Market Data Adapter、Raw/Normalized Store、Instrument Catalogの詳細
 ```text
 ステップID: P2-04
 ロール: Roll Rule / Continuous Signal設計者
-使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
-担当サブエージェント完全名: AutoTrade_A50_AdapterArchitect_v0_1, AutoTrade_A30_StrategyQaArchitect_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A90_DesignReviewer_v0_1
+使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A50_AdapterArchitect_v0_1, AutoTrade_A30_StrategyQaArchitect_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1
 使用モデル: gpt-5.5
-使用Skill完全名: autotrade_skill_adapter_boundary_v0_1, autotrade_skill_strategy_interface_v0_1, autotrade_skill_turtle_strategy_rules_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1
+使用Skill完全名: autotrade_skill_adapter_boundary_v0_1, autotrade_skill_strategy_interface_v0_1, autotrade_skill_turtle_strategy_rules_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1
 
 Phase Runbook:
 - phase_id: Phase 2
 - step_id: P2-04
 - output_root: doc/phase2/
 - log_root: plan/phase2/ログ/
+- document_set_id: P2-ROLL-SIGNAL-DOCSET
 - detail_boundary: Roll rule、continuous signal series、Tradable/Signal分離を固定する。売買ロジックの最終パラメータ最適化はPhase 3以降に送る。
 - human_gate_policy: H2-1でOD-03の扱いを承認する。
 
