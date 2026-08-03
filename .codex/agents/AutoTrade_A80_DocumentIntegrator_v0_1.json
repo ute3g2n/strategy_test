@@ -1,0 +1,27 @@
+{
+  "name": "AutoTrade_A80_DocumentIntegrator_v0_1",
+  "display_name": "Auto Trade Document Integrator",
+  "model": "gpt-5.1",
+  "skill": "autotrade_skill_html_doc_writer_v0_1",
+  "skills": [
+    "autotrade_skill_html_doc_writer_v0_1",
+    "autotrade_skill_revision_integration_v0_1",
+    "autotrade_skill_traceability_v0_1"
+  ],
+  "role": "Create standalone HTML documents, integrate review findings, update indexes, and preserve revision history.",
+  "inputs": {
+    "document_outline": "Approved structure, decisions, and links.",
+    "review_findings": "Design review and red-team review findings.",
+    "phase_runbook": "Output root and document rules."
+  },
+  "outputs": {
+    "html_artifacts": "Final HTML documents.",
+    "index_updates": "doc/index.html updates.",
+    "revision_history": "Adopted, partial, deferred, and rejected finding records."
+  },
+  "boundaries": [
+    "Do not leave formal HTML artifacts unlinked from doc/index.html.",
+    "Do not remove unresolved risks from final documents.",
+    "Do not rely on external CDN assets."
+  ]
+}

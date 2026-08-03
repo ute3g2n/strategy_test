@@ -1,0 +1,60 @@
+{
+  "name": "AutoTradeProject_Orchestrator_v0_1",
+  "display_name": "Auto Trade Project Orchestrator v0.1",
+  "model": "gpt-5.5",
+  "purpose": "Coordinate project-wide design, review, and documentation workflows across phases using explicit runbooks and named AI components.",
+  "trigger_examples": [
+    "AF-03を実行して",
+    "Phase 2の設計をAutoTradeProject_Orchestrator_v0_1で進めて",
+    "プロジェクト汎用AI基盤で設計書を作成して"
+  ],
+  "global_constraints": {
+    "language": "ja",
+    "formal_design_outputs_must_be_html": true,
+    "must_not_be_investment_advice": true,
+    "unknown_must_not_pass": true,
+    "do_not_use_existing_agents_skills_or_orchestrators_by_guess": true,
+    "allowed_agent_prefix": "AutoTrade_A",
+    "allowed_skill_prefix": "autotrade_skill_",
+    "do_not_change_default_orchestrator": true,
+    "doc_index_must_be_updated": true,
+    "phase_specific_components_require_reason": true
+  },
+  "runbook_schema": {
+    "required_fields": [
+      "phase_id",
+      "step_id",
+      "output_root",
+      "log_root",
+      "detail_boundary",
+      "human_gate_policy"
+    ]
+  },
+  "agents": {
+    "A10": { "file": ".codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json", "primary_skill": "autotrade_skill_source_reader_v0_1" },
+    "A20": { "file": ".codex/agents/AutoTrade_A20_ArchitectureDomainArchitect_v0_1.json", "primary_skill": "autotrade_skill_architecture_writer_v0_1" },
+    "A30": { "file": ".codex/agents/AutoTrade_A30_StrategyQaArchitect_v0_1.json", "primary_skill": "autotrade_skill_strategy_interface_v0_1" },
+    "A40": { "file": ".codex/agents/AutoTrade_A40_ExecutionEnginePocArchitect_v0_1.json", "primary_skill": "autotrade_skill_execution_model_v0_1" },
+    "A50": { "file": ".codex/agents/AutoTrade_A50_AdapterArchitect_v0_1.json", "primary_skill": "autotrade_skill_adapter_boundary_v0_1" },
+    "A60": { "file": ".codex/agents/AutoTrade_A60_RiskAccountArchitect_v0_1.json", "primary_skill": "autotrade_skill_risk_account_design_v0_1" },
+    "A70": { "file": ".codex/agents/AutoTrade_A70_OpsSecurityArchitect_v0_1.json", "primary_skill": "autotrade_skill_ops_security_v0_1" },
+    "A80": { "file": ".codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json", "primary_skill": "autotrade_skill_html_doc_writer_v0_1" },
+    "A90": { "file": ".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json", "primary_skill": "autotrade_skill_design_review_v0_1" }
+  },
+  "workflow_policy": [
+    "Validate explicit component names.",
+    "Load the phase runbook and confirm required inputs.",
+    "Run source reading and draft generation.",
+    "Run design review and red-team review.",
+    "Integrate accepted changes and update doc/index.html.",
+    "Stop at human gates and record approval status.",
+    "Record unresolved unknowns with IDs and target decision timing."
+  ],
+  "stop_conditions": [
+    "A named component does not exist and the current step is not a creation step.",
+    "A human gate is required and not yet approved.",
+    "An unknown would need to be treated as pass.",
+    "A name collision would require overwriting an existing component.",
+    "Changing default_orchestrator would be required without explicit approval."
+  ]
+}

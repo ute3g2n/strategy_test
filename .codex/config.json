@@ -10,6 +10,11 @@
       "name": "AutoTradePhase1_Orchestrator_v0_1",
       "file": ".codex/orchestrators/AutoTradePhase1_Orchestrator_v0_1.json",
       "model": "gpt-5.5"
+    },
+    {
+      "name": "AutoTradeProject_Orchestrator_v0_1",
+      "file": ".codex/orchestrators/AutoTradeProject_Orchestrator_v0_1.json",
+      "model": "gpt-5.5"
     }
   ],
   "agents_dir": ".codex/agents",
