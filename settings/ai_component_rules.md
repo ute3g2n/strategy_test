@@ -52,6 +52,14 @@
 - 依頼プロンプトの標準雛形は `doc/ai_foundation/10_Phase実行計画書作成依頼プロンプト.html` を参照する。
 - 実行計画の補助HTMLを作る場合は `doc/phaseX/00_実行計画/` 配下に保存し、`doc/index.html` から到達できるようにする。
 
+## AI部品作成変更ルール
+
+- Skill、サブエージェント、オーケストレータの作成または変更では、まず既存の汎用部品の再利用可否を調査する。
+- その後に、必要な実体ファイルを作成または変更し、最後に対象ドキュメントを更新する。
+- AI部品の作成または変更では、標準として `AutoTradeComponentLifecycle_Orchestrator_v0_1`、`AutoTrade_A06_AiComponentEngineer_v0_1`、`autotrade_skill_ai_component_lifecycle_v0_1` を使用する。
+- 依頼プロンプトの標準雛形は `doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html` を参照する。
+- 実体更新だけで終わらせず、`doc/ai_foundation/03` から `08`、`doc/index.html`、必要に応じて `AGENTS.md` と `README.md` を同じ変更セットで更新する。
+
 ## 安全ルール
 
 - 投資助言、売買推奨、特定商品の推奨をしない。

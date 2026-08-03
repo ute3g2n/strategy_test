@@ -30,8 +30,10 @@
 - 汎用Orchestrator:
   `AutoTradeProject_Orchestrator_v0_1`
   `AutoTradePhasePlanning_Orchestrator_v0_1`
+  `AutoTradeComponentLifecycle_Orchestrator_v0_1`
 - 汎用Agents:
   `AutoTrade_A05_PhaseExecutionPlanner_v0_1`
+  `AutoTrade_A06_AiComponentEngineer_v0_1`
   `AutoTrade_A10_RequirementsCurator_v0_1`
   `AutoTrade_A20_ArchitectureDomainArchitect_v0_1`
   `AutoTrade_A30_StrategyQaArchitect_v0_1`
@@ -44,6 +46,7 @@
 - 汎用Skills:
   `.codex/skills/autotrade_skill_*_v0_1/`
   Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を標準で使う。
+  AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を標準で使う。
 - Phase 1専用部品:
   `AutoTradePhase1_*`
   `autotrade_phase1_skill_*_v0_1`
@@ -62,6 +65,10 @@ AI部品の作成、設計、レビュー、Phase実行に入る前は、原則�
 ## Phase実行計画
 
 各Phaseを開始する前に、まず実行計画書を作成する。標準の依頼プロンプトは `doc/ai_foundation/10_Phase実行計画書作成依頼プロンプト.html` を参照する。計画書は `plan/` 配下へ保存し、複数ステップに分割し、各ステップにそのまま実行できるプロンプトを含める。
+
+## AI部品作成・変更
+
+Skill、サブエージェント、オーケストレータの作成または変更では、まず既存再利用を調査し、その後に実体更新、最後に仕様と導線を更新する。標準の依頼プロンプトは `doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html` を参照する。
 
 ## 更新ルール
 

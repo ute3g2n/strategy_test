@@ -48,8 +48,10 @@
 - Orchestrator:
   `AutoTradeProject_Orchestrator_v0_1`
   `AutoTradePhasePlanning_Orchestrator_v0_1`
+  `AutoTradeComponentLifecycle_Orchestrator_v0_1`
 - Agents:
   `AutoTrade_A05_PhaseExecutionPlanner_v0_1`
+  `AutoTrade_A06_AiComponentEngineer_v0_1`
   `AutoTrade_A10_RequirementsCurator_v0_1`
   `AutoTrade_A20_ArchitectureDomainArchitect_v0_1`
   `AutoTrade_A30_StrategyQaArchitect_v0_1`
@@ -62,12 +64,17 @@
 - Skills:
   `.codex/skills/autotrade_skill_*_v0_1/`
   Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を使います。
+  AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を使います。
 
 ### Phase実行計画
 
 各Phaseを開始する前に、まずそのPhaseの実行計画書を作成します。実行計画書は `plan/` 配下に保存し、必ず複数ステップに分割し、各ステップにそのまま実行できるプロンプトを含めます。
 
 標準の依頼プロンプトは [Phase実行計画書作成依頼プロンプト](./doc/ai_foundation/10_Phase実行計画書作成依頼プロンプト.html) を参照してください。
+
+### AI部品作成・変更
+
+Skill、サブエージェント、オーケストレータの作成または変更では、まず既存再利用を調査し、その後に実体更新、最後に仕様と導線を更新します。標準の依頼プロンプトは [AI部品作成更新依頼プロンプト](./doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html) を参照してください。
 
 ### 証跡として残す部品
 
