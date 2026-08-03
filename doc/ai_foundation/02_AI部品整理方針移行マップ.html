@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI部品整理方針・移行マップ</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px auto; max-width: 1280px; color: #1f2937; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin-top: 34px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 10px; vertical-align: top; }
+    th { background: #f3f4f6; }
+    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+    pre { background: #111827; color: #f9fafb; padding: 16px; overflow-x: auto; }
+    .meta, .note { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .decision { border-left: 4px solid #047857; padding: 10px 14px; background: #ecfdf5; margin: 16px 0; }
+    .warn { border-left: 4px solid #b45309; padding: 10px 14px; background: #fffbeb; margin: 16px 0; }
+    .ok { color: #047857; font-weight: 700; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>AI部品整理方針・移行マップ</h1>
+
+  <section class="meta">
+    <p><strong>文書ID:</strong> AF-D02<br>
+    <strong>作成日:</strong> 2026-08-04<br>
+    <strong>文書状態:</strong> v0.1 / AF-01レビュー反映済み<br>
+    <strong>ステップID:</strong> AF-01<br>
+    <strong>作成モード:</strong> 指定された汎用AI部品は未作成のため、Codex通常実行で作成。既存Phase 1部品は調査対象としてのみ参照。</p>
+  </section>
+
+  <h2>1. 目的</h2>
+  <p>本書は、Phase 1専用AI部品を、プロジェクト全体で再利用できるAI実行基盤へ整理するための方針と移行マップを定義する。</p>
+  <p>結論は、<strong>Skillは小粒度のまま汎用化し、サブエージェントは類似責務のみ中粒度へ統合し、オーケストレータはプロジェクト汎用1本へ集約する</strong>ことである。</p>
+
+  <h2>2. 設計判断</h2>
+  <section class="decision">
+    <p><strong>DEC-AF-01:</strong> Phase 1専用部品は削除せず、frozen / legacy / phase1証跡として残す。<br>
+    <strong>理由:</strong> Phase 1成果物、レビュー履歴、実行ログに完全名が残っており、削除やリネームは監査性を落とすため。</p>
+  </section>
+  <section class="decision">
+    <p><strong>DEC-AF-02:</strong> 汎用部品は新しい名前空間 <code>AutoTradeProject_</code>、<code>AutoTrade_Axx_</code>、<code>autotrade_skill_</code> に作成する。<br>
+    <strong>理由:</strong> 既存名との衝突を避け、Phase 2以降のプロンプトで明示的に指定できるようにするため。</p>
+  </section>
+  <section class="decision">
+    <p><strong>DEC-AF-03:</strong> Phase依存条件はSkillやAgentへ直書きせず、Phase Runbookとして入力する。<br>
+    <strong>理由:</strong> <code>phase_id</code>、<code>output_root</code>、<code>detail_boundary</code>、<code>human_gate_policy</code> を切り替えるだけで各Phaseに適用できるようにするため。</p>
+  </section>
+
+  <h2>3. 目標アーキテクチャ図</h2>
+  <pre>Target state
+  AutoTradeProject_Orchestrator_v0_1
+    |
+    +-- Phase Runbook
+    |     +-- phase_id
+    |     +-- step_id
+    |     +-- output_root
+    |     +-- log_root
+    |     +-- detail_boundary
+    |     +-- human_gate_policy
+    |
+    +-- AutoTrade_A10_RequirementsCurator_v0_1
+    |     +-- autotrade_skill_source_reader_v0_1
+    |     +-- autotrade_skill_traceability_v0_1
+    |
+    +-- AutoTrade_A20_ArchitectureDomainArchitect_v0_1
+    |     +-- autotrade_skill_architecture_writer_v0_1
+    |     +-- autotrade_skill_domain_modeling_v0_1
+    |
+    +-- AutoTrade_A30_StrategyQaArchitect_v0_1
+    |     +-- autotrade_skill_strategy_interface_v0_1
+    |     +-- autotrade_skill_turtle_strategy_rules_v0_1
+    |     +-- autotrade_skill_golden_test_v0_1
+    |     +-- autotrade_skill_test_strategy_v0_1
+    |
+    +-- AutoTrade_A40_ExecutionEnginePocArchitect_v0_1
+    |     +-- autotrade_skill_execution_model_v0_1
+    |     +-- autotrade_skill_poc_evaluation_v0_1
+    |     +-- autotrade_skill_trading_engine_poc_v0_1
+    |
+    +-- AutoTrade_A50_AdapterArchitect_v0_1
+    |     +-- autotrade_skill_adapter_boundary_v0_1
+    |
+    +-- AutoTrade_A60_RiskAccountArchitect_v0_1
+    |     +-- autotrade_skill_risk_account_design_v0_1
+    |
+    +-- AutoTrade_A70_OpsSecurityArchitect_v0_1
+    |     +-- autotrade_skill_ops_security_v0_1
+    |
+    +-- AutoTrade_A80_DocumentIntegrator_v0_1
+    |     +-- autotrade_skill_html_doc_writer_v0_1
+    |     +-- autotrade_skill_revision_integration_v0_1
+    |
+    +-- AutoTrade_A90_DesignReviewer_v0_1
+          +-- autotrade_skill_design_review_v0_1
+          +-- autotrade_skill_red_team_review_v0_1
+
+  Frozen / legacy
+    +-- AutoTradePhase1_Orchestrator_v0_1
+    +-- AutoTradePhase1_A00...A14
+    +-- autotrade_phase1_skill_*_v0_1</pre>
+
+  <h2>4. 名前空間ルール</h2>
+  <table>
+    <thead><tr><th>区分</th><th>名前空間</th><th>用途</th><th>作成条件</th></tr></thead>
+    <tbody>
+      <tr><td>汎用オーケストレータ</td><td><code>AutoTradeProject_</code></td><td>Phase横断DAG、Gate、成果物統合</td><td>プロジェクト全体で再利用する場合。</td></tr>
+      <tr><td>汎用サブエージェント</td><td><code>AutoTrade_Axx_</code></td><td>Phase横断の役割</td><td>複数Phaseで同種タスクを担当する場合。</td></tr>
+      <tr><td>汎用Skill</td><td><code>autotrade_skill_</code></td><td>Phase横断の作業規約</td><td>複数Agentから再利用する場合。</td></tr>
+      <tr><td>Phase専用部品</td><td><code>AutoTradePhaseX_</code> / <code>autotrade_phaseX_skill_</code></td><td>特定Phase専用の実行証跡または一時制約</td><td>汎用部品では不十分な理由、利用期限、凍結条件がある場合。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. Skill移行マップ</h2>
+  <table>
+    <thead><tr><th>現在のSkill</th><th>移行先</th><th>分類</th><th>補足</th></tr></thead>
+    <tbody>
+      <tr><td><code>autotrade_phase1_skill_orchestration_v0_1</code></td><td><code>autotrade_skill_orchestration_v0_1</code></td><td>汎用へ昇格</td><td>Phase Runbookを入力化。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_source_reader_v0_1</code></td><td><code>autotrade_skill_source_reader_v0_1</code></td><td>汎用へ昇格</td><td>Phase方針、既存成果物、要件を一般入力化。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_traceability_v0_1</code></td><td><code>autotrade_skill_traceability_v0_1</code></td><td>汎用へ昇格</td><td>ID体系をPhase横断化。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_official_research_v0_1</code></td><td><code>autotrade_skill_official_research_v0_1</code></td><td>汎用へ昇格</td><td>外部仕様調査時の一次情報優先を維持。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_html_doc_writer_v0_1</code></td><td><code>autotrade_skill_html_doc_writer_v0_1</code></td><td>汎用へ昇格</td><td><code>doc/index.html</code> 更新必須を明記。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_architecture_writer_v0_1</code></td><td><code>autotrade_skill_architecture_writer_v0_1</code></td><td>汎用へ昇格</td><td>Phase固定表現を外す。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_domain_modeling_v0_1</code></td><td><code>autotrade_skill_domain_modeling_v0_1</code></td><td>汎用へ昇格</td><td>イベント、ID、時系列をPhase横断化。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_strategy_design_v0_1</code></td><td><code>autotrade_skill_strategy_interface_v0_1</code><br><code>autotrade_skill_turtle_strategy_rules_v0_1</code></td><td>分割して昇格</td><td>Plugin InterfaceとTurtle固有ルールを分離。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_golden_test_v0_1</code></td><td><code>autotrade_skill_golden_test_v0_1</code></td><td>汎用へ昇格</td><td>Turtle固有fixtureは別Skillから参照。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_adapter_boundary_v0_1</code></td><td><code>autotrade_skill_adapter_boundary_v0_1</code></td><td>汎用へ昇格</td><td>Broker/Data Vendor境界を一般化。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_execution_model_v0_1</code></td><td><code>autotrade_skill_execution_model_v0_1</code></td><td>汎用へ昇格</td><td>Replay/Realtime整合を継続。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_poc_design_v0_1</code></td><td><code>autotrade_skill_poc_evaluation_v0_1</code><br><code>autotrade_skill_trading_engine_poc_v0_1</code></td><td>分割して昇格</td><td>汎用PoC評価と取引エンジン評価を分離。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_risk_account_design_v0_1</code></td><td><code>autotrade_skill_risk_account_design_v0_1</code></td><td>汎用へ昇格</td><td>取引ドメイン責務として維持。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_ops_security_v0_1</code></td><td><code>autotrade_skill_ops_security_v0_1</code></td><td>汎用へ昇格</td><td>運用・安全停止・Secretsを維持。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_test_strategy_v0_1</code></td><td><code>autotrade_skill_test_strategy_v0_1</code></td><td>汎用へ昇格</td><td>機械GateとHuman Gateを分離。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_design_reviewer_v0_1</code></td><td><code>autotrade_skill_design_review_v0_1</code></td><td>汎用へ昇格</td><td>Phase範囲レビューはRunbookのdetail_boundaryを参照。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_red_team_review_v0_1</code></td><td><code>autotrade_skill_red_team_review_v0_1</code></td><td>汎用へ昇格</td><td>危険な先送り、Unknown、Fail-closedを維持。</td></tr>
+      <tr><td><code>autotrade_phase1_skill_revision_integrator_v0_1</code></td><td><code>autotrade_skill_revision_integration_v0_1</code></td><td>汎用へ昇格</td><td>変更履歴と採否記録を維持。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>6. サブエージェント移行マップ</h2>
+  <table>
+    <thead><tr><th>移行先Agent</th><th>統合元</th><th>主な責務</th><th>使用Skill候補</th></tr></thead>
+    <tbody>
+      <tr><td><code>AutoTrade_A10_RequirementsCurator_v0_1</code></td><td>Phase1 A01</td><td>要件抽出、スコープ分離、追跡ID、Unknown台帳</td><td><code>source_reader</code>, <code>traceability</code></td></tr>
+      <tr><td><code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code></td><td>Phase1 A02, A03</td><td>全体構成、ドメイン分割、共通モデル、依存方向</td><td><code>architecture_writer</code>, <code>domain_modeling</code></td></tr>
+      <tr><td><code>AutoTrade_A30_StrategyQaArchitect_v0_1</code></td><td>Phase1 A04, A10の一部</td><td>Strategy Interface、Golden test、戦略QA</td><td><code>strategy_interface</code>, <code>turtle_strategy_rules</code>, <code>golden_test</code>, <code>test_strategy</code></td></tr>
+      <tr><td><code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code></td><td>Phase1 A05, A06</td><td>共通実行モデル、取引エンジンPoC、Replay/Realtime整合</td><td><code>execution_model</code>, <code>poc_evaluation</code>, <code>trading_engine_poc</code></td></tr>
+      <tr><td><code>AutoTrade_A50_AdapterArchitect_v0_1</code></td><td>Phase1 A07</td><td>Broker Adapter、Market Data Adapter、外部ID境界</td><td><code>adapter_boundary</code></td></tr>
+      <tr><td><code>AutoTrade_A60_RiskAccountArchitect_v0_1</code></td><td>Phase1 A08</td><td>Portfolio、Risk、Account、OMS責務境界</td><td><code>risk_account_design</code></td></tr>
+      <tr><td><code>AutoTrade_A70_OpsSecurityArchitect_v0_1</code></td><td>Phase1 A09</td><td>監視、Secrets、環境分離、安全停止、運用設計</td><td><code>ops_security</code></td></tr>
+      <tr><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>Phase1 A11, A14</td><td>HTML設計書、index更新、レビュー反映、変更履歴</td><td><code>html_doc_writer</code>, <code>revision_integration</code></td></tr>
+      <tr><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>Phase1 A12, A13</td><td>整合性レビュー、Red Teamレビュー、未確定事項監査</td><td><code>design_review</code>, <code>red_team_review</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. 統合しない境界</h2>
+  <table>
+    <thead><tr><th>組み合わせ</th><th>判断</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>Risk/Account と Ops/Security</td><td>統合しない</td><td>Risk/Accountは取引ドメインの正本と制御、Ops/Securityは運用基盤と安全停止で判断軸が異なる。</td></tr>
+      <tr><td>Adapter と PoC</td><td>統合しない</td><td>Adapterは採用後の境界設計、PoCは採用前の評価設計である。</td></tr>
+      <tr><td>Official research と特定製品判断</td><td>統合しない</td><td>公式情報調査は根拠収集であり、採用判断はPoC評価またはHuman Gateで行う。</td></tr>
+      <tr><td>HTML作成 と設計レビュー</td><td>統合しない</td><td>文書整形者とレビュアーを分けることで、見落としを減らす。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>8. 発火制御図</h2>
+  <pre>Prompt execution rule
+  |
+  +-- Explicit names present?
+  |     |
+  |     +-- yes
+  |          |
+  |          +-- Are named components present?
+  |                |
+  |                +-- yes: use only named components
+  |                |
+  |                +-- no:
+  |                     +-- if current step creates them: create from approved spec
+  |                     +-- otherwise: stop and report missing names
+  |
+  +-- no
+        |
+        +-- do not guess existing skills, agents, or orchestrators
+
+Phase-specific component rule
+  |
+  +-- Need Phase-specific component?
+        |
+        +-- require reason, expiry, freeze condition, and HTML spec
+        +-- otherwise use AutoTradeProject / AutoTrade_Axx / autotrade_skill</pre>
+
+  <h2>9. AF-02で確定すべきこと</h2>
+  <ul>
+    <li>各 <code>autotrade_skill_*_v0_1</code> の目的、入力、出力、禁止事項、品質チェック。</li>
+    <li>各 <code>AutoTrade_Axx_*_v0_1</code> の責務、入力、出力、使用Skill、推奨モデル、境界条件。</li>
+    <li><code>AutoTradeProject_Orchestrator_v0_1</code> のPhase Runbook、DAG、Gate、成果物統合、Unknown管理。</li>
+    <li>プロジェクト全体へ適用するAI部品作成ルール。</li>
+    <li>HTML仕様書と <code>doc/index.html</code> の更新ルール。</li>
+  </ul>
+
+  <h2>10. AF-01レビュー結果</h2>
+  <table>
+    <thead><tr><th>観点</th><th>結果</th><th>反映内容</th></tr></thead>
+    <tbody>
+      <tr><td>統合しすぎ</td><td class="ok">Pass</td><td>Agentは9体案に留め、Skillは小粒度で残す。</td></tr>
+      <tr><td>分割しすぎ</td><td class="ok">Pass</td><td>Phase 1の15体Agentから、Phase横断で使う9体へ圧縮。</td></tr>
+      <tr><td>既存証跡破壊</td><td class="ok">Pass</td><td>Phase 1部品は削除、移動、上書きしない。</td></tr>
+      <tr><td>発火制御漏れ</td><td class="ok">Pass</td><td>完全名明示、未存在時停止、Phase専用部品の作成条件を明記。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>11. 後続引き継ぎ</h2>
+  <p>AF-02では、本書の移行マップを仕様化し、<code>doc/ai_foundation/03_プロジェクト汎用Skill仕様.html</code>、<code>04_プロジェクト汎用サブエージェント仕様.html</code>、<code>05_プロジェクト汎用オーケストレータ仕様.html</code>、<code>06_AI部品相関図発火制御図.html</code>、<code>07_AI部品作成ルール.html</code> を作成する。</p>
+</main>
+</body>
+</html>

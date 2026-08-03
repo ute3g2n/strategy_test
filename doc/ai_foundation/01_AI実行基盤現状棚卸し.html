@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI実行基盤 現状棚卸し</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px auto; max-width: 1280px; color: #1f2937; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin-top: 34px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 10px; vertical-align: top; }
+    th { background: #f3f4f6; }
+    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+    pre { background: #111827; color: #f9fafb; padding: 16px; overflow-x: auto; }
+    .meta, .note { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .warn { border-left-color: #b45309; background: #fffbeb; }
+    .ok { color: #047857; font-weight: 700; }
+    .risk { color: #b45309; font-weight: 700; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>AI実行基盤 現状棚卸し</h1>
+
+  <section class="meta">
+    <p><strong>文書ID:</strong> AF-D01<br>
+    <strong>作成日:</strong> 2026-08-04<br>
+    <strong>文書状態:</strong> v0.1 / AF-01レビュー反映済み<br>
+    <strong>ステップID:</strong> AF-01<br>
+    <strong>作成モード:</strong> 指定された汎用AI部品は未作成のため、Codex通常実行で作成。既存Phase 1部品は調査対象としてのみ参照。</p>
+  </section>
+
+  <h2>1. 目的</h2>
+  <p>本書は、現在の <code>.codex/skills</code>、<code>.codex/agents</code>、<code>.codex/orchestrators</code>、<code>.codex/config.json</code>、および <code>doc/phase1/00_実行基盤</code> 配下の仕様書を棚卸しし、AI実行基盤の現状を人間がレビューできる形で固定する。</p>
+  <p>Phase 1専用部品は実行しない。設計履歴、責務、制約、移行元として読むだけにする。</p>
+
+  <h2>2. 入力</h2>
+  <table>
+    <thead><tr><th>区分</th><th>対象</th><th>確認結果</th></tr></thead>
+    <tbody>
+      <tr><td>Skill実体</td><td><code>.codex/skills/autotrade_phase1_skill_*_v0_1/SKILL.md</code></td><td>18個を確認。</td></tr>
+      <tr><td>サブエージェント実体</td><td><code>.codex/agents/AutoTradePhase1_*.json</code></td><td>15体を確認。</td></tr>
+      <tr><td>オーケストレータ実体</td><td><code>.codex/orchestrators/AutoTradePhase1_Orchestrator_v0_1.json</code></td><td>1本を確認。</td></tr>
+      <tr><td>Codex設定</td><td><code>.codex/config.json</code></td><td><code>AutoTradePhase1_Orchestrator_v0_1</code> は登録済み。<code>default_orchestrator</code> は <code>middle-school-explanation-orchestrator</code> のまま。</td></tr>
+      <tr><td>仕様書</td><td><code>doc/phase1/00_実行基盤/*.html</code></td><td>Skill定義、サブエージェント定義、オーケストレータ仕様、テンプレート、レビュー観点、検証結果を確認。</td></tr>
+      <tr><td>整理計画</td><td><code>plan/AI実行基盤整理計画書_v0.1_2026-08-04.md</code></td><td>AF-01からAF-04までの整理フェーズと成果物方針を確認。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. 現在の全体像</h2>
+  <pre>Current state
+  .codex/config.json
+    default_orchestrator: middle-school-explanation-orchestrator
+    registered:
+      - middle-school-explanation-orchestrator
+      - AutoTradePhase1_Orchestrator_v0_1
+
+  AutoTradePhase1_Orchestrator_v0_1
+    allowed agent prefix: AutoTradePhase1_
+    allowed skill prefix: autotrade_phase1_skill_
+    workflow: P1-00 to P1-13
+    human gates: H1-0 to H1-4
+
+  AutoTradePhase1_A00...A14
+    total: 15
+    scope: Phase 1 design document creation
+
+  autotrade_phase1_skill_*_v0_1
+    total: 18
+    scope: Phase 1 design rules, review rules, document rules</pre>
+
+  <h2>4. Skill棚卸し</h2>
+  <table>
+    <thead><tr><th>No.</th><th>現在のSkill完全名</th><th>主な責務</th><th>Phase固定度</th><th>初期分類</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><code>autotrade_phase1_skill_orchestration_v0_1</code></td><td>DAG、依存関係、Gate、成果物統合</td><td>高</td><td>汎用へ昇格</td></tr>
+      <tr><td>2</td><td><code>autotrade_phase1_skill_source_reader_v0_1</code></td><td>要件、Phase方針、既存成果物の読み取り</td><td>中</td><td>汎用へ昇格</td></tr>
+      <tr><td>3</td><td><code>autotrade_phase1_skill_traceability_v0_1</code></td><td>要件ID、設計判断ID、未確定事項ID、成果物IDの追跡</td><td>中</td><td>汎用へ昇格</td></tr>
+      <tr><td>4</td><td><code>autotrade_phase1_skill_official_research_v0_1</code></td><td>公式一次情報、URL、確認日、根拠管理</td><td>低</td><td>汎用へ昇格</td></tr>
+      <tr><td>5</td><td><code>autotrade_phase1_skill_html_doc_writer_v0_1</code></td><td>単体HTML設計書、CSS、目次、相互リンク</td><td>中</td><td>汎用へ昇格</td></tr>
+      <tr><td>6</td><td><code>autotrade_phase1_skill_architecture_writer_v0_1</code></td><td>全体構成、モジュール責務、依存方向</td><td>中</td><td>汎用へ昇格</td></tr>
+      <tr><td>7</td><td><code>autotrade_phase1_skill_domain_modeling_v0_1</code></td><td>Entity、Value Object、Event、Command、State、ID、Time</td><td>中</td><td>汎用へ昇格</td></tr>
+      <tr><td>8</td><td><code>autotrade_phase1_skill_strategy_design_v0_1</code></td><td>Strategy Plugin、Turtle戦略比較</td><td>中</td><td>分割して昇格</td></tr>
+      <tr><td>9</td><td><code>autotrade_phase1_skill_golden_test_v0_1</code></td><td>Turtle Golden test設計</td><td>中</td><td>汎用へ昇格、一部Turtle専用化</td></tr>
+      <tr><td>10</td><td><code>autotrade_phase1_skill_adapter_boundary_v0_1</code></td><td>Broker / Market Data Adapter境界</td><td>中</td><td>汎用へ昇格</td></tr>
+      <tr><td>11</td><td><code>autotrade_phase1_skill_execution_model_v0_1</code></td><td>Backtest / Shadow / Paper / Live共通実行モデル</td><td>中</td><td>汎用へ昇格</td></tr>
+      <tr><td>12</td><td><code>autotrade_phase1_skill_poc_design_v0_1</code></td><td>取引エンジンPoC評価軸、採点、シナリオ</td><td>中</td><td>分割して昇格</td></tr>
+      <tr><td>13</td><td><code>autotrade_phase1_skill_risk_account_design_v0_1</code></td><td>Portfolio / Risk / Account / OMS責務分離</td><td>中</td><td>汎用へ昇格</td></tr>
+      <tr><td>14</td><td><code>autotrade_phase1_skill_ops_security_v0_1</code></td><td>監視、Secrets、環境分離、安全停止</td><td>中</td><td>汎用へ昇格</td></tr>
+      <tr><td>15</td><td><code>autotrade_phase1_skill_test_strategy_v0_1</code></td><td>テスト戦略、品質Gate、Failure injection</td><td>中</td><td>汎用へ昇格</td></tr>
+      <tr><td>16</td><td><code>autotrade_phase1_skill_design_reviewer_v0_1</code></td><td>用語、ID、責務、追跡性、Phase範囲レビュー</td><td>中</td><td>汎用へ昇格</td></tr>
+      <tr><td>17</td><td><code>autotrade_phase1_skill_red_team_review_v0_1</code></td><td>安全性、運用事故、危険な先送り、Unknown監査</td><td>低</td><td>汎用へ昇格</td></tr>
+      <tr><td>18</td><td><code>autotrade_phase1_skill_revision_integrator_v0_1</code></td><td>レビュー反映、差分記録、最終HTML統合</td><td>中</td><td>汎用へ昇格</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. サブエージェント棚卸し</h2>
+  <table>
+    <thead><tr><th>ID</th><th>現在の完全名</th><th>責務</th><th>初期分類</th></tr></thead>
+    <tbody>
+      <tr><td>A00</td><td><code>AutoTradePhase1_A00_Orchestrator_v0_1</code></td><td>Phase 1 DAG、依存関係、Gate、成果物統合</td><td>オーケストレータ責務へ吸収</td></tr>
+      <tr><td>A01</td><td><code>AutoTradePhase1_A01_RequirementsCurator_v0_1</code></td><td>要件抽出、スコープ分離、追跡ID</td><td>汎用へ昇格</td></tr>
+      <tr><td>A02</td><td><code>AutoTradePhase1_A02_SystemArchitect_v0_1</code></td><td>全体構成、モジュール分割、データフロー</td><td>A03と統合して昇格</td></tr>
+      <tr><td>A03</td><td><code>AutoTradePhase1_A03_DomainArchitect_v0_1</code></td><td>ドメイン分割、共通モデル、ID、時系列</td><td>A02と統合して昇格</td></tr>
+      <tr><td>A04</td><td><code>AutoTradePhase1_A04_StrategyArchitect_v0_1</code></td><td>Strategy Plugin、Turtleルール</td><td>A10の一部と統合して昇格</td></tr>
+      <tr><td>A05</td><td><code>AutoTradePhase1_A05_ExecutionModelArchitect_v0_1</code></td><td>共通実行モデル</td><td>A06と統合して昇格</td></tr>
+      <tr><td>A06</td><td><code>AutoTradePhase1_A06_EnginePocAnalyst_v0_1</code></td><td>取引エンジンPoC評価</td><td>A05と統合して昇格</td></tr>
+      <tr><td>A07</td><td><code>AutoTradePhase1_A07_AdapterArchitect_v0_1</code></td><td>Broker / Market Data Adapter境界</td><td>汎用へ昇格</td></tr>
+      <tr><td>A08</td><td><code>AutoTradePhase1_A08_RiskAccountArchitect_v0_1</code></td><td>Risk、Account、OMS責務境界</td><td>汎用へ昇格</td></tr>
+      <tr><td>A09</td><td><code>AutoTradePhase1_A09_OpsSecurityArchitect_v0_1</code></td><td>Ops、Security、Secrets、安全停止</td><td>汎用へ昇格</td></tr>
+      <tr><td>A10</td><td><code>AutoTradePhase1_A10_QaArchitect_v0_1</code></td><td>テスト戦略、品質Gate</td><td>A04の一部と統合、横断QAはSkill化</td></tr>
+      <tr><td>A11</td><td><code>AutoTradePhase1_A11_HtmlDocumentEngineer_v0_1</code></td><td>HTML設計書、テンプレート、index</td><td>A14と統合して昇格</td></tr>
+      <tr><td>A12</td><td><code>AutoTradePhase1_A12_ConsistencyReviewer_v0_1</code></td><td>整合性レビュー</td><td>A13と統合して昇格</td></tr>
+      <tr><td>A13</td><td><code>AutoTradePhase1_A13_RedTeamReviewer_v0_1</code></td><td>Red Teamレビュー</td><td>A12と統合して昇格</td></tr>
+      <tr><td>A14</td><td><code>AutoTradePhase1_A14_RevisionIntegrator_v0_1</code></td><td>レビュー反映、最終版作成</td><td>A11と統合して昇格</td></tr>
+    </tbody>
+  </table>
+
+  <h2>6. オーケストレータ棚卸し</h2>
+  <table>
+    <thead><tr><th>完全名</th><th>状態</th><th>責務</th><th>判断</th></tr></thead>
+    <tbody>
+      <tr><td><code>AutoTradePhase1_Orchestrator_v0_1</code></td><td>登録済み</td><td>P1-00からP1-13、H1-0からH1-4、Phase 1専用発火制御</td><td>Phase 1証跡として凍結。汎用化は新規 <code>AutoTradeProject_Orchestrator_v0_1</code> で行う。</td></tr>
+      <tr><td><code>middle-school-explanation-orchestrator</code></td><td>default</td><td>別用途の既存オーケストレータ</td><td>本整理の対象外。<code>default_orchestrator</code> は変更しない。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. 仕様書棚卸し</h2>
+  <table>
+    <thead><tr><th>仕様書</th><th>内容</th><th>整理上の扱い</th></tr></thead>
+    <tbody>
+      <tr><td><code>00_Skill定義.html</code></td><td>Phase 1専用Skill 18個の目的と利用規約</td><td>汎用Skill仕様の移行元。</td></tr>
+      <tr><td><code>00_サブエージェント定義.html</code></td><td>Phase 1専用Agent 15体の責務、入力、出力、Skill</td><td>汎用Agent仕様の移行元。</td></tr>
+      <tr><td><code>00_Phase1オーケストレータ仕様.html</code></td><td>Phase 1 DAG、Gate、発火制御、詳細化境界</td><td>汎用Orchestrator仕様の移行元。ただしPhase固定部分はRunbook化する。</td></tr>
+      <tr><td><code>00_HTML設計書テンプレート.html</code></td><td>HTML設計書の構造</td><td>汎用HTML文書規約へ昇格。</td></tr>
+      <tr><td><code>00_HTMLスタイルガイド.html</code></td><td>内蔵CSS、目次、関連文書リンク、PC可読性</td><td>汎用HTMLスタイル規約へ昇格。</td></tr>
+      <tr><td><code>00_レビュー観点チェックリスト.html</code></td><td>整合性、追跡性、責務境界、詳細化境界</td><td>汎用レビューSkillの移行元。</td></tr>
+      <tr><td><code>00_実行基盤検証結果.html</code></td><td>P1-00B実体作成と検証結果</td><td>Phase 1証跡として残す。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>8. Frozen / Legacyとして残す理由</h2>
+  <ul>
+    <li>Phase 1成果物のメタデータ、レビュー履歴、実行ログに既存部品名が記録されている。</li>
+    <li>既存部品をリネーム、移動、削除すると、過去成果物の再現性と監査可能性が落ちる。</li>
+    <li>Phase 1専用の発火制御は、当時の誤発火防止として正当な設計判断だった。</li>
+    <li>汎用化は既存部品の上書きではなく、新しい名前空間への昇格として行うほうが安全である。</li>
+  </ul>
+
+  <h2>9. リスク</h2>
+  <table>
+    <thead><tr><th>ID</th><th>リスク</th><th>対策</th></tr></thead>
+    <tbody>
+      <tr><td>AF-RISK-01</td><td>Phase 1専用部品を汎用利用してしまう。</td><td>Phase 1部品はfrozen / legacyと明示し、Phase 2以降は <code>AutoTradeProject_</code> と <code>autotrade_skill_</code> を指定する。</td></tr>
+      <tr><td>AF-RISK-02</td><td>サブエージェント統合により責務が広がりすぎる。</td><td>Agentは中粒度、Skillは小粒度を維持する。</td></tr>
+      <tr><td>AF-RISK-03</td><td>default orchestrator変更による他タスク影響。</td><td>明示承認なしに <code>default_orchestrator</code> を変更しない。</td></tr>
+      <tr><td>AF-RISK-04</td><td>HTML成果物がindexから孤立する。</td><td>すべての正式HTMLは <code>doc/index.html</code> からリンクする。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>10. AF-01レビュー結果</h2>
+  <table>
+    <thead><tr><th>観点</th><th>結果</th><th>反映内容</th></tr></thead>
+    <tbody>
+      <tr><td>統合しすぎ</td><td class="ok">Pass</td><td>Risk/AccountとOps/Security、AdapterとPoCは統合しない方針を維持。</td></tr>
+      <tr><td>分割しすぎ</td><td class="ok">Pass</td><td>Agentは15体から9体案へ整理。Skillは小粒度維持。</td></tr>
+      <tr><td>既存証跡破壊</td><td class="ok">Pass</td><td>Phase 1専用部品は削除、移動、上書きしない方針を明記。</td></tr>
+      <tr><td>発火制御漏れ</td><td class="ok">Pass</td><td>既存Phase 1部品は調査対象であり、実行部品として起動しないことを明記。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>11. 後続引き継ぎ</h2>
+  <p>AF-02では、本棚卸し結果と <a href="./02_AI部品整理方針移行マップ.html">AF-D02 AI部品整理方針・移行マップ</a> を入力として、プロジェクト汎用Skill、サブエージェント、オーケストレータのHTML仕様書を作成する。</p>
+</main>
+</body>
+</html>
