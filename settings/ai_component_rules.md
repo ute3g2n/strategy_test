@@ -43,6 +43,15 @@
 - Phase別HTMLは `doc/phaseX/` に保存する。
 - AI実行基盤関連HTMLは `doc/ai_foundation/` に保存する。
 
+## Phase実行計画ルール
+
+- 各Phaseを開始する前に、必ずそのPhaseの実行計画書を作成する。
+- 実行計画書は `plan/PhaseX_実行計画書_v0.1_YYYY-MM-DD.md` の形式で `plan/` 配下に保存する。
+- 実行計画書は必ず複数ステップに分割し、各ステップにそのまま実行できるプロンプトを含める。
+- Phase実行計画書を作成するときは、標準として `AutoTradePhasePlanning_Orchestrator_v0_1`、`AutoTrade_A05_PhaseExecutionPlanner_v0_1`、`autotrade_skill_phase_execution_planning_v0_1` を使用する。
+- 依頼プロンプトの標準雛形は `doc/ai_foundation/10_Phase実行計画書作成依頼プロンプト.html` を参照する。
+- 実行計画の補助HTMLを作る場合は `doc/phaseX/00_実行計画/` 配下に保存し、`doc/index.html` から到達できるようにする。
+
 ## 安全ルール
 
 - 投資助言、売買推奨、特定商品の推奨をしない。
