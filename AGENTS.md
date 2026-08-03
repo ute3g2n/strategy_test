@@ -29,7 +29,9 @@
 
 - 汎用Orchestrator:
   `AutoTradeProject_Orchestrator_v0_1`
+  `AutoTradePhasePlanning_Orchestrator_v0_1`
 - 汎用Agents:
+  `AutoTrade_A05_PhaseExecutionPlanner_v0_1`
   `AutoTrade_A10_RequirementsCurator_v0_1`
   `AutoTrade_A20_ArchitectureDomainArchitect_v0_1`
   `AutoTrade_A30_StrategyQaArchitect_v0_1`
@@ -41,6 +43,7 @@
   `AutoTrade_A90_DesignReviewer_v0_1`
 - 汎用Skills:
   `.codex/skills/autotrade_skill_*_v0_1/`
+  Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を標準で使う。
 - Phase 1専用部品:
   `AutoTradePhase1_*`
   `autotrade_phase1_skill_*_v0_1`
@@ -55,6 +58,10 @@ AI部品の作成、設計、レビュー、Phase実行に入る前は、原則�
 3. `settings/ai_component_rules.md`
 4. 関連する `doc/index.html` と該当HTML成果物
 5. 必要なら `plan/` 配下の計画書とログ
+
+## Phase実行計画
+
+各Phaseを開始する前に、まず実行計画書を作成する。標準の依頼プロンプトは `doc/ai_foundation/10_Phase実行計画書作成依頼プロンプト.html` を参照する。計画書は `plan/` 配下へ保存し、複数ステップに分割し、各ステップにそのまま実行できるプロンプトを含める。
 
 ## 更新ルール
 
