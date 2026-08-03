@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>11 AI部品作成更新AI部品仕様</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px auto; max-width: 1280px; color: #1f2937; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin-top: 32px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 10px; vertical-align: top; }
+    th { background: #f3f4f6; }
+    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+    pre { background: #111827; color: #f9fafb; padding: 16px; overflow-x: auto; }
+    .meta { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .ok { color: #047857; font-weight: 700; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>11 AI部品作成更新AI部品仕様</h1>
+  <section class="meta">
+    <p><strong>文書ID:</strong> AF-D11<br>
+    <strong>作成日:</strong> 2026-08-03<br>
+    <strong>文書状態:</strong> v0.1 / AI部品ライフサイクル基盤 反映済み<br>
+    <strong>対象:</strong> <code>autotrade_skill_ai_component_lifecycle_v0_1</code>, <code>AutoTrade_A06_AiComponentEngineer_v0_1</code>, <code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code></p>
+  </section>
+
+  <h2>1. 目的</h2>
+  <p>本書は、Skill、サブエージェント、オーケストレータの作成・変更を進めるための汎用AI部品を定義する。基本フローは「既存再利用調査 → 実体作成または変更 → 対象ドキュメント更新 → レビュー → 反映」とする。</p>
+
+  <h2>2. 構成</h2>
+  <table>
+    <thead><tr><th>区分</th><th>完全名</th><th>責務</th><th>モデル</th></tr></thead>
+    <tbody>
+      <tr><td>Skill</td><td><code>autotrade_skill_ai_component_lifecycle_v0_1</code></td><td>再利用調査、部品作成・変更、仕様追従更新の手順を定義する。</td><td>-</td></tr>
+      <tr><td>Agent</td><td><code>AutoTrade_A06_AiComponentEngineer_v0_1</code></td><td>必要最小限のSkill / Agent / Orchestrator 追加または変更を実装し、仕様更新を主担当する。</td><td><code>gpt-5.5</code></td></tr>
+      <tr><td>Orchestrator</td><td><code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code></td><td>調査、作成・変更、文書追従、レビューを一連で統括する。</td><td><code>gpt-5.5</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. 再利用方針</h2>
+  <table>
+    <thead><tr><th>観点</th><th>方針</th></tr></thead>
+    <tbody>
+      <tr><td>調査</td><td>最初に既存の <code>autotrade_skill_*</code>、<code>AutoTrade_Axx_*</code>、既存Orchestratorを調査する。</td></tr>
+      <tr><td>再利用</td><td>説明整理は <code>source_reader</code>、追跡性は <code>traceability</code>、HTMLは <code>html_doc_writer</code>、レビューは <code>design_review</code> を再利用する。</td></tr>
+      <tr><td>新設条件</td><td>既存部品の組み合わせでは責務境界が曖昧になる場合だけ新設する。</td></tr>
+      <tr><td>変更条件</td><td>既存部品を明示的に変更対象として指定された場合のみ変更する。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. 標準フロー</h2>
+  <pre>1. Survey reusable components
+2. Fix explicit target names and change scope
+3. Create or modify skill / agent / orchestrator
+4. Update foundation docs and rules
+5. Review sync integrity and name control
+6. Record residual risks and handoff</pre>
+
+  <h2>5. 相関図</h2>
+  <pre>AutoTradeComponentLifecycle_Orchestrator_v0_1
+  |
+  +-- AutoTrade_A06_AiComponentEngineer_v0_1
+  |     +-- autotrade_skill_ai_component_lifecycle_v0_1
+  |     +-- autotrade_skill_source_reader_v0_1
+  |     +-- autotrade_skill_traceability_v0_1
+  |     +-- autotrade_skill_orchestration_v0_1
+  |     +-- autotrade_skill_html_doc_writer_v0_1
+  |
+  +-- AutoTrade_A10_RequirementsCurator_v0_1
+  +-- AutoTrade_A80_DocumentIntegrator_v0_1
+  +-- AutoTrade_A90_DesignReviewer_v0_1</pre>
+
+  <h2>6. 停止条件</h2>
+  <ul>
+    <li>新規作成要求なのに既存名と衝突する。</li>
+    <li>変更要求なのに対象部品が存在しない。</li>
+    <li>関連仕様書の追従更新を同じ変更セット内で完了できない。</li>
+    <li><code>default_orchestrator</code> を変更しないと成立しない。</li>
+    <li>UnknownをPassにしないと先へ進めない。</li>
+  </ul>
+
+  <h2>7. 関連文書</h2>
+  <ul>
+    <li><a href="./07_AI部品作成ルール.html">07 AI部品作成ルール</a></li>
+    <li><a href="./08_AI実行基盤整理検証結果.html">08 AI実行基盤整理検証結果</a></li>
+    <li><a href="./12_AI部品作成更新依頼プロンプト.html">12 AI部品作成更新依頼プロンプト</a></li>
+  </ul>
+</main>
+</body>
+</html>
