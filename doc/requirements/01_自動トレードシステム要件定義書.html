@@ -88,16 +88,18 @@
 <hr>
 <h2 id="5-戦略プラグイン要件">5. 戦略プラグイン要件</h2>
 <h3 id="5-1-インターフェース">5.1 インターフェース</h3>
-<pre><code class="language-text">StrategyPlugin
-  initialize(config, instrument_catalog)
-  restore(strategy_state)
-  on_market_event(event, portfolio_snapshot)
-  on_order_event(order_event, portfolio_snapshot)
-  on_account_event(account_event)
-  on_timer(timer_event)
-  emit_intents() -&gt; list[OrderIntent]
-  snapshot() -&gt; StrategyState
-  health() -&gt; StrategyHealth</code></pre>
+<div class="mermaid">classDiagram
+    class StrategyPlugin {
+        +initialize(config, instrument_catalog)
+        +restore(strategy_state)
+        +on_market_event(event, portfolio_snapshot)
+        +on_order_event(order_event, portfolio_snapshot)
+        +on_account_event(account_event)
+        +on_timer(timer_event)
+        +emit_intents() list~OrderIntent~
+        +snapshot() StrategyState
+        +health() StrategyHealth
+    }</div>
 <h3 id="5-2-orderintent-の最低項目">5.2 <code>OrderIntent</code> の最低項目</h3>
 <ul><li><code>strategy_id</code></li><li><code>strategy_version</code></li><li><code>instrument_id</code></li><li><code>desired_side</code></li><li><code>desired_quantity</code> または <code>target_position</code></li><li><code>intent_type</code>: <code>entry</code> / <code>add</code> / <code>stop</code> / <code>channel_exit</code> / <code>roll</code> / <code>emergency</code></li><li><code>signal_timestamp</code></li><li><code>decision_price</code></li><li><code>n_value</code></li><li><code>channel_level</code></li><li><code>risk_budget</code></li><li><code>reason_code</code></li></ul>
 <h3 id="5-3-strategy-config-の主要項目">5.3 Strategy Config の主要項目</h3>
