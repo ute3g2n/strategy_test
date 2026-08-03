@@ -24,8 +24,8 @@
   <h1>AI部品相関図・発火制御図</h1>
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D06<br>
-    <strong>作成日:</strong> 2026-08-04<br>
-    <strong>文書状態:</strong> v0.1 / AF-02レビュー反映済み</p>
+    <strong>作成日:</strong> 2026-08-03<br>
+    <strong>文書状態:</strong> v0.2 / Phase実行計画AI部品追補反映済み</p>
   </section>
 
   <h2>1. 目的</h2>
@@ -34,9 +34,25 @@
   <h2>2. 全体相関図</h2>
   <pre>Project generic components
 
+AutoTradePhasePlanning_Orchestrator_v0_1
+  |
+  +-- AutoTrade_A05_PhaseExecutionPlanner_v0_1
+  |     +-- autotrade_skill_phase_execution_planning_v0_1
+  |     +-- autotrade_skill_source_reader_v0_1
+  |     +-- autotrade_skill_traceability_v0_1
+  |     +-- autotrade_skill_orchestration_v0_1
+  |     +-- autotrade_skill_html_doc_writer_v0_1
+  |
+  +-- AutoTrade_A10_RequirementsCurator_v0_1
+  +-- AutoTrade_A80_DocumentIntegrator_v0_1
+  +-- AutoTrade_A90_DesignReviewer_v0_1
+
 AutoTradeProject_Orchestrator_v0_1
   |
   +-- reads Phase Runbook
+  |
+  +-- AutoTrade_A05_PhaseExecutionPlanner_v0_1
+  |     +-- autotrade_skill_phase_execution_planning_v0_1
   |
   +-- AutoTrade_A10_RequirementsCurator_v0_1
   |     +-- autotrade_skill_source_reader_v0_1
@@ -89,6 +105,12 @@ Rules:
         |
         +-- Yes
               |
+              +-- Is this a Phase execution plan creation task?
+              |     |
+              |     +-- Yes
+              |          +-- Use AutoTradePhasePlanning_Orchestrator_v0_1
+              |          +-- Use AutoTrade_A05_PhaseExecutionPlanner_v0_1 as primary planner
+              |
               +-- Names match project generic namespace?
               |     |
               |     +-- Yes
@@ -105,6 +127,11 @@ Rules:
   <h2>5. 利用判断フロー</h2>
   <pre>Need a component?
   |
+  +-- Need to create a Phase execution plan?
+  |     +-- Yes: prefer autotrade_skill_phase_execution_planning_v0_1
+  |     +-- Yes: prefer AutoTrade_A05_PhaseExecutionPlanner_v0_1
+  |     +-- Yes: prefer AutoTradePhasePlanning_Orchestrator_v0_1
+  |
   +-- Can an existing autotrade_skill_* cover the work?
   |     +-- Yes: use existing generic skill
   |     +-- No:
@@ -117,7 +144,7 @@ Rules:
   |
   +-- Need a new Agent?
         +-- Prefer existing AutoTrade_Axx
-        +-- Create new Agent only if responsibility is stable and cannot fit current 9 agents</pre>
+        +-- Create new Agent only if responsibility is stable and cannot fit current 10 agents</pre>
 
   <h2>6. 更新対象</h2>
   <table>
@@ -127,6 +154,7 @@ Rules:
       <tr><td>Skillを作る</td><td>HTML仕様書、<code>.codex/skills</code>、検証結果。</td></tr>
       <tr><td>Agentを作る</td><td>HTML仕様書、<code>.codex/agents</code>、相関図。</td></tr>
       <tr><td>Orchestratorを作る</td><td>HTML仕様書、<code>.codex/orchestrators</code>、<code>.codex/config.json</code>。defaultは変更しない。</td></tr>
+      <tr><td>Skill / Agent / Orchestrator を変更する</td><td><code>doc/ai_foundation/03</code> から <code>06</code> の該当仕様書と相関図を追従更新する。</td></tr>
     </tbody>
   </table>
 
@@ -137,6 +165,7 @@ Rules:
       <tr><td>Phase専用部品条件</td><td class="ok">Pass</td><td>理由、利用期限、凍結条件が必要であることを明記。</td></tr>
       <tr><td>既存証跡保護</td><td class="ok">Pass</td><td>Phase 1部品はread-only sourceとして図示。</td></tr>
       <tr><td>発火制御</td><td class="ok">Pass</td><td>完全名なしのAI部品タスクは停止する方針を明記。</td></tr>
+      <tr><td>Phase計画導線</td><td class="ok">Pass</td><td>Phase実行計画専用のSkill / Agent / Orchestrator を相関図と発火制御図へ追加した。</td></tr>
     </tbody>
   </table>
 </main>
