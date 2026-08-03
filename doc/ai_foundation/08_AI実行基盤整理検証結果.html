@@ -24,24 +24,24 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D08<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.2 / AF-04完了 + AI部品ライフサイクル基盤追補<br>
+    <strong>文書状態:</strong> v0.3 / AF-04完了 + AI部品ライフサイクル基盤追補 + 設計書セット作成AI部品追補<br>
     <strong>ステップID:</strong> AF-04<br>
     <strong>対象:</strong> 汎用AI部品、プロジェクトルール、導線、相互参照</p>
   </section>
 
   <h2>1. 判定</h2>
-  <p class="pass">AF-04は完了。<code>AutoTradeProject_Orchestrator_v0_1</code> をPhase 2以降の標準オーケストレータ候補として採用できる状態であり、あわせてAI部品作成・変更用の専用基盤も再利用可能な状態である。</p>
+  <p class="pass">AF-04は完了。<code>AutoTradeProject_Orchestrator_v0_1</code> をPhase 2以降の標準オーケストレータ候補として採用できる状態であり、あわせてAI部品作成・変更用の専用基盤と、複数HTML設計書セット作成用の専用基盤も再利用可能な状態である。</p>
 
   <h2>2. 検証対象</h2>
   <table>
     <thead><tr><th>区分</th><th>対象</th></tr></thead>
     <tbody>
-      <tr><td>Orchestrator</td><td><code>.codex/orchestrators/AutoTradeProject_Orchestrator_v0_1.json</code>、<code>AutoTradePhasePlanning_Orchestrator_v0_1.json</code>、<code>AutoTradeComponentLifecycle_Orchestrator_v0_1.json</code></td></tr>
-      <tr><td>Agents</td><td><code>.codex/agents/AutoTrade_A05_PhaseExecutionPlanner_v0_1.json</code>、<code>AutoTrade_A06_AiComponentEngineer_v0_1.json</code>、および <code>AutoTrade_A10_RequirementsCurator_v0_1.json</code> から <code>AutoTrade_A90_DesignReviewer_v0_1.json</code></td></tr>
+      <tr><td>Orchestrator</td><td><code>.codex/orchestrators/AutoTradeProject_Orchestrator_v0_1.json</code>、<code>AutoTradePhasePlanning_Orchestrator_v0_1.json</code>、<code>AutoTradeComponentLifecycle_Orchestrator_v0_1.json</code>、<code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1.json</code></td></tr>
+      <tr><td>Agents</td><td><code>.codex/agents/AutoTrade_A05_PhaseExecutionPlanner_v0_1.json</code>、<code>AutoTrade_A06_AiComponentEngineer_v0_1.json</code>、<code>AutoTrade_A81_DesignDocSetWriter_v0_1.json</code>、および <code>AutoTrade_A10_RequirementsCurator_v0_1.json</code> から <code>AutoTrade_A90_DesignReviewer_v0_1.json</code></td></tr>
       <tr><td>Skills</td><td><code>.codex/skills/autotrade_skill_*_v0_1/SKILL.md</code></td></tr>
       <tr><td>Project rules</td><td><code>settings/ai_component_rules.md</code>, <code>AGENTS.md</code></td></tr>
       <tr><td>Config</td><td><code>.codex/config.json</code></td></tr>
-      <tr><td>HTML specs</td><td><code>doc/ai_foundation/01</code> から <code>12</code>、および本書</td></tr>
+      <tr><td>HTML specs</td><td><code>doc/ai_foundation/01</code> から <code>13</code>、および本書</td></tr>
       <tr><td>Index</td><td><code>doc/index.html</code></td></tr>
     </tbody>
   </table>
@@ -51,16 +51,17 @@
     <thead><tr><th>ID</th><th>検証観点</th><th>結果</th><th>内容</th></tr></thead>
     <tbody>
       <tr><td>AF-VR-01</td><td>JSON妥当性</td><td class="pass">PASS</td><td><code>.codex/config.json</code>、汎用Orchestrator群、AI部品作成更新用を含むAgent JSONを読み込み確認した。</td></tr>
-      <tr><td>AF-VR-02</td><td>Skill実体数</td><td class="pass">PASS</td><td><code>autotrade_skill_*_v0_1</code> を22件確認した。</td></tr>
-      <tr><td>AF-VR-03</td><td>Agent実体数</td><td class="pass">PASS</td><td><code>AutoTrade_A05</code>、<code>AutoTrade_A06</code>、および <code>AutoTrade_A10</code> から <code>AutoTrade_A90</code> まで計11件を確認した。</td></tr>
+      <tr><td>AF-VR-02</td><td>Skill実体数</td><td class="pass">PASS</td><td><code>autotrade_skill_*_v0_1</code> を23件確認した。</td></tr>
+      <tr><td>AF-VR-03</td><td>Agent実体数</td><td class="pass">PASS</td><td><code>AutoTrade_A05</code>、<code>AutoTrade_A06</code>、<code>AutoTrade_A81</code>、および <code>AutoTrade_A10</code> から <code>AutoTrade_A90</code> まで計12件を確認した。</td></tr>
       <tr><td>AF-VR-04</td><td>相互参照</td><td class="pass">PASS</td><td>Orchestratorが参照するAgentファイル、Agentが参照するSkillファイル、Primary skill参照を確認した。欠落なし。</td></tr>
       <tr><td>AF-VR-05</td><td>Project rules参照</td><td class="pass">PASS</td><td><code>AGENTS.md</code> から <code>settings/ai_component_rules.md</code> を参照している。</td></tr>
-      <tr><td>AF-VR-06</td><td>Config登録</td><td class="pass">PASS</td><td><code>AutoTradeProject_Orchestrator_v0_1</code>、<code>AutoTradePhasePlanning_Orchestrator_v0_1</code>、<code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code> が <code>.codex/config.json</code> に登録されている。</td></tr>
+      <tr><td>AF-VR-06</td><td>Config登録</td><td class="pass">PASS</td><td><code>AutoTradeProject_Orchestrator_v0_1</code>、<code>AutoTradePhasePlanning_Orchestrator_v0_1</code>、<code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code>、<code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code> が <code>.codex/config.json</code> に登録されている。</td></tr>
       <tr><td>AF-VR-07</td><td>default維持</td><td class="pass">PASS</td><td><code>default_orchestrator</code> は <code>middle-school-explanation-orchestrator</code> のままで変更していない。</td></tr>
       <tr><td>AF-VR-08</td><td>Phase 1証跡保護</td><td class="pass">PASS</td><td><code>AutoTradePhase1_*</code> と <code>autotrade_phase1_skill_*</code> は残置されており、削除、移動、上書きしていない。</td></tr>
       <tr><td>AF-VR-09</td><td>HTML導線</td><td class="pass">PASS</td><td><code>doc/index.html</code> から AF-D01 から AF-D12 まで到達できる状態へ更新した。</td></tr>
       <tr><td>AF-VR-10</td><td>発火制御</td><td class="pass">PASS</td><td>完全名指定、未存在時停止、Phase専用部品条件、default変更禁止が仕様と実体の両方に反映されている。</td></tr>
       <tr><td>AF-VR-11</td><td>AI部品保守基盤</td><td class="pass">PASS</td><td>既存再利用調査 → 作成または変更 → 対象ドキュメント更新 の流れを実体・仕様・プロンプトで確認した。</td></tr>
+      <tr><td>AF-VR-12</td><td>設計書セット作成基盤</td><td class="pass">PASS</td><td>複数HTML設計書をセットとして作成・更新するSkill、Agent、Orchestratorの実体、仕様、相関、config登録を確認した。</td></tr>
     </tbody>
   </table>
 
@@ -82,11 +83,12 @@
       <tr><td>AF-UNK-01</td><td>汎用AI部品を実際のPhase 2プロンプトで初回運用したときの運用上の細かな不足。</td><td>Phase 2最初の実行時に補正する。</td></tr>
       <tr><td>AF-UNK-02</td><td>将来、汎用Agentをさらに分割する必要が出るかどうか。</td><td>複数Phase運用後に見直す。</td></tr>
       <tr><td>AF-UNK-03</td><td>AI部品変更要求が同時多発した場合に、A06単体で責務過多にならないか。</td><td>運用実績を見て分割要否を判断する。</td></tr>
+      <tr><td>AF-UNK-04</td><td>A81をPhase 2の実設計書作成で初回運用したとき、A80との境界に微調整が必要になる可能性。</td><td>Phase 2のP2-01からP2-04運用時に見直す。</td></tr>
     </tbody>
   </table>
 
   <h2>6. 後続引き継ぎ</h2>
-  <p>今後のPhase計画書と実行プロンプトでは、原則として <code>AutoTradeProject_Orchestrator_v0_1</code>、<code>AutoTrade_Axx_*</code>、<code>autotrade_skill_*</code> を指定する。AI部品自体の作成・変更では <code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code>、<code>AutoTrade_A06_AiComponentEngineer_v0_1</code>、<code>autotrade_skill_ai_component_lifecycle_v0_1</code> を標準とする。</p>
+  <p>今後のPhase計画書と実行プロンプトでは、原則として <code>AutoTradeProject_Orchestrator_v0_1</code>、<code>AutoTrade_Axx_*</code>、<code>autotrade_skill_*</code> を指定する。AI部品自体の作成・変更では <code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code>、<code>AutoTrade_A06_AiComponentEngineer_v0_1</code>、<code>autotrade_skill_ai_component_lifecycle_v0_1</code> を標準とする。Phase内で複数HTML設計書をセットとして作成・更新する場合は <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code>、<code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>、<code>autotrade_skill_design_doc_set_writer_v0_1</code> を標準とする。</p>
 </main>
 </body>
 </html>
