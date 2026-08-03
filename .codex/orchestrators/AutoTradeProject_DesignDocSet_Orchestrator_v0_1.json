@@ -1,0 +1,80 @@
+{
+  "name": "AutoTradeProject_DesignDocSet_Orchestrator_v0_1",
+  "display_name": "Auto Trade Project Design Document Set Orchestrator v0.1",
+  "model": "gpt-5.5",
+  "purpose": "Coordinate creation and revision of multi-document formal HTML design sets within a phase while preserving traceability, common metadata, review history, Human Gates, and doc/index.html reachability.",
+  "trigger_examples": [
+    "Phase 2の設計書セットを作成して",
+    "複数のHTML設計書を一括で整合させて",
+    "設計書作成が多いステップをDesignDocSet Orchestratorで進めて"
+  ],
+  "global_constraints": {
+    "language": "ja",
+    "formal_design_outputs_must_be_html": true,
+    "html_outputs_must_be_under_doc": true,
+    "doc_index_must_be_updated": true,
+    "must_name_orchestrator_agents_skills_explicitly": true,
+    "unknown_must_not_pass": true,
+    "must_not_output_secrets": true,
+    "must_not_be_investment_advice": true,
+    "do_not_change_default_orchestrator": true,
+    "phase_specific_components_require_reason": true
+  },
+  "runbook_schema": {
+    "required_fields": [
+      "phase_id",
+      "step_id",
+      "output_root",
+      "log_root",
+      "document_set_id",
+      "detail_boundary",
+      "human_gate_policy"
+    ]
+  },
+  "agents": {
+    "A10": {
+      "file": ".codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json",
+      "primary_skill": "autotrade_skill_source_reader_v0_1"
+    },
+    "A80": {
+      "file": ".codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json",
+      "primary_skill": "autotrade_skill_html_doc_writer_v0_1"
+    },
+    "A81": {
+      "file": ".codex/agents/AutoTrade_A81_DesignDocSetWriter_v0_1.json",
+      "primary_skill": "autotrade_skill_design_doc_set_writer_v0_1"
+    },
+    "A90": {
+      "file": ".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json",
+      "primary_skill": "autotrade_skill_design_review_v0_1"
+    }
+  },
+  "skills": [
+    "autotrade_skill_design_doc_set_writer_v0_1",
+    "autotrade_skill_source_reader_v0_1",
+    "autotrade_skill_traceability_v0_1",
+    "autotrade_skill_html_doc_writer_v0_1",
+    "autotrade_skill_design_review_v0_1",
+    "autotrade_skill_red_team_review_v0_1",
+    "autotrade_skill_revision_integration_v0_1",
+    "autotrade_skill_orchestration_v0_1"
+  ],
+  "workflow_policy": [
+    "Validate explicit component names and Phase Runbook fields.",
+    "Load the target document set plan, source documents, existing HTML artifacts, and doc/index.html.",
+    "Use A10 for source extraction and traceability inputs when needed.",
+    "Use domain-specific AutoTrade_Axx agents only when they are explicitly named in the prompt for source content creation.",
+    "Use A81 to assemble or update the HTML document set with common metadata, related links, Unknowns, review history, and index updates.",
+    "Use A90 for findings-first design and red-team review.",
+    "Use A80 and A81 to integrate accepted findings and preserve revision history.",
+    "Stop at Human Gates and record residual Unknowns with decision timing."
+  ],
+  "stop_conditions": [
+    "A named component does not exist and the current step is not a creation step.",
+    "The requested document set scope cannot be inferred from inputs.",
+    "A formal HTML artifact would be left unreachable from doc/index.html.",
+    "An Unknown would need to be treated as Pass.",
+    "A review finding affecting safety, Secret handling, or fail-closed behavior would be removed without adoption reasoning.",
+    "Changing default_orchestrator would be required without explicit approval."
+  ]
+}
