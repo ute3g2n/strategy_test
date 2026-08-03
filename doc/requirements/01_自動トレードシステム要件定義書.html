@@ -20,6 +20,7 @@
     a { color: #1d4ed8; text-decoration: none; }
     a:hover { text-decoration: underline; }
     .meta { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .mermaid { background: #fff; border: 1px solid #d1d5db; padding: 16px; margin: 20px 0; overflow-x: auto; }
     .toc ul { list-style: none; padding-left: 0; }
     .toc li { margin: 6px 0; }
     .toc .lvl-2 { padding-left: 12px; }
@@ -55,7 +56,7 @@
 <table><thead><tr><th>ID</th><th>要件</th><th>状態</th></tr></thead><tbody><tr><td>Q1</td><td>原典版と現代版を並行比較</td><td>確定</td></tr><tr><td>Q2</td><td>対象アセットは別途調査で決定</td><td>未確定</td></tr><tr><td>Q3</td><td>初期 3〜5 市場、安定後に 20〜40 市場</td><td>確定</td></tr><tr><td>Q4</td><td>ロング・ショート両方向</td><td>確定</td></tr><tr><td>Q5</td><td>Live 初期資金は 100万円未満</td><td>確定</td></tr><tr><td>Q6</td><td>初期月額費用 1万円未満、段階拡大</td><td>確定</td></tr><tr><td>Q7</td><td>IBKR を第一候補</td><td>確定</td></tr><tr><td>Q8</td><td>最大ドローダウン目標 15%</td><td>確定</td></tr><tr><td>Q9</td><td>原典基準として 1N リスク 1% を保持</td><td>確定</td></tr><tr><td>Q10</td><td>年率ポートフォリオ・ボラティリティ目標 10%</td><td>参考基準</td></tr><tr><td>Q11</td><td>戦略比較は段階的に拡大</td><td>確定</td></tr><tr><td>Q12</td><td>System 1 勝ちブレイクフィルターは比較対象</td><td>確定</td></tr><tr><td>Q13</td><td>原典版は intraday、現代版は終値確認も比較</td><td>確定</td></tr><tr><td>Q14</td><td>ピラミッディングは複数方式を比較</td><td>確定</td></tr><tr><td>Q15</td><td>2N、Whipsaw、ボラ急上昇時縮小版を比較</td><td>確定</td></tr><tr><td>Q16</td><td>Unit リスクは契約粒度と DD 試験後に最終決定</td><td>未確定</td></tr><tr><td>Q17</td><td>戦略は入出金を除く全口座管理を担当</td><td>確定</td></tr><tr><td>Q18</td><td>ポートフォリオ上限は原典 4/6/10/12 Unit を採用</td><td>確定</td></tr><tr><td>Q19</td><td>限月選択とロール規則は資産調査後に決定</td><td>未確定</td></tr><tr><td>Q20</td><td>初期 3〜5 市場は全期間 1分足</td><td>確定</td></tr><tr><td>Q21</td><td>取引エンジンは PoC で決定</td><td>未確定</td></tr><tr><td>Q22</td><td>Shadow / Paper / Live は東京クラウド VM</td><td>確定</td></tr><tr><td>Q23</td><td>設定は戦略別 YAML、共通設定と分離</td><td>確定</td></tr><tr><td>Q24</td><td>Shadow → Paper → 少額Live の順に移行</td><td>確定</td></tr><tr><td>Q25</td><td>監視は新規注文、接続断、停止系を重視</td><td>確定</td></tr><tr><td>Q26</td><td>Bot 実行中の異常監視と強制停止手段が必要</td><td>確定</td></tr><tr><td>Q27</td><td>Push 通知と Heartbeat 監視を実施</td><td>確定</td></tr><tr><td>Q28</td><td>Secret Manager を使う</td><td>確定</td></tr><tr><td>Q29</td><td>テストは証券会社バックテストに依存しない</td><td>確定</td></tr><tr><td>Q30</td><td>本番移行前に最終チェックリストを通す</td><td>確定</td></tr></tbody></table>
 <hr>
 <h2 id="4-システム全体像">4. システム全体像</h2>
-<pre><code class="language-mermaid">flowchart LR
+<div class="mermaid">flowchart LR
     V[&quot;データベンダー&quot;] --&gt; I[&quot;Data Ingestion&quot;]
     I --&gt; R[&quot;Raw Immutable Store&quot;]
     R --&gt; N[&quot;Normalization / Instrument Master&quot;]
@@ -77,7 +78,7 @@
     E --&gt; OB[&quot;Logs / Metrics / Alerts&quot;]
     OB --&gt; OP[&quot;Operator&quot;]
     OP --&gt; KS[&quot;Emergency Controls&quot;]
-    KS --&gt; GR</code></pre>
+    KS --&gt; GR</div>
 <h3 id="4-1-基盤が担当する責務">4.1 基盤が担当する責務</h3>
 <ul><li>データ取得、時刻正規化、欠損検知、重複排除</li><li>銘柄マスター、限月カレンダー、証拠金、ティックサイズ、最小取引単位</li><li>イベント配信、時系列イベント、タイマー、一意イベント ID</li><li>証券会社接続、注文状態遷移、約定反映、口座情報同期</li><li>障害時の再起動後リカバリー</li><li>基盤側ハードリスクガード</li><li>通知、Heartbeat、監査ログ</li><li>Secret 管理、バックアップ、復旧</li></ul>
 <h3 id="4-2-戦略プラグインが担当する責務">4.2 戦略プラグインが担当する責務</h3>
@@ -231,5 +232,7 @@
 <h2 id="22-次の作業">22. 次の作業</h2>
 <ol><li>Phase 0 の資産候補選定を完了する</li><li>取引エンジン PoC の評価軸を固定する</li><li>ドメイン設計書とモジュール分割案を作成する</li><li>ロール規則と連続足生成仕様を確定する</li><li>Paper 前提の OMS / Reconciliation 詳細設計へ進む</li></ol>
 </main>
+<script src="../assets/mermaid.min.js"></script>
+<script src="../assets/mermaid-init.js"></script>
 </body>
 </html>
