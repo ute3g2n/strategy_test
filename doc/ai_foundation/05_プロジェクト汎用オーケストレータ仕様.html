@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>プロジェクト汎用オーケストレータ仕様</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px auto; max-width: 1280px; color: #1f2937; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin-top: 32px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 10px; vertical-align: top; }
+    th { background: #f3f4f6; }
+    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+    pre { background: #111827; color: #f9fafb; padding: 16px; overflow-x: auto; }
+    .meta { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .ok { color: #047857; font-weight: 700; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>プロジェクト汎用オーケストレータ仕様</h1>
+  <section class="meta">
+    <p><strong>文書ID:</strong> AF-D05<br>
+    <strong>作成日:</strong> 2026-08-04<br>
+    <strong>文書状態:</strong> v0.1 / AF-02レビュー反映済み<br>
+    <strong>対象:</strong> <code>AutoTradeProject_Orchestrator_v0_1</code></p>
+  </section>
+
+  <h2>1. 目的</h2>
+  <p><code>AutoTradeProject_Orchestrator_v0_1</code> は、自動売買システムの全Phaseで、AI部品の明示起動、DAG、Human Gate、成果物状態、レビュー反映、Unknown管理を統括する。</p>
+
+  <h2>2. JSON仕様</h2>
+  <table>
+    <thead><tr><th>キー</th><th>仕様</th></tr></thead>
+    <tbody>
+      <tr><td><code>name</code></td><td><code>AutoTradeProject_Orchestrator_v0_1</code></td></tr>
+      <tr><td><code>display_name</code></td><td>Auto Trade Project Orchestrator v0.1</td></tr>
+      <tr><td><code>model</code></td><td><code>gpt-5.5</code></td></tr>
+      <tr><td><code>purpose</code></td><td>Phase横断の設計、調査、レビュー、文書統合を管理する。</td></tr>
+      <tr><td><code>global_constraints</code></td><td>日本語、投資助言禁止、Unknown must not pass、完全名指定、default変更禁止、正式HTMLはdoc/index到達必須。</td></tr>
+      <tr><td><code>agents</code></td><td><code>AutoTrade_A10</code> から <code>AutoTrade_A90</code> までの9体。</td></tr>
+      <tr><td><code>runbook_schema</code></td><td>Phaseごとの <code>phase_id</code>、<code>step_id</code>、<code>output_root</code>、<code>log_root</code>、<code>detail_boundary</code>、<code>human_gate_policy</code>。</td></tr>
+      <tr><td><code>workflow_policy</code></td><td>調査、ドラフト、レビュー、修正、統合を標準フローとする。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. Phase Runbook</h2>
+  <pre>{
+  "phase_id": "Phase 2",
+  "step_id": "P2-xx",
+  "output_root": "doc/phase2/",
+  "log_root": "plan/phase2/ログ/",
+  "detail_boundary": "このPhaseで固定する範囲",
+  "human_gate_policy": [
+    { "gate": "H2-1", "condition": "Market Data基盤方式承認" }
+  ],
+  "allowed_orchestrator": "AutoTradeProject_Orchestrator_v0_1",
+  "allowed_agent_prefix": "AutoTrade_A",
+  "allowed_skill_prefix": "autotrade_skill_"
+}</pre>
+
+  <h2>4. 管理責務</h2>
+  <table>
+    <thead><tr><th>ID</th><th>責務</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>OR-AF-01</td><td>DAG管理</td><td>依存関係、並列可否、前提成果物、次ステップ引き継ぎを管理する。</td></tr>
+      <tr><td>OR-AF-02</td><td>発火制御</td><td>プロンプトに明示された完全名だけを使用する。未指定部品を推測しない。</td></tr>
+      <tr><td>OR-AF-03</td><td>Human Gate</td><td>Human Gateが必要な場合は停止し、承認内容、日付、対象成果物を記録する。</td></tr>
+      <tr><td>OR-AF-04</td><td>成果物統合</td><td>HTML成果物を <code>doc/</code> 配下へ保存し、<code>doc/index.html</code> から到達可能にする。</td></tr>
+      <tr><td>OR-AF-05</td><td>Unknown管理</td><td>UnknownをPassにせず、未確定事項ID、決定タイミング、担当Phaseを記録する。</td></tr>
+      <tr><td>OR-AF-06</td><td>詳細化境界</td><td>Runbookの <code>detail_boundary</code> を超える内容は後続Phaseバックログへ送る。</td></tr>
+      <tr><td>OR-AF-07</td><td>レビュー統合</td><td>Design reviewとRed Team reviewの指摘を採否付きで反映する。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. 標準ワークフロー</h2>
+  <pre>1. Validate prompt names
+2. Load Phase Runbook
+3. Check required inputs
+4. Assign agents and skills
+5. Research / source reading
+6. Draft HTML
+7. Design review and Red Team review
+8. Revision integration
+9. Update doc/index.html
+10. Record handoff, Unknown, Human Gate status</pre>
+
+  <h2>6. 停止条件</h2>
+  <ul>
+    <li>指定AI部品が存在せず、現在ステップが作成ステップでもない。</li>
+    <li>既存名と衝突し、上書きが必要になる。</li>
+    <li>Human Gate承認が必要で未承認。</li>
+    <li>UnknownをPass扱いしないと先へ進めない。</li>
+    <li><code>default_orchestrator</code> 変更が必要だが明示承認がない。</li>
+  </ul>
+
+  <h2>7. AF-02レビュー結果</h2>
+  <table>
+    <thead><tr><th>観点</th><th>結果</th><th>反映内容</th></tr></thead>
+    <tbody>
+      <tr><td>汎用化しすぎ</td><td class="ok">Pass</td><td>Phase固有条件はRunbookに分離した。</td></tr>
+      <tr><td>発火制御</td><td class="ok">Pass</td><td>完全名指定、未存在時停止、default変更禁止を停止条件にした。</td></tr>
+      <tr><td>成果物管理</td><td class="ok">Pass</td><td>HTML保存とdoc/index.html更新を責務に含めた。</td></tr>
+    </tbody>
+  </table>
+</main>
+</body>
+</html>

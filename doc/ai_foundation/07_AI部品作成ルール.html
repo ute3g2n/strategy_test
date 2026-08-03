@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI部品作成ルール</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px auto; max-width: 1280px; color: #1f2937; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin-top: 32px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 10px; vertical-align: top; }
+    th { background: #f3f4f6; }
+    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+    pre { background: #111827; color: #f9fafb; padding: 16px; overflow-x: auto; }
+    .meta { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .ok { color: #047857; font-weight: 700; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>AI部品作成ルール</h1>
+  <section class="meta">
+    <p><strong>文書ID:</strong> AF-D07<br>
+    <strong>作成日:</strong> 2026-08-04<br>
+    <strong>文書状態:</strong> v0.1 / AF-02レビュー反映済み<br>
+    <strong>後続実体化先:</strong> <code>settings/ai_component_rules.md</code></p>
+  </section>
+
+  <h2>1. 目的</h2>
+  <p>本書は、自動売買システムプロジェクトでSkill、サブエージェント、オーケストレータを作成・更新・利用するときの共通ルールを定義する。AF-03でMarkdown版を <code>settings/ai_component_rules.md</code> として作成し、<code>AGENTS.md</code> から参照する。</p>
+
+  <h2>2. 命名ルール</h2>
+  <table>
+    <thead><tr><th>部品</th><th>汎用名前空間</th><th>Phase専用名前空間</th><th>例</th></tr></thead>
+    <tbody>
+      <tr><td>Orchestrator</td><td><code>AutoTradeProject_</code></td><td><code>AutoTradePhaseX_</code></td><td><code>AutoTradeProject_Orchestrator_v0_1</code></td></tr>
+      <tr><td>Agent</td><td><code>AutoTrade_Axx_</code></td><td><code>AutoTradePhaseX_Axx_</code></td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td></tr>
+      <tr><td>Skill</td><td><code>autotrade_skill_</code></td><td><code>autotrade_phaseX_skill_</code></td><td><code>autotrade_skill_traceability_v0_1</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. 作成ルール</h2>
+  <ul>
+    <li>まず汎用Skill、汎用Agent、汎用Orchestratorで対応できるか確認する。</li>
+    <li>汎用化できる作業規約は <code>autotrade_skill_*_v0_1</code> として作る。</li>
+    <li>Phase専用部品は、汎用部品では不十分な理由、利用期限、凍結条件、HTML仕様書がある場合だけ作る。</li>
+    <li>既存名と衝突する場合は上書きせず、衝突として報告する。</li>
+    <li>既存Phase 1部品はfrozen / legacy / phase1証跡として扱い、削除、移動、上書き、リネームをしない。</li>
+    <li><code>default_orchestrator</code> は明示承認なしに変更しない。</li>
+  </ul>
+
+  <h2>4. 発火制御ルール</h2>
+  <ul>
+    <li>プロンプトには、使用するオーケストレータ、サブエージェント、Skillの完全名を明記する。</li>
+    <li>完全名で指定されていない既存Skill、既存Agent、既存Orchestratorを推測で起動しない。</li>
+    <li>指定部品が存在しない場合は、現在ステップが作成ステップかどうかを確認する。作成ステップでなければ停止する。</li>
+    <li>Phase専用部品を使う場合は、理由、利用期限、凍結条件をプロンプトまたは仕様書に明記する。</li>
+  </ul>
+
+  <h2>5. 成果物ルール</h2>
+  <table>
+    <thead><tr><th>対象</th><th>ルール</th></tr></thead>
+    <tbody>
+      <tr><td>正式HTML仕様書</td><td><code>doc/</code> 配下へ保存し、<code>doc/index.html</code> からリンクする。</td></tr>
+      <tr><td>Phase別HTML</td><td><code>doc/phaseX/</code> 配下へ保存する。</td></tr>
+      <tr><td>AI基盤HTML</td><td><code>doc/ai_foundation/</code> 配下へ保存する。</td></tr>
+      <tr><td>計画書、プロンプト、ログ</td><td><code>plan/</code> 配下へ保存する。</td></tr>
+      <tr><td>HTML必須内容</td><td>文書ID、作成日、状態、入力、設計判断、Unknown、レビュー履歴、関連リンク。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>6. 安全ルール</h2>
+  <ul>
+    <li>投資助言、売買推奨、特定商品の推奨にならない表現にする。</li>
+    <li>UnknownをPassにしない。未確定事項ID、決定タイミング、後続Phaseを記録する。</li>
+    <li>Secret、APIキー、認証情報を出力しない。</li>
+    <li>安全停止、監査証跡、手動介入後復旧条件を弱めない。</li>
+    <li>外部仕様を扱う場合は公式一次情報を優先し、URLと確認日を記録する。</li>
+  </ul>
+
+  <h2>7. 共通プロンプトヘッダー</h2>
+  <pre>ステップID: &lt;step_id&gt;
+ロール: &lt;role&gt;
+使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
+担当サブエージェント完全名: &lt;AutoTrade_Axx_..._v0_1&gt;
+使用モデル: &lt;model&gt;
+使用Skill完全名: &lt;autotrade_skill_*_v0_1&gt;
+
+Phase Runbook:
+- phase_id: &lt;Phase X&gt;
+- output_root: doc/phaseX/
+- log_root: plan/phaseX/ログ/
+- detail_boundary: &lt;このPhaseで固定する範囲&gt;
+- human_gate_policy: &lt;Gate名と停止条件&gt;
+
+発火制御:
+- 上記の完全名で指定したAI部品だけを使用する。
+- 指定AI部品が存在しない場合は、既存部品で代替せず、不足部品名を報告して停止する。
+- default_orchestrator は変更しない。</pre>
+
+  <h2>8. AF-02レビュー結果</h2>
+  <table>
+    <thead><tr><th>観点</th><th>結果</th><th>反映内容</th></tr></thead>
+    <tbody>
+      <tr><td>Phase専用条件</td><td class="ok">Pass</td><td>理由、利用期限、凍結条件を必須化。</td></tr>
+      <tr><td>証跡保護</td><td class="ok">Pass</td><td>Phase 1専用部品の削除、移動、上書き、リネーム禁止を明記。</td></tr>
+      <tr><td>プロジェクト適用</td><td class="ok">Pass</td><td>AF-03で <code>settings/ai_component_rules.md</code> と <code>AGENTS.md</code> へ反映する方針を明記。</td></tr>
+    </tbody>
+  </table>
+</main>
+</body>
+</html>
