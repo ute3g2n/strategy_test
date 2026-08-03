@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2-D03 Phase 2未確定事項台帳</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px; max-width: 1380px; color: #1f2937; }
+    h1, h2, h3 { color: #111827; line-height: 1.35; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin-top: 32px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 13px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 9px; vertical-align: top; }
+    th { background: #f3f4f6; }
+    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+    .meta, .unknown, .gate, .handoff { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .unknown { border-left-color: #d97706; background: #fffbeb; }
+    .gate { border-left-color: #7c3aed; background: #f5f3ff; }
+    .handoff { border-left-color: #059669; background: #ecfdf5; }
+  </style>
+</head>
+<body>
+  <h1>P2-D03 Phase 2未確定事項台帳</h1>
+
+  <section class="meta">
+    <p><strong>作成日:</strong> 2026-08-04<br>
+    <strong>文書状態:</strong> v0.1 / P2-01レビュー反映済み<br>
+    <strong>成果物ID:</strong> P2-D03<br>
+    <strong>文書セットID:</strong> P2-REQ-DOCSET<br>
+    <strong>使用オーケストレータ完全名:</strong> <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code><br>
+    <strong>担当サブエージェント完全名:</strong> <code>AutoTrade_A10_RequirementsCurator_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code><br>
+    <strong>使用Skill完全名:</strong> <code>autotrade_skill_source_reader_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_doc_set_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code></p>
+  </section>
+
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#summary">概要</a></li>
+    <li><a href="#ledger">Unknown台帳</a></li>
+    <li><a href="#gate">H2-0承認項目</a></li>
+    <li><a href="#links">関連文書</a></li>
+    <li><a href="#review">レビュー履歴</a></li>
+  </ol>
+
+  <h2 id="summary">1. 概要</h2>
+  <p>本台帳は、Phase 2 Market Data基盤で未確定のまま残る判断を、ID、担当ステップ、決定タイミング、未決時の停止または縮退方針に分けて管理する。UnknownはPass扱いしない。機械Gateで判定できない項目はHuman Gateへ送る。</p>
+
+  <h2 id="ledger">2. Unknown台帳</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Unknown ID</th>
+        <th>内容</th>
+        <th>関連要件</th>
+        <th>担当ステップ</th>
+        <th>決定タイミング</th>
+        <th>未決時の停止または縮退方針</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>UNK-P2-01</code></td><td>OD-01: 初期3-5市場のPhase 2対象確定。<code>MCL/M6A</code>を本線、<code>MZC/MZS/MZW</code>を条件付きにする扱い。</td><td>REQ-Q02, REQ-OD01</td><td>P2-01</td><td>H2-0</td><td>条件付き銘柄はCatalogにPendingとして残し、本線Replay Gate対象から分離する。</td></tr>
+      <tr><td><code>UNK-P2-02</code></td><td>OD-03: roll ruleとcontinuous signal方式。出来高最大、期近日、期限前固定日、外部continuousのどれを採用候補にするか。</td><td>REQ-Q19, REQ-OD03</td><td>P2-04</td><td>H2-1</td><td>Signal seriesをPhase 3本線入力に昇格しない。</td></tr>
+      <tr><td><code>UNK-P2-03</code></td><td>Databento dataset、schema、stype_in/out、continuous symbology採用範囲。</td><td>REQ-P2-BL02, REQ-Q20</td><td>P2-02 / P2-03</td><td>P2-03完了時</td><td>Raw取得ジョブ実装をdry-runまたはfixture限定にする。</td></tr>
+      <tr><td><code>UNK-P2-04</code></td><td><code>MZC/MZS/MZW</code> の履歴期間、流動性、Proxy/Fallbackの正式扱い。</td><td>REQ-Q02, REQ-OD01</td><td>P2-02 / P2-04</td><td>H2-1</td><td>本線Backtest入力から除外し、条件付きデータセットに隔離する。</td></tr>
+      <tr><td><code>UNK-P2-05</code></td><td>データ品質警告日の扱い。Databento degraded品質警告を除外、警告付き採用、再取得対象のどれにするか。</td><td>REQ-DATA-QUALITY, REQ-Q29</td><td>P2-06 / P2-08</td><td>P2-08完了時</td><td>該当日をSignal生成対象外にし、H2-3のレビュー採否対象へ送る。</td></tr>
+      <tr><td><code>UNK-P2-06</code></td><td>Phase 2のテスト実行基盤とレポート形式。</td><td>REQ-Q29, D18</td><td>P2-06</td><td>P2-06完了時</td><td>最小pytest + JSON/Markdown証跡で開始し、HTML検証結果へ集約する。</td></tr>
+      <tr><td><code>UNK-P2-07</code></td><td>Databento API利用コスト、entitlement、API key利用承認。</td><td>REQ-Q23, 要件8.4, セキュリティ要件</td><td>P2-02 / H2-2</td><td>実取得前</td><td>外部API実取得を行わず、既存P10サンプルとfixtureだけで検証する。</td></tr>
+      <tr><td><code>UNK-P2-08</code></td><td><code>data/market_data/</code> をリポジトリ内ローカルデータ置場にするか、外部パスにするか。</td><td>REQ-Q20, REQ-Q23</td><td>P2-05</td><td>P2-05完了時</td><td>大容量データ生成を停止し、小型fixtureだけGit管理する。</td></tr>
+      <tr><td><code>UNK-P2-09</code></td><td>Shadow用Live相当データの遅延許容しきい値。</td><td>D11, D18, 移行要件</td><td>P2-03 / P2-10</td><td>Phase 6</td><td>Phase 2では測定項目だけ定義し、合否しきい値は未確定のまま送る。</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="gate">3. H2-0承認項目</h2>
+  <section class="gate">
+    <p><strong>Human Gate ID:</strong> H2-0<br>
+    <strong>承認項目:</strong> Phase 2スコープ、<code>MCL/M6A</code>本線候補、<code>MZC/MZS/MZW</code>条件付き候補、Unknown台帳、後続Phaseへ送る詳細化項目。<br>
+    <strong>承認しないこと:</strong> 実取引開始、外部API実取得、Databento費用発生、IBKR/IBSJ取引可否の最終確定、OD-03の最終採用。<br>
+    <strong>未承認時:</strong> P2-02以降へ進めず、P2-D01からP2-D03を修正して再レビューする。</p>
+  </section>
+
+  <section class="unknown">
+    <p><strong>Unknown運用ルール:</strong> Unknownが解消されていない場合は、Passではなく <code>Unknown</code>、<code>Fail</code>、<code>縮退</code>、<code>Human Gate待ち</code> のいずれかで記録する。根拠なしの承認、品質警告の握りつぶし、Secret実値の記録は禁止する。</p>
+  </section>
+
+  <h2 id="links">4. 関連文書</h2>
+  <ul>
+    <li><a href="./01_Phase2スコープ定義.html">P2-D01 Phase 2スコープ定義</a></li>
+    <li><a href="./01_Phase2要件追跡マトリクス.html">P2-D02 Phase 2要件追跡マトリクス</a></li>
+    <li><a href="../../requirements/01_自動トレードシステム要件定義書.html">要件定義書</a></li>
+    <li><a href="../../phase1/11_ロードマップ/11_詳細設計バックログ.html">Phase 1 詳細設計バックログ</a></li>
+    <li><a href="../../index.html">ドキュメントインデックス</a></li>
+  </ul>
+
+  <h2 id="review">5. レビュー履歴</h2>
+  <table>
+    <thead><tr><th>日付</th><th>レビュアー完全名</th><th>観点</th><th>結果と反映</th></tr></thead>
+    <tbody>
+      <tr><td>2026-08-04</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>UnknownのPass扱い、決定タイミング漏れ、Human Gate漏れ。</td><td>Pass。各Unknownに担当ステップ、決定タイミング、未決時の停止または縮退方針を付与した。</td></tr>
+      <tr><td>2026-08-04</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>読みやすさ、リンク、保存先、doc/index.html導線。</td><td>Pass。P2-D01/P2-D02との相互リンクを確認した。</td></tr>
+    </tbody>
+  </table>
+
+  <section class="handoff">
+    <p>P2-02以降で新しいUnknownが発生した場合は、本台帳に追記し、既存IDとの重複を避ける。P2-10では残UnknownをPhase 3以降の引き継ぎ文書へ転記する。</p>
+  </section>
+</body>
+</html>

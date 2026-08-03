@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2-D02 Phase 2要件追跡マトリクス</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px; max-width: 1400px; color: #1f2937; }
+    h1, h2, h3 { color: #111827; line-height: 1.35; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin-top: 32px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 13px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 9px; vertical-align: top; }
+    th { background: #f3f4f6; }
+    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+    .meta, .unknown, .handoff { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .unknown { border-left-color: #d97706; background: #fffbeb; }
+    .handoff { border-left-color: #059669; background: #ecfdf5; }
+  </style>
+</head>
+<body>
+  <h1>P2-D02 Phase 2要件追跡マトリクス</h1>
+
+  <section class="meta">
+    <p><strong>作成日:</strong> 2026-08-04<br>
+    <strong>文書状態:</strong> v0.1 / P2-01レビュー反映済み<br>
+    <strong>成果物ID:</strong> P2-D02<br>
+    <strong>文書セットID:</strong> P2-REQ-DOCSET<br>
+    <strong>使用オーケストレータ完全名:</strong> <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code><br>
+    <strong>担当サブエージェント完全名:</strong> <code>AutoTrade_A10_RequirementsCurator_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code><br>
+    <strong>使用Skill完全名:</strong> <code>autotrade_skill_source_reader_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_doc_set_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code></p>
+  </section>
+
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#summary">概要</a></li>
+    <li><a href="#matrix">要件追跡マトリクス</a></li>
+    <li><a href="#artifacts">成果物対応</a></li>
+    <li><a href="#unknowns">Unknown対応</a></li>
+    <li><a href="#links">関連文書</a></li>
+    <li><a href="#review">レビュー履歴</a></li>
+  </ol>
+
+  <h2 id="summary">1. 概要</h2>
+  <p>本書は、Phase 2 Market Data基盤で扱う要件を成果物、設計判断、Unknown、Human Gateへ接続する追跡マトリクスである。重点対象は <code>REQ-Q02</code>, <code>REQ-Q19</code>, <code>REQ-Q20</code>, <code>REQ-Q23</code>, <code>REQ-Q29</code>, <code>REQ-OD01</code>, <code>REQ-OD03</code> とする。</p>
+
+  <h2 id="matrix">2. 要件追跡マトリクス</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>追跡ID</th>
+        <th>原要求ID</th>
+        <th>Phase 2解釈</th>
+        <th>P2-01状態</th>
+        <th>固定 / 後送り</th>
+        <th>成果物</th>
+        <th>Unknown / Gate</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>REQ-Q02</code></td><td>Q2</td><td>対象アセットはPhase 0結果を入力に、Phase 2ではMarket Data基盤の候補として扱う。</td><td>一部確定</td><td><code>MCL/M6A</code>は本線候補、<code>MZC/MZS/MZW</code>は条件付き候補。実取引可否は後送り。</td><td>P2-D01, P2-D02, P2-D03, P2-D07</td><td>UNK-P2-01, UNK-P2-04, H2-0</td></tr>
+      <tr><td><code>REQ-Q19</code></td><td>Q19</td><td>限月選択、ロール規則、continuous signal方式をMarket Data設計で詳細化する。</td><td>未確定</td><td>Phase 2で候補とGateを定義し、H2-1で採否を承認する。</td><td>P2-D01, P2-D02, P2-D03, P2-D08</td><td>UNK-P2-02, H2-1</td></tr>
+      <tr><td><code>REQ-Q20</code></td><td>Q20</td><td>初期3-5市場は全期間1分足を基準入力にし、日足は1分足から生成する。</td><td>固定</td><td>1分足、data_version、Replay入力、品質検査をPhase 2で固定する。</td><td>P2-D01, P2-D02, P2-D05, P2-D06, P2-D10</td><td>Data Gate, Replay Gate</td></tr>
+      <tr><td><code>REQ-Q23</code></td><td>Q23</td><td>設定は戦略別YAMLと共通設定を分離し、Market Data設定も共通設定またはEnvironment Profileへ閉じ込める。</td><td>固定</td><td>API key実値、Account ID、SecretはHTML、Git、ログへ出さない。</td><td>P2-D01, P2-D05, P2-D09</td><td>H2-2, Secret review</td></tr>
+      <tr><td><code>REQ-Q29</code></td><td>Q29</td><td>テストは証券会社内蔵Backtestに依存せず、保存済みRaw/Normalizedから共通イベント入力を再生する。</td><td>固定</td><td>Phase 2ではMarketEvent入力の再現性とData Quality / Replay検証に限定する。</td><td>P2-D01, P2-D02, P2-D06, P2-D10</td><td>Replay Gate, Bias Gate</td></tr>
+      <tr><td><code>REQ-OD01</code></td><td>OD-01</td><td>対象アセットと初期3-5市場をPhase 2のデータ基盤候補として承認する。</td><td>Human Gate待ち</td><td>H2-0で本線/条件付き扱いを承認する。Live取引可否は承認しない。</td><td>P2-D01, P2-D02, P2-D03</td><td>UNK-P2-01, H2-0</td></tr>
+      <tr><td><code>REQ-OD03</code></td><td>OD-03</td><td>ロール規則とcontinuous signal方式をPhase 2で決める。</td><td>未確定</td><td>P2-04で候補設計、H2-1で採否。未承認ならSignalをPhase 3本線へ渡さない。</td><td>P2-D01, P2-D02, P2-D03, P2-D08, P2-D14</td><td>UNK-P2-02, H2-1</td></tr>
+      <tr><td><code>REQ-DATA-RAW</code></td><td>要件8.1/8.2</td><td>Raw、Normalized、Tradable、Signal、Derived、Experimentを分離する。</td><td>固定</td><td>Rawは不変、Normalized以降は版管理する。</td><td>P2-D01, P2-D05, P2-D06</td><td>Data Gate</td></tr>
+      <tr><td><code>REQ-DATA-QUALITY</code></td><td>要件8.5/17/18</td><td>欠損、重複、タイムゾーン不整合、異常価格、異常出来高、ロール不連続、最小履歴不足を検査する。</td><td>固定</td><td>失敗項目はPassにせず、Signal生成停止、修正指示、Unknownのいずれかに送る。</td><td>P2-D03, P2-D10</td><td>UNK-P2-05, H2-3</td></tr>
+      <tr><td><code>REQ-P2-BL01</code></td><td>BL-P2-01</td><td>Market Data取得、Raw Store、Normalization、Catalog、Roll ruleを詳細化する。</td><td>固定</td><td>Phase 2全体の主スコープ。</td><td>P2-D01からP2-D14</td><td>H2-0からH2-4</td></tr>
+      <tr><td><code>REQ-P2-BL02</code></td><td>BL-P2-02</td><td>Databento dataset、schema、symbol mapping、continuous contract設計を詳細化する。</td><td>未確定含む</td><td>P2-02/P2-03/P2-04で詳細化する。</td><td>P2-D04, P2-D05, P2-D07, P2-D08</td><td>UNK-P2-03, UNK-P2-07</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="artifacts">3. 成果物対応</h2>
+  <table>
+    <thead><tr><th>成果物ID</th><th>成果物</th><th>主な追跡ID</th><th>次ステップ利用</th></tr></thead>
+    <tbody>
+      <tr><td>P2-D01</td><td>Phase 2スコープ定義</td><td>REQ-Q02, REQ-Q19, REQ-Q20, REQ-Q23, REQ-Q29, REQ-OD01, REQ-OD03</td><td>P2-02以降のスコープ境界。</td></tr>
+      <tr><td>P2-D02</td><td>Phase 2要件追跡マトリクス</td><td>全P2重点追跡ID</td><td>各設計書の要件対応確認。</td></tr>
+      <tr><td>P2-D03</td><td>Phase 2未確定事項台帳</td><td>UNK-P2-01からUNK-P2-09</td><td>Human Gateとレビュー時のUnknown正本。</td></tr>
+      <tr><td>P2-D04からP2-D08</td><td>データソース調査、基盤詳細設計、Roll/Signal設計。</td><td>REQ-Q19, REQ-Q20, REQ-OD03, REQ-P2-BL02</td><td>P2-05実装、P2-08検証。</td></tr>
+      <tr><td>P2-D09からP2-D14</td><td>実装方針、検証、統合レビュー、完了判定。</td><td>REQ-Q23, REQ-Q29, REQ-DATA-QUALITY</td><td>Phase 3引き継ぎ。</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="unknowns">4. Unknown対応</h2>
+  <section class="unknown">
+    <p>本マトリクスで未確定またはHuman Gate待ちの項目は、すべて <a href="./01_Phase2未確定事項台帳.html">P2-D03</a> に接続する。UnknownはPass扱いせず、決定タイミングと未決時の停止または縮退方針を持つ。</p>
+  </section>
+
+  <h2 id="links">5. 関連文書</h2>
+  <ul>
+    <li><a href="./01_Phase2スコープ定義.html">P2-D01 Phase 2スコープ定義</a></li>
+    <li><a href="./01_Phase2未確定事項台帳.html">P2-D03 Phase 2未確定事項台帳</a></li>
+    <li><a href="../../requirements/01_自動トレードシステム要件定義書.html">要件定義書</a></li>
+    <li><a href="../../phase1/06_アダプター境界/06_Adapter境界設計書.html">D10 Adapter境界設計書</a></li>
+    <li><a href="../../phase1/07_実行モデル/07_共通実行モデル設計書.html">D11 共通実行モデル設計書</a></li>
+    <li><a href="../../phase1/10_テスト品質/10_テスト戦略品質Gate設計書.html">D18 テスト戦略 品質Gate設計書</a></li>
+    <li><a href="../../index.html">ドキュメントインデックス</a></li>
+  </ul>
+
+  <h2 id="review">6. レビュー履歴</h2>
+  <table>
+    <thead><tr><th>日付</th><th>レビュアー完全名</th><th>観点</th><th>結果と反映</th></tr></thead>
+    <tbody>
+      <tr><td>2026-08-04</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>要件追跡漏れ、Phase 2スコープ逸脱、Human Gate漏れ。</td><td>Pass。重点要件、バックログ、Data Quality要件を成果物とUnknownへ接続した。</td></tr>
+      <tr><td>2026-08-04</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>文書セット内リンク、保存先、doc/index.html導線。</td><td>Pass。P2-D01/P2-D03への相互リンクを確認した。</td></tr>
+    </tbody>
+  </table>
+
+  <section class="handoff">
+    <p>P2-02以降の各成果物は、本書の追跡IDを「主な入力」または「要件対応」に記載する。新しいUnknownが見つかった場合はP2-D03へ追記し、H2-3または該当Human Gateへ送る。</p>
+  </section>
+</body>
+</html>
