@@ -7,6 +7,7 @@
     if (document.getElementById("mermaid-zoom-styles")) {
       return;
     }
+
     const style = document.createElement("style");
     style.id = "mermaid-zoom-styles";
     style.textContent = `
@@ -48,7 +49,6 @@
         padding: 16px;
         background: #fff;
         min-height: 180px;
-        height: auto;
       }
       .diagram-viewport .mermaid {
         min-width: 100%;
@@ -56,8 +56,6 @@
       }
       .diagram-viewport svg {
         display: block;
-        transform-origin: top left;
-        transition: transform 0.15s ease;
         max-width: none !important;
         height: auto;
       }
@@ -68,7 +66,8 @@
         box-shadow: 0 20px 60px rgba(15, 23, 42, 0.28);
       }
       .diagram-shell.diagram-expanded .diagram-viewport {
-        height: calc(100vh - 92px);
+        height: calc(100vh - 92px) !important;
+        min-height: calc(100vh - 92px) !important;
       }
     `;
     document.head.appendChild(style);
@@ -82,85 +81,118 @@
     return button;
   }
 
+  function getBaseSize(svg) {
+    const viewBox = svg.viewBox && svg.viewBox.baseVal;
+    const width = viewBox && viewBox.width ? viewBox.width : (svg.getBBox().width || 1);
+    const height = viewBox && viewBox.height ? viewBox.height : (svg.getBBox().height || 1);
+    return { width, height };
+  }
+
   function wrapDiagrams() {
     document.querySelectorAll(".mermaid").forEach((node) => {
       if (node.closest(".diagram-shell")) {
         return;
       }
+
       const shell = document.createElement("div");
       shell.className = "diagram-shell";
+
       const toolbar = document.createElement("div");
       toolbar.className = "diagram-toolbar";
+
       const viewport = document.createElement("div");
       viewport.className = "diagram-viewport";
+
       const label = document.createElement("span");
       label.className = "diagram-zoom-label";
       label.textContent = "幅合わせ";
 
       let scale = 1;
       let mode = "fit";
-      const updateScale = () => {
-        const svg = viewport.querySelector("svg");
-        if (svg) {
-          svg.style.transform = `scale(${scale})`;
-          const width = svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.width
-            ? svg.viewBox.baseVal.width
-            : svg.getBBox().width || svg.getBoundingClientRect().width || 1;
-          const height = svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.height
-            ? svg.viewBox.baseVal.height
-            : svg.getBBox().height || svg.getBoundingClientRect().height || 1;
-          svg.style.width = `${width}px`;
-          svg.style.height = `${height}px`;
-          const scaledHeight = Math.max(height * scale + 32, 180);
-          viewport.style.minHeight = `${scaledHeight}px`;
-          viewport.style.height = `${scaledHeight}px`;
-        }
-        label.textContent = mode === "fit" ? `幅合わせ ${Math.round(scale * 100)}%` : `${Math.round(scale * 100)}%`;
-      };
 
-      const fitToWidth = () => {
+      function applyScale() {
         const svg = viewport.querySelector("svg");
         if (!svg) {
           return;
         }
-        const width = svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.width
-          ? svg.viewBox.baseVal.width
-          : svg.getBBox().width || svg.getBoundingClientRect().width || 1;
+
+        const baseWidth = Number(svg.dataset.baseWidth || 0);
+        const baseHeight = Number(svg.dataset.baseHeight || 0);
+        if (!baseWidth || !baseHeight) {
+          return;
+        }
+
+        const scaledWidth = Math.max(baseWidth * scale, 1);
+        const scaledHeight = Math.max(baseHeight * scale, 1);
+
+        svg.style.width = `${scaledWidth}px`;
+        svg.style.height = `${scaledHeight}px`;
+
+        if (!shell.classList.contains("diagram-expanded")) {
+          const viewportHeight = Math.max(scaledHeight + 32, 180);
+          viewport.style.height = `${viewportHeight}px`;
+          viewport.style.minHeight = `${viewportHeight}px`;
+        }
+
+        label.textContent = mode === "fit"
+          ? `幅合わせ ${Math.round(scale * 100)}%`
+          : `${Math.round(scale * 100)}%`;
+      }
+
+      function fitToWidth() {
+        const svg = viewport.querySelector("svg");
+        if (!svg) {
+          return;
+        }
+
+        const baseWidth = Number(svg.dataset.baseWidth || 0);
+        if (!baseWidth) {
+          return;
+        }
+
         const available = Math.max(viewport.clientWidth - 32, 240);
-        scale = Math.max(0.4, Math.min(available / width, 3));
+        scale = Math.max(0.4, Math.min(available / baseWidth, 3));
         mode = "fit";
-        updateScale();
-      };
+        applyScale();
+      }
 
       toolbar.appendChild(createButton("拡大", () => {
         scale = Math.min(scale + 0.2, 3);
         mode = "manual";
-        updateScale();
+        applyScale();
       }));
+
       toolbar.appendChild(createButton("縮小", () => {
         scale = Math.max(scale - 0.2, 0.4);
         mode = "manual";
-        updateScale();
+        applyScale();
       }));
+
       toolbar.appendChild(createButton("等倍", () => {
         scale = 1;
         mode = "manual";
-        updateScale();
+        applyScale();
       }));
+
       toolbar.appendChild(createButton("幅合わせ", () => {
         fitToWidth();
       }));
+
       toolbar.appendChild(createButton("最大化", (event) => {
         shell.classList.toggle("diagram-expanded");
-        event.currentTarget.textContent = shell.classList.contains("diagram-expanded") ? "閉じる" : "最大化";
+        event.currentTarget.textContent = shell.classList.contains("diagram-expanded")
+          ? "閉じる"
+          : "最大化";
+
         requestAnimationFrame(() => {
           if (mode === "fit") {
             fitToWidth();
           } else {
-            updateScale();
+            applyScale();
           }
         });
       }));
+
       toolbar.appendChild(label);
 
       node.parentNode.insertBefore(shell, node);
@@ -168,13 +200,14 @@
       shell.appendChild(toolbar);
       shell.appendChild(viewport);
 
-      node.dataset.zoomReady = "true";
-      node._updateDiagramScale = updateScale;
+      node._applyDiagramScale = applyScale;
       node._fitDiagramToWidth = fitToWidth;
 
       window.addEventListener("resize", () => {
         if (mode === "fit") {
           fitToWidth();
+        } else {
+          applyScale();
         }
       });
     });
@@ -183,6 +216,7 @@
   async function render() {
     injectStyles();
     wrapDiagrams();
+
     mermaid.initialize({
       startOnLoad: false,
       securityLevel: "loose",
@@ -193,12 +227,23 @@
         useMaxWidth: false
       }
     });
+
     await mermaid.run({ querySelector: ".mermaid" });
+
     document.querySelectorAll(".mermaid").forEach((node) => {
+      const svg = node.querySelector("svg");
+      if (!svg) {
+        return;
+      }
+
+      const base = getBaseSize(svg);
+      svg.dataset.baseWidth = String(base.width);
+      svg.dataset.baseHeight = String(base.height);
+
       if (typeof node._fitDiagramToWidth === "function") {
         node._fitDiagramToWidth();
-      } else if (typeof node._updateDiagramScale === "function") {
-        node._updateDiagramScale();
+      } else if (typeof node._applyDiagramScale === "function") {
+        node._applyDiagramScale();
       }
     });
   }
