@@ -50,8 +50,8 @@
         min-height: 180px;
       }
       .diagram-viewport .mermaid {
-        min-width: fit-content;
-        width: fit-content;
+        min-width: 100%;
+        width: 100%;
       }
       .diagram-viewport svg {
         display: block;
@@ -94,32 +94,70 @@
       viewport.className = "diagram-viewport";
       const label = document.createElement("span");
       label.className = "diagram-zoom-label";
-      label.textContent = "100%";
+      label.textContent = "幅合わせ";
 
       let scale = 1;
+      let mode = "fit";
       const updateScale = () => {
         const svg = viewport.querySelector("svg");
         if (svg) {
           svg.style.transform = `scale(${scale})`;
+          const width = svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.width
+            ? svg.viewBox.baseVal.width
+            : svg.getBBox().width || svg.getBoundingClientRect().width || 1;
+          const height = svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.height
+            ? svg.viewBox.baseVal.height
+            : svg.getBBox().height || svg.getBoundingClientRect().height || 1;
+          svg.style.width = `${width}px`;
+          svg.style.height = `${height}px`;
+          const scaledHeight = Math.max(height * scale + 32, 180);
+          viewport.style.minHeight = `${scaledHeight}px`;
         }
-        label.textContent = `${Math.round(scale * 100)}%`;
+        label.textContent = mode === "fit" ? `幅合わせ ${Math.round(scale * 100)}%` : `${Math.round(scale * 100)}%`;
+      };
+
+      const fitToWidth = () => {
+        const svg = viewport.querySelector("svg");
+        if (!svg) {
+          return;
+        }
+        const width = svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.width
+          ? svg.viewBox.baseVal.width
+          : svg.getBBox().width || svg.getBoundingClientRect().width || 1;
+        const available = Math.max(viewport.clientWidth - 32, 240);
+        scale = Math.max(0.4, Math.min(available / width, 3));
+        mode = "fit";
+        updateScale();
       };
 
       toolbar.appendChild(createButton("拡大", () => {
         scale = Math.min(scale + 0.2, 3);
+        mode = "manual";
         updateScale();
       }));
       toolbar.appendChild(createButton("縮小", () => {
         scale = Math.max(scale - 0.2, 0.4);
+        mode = "manual";
         updateScale();
       }));
       toolbar.appendChild(createButton("等倍", () => {
         scale = 1;
+        mode = "manual";
         updateScale();
+      }));
+      toolbar.appendChild(createButton("幅合わせ", () => {
+        fitToWidth();
       }));
       toolbar.appendChild(createButton("最大化", (event) => {
         shell.classList.toggle("diagram-expanded");
         event.currentTarget.textContent = shell.classList.contains("diagram-expanded") ? "閉じる" : "最大化";
+        requestAnimationFrame(() => {
+          if (mode === "fit") {
+            fitToWidth();
+          } else {
+            updateScale();
+          }
+        });
       }));
       toolbar.appendChild(label);
 
@@ -130,6 +168,13 @@
 
       node.dataset.zoomReady = "true";
       node._updateDiagramScale = updateScale;
+      node._fitDiagramToWidth = fitToWidth;
+
+      window.addEventListener("resize", () => {
+        if (mode === "fit") {
+          fitToWidth();
+        }
+      });
     });
   }
 
@@ -148,7 +193,9 @@
     });
     await mermaid.run({ querySelector: ".mermaid" });
     document.querySelectorAll(".mermaid").forEach((node) => {
-      if (typeof node._updateDiagramScale === "function") {
+      if (typeof node._fitDiagramToWidth === "function") {
+        node._fitDiagramToWidth();
+      } else if (typeof node._updateDiagramScale === "function") {
         node._updateDiagramScale();
       }
     });
