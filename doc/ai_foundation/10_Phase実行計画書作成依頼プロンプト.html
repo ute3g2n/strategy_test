@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>10 Phase実行計画書作成依頼プロンプト</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; white-space: pre-wrap; }
+    code { font-family: Consolas, "Courier New", monospace; }
+    a { color: #0f5db8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>10 Phase実行計画書作成依頼プロンプト</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 / <strong>作成日:</strong> 2026-08-04 / <strong>用途:</strong> 各Phase開始時に実行計画書を作成するための依頼プロンプト</p>
+  </div>
+
+  <section>
+    <h2>使い方</h2>
+    <p>次のプロンプトの <code>&lt;...&gt;</code> を対象Phaseに合わせて置き換え、Codexへ投入する。作成される実行計画書は <code>plan/</code> 配下に保存し、正式HTML成果物は <code>doc/phaseX/</code> 配下へ保存する。</p>
+  </section>
+
+  <section>
+    <h2>依頼プロンプト</h2>
+    <pre><code>ステップID: PX-PLAN-00
+ロール: Phase実行計画作成オーケストレーター
+使用オーケストレータ完全名: AutoTradePhasePlanning_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A05_PhaseExecutionPlanner_v0_1, AutoTrade_A10_RequirementsCurator_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A90_DesignReviewer_v0_1
+使用モデル: gpt-5.5
+使用Skill完全名: autotrade_skill_phase_execution_planning_v0_1, autotrade_skill_source_reader_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_orchestration_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_revision_integration_v0_1
+
+発火制御:
+- 上記の完全名で指定したAI部品だけを使用する。
+- 指定AI部品が存在しない場合は、既存Skill等で代替せず、不足部品として報告して停止する。
+- Phase専用部品が必要な場合は、汎用部品では不足する理由、利用期限、凍結条件を計画書に明記する。
+- 既存のAutoTradePhase1_* または autotrade_phase1_skill_* は、参照対象として読むだけにする。実行部品として起動しない。
+- default_orchestrator は変更しない。
+
+タスク:
+&lt;Phase X&gt; の実行計画書を作成してください。
+このPhaseでは、最初に実行計画書を作成し、その後に複数ステップで必要な設計書、実装、検証、レビュー、レビュー反映を行います。
+
+入力:
+- doc/requirements/01_自動トレードシステム要件定義書.html
+- plan/Phase1_実行計画書_v0.1_2026-08-02.md
+- plan/AI実行基盤整理計画書_v0.1_2026-08-04.md
+- &lt;前Phaseの完了判定HTMLまたは引き継ぎ文書&gt;
+- &lt;対象Phaseに必要な既存HTML成果物&gt;
+- .codex/skills/autotrade_skill_*_v0_1/SKILL.md
+- .codex/agents/AutoTrade_A*.json
+- .codex/orchestrators/AutoTradeProject_Orchestrator_v0_1.json
+- .codex/orchestrators/AutoTradePhasePlanning_Orchestrator_v0_1.json
+- settings/ai_component_rules.md
+
+作業:
+1. 対象Phaseの目的、入力条件、成果物、完了Gateを整理する。
+2. 対象Phaseで固定する判断と、後続Phaseへ送る詳細化項目を分ける。
+3. 実行ステップを適切な粒度で複数に分割する。1ステップにまとめない。
+4. 並列実行できるステップと、依存関係上シーケンシャルにするステップを分ける。
+5. 各ステップに、そのまま実行できるプロンプトを含める。
+6. 各プロンプトには、使用オーケストレータ完全名、担当サブエージェント完全名、使用モデル、使用Skill完全名、発火制御、入力、タスク、レビュー、完了条件を含める。
+7. 正式HTML成果物は doc/phaseX/ 配下へ保存し、doc/index.html から到達できるルールを含める。
+8. 実行計画書、プロンプト、ログ、台帳は plan/ 配下へ保存するルールを含める。
+9. UnknownをPassにせず、Unknown台帳、決定タイミング、担当ステップを明記する。
+10. Human Gateを必要な位置に置く。
+
+レビュー:
+- AutoTrade_A90_DesignReviewer_v0_1 が、ステップ粒度、依存関係、発火制御、AI部品指定漏れ、Human Gate漏れ、Unknown扱い、Phaseスコープ逸脱をレビューする。
+- AutoTrade_A80_DocumentIntegrator_v0_1 が、計画書の読みやすさ、リンク、保存先、doc/index.html更新ルールを確認する。
+- 指摘を反映して最終版を更新する。
+
+出力:
+- plan/PhaseX_実行計画書_v0.1_YYYY-MM-DD.md
+- 必要に応じて doc/phaseX/00_実行計画/ 配下のHTML補助資料
+- 実行計画作成時のUnknown一覧
+
+完了条件:
+- 対象Phaseの後続ステップを、実行計画書内のプロンプトだけで開始できること。
+- 各ステップのAI部品完全名が明示されていること。
+- 複数ステップ、レビュー、レビュー反映、Human Gate、doc/index.html更新ルールが含まれていること。</code></pre>
+  </section>
+</main>
+</body>
+</html>

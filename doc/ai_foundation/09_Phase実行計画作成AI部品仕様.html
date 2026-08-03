@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>09 Phase実行計画作成AI部品仕様</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code, pre { font-family: Consolas, "Courier New", monospace; }
+    pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; }
+    a { color: #0f5db8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .mermaid { background: #fff; border: 1px solid #cbd5e1; padding: 16px; margin: 16px 0; overflow-x: auto; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>09 Phase実行計画作成AI部品仕様</h1>
+  <div class="meta">
+    <p><strong>文書状態:</strong> v0.1 / <strong>作成日:</strong> 2026-08-04 / <strong>対象:</strong> Phase開始時の実行計画作成基盤</p>
+  </div>
+
+  <section>
+    <h2>目的</h2>
+    <p>各Phaseの最初に、実行計画書を作成するための汎用AI部品を定義する。実行計画書は必ず複数ステップに分割し、各ステップにそのまま実行できるプロンプトを含める。</p>
+  </section>
+
+  <section>
+    <h2>作成・使用するAI部品</h2>
+    <table>
+      <tr><th>種別</th><th>完全名</th><th>役割</th><th>モデル</th></tr>
+      <tr><td>Orchestrator</td><td><code>AutoTradePhasePlanning_Orchestrator_v0_1</code></td><td>Phase実行計画作成の入力確認、DAG、レビュー、計画書出力を統括する。</td><td><code>gpt-5.5</code></td></tr>
+      <tr><td>Agent</td><td><code>AutoTrade_A05_PhaseExecutionPlanner_v0_1</code></td><td>Phase目的、成果物、依存関係、ステップ粒度、プロンプトを設計する。</td><td><code>gpt-5.5</code></td></tr>
+      <tr><td>Skill</td><td><code>autotrade_skill_phase_execution_planning_v0_1</code></td><td>実行計画書の構造、ステップ分割、プロンプト必須項目、Human Gateを定義する。</td><td>-</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>流用する既存汎用部品</h2>
+    <table>
+      <tr><th>完全名</th><th>用途</th></tr>
+      <tr><td><code>AutoTrade_A10_RequirementsCurator_v0_1</code></td><td>要件、前Phase成果物、Unknown、詳細設計バックログの読み取り。</td></tr>
+      <tr><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>HTML仕様書、依頼プロンプトHTML、<code>doc/index.html</code> 更新。</td></tr>
+      <tr><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>粒度、漏れ、発火制御、Human Gate、Unknown扱いのレビュー。</td></tr>
+      <tr><td><code>autotrade_skill_source_reader_v0_1</code></td><td>入力文書の読み取り。</td></tr>
+      <tr><td><code>autotrade_skill_traceability_v0_1</code></td><td>要件、判断、Unknown、成果物の追跡。</td></tr>
+      <tr><td><code>autotrade_skill_orchestration_v0_1</code></td><td>DAG、依存関係、Human Gate、成果物統合。</td></tr>
+      <tr><td><code>autotrade_skill_html_doc_writer_v0_1</code></td><td>HTML成果物作成とインデックス更新。</td></tr>
+      <tr><td><code>autotrade_skill_design_review_v0_1</code></td><td>設計レビュー。</td></tr>
+      <tr><td><code>autotrade_skill_red_team_review_v0_1</code></td><td>安全性、先送りリスク、運用事故観点のレビュー。</td></tr>
+      <tr><td><code>autotrade_skill_revision_integration_v0_1</code></td><td>レビュー反映と変更履歴。</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>相関図</h2>
+    <div class="mermaid">
+flowchart LR
+    P["Phase実行計画作成依頼"] --> O["AutoTradePhasePlanning_Orchestrator_v0_1"]
+    O --> A05["A05 PhaseExecutionPlanner"]
+    O --> A10["A10 RequirementsCurator"]
+    O --> A80["A80 DocumentIntegrator"]
+    O --> A90["A90 DesignReviewer"]
+    A05 --> S1["phase_execution_planning"]
+    A10 --> S2["source_reader / traceability"]
+    A80 --> S3["html_doc_writer / revision_integration"]
+    A90 --> S4["design_review / red_team_review"]
+    A05 --> PLAN["plan/PhaseX_実行計画書.md"]
+    A80 --> DOC["doc/ai_foundation/依頼プロンプトHTML"]
+    A80 --> IDX["doc/index.html"]
+    </div>
+  </section>
+
+  <section>
+    <h2>実行計画書の必須構造</h2>
+    <table>
+      <tr><th>章</th><th>内容</th></tr>
+      <tr><td>目的</td><td>対象Phaseで固定すること、固定しないこと、完了条件。</td></tr>
+      <tr><td>入力</td><td>要件定義、前Phase成果物、引き継ぎ、Unknown、AI部品一覧。</td></tr>
+      <tr><td>成果物</td><td>正式HTML成果物、計画書、ログ、台帳の保存先。</td></tr>
+      <tr><td>ステップ一覧</td><td>複数ステップ、依存関係、並列可否、Human Gate。</td></tr>
+      <tr><td>実行プロンプト</td><td>各ステップでそのまま実行できるプロンプト。</td></tr>
+      <tr><td>レビュー</td><td>整合性レビュー、Red Teamレビュー、レビュー反映。</td></tr>
+      <tr><td>完了Gate</td><td>次Phaseへ進むための判断条件。</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>発火制御</h2>
+    <ul>
+      <li>各プロンプトには、使用するOrchestrator、Agent、Skillの完全名を必ず書く。</li>
+      <li>指定されていないAI部品を推測で起動しない。</li>
+      <li>Phase専用部品を作る場合は、理由、利用期限、凍結条件を計画書に書く。</li>
+      <li><code>default_orchestrator</code> は変更しない。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>レビュー履歴</h2>
+    <table>
+      <tr><th>日付</th><th>観点</th><th>結果</th></tr>
+      <tr><td>2026-08-04</td><td>粒度、発火制御、既存部品流用、保存先ルール</td><td>v0.1作成。既存汎用部品にPhase計画専用部品を追加する方針。</td></tr>
+    </table>
+  </section>
+</main>
+<script src="../assets/mermaid.min.js"></script>
+<script src="../assets/mermaid-init.js"></script>
+</body>
+</html>
