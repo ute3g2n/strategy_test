@@ -17,6 +17,7 @@
     th { background: #eef2f7; }
     code, pre { font-family: Consolas, "Courier New", monospace; }
     pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; }
+    .mermaid { background: #fff; border: 1px solid #cbd5e1; padding: 16px; margin: 16px 0; overflow-x: auto; }
     .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
     .warn { border-left-color: #b45309; background: #fff7ed; }
     .ok { border-left-color: #15803d; background: #f0fdf4; }
@@ -102,21 +103,27 @@
 
   <section id="order-state">
     <h2>注文ライフサイクルの標準状態</h2>
-    <pre>Draft
-  -> RiskAccepted
-  -> Planned
-  -> Submitted
-  -> Acknowledged
-  -> PartiallyFilled
-  -> Filled
+    <div class="mermaid">
+stateDiagram-v2
+    [*] --> Draft
+    Draft --> RiskAccepted
+    RiskAccepted --> Planned
+    Planned --> Submitted
+    Submitted --> Acknowledged
+    Acknowledged --> PartiallyFilled
+    PartiallyFilled --> Filled
 
-Submitted / Acknowledged / PartiallyFilled
-  -> CancelRequested
-  -> Cancelled
+    Submitted --> CancelRequested
+    Acknowledged --> CancelRequested
+    PartiallyFilled --> CancelRequested
+    CancelRequested --> Cancelled
 
-Draft / RiskAccepted / Planned / Submitted / Acknowledged
-  -> Rejected
-
+    Draft --> Rejected
+    RiskAccepted --> Rejected
+    Planned --> Rejected
+    Submitted --> Rejected
+    Acknowledged --> Rejected
+    </div>
 Any active state
   -> Expired
   -> Failed
@@ -253,5 +260,7 @@ Any active state
     <p>Phase 4以降では、本書の概念モデルを壊さずに、注文例外パターン、Brokerマッピング、照合規則、Risk詳細指標、Position継承規則を追加する。新しい属性や状態を追加する場合は、既存の `event_id`、`run_id`、注文状態、UTC正本原則と矛盾しないことをレビュー条件にする。</p>
   </section>
 </main>
+<script src="../../assets/mermaid.min.js"></script>
+<script src="../../assets/mermaid-init.js"></script>
 </body>
 </html>

@@ -17,6 +17,7 @@
     th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
     th { background: #eef2f7; }
     pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; }
+    .mermaid { background: #fff; border: 1px solid #cbd5e1; padding: 16px; margin: 16px 0; overflow-x: auto; }
     .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
     .warn { border-left-color: #b45309; background: #fff7ed; }
     .toc ul { columns: 2; }
@@ -146,9 +147,12 @@
 
   <section id="dependency">
     <h2>依存方向</h2>
-    <pre>Adapters -> Application Services -> Core Domain
-                 |
-                 +-> Strategy Plugin Interface</pre>
+    <div class="mermaid">
+flowchart LR
+    AD["Adapters"] --> AS["Application Services"]
+    AS --> CD["Core Domain"]
+    AS --> SPI["Strategy Plugin Interface"]
+    </div>
     <p>Core Domainは外部依存を知らない。AdaptersはPort実装として差し替え可能にし、Broker依存とMarket Data依存を閉じ込める。</p>
   </section>
 
@@ -207,5 +211,7 @@
     <p>Phase 2以降は、本書のコンテキスト境界を崩さず、共通ドメイン型、イベントスキーマ、Strategy Plugin Interface、Adapter Portを詳細化する。</p>
   </section>
 </main>
+<script src="../../assets/mermaid.min.js"></script>
+<script src="../../assets/mermaid-init.js"></script>
 </body>
 </html>

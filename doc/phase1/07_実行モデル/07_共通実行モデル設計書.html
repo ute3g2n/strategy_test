@@ -18,6 +18,7 @@
     th { background: #eef2f7; }
     code, pre { font-family: Consolas, "Courier New", monospace; }
     pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; }
+    .mermaid { background: #fff; border: 1px solid #cbd5e1; padding: 16px; margin: 16px 0; overflow-x: auto; }
     .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
     .warn { border-left-color: #b45309; background: #fff7ed; }
     .ok { border-left-color: #15803d; background: #f0fdf4; }
@@ -111,13 +112,15 @@
 
   <section id="event-loop">
     <h2>イベント処理モデル</h2>
-    <pre>Event Source
-  -> Event Envelope(event_id, run_id, source, event_time_utc, received_at_utc, seq, checksum)
-  -> Event Store append
-  -> Event Engine dispatch
-  -> Strategy / Risk / OMS / Adapter ports
-  -> Output Events and Decisions append
-  -> Health and Gate evaluation</pre>
+    <div class="mermaid">
+flowchart TD
+    ES["Event Source"] --> EV["Event Envelope<br/>event_id, run_id, source, event_time_utc,<br/>received_at_utc, seq, checksum"]
+    EV --> ST["Event Store append"]
+    ST --> EE["Event Engine dispatch"]
+    EE --> SR["Strategy / Risk / OMS / Adapter ports"]
+    SR --> OE["Output Events and Decisions append"]
+    OE --> HG["Health and Gate evaluation"]
+    </div>
     <table>
       <tr><th>論点</th><th>方針</th></tr>
       <tr><td>順序</td><td>同一source内はsource_seqを優先する。sourceを跨ぐ順序はevent_time_utcとreceived_at_utcを併記し、決定的な並べ替え規則をManifestに残す。</td></tr>
@@ -227,5 +230,7 @@
     <p>Phase 2はデータバージョン、Catalog、リプレイ入力を本書のManifestに接続する。Phase 3はBacktest実装とGolden testを本書のReplay Gateへ接続する。Phase 4はPaper接続、Broker再同期、Kill Switchを本書のRecovery GateとSafety Gateへ接続する。</p>
   </section>
 </main>
+<script src="../../assets/mermaid.min.js"></script>
+<script src="../../assets/mermaid-init.js"></script>
 </body>
 </html>

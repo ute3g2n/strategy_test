@@ -18,6 +18,7 @@
     th { background: #eef2f7; }
     code, pre { font-family: Consolas, "Courier New", monospace; }
     pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; }
+    .mermaid { background: #fff; border: 1px solid #cbd5e1; padding: 16px; margin: 16px 0; overflow-x: auto; }
     .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
     .warn { border-left-color: #b45309; background: #fff7ed; }
     .toc ul { columns: 2; }
@@ -96,10 +97,20 @@
   <section id="architecture">
     <h2>全体構成</h2>
     <p>Phase 1では、モジュラーモノリスを基本構造とし、内部の判断履歴はイベント駆動で扱い、外部依存はAdapterで隔離する。初期段階では分散システム化よりも、検証再現性、責務境界、監査性を優先する。</p>
-    <pre>Market Data Adapter
-  -> Data Ingestion -> Raw Store -> Normalization -> Catalog
-  -> Event Engine -> Strategy Plugin -> Risk -> OMS
-  -> Broker Adapter -> Reconciliation -> Monitoring</pre>
+    <div class="mermaid">
+flowchart LR
+    MDA["Market Data Adapter"] --> DI["Data Ingestion"]
+    DI --> RS["Raw Store"]
+    RS --> NM["Normalization"]
+    NM --> CT["Catalog"]
+    CT --> EE["Event Engine"]
+    EE --> SP["Strategy Plugin"]
+    SP --> RK["Risk"]
+    RK --> OMS["OMS"]
+    OMS --> BA["Broker Adapter"]
+    BA --> RC["Reconciliation"]
+    RC --> MN["Monitoring"]
+    </div>
     <table>
       <tr><th>構成要素</th><th>責務</th><th>依存方向</th></tr>
       <tr><td>Core Domain</td><td>イベント、注文意図、注文、約定、ポジション、口座断面、リスク断面の概念を保持する。</td><td>外部API、DB、通知、UIに依存しない。</td></tr>
@@ -225,5 +236,7 @@
     <p>Phase 2以降は、本書の依存方向を維持したまま、Adapter Port、イベントスキーマ、状態永続化、監視イベント、安全停止の実装詳細を具体化する。</p>
   </section>
 </main>
+<script src="../../assets/mermaid.min.js"></script>
+<script src="../../assets/mermaid-init.js"></script>
 </body>
 </html>

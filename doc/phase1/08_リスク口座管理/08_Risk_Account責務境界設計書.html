@@ -18,6 +18,7 @@
     th { background: #eef2f7; }
     code, pre { font-family: Consolas, "Courier New", monospace; }
     pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; }
+    .mermaid { background: #fff; border: 1px solid #cbd5e1; padding: 16px; margin: 16px 0; overflow-x: auto; }
     .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
     .warn { border-left-color: #b45309; background: #fff7ed; }
     .ok { border-left-color: #15803d; background: #f0fdf4; }
@@ -117,14 +118,16 @@
 
   <section id="flow">
     <h2>注文判断フロー</h2>
-    <pre>MarketEvent / TimerEvent
-  -> Strategy: SignalEvent + OrderIntent
-  -> Portfolio: exposure and limit view
-  -> Account: cash, margin, NAV snapshot
-  -> Risk: accept / reject / reduce / kill switch
-  -> OMS: order plan, idempotency, state transition
-  -> Broker Adapter: external submission
-  -> Reconciliation: order, fill, position, account consistency</pre>
+    <div class="mermaid">
+flowchart TD
+    ME["MarketEvent / TimerEvent"] --> ST["Strategy<br/>SignalEvent + OrderIntent"]
+    ST --> PF["Portfolio<br/>exposure and limit view"]
+    PF --> AC["Account<br/>cash, margin, NAV snapshot"]
+    AC --> RK["Risk<br/>accept / reject / reduce / kill switch"]
+    RK --> OMS["OMS<br/>order plan, idempotency, state transition"]
+    OMS --> BA["Broker Adapter<br/>external submission"]
+    BA --> RC["Reconciliation<br/>order, fill, position, account consistency"]
+    </div>
     <table>
       <tr><th>停止条件</th><th>停止する場所</th><th>扱い</th></tr>
       <tr><td>Kill Switch Active</td><td>Risk / OMS</td><td>新規OrderIntentはRiskRejected。OMSは新規OrderPlanを作らない。</td></tr>
@@ -284,5 +287,7 @@
     <p>Phase 4ではOMS、Cancel / Replace、再同期、Broker Paper差分を本書のOMS境界に従って詳細化する。Phase 5ではPortfolio / Risk / Accountの計算詳細、しきい値、RiskConfig、AccountSnapshot正本化を詳細化する。Live前には、1N採用値、年率ボラ目標の強制制御化、最大DD15%の停止運用、Kill Switch解除手順をHuman Gateで承認する。</p>
   </section>
 </main>
+<script src="../../assets/mermaid.min.js"></script>
+<script src="../../assets/mermaid-init.js"></script>
 </body>
 </html>

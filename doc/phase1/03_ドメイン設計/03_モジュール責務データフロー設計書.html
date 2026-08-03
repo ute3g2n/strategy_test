@@ -17,6 +17,7 @@
     th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
     th { background: #eef2f7; }
     pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; }
+    .mermaid { background: #fff; border: 1px solid #cbd5e1; padding: 16px; margin: 16px 0; overflow-x: auto; }
     .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
     .toc ul { columns: 2; }
     details { border: 1px solid #d9e2ec; padding: 10px 12px; margin: 10px 0; background: #fbfdff; }
@@ -87,15 +88,26 @@
 
   <section id="flow">
     <h2>データフロー</h2>
-    <pre>1. External Market Data -> Data Ingestion -> Raw Store
-2. Raw Store -> Normalization -> Catalog-resolved Market Series
-3. Market Series -> Event Engine -> MarketEvent
-4. MarketEvent -> Strategy Plugin -> Signal / OrderIntent
-5. OrderIntent -> Portfolio / Risk -> RiskDecision
-6. Approved Intent -> OMS -> OrderRequest
-7. OrderRequest -> Broker Adapter -> ExecutionReport
-8. ExecutionReport -> OMS / Reconciliation -> State Update or Stop Request
-9. Significant Events -> Monitoring / Event Journal</pre>
+    <div class="mermaid">
+flowchart TD
+    A["External Market Data"] --> B["Data Ingestion"]
+    B --> C["Raw Store"]
+    C --> D["Normalization"]
+    D --> E["Catalog-resolved Market Series"]
+    E --> F["Event Engine"]
+    F --> G["MarketEvent"]
+    G --> H["Strategy Plugin"]
+    H --> I["Signal / OrderIntent"]
+    I --> J["Portfolio / Risk"]
+    J --> K["RiskDecision"]
+    K --> L["OMS"]
+    L --> M["OrderRequest"]
+    M --> N["Broker Adapter"]
+    N --> O["ExecutionReport"]
+    O --> P["OMS / Reconciliation"]
+    P --> Q["State Update or Stop Request"]
+    O --> R["Monitoring / Event Journal"]
+    </div>
     <p>重要な判断はイベントジャーナルへ記録する。失敗、拒否、差異、安全停止も正常系と同じくイベントとして扱う。</p>
   </section>
 
@@ -200,5 +212,7 @@
     <p>Phase 2以降は、各モジュールのPort、イベントスキーマ、テストfixture、例外分類、監視メトリクスを詳細化する。Phase 1で固定した責務境界をまたぐ実装は設計レビューで差し戻す。</p>
   </section>
 </main>
+<script src="../../assets/mermaid.min.js"></script>
+<script src="../../assets/mermaid-init.js"></script>
 </body>
 </html>
