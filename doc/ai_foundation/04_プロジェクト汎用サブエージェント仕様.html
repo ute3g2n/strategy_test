@@ -25,12 +25,12 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D04<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.2 / Phase実行計画サブエージェント追補反映済み<br>
+    <strong>文書状態:</strong> v0.3 / AI部品ライフサイクルサブエージェント追補反映済み<br>
     <strong>ステップID:</strong> AF-02</p>
   </section>
 
   <h2>1. 目的</h2>
-  <p>本書は、プロジェクト汎用サブエージェント <code>AutoTrade_Axx_*_v0_1</code> の責務、入力、出力、使用Skill、推奨モデル、境界条件を定義する。Phase 1の15体構成を整理し、現在はA05を含む10体構成として運用する。Skillは小粒度のまま組み合わせる。</p>
+  <p>本書は、プロジェクト汎用サブエージェント <code>AutoTrade_Axx_*_v0_1</code> の責務、入力、出力、使用Skill、推奨モデル、境界条件を定義する。Phase 1の15体構成を整理し、現在はA05とA06を含む11体構成として運用する。Skillは小粒度のまま組み合わせる。</p>
 
   <h2>2. 共通仕様</h2>
   <table>
@@ -49,6 +49,7 @@
     <thead><tr><th>完全名</th><th>責務</th><th>入力</th><th>出力</th><th>使用Skill</th><th>モデル</th><th>境界条件</th></tr></thead>
     <tbody>
       <tr><td><code>AutoTrade_A05_PhaseExecutionPlanner_v0_1</code></td><td>各Phase開始前に実行計画を分解し、後続でそのまま流せるプロンプト群を定義する。</td><td>Phase目標、要件定義、前Phase成果物、AI部品一覧、共通ルール。</td><td>Phase実行計画書、直接実行可能プロンプト、依存関係図、Human Gate一覧。</td><td><code>phase_execution_planning</code>, <code>source_reader</code>, <code>traceability</code>, <code>orchestration</code>, <code>html_doc_writer</code></td><td><code>gpt-5.5</code></td><td>1ステップ化しない。完全名を省略しない。Phase専用部品を無理由で増やさない。</td></tr>
+      <tr><td><code>AutoTrade_A06_AiComponentEngineer_v0_1</code></td><td>AI部品の再利用調査、必要最小限の作成・変更、仕様追従更新を主担当する。</td><td>変更要求、既存AI部品一覧、AI基盤HTML、共通ルール。</td><td>再利用判断、部品更新、仕様追従、検証メモ。</td><td><code>ai_component_lifecycle</code>, <code>source_reader</code>, <code>traceability</code>, <code>orchestration</code>, <code>html_doc_writer</code></td><td><code>gpt-5.5</code></td><td>無断上書きしない。対象外部品を変更しない。仕様更新を省略しない。</td></tr>
       <tr><td><code>AutoTrade_A10_RequirementsCurator_v0_1</code></td><td>要件抽出、スコープ分離、追跡ID、Unknown台帳。</td><td>要件定義、Phase方針、既存成果物、Phase Runbook。</td><td>スコープ定義、追跡マトリクス、Unknown一覧。</td><td><code>source_reader</code>, <code>traceability</code>, <code>html_doc_writer</code></td><td><code>gpt-5.4</code></td><td>Unknownを勝手に解決しない。Phase外詳細を固定しない。</td></tr>
       <tr><td><code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code></td><td>全体構成、ドメイン分割、共通モデル、依存方向。</td><td>要件、追跡マトリクス、既存設計、Phase Runbook。</td><td>アーキテクチャ設計、ドメイン設計、データフロー、判断ID。</td><td><code>architecture_writer</code>, <code>domain_modeling</code>, <code>traceability</code></td><td><code>gpt-5.5</code></td><td>実装クラス詳細を過剰固定しない。外部依存をコアへ漏らさない。</td></tr>
       <tr><td><code>AutoTrade_A30_StrategyQaArchitect_v0_1</code></td><td>Strategy Interface、Turtleルール、Golden test、戦略QA。</td><td>共通モデル、実行モデル、戦略要件、テスト方針。</td><td>Strategy仕様、Golden test仕様、QA Gate、禁止事項。</td><td><code>strategy_interface</code>, <code>turtle_strategy_rules</code>, <code>golden_test</code>, <code>test_strategy</code></td><td><code>gpt-5.4</code></td><td>売買推奨をしない。StrategyにRisk/Account/Broker責務を持たせない。</td></tr>
@@ -67,6 +68,7 @@
     <tbody>
       <tr><td>統合する</td><td>A02+A03、A04+A10の戦略QA部分、A05+A06、A11+A14、A12+A13。</td></tr>
       <tr><td>独立維持する</td><td>Phase計画作成は <code>AutoTrade_A05_PhaseExecutionPlanner_v0_1</code> として独立維持し、設計本文作成責務へ混ぜない。</td></tr>
+      <tr><td>独立維持する</td><td>AI部品保守は <code>AutoTrade_A06_AiComponentEngineer_v0_1</code> として独立維持し、通常の設計本文作成フローへ混ぜない。</td></tr>
       <tr><td>統合しない</td><td>Risk/AccountとOps/Security、AdapterとPoC、DocumentIntegratorとDesignReviewer。</td></tr>
     </tbody>
   </table>
@@ -79,6 +81,7 @@
       <tr><td>レビュー独立性</td><td class="ok">Pass</td><td>文書統合とレビューを別Agentに維持した。</td></tr>
       <tr><td>Phase 1証跡</td><td class="ok">Pass</td><td>統合元は参照元として記録し、既存Agentは変更しない。</td></tr>
       <tr><td>Phase計画専任性</td><td class="ok">Pass</td><td>各Phase冒頭の計画作成を A05 に集約し、既存設計系Agentとの責務混線を避けた。</td></tr>
+      <tr><td>AI部品保守専任性</td><td class="ok">Pass</td><td>AI部品の追加・変更と仕様追従を A06 に集約し、通常設計フローと混線しないようにした。</td></tr>
     </tbody>
   </table>
 </main>
