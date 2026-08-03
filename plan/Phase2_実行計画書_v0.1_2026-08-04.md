@@ -507,16 +507,17 @@ Phase 2 Market Data基盤の最小実装を作成してください。
 ```text
 ステップID: P2-06
 ロール: Data Quality / Replay QA設計者
-使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
-担当サブエージェント完全名: AutoTrade_A30_StrategyQaArchitect_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1
+使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A30_StrategyQaArchitect_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1
 使用モデル: gpt-5.4
-使用Skill完全名: autotrade_skill_test_strategy_v0_1, autotrade_skill_golden_test_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1
+使用Skill完全名: autotrade_skill_test_strategy_v0_1, autotrade_skill_golden_test_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1
 
 Phase Runbook:
 - phase_id: Phase 2
 - step_id: P2-06
 - output_root: doc/phase2/
 - log_root: plan/phase2/ログ/
+- document_set_id: P2-QA-DOCSET
 - detail_boundary: Data quality、Replay入力、Manifest証跡のテストを設計する。Strategyの利益評価やBacktest採用判定はPhase 3へ送る。
 - human_gate_policy: Data Gate失敗時はSignal生成を停止し、H2-3でレビュー採否を承認する。
 
@@ -613,16 +614,17 @@ Databento取得プロトコルの最小実装またはdry-run実装を作成し�
 ```text
 ステップID: P2-08
 ロール: Market Data検証者
-使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
-担当サブエージェント完全名: AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A30_StrategyQaArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A90_DesignReviewer_v0_1
+使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A30_StrategyQaArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1
 使用モデル: gpt-5.4
-使用Skill完全名: autotrade_skill_execution_model_v0_1, autotrade_skill_test_strategy_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1
+使用Skill完全名: autotrade_skill_execution_model_v0_1, autotrade_skill_test_strategy_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1
 
 Phase Runbook:
 - phase_id: Phase 2
 - step_id: P2-08
 - output_root: doc/phase2/
 - log_root: plan/phase2/ログ/
+- document_set_id: P2-VALIDATION-DOCSET
 - detail_boundary: Phase 2実装のData Quality / Replay検証を行い、Phase 3へ渡せるMarketEvent入力と残Unknownを判定する。Strategy収益評価は行わない。
 - human_gate_policy: 検証失敗項目はH2-3のレビュー採否対象にする。
 
@@ -667,16 +669,17 @@ Data Quality / Replay検証を実行し、検証結果HTMLを作成してくだ�
 ```text
 ステップID: P2-09
 ロール: Phase 2統合レビュー・レッドチーム監査者
-使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
-担当サブエージェント完全名: AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1
+使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1
 使用モデル: gpt-5.5
-使用Skill完全名: autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1
+使用Skill完全名: autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1
 
 Phase Runbook:
 - phase_id: Phase 2
 - step_id: P2-09
 - output_root: doc/phase2/
 - log_root: plan/phase2/ログ/
+- document_set_id: P2-REVIEW-DOCSET
 - detail_boundary: Phase 2成果物全体の整合性、安全性、追跡性をレビューする。新規設計や実装を勝手に追加しない。
 - human_gate_policy: H2-3でレビュー指摘の採否方針を承認する。
 
@@ -728,16 +731,17 @@ Phase 2成果物全体を統合レビューし、レッドチーム監査結果�
 ```text
 ステップID: P2-10
 ロール: Phase 2修正統合者
-使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
-担当サブエージェント完全名: AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A05_PhaseExecutionPlanner_v0_1
+使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A05_PhaseExecutionPlanner_v0_1
 使用モデル: gpt-5.5
-使用Skill完全名: autotrade_skill_revision_integration_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_phase_execution_planning_v0_1
+使用Skill完全名: autotrade_skill_revision_integration_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_phase_execution_planning_v0_1
 
 Phase Runbook:
 - phase_id: Phase 2
 - step_id: P2-10
 - output_root: doc/phase2/
 - log_root: plan/phase2/ログ/
+- document_set_id: P2-COMPLETION-DOCSET
 - detail_boundary: レビュー指摘を反映し、Phase 2完了判定とPhase 3引き継ぎを作成する。Phase 3の実装詳細計画は別Phase計画として扱う。
 - human_gate_policy: H2-4でPhase 2完了とPhase 3移行を承認する。
 
