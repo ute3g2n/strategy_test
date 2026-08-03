@@ -25,7 +25,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D06<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.3 / AI部品ライフサイクル追補反映済み</p>
+    <strong>文書状態:</strong> v0.4 / 設計書セット作成AI部品追補反映済み</p>
   </section>
 
   <h2>1. 目的</h2>
@@ -58,6 +58,25 @@ AutoTradeComponentLifecycle_Orchestrator_v0_1
   |
   +-- AutoTrade_A10_RequirementsCurator_v0_1
   +-- AutoTrade_A80_DocumentIntegrator_v0_1
+  +-- AutoTrade_A90_DesignReviewer_v0_1
+
+AutoTradeProject_DesignDocSet_Orchestrator_v0_1
+  |
+  +-- AutoTrade_A10_RequirementsCurator_v0_1
+  |     +-- autotrade_skill_source_reader_v0_1
+  |     +-- autotrade_skill_traceability_v0_1
+  |
+  +-- AutoTrade_A80_DocumentIntegrator_v0_1
+  |     +-- autotrade_skill_html_doc_writer_v0_1
+  |     +-- autotrade_skill_revision_integration_v0_1
+  |
+  +-- AutoTrade_A81_DesignDocSetWriter_v0_1
+  |     +-- autotrade_skill_design_doc_set_writer_v0_1
+  |     +-- autotrade_skill_source_reader_v0_1
+  |     +-- autotrade_skill_traceability_v0_1
+  |     +-- autotrade_skill_html_doc_writer_v0_1
+  |     +-- autotrade_skill_revision_integration_v0_1
+  |
   +-- AutoTrade_A90_DesignReviewer_v0_1
 
 AutoTradeProject_Orchestrator_v0_1
@@ -127,6 +146,12 @@ Rules:
               |          +-- Use AutoTradeComponentLifecycle_Orchestrator_v0_1
               |          +-- Use AutoTrade_A06_AiComponentEngineer_v0_1 as primary engineer
               |
+              +-- Is this a multi-document formal HTML design set task?
+              |     |
+              |     +-- Yes
+              |          +-- Use AutoTradeProject_DesignDocSet_Orchestrator_v0_1
+              |          +-- Use AutoTrade_A81_DesignDocSetWriter_v0_1 as primary document-set writer
+              |
               +-- Names match project generic namespace?
               |     |
               |     +-- Yes
@@ -152,6 +177,11 @@ Rules:
   |     +-- Yes: prefer autotrade_skill_ai_component_lifecycle_v0_1
   |     +-- Yes: prefer AutoTrade_A06_AiComponentEngineer_v0_1
   |     +-- Yes: prefer AutoTradeComponentLifecycle_Orchestrator_v0_1
+  |
+  +-- Need to create or update many formal HTML design documents as one set?
+  |     +-- Yes: prefer autotrade_skill_design_doc_set_writer_v0_1
+  |     +-- Yes: prefer AutoTrade_A81_DesignDocSetWriter_v0_1
+  |     +-- Yes: prefer AutoTradeProject_DesignDocSet_Orchestrator_v0_1
   |
   +-- Can an existing autotrade_skill_* cover the work?
   |     +-- Yes: use existing generic skill
@@ -188,6 +218,7 @@ Rules:
       <tr><td>発火制御</td><td class="ok">Pass</td><td>完全名なしのAI部品タスクは停止する方針を明記。</td></tr>
       <tr><td>Phase計画導線</td><td class="ok">Pass</td><td>Phase実行計画専用のSkill / Agent / Orchestrator を相関図と発火制御図へ追加した。</td></tr>
       <tr><td>AI部品保守導線</td><td class="ok">Pass</td><td>AI部品作成・変更専用のSkill / Agent / Orchestrator を相関図と発火制御図へ追加した。</td></tr>
+      <tr><td>設計書セット作成導線</td><td class="ok">Pass</td><td>複数HTML設計書作成専用のSkill / Agent / Orchestrator を相関図と発火制御図へ追加した。</td></tr>
     </tbody>
   </table>
 </main>
