@@ -39,7 +39,7 @@
     <strong>使用スキル:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code>, <code>autotrade_skill_red_team_review_v0_1</code>, <code>autotrade_skill_revision_integration_v0_1</code></p>
   </section>
 
-  <section class="note"><strong>実装対象:</strong> 現時点で <code>src/</code> と <code>tests/</code> は未作成である。本書の配置はP2-05で作成する予定のPython 3.11パッケージであり、存在しない外部SDK、DB、HTTP clientを前提にしない。外部実取得はH2-2承認前はfixture/dry-runに限定する。</section>
+  <section class="note"><strong>実装対象:</strong> 現時点で <code>src/</code> と <code>tests/</code> は未作成である。本書の配置はP2-05で作成する予定のPython 3.11パッケージであり、存在しない外部SDK（開発用部品）、データベース、通信クライアントを前提にしない。外部から実際に取得する操作は、H2-2承認前は固定入力または通信をしない確認運転に限定する。</section>
 
   <h2>0. 詳細設計カバレッジ</h2>
   <table><thead><tr><th>DD</th><th>本書の証拠</th><th>補完先</th></tr></thead><tbody>
@@ -121,13 +121,13 @@ tests/fixtures/market_data/
   <h2>4. モジュール仕様と入出力パラメータ</h2>
   <table><thead><tr><th>ファイル / 実装単位</th><th>機能説明</th><th>入力</th><th>出力</th><th>副作用・禁止事項</th></tr></thead><tbody>
     <tr><td><code>request_validation.py<br>validate_request</code></td><td>取得依頼が外部へ送れる形かを確認する。</td><td><code>request: HistoricalRequest</code></td><td>検証済み<code>HistoricalRequest</code>または<code>InvalidRequest</code></td><td>副作用なし。時刻や銘柄を補完しない。</td></tr>
-    <tr><td><code>adapter_port.py<br>HistoricalDataPort.ingest</code></td><td>呼出側の唯一の取得入口を表す。</td><td><code>request: HistoricalRequest</code></td><td><code>IngestionResult</code>または分類済み例外</td><td>vendor SDK型を公開しない。</td></tr>
-    <tr><td><code>adapter_service.py<br>IngestionService.ingest</code></td><td>検証、取得、品質確認、Raw保存、Health記録を順番に実行する。</td><td><code>request</code>、注入された<code>gateway</code>/<code>raw_store</code>/<code>reporter</code></td><td><code>IngestionResult</code></td><td>Raw保存が成功するまで成功結果を返さない。</td></tr>
-    <tr><td><code>vendor_gateway.py<br>VendorGateway.fetch</code></td><td>外部提供元の違いを隠し、共通のpayloadへ変換する。</td><td><code>request: HistoricalRequest</code></td><td><code>GatewayPayload</code></td><td>HTTP/SDK例外を<code>AdapterError</code>へ変換。Secretを返さない。</td></tr>
-    <tr><td><code>fixture_gateway.py<br>FixtureGateway.fetch</code></td><td>H2-2未承認中に固定fixtureだけを返す。</td><td><code>request</code>、fixture path（内部設定）</td><td><code>GatewayPayload</code></td><td>ネットワークへ接続しない。fixture不在は<code>FixtureNotFound</code>。</td></tr>
-    <tr><td><code>raw_store.py<br>RawStorePort.put_if_absent</code></td><td>payloadを不変Rawとして保存するP2-D06境界。</td><td><code>raw_write: RawWriteRequest</code></td><td><code>RawWriteResult</code></td><td>同一内容は既存参照、異内容は上書き禁止。</td></tr>
-    <tr><td><code>catalog_port.py<br>CatalogPort.record_observation</code></td><td>symbol/definitionの観測材料をCatalogへ渡す。</td><td><code>observation: SymbolObservation</code></td><td><code>ObservationReceipt</code></td><td>内部InstrumentIdをAdapterが勝手に発行しない。</td></tr>
-    <tr><td><code>health.py<br>HealthReporter.record</code></td><td>利用可否と停止理由を監査可能なHealthEventへする。</td><td><code>event: HealthEvent</code></td><td>なし</td><td>追記のみ。失敗時は呼出元を<code>UNHEALTHY</code>として扱う。</td></tr>
+    <tr><td><code>adapter_port.py<br>HistoricalDataPort.ingest</code></td><td>呼出側が使える唯一の取得入口を表す。</td><td><code>request: HistoricalRequest</code></td><td><code>IngestionResult</code>または分類済み例外</td><td>提供元のSDK（開発用部品）の型を公開しない。</td></tr>
+    <tr><td><code>adapter_service.py<br>IngestionService.ingest</code></td><td>確認、取得、品質確認、元データ保管、利用可否の記録を順番に実行する。</td><td><code>request</code>、注入された<code>gateway</code>、<code>raw_store</code>、<code>reporter</code></td><td><code>IngestionResult</code></td><td>元データの保管が成功するまで成功結果を返さない。</td></tr>
+    <tr><td><code>vendor_gateway.py<br>VendorGateway.fetch</code></td><td>外部提供元の違いを隠し、共通の元データの箱へ変換する。</td><td><code>request: HistoricalRequest</code></td><td><code>GatewayPayload</code></td><td>通信やSDKの例外を<code>AdapterError</code>へ変換し、秘密情報を返さない。</td></tr>
+    <tr><td><code>fixture_gateway.py<br>FixtureGateway.fetch</code></td><td>H2-2未承認中に固定入力だけを返す。</td><td><code>request</code>、固定入力の場所（内部設定）</td><td><code>GatewayPayload</code></td><td>ネットワークへ接続しない。固定入力がない場合は<code>FixtureNotFound</code>を返す。</td></tr>
+    <tr><td><code>raw_store.py<br>RawStorePort.put_if_absent</code></td><td>元データを上書きしない形で保管する、P2-D06との境界である。</td><td><code>raw_write: RawWriteRequest</code></td><td><code>RawWriteResult</code></td><td>同じ内容は既存の参照を返し、異なる内容は上書きしない。</td></tr>
+    <tr><td><code>catalog_port.py<br>CatalogPort.record_observation</code></td><td>銘柄記号と銘柄仕様の観測材料を、銘柄台帳へ渡す。</td><td><code>observation: SymbolObservation</code></td><td><code>ObservationReceipt</code></td><td>内部銘柄番号（<code>InstrumentId</code>）を、この部品が勝手に発行しない。</td></tr>
+    <tr><td><code>health.py<br>HealthReporter.record</code></td><td>利用可否と停止理由を、監査できる状態記録（<code>HealthEvent</code>）にする。</td><td><code>event: HealthEvent</code></td><td>なし</td><td>追記だけを認める。失敗時は呼出元を<code>UNHEALTHY</code>として扱う。</td></tr>
   </tbody></table>
   <h3>4.1 HistoricalRequestの入力パラメータ</h3>
   <table><thead><tr><th>パラメータ名</th><th>型</th><th>必須</th><th>説明と検証</th></tr></thead><tbody>
