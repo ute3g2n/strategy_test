@@ -1,7 +1,7 @@
 {
   "name": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
   "display_name": "Auto Trade Component Lifecycle Orchestrator v0.1",
-  "model": "gpt-5.6-luna",
+  "model": "gpt-5.6-terra",
   "purpose": "Coordinate creation and modification of project AI components by enforcing reuse survey, explicit component changes, and synchronized document updates.",
   "trigger_examples": [
     "AI部品の作成・変更基盤で対応して",

@@ -35,6 +35,12 @@
 - 作成ステップでない場合は、既存部品で代替せず、不足部品名を報告して停止する。
 - `default_orchestrator` は明示承認なしに変更しない。
 
+## モデル割当ルール
+
+- 現行の汎用AutoTrade Orchestratorである `AutoTradeProject_Orchestrator_v0_1`、`AutoTradePhasePlanning_Orchestrator_v0_1`、`AutoTradeComponentLifecycle_Orchestrator_v0_1`、`AutoTradeProject_DesignDocSet_Orchestrator_v0_1`、`AutoTradeProject_ImplementationDesign_Orchestrator_v0_1` の `model` は `gpt-5.6-terra` とする。
+- サブエージェントの `model` は各 `.codex/agents/AutoTrade_A*.json` の個別定義を正本とする。オーケストレータのモデル変更だけを理由に、サブエージェントのモデルを変更してはならない。
+- `AutoTradePhase1_Orchestrator_v0_1` はPhase 1の凍結証跡であり、この割当変更の対象外とする。`default_orchestrator` も変更しない。
+
 ## 保存ルール
 
 - 正式な仕様書、設計書、検証結果はHTMLで `doc/` 配下に保存する。

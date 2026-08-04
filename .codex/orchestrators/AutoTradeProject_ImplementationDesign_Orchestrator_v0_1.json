@@ -1,7 +1,7 @@
 {
   "name": "AutoTradeProject_ImplementationDesign_Orchestrator_v0_1",
   "display_name": "Auto Trade Project Implementation Design Orchestrator v0.1",
-  "model": "gpt-5.6-luna",
+  "model": "gpt-5.6-terra",
   "purpose": "Coordinate implementation-ready detailed design document sets by enforcing coverage planning, specialist design, detailed-design review, revision integration, re-review, and index reachability.",
   "trigger_examples": [
     "実装可能な粒度で詳細設計書を作成して",

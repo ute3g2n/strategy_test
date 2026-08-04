@@ -25,7 +25,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D05<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.6 / 詳細設計テンプレート準拠基準反映済み<br>
+    <strong>文書状態:</strong> v0.7 / オーケストレータのモデル割当をgpt-5.6-terraへ同期済み<br>
     <strong>対象:</strong> <code>AutoTradeProject_Orchestrator_v0_1</code>, <code>AutoTradePhasePlanning_Orchestrator_v0_1</code>, <code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code>, <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code>, <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></p>
   </section>
 
@@ -38,7 +38,7 @@
     <tbody>
       <tr><td><code>name</code></td><td><code>AutoTradeProject_Orchestrator_v0_1</code></td></tr>
       <tr><td><code>display_name</code></td><td>Auto Trade Project Orchestrator v0.1</td></tr>
-      <tr><td><code>model</code></td><td><code>gpt-5.6-luna</code></td></tr>
+      <tr><td><code>model</code></td><td><code>gpt-5.6-terra</code></td></tr>
       <tr><td><code>purpose</code></td><td>Phase横断の設計、調査、レビュー、文書統合を管理する。</td></tr>
       <tr><td><code>global_constraints</code></td><td>日本語、投資助言禁止、Unknown must not pass、完全名指定、default変更禁止、正式HTMLはdoc/index到達必須。</td></tr>
       <tr><td><code>agents</code></td><td><code>AutoTrade_A10</code> から <code>AutoTrade_A90</code> までの9体を主に使う。Phase計画とAI部品保守は専用オーケストレータ側で扱う。</td></tr>
@@ -52,7 +52,7 @@
     <thead><tr><th>キー</th><th>仕様</th></tr></thead>
     <tbody>
       <tr><td><code>name</code></td><td><code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></td></tr>
-      <tr><td><code>model</code></td><td><code>gpt-5.6-luna</code></td></tr>
+      <tr><td><code>model</code></td><td><code>gpt-5.6-terra</code></td></tr>
       <tr><td><code>purpose</code></td><td>論理・基本設計を、部品間のデータ受渡しまで追える、対象リポジトリで実装できるモジュール、API、永続化、失敗系、コード例、テストへ具体化し、独立レビューと再レビューを統括する。</td></tr>
       <tr><td><code>agents</code></td><td><code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code> と <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code> を主担当とし、A10/A20/A40/A50/A80/A81/A90を明示指定で組み合わせる。</td></tr>
       <tr><td><code>runbook_schema</code></td><td>共通Runbookに加え、<code>implementation_target</code>、<code>document_coverage_matrix</code>、<code>detail_design_template</code>、<code>detail_design_prompt_template</code>を必須とする。</td></tr>
@@ -67,7 +67,7 @@
     <tbody>
       <tr><td><code>name</code></td><td><code>AutoTradePhasePlanning_Orchestrator_v0_1</code></td></tr>
       <tr><td><code>display_name</code></td><td>Auto Trade Phase Planning Orchestrator v0.1</td></tr>
-      <tr><td><code>model</code></td><td><code>gpt-5.6-luna</code></td></tr>
+      <tr><td><code>model</code></td><td><code>gpt-5.6-terra</code></td></tr>
       <tr><td><code>purpose</code></td><td>各Phase開始前に、複数ステップの実行計画書と直接実行可能プロンプトを整備する。</td></tr>
       <tr><td><code>agents</code></td><td><code>AutoTrade_A05_PhaseExecutionPlanner_v0_1</code> を主担当とし、必要に応じて <code>AutoTrade_A10</code>, <code>AutoTrade_A80</code>, <code>AutoTrade_A90</code> を使う。</td></tr>
       <tr><td><code>global_constraints</code></td><td>各Phaseの前に実行計画必須、複数ステップ必須、各ステップで完全名と停止条件を明記、HTMLは <code>doc/</code>、計画書とログは <code>plan/</code> 配下。</td></tr>
@@ -81,7 +81,7 @@
     <tbody>
       <tr><td><code>name</code></td><td><code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code></td></tr>
       <tr><td><code>display_name</code></td><td>Auto Trade Component Lifecycle Orchestrator v0.1</td></tr>
-      <tr><td><code>model</code></td><td><code>gpt-5.6-luna</code></td></tr>
+      <tr><td><code>model</code></td><td><code>gpt-5.6-terra</code></td></tr>
       <tr><td><code>purpose</code></td><td>既存AI部品の再利用調査から、新規作成または変更、関連仕様追従更新までを統括する。</td></tr>
       <tr><td><code>agents</code></td><td><code>AutoTrade_A06_AiComponentEngineer_v0_1</code> を主担当とし、必要に応じて <code>AutoTrade_A10</code>, <code>AutoTrade_A80</code>, <code>AutoTrade_A90</code> を使う。</td></tr>
       <tr><td><code>global_constraints</code></td><td>既存部品調査を先行、仕様追従更新必須、完全名明記、HTMLは <code>doc/</code>、計画・ログは <code>plan/</code>、<code>default_orchestrator</code> は変更禁止。</td></tr>
@@ -95,7 +95,7 @@
     <tbody>
       <tr><td><code>name</code></td><td><code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code></td></tr>
       <tr><td><code>display_name</code></td><td>Auto Trade Project Design Document Set Orchestrator v0.1</td></tr>
-      <tr><td><code>model</code></td><td><code>gpt-5.6-luna</code></td></tr>
+      <tr><td><code>model</code></td><td><code>gpt-5.6-terra</code></td></tr>
       <tr><td><code>purpose</code></td><td>Phase内の複数HTML設計書について、共通メタ、相互リンク、追跡ID、Unknown、レビュー履歴、doc/index導線を揃える。</td></tr>
       <tr><td><code>agents</code></td><td><code>AutoTrade_A81_DesignDocSetWriter_v0_1</code> を主担当とし、必要に応じて <code>AutoTrade_A10</code>, <code>AutoTrade_A80</code>, <code>AutoTrade_A90</code> を使う。</td></tr>
       <tr><td><code>global_constraints</code></td><td>正式HTML必須、doc/index到達必須、Unknown must not pass、Secret出力禁止、完全名指定、default変更禁止。</td></tr>
@@ -117,6 +117,9 @@
   "allowed_agent_prefix": "AutoTrade_A",
   "allowed_skill_prefix": "autotrade_skill_"
 }</pre>
+
+  <h2>3.1 モデル割当</h2>
+  <p>本書の5つの汎用オーケストレータはすべて <code>gpt-5.6-terra</code> を使用する。サブエージェントのモデルは各Agent JSONの個別定義を正本とし、本オーケストレータの変更によって書き換えない。Phase 1の凍結済み <code>AutoTradePhase1_Orchestrator_v0_1</code> と <code>default_orchestrator</code> は対象外である。</p>
 
   <h2>4. 管理責務</h2>
   <table>

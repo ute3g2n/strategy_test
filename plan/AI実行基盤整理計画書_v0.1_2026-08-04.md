@@ -213,7 +213,7 @@ AI部品を新規作成または更新するときは、次をプロジェクト
 ロール: AI実行基盤アーキテクト
 使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A10_RequirementsCurator_v0_1, AutoTrade_A20_ArchitectureDomainArchitect_v0_1, AutoTrade_A90_DesignReviewer_v0_1
-使用モデル: gpt-5.6-luna
+使用モデル: gpt-5.6-terra
 使用Skill完全名: autotrade_skill_source_reader_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_architecture_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_html_doc_writer_v0_1
 
 発火制御:
@@ -270,7 +270,7 @@ AI部品を新規作成または更新するときは、次をプロジェクト
 ロール: AI部品仕様設計者
 使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A20_ArchitectureDomainArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A90_DesignReviewer_v0_1
-使用モデル: gpt-5.6-luna
+使用モデル: gpt-5.6-terra
 使用Skill完全名: autotrade_skill_architecture_writer_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1
 
 発火制御:
@@ -329,7 +329,7 @@ AF-01の整理方針に基づき、プロジェクト汎用のSkill、サブエ�
 ロール: AI実行基盤実装者
 使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A90_DesignReviewer_v0_1
-使用モデル: gpt-5.6-luna
+使用モデル: gpt-5.6-terra
 使用Skill完全名: autotrade_skill_html_doc_writer_v0_1, autotrade_skill_revision_integration_v0_1, autotrade_skill_design_review_v0_1
 
 発火制御:
@@ -388,7 +388,7 @@ AF-02で作成したHTML仕様書に従い、プロジェクト汎用のSkill、
 ロール: AI実行基盤レビュアー
 使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1
-使用モデル: gpt-5.6-luna
+使用モデル: gpt-5.6-terra
 使用Skill完全名: autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1
 
 発火制御:

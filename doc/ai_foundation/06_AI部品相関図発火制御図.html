@@ -25,7 +25,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D06<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.6 / 詳細設計テンプレート準拠基準反映済み</p>
+    <strong>文書状態:</strong> v0.7 / オーケストレータのモデル割当をgpt-5.6-terraへ同期済み</p>
   </section>
 
   <h2>1. 目的</h2>
@@ -186,6 +186,9 @@ Rules:
                           |
                           +-- Yes: use only named phase-specific components
                           +-- No: stop and report misuse risk</pre>
+
+  <h2>4.1 モデル割当</h2>
+  <p>図中の汎用AutoTrade Orchestratorはすべて <code>gpt-5.6-terra</code> を使用する。図中のサブエージェントは、それぞれのAgent JSONに定義されたモデルを維持する。Phase 1の凍結証跡と <code>default_orchestrator</code> は、このモデル割当変更の対象外である。</p>
 
   <h2>5. 利用判断フロー</h2>
   <pre>Need a component?

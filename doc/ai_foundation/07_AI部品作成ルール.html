@@ -25,7 +25,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D07<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.5 / 詳細設計テンプレート準拠基準反映済み<br>
+    <strong>文書状態:</strong> v0.6 / オーケストレータのモデル割当をgpt-5.6-terraへ同期済み<br>
     <strong>後続実体化先:</strong> <code>settings/ai_component_rules.md</code></p>
   </section>
 
@@ -68,6 +68,8 @@
     <li>完全名で指定されていない既存Skill、既存Agent、既存Orchestratorを推測で起動しない。</li>
     <li>指定部品が存在しない場合は、現在ステップが作成ステップかどうかを確認する。作成ステップでなければ停止する。</li>
     <li>Phase専用部品を使う場合は、理由、利用期限、凍結条件をプロンプトまたは仕様書に明記する。</li>
+    <li>現行の汎用AutoTrade Orchestrator 5件は <code>gpt-5.6-terra</code> を使用する。サブエージェントのモデルはAgent JSONの個別定義を維持し、オーケストレータのモデル変更で変更してはならない。</li>
+    <li>Phase 1の凍結済みOrchestratorと <code>default_orchestrator</code> は、このモデル割当ルールの変更対象外とする。</li>
   </ul>
 
   <h2>4.1 AI部品ライフサイクル標準部品</h2>
