@@ -251,38 +251,40 @@ tests/fixtures/market_data/
   </tbody></table>
 
   <h2>7. 目的と境界（詳細契約）</h2>
-  <p>本書は、Databento等の外部Market Data sourceを内部のRaw Store、Normalized Store、Instrument Catalog、Replay入力へ接続するAdapterの実装可能な契約を定義する。外部SDK、HTTP型、vendor symbol、API keyをCore、Strategy、Risk、OMSへ漏らさない。</p>
+  <p>ここでは、この部品が「どこまでを自分の仕事にし、どこからを別の部品へ渡すか」を詳しく決める。外部データ提供元の都合を、戦略、リスク管理、注文管理へ持ち込まないための境界である。</p>
   <table>
     <thead><tr><th>対象</th><th>責務</th><th>非対象</th></tr></thead>
     <tbody>
-      <tr><td>Market Data Adapter</td><td>取得要求、外部応答のRaw化、mapping/definition取得、エラー分類、HealthEvent生成。</td><td>Strategy判断、売買注文、Risk判断、roll ruleの最終採否。</td></tr>
-      <tr><td>内部Port</td><td>外部に依存しないRequest/Result/Event/Health契約を提供する。</td><td>Databento client object、HTTP response、API key値の公開。</td></tr>
-      <tr><td>後続Store/Catalog</td><td>Raw/Normalized永続化と内部InstrumentIdの正本管理へ渡す。</td><td>Rawの改変、品質警告の削除、未知状態の成功変換。</td></tr>
+      <tr><td>市場データ受渡し部（<code>Market Data Adapter</code>）</td><td>取得依頼を受け、外部から来た元データを保管庫へ渡し、銘柄対応の観測、問題の分類、利用可否の記録を行う。</td><td>戦略の判断、売買注文、リスク判断、限月をつなぐ規則の最終承認は行わない。</td></tr>
+      <tr><td>内部の受取口（<code>Port</code>）</td><td>外部の都合に依存しない、依頼・結果・出来事・利用可否の共通約束を提供する。</td><td>Databentoの接続用オブジェクト、通信応答、APIキーの値を公開しない。</td></tr>
+      <tr><td>後続の保管庫・銘柄台帳</td><td>元データと整形済みデータの保存、内部銘柄番号の正式な管理を担当する。</td><td>元データの書換え、品質警告の削除、不明状態を成功へ読み替えることはしない。</td></tr>
     </tbody>
   </table>
 
   <h2>8. Port契約</h2>
+  <p>この表は、他の部品が市場データ受渡し部へ頼める仕事と、その結果を決める約束である。表中の英字名は、実装で使う固定の機能名・項目名であり、説明文はその意味を示す。</p>
   <table>
-    <thead><tr><th>Port</th><th>入力</th><th>出力</th><th>副作用とGate</th></tr></thead>
+    <thead><tr><th>受取口の固定名</th><th>受け取る内容</th><th>返す内容</th><th>起こる変更と停止条件</th></tr></thead>
     <tbody>
-      <tr><td><code>FetchHistoricalRange</code></td><td>request_id, dataset_ref, schema_ref, symbol_requests, stype_in, stype_out, start_utc, end_utc, secret_ref</td><td><code>RawBatchReceived</code>または分類済み<code>AdapterError</code></td><td>Raw Storeへの新規オブジェクト作成。H2-2未承認時はfixture/dry-runのみ。</td></tr>
-      <tr><td><code>LoadRawFile</code></td><td>raw_object_id, expected_sha256, local_uri</td><td><code>RawBatchLoaded</code>または<code>RawIntegrityMismatch</code></td><td>既存Rawの上書きは禁止。checksum不一致はData Gate停止。</td></tr>
-      <tr><td><code>ResolveSymbols</code></td><td>dataset_ref, symbol_requests, stype_in, resolution_date_range</td><td><code>SymbolMappingResolved</code>、partial結果、またはエラー</td><td>partial/ambiguous/not_foundは成功扱いにしない。</td></tr>
-      <tr><td><code>FetchInstrumentDefinitions</code></td><td>dataset_ref, external_symbols, date_range</td><td><code>InstrumentDefinitionReceived</code></td><td>Catalog候補へ渡す。spreadとfutureを<code>instrument_class</code>で区別する。</td></tr>
-      <tr><td><code>FetchDatasetCondition</code></td><td>dataset_ref, date_range</td><td><code>DatasetConditionObserved</code></td><td>available以外をquality flagにし、採用判定をData Gateへ渡す。</td></tr>
-      <tr><td><code>Health</code></td><td>接続、Store書込、mapping、品質、再試行の観測値</td><td><code>HealthEvent</code></td><td>Unhealthy/Unknownは対象データの下流利用を停止する。</td></tr>
+      <tr><td><code>FetchHistoricalRange</code></td><td>依頼番号、データ集合名、形式名、銘柄指定、表記の種類、開始・終了時刻、秘密情報の参照名を受け取る。</td><td>元データを受け取った事実を示す<code>RawBatchReceived</code>、または理由を分類した<code>AdapterError</code>を返す。</td><td>元データ保管庫に新しい記録を作る。H2-2未承認時は固定入力または通信をしない確認運転だけに限定する。</td></tr>
+      <tr><td><code>LoadRawFile</code></td><td>元データの識別子、期待する内容確認値、読み出す場所を受け取る。</td><td><code>RawBatchLoaded</code>、または内容が一致しないことを示す<code>RawIntegrityMismatch</code>を返す。</td><td>既存の元データを上書きしない。内容確認値が違えば、データ利用判定を停止する。</td></tr>
+      <tr><td><code>ResolveSymbols</code></td><td>データ集合名、銘柄指定、入力表記の種類、照会対象期間を受け取る。</td><td>一意に対応付いたことを示す<code>SymbolMappingResolved</code>、一部だけの結果、またはエラーを返す。</td><td>一部だけ、複数候補、未発見のいずれも成功扱いにしない。</td></tr>
+      <tr><td><code>FetchInstrumentDefinitions</code></td><td>データ集合名、外部銘柄記号、照会対象期間を受け取る。</td><td>銘柄の仕様を受け取ったことを示す<code>InstrumentDefinitionReceived</code>を返す。</td><td>銘柄台帳の候補へ渡す。組合せ商品と先物を<code>instrument_class</code>で区別する。</td></tr>
+      <tr><td><code>FetchDatasetCondition</code></td><td>データ集合名と確認対象期間を受け取る。</td><td>データ提供元が示す利用可否を記録した<code>DatasetConditionObserved</code>を返す。</td><td><code>available</code>以外は品質上の注意として記録し、採用可否をデータ利用判定へ渡す。</td></tr>
+      <tr><td><code>Health</code></td><td>接続、保管、銘柄対応、品質、再試行について観測した事実を受け取る。</td><td>利用可否と理由を示す<code>HealthEvent</code>を返す。</td><td><code>UNHEALTHY</code>または<code>UNKNOWN</code>なら、対象データを後続で使うことを停止する。</td></tr>
     </tbody>
   </table>
 
   <h2>9. Portの共通データ契約</h2>
+  <p>この表は、受取口どうしで受け渡す「データの箱」の中身を説明する。項目名はプログラムで使う固定名だが、何を証明し、どこで使うかを日本語で示す。</p>
   <table>
-    <thead><tr><th>契約</th><th>必須項目</th><th>意味</th></tr></thead>
+    <thead><tr><th>データの箱の固定名</th><th>必ず入れる項目</th><th>この箱が説明すること</th></tr></thead>
     <tbody>
-      <tr><td><code>DatasetRef</code></td><td>vendor, dataset_id, schema_id, source_version</td><td>外部参照を識別するが、CoreのMarketEvent型には公開しない。</td></tr>
-      <tr><td><code>RawBatchReceived</code></td><td>raw_object_id, request_id, received_at_utc, source, payload_uri, byte_count, sha256, metadata_ref, data_version_candidate</td><td>外部payloadと取得証跡をRaw Storeへ渡す。</td></tr>
-      <tr><td><code>SymbolMappingResolved</code></td><td>mapping_id, input_stype, input_symbol, output_stype, output_symbol, external_instrument_id, valid_from_utc, valid_to_utc, resolution_status</td><td>Catalogが内部InstrumentIdを付与する前の対応結果。</td></tr>
-      <tr><td><code>MarketEvent</code></td><td>event_id, run_id, instrument_id, event_time_utc, received_at_utc, exchange_time_local, bar_close_time, event_kind, values, quality_flags, data_version</td><td>D07/D10に合わせた内部イベント。Strategyへ渡るのはこの契約だけ。</td></tr>
-      <tr><td><code>HealthEvent</code></td><td>event_id, run_id, component_name, health_state, severity, observed_at_utc, reason_code, affected_scope, recovery_action</td><td>D06/D07の時刻・ID方針に従い、停止・再開判断の根拠にする。</td></tr>
+      <tr><td><code>DatasetRef</code></td><td><code>vendor</code>、<code>dataset_id</code>、<code>schema_id</code>、<code>source_version</code></td><td>どの外部データを参照したかを識別する。ただし内部の市場イベントへ外部提供元の都合を持ち込まない。</td></tr>
+      <tr><td><code>RawBatchReceived</code></td><td><code>raw_object_id</code>、<code>request_id</code>、<code>received_at_utc</code>、<code>source</code>、<code>payload_uri</code>、<code>byte_count</code>、<code>sha256</code>、<code>metadata_ref</code>、<code>data_version_candidate</code></td><td>受け取った元データと、その取得条件・内容確認値を、元データ保管庫へ渡す。</td></tr>
+      <tr><td><code>SymbolMappingResolved</code></td><td><code>mapping_id</code>、<code>input_stype</code>、<code>input_symbol</code>、<code>output_stype</code>、<code>output_symbol</code>、<code>external_instrument_id</code>、<code>valid_from_utc</code>、<code>valid_to_utc</code>、<code>resolution_status</code></td><td>銘柄台帳が内部銘柄番号を付ける前に、外部表記どうしがどう対応したかを示す。</td></tr>
+      <tr><td><code>MarketEvent</code></td><td><code>event_id</code>、<code>run_id</code>、<code>instrument_id</code>、<code>event_time_utc</code>、<code>received_at_utc</code>、<code>exchange_time_local</code>、<code>bar_close_time</code>、<code>event_kind</code>、<code>values</code>、<code>quality_flags</code>、<code>data_version</code></td><td>D07・D10に合わせた内部の市場イベントである。戦略へ渡るのはこの共通契約だけである。</td></tr>
+      <tr><td><code>HealthEvent</code></td><td><code>event_id</code>、<code>run_id</code>、<code>component_name</code>、<code>health_state</code>、<code>severity</code>、<code>observed_at_utc</code>、<code>reason_code</code>、<code>affected_scope</code>、<code>recovery_action</code></td><td>D06・D07の時刻と識別子の規則に従い、停止または再開を判断する根拠を記録する。</td></tr>
     </tbody>
   </table>
 
