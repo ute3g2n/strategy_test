@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2-D07 銘柄台帳 詳細設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 32px auto; max-width: 1240px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; } table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; font-size: 14px; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; } th { background: #eef2f7; }
+    code { font-family: Consolas, "Courier New", monospace; background: #f1f5f9; padding: 1px 4px; } pre { overflow-x: auto; padding: 14px; background: #0f172a; color: #e5e7eb; }
+    .meta, .note, .gate, .unknown, .review { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .gate { border-left-color: #7c3aed; background: #f5f3ff; } .unknown { border-left-color: #b45309; background: #fff7ed; } .review { border-left-color: #15803d; background: #f0fdf4; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>P2-D07 銘柄台帳 詳細設計書</h1>
+  <section class="meta"><p><strong>成果物ID:</strong> P2-D07<br>
+    <strong>文書セットID:</strong> P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET<br>
+    <strong>対象フェーズ / 手順:</strong> Phase 2 / P2-03R<br>
+    <strong>作成日:</strong> 2026-08-04<br>
+    <strong>文書状態:</strong> v0.3 / AF-D17形式への改訂および再レビュー反映済み<br>
+    <strong>使用オーケストレータ:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code><br>
+    <strong>担当サブエージェント:</strong> <code>AutoTrade_A10_RequirementsCurator_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code><br>
+    <strong>使用スキル:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_domain_modeling_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_doc_set_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code>, <code>autotrade_skill_red_team_review_v0_1</code>, <code>autotrade_skill_revision_integration_v0_1</code></p></section>
+  <section class="note"><strong>実装前提:</strong> 銘柄台帳はP2-05で新設予定のPython 3.11と標準ライブラリによるローカルJSONスナップショットを対象にする。Databento definition、外部の銘柄番号、契約の実値は、H2-2承認後の実取得または固定入力で確認するまで、確定した事実として扱わない。</section>
+
+  <h2>0. 詳細設計カバレッジ</h2>
+  <p>この表は、実装詳細設計として必要な要素を本書または補完する成果物のどこで扱うかを示す。実装者は、外部記号や将来の契約値を推測で補ってはならない。</p>
+  <table><thead><tr><th>設計要素</th><th>本書で示す章</th><th>補完先または対象外の理由</th></tr></thead><tbody>
+    <tr><td>DD-01からDD-04</td><td>1章から5章、7章から10章、16章で、台帳の責務、予定ファイル、検索口、データ型を定義する。</td><td>外部から観測する内容の取得はP2-D05、元データの保管はP2-D06を正本とする。</td></tr>
+    <tr><td>DD-05からDD-07</td><td>7章から12章、16章から18章で、識別子、対応関係、有効期間、保存版、検索順序を定義する。</td><td>実在する契約値の確定はH2-2後の検証であり、UNK-P2-03として扱う。</td></tr>
+    <tr><td>DD-08からDD-10</td><td>6章、10章から13章、19章で、試験、監査、状態、実行記録への接続を定義する。</td><td>品質報告の保管とデータ版発行はP2-D06を参照する。</td></tr>
+    <tr><td>DD-11からDD-12</td><td>14章、20章、21章で、要件追跡、Unknown、人間承認、レビューの閉ループを定義する。</td><td>横断的な採否と指摘の正本はP2-D15を参照する。</td></tr>
+  </tbody></table>
+
+  <h2>1. ドメインの概要: 銘柄台帳は何をするものか</h2>
+  <p>銘柄台帳は、外部提供元が使う記号や番号を、システムの中で変わらない内部銘柄番号へ結び付ける部品である。同じように見える記号でも、時期、取引所、満期、商品種別が違えば別の契約であるため、台帳はその違いと有効な期間を残す。</p>
+  <p>また、最小価格変動、契約の大きさ、取引時間、休日などを、いつの情報か分かる形で保管する。台帳が一つに決められない場合や必要な属性が未確認の場合は、元データを取引可能な銘柄として扱わずに止める。</p>
+  <table><thead><tr><th>利用者</th><th>期待すること</th><th>このドメインが返すもの</th></tr></thead><tbody>
+    <tr><td>市場データ受渡し部</td><td>外部の記号を観測した時点で、内部銘柄番号に一意に対応付けられることを期待する。</td><td>一意の内部銘柄番号と対応関係の根拠、または対応できない理由を返す。</td></tr>
+    <tr><td>正規化データ保管庫</td><td>価格、時刻、欠損の確認に必要な銘柄定義と取引時間を期待する。</td><td>最小価格変動、営業日、対応関係の有効期間を返す。</td></tr>
+    <tr><td>再生処理</td><td>過去の実行で使った銘柄の意味を、後から同じように解釈できることを期待する。</td><td>固定した<code>catalog_version</code>と、その内容確認値を返す。</td></tr>
+  </tbody></table>
+  <table><thead><tr><th>機能ID</th><th>機能</th><th>誰にでも分かる説明</th><th>失敗時の動き</th></tr></thead><tbody>
+    <tr><td>IC-F01</td><td>内部銘柄番号を管理する</td><td>外部の記号そのものではなく、契約の中身から一意になる内部番号を作り、後から変えない。</td><td>契約の中身が足りず一意に決められない場合は、新しい番号を作らず保留する。</td></tr>
+    <tr><td>IC-F02</td><td>外部記号との対応を管理する</td><td>外部の記号が、いつからいつまでどの内部番号を意味するかを根拠付きで記録する。</td><td>候補が複数、期間外、根拠不足の場合は、任意の候補を選ばず利用不可にする。</td></tr>
+    <tr><td>IC-F03</td><td>契約と営業日の属性を管理する</td><td>価格の最小単位、契約の大きさ、取引時間、休日を版付きで残す。</td><td>未確認の属性をゼロや既定値で埋めず、品質確認または取引可能化を止める。</td></tr>
+  </tbody></table>
+
+  <h2>2. ファイル構成</h2>
+  <p>ここで示すのは、P2-05で作る予定のファイル構成である。実在する契約の中身は固定入力または承認済みの観測から読み込み、ソースコードへ個別銘柄の値を埋め込まない。</p>
+  <pre>src/autotrade/market_data/
+├── catalog_models.py       # 銘柄、対応関係、契約属性、営業日を表すデータ型
+├── catalog_repository.py   # 台帳の版を不変に保存し、内容確認値を検査する部品
+├── catalog_resolver.py     # 外部記号と時刻から内部銘柄番号を一意に探す部品
+├── catalog_validation.py   # 同一性、有効期間、契約種別、属性の不足を検査する部品
+├── catalog_snapshot.py     # 台帳の版と内容確認値を組み立てる部品
+├── catalog_contracts.py    # 検索依頼、検索結果、例外を定義する部品
+└── catalog_audit.py        # 検索根拠、停止理由、作成元を監査記録へ残す部品
+data/market_data/catalog/
+├── snapshots/{catalog_version}.json     # 銘柄台帳の不変な内容を置く場所
+├── snapshots/{catalog_version}.sha256   # 台帳が改変されていないことを示す値を置く場所
+└── audit.ndjson                         # 作成、更新候補、停止の事実を追記する場所
+tests/market_data/
+├── test_catalog_resolver.py   # 外部記号から内部銘柄番号を探す試験
+├── test_catalog_snapshot.py   # 台帳版の保存、再読込、改変検出の試験
+└── test_catalog_validation.py # 期間、種別、属性不足を止める試験</pre>
+  <table><thead><tr><th>分類</th><th>置くもの</th><th>置いてはいけないもの</th></tr></thead><tbody>
+    <tr><td><code>catalog_models.py</code></td><td>銘柄と対応関係の意味を表す不変のデータ型を置く。</td><td>外部通信、保存先の具体的な操作、売買判断を置かない。</td></tr>
+    <tr><td><code>catalog_repository.py</code></td><td>台帳版の保存、再読込、内容確認値の検査を置く。</td><td>同じ版番号への上書きや、記号を推測して補う規則を置かない。</td></tr>
+    <tr><td><code>data/market_data/catalog/</code></td><td>根拠となる元データ識別子を持つ台帳版と監査記録を置く。</td><td>APIキー、口座情報、未確認の契約値を確定値として置かない。</td></tr>
+  </tbody></table>
+
+  <h2>3. モジュール構造図</h2>
+  <p>この図は、外部記号の観測が、台帳の検査と一意な検索を通って正規化データへ渡る関係を示す。外部提供元の形式は市場データ受渡し部で閉じ、台帳の内部番号を直接外部へ流出させない。</p>
+  <pre class="mermaid">flowchart TD
+    観測["外部記号の観測"] --> 検査["台帳の検査"]
+    検査 --> 保存["台帳版の保存"]
+    保存 --> 検索["銘柄番号を検索"]
+    検索 -->|"一意に決まる"| 正規化["正規化データへ渡す"]
+    検索 -->|"複数・不明"| 停止["理由を記録して停止"]
+    営業日["営業日と契約属性"] --> 検査
+    営業日 --> 検索
+    保存 --> 監査["監査記録"]
+    停止 --> 監査</pre>
+
+  <h2>4. モジュール仕様と入出力パラメータ</h2>
+  <p>この表は、各ファイルが何を担当し、何を受け取り、何を返すかを説明する。外部提供元の記号や数値は型の一項目として保持しても、内部銘柄番号の代わりにしない。</p>
+  <table><thead><tr><th>ファイル / 実装単位</th><th>機能説明</th><th>入力</th><th>出力</th><th>副作用・禁止事項</th></tr></thead><tbody>
+    <tr><td><code>catalog_validation.py / CatalogValidator.validate</code></td><td>銘柄の同一性、対応期間、契約種別、必須属性を検査する。</td><td>観測から作った銘柄候補、対応関係、契約属性、営業日を受け取る。</td><td><code>ValidationResult</code>として、利用可否と理由を返す。</td><td>不足値を既定値で埋めない。未確認なら停止理由として返す。</td></tr>
+    <tr><td><code>catalog_snapshot.py / SnapshotBuilder.build</code></td><td>検査済みの銘柄、対応関係、営業日を一つの不変な台帳版へまとめる。</td><td>検査済みの台帳要素と、作成元の元データ識別子を受け取る。</td><td><code>CatalogSnapshot</code>として、版番号、内容確認値、全要素を返す。</td><td>異なる内容を同じ版番号として作らない。根拠のない要素を含めない。</td></tr>
+    <tr><td><code>catalog_repository.py / LocalCatalogRepository.write_if_absent</code></td><td>台帳版と内容確認値を保存し、同じ内容なら既存版を再利用する。</td><td><code>CatalogSnapshot</code>と、秘密を含まない監査情報を受け取る。</td><td>保存した版番号と内容確認値を返す。</td><td>既存版を上書きしない。書込み途中の版を完成版として見せない。</td></tr>
+    <tr><td><code>catalog_resolver.py / CatalogResolver.resolve</code></td><td>外部記号、形式、時刻から、一つの内部銘柄番号を探す。</td><td><code>ResolveInstrumentRequest</code>として、提供元、データ集合、記号、時刻を受け取る。</td><td><code>ResolveInstrumentResult</code>として、対応状態、内部銘柄番号、根拠を返す。</td><td>候補が複数または属性が不足なら成功を返さず、通常の市場データ行を作らせない。</td></tr>
+    <tr><td><code>catalog_audit.py / CatalogAudit.append</code></td><td>台帳版の作成元、検索根拠、停止理由を追記形式で残す。</td><td>版番号、対応関係番号、理由、元データ識別子を受け取る。</td><td>追記できたことだけを返す。</td><td>秘密の値を記録しない。監査記録が残せない場合は検索成功として返さない。</td></tr>
+  </tbody></table>
+  <h3>4.1 <code>ResolveInstrumentRequest</code>の入力パラメータ</h3>
+  <p>この表は、外部記号を内部銘柄番号へ対応付ける依頼で、何を渡し、何を事前に確認するかを説明する。</p>
+  <table><thead><tr><th>パラメータ名</th><th>型</th><th>必須</th><th>説明と検証</th></tr></thead><tbody>
+    <tr><td><code>vendor</code></td><td><code>str</code></td><td>必須</td><td>外部記号の所有者を表す名前である。空文字や未登録の提供元では検索せず停止する。</td></tr>
+    <tr><td><code>dataset_id</code></td><td><code>str</code></td><td>必須</td><td>外部提供元の中で記号の意味を区別するデータ集合を表す。提供元だけで記号を解釈しない。</td></tr>
+    <tr><td><code>stype</code></td><td><code>str</code></td><td>必須</td><td>入力記号が親記号、個別契約、連続系列などのどれであるかを表す。未確認の形式は推測しない。</td></tr>
+    <tr><td><code>symbol</code></td><td><code>str</code></td><td>必須</td><td>外部から観測した記号である。空文字や前後の空白だけの値は拒否する。</td></tr>
+    <tr><td><code>event_time_utc</code></td><td><code>datetime</code></td><td>必須</td><td>この記号が意味する契約を判断する世界共通時刻である。時間帯情報がない値は受け入れない。</td></tr>
+  </tbody></table>
+  <h3>4.2 <code>ResolveInstrumentResult</code>と<code>CatalogSnapshot</code>の出力パラメータ</h3>
+  <p>この表は、検索結果と台帳版が、何を根拠にどの範囲で使えるかを説明する。</p>
+  <table><thead><tr><th>型.パラメータ</th><th>型</th><th>説明</th><th>検証 / 取扱い</th></tr></thead><tbody>
+    <tr><td><code>ResolveInstrumentResult.status</code></td><td><code>str</code></td><td>一意に決まったか、複数候補か、見つからないかを表す状態である。</td><td><code>resolved</code>以外では内部銘柄番号を通常の市場データ行へ渡さない。</td></tr>
+    <tr><td><code>ResolveInstrumentResult.instrument_id</code></td><td><code>str | None</code></td><td>一意に決まった場合だけ返す内部の不変な銘柄番号である。</td><td>候補が複数または不明な場合は<code>None</code>とし、任意の候補を入れない。</td></tr>
+    <tr><td><code>ResolveInstrumentResult.mapping_id</code></td><td><code>str | None</code></td><td>どの対応関係を使ったかを示す内部番号である。</td><td>対応関係の期間と作成元の元データ識別子まで追える必要がある。</td></tr>
+    <tr><td><code>CatalogSnapshot.catalog_version</code></td><td><code>str</code></td><td>銘柄、対応関係、営業日をまとめて固定した台帳版の番号である。</td><td>内容確認値から導き、違う内容を同じ番号にしない。</td></tr>
+    <tr><td><code>CatalogSnapshot.catalog_snapshot_sha256</code></td><td><code>str</code></td><td>台帳版が作成後に変わっていないことを確認する値である。</td><td>保存済みのJSONから再計算した値と一致しない場合は、その版を利用不可にする。</td></tr>
+  </tbody></table>
+
+  <h2>5. モジュール間の処理フロー</h2>
+  <h3>5.1 正常時のシーケンス図</h3>
+  <p>この図は、根拠のある観測から台帳版を保存し、外部記号を一つの内部銘柄番号へ対応付けるまでの順番を示す。</p>
+  <pre class="mermaid">sequenceDiagram
+    participant 受渡し部 as 市場データ受渡し部
+    participant 検査 as 台帳の検査
+    participant 保存 as 台帳版の保存
+    participant 検索 as 銘柄番号の検索
+    participant 正規化 as 正規化データ保管庫
+    受渡し部->>検査: 観測と根拠を渡す
+    検査->>保存: 検査済みの台帳要素を渡す
+    保存-->>検索: 固定した台帳版を渡す
+    受渡し部->>検索: 外部記号と時刻を渡す
+    検索-->>受渡し部: 一意の内部銘柄番号を返す
+    受渡し部->>正規化: 銘柄番号と対応関係番号を渡す</pre>
+  <h3>5.2 失敗時のフローチャート</h3>
+  <p>この図は、外部記号が一つに決まらない、期間外、契約属性が未確認の場合に、台帳が通常利用を止める流れを示す。</p>
+  <pre class="mermaid">flowchart TD
+    開始(["観測を受け取る"]) --> 根拠確認{"根拠がそろうか"}
+    根拠確認 -->|"いいえ"| 保留["保留理由を記録"]
+    根拠確認 -->|"はい"| 期間確認{"有効期間内か"}
+    期間確認 -->|"いいえ"| 期間外["期間外として停止"]
+    期間確認 -->|"はい"| 一意確認{"候補は一つか"}
+    一意確認 -->|"いいえ"| 複数["複数候補として停止"]
+    一意確認 -->|"はい"| 属性確認{"必要な属性があるか"}
+    属性確認 -->|"いいえ"| 未確認["未確認として停止"]
+    属性確認 -->|"はい"| 解決(["内部銘柄番号を返す"])
+    保留 --> 終了(["通常利用へ渡さない"])
+    期間外 --> 終了
+    複数 --> 終了
+    未確認 --> 終了</pre>
+
+  <h2>6. テスト仕様</h2>
+  <p>この表は、本書の範囲で必要な全試験を示す。各セルは単語だけで済ませず、技術者以外の読者も、何を確かめ、どの状態なら合格なのかを判断できる文章で書く。</p>
+  <table><thead><tr><th>テストID</th><th>テスト概要</th><th>テスト条件（入力値）</th><th>操作</th><th>期待結果</th><th>合否判定基準</th></tr></thead><tbody>
+    <tr><td>IC-T01</td><td>根拠と必須属性がそろった個別契約から、不変の内部銘柄番号を作れることを確認する。</td><td>取引所、商品根、満期年、満期月、契約種別、作成元の元データ識別子を持つ固定の銘柄候補を用意する。</td><td><code>CatalogValidator.validate</code>と内部番号の生成処理を呼び出す。</td><td>検査済みの銘柄候補と、外部記号を含まない内部銘柄番号が返る。</td><td>同じ契約候補から二回作っても同じ番号となり、外部提供元の番号が内部番号に含まれないこと。</td></tr>
+    <tr><td>IC-T02</td><td>契約の同一性を決める情報が不足する場合、新しい内部銘柄番号を勝手に作らないことを確認する。</td><td>満期年または商品根が欠けた先物候補を用意する。</td><td><code>CatalogValidator.validate</code>を呼び出す。</td><td><code>UNKNOWN_INSTRUMENT_IDENTITY</code>を含む不合格結果が返る。</td><td>内部銘柄番号が発行されず、保留理由と元データ識別子が監査記録に残ること。</td></tr>
+    <tr><td>IC-T03</td><td>同じ契約を別の外部提供元が表しても、同じ正規化された契約情報なら同じ内部番号へ対応することを確認する。</td><td>外部提供元名と外部記号だけが異なり、取引所、商品根、満期、種別が同じ二つの観測を用意する。</td><td>二つの観測を検査して内部番号を作る。</td><td>二つの対応関係は別に保存されるが、同じ内部銘柄番号を参照する。</td><td>外部提供元ごとに別の内部番号を作らず、両方の根拠を台帳版からたどれること。</td></tr>
+    <tr><td>IC-T04</td><td>有効期間内で候補が一つだけの外部記号を、内部銘柄番号へ解決できることを確認する。</td><td>指定時刻を含む有効期間を持ち、<code>resolved</code>状態の対応関係を一件だけ含む台帳版を用意する。</td><td><code>CatalogResolver.resolve</code>を呼び出す。</td><td><code>status="resolved"</code>、内部銘柄番号、対応関係番号を持つ検索結果が返る。</td><td>返された対応関係の期間が指定時刻を含み、銘柄状態が利用可能であること。</td></tr>
+    <tr><td>IC-T05</td><td>同じ記号と時刻で複数の対応関係が有効な場合、任意の一件を選ばずに停止することを確認する。</td><td>同じ提供元、データ集合、形式、記号、時刻に対して、二件の<code>resolved</code>対応関係が有効となる台帳版を用意する。</td><td><code>CatalogResolver.resolve</code>を呼び出す。</td><td><code>status="ambiguous"</code>の結果が返り、内部銘柄番号は空になる。</td><td>通常用の市場データ行が作られず、複数候補の対応関係番号が監査記録に残ること。</td></tr>
+    <tr><td>IC-T06</td><td>対応関係の有効期間外の記号を、過去または将来の契約として勝手に解決しないことを確認する。</td><td>指定時刻が<code>valid_from_utc</code>より前、または<code>valid_to_utc</code>以降となる検索依頼を用意する。</td><td><code>CatalogResolver.resolve</code>を呼び出す。</td><td><code>status="not_found"</code>または期間外を示す理由が返る。</td><td>内部銘柄番号が返らず、指定時刻を現在時刻で補正していないこと。</td></tr>
+    <tr><td>IC-T07</td><td>親記号や連続系列を、個別の取引可能な先物契約として扱わないことを確認する。</td><td>親記号または連続系列を示す<code>stype</code>と、個別契約を一意に選ぶ規則が未承認の台帳版を用意する。</td><td><code>CatalogResolver.resolve</code>を呼び出す。</td><td><code>status="unknown"</code>または保留結果が返り、個別契約の内部番号は返らない。</td><td>連続契約の未承認規則だけで<code>resolved</code>を返さず、H2-1承認待ちの理由が残ること。</td></tr>
+    <tr><td>IC-T08</td><td>取引停止、満期切れ、不明状態の契約を、取引可能な銘柄として返さないことを確認する。</td><td><code>status</code>が<code>halted</code>、<code>expired</code>、または<code>unknown</code>の銘柄を持つ対応関係を用意する。</td><td><code>CatalogResolver.resolve</code>を呼び出す。</td><td>利用不可を示す検索結果が返り、内部銘柄番号は通常利用へ渡されない。</td><td>返却状態が<code>resolved</code>ではなく、正規化データ保管庫がその銘柄を使えないこと。</td></tr>
+    <tr><td>IC-T09</td><td>最小価格変動が未確認の契約を、価格確認に使える状態にしないことを確認する。</td><td><code>tick_size</code>または価格の桁情報が欠けた個別契約を用意する。</td><td><code>CatalogValidator.validate</code>を呼び出す。</td><td>必須属性不足を示す不合格または<code>unknown</code>状態が返る。</td><td>正規化データ保管庫へ価格確認可能な契約として渡されず、欠損をゼロで補っていないこと。</td></tr>
+    <tr><td>IC-T10</td><td>契約の大きさが未確認のとき、仮の値で損益やリスクを計算できる状態にしないことを確認する。</td><td><code>contract_multiplier</code>が欠けた個別契約を用意する。</td><td><code>CatalogValidator.validate</code>を呼び出す。</td><td>属性不足を示す状態が返り、証拠金や取引量の判断に使えないことが記録される。</td><td>数値の<code>0</code>や既定値が入らず、後続のRisk処理へ利用可能として渡されないこと。</td></tr>
+    <tr><td>IC-T11</td><td>営業日情報がない場合、欠損判定を合格にしないことを確認する。</td><td>取引時間または休日情報が欠けた<code>TradingCalendar</code>を参照する契約を用意する。</td><td><code>CatalogValidator.validate</code>を呼び出す。</td><td><code>UNKNOWN_SESSION_STATE</code>を含む利用不可の結果が返る。</td><td>正規化データ保管庫がその契約の空区間を取引なしとして扱えず、品質確認が停止すること。</td></tr>
+    <tr><td>IC-T12</td><td>同じ内容の台帳版を二回保存しても、一つ目を改変せずに再利用できることを確認する。</td><td>同じ銘柄、対応関係、営業日、根拠を持つ<code>CatalogSnapshot</code>を二回用意する。</td><td><code>LocalCatalogRepository.write_if_absent</code>を二回呼び出す。</td><td>二回目は最初と同じ台帳版番号を返し、新しい内容を書き込まない。</td><td>二回目の内容確認値と保存済みJSONが一回目と一致し、監査記録が過去内容を更新していないこと。</td></tr>
+    <tr><td>IC-T13</td><td>同じ台帳版番号に異なる内容を書き込もうとした場合、過去の台帳を上書きしないことを確認する。</td><td>同じ<code>catalog_version</code>で、対応関係または契約属性が異なる二つの台帳を用意する。</td><td>一つ目を保存した後に二つ目の<code>LocalCatalogRepository.write_if_absent</code>を呼び出す。</td><td>二つ目は整合性エラーとなり、最初の台帳版は変わらない。</td><td>先のJSONと内容確認値が維持され、異なる内容が同じ保存場所へ混ざらないこと。</td></tr>
+    <tr><td>IC-T14</td><td>台帳版の保存中に失敗した場合、未完成のJSONを利用可能な版として見せないことを確認する。</td><td>一時ファイルから完成場所への名前変更が失敗する保存環境を用意する。</td><td><code>LocalCatalogRepository.write_if_absent</code>を呼び出す。</td><td>保存失敗の結果が返り、完成した台帳版番号は返らない。</td><td>未完成の一時ファイルが検索処理から読めず、同じ入力で後から安全に再実行できること。</td></tr>
+    <tr><td>IC-T15</td><td>保存済みの台帳版が後から改変された場合、内容確認値の不一致として検出できることを確認する。</td><td>正しく保存した台帳JSONの一項目だけを、内容確認値を更新せずに変更した状態を用意する。</td><td><code>LocalCatalogRepository.load</code>を呼び出す。</td><td><code>CatalogIntegrityError</code>が返り、改変された台帳版を検索に使わない。</td><td>内容確認値の再計算結果と保存値の不一致が監査記録に残り、<code>resolve</code>が実行されないこと。</td></tr>
+    <tr><td>IC-T16</td><td>対応関係を更新するとき、過去の有効期間を持つ行を直接書き換えず、新しい版として残せることを確認する。</td><td>既存の対応関係と、その後の期間に適用する異なる対応関係を用意する。</td><td>新しい対応関係を含む<code>CatalogSnapshot</code>を作って保存する。</td><td>過去の台帳版は不変のまま残り、新しい版にだけ新しい対応関係が入る。</td><td>過去の再生実行が旧版を読むと旧対応関係を再現でき、新版を読む場合だけ新しい対応関係となること。</td></tr>
+    <tr><td>IC-T17</td><td>証拠金の仮置き値が未確認の場合、注文可否を決める値として使わないことを確認する。</td><td><code>initial_margin</code>または<code>maintenance_margin</code>が空で、<code>status="unknown"</code>の属性を用意する。</td><td>契約属性の検査と取引可能性の判定を呼び出す。</td><td>仮置き値は台帳に残せるが、取引可能性またはリスク計算の成功結果には使われない。</td><td>空値を<code>0</code>へ置換せず、後続の注文可否へ値を渡さないこと。</td></tr>
+    <tr><td>IC-T18</td><td>検索成功の監査記録が残せない場合、成功として内部銘柄番号を返さないことを確認する。</td><td>検索条件は正しいが、<code>CatalogAudit.append</code>が書込み失敗を返すようにした環境を用意する。</td><td><code>CatalogResolver.resolve</code>を呼び出す。</td><td>監査記録失敗の結果となり、通常利用へ渡す<code>resolved</code>結果は返らない。</td><td>内部銘柄番号、対応関係番号、検索理由のいずれかが記録できないまま成功扱いにしていないこと。</td></tr>
+    <tr><td>IC-T19</td><td>正規化データ保管庫との結合で、対応関係の根拠まで持つ内部銘柄番号を渡せることを確認する。</td><td>P2-D05の観測に相当する固定入力、一意の対応関係、P2-D06が受け取る変換依頼を用意する。</td><td>銘柄検索後にP2-D06の変換処理を呼び出す。</td><td>正規化行に内部銘柄番号、対応関係番号、元データ識別子が入る。</td><td>外部記号だけを持つ行が保存されず、後から台帳版と元データまで逆引きできること。</td></tr>
+    <tr><td>IC-T20</td><td>再生処理が固定した台帳版だけを使い、現在の台帳内容を混ぜないことを確認する。</td><td>同じ外部記号に対して旧版と新版で異なる対応関係を持つ二つの台帳版と、旧版を指定するRun Manifestを用意する。</td><td>指定された旧版で<code>CatalogResolver.resolve</code>を呼び出す。</td><td>旧版に記録された対応関係だけが使われ、新版の内容は参照されない。</td><td>返された<code>catalog_version</code>と内容確認値がRun Manifestと一致し、現在版へ自動的に切り替わらないこと。</td></tr>
+  </tbody></table>
+
+  <h2>7. 目的と境界（詳細契約）</h2>
+  <p>この表は、銘柄台帳が何を正本として管理し、何を別のドメインへ任せるかを説明する。読者は、外部記号の取得と内部銘柄番号の解釈を混ぜずに判断できる。</p>
+  <table><thead><tr><th>対象</th><th>責務</th><th>非対象</th></tr></thead><tbody>
+    <tr><td>内部銘柄番号</td><td>契約の同一性から作り、外部記号が変わっても同じ契約を追える番号として保つ。</td><td>外部提供元が発行する番号を変更したり、外部提供元の定義を推測したりしない。</td></tr>
+    <tr><td>外部記号との対応関係</td><td>提供元、データ集合、記号形式、有効期間、根拠を持つ対応関係を版付きで保つ。</td><td>候補が複数ある対応を自動採用したり、期間外の対応を再利用したりしない。</td></tr>
+    <tr><td>契約属性と営業日</td><td>価格確認と欠損確認に必要な属性を、いつの情報か分かる形で保つ。</td><td>リスク限度、注文可否、戦略の連続契約選択を最終決定しない。</td></tr>
+  </tbody></table>
+
+  <h2>8. 公開する受取口の契約</h2>
+  <p>この表は、他の部品が台帳に依頼できる仕事と、成功として返すための条件を説明する。外部記号が見つかっただけでは成功ではなく、有効期間と契約状態まで確かめる。</p>
+  <table><thead><tr><th>受取口の固定名</th><th>受け取る内容</th><th>返す内容</th><th>起こる変更と停止条件</th></tr></thead><tbody>
+    <tr><td><code>CatalogValidator.validate</code></td><td>銘柄候補、対応関係、契約属性、営業日、作成元の根拠を受け取る。</td><td>利用可否、問題の一覧、検査済みの要素を返す。</td><td>必須属性や根拠が欠ける場合は、値を補わずに不合格または不明として返す。</td></tr>
+    <tr><td><code>LocalCatalogRepository.write_if_absent</code></td><td>検査済みの台帳版と、秘密を含まない監査情報を受け取る。</td><td>保存した版番号と内容確認値を返す。</td><td>同じ内容は再利用する。異なる内容を同じ版番号へ保存しようとした場合は停止する。</td></tr>
+    <tr><td><code>CatalogResolver.resolve</code></td><td>外部提供元、データ集合、記号形式、記号、指定時刻、台帳版を受け取る。</td><td>状態、内部銘柄番号、対応関係番号、理由を返す。</td><td>候補が複数、期間外、契約が利用不可、監査記録失敗の場合は成功を返さない。</td></tr>
+    <tr><td><code>LocalCatalogRepository.load</code></td><td>再生処理などが指定した台帳版番号を受け取る。</td><td>内容確認済みの<code>CatalogSnapshot</code>を返す。</td><td>内容確認値が違う、形式が違う、保存物がない場合は読み込まずに停止する。</td></tr>
+  </tbody></table>
+
+  <h2>9. 共通データ契約</h2>
+  <p>この表は、部品どうしで渡すデータの箱に、何を入れ、何を証明するかを説明する。外部提供元の記号は根拠の一つであり、内部銘柄番号そのものではない。</p>
+  <table><thead><tr><th>データの箱の固定名</th><th>必ず入れる項目</th><th>この箱が説明すること</th></tr></thead><tbody>
+    <tr><td><code>Instrument</code></td><td><code>instrument_id</code>、取引所、商品根、満期、契約種別、状態、属性の根拠を必ず入れる。</td><td>一つの個別契約が何であり、いつ使えるかを表す。</td></tr>
+    <tr><td><code>SymbolMapping</code></td><td>外部提供元、データ集合、記号形式、入出力記号、有効期間、対応状態、作成元を必ず入れる。</td><td>外部の記号が、特定時点でどの内部銘柄番号を意味するかを表す。</td></tr>
+    <tr><td><code>TradingCalendar</code></td><td>営業日番号、時間帯、取引時間、休日、有効期間、版番号を必ず入れる。</td><td>時刻を営業日へ変換し、欠損が取引なしなのかを判断する根拠を表す。</td></tr>
+    <tr><td><code>CatalogSnapshot</code></td><td>形式の版、台帳版番号、内容確認値、銘柄、対応関係、営業日、作成時刻を必ず入れる。</td><td>過去の実行で使った銘柄の解釈を、そのまま再現するための不変な写しを表す。</td></tr>
+    <tr><td><code>ResolveInstrumentResult</code></td><td>状態、内部銘柄番号、対応関係番号、台帳版番号、理由を必ず入れる。</td><td>検索が一意に成功したか、なぜ利用できないかを呼出元へ伝える。</td></tr>
+  </tbody></table>
+
+  <h2>10. 出力イベントと順序</h2>
+  <p>この表は、台帳版の保存と記号検索で起きた事実を、誰がいつ知るかを説明する。検索成功は、根拠と監査記録が残った後にだけ知らせる。</p>
+  <table><thead><tr><th>出来事の固定名</th><th>作る条件</th><th>受け取る先</th><th>成功として知らせるための条件</th></tr></thead><tbody>
+    <tr><td><code>CatalogVersionPublished</code></td><td>検査済みの台帳JSONと内容確認値を完成場所へ保存できたときに作る。</td><td>正規化データ保管庫と再生処理が受け取る。</td><td>保存後に読み直した内容確認値が、作成した台帳版の値と一致していること。</td></tr>
+    <tr><td><code>SymbolMappingResolved</code></td><td>指定時刻に有効な対応関係が一件だけ見つかり、契約が利用可能なときに作る。</td><td>市場データ受渡し部と正規化データ保管庫が受け取る。</td><td>内部銘柄番号、対応関係番号、台帳版番号、作成元を全て監査できること。</td></tr>
+    <tr><td><code>SymbolMappingRejected</code></td><td>複数候補、期間外、属性不足、台帳改変を見つけたときに作る。</td><td>監査記録部と人間確認の対象が受け取る。</td><td>成功ではない出来事であり、理由、検索条件、候補または不足項目を必ず持つ。</td></tr>
+  </tbody></table>
+
+  <h2>11. エラー分類と閉じた側へ倒す規則</h2>
+  <p>この表は、台帳の判断に失敗したときに何を止めるかを決める。対象の契約を一つに決められないなら、売買に使える銘柄として返さない。</p>
+  <table><thead><tr><th>エラーの固定名</th><th>起きた状況の例</th><th>この部品が行う処理</th><th>利用可否と停止判断</th></tr></thead><tbody>
+    <tr><td><code>UNKNOWN_INSTRUMENT_IDENTITY</code></td><td>取引所、商品根、満期、種別など、内部番号を一意にする情報が不足している。</td><td>内部銘柄番号を発行せず、不足項目と作成元を監査記録へ残す。</td><td>保留状態とし、正規化データ・再生・売買判断へ渡さない。</td></tr>
+    <tr><td><code>MAPPING_AMBIGUOUS</code></td><td>同じ外部記号と時刻に、複数の有効な対応関係が見つかる。</td><td>候補を全て記録し、任意の一件を選ばない。</td><td>内部銘柄番号を返さず、該当行を通常利用から除外する。</td></tr>
+    <tr><td><code>MAPPING_OUT_OF_RANGE</code></td><td>指定時刻が対応関係の有効期間に入らない。</td><td>期間外であることと検索条件を記録する。</td><td>過去または将来の対応を流用せず、通常利用を停止する。</td></tr>
+    <tr><td><code>CATALOG_INTEGRITY_FAILED</code></td><td>台帳JSONの内容確認値、形式の版、保存物が一致しない。</td><td>改変または破損した版を読み込まず、監査記録へ残す。</td><td>その台帳版を使う再生処理と銘柄検索を停止する。</td></tr>
+    <tr><td><code>REQUIRED_ATTRIBUTE_UNKNOWN</code></td><td>最小価格変動、契約の大きさ、営業日などが未確認である。</td><td>未確認のままにして、値をゼロや既定値で補わない。</td><td>必要な処理に応じて品質確認または取引可能化を停止する。</td></tr>
+  </tbody></table>
+
+  <h2>12. 利用可否の状態</h2>
+  <p>この表は、銘柄または対応関係を後続で使ってよいかを状態ごとに説明する。状態が不明な銘柄を、利用可能な銘柄と同じように扱わない。</p>
+  <table><thead><tr><th>状態を表す固定値</th><th>人にとっての意味</th><th>後続での使い方</th></tr></thead><tbody>
+    <tr><td><code>RESOLVED</code></td><td>根拠、有効期間、契約状態、必須属性を確認し、一つの内部銘柄番号に決まった。</td><td>正規化データの行に内部銘柄番号と対応関係番号を入れて使える。</td></tr>
+    <tr><td><code>PENDING</code></td><td>観測はあるが、根拠の確認または台帳版の保存がまだ終わっていない。</td><td>通常利用へ渡さず、確認が終わるまで保留する。</td></tr>
+    <tr><td><code>AMBIGUOUS</code></td><td>候補が複数あり、どの契約を意味するか決められない。</td><td>任意の候補を選ばず、該当行を停止する。</td></tr>
+    <tr><td><code>UNAVAILABLE</code></td><td>満期切れ、取引停止、期間外、台帳改変、必須属性不足のため利用できない。</td><td>再生・売買判断へ渡さず、監査または再調査だけに使う。</td></tr>
+    <tr><td><code>UNKNOWN</code></td><td>必要な事実または規則が足りず、利用可否を決められない。</td><td>Passにせず、Unknown台帳の決定または人間承認まで停止する。</td></tr>
+  </tbody></table>
+
+  <h2>13. 実行方法との接続</h2>
+  <p>この表は、固定入力による開発、将来の再生処理、将来の外部観測で、台帳の版をどう扱うかを説明する。Phase 2では実際の連続契約選択規則を自動で確定しない。</p>
+  <table><thead><tr><th>実行方法</th><th>受け取る入力</th><th>この部品の動き</th><th>許される変更</th></tr></thead><tbody>
+    <tr><td>固定入力による試験</td><td>小さな銘柄候補、対応関係、営業日、作成元の識別子を受け取る。</td><td>外部通信なしで台帳版を作り、検索結果と停止理由を再現する。</td><td>試験ごとに一時保存場所を使い、既存の台帳版を更新しない。</td></tr>
+    <tr><td>Phase 3の再生処理</td><td>Run Manifestが固定した<code>catalog_version</code>と内容確認値を受け取る。</td><td>指定版だけを読み込み、当時の対応関係と営業日で市場データを解釈する。</td><td>現在の台帳版を自動的に混ぜず、読み取りだけを行う。</td></tr>
+    <tr><td>将来の外部観測</td><td>P2-D05から渡る記号、形式、時刻、作成元の元データ識別子を受け取る。</td><td>検査済みの新しい根拠があれば、新しい台帳版として追加する。</td><td>既存版と対応関係を更新せず、新しい版を作る。</td></tr>
+  </tbody></table>
+
+  <h2>14. 追跡と未確定事項</h2>
+  <p>この表は、要件と設計判断をどこで守るか、まだ決まっていないことをいつ誰が決めるかを説明する。不明を成功として扱わない。</p>
+  <table><thead><tr><th>追跡ID</th><th>本書での反映</th><th>未確定事項と未決時の扱い</th></tr></thead><tbody>
+    <tr><td>REQ-Q02</td><td>外部記号、内部銘柄番号、根拠、有効期間、台帳版を7章から10章に定義する。</td><td>実際の5候補の契約定義はUNK-P2-03であり、未決時は内部銘柄番号を発行しない。</td></tr>
+    <tr><td>REQ-Q19</td><td>品質確認に必要な最小価格変動、営業日、契約状態を4章、9章、11章で定義する。</td><td>未確認の属性はUNK-P2-03またはUNK-P2-11として扱い、品質合格へ進めない。</td></tr>
+    <tr><td>REQ-Q20</td><td>時刻に対する対応関係の有効期間と営業日の版を9章、13章、16章で固定する。</td><td>実データの営業日例外は実取得確認まで確定せず、判断不能なら<code>UNKNOWN_SESSION_STATE</code>として停止する。</td></tr>
+    <tr><td>REQ-Q23</td><td>Run Manifestが参照する<code>catalog_version</code>と内容確認値を9章、13章、19章で定義する。</td><td>連続契約選択規則の具体的な採否はUNK-P2-10であり、未決時は本線の再生入力にしない。</td></tr>
+    <tr><td>UNK-P2-03</td><td>5候補の契約定義、契約種別、対応期間、最小価格変動、契約の大きさの実値である。</td><td>P2-04またはP2-06の検証で決める。未決時は候補を<code>PENDING</code>とし、内部銘柄番号と通常利用を停止する。</td></tr>
+    <tr><td>UNK-P2-10</td><td>連続契約と契約交代を選ぶ規則、価格調整の方式である。</td><td>H2-1で決める。未決時は親記号や連続系列を個別の取引可能な契約へ変換しない。</td></tr>
+    <tr><td>UNK-P2-11</td><td>証拠金の最終的な情報源と、Riskで使う規則である。</td><td>Risk設計Phaseで決める。未決時は仮置き値を注文可否、損益、リスクの計算へ使わない。</td></tr>
+  </tbody></table>
+
+  <h2>15. 実装依存方向と公開境界</h2>
+  <p>この図と表は、台帳の各部品が何を参照してよいかを説明する。検索部は保存の内部形式を直接変更せず、正規化データ保管庫は台帳の公開した検索口だけを使う。</p>
+  <pre class="mermaid">flowchart LR
+    契約["共通データ型"] --> 検査["台帳の検査"]
+    契約 --> 保存["台帳版の保存"]
+    検査 --> 構築["台帳版の構築"]
+    構築 --> 保存
+    保存 --> 検索["銘柄番号の検索"]
+    検索 --> 正規化口["正規化処理の受取口"]
+    保存 --> 監査["監査記録"]
+    検索 --> 監査</pre>
+  <table><thead><tr><th>モジュールの固定名</th><th>外へ見せるもの</th><th>参照してよいもの</th><th>担当しないこと</th></tr></thead><tbody>
+    <tr><td><code>catalog_validation</code></td><td>検査結果と不足項目だけを公開する。</td><td>共通データ型、台帳候補、作成元の識別子を参照してよい。</td><td>外部提供元へ問い合わせたり、未確認値を補ったりしない。</td></tr>
+    <tr><td><code>catalog_repository</code></td><td>台帳版の保存と読取口だけを公開する。</td><td>共通データ型、内容確認値の計算、ファイル操作を参照してよい。</td><td>記号の解釈、売買判断、外部通信を担当しない。</td></tr>
+    <tr><td><code>catalog_resolver</code></td><td>一意な内部銘柄番号を探す受取口だけを公開する。</td><td>検証済みの台帳版と監査記録口だけを参照してよい。</td><td>台帳版を直接書き換えたり、候補を勝手に選んだりしない。</td></tr>
+  </tbody></table>
+
+  <h2>16. 型付き公開契約</h2>
+  <p>ここでは、実装者が作る主な型と関数の形を示す。英語はPythonの予約語、型名、変数名だけであり、業務上の意味は前後の日本語で説明する。</p>
+  <pre>from dataclasses import dataclass
+from datetime import datetime
+from typing import Literal, Protocol
+
+@dataclass(frozen=True)
+class ResolveInstrumentRequest:
+    vendor: str
+    dataset_id: str
+    stype: str
+    symbol: str
+    event_time_utc: datetime
+
+@dataclass(frozen=True)
+class ResolveInstrumentResult:
+    status: Literal["resolved", "pending", "ambiguous", "not_found", "unknown"]
+    instrument_id: str | None
+    mapping_id: str | None
+    catalog_version: str
+    reason_code: str | None
+
+@dataclass(frozen=True)
+class SymbolMapping:
+    mapping_id: str
+    instrument_id: str | None
+    vendor: str
+    dataset_id: str
+    stype_in: str
+    input_symbol: str
+    stype_out: str
+    output_symbol: str
+    valid_from_utc: datetime
+    valid_to_utc: datetime | None
+    status: str
+    source_raw_object_id: str
+
+class CatalogRepository(Protocol):
+    def load(self, catalog_version: str) -&gt; "CatalogSnapshot": ...
+    def write_if_absent(self, snapshot: "CatalogSnapshot") -&gt; str: ...</pre>
+  <p>次の表は、上の公開関数を人が判断できる言葉で説明する。検索の成功は、台帳版の内容確認値、対応関係の期間、契約の状態を通過した場合だけである。</p>
+  <table><thead><tr><th>関数の固定名</th><th>返すもの</th><th>起こり得るエラー</th><th>繰り返し実行した場合と変更の内容</th></tr></thead><tbody>
+    <tr><td><code>load</code></td><td>内容確認値まで検査した不変の台帳版を返す。</td><td>版がない、形式が違う、内容確認値が違う場合に停止する。</td><td>読み取りだけを行い、保存済みの台帳版を変更しない。</td></tr>
+    <tr><td><code>write_if_absent</code></td><td>保存した、または再利用した台帳版番号を返す。</td><td>同じ番号に異なる内容を書こうとした、書込みが失敗した場合に停止する。</td><td>同じ内容なら既存版を返し、異なる内容は別の版として扱う。</td></tr>
+    <tr><td><code>resolve</code></td><td>一意の内部銘柄番号と対応関係番号、または利用できない理由を返す。</td><td>複数候補、期間外、属性不足、監査記録失敗の場合に成功を返さない。</td><td>検索だけを行い、台帳版や対応関係を変更しない。</td></tr>
+  </tbody></table>
+
+  <h2>17. 正常系・失敗系の詳細フロー</h2>
+  <p>この図は、記号検索が成功した場合と、候補が複数または根拠が欠ける場合の違いを示す。失敗時は内部銘柄番号を返さず、後続の正規化を開始させない。</p>
+  <pre class="mermaid">sequenceDiagram
+    participant 依頼元 as 市場データ受渡し部
+    participant 検索 as 銘柄番号の検索
+    participant 台帳 as 固定した台帳版
+    participant 監査 as 監査記録
+    alt 一意に決まる場合
+        依頼元->>検索: 記号と時刻を渡す
+        検索->>台帳: 対応関係と契約状態を確認する
+        検索->>監査: 根拠を記録する
+        検索-->>依頼元: 内部銘柄番号を返す
+    else 決められない場合
+        検索->>監査: 停止理由を記録する
+        検索-->>依頼元: 成功として返さず停止する
+    end</pre>
+
+  <h2>18. 誤実装しやすい規則のコード例</h2>
+  <p>この節は、対応関係を時刻で絞り、候補が一件以外なら成功にしない規則を示す。現在時刻を使って過去の検索条件を補正してはならない。</p>
+  <pre>def resolve(snapshot: CatalogSnapshot,
+            request: ResolveInstrumentRequest) -&gt; ResolveInstrumentResult:
+    candidates = [mapping for mapping in snapshot.mappings
+        if mapping.vendor == request.vendor
+        and mapping.dataset_id == request.dataset_id
+        and mapping.stype_in == request.stype
+        and mapping.input_symbol == request.symbol
+        and mapping.valid_from_utc &lt;= request.event_time_utc
+        and (mapping.valid_to_utc is None
+             or request.event_time_utc &lt; mapping.valid_to_utc)]
+    resolved = [mapping for mapping in candidates
+        if mapping.status == "resolved" and mapping.instrument_id is not None]
+    if len(resolved) != 1:
+        return ResolveInstrumentResult("ambiguous" if len(resolved) &gt; 1 else "not_found",
+            None, None, snapshot.catalog_version, "MAPPING_NOT_UNIQUE")
+    instrument = snapshot.by_id(resolved[0].instrument_id)
+    if instrument.status != "active" or instrument.tick_size is None:
+        return ResolveInstrumentResult("unknown", None, resolved[0].mapping_id,
+            snapshot.catalog_version, "REQUIRED_ATTRIBUTE_UNKNOWN")
+    return ResolveInstrumentResult("resolved", instrument.instrument_id,
+        resolved[0].mapping_id, snapshot.catalog_version, None)</pre>
+
+  <h2>19. 設定、監査、テスト、実行記録</h2>
+  <p>この表は、台帳を実装するときに必要な設定、監査、試験、再生記録への接続を説明する。設定変更や台帳更新は、過去の版を変える操作ではなく、新しい版を作る操作として扱う。</p>
+  <table><thead><tr><th>区分</th><th>契約</th></tr></thead><tbody>
+    <tr><td>設定</td><td><code>MARKET_DATA_CATALOG_ROOT</code>は台帳版の保存場所だけを示す。書込み不能または内容確認値を保存できない場所なら開始しない。</td></tr>
+    <tr><td>秘密情報</td><td>台帳はAPIキーや認証用の値を受け取らない。外部記号の観測に必要な秘密はP2-D05の境界に閉じ込める。</td></tr>
+    <tr><td>監査</td><td>台帳版番号、内容確認値、対応関係番号、作成元の元データ識別子、検索条件、理由、実行時刻を追記形式で残す。</td></tr>
+    <tr><td>試験</td><td>IC-T01からIC-T20を固定入力で実行し、外部通信なしで同じ検索結果または同じ停止理由になることを確認する。</td></tr>
+    <tr><td>実行記録</td><td>Run Manifestは<code>catalog_version</code>、<code>catalog_snapshot_sha256</code>、<code>mapping_version</code>、<code>calendar_version</code>を必須項目として持つ。</td></tr>
+  </tbody></table>
+
+  <section class="gate"><h2>20. 人間承認の対象</h2><p>H2-1では、内部銘柄番号の同一性、外部記号との対応期間、最小価格変動と契約の大きさの必須性、営業日版、連続契約を個別契約と同一視しない方針を承認する。H2-2で実取得、費用、利用権限を承認するまでは、実値を台帳の確定値として採用しない。</p></section>
+
+  <section class="review"><h2>21. レビュー履歴</h2><p>この表は、指摘、採否、改訂、再レビューを残す。P2-D07 v0.3はAF-D16の0章から22章を満たし、CriticalおよびHighの未解決指摘を残さない状態である。</p>
+    <table><thead><tr><th>日付</th><th>確認者または部品</th><th>観点</th><th>反映と再判定</th></tr></thead><tbody>
+      <tr><td>2026-08-04</td><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>AF-D16の冒頭六節、図、入出力、全試験表、実装可能性を確認した。</td><td>v0.2で欠けていた平易な概要、ファイル構成、Mermaid図、IC-T01からIC-T20を追加し、Critical/Highは0件と再判定した。</td></tr>
+      <tr><td>2026-08-04</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>誤った対応付け、P2-D05/P2-D06との責務境界、連続契約の先送りを確認した。</td><td>一意でない対応の停止、有効期間、台帳版固定、H2-1への引継ぎを明記し、未解決の重大指摘はないと判定した。</td></tr>
+      <tr><td>2026-08-04</td><td>批判的安全レビュー</td><td>未確認の最小価格変動、契約の大きさ、証拠金の仮値、改変した台帳の利用を確認した。</td><td>属性不足時の停止、仮値の非利用、内容確認値不一致の拒否を明記し、危険な先送りをUnknown台帳へ移した。</td></tr>
+      <tr><td>2026-08-04</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code>および<code>AutoTrade_A81_DesignDocSetWriter_v0_1</code></td><td>保存先、関連リンク、テンプレート準拠、文書セットとの整合を確認した。</td><td>ローカルMermaid資産、P2-D05/P2-D06/P2-D15へのリンク、版数を反映し、統合上の重大指摘はないと判定した。</td></tr>
+    </tbody></table></section>
+
+  <h2>22. 関連成果物</h2>
+  <ul>
+    <li><a href="./05_Market_Data_Adapter詳細設計書.html">P2-D05 市場データ受渡し部 詳細設計書</a></li>
+    <li><a href="./06_Raw_Normalized_Store詳細設計書.html">P2-D06 元データ・正規化データ保管庫 詳細設計書</a></li>
+    <li><a href="./08_実装詳細設計レビュー反映記録.html">P2-D15 実装詳細設計レビュー・反映記録</a></li>
+    <li><a href="../02_データソース調査/02_Databento公式仕様確認結果.html">P2-D04 Databento公式仕様確認結果</a></li>
+    <li><a href="../../phase1/04_共通モデル/04_共通ドメインモデル設計書.html">D06 共通ドメインモデル設計書</a></li>
+    <li><a href="../../phase1/04_共通モデル/04_イベント注文口座ID時系列設計書.html">D07 イベント・注文・口座・ID・時系列設計書</a></li>
+    <li><a href="../../phase1/07_実行モデル/07_共通実行モデル設計書.html">D11 共通実行モデル設計書</a></li>
+  </ul>
+</main>
+<script src="../../assets/mermaid.min.js"></script>
+<script src="../../assets/mermaid-init.js"></script>
+</body>
+</html>
