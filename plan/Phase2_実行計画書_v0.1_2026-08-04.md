@@ -428,7 +428,7 @@ Phase Runbook:
 - log_root: plan/phase2/ログ/
 - document_set_id: P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET
 - detail_boundary: Market Data Adapter、Raw/Normalized Store、Instrument Catalogを実装担当者が追加推測なしで着手できる粒度へ改訂する。Strategyロジック、Broker接続、Backtest Engine本体、未承認のDatabento実取得は対象外。
-- human_gate_policy: H2-1でP2-D05からP2-D07の実装詳細設計v0.2とroll/continuous方式を承認する。
+- human_gate_policy: H2-1でP2-D05 v0.5およびP2-D06/P2-D07 v0.3の実装詳細設計とroll/continuous方式を承認する。
 - implementation_target: Python 3.11。予定配置は `src/autotrade/market_data/`、`tests/market_data/`、`tests/fixtures/market_data/`。未承認の外部ライブラリ、外部API実呼出し、Secret実値は設計・コード例に含めない。
 - document_coverage_matrix: DD-01対象/配置、DD-02モジュール依存、DD-03責務、DD-04型付き入出力、DD-05物理保存、DD-06通常/失敗シーケンス、DD-07疑似コード/コード例、DD-08設定/監査/Health、DD-09テスト、DD-10 Run Manifest/data_version、DD-11追跡/Unknown、DD-12レビュー/改訂/再レビュー。
 - detail_design_template: `doc/ai_foundation/16_実装詳細設計書HTMLテンプレート.html`。P2-D05 v0.5を読みやすさと図の具体例として参照するが、Market Data固有の技術判断は流用しない。
