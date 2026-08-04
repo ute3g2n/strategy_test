@@ -54,6 +54,8 @@
   <table><thead><tr><th>指摘ID</th><th>重要度</th><th>対象</th><th>指摘</th><th>反映</th><th>再判定</th></tr></thead><tbody>
     <tr><td>IDR-P2-06</td><td class="fail">High</td><td>P2-D05 v0.2</td><td>契約・方針はあるが、ドメインの平易な説明、ファイルツリー、構造図、モジュール単位I/O、実行フロー、全テストケースが読者の作業順に並んでいない。</td><td>採用。P2-D05 v0.3に1〜6章を追加し、ドメイン概要、ファイル構成、構造図、パラメータ辞書、3種の処理図、MDA-T01〜T24を追加した。</td><td class="pass">Closed</td></tr>
     <tr><td>IDR-P2-07</td><td class="fail">High</td><td>P2-D05 v0.3</td><td>英字中心の説明、文字だけの図、単語だけの試験表、後半の表の目的不足により、技術者以外が内容を判断できない。</td><td>採用。P2-D05 v0.4で日本語を基本とし、図をMermaidへ統一、MDA-T01〜T24の全セルを文章化し、7章以降の各表に目的説明を追加した。</td><td class="pass">Closed</td></tr>
+    <tr><td>IDR-P2-08</td><td class="fail">High</td><td>P2-D06 v0.2</td><td>保管・変換の契約はあるが、平易なドメイン説明、ファイルツリー、構造図、処理フロー、全試験が読者の作業順に並んでいない。</td><td>採用。P2-D06 v0.3に0〜22章、Mermaid図5種、RNS-T01〜T20、各表の目的説明を追加した。</td><td class="pass">Closed</td></tr>
+    <tr><td>IDR-P2-09</td><td class="fail">High</td><td>P2-D07 v0.2</td><td>銘柄台帳の契約はあるが、平易なドメイン説明、ファイルツリー、構造図、処理フロー、全試験が読者の作業順に並んでいない。</td><td>採用。P2-D07 v0.3に0〜22章、Mermaid図5種、IC-T01〜T20、各表の目的説明を追加した。</td><td class="pass">Closed</td></tr>
   </tbody></table>
   <section class="review"><p><strong>形式方針:</strong> P2-D05 v0.5を、後続の実装詳細設計書で使う読解順と記述品質の具体例とする。HTML構成は<a href="../../ai_foundation/16_実装詳細設計書HTMLテンプレート.html">AF-D16</a>、依頼文は<a href="../../ai_foundation/17_実装詳細設計書作成依頼プロンプト.html">AF-D17</a>を使う。すなわち、平易なドメイン説明、ファイルツリー、Mermaidによる構造図、モジュールと入出力、Mermaidによる処理フロー、文章で書いた全テストケースを前半に置き、その後に型・永続化・例外などの詳細契約を置く。コード・固有名詞以外は日本語で説明し、後半の各仕様表の前に目的を置く。P2-D06/P2-D07には、この方針をv0.3で適用済みである。</p></section>
 
