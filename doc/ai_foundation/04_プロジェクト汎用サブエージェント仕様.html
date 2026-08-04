@@ -25,12 +25,12 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D04<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.4 / 設計書セット作成サブエージェント追補反映済み<br>
+    <strong>文書状態:</strong> v0.5 / 実装詳細設計サブエージェント追補反映済み<br>
     <strong>ステップID:</strong> AF-02</p>
   </section>
 
   <h2>1. 目的</h2>
-  <p>本書は、プロジェクト汎用サブエージェント <code>AutoTrade_Axx_*_v0_1</code> の責務、入力、出力、使用Skill、推奨モデル、境界条件を定義する。Phase 1の15体構成を整理し、現在はA05、A06、A81を含む12体構成として運用する。Skillは小粒度のまま組み合わせる。</p>
+  <p>本書は、プロジェクト汎用サブエージェント <code>AutoTrade_Axx_*_v0_1</code> の責務、入力、出力、使用Skill、推奨モデル、境界条件を定義する。Phase 1の15体構成を整理し、現在はA05、A06、A81、A82、A91を含む14体構成として運用する。Skillは小粒度のまま組み合わせる。</p>
 
   <h2>2. 共通仕様</h2>
   <table>
@@ -59,7 +59,9 @@
       <tr><td><code>AutoTrade_A70_OpsSecurityArchitect_v0_1</code></td><td>監視、Secrets、環境分離、安全停止、運用設計。</td><td>非機能要件、環境、障害シナリオ、セキュリティ制約。</td><td>Ops/Security設計、Kill Switch方針、Secret方針、監査方針。</td><td><code>ops_security</code>, <code>red_team_review</code>, <code>traceability</code></td><td><code>gpt-5.4</code></td><td>Secretを出力しない。Fail-openを許容しない。</td></tr>
       <tr><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>HTML設計書、index更新、レビュー反映、変更履歴。</td><td>設計アウトライン、レビュー指摘、既存HTML、リンク方針。</td><td>HTML成果物、index更新、採否表、変更履歴。</td><td><code>html_doc_writer</code>, <code>revision_integration</code>, <code>traceability</code></td><td><code>gpt-5.1</code></td><td>正式HTMLを孤立させない。未解決リスクを削除しない。</td></tr>
       <tr><td><code>AutoTrade_A81_DesignDocSetWriter_v0_1</code></td><td>Phase内の複数HTML設計書をセットとして作成・更新し、共通メタ、相互リンク、Unknown、レビュー履歴、doc/index導線を揃える。</td><td>Phase Runbook、成果物一覧、文書アウトライン、既存HTML、レビュー指摘、リンク方針。</td><td>HTML設計書セット、index更新案、追跡ID対応表、採否表、残課題。</td><td><code>design_doc_set_writer</code>, <code>source_reader</code>, <code>traceability</code>, <code>html_doc_writer</code>, <code>revision_integration</code></td><td><code>gpt-5.4</code></td><td>領域設計者やレビュアーを置き換えない。正式HTMLを孤立させない。Unknownや残リスクを削除しない。</td></tr>
+      <tr><td><code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code></td><td>承認済みの設計判断を、実装対象のモジュール、型付き契約、保存構造、失敗系、疑似コード、テストへ落とし込む。</td><td>要件追跡、領域設計、対象リポジトリ、実装制約、Phase Runbook。</td><td>DD-01からDD-12を満たす実装詳細設計書、コード例、受入条件。</td><td><code>implementation_detail_design</code>, <code>source_reader</code>, <code>traceability</code></td><td><code>gpt-5.5</code></td><td>要件判断を勝手に変更しない。未承認SDKやSecretを仮定しない。実装対象が未確定ならUnknownとして停止する。</td></tr>
       <tr><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>整合性レビュー、Red Teamレビュー、未確定事項監査。</td><td>対象HTML、要件、Phase Runbook、成果物一覧。</td><td>整合性指摘、Red Team指摘、重大度、修正提案。</td><td><code>design_review</code>, <code>red_team_review</code>, <code>traceability</code></td><td><code>gpt-5.4</code></td><td>Findings first。Unknownを承認しない。安全停止漏れを見逃さない。</td></tr>
+      <tr><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>実装担当者視点で詳細設計を独立レビューし、実装不能な曖昧さや欠落を検出する。</td><td>実装詳細設計書、要件追跡、対象リポジトリ、テスト方針。</td><td>DD-01からDD-12の網羅表、Findings firstの指摘、再レビュー判定。</td><td><code>implementation_detail_review</code>, <code>design_review</code>, <code>red_team_review</code>, <code>traceability</code></td><td><code>gpt-5.5</code></td><td>文書作成者の自己判定をPassにしない。Critical/Highを残したまま実装開始を許容しない。</td></tr>
     </tbody>
   </table>
 
@@ -71,6 +73,7 @@
       <tr><td>独立維持する</td><td>Phase計画作成は <code>AutoTrade_A05_PhaseExecutionPlanner_v0_1</code> として独立維持し、設計本文作成責務へ混ぜない。</td></tr>
       <tr><td>独立維持する</td><td>AI部品保守は <code>AutoTrade_A06_AiComponentEngineer_v0_1</code> として独立維持し、通常の設計本文作成フローへ混ぜない。</td></tr>
       <tr><td>独立維持する</td><td>複数設計書セット作成は <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code> として独立維持し、単体HTML統合のA80やレビューのA90と混線させない。</td></tr>
+      <tr><td>独立維持する</td><td>実装詳細の具体化は <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>、実装可能性の独立判定は <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code> とし、A81の文書セット統合やA90の横断レビューで代替しない。</td></tr>
       <tr><td>統合しない</td><td>Risk/AccountとOps/Security、AdapterとPoC、DocumentIntegratorとDesignReviewer。</td></tr>
     </tbody>
   </table>
@@ -85,6 +88,7 @@
       <tr><td>Phase計画専任性</td><td class="ok">Pass</td><td>各Phase冒頭の計画作成を A05 に集約し、既存設計系Agentとの責務混線を避けた。</td></tr>
       <tr><td>AI部品保守専任性</td><td class="ok">Pass</td><td>AI部品の追加・変更と仕様追従を A06 に集約し、通常設計フローと混線しないようにした。</td></tr>
       <tr><td>設計書セット作成専任性</td><td class="ok">Pass</td><td>複数HTML設計書のセット作成とリンク整合を A81 に集約し、A80の単体HTML統合責務と分離した。</td></tr>
+      <tr><td>実装可能性レビュー</td><td class="ok">Pass</td><td>詳細化するA82と独立判定するA91を分離し、作成・修正・再レビューを必須化した。</td></tr>
     </tbody>
   </table>
 </main>

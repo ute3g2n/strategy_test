@@ -25,7 +25,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D03<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.4 / 設計書セット作成Skill追補反映済み<br>
+    <strong>文書状態:</strong> v0.5 / 実装詳細設計Skill追補反映済み<br>
     <strong>ステップID:</strong> AF-02<br>
     <strong>作成モード:</strong> 汎用AI部品は未作成のため、Codex通常実行で仕様化。Phase 1専用Skillは参照元としてのみ使用。</p>
   </section>
@@ -56,6 +56,8 @@
       <tr><td><code>autotrade_skill_phase_execution_planning_v0_1</code></td><td>各Phase開始前の実行計画書を作成する。</td><td>要件定義、前Phase成果物、既存計画書、AI部品一覧、共通ルール。</td><td>複数ステップの実行計画、直接実行可能プロンプト、依存関係、Human Gate、成果物配置方針。</td><td>単一ステップ化。完全名省略。UnknownのPass。doc/index導線漏れ。</td><td>複数ステップ、完全名、停止条件、doc/plan配置、後続実行可能性が揃う。</td></tr>
       <tr><td><code>autotrade_skill_ai_component_lifecycle_v0_1</code></td><td>AI部品の再利用調査、作成・変更、仕様追従更新を一連で進める。</td><td>変更要求、既存AI部品一覧、共通ルール、AI基盤HTML。</td><td>再利用判断、部品更新、仕様追従、検証メモ。</td><td>実体だけ更新して仕様を放置すること。無断リネーム。default変更。</td><td>再利用判断、完全名、追従更新、検証結果が揃う。</td></tr>
       <tr><td><code>autotrade_skill_design_doc_set_writer_v0_1</code></td><td>Phase内の複数HTML設計書をセットとして作成・更新する。</td><td>Phase Runbook、成果物一覧、文書アウトライン、既存HTML、レビュー指摘、doc/index.html。</td><td>設計書セット、共通メタ、相互リンク、Unknown台帳、採否表、index更新案。</td><td>正式HTMLの孤立。共通メタやレビュー履歴の省略。UnknownのPass。</td><td>全HTMLがdoc/indexから到達でき、文書ID、判断ID、Unknown ID、レビュー履歴が整合する。</td></tr>
+      <tr><td><code>autotrade_skill_implementation_detail_design_v0_1</code></td><td>論理・基本設計を、実装可能なモジュール、API、永続化、処理順、疑似コード、テストへ詳細化する。</td><td>要件、既存設計、対象リポジトリ、実装制約、Runbook。</td><td>DD-01からDD-12を満たす実装詳細設計書と根拠。</td><td>抽象的な責務説明だけで完了にすること。未承認の外部SDKやSecretを前提にすること。</td><td>モジュール木、型付き入出力、物理保存、失敗系、コード例、受入テストが揃う。</td></tr>
+      <tr><td><code>autotrade_skill_implementation_detail_review_v0_1</code></td><td>実装者が追加推測なしに着手できるかをDD-01からDD-12で独立レビューする。</td><td>実装詳細設計書、要件追跡、対象リポジトリ、テスト方針。</td><td>Findings firstの指摘、網羅表、再レビュー判定。</td><td>抽象的な設計レビューだけでPassにすること。Critical/Highの残存を許容すること。</td><td>全DD項目の根拠、重大度、修正確認、再レビュー結果が記録される。</td></tr>
       <tr><td><code>autotrade_skill_official_research_v0_1</code></td><td>外部仕様調査時に公式一次情報を優先する。</td><td>調査対象、確認観点、取得日。</td><td>URL、確認日、根拠要約、未確認事項。</td><td>非公式情報だけで断定。古い情報の無検証利用。</td><td>公式情報の有無、確認日、引用範囲を記録する。</td></tr>
       <tr><td><code>autotrade_skill_html_doc_writer_v0_1</code></td><td>単体で読めるHTML仕様書、設計書を作成する。</td><td>文書アウトライン、設計判断、レビュー結果、リンク先。</td><td>HTML、関連リンク、レビュー履歴、index更新案。</td><td>外部CDN依存。正式設計書をMarkdownだけで終える。</td><td>メタ情報、目次、入力、判断、Unknown、レビュー履歴、関連リンクがある。</td></tr>
       <tr><td><code>autotrade_skill_architecture_writer_v0_1</code></td><td>全体構成、モジュール責務、依存方向を設計する。</td><td>要件、制約、既存設計、Phase Runbook。</td><td>構成方針、モジュール責務、依存図、非目的。</td><td>実装クラス詳細の過剰固定。外部依存のコア漏れ。</td><td>責務境界、依存方向、後続Phase詳細化項目が明確。</td></tr>
@@ -96,6 +98,7 @@ unknown_policy: Unknown must not pass</pre>
       <tr><td>Phase計画再利用</td><td class="ok">Pass</td><td>Phase実行計画作成を汎用Skillへ昇格し、各Phase冒頭で再利用可能にした。</td></tr>
       <tr><td>AI部品保守再利用</td><td class="ok">Pass</td><td>AI部品そのものの作成・変更を回す汎用Skillを追加し、再利用調査から仕様追従までを標準化した。</td></tr>
       <tr><td>設計書セット作成</td><td class="ok">Pass</td><td>複数HTML設計書の共通メタ、相互リンク、Unknown、レビュー履歴、doc/index導線を揃える汎用Skillを追加した。</td></tr>
+      <tr><td>実装詳細設計</td><td class="ok">Pass</td><td>実装粒度の必須構成と、その独立レビューを別Skillとして定義した。</td></tr>
     </tbody>
   </table>
 
@@ -105,6 +108,8 @@ unknown_policy: Unknown must not pass</pre>
     <li><a href="./02_AI部品整理方針移行マップ.html">AF-D02 AI部品整理方針・移行マップ</a></li>
     <li><a href="./04_プロジェクト汎用サブエージェント仕様.html">AF-D04 プロジェクト汎用サブエージェント仕様</a></li>
     <li><a href="./13_設計書セット作成AI部品仕様.html">AF-D13 設計書セット作成AI部品仕様</a></li>
+    <li><a href="./14_実装詳細設計書構成標準.html">AF-D14 実装詳細設計書構成標準</a></li>
+    <li><a href="./15_実装詳細設計AI基盤仕様.html">AF-D15 実装詳細設計AI基盤仕様</a></li>
   </ul>
 </main>
 </body>
