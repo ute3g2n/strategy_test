@@ -268,7 +268,7 @@ Adapterは内部InstrumentIdを作らない。どの契約へ対応するかの�
     </tbody>
   </table>
 
-  <h2>2. Port契約</h2>
+  <h2>8. Port契約</h2>
   <table>
     <thead><tr><th>Port</th><th>入力</th><th>出力</th><th>副作用とGate</th></tr></thead>
     <tbody>
@@ -281,7 +281,7 @@ Adapterは内部InstrumentIdを作らない。どの契約へ対応するかの�
     </tbody>
   </table>
 
-  <h2>3. Portの共通データ契約</h2>
+  <h2>9. Portの共通データ契約</h2>
   <table>
     <thead><tr><th>契約</th><th>必須項目</th><th>意味</th></tr></thead>
     <tbody>
@@ -293,7 +293,7 @@ Adapterは内部InstrumentIdを作らない。どの契約へ対応するかの�
     </tbody>
   </table>
 
-  <h2>4. 出力イベントと順序</h2>
+  <h2>10. 出力イベントと順序</h2>
   <table>
     <thead><tr><th>イベント</th><th>生成条件</th><th>下流</th><th>品質条件</th></tr></thead>
     <tbody>
@@ -306,7 +306,7 @@ Adapterは内部InstrumentIdを作らない。どの契約へ対応するかの�
     </tbody>
   </table>
 
-  <h2>5. エラー分類とFail-closed</h2>
+  <h2>11. エラー分類とFail-closed</h2>
   <table>
     <thead><tr><th>ErrorCode</th><th>例</th><th>処理</th><th>Health / Gate</th></tr></thead>
     <tbody>
@@ -323,7 +323,7 @@ Adapterは内部InstrumentIdを作らない。どの契約へ対応するかの�
     </tbody>
   </table>
 
-  <h2>6. HealthEvent状態</h2>
+  <h2>12. HealthEvent状態</h2>
   <table>
     <thead><tr><th>health_state</th><th>意味</th><th>下流利用</th></tr></thead>
     <tbody>
@@ -334,7 +334,7 @@ Adapterは内部InstrumentIdを作らない。どの契約へ対応するかの�
     </tbody>
   </table>
 
-  <h2>7. 実行モードとの接続</h2>
+  <h2>13. 実行モードとの接続</h2>
   <table>
     <thead><tr><th>モード</th><th>入力</th><th>Adapter動作</th><th>許可される副作用</th></tr></thead>
     <tbody>
@@ -345,7 +345,7 @@ Adapterは内部InstrumentIdを作らない。どの契約へ対応するかの�
     </tbody>
   </table>
 
-  <h2>8. 追跡とUnknown</h2>
+  <h2>14. 追跡とUnknown</h2>
   <table>
     <thead><tr><th>追跡ID</th><th>本書での反映</th><th>未確定事項</th></tr></thead>
     <tbody>
@@ -357,7 +357,7 @@ Adapterは内部InstrumentIdを作らない。どの契約へ対応するかの�
     </tbody>
   </table>
 
-  <h2>9. 予定モジュール構成と依存方向</h2>
+  <h2>15. 実装依存方向と公開境界</h2>
   <pre>src/autotrade/market_data/
   contracts.py          # 外部非依存のDTO、Error、Event
   adapter_port.py       # HistoricalDataPort Protocol
@@ -379,7 +379,7 @@ tests/fixtures/market_data/
     <tr><td><code>health</code></td><td><code>HealthReporter.record</code></td><td>contracts</td><td>再試行決定、注文制御</td></tr>
   </tbody></table>
 
-  <h2>10. 型付き公開契約</h2>
+  <h2>16. 型付き公開契約</h2>
 <pre>from dataclasses import dataclass
 from datetime import UTC, datetime
 from hashlib import sha256
@@ -433,7 +433,7 @@ class HealthEvent:
     <tr><td><code>reporter.record(event)</code></td><td><code>None</code></td><td>永続化不能時は呼出元を<code>UNHEALTHY</code>へ遷移</td><td>監査イベントは追記のみ。</td></tr>
   </tbody></table>
 
-  <h2>11. 正常系・失敗系シーケンス</h2>
+  <h2>17. 正常系・失敗系シーケンス（詳細）</h2>
   <pre>正常系
 Caller -> IngestionService.ingest(fixture request)
   -> validate UTC range / H2-2 source_mode
@@ -451,7 +451,7 @@ Caller -> IngestionService.ingest(fixture request)
   -> retry可能なのはRATE_LIMITEDのみ。Retry-After不明または上限到達は停止。</pre>
   <p><strong>復旧:</strong> 再実行は同じrequest fingerprintで開始する。payload hashが異なる場合は旧Rawを更新せず、P2-D06の<code>redelivery_diff</code>を作成し、<code>UNKNOWN_EXTERNAL_STATE</code>としてData Gateを停止する。</p>
 
-  <h2>12. 誤実装しやすい規則のコード例</h2>
+  <h2>18. 誤実装しやすい規則のコード例</h2>
   <pre>def ingest(self, request: HistoricalRequest) -&gt; IngestionResult:
     if request.source_mode == "external" and not self.h2_2_approved:
         raise ExternalStateError("EXTERNAL_FETCH_NOT_APPROVED")
@@ -465,7 +465,7 @@ Caller -> IngestionService.ingest(fixture request)
     return self.raw_store.put_if_absent(request, payload, digest)</pre>
   <p>実装時は<code>VendorGateway</code>をfixture実装と将来のvendor実装で差し替える。将来実装がDatabento SDKを使っても、SDK型、API key、HTTP status objectはこの関数の引数・戻り値へ露出させない。</p>
 
-  <h2>13. 設定、監査、テスト、Manifest</h2>
+  <h2>19. 設定、監査、テスト、Manifest</h2>
   <table><thead><tr><th>区分</th><th>契約</th></tr></thead><tbody>
     <tr><td>設定</td><td><code>MARKET_DATA_SOURCE_MODE</code>は<code>fixture</code>が既定。<code>MARKET_DATA_VENDOR_API_KEY</code>は将来Gatewayだけが参照する名前であり、値・存在有無をHTMLやログへ出さない。</td></tr>
     <tr><td>監査/Health</td><td><code>request_id</code>、fingerprint、raw_object_id、reason_code、affected_rangeだけを監査する。payloadやSecretは記録しない。</td></tr>
@@ -474,13 +474,13 @@ Caller -> IngestionService.ingest(fixture request)
   </tbody></table>
 
   <section class="gate">
-    <h2>14. H2-1承認対象</h2>
+    <h2>20. H2-1承認対象</h2>
     <p>H2-1では、Raw/Normalized/Catalogの方式、main/conditional候補の扱い、continuousまたは明示的contract selectionの方式、roll ruleのversioning、degradedデータの停止・縮退方針、Phase 3へ渡すdata_version契約を承認する。</p>
     <p>承認前は、roll済み系列を本線へ昇格しない。UnknownをPassにせず、fixtureまたは対象範囲縮退で設計・テストを続ける。</p>
   </section>
 
   <section class="review">
-    <h2>15. レビュー履歴</h2>
+    <h2>21. レビュー履歴</h2>
     <table>
       <thead><tr><th>日付</th><th>レビュー部品</th><th>観点</th><th>反映</th></tr></thead>
       <tbody>
@@ -492,7 +492,7 @@ Caller -> IngestionService.ingest(fixture request)
     </table>
   </section>
 
-  <h2>16. 関連成果物</h2>
+  <h2>22. 関連成果物</h2>
   <ul>
     <li><a href="./06_Raw_Normalized_Store詳細設計書.html">P2-D06 Raw / Normalized Store詳細設計書</a></li>
     <li><a href="./07_Instrument_Catalog詳細設計書.html">P2-D07 Instrument Catalog詳細設計書</a></li>
