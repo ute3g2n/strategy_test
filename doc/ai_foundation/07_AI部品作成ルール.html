@@ -25,7 +25,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D07<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.4 / 実装詳細設計AI部品 反映済み<br>
+    <strong>文書状態:</strong> v0.5 / 詳細設計テンプレート準拠基準反映済み<br>
     <strong>後続実体化先:</strong> <code>settings/ai_component_rules.md</code></p>
   </section>
 
@@ -57,7 +57,8 @@
   <ul>
     <li>実装着手に用いる詳細設計書は、<a href="./14_実装詳細設計書構成標準.html">AF-D14</a> のDD-01からDD-12を満たす。責務説明、概念図、項目列挙だけでは完了にしない。</li>
     <li>標準として <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code>、<code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>、<code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code>、<code>autotrade_skill_implementation_detail_design_v0_1</code>、<code>autotrade_skill_implementation_detail_review_v0_1</code> を完全名で指定する。</li>
-    <li>順序は、A82の詳細化、A91の実装可能性レビュー、A90の横断・Red Teamレビュー、A80/A81の改訂統合、A91の再レビューとする。CriticalまたはHighが残る設計書を実装入力にしてはならない。</li>
+    <li>順序は、AF-D16/AF-D17の確認、A82の詳細化、A91の実装可能性レビュー、A90の横断・Red Teamレビュー、A80/A81の改訂統合、A91の再レビューとする。CriticalまたはHighが残る設計書を実装入力にしてはならない。</li>
+    <li>詳細設計では、固有名詞・コード以外を日本語で書き、Mermaid図、表の前置き、文章化した全テストケースを必須とする。</li>
     <li>実装対象のリポジトリ、言語、配置、未承認外部依存が未確定ならUnknownとして記録し、コード例は承認済みの境界または擬似コードに縮退する。</li>
   </ul>
 

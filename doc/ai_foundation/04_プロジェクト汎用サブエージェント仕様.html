@@ -25,7 +25,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D04<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.5 / 実装詳細設計サブエージェント追補反映済み<br>
+    <strong>文書状態:</strong> v0.6 / 詳細設計テンプレート準拠基準反映済み<br>
     <strong>ステップID:</strong> AF-02</p>
   </section>
 
@@ -59,9 +59,9 @@
       <tr><td><code>AutoTrade_A70_OpsSecurityArchitect_v0_1</code></td><td>監視、Secrets、環境分離、安全停止、運用設計。</td><td>非機能要件、環境、障害シナリオ、セキュリティ制約。</td><td>Ops/Security設計、Kill Switch方針、Secret方針、監査方針。</td><td><code>ops_security</code>, <code>red_team_review</code>, <code>traceability</code></td><td><code>gpt-5.4</code></td><td>Secretを出力しない。Fail-openを許容しない。</td></tr>
       <tr><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>HTML設計書、index更新、レビュー反映、変更履歴。</td><td>設計アウトライン、レビュー指摘、既存HTML、リンク方針。</td><td>HTML成果物、index更新、採否表、変更履歴。</td><td><code>html_doc_writer</code>, <code>revision_integration</code>, <code>traceability</code></td><td><code>gpt-5.1</code></td><td>正式HTMLを孤立させない。未解決リスクを削除しない。</td></tr>
       <tr><td><code>AutoTrade_A81_DesignDocSetWriter_v0_1</code></td><td>Phase内の複数HTML設計書をセットとして作成・更新し、共通メタ、相互リンク、Unknown、レビュー履歴、doc/index導線を揃える。</td><td>Phase Runbook、成果物一覧、文書アウトライン、既存HTML、レビュー指摘、リンク方針。</td><td>HTML設計書セット、index更新案、追跡ID対応表、採否表、残課題。</td><td><code>design_doc_set_writer</code>, <code>source_reader</code>, <code>traceability</code>, <code>html_doc_writer</code>, <code>revision_integration</code></td><td><code>gpt-5.4</code></td><td>領域設計者やレビュアーを置き換えない。正式HTMLを孤立させない。Unknownや残リスクを削除しない。</td></tr>
-      <tr><td><code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code></td><td>承認済みの設計判断を、実装対象のモジュール、型付き契約、保存構造、失敗系、疑似コード、テストへ落とし込む。</td><td>要件追跡、領域設計、対象リポジトリ、実装制約、Phase Runbook。</td><td>DD-01からDD-12を満たす実装詳細設計書、コード例、受入条件。</td><td><code>implementation_detail_design</code>, <code>source_reader</code>, <code>traceability</code></td><td><code>gpt-5.5</code></td><td>要件判断を勝手に変更しない。未承認SDKやSecretを仮定しない。実装対象が未確定ならUnknownとして停止する。</td></tr>
+      <tr><td><code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code></td><td>承認済みの設計判断を、AF-D16に従う日本語説明、Mermaid図、実装対象のモジュール、型付き契約、保存構造、失敗系、疑似コード、全テストへ落とし込む。</td><td>要件追跡、領域設計、対象リポジトリ、実装制約、Phase Runbook、AF-D16、AF-D17。</td><td>DD-01からDD-12、平易な表の前置き、文章化した試験仕様を満たす実装詳細設計書、コード例、受入条件。</td><td><code>implementation_detail_design</code>, <code>source_reader</code>, <code>traceability</code></td><td><code>gpt-5.5</code></td><td>要件判断を勝手に変更しない。未承認SDKやSecretを仮定しない。実装対象が未確定ならUnknownとして停止する。Mermaid以外の図、長文で見切れるノード、単語だけの試験表を作らない。</td></tr>
       <tr><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>整合性レビュー、Red Teamレビュー、未確定事項監査。</td><td>対象HTML、要件、Phase Runbook、成果物一覧。</td><td>整合性指摘、Red Team指摘、重大度、修正提案。</td><td><code>design_review</code>, <code>red_team_review</code>, <code>traceability</code></td><td><code>gpt-5.4</code></td><td>Findings first。Unknownを承認しない。安全停止漏れを見逃さない。</td></tr>
-      <tr><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>実装担当者視点で詳細設計を独立レビューし、実装不能な曖昧さや欠落を検出する。</td><td>実装詳細設計書、要件追跡、対象リポジトリ、テスト方針。</td><td>DD-01からDD-12の網羅表、Findings firstの指摘、再レビュー判定。</td><td><code>implementation_detail_review</code>, <code>design_review</code>, <code>red_team_review</code>, <code>traceability</code></td><td><code>gpt-5.5</code></td><td>文書作成者の自己判定をPassにしない。Critical/Highを残したまま実装開始を許容しない。</td></tr>
+      <tr><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>実装担当者と非専門読者の視点で詳細設計を独立レビューし、実装不能な曖昧さ、図・表・試験の読めない欠落を検出する。</td><td>実装詳細設計書、要件追跡、対象リポジトリ、テスト方針、AF-D16適合表。</td><td>DD-01からDD-12とAF-D16の網羅表、Findings firstの指摘、再レビュー判定。</td><td><code>implementation_detail_review</code>, <code>design_review</code>, <code>red_team_review</code>, <code>traceability</code></td><td><code>gpt-5.5</code></td><td>文書作成者の自己判定をPassにしない。Critical/Highを残したまま実装開始を許容しない。Mermaid不足、文字見切れ、表目的不足、単語だけの試験表をPassにしない。</td></tr>
     </tbody>
   </table>
 
