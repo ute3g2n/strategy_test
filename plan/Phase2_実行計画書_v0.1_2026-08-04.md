@@ -607,7 +607,7 @@ Phase 2 Market Data基盤の最小実装を作成してください。
 ロール: Data Quality / Replay QA設計者
 使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A30_StrategyQaArchitect_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1
-使用モデル: gpt-5.4
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_skill_test_strategy_v0_1, autotrade_skill_golden_test_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1
 
 Phase Runbook:
@@ -661,7 +661,7 @@ Phase 2のData Quality / Replayテスト設計とテスト実装方針を作成�
 ロール: Databento取得プロトコル実装者
 使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A50_AdapterArchitect_v0_1, AutoTrade_A70_OpsSecurityArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A90_DesignReviewer_v0_1
-使用モデル: gpt-5.4
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_skill_adapter_boundary_v0_1, autotrade_skill_official_research_v0_1, autotrade_skill_ops_security_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1
 
 Phase Runbook:
@@ -714,7 +714,7 @@ Databento取得プロトコルの最小実装またはdry-run実装を作成し�
 ロール: Market Data検証者
 使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A30_StrategyQaArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1
-使用モデル: gpt-5.4
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_skill_execution_model_v0_1, autotrade_skill_test_strategy_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1
 
 Phase Runbook:

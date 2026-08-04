@@ -1,7 +1,7 @@
 {
   "name": "AutoTrade_A10_RequirementsCurator_v0_1",
   "display_name": "Auto Trade Requirements Curator",
-  "model": "gpt-5.4",
+  "model": "gpt-5.6-luna",
   "skill": "autotrade_skill_source_reader_v0_1",
   "skills": [
     "autotrade_skill_source_reader_v0_1",

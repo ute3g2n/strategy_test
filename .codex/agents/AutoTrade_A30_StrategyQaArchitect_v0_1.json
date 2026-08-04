@@ -1,7 +1,7 @@
 {
   "name": "AutoTrade_A30_StrategyQaArchitect_v0_1",
   "display_name": "Auto Trade Strategy and QA Architect",
-  "model": "gpt-5.4",
+  "model": "gpt-5.6-luna",
   "skill": "autotrade_skill_strategy_interface_v0_1",
   "skills": [
     "autotrade_skill_strategy_interface_v0_1",

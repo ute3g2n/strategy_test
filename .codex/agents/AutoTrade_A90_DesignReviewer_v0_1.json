@@ -1,7 +1,7 @@
 {
   "name": "AutoTrade_A90_DesignReviewer_v0_1",
   "display_name": "Auto Trade Design Reviewer",
-  "model": "gpt-5.4",
+  "model": "gpt-5.6-luna",
   "skill": "autotrade_skill_design_review_v0_1",
   "skills": [
     "autotrade_skill_design_review_v0_1",

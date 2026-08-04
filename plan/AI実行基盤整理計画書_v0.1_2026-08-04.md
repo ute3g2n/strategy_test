@@ -66,15 +66,15 @@ Phase 1では、誤発火を避けるために `AutoTradePhase1_` と `autotrade
 
 | ID | 完全名 | 統合元 | 主な責務 | 推奨モデル |
 |---|---|---|---|---|
-| A10 | `AutoTrade_A10_RequirementsCurator_v0_1` | Phase1 A01 | 要件抽出、Phaseスコープ分離、追跡ID、Unknown台帳 | `gpt-5.4` |
+| A10 | `AutoTrade_A10_RequirementsCurator_v0_1` | Phase1 A01 | 要件抽出、Phaseスコープ分離、追跡ID、Unknown台帳 | `gpt-5.6-luna` |
 | A20 | `AutoTrade_A20_ArchitectureDomainArchitect_v0_1` | Phase1 A02, A03 | 全体構成、ドメイン分割、共通モデル、依存方向 | `gpt-5.5` |
-| A30 | `AutoTrade_A30_StrategyQaArchitect_v0_1` | Phase1 A04, A10の一部 | Strategy Interface、Golden test、Look-ahead防止、戦略QA | `gpt-5.4` |
-| A40 | `AutoTrade_A40_ExecutionEnginePocArchitect_v0_1` | Phase1 A05, A06 | 共通実行モデル、取引エンジンPoC評価、Replay/Realtime整合 | `gpt-5.4` |
-| A50 | `AutoTrade_A50_AdapterArchitect_v0_1` | Phase1 A07 | Broker Adapter、Market Data Adapter、外部ID境界 | `gpt-5.4` |
-| A60 | `AutoTrade_A60_RiskAccountArchitect_v0_1` | Phase1 A08 | Portfolio、Risk、Account、OMS責務境界 | `gpt-5.4` |
-| A70 | `AutoTrade_A70_OpsSecurityArchitect_v0_1` | Phase1 A09 | 監視、Secrets、環境分離、安全停止、運用設計 | `gpt-5.4` |
+| A30 | `AutoTrade_A30_StrategyQaArchitect_v0_1` | Phase1 A04, A10の一部 | Strategy Interface、Golden test、Look-ahead防止、戦略QA | `gpt-5.6-luna` |
+| A40 | `AutoTrade_A40_ExecutionEnginePocArchitect_v0_1` | Phase1 A05, A06 | 共通実行モデル、取引エンジンPoC評価、Replay/Realtime整合 | `gpt-5.6-luna` |
+| A50 | `AutoTrade_A50_AdapterArchitect_v0_1` | Phase1 A07 | Broker Adapter、Market Data Adapter、外部ID境界 | `gpt-5.6-luna` |
+| A60 | `AutoTrade_A60_RiskAccountArchitect_v0_1` | Phase1 A08 | Portfolio、Risk、Account、OMS責務境界 | `gpt-5.6-luna` |
+| A70 | `AutoTrade_A70_OpsSecurityArchitect_v0_1` | Phase1 A09 | 監視、Secrets、環境分離、安全停止、運用設計 | `gpt-5.6-luna` |
 | A80 | `AutoTrade_A80_DocumentIntegrator_v0_1` | Phase1 A11, A14 | HTML設計書、index更新、レビュー反映、変更履歴 | `gpt-5.1` |
-| A90 | `AutoTrade_A90_DesignReviewer_v0_1` | Phase1 A12, A13 | 整合性レビュー、Red Teamレビュー、未確定事項監査 | `gpt-5.4` |
+| A90 | `AutoTrade_A90_DesignReviewer_v0_1` | Phase1 A12, A13 | 整合性レビュー、Red Teamレビュー、未確定事項監査 | `gpt-5.6-luna` |
 
 ### 3.3 プロジェクト汎用Skill案
 
@@ -329,7 +329,7 @@ AF-01の整理方針に基づき、プロジェクト汎用のSkill、サブエ�
 ロール: AI実行基盤実装者
 使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A90_DesignReviewer_v0_1
-使用モデル: gpt-5.4
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_skill_html_doc_writer_v0_1, autotrade_skill_revision_integration_v0_1, autotrade_skill_design_review_v0_1
 
 発火制御:
@@ -388,7 +388,7 @@ AF-02で作成したHTML仕様書に従い、プロジェクト汎用のSkill、
 ロール: AI実行基盤レビュアー
 使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1
-使用モデル: gpt-5.4
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1
 
 発火制御:

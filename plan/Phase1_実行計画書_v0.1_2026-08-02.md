@@ -131,25 +131,25 @@ plan/phase1/
 
 ## 5. サブエージェント構成
 
-モデル名は実行環境で利用可能な名称に置換する。下表では、最高推論モデルを `gpt-5.4`、高速な文書整形モデルを `gpt-5.1` と仮置きする。
+モデル名は実行環境で利用可能な名称に置換する。下表では、最高推論モデルを `gpt-5.6-luna`、高速な文書整形モデルを `gpt-5.1` と仮置きする。
 
 | ID | サブエージェント完全名 | 主な責務 | 推奨モデル | 使用Skill完全名 |
 |---|---|---|---|---|
-| A00 | `AutoTradePhase1_A00_Orchestrator_v0_1` | 全体DAG管理、依存関係、Gate、成果物統合 | `gpt-5.4` | `autotrade_phase1_skill_orchestration_v0_1`, `autotrade_phase1_skill_traceability_v0_1` |
-| A01 | `AutoTradePhase1_A01_RequirementsCurator_v0_1` | 要件定義とPhase方針の抽出、追跡ID付与 | `gpt-5.4` | `autotrade_phase1_skill_source_reader_v0_1`, `autotrade_phase1_skill_traceability_v0_1` |
-| A02 | `AutoTradePhase1_A02_SystemArchitect_v0_1` | 全体構成、モジュール分割、データフロー | `gpt-5.4` | `autotrade_phase1_skill_architecture_writer_v0_1` |
-| A03 | `AutoTradePhase1_A03_DomainArchitect_v0_1` | 境界づけられたコンテキスト、共通モデル | `gpt-5.4` | `autotrade_phase1_skill_domain_modeling_v0_1` |
-| A04 | `AutoTradePhase1_A04_StrategyArchitect_v0_1` | Strategy Plugin、Turtleルール、Golden test | `gpt-5.4` | `autotrade_phase1_skill_strategy_design_v0_1`, `autotrade_phase1_skill_golden_test_v0_1` |
-| A05 | `AutoTradePhase1_A05_ExecutionModelArchitect_v0_1` | Backtest / Shadow / Paper / Live 共通実行モデル | `gpt-5.4` | `autotrade_phase1_skill_execution_model_v0_1` |
-| A06 | `AutoTradePhase1_A06_EnginePocAnalyst_v0_1` | NautilusTrader / LEAN 評価軸、PoCシナリオ | `gpt-5.4` | `autotrade_phase1_skill_official_research_v0_1`, `autotrade_phase1_skill_poc_design_v0_1` |
-| A07 | `AutoTradePhase1_A07_AdapterArchitect_v0_1` | Broker Adapter、Market Data Adapterの境界設計 | `gpt-5.4` | `autotrade_phase1_skill_adapter_boundary_v0_1` |
-| A08 | `AutoTradePhase1_A08_RiskAccountArchitect_v0_1` | Portfolio、Risk、Account責務境界 | `gpt-5.4` | `autotrade_phase1_skill_risk_account_design_v0_1` |
-| A09 | `AutoTradePhase1_A09_OpsSecurityArchitect_v0_1` | 監視、Secrets、環境分離、安全停止 | `gpt-5.4` | `autotrade_phase1_skill_ops_security_v0_1` |
-| A10 | `AutoTradePhase1_A10_QaArchitect_v0_1` | テスト戦略、品質Gate、レビュー基準 | `gpt-5.4` | `autotrade_phase1_skill_test_strategy_v0_1` |
+| A00 | `AutoTradePhase1_A00_Orchestrator_v0_1` | 全体DAG管理、依存関係、Gate、成果物統合 | `gpt-5.6-luna` | `autotrade_phase1_skill_orchestration_v0_1`, `autotrade_phase1_skill_traceability_v0_1` |
+| A01 | `AutoTradePhase1_A01_RequirementsCurator_v0_1` | 要件定義とPhase方針の抽出、追跡ID付与 | `gpt-5.6-luna` | `autotrade_phase1_skill_source_reader_v0_1`, `autotrade_phase1_skill_traceability_v0_1` |
+| A02 | `AutoTradePhase1_A02_SystemArchitect_v0_1` | 全体構成、モジュール分割、データフロー | `gpt-5.6-luna` | `autotrade_phase1_skill_architecture_writer_v0_1` |
+| A03 | `AutoTradePhase1_A03_DomainArchitect_v0_1` | 境界づけられたコンテキスト、共通モデル | `gpt-5.6-luna` | `autotrade_phase1_skill_domain_modeling_v0_1` |
+| A04 | `AutoTradePhase1_A04_StrategyArchitect_v0_1` | Strategy Plugin、Turtleルール、Golden test | `gpt-5.6-luna` | `autotrade_phase1_skill_strategy_design_v0_1`, `autotrade_phase1_skill_golden_test_v0_1` |
+| A05 | `AutoTradePhase1_A05_ExecutionModelArchitect_v0_1` | Backtest / Shadow / Paper / Live 共通実行モデル | `gpt-5.6-luna` | `autotrade_phase1_skill_execution_model_v0_1` |
+| A06 | `AutoTradePhase1_A06_EnginePocAnalyst_v0_1` | NautilusTrader / LEAN 評価軸、PoCシナリオ | `gpt-5.6-luna` | `autotrade_phase1_skill_official_research_v0_1`, `autotrade_phase1_skill_poc_design_v0_1` |
+| A07 | `AutoTradePhase1_A07_AdapterArchitect_v0_1` | Broker Adapter、Market Data Adapterの境界設計 | `gpt-5.6-luna` | `autotrade_phase1_skill_adapter_boundary_v0_1` |
+| A08 | `AutoTradePhase1_A08_RiskAccountArchitect_v0_1` | Portfolio、Risk、Account責務境界 | `gpt-5.6-luna` | `autotrade_phase1_skill_risk_account_design_v0_1` |
+| A09 | `AutoTradePhase1_A09_OpsSecurityArchitect_v0_1` | 監視、Secrets、環境分離、安全停止 | `gpt-5.6-luna` | `autotrade_phase1_skill_ops_security_v0_1` |
+| A10 | `AutoTradePhase1_A10_QaArchitect_v0_1` | テスト戦略、品質Gate、レビュー基準 | `gpt-5.6-luna` | `autotrade_phase1_skill_test_strategy_v0_1` |
 | A11 | `AutoTradePhase1_A11_HtmlDocumentEngineer_v0_1` | HTMLテンプレート、CSS、可読性、リンク整備 | `gpt-5.1` | `autotrade_phase1_skill_html_doc_writer_v0_1` |
-| A12 | `AutoTradePhase1_A12_ConsistencyReviewer_v0_1` | 用語、ID、設計書間矛盾、追跡性レビュー | `gpt-5.4` | `autotrade_phase1_skill_design_reviewer_v0_1` |
-| A13 | `AutoTradePhase1_A13_RedTeamReviewer_v0_1` | 安全性、運用リスク、過剰固定、未知情報の監査 | `gpt-5.4` | `autotrade_phase1_skill_red_team_review_v0_1` |
-| A14 | `AutoTradePhase1_A14_RevisionIntegrator_v0_1` | レビュー反映、最終版作成、変更履歴整備 | `gpt-5.4` | `autotrade_phase1_skill_revision_integrator_v0_1` |
+| A12 | `AutoTradePhase1_A12_ConsistencyReviewer_v0_1` | 用語、ID、設計書間矛盾、追跡性レビュー | `gpt-5.6-luna` | `autotrade_phase1_skill_design_reviewer_v0_1` |
+| A13 | `AutoTradePhase1_A13_RedTeamReviewer_v0_1` | 安全性、運用リスク、過剰固定、未知情報の監査 | `gpt-5.6-luna` | `autotrade_phase1_skill_red_team_review_v0_1` |
+| A14 | `AutoTradePhase1_A14_RevisionIntegrator_v0_1` | レビュー反映、最終版作成、変更履歴整備 | `gpt-5.6-luna` | `autotrade_phase1_skill_revision_integrator_v0_1` |
 
 ---
 
@@ -252,7 +252,7 @@ P1-00で、次のSkill群をローカルに作成する。Skillは、AIエージ
 ロール: Phase 1 実行基盤オーケストレーター
 使用オーケストレータ完全名: AutoTradePhase1_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTradePhase1_A00_Orchestrator_v0_1, AutoTradePhase1_A11_HtmlDocumentEngineer_v0_1, AutoTradePhase1_A12_ConsistencyReviewer_v0_1
-使用モデル: gpt-5.4
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_phase1_skill_orchestration_v0_1, autotrade_phase1_skill_html_doc_writer_v0_1, autotrade_phase1_skill_design_reviewer_v0_1
 発火制御:
 - このステップで作成予定の完全名を持つAI部品だけを作成・使用する。
@@ -385,7 +385,7 @@ P1-00で作成済みの仕様定義に従い、Phase 1専用のSkill本体、サ
 ロール: 要件追跡キュレーター
 使用オーケストレータ完全名: AutoTradePhase1_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTradePhase1_A01_RequirementsCurator_v0_1
-使用モデル: gpt-5.4
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_phase1_skill_source_reader_v0_1, autotrade_phase1_skill_traceability_v0_1, autotrade_phase1_skill_html_doc_writer_v0_1
 発火制御:
 - 上記の完全名で指定したAI部品だけを使用する。
@@ -514,7 +514,7 @@ Phase 1のすべてのHTML設計書に適用するスタイルガイドと成果
 ロール: 共通ドメインモデル設計者
 使用オーケストレータ完全名: AutoTradePhase1_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTradePhase1_A03_DomainArchitect_v0_1, AutoTradePhase1_A05_ExecutionModelArchitect_v0_1, AutoTradePhase1_A08_RiskAccountArchitect_v0_1
-使用モデル: gpt-5.4
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_phase1_skill_domain_modeling_v0_1, autotrade_phase1_skill_execution_model_v0_1, autotrade_phase1_skill_risk_account_design_v0_1
 発火制御:
 - 上記の完全名で指定したAI部品だけを使用する。
@@ -557,7 +557,7 @@ Backtest / Shadow / Paper / Live で共通に使うドメインモデルを設�
 ロール: Strategy設計者
 使用オーケストレータ完全名: AutoTradePhase1_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTradePhase1_A04_StrategyArchitect_v0_1, AutoTradePhase1_A10_QaArchitect_v0_1
-使用モデル: gpt-5.4
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_phase1_skill_strategy_design_v0_1, autotrade_phase1_skill_golden_test_v0_1, autotrade_phase1_skill_test_strategy_v0_1
 発火制御:
 - 上記の完全名で指定したAI部品だけを使用する。
@@ -600,7 +600,7 @@ Strategy Plugin Interfaceと、タートルズ戦略のGolden test設計を作�
 ロール: Adapter境界設計者
 使用オーケストレータ完全名: AutoTradePhase1_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTradePhase1_A07_AdapterArchitect_v0_1
-使用モデル: gpt-5.4
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_phase1_skill_adapter_boundary_v0_1, autotrade_phase1_skill_official_research_v0_1, autotrade_phase1_skill_html_doc_writer_v0_1
 発火制御:
 - 上記の完全名で指定したAI部品だけを使用する。
@@ -643,7 +643,7 @@ Broker AdapterとMarket Data Adapterの境界設計を作成してください�
 ロール: 実行モデル・取引エンジンPoC設計者
 使用オーケストレータ完全名: AutoTradePhase1_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTradePhase1_A05_ExecutionModelArchitect_v0_1, AutoTradePhase1_A06_EnginePocAnalyst_v0_1, AutoTradePhase1_A10_QaArchitect_v0_1
-使用モデル: gpt-5.4
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_phase1_skill_execution_model_v0_1, autotrade_phase1_skill_poc_design_v0_1, autotrade_phase1_skill_official_research_v0_1, autotrade_phase1_skill_test_strategy_v0_1
 発火制御:
 - 上記の完全名で指定したAI部品だけを使用する。
@@ -686,7 +686,7 @@ Backtest / Shadow / Paper / Live の共通実行モデルと、取引エンジ�
 ロール: Portfolio / Risk / Account設計者
 使用オーケストレータ完全名: AutoTradePhase1_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTradePhase1_A08_RiskAccountArchitect_v0_1
-使用モデル: gpt-5.4
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_phase1_skill_risk_account_design_v0_1, autotrade_phase1_skill_domain_modeling_v0_1
 発火制御:
 - 上記の完全名で指定したAI部品だけを使用する。
@@ -731,7 +731,7 @@ Portfolio、Risk、Account、OMS、Strategyの責務境界を設計してくだ�
 ロール: 運用・セキュリティ設計者
 使用オーケストレータ完全名: AutoTradePhase1_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTradePhase1_A09_OpsSecurityArchitect_v0_1
-使用モデル: gpt-5.4
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_phase1_skill_ops_security_v0_1, autotrade_phase1_skill_html_doc_writer_v0_1
 発火制御:
 - 上記の完全名で指定したAI部品だけを使用する。
@@ -775,7 +775,7 @@ Portfolio、Risk、Account、OMS、Strategyの責務境界を設計してくだ�
 ロール: QA設計者
 使用オーケストレータ完全名: AutoTradePhase1_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTradePhase1_A10_QaArchitect_v0_1
-使用モデル: gpt-5.4
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_phase1_skill_test_strategy_v0_1, autotrade_phase1_skill_golden_test_v0_1, autotrade_phase1_skill_design_reviewer_v0_1
 発火制御:
 - 上記の完全名で指定したAI部品だけを使用する。
@@ -817,7 +817,7 @@ Phase 2以降の実装を安全に進めるため、テスト戦略と品質Gate
 ロール: ロードマップ設計者
 使用オーケストレータ完全名: AutoTradePhase1_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTradePhase1_A00_Orchestrator_v0_1, AutoTradePhase1_A01_RequirementsCurator_v0_1, AutoTradePhase1_A12_ConsistencyReviewer_v0_1
-使用モデル: gpt-5.4
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_phase1_skill_orchestration_v0_1, autotrade_phase1_skill_traceability_v0_1, autotrade_phase1_skill_design_reviewer_v0_1
 発火制御:
 - 上記の完全名で指定したAI部品だけを使用する。
@@ -863,7 +863,7 @@ Phase 1で詳細化しない項目を、Phase 2以降の詳細設計バックロ
 ロール: 統合レビュー・レッドチーム監査者
 使用オーケストレータ完全名: AutoTradePhase1_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTradePhase1_A12_ConsistencyReviewer_v0_1, AutoTradePhase1_A13_RedTeamReviewer_v0_1
-使用モデル: gpt-5.4
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_phase1_skill_design_reviewer_v0_1, autotrade_phase1_skill_red_team_review_v0_1, autotrade_phase1_skill_traceability_v0_1
 発火制御:
 - 上記の完全名で指定したAI部品だけを使用する。
@@ -916,7 +916,7 @@ P1-01からP1-11までの全HTML設計書を横断レビューしてください
 ロール: 修正統合者
 使用オーケストレータ完全名: AutoTradePhase1_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTradePhase1_A14_RevisionIntegrator_v0_1, AutoTradePhase1_A00_Orchestrator_v0_1, AutoTradePhase1_A12_ConsistencyReviewer_v0_1
-使用モデル: gpt-5.4
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_phase1_skill_revision_integrator_v0_1, autotrade_phase1_skill_orchestration_v0_1, autotrade_phase1_skill_design_reviewer_v0_1
 発火制御:
 - 上記の完全名で指定したAI部品だけを使用する。
