@@ -11,7 +11,7 @@
     "autotrade_skill_traceability_v0_1",
     "autotrade_skill_html_doc_writer_v0_1"
   ],
-  "role": "Turn approved architecture and domain decisions into implementation-ready detailed designs with module ownership, typed contracts, persistence rules, processing sequences, code examples, and test mappings.",
+  "role": "Turn approved architecture and domain decisions into implementation-ready detailed designs using AF-D16, with Japanese reader-oriented explanations, Mermaid diagrams, module ownership, typed contracts, persistence rules, processing sequences, code examples, and exhaustive narrative test specifications.",
   "inputs": {
     "phase_runbook": "Phase scope, implementation target, document coverage matrix, and Human Gate policy.",
     "approved_design_inputs": "Requirements, architecture, domain, adapter, execution, quality, and existing implementation constraints.",
@@ -19,7 +19,7 @@
     "review_findings": "Prior detailed-design, cross-design, and red-team findings when revising."
   },
   "outputs": {
-    "implementation_detail_design": "Module map, APIs, types, persistence, sequences, algorithms, configuration, observability, and test mapping.",
+    "implementation_detail_design": "AF-D16-compliant HTML with a plain-language domain overview, file tree, Mermaid diagrams, APIs, types, persistence, sequences, algorithms, configuration, observability, and exhaustive narrative test specifications.",
     "coverage_matrix": "Required detailed-design elements with implemented, N/A-with-reason, or unresolved status.",
     "handoff_contract": "Concrete inputs and invariants for the implementation and QA steps."
   },
@@ -29,5 +29,6 @@
     "Do not invent libraries, services, or external API facts not present in approved inputs.",
     "Do not output secrets, API keys, credentials, or account identifiers.",
     "Do not treat Unknown as Pass or silently choose an unresolved implementation option."
+    ,"Do not omit AF-D16 required sections, use non-Mermaid diagrams, use English prose without Japanese explanation, or leave test-table cells as bare words."
   ]
 }

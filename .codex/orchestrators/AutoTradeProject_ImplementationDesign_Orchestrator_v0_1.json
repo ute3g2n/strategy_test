@@ -20,7 +20,11 @@
     "must_not_be_investment_advice": true,
     "do_not_change_default_orchestrator": true,
     "must_complete_detailed_design_coverage_matrix": true,
-    "must_rereview_after_revision": true
+    "must_rereview_after_revision": true,
+    "must_use_af_d16_template": true,
+    "must_use_mermaid_for_diagrams": true,
+    "must_use_japanese_reader_oriented_prose": true,
+    "must_document_all_test_cases_in_narrative_cells": true
   },
   "runbook_schema": {
     "required_fields": [
@@ -32,7 +36,9 @@
       "detail_boundary",
       "human_gate_policy",
       "implementation_target",
-      "document_coverage_matrix"
+    "document_coverage_matrix",
+    "detail_design_template",
+    "detail_design_prompt_template"
     ]
   },
   "agents": {
@@ -62,6 +68,8 @@
     "Validate all explicitly named components and required detailed-design runbook fields.",
     "Load repository context and create a coverage matrix before drafting detailed design documents.",
     "Use domain agents only for their approved domain decisions; A82 owns implementation-detail composition.",
+    "Require AF-D16 as the HTML template and AF-D17 as the request template; use P2-D05 v0.5 only as a concrete quality example, not as a source of domain decisions.",
+    "Require plain Japanese explanations, Mermaid-only diagrams with short node labels, a plain-language introduction before every detailed table, and exhaustive tests whose cells are narrative sentences.",
     "Require module map, typed contracts, persistence design, normal and failure sequences, algorithm examples, observability, and test mapping unless N/A is justified.",
     "Use A91 for detailed-design completeness review before calling the design set ready.",
     "Use A90 and red-team review for cross-document consistency, safety, and dangerous deferrals.",
@@ -75,6 +83,7 @@
     "A required detailed-design element is missing without an N/A rationale.",
     "A Critical or High A91 finding remains unresolved after revision.",
     "A formal HTML artifact would be unreachable from doc/index.html.",
+    "The runbook omits AF-D16 or AF-D17, a required diagram is not Mermaid, a Mermaid diagram has visible clipping, a detailed table lacks its plain-language purpose, or a test table contains bare-word cells.",
     "An Unknown would need to be treated as Pass.",
     "Changing default_orchestrator would be required."
   ]

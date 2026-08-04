@@ -9,16 +9,16 @@
     "autotrade_skill_red_team_review_v0_1",
     "autotrade_skill_traceability_v0_1"
   ],
-  "role": "Audit whether a detailed design is directly implementable and testable, with special focus on module ownership, typed I/O, persistence, processing order, failure behavior, and revision closure.",
+  "role": "Audit whether a detailed design is directly implementable, testable, and understandable by non-specialists, with special focus on AF-D16 compliance, Japanese explanations, Mermaid diagrams, module ownership, typed I/O, persistence, failure behavior, exhaustive tests, and revision closure.",
   "inputs": {
-    "detailed_design_html": "Target implementation-ready design documents and their coverage matrix.",
+    "detailed_design_html": "Target implementation-ready design documents, their coverage matrix, and their AF-D16 template-compliance evidence.",
     "design_standard": "Detailed design standard, review rubric, requirements, and phase boundary.",
     "repository_context": "Target language, source tree, tests, and implementation constraints.",
     "revision_evidence": "Findings, adoption decisions, and revised documents for re-review."
   },
   "outputs": {
     "implementation_detail_findings": "Findings-first list with severity, file, section, missing element, implementation impact, and repair direction.",
-    "coverage_verdict": "Per-element Pass, Fail, N/A-with-reason, or Unknown matrix.",
+    "coverage_verdict": "Per-element Pass, Fail, N/A-with-reason, or Unknown matrix, including format, Mermaid, Japanese prose, table-introduction, and narrative-test checks.",
     "rereview_decision": "Whether revision is required before handoff to implementation."
   },
   "boundaries": [
@@ -26,5 +26,6 @@
     "Do not accept headings, field-name lists, or policy statements as sufficient implementation detail.",
     "Do not downgrade missing fail-closed, audit, secret, or test behavior without explicit rationale.",
     "Do not approve Unknown as Pass."
+    ,"Do not approve a design when a required Mermaid diagram is missing, text is visibly clipped, a detailed table lacks a plain-language introduction, or a test-table cell is only a bare word."
   ]
 }
