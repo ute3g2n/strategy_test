@@ -99,16 +99,18 @@ tests/fixtures/market_data/
   </tbody></table>
 
   <h2>3. モジュール構造図</h2>
-  <p>この図は、どの部品がどの部品に仕事を頼めるかを示す。矢印はデータや依頼の流れであり、逆向きに呼び出すことは認めない。<code>contracts.py</code>は、全モジュールが共通して使うデータの約束だけを持つ。</p>
+  <p>この図は、どの部品がどの部品に仕事を頼めるかと、そのときに渡す主な依頼・データを示す。矢印の短いラベルは受渡しの名前であり、詳しい意味は直後の表で説明する。逆向きに呼び出すことは認めない。<code>contracts.py</code>は、全モジュールが共通して使うデータの約束だけを持つ。</p>
   <pre class="mermaid">flowchart TD
-    呼出側["取得を頼む処理<br/>P2-05"] --> 入口["受取口<br/>adapter_port.py"]
-    入口 --> 調停["処理の調整<br/>adapter_service.py"]
-    調停 --> 検証["依頼の確認<br/>request_validation.py"]
-    調停 --> 取得口["取得口<br/>vendor_gateway.py"]
-    取得口 --> 固定入力["固定入力<br/>fixture_gateway.py"]
-    調停 --> 元データ保管["元データ保管<br/>raw_store.py"]
-    調停 --> 状態記録["利用可否の記録<br/>health.py"]
-    調停 --> 銘柄台帳["銘柄台帳への観測<br/>catalog_port.py"]
+    呼出側["取得を頼む処理<br/>P2-05"] -->|"HistoricalRequest"| 入口["受取口<br/>adapter_port.py"]
+    入口 -->|"HistoricalRequest"| 調停["処理の調整<br/>adapter_service.py"]
+    調停 -->|"確認依頼"| 検証["依頼の確認<br/>request_validation.py"]
+    検証 -->|"確認済み依頼"| 調停
+    調停 -->|"HistoricalRequest"| 取得口["取得口<br/>vendor_gateway.py"]
+    取得口 -->|"GatewayPayload"| 調停
+    取得口 -->|"固定入力の依頼"| 固定入力["固定入力<br/>fixture_gateway.py"]
+    調停 -->|"RawWriteRequest"| 元データ保管["元データ保管<br/>raw_store.py"]
+    調停 -->|"HealthEvent"| 状態記録["利用可否の記録<br/>health.py"]
+    調停 -->|"SymbolObservation"| 銘柄台帳["銘柄台帳への観測<br/>catalog_port.py"]
     共通契約["共通のデータ型<br/>contracts.py"] -. 共通で参照 .-> 入口
     共通契約 -. 共通で参照 .-> 調停
     共通契約 -. 共通で参照 .-> 取得口
@@ -116,6 +118,18 @@ tests/fixtures/market_data/
     共通契約 -. 共通で参照 .-> 状態記録
     classDef 境界 fill:#eff6ff,stroke:#2563eb
     class 入口,取得口,元データ保管,銘柄台帳 境界</pre>
+  <p>この表は、図の矢印で短く示した受渡し内容を、実装する人と技術に詳しくない確認者の双方が追えるように説明する。データ名だけでは意味が分からない場合でも、受け取った側が何に使い、どの状態なら先へ進めないかを確認できる。</p>
+  <table><thead><tr><th>送る部品</th><th>受け取る部品</th><th>渡すデータ・依頼</th><th>受け取り側の用途と停止条件</th></tr></thead><tbody>
+    <tr><td>取得を頼む処理</td><td>受取口</td><td><code>HistoricalRequest</code>として、対象の銘柄、期間、時間足などを含む取得依頼を渡す。</td><td>受取口は依頼の唯一の入口として受け取り、必須値が欠ける依頼を外部取得へ進めない。</td></tr>
+    <tr><td>受取口</td><td>処理の調整</td><td><code>HistoricalRequest</code>を、提供元固有の型へ変えずに渡す。</td><td>処理の調整は依頼全体を順番に扱い、外部提供元の部品を呼出側へ公開しない。</td></tr>
+    <tr><td>処理の調整</td><td>依頼の確認</td><td>確認依頼として<code>HistoricalRequest</code>を渡す。</td><td>依頼の確認は、時刻・対象・用途が決められていない場合に<code>InvalidRequest</code>として停止させる。</td></tr>
+    <tr><td>依頼の確認</td><td>処理の調整</td><td>確認済みの<code>HistoricalRequest</code>、または停止理由を返す。</td><td>処理の調整は停止理由を記録し、確認に失敗した依頼で取得や保存を始めない。</td></tr>
+    <tr><td>処理の調整</td><td>取得口</td><td><code>HistoricalRequest</code>を、外部取得または固定入力の読込み依頼として渡す。</td><td>取得口は外部提供元の応答を<code>GatewayPayload</code>へそろえ、通信失敗を<code>AdapterError</code>として返す。</td></tr>
+    <tr><td>取得口</td><td>処理の調整</td><td><code>GatewayPayload</code>として、元データ本体と秘密を除いた取得説明情報を返す。</td><td>処理の調整は内容を確認してから保管依頼を作り、取得失敗や内容不明を成功として扱わない。</td></tr>
+    <tr><td>処理の調整</td><td>元データ保管</td><td><code>RawWriteRequest</code>として、元データ、依頼の識別値、秘密を除いた説明情報を渡す。</td><td>元データ保管は内容確認値を付けて追記し、既存の内容を上書きしない。保存できなければ取得成功を返さない。</td></tr>
+    <tr><td>処理の調整</td><td>利用可否の記録</td><td><code>HealthEvent</code>として、利用可否、停止理由、対象範囲を渡す。</td><td>利用可否の記録は追記だけを行う。記録できない場合は利用可能と見なさず、停止側へ倒す。</td></tr>
+    <tr><td>処理の調整</td><td>銘柄台帳への観測</td><td><code>SymbolObservation</code>として、外部記号、記号の形式、観測時刻、契約属性の材料を渡す。</td><td>銘柄台帳は観測材料を受領記録に残すだけで、ここで内部銘柄番号を推測して発行しない。</td></tr>
+  </tbody></table>
   <p>戦略、リスク管理、注文管理は、この図の部品を直接呼び出してはならない。取得処理を呼べるのは、定められた受取口だけである。</p>
 
   <h2>4. モジュール仕様と入出力パラメータ</h2>
