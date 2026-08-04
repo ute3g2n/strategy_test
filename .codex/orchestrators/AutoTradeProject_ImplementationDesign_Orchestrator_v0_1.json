@@ -1,0 +1,81 @@
+{
+  "name": "AutoTradeProject_ImplementationDesign_Orchestrator_v0_1",
+  "display_name": "Auto Trade Project Implementation Design Orchestrator v0.1",
+  "model": "gpt-5.5",
+  "purpose": "Coordinate implementation-ready detailed design document sets by enforcing coverage planning, specialist design, detailed-design review, revision integration, re-review, and index reachability.",
+  "trigger_examples": [
+    "実装可能な粒度で詳細設計書を作成して",
+    "モジュール構成、API、保存設計、コード例まで含む詳細設計を作って",
+    "詳細設計書をレビューして修正・再レビューまで完結して"
+  ],
+  "global_constraints": {
+    "language": "ja",
+    "formal_design_outputs_must_be_html": true,
+    "html_outputs_must_be_under_doc": true,
+    "plans_and_logs_must_be_under_plan": true,
+    "doc_index_must_be_updated": true,
+    "must_name_orchestrator_agents_skills_explicitly": true,
+    "unknown_must_not_pass": true,
+    "must_not_output_secrets": true,
+    "must_not_be_investment_advice": true,
+    "do_not_change_default_orchestrator": true,
+    "must_complete_detailed_design_coverage_matrix": true,
+    "must_rereview_after_revision": true
+  },
+  "runbook_schema": {
+    "required_fields": [
+      "phase_id",
+      "step_id",
+      "output_root",
+      "log_root",
+      "document_set_id",
+      "detail_boundary",
+      "human_gate_policy",
+      "implementation_target",
+      "document_coverage_matrix"
+    ]
+  },
+  "agents": {
+    "A10": { "file": ".codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json", "primary_skill": "autotrade_skill_source_reader_v0_1" },
+    "A20": { "file": ".codex/agents/AutoTrade_A20_ArchitectureDomainArchitect_v0_1.json", "primary_skill": "autotrade_skill_architecture_writer_v0_1" },
+    "A40": { "file": ".codex/agents/AutoTrade_A40_ExecutionEnginePocArchitect_v0_1.json", "primary_skill": "autotrade_skill_execution_model_v0_1" },
+    "A50": { "file": ".codex/agents/AutoTrade_A50_AdapterArchitect_v0_1.json", "primary_skill": "autotrade_skill_adapter_boundary_v0_1" },
+    "A80": { "file": ".codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json", "primary_skill": "autotrade_skill_html_doc_writer_v0_1" },
+    "A81": { "file": ".codex/agents/AutoTrade_A81_DesignDocSetWriter_v0_1.json", "primary_skill": "autotrade_skill_design_doc_set_writer_v0_1" },
+    "A82": { "file": ".codex/agents/AutoTrade_A82_ImplementationDetailDesigner_v0_1.json", "primary_skill": "autotrade_skill_implementation_detail_design_v0_1" },
+    "A90": { "file": ".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json", "primary_skill": "autotrade_skill_design_review_v0_1" },
+    "A91": { "file": ".codex/agents/AutoTrade_A91_ImplementationDetailReviewer_v0_1.json", "primary_skill": "autotrade_skill_implementation_detail_review_v0_1" }
+  },
+  "skills": [
+    "autotrade_skill_implementation_detail_design_v0_1",
+    "autotrade_skill_implementation_detail_review_v0_1",
+    "autotrade_skill_design_doc_set_writer_v0_1",
+    "autotrade_skill_source_reader_v0_1",
+    "autotrade_skill_traceability_v0_1",
+    "autotrade_skill_html_doc_writer_v0_1",
+    "autotrade_skill_design_review_v0_1",
+    "autotrade_skill_red_team_review_v0_1",
+    "autotrade_skill_revision_integration_v0_1",
+    "autotrade_skill_orchestration_v0_1"
+  ],
+  "workflow_policy": [
+    "Validate all explicitly named components and required detailed-design runbook fields.",
+    "Load repository context and create a coverage matrix before drafting detailed design documents.",
+    "Use domain agents only for their approved domain decisions; A82 owns implementation-detail composition.",
+    "Require module map, typed contracts, persistence design, normal and failure sequences, algorithm examples, observability, and test mapping unless N/A is justified.",
+    "Use A91 for detailed-design completeness review before calling the design set ready.",
+    "Use A90 and red-team review for cross-document consistency, safety, and dangerous deferrals.",
+    "Use A80 and A81 to integrate accepted findings, record adoption, and update doc/index.html.",
+    "Re-run A91 against the revised coverage matrix; do not hand off to implementation with Critical or High gaps.",
+    "Record Unknowns, Human Gate state, and implementation handoff contracts under plan/."
+  ],
+  "stop_conditions": [
+    "A named component or required runbook field does not exist.",
+    "The design lacks a confirmed implementation target and no explicit Unknown/stop policy is recorded.",
+    "A required detailed-design element is missing without an N/A rationale.",
+    "A Critical or High A91 finding remains unresolved after revision.",
+    "A formal HTML artifact would be unreachable from doc/index.html.",
+    "An Unknown would need to be treated as Pass.",
+    "Changing default_orchestrator would be required."
+  ]
+}
