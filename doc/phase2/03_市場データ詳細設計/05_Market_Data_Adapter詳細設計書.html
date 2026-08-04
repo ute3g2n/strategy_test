@@ -99,44 +99,24 @@ tests/fixtures/market_data/
   </tbody></table>
 
   <h2>3. モジュール構造図</h2>
-  <pre>                        呼出側 (P2-05 CLI / Job)
-                                      |
-                                      v
-                         +-------------------------+
-                         | adapter_port.py         |
-                         | HistoricalDataPort      |
-                         +------------+------------+
-                                      |
-                                      v
-                         +-------------------------+
-                         | adapter_service.py      |
-                         | IngestionService        |
-                         +--+-----------+-------+--+
-                            |           |       |
-          validate request  |           |       | record health/audit
-                            v           v       v
-              +----------------+  +----------------+  +---------------+
-              | request_       |  | vendor_gateway |  | health.py     |
-              | validation.py  |  | Protocol       |  | Reporter      |
-              +----------------+  +--------+-------+  +---------------+
-                                           |
-                       fixture mode        | external mode (H2-2承認後のみ)
-                                           v
-                                  +-------------------+
-                                  | fixture_gateway.py|
-                                  +-------------------+
-                                           |
-                                           v
-                         +-------------------------+
-                         | raw_store.py             |
-                         | RawStorePort (P2-D06)    |
-                         +-------------------------+
-                                           |
-                                           v
-                         P2-D06 Raw Store / P2-D07 Catalog Port
-
-contracts.py は全モジュールが参照する共通の型だけを持つ。
-矢印と逆向きの依存、Strategy/Risk/OMSからの直接呼出しは禁止する。</pre>
+  <p>この図は、どの部品がどの部品に仕事を頼めるかを示す。矢印はデータや依頼の流れであり、逆向きに呼び出すことは認めない。<code>contracts.py</code>は、全モジュールが共通して使うデータの約束だけを持つ。</p>
+  <pre class="mermaid">flowchart TD
+    呼出側["取得を頼む処理\nP2-05の実行処理"] --> 入口["adapter_port.py\n唯一の受取口 HistoricalDataPort"]
+    入口 --> 調停["adapter_service.py\n取得・確認・保存の順番を管理"]
+    調停 --> 検証["request_validation.py\n依頼内容の確認"]
+    調停 --> 取得口["vendor_gateway.py\n外部提供元との境界"]
+    取得口 --> 固定入力["fixture_gateway.py\n承認前に使う固定入力"]
+    調停 --> 元データ保管["raw_store.py\nP2-D06の元データ保管庫へ渡す"]
+    調停 --> 状態記録["health.py\n利用可否と理由を記録"]
+    調停 --> 銘柄台帳["catalog_port.py\nP2-D07の銘柄台帳へ観測を渡す"]
+    共通契約["contracts.py\n共通のデータ型とエラー名"] -. 全モジュールが参照 .-> 入口
+    共通契約 -. 全モジュールが参照 .-> 調停
+    共通契約 -. 全モジュールが参照 .-> 取得口
+    共通契約 -. 全モジュールが参照 .-> 元データ保管
+    共通契約 -. 全モジュールが参照 .-> 状態記録
+    classDef 境界 fill:#eff6ff,stroke:#2563eb
+    class 入口,取得口,元データ保管,銘柄台帳 境界</pre>
+  <p>戦略、リスク管理、注文管理は、この図の部品を直接呼び出してはならない。取得処理を呼べるのは、定められた受取口だけである。</p>
 
   <h2>4. モジュール仕様と入出力パラメータ</h2>
   <table><thead><tr><th>ファイル / 実装単位</th><th>機能説明</th><th>入力</th><th>出力</th><th>副作用・禁止事項</th></tr></thead><tbody>
