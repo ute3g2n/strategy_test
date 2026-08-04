@@ -53,48 +53,48 @@
   <p>市場データ受渡し部（Market Data Adapter）は、外部データ提供元から届く市場データを、システムが安全に保管し、後で同じ条件で読み直せる形に受け渡すための入口である。データ提供元ごとの呼び方、通信方式、銘柄記号の表記、認証方法を、この入口の内側だけに閉じ込める。</p>
   <p>たとえば、外部から「ある銘柄の1分足をください」と受け取ったデータを、そのまま戦略へ渡すことはしない。まず元のデータを改変せず保管し、どの条件で取得したか、壊れていないか、必要な銘柄が全部そろったかを確認する。問題があれば、下流へ進めずに理由を残して止まる。これがこのドメインの役目である。</p>
   <table><thead><tr><th>利用者</th><th>このドメインに期待すること</th><th>このドメインが返すもの</th></tr></thead><tbody>
-    <tr><td>P2-05の取得ジョブ</td><td>指定期間・指定銘柄のデータを安全に取り込む。</td><td>Raw保存結果、checksum、健康状態、失敗理由。</td></tr>
-    <tr><td>Raw / Normalized Store</td><td>元データと取得条件を改変せず受け取る。</td><td>payload、metadata、request fingerprint、受信時刻。</td></tr>
-    <tr><td>Instrument Catalog</td><td>外部シンボルを内部InstrumentIdへ対応付ける材料を受け取る。</td><td>symbol解決結果、definition観測、失敗理由。</td></tr>
-    <tr><td>Replay / Data Quality</td><td>問題のあるデータを混ぜず、再現できる版を使う。</td><td>健康状態、quality理由、Raw参照、data_version候補。</td></tr>
+    <tr><td>P2-05の取得処理</td><td>指定期間・指定銘柄のデータを安全に取り込む。</td><td>元データの保管結果、内容確認値、利用可否、失敗理由。</td></tr>
+    <tr><td>元データ・整形済みデータ保管庫（<code>Raw / Normalized Store</code>）</td><td>元データと取得条件を改変せず受け取る。</td><td>元データ本体、説明情報、依頼内容の識別値、受信時刻。</td></tr>
+    <tr><td>銘柄台帳（<code>Instrument Catalog</code>）</td><td>外部銘柄記号を内部銘柄番号（<code>InstrumentId</code>）へ対応付ける材料を受け取る。</td><td>銘柄対応の解決結果、銘柄仕様の観測、失敗理由。</td></tr>
+    <tr><td>再生処理・データ品質確認（<code>Replay / Data Quality</code>）</td><td>問題のあるデータを混ぜず、再現できる版を使う。</td><td>利用可否、品質上の理由、元データ参照、データ版の候補。</td></tr>
   </tbody></table>
   <table><thead><tr><th>機能ID</th><th>機能</th><th>誰にでも分かる説明</th><th>失敗時</th></tr></thead><tbody>
     <tr><td>MDA-F01</td><td>取得依頼の確認</td><td>期間、時刻、銘柄、利用モードに抜けや矛盾がないかを、外部へ問い合わせる前に確認する。</td><td>問い合わせずに<code>InvalidRequest</code>を返す。</td></tr>
     <tr><td>MDA-F02</td><td>データ取得</td><td>fixtureまたは将来の提供元Gatewayから、元データと取得に関する説明を受け取る。</td><td>認証、権限、部分取得、rate limitを成功にしない。</td></tr>
     <tr><td>MDA-F03</td><td>Raw保存への受渡し</td><td>元データの指紋を計算し、同じ内容を何度も上書きしない形でRaw Storeへ渡す。</td><td>保存失敗時は「取得成功」と知らせない。</td></tr>
     <tr><td>MDA-F04</td><td>シンボルと契約情報の観測</td><td>外部の名前を内部の銘柄台帳が判断できる材料へ変換する。ただし台帳を勝手に確定しない。</td><td>一意に決まらなければPendingとして止める。</td></tr>
-    <tr><td>MDA-F05</td><td>健康状態と監査</td><td>今のデータが使えるか、どこで問題になったかを、Secretを出さずに記録する。</td><td><code>DEGRADED</code>、<code>UNHEALTHY</code>、<code>UNKNOWN</code>では下流利用を止める。</td></tr>
+    <tr><td>MDA-F05</td><td>利用可否と監査</td><td>今のデータが使えるか、どこで問題になったかを、秘密情報を出さずに記録する。</td><td><code>DEGRADED</code>、<code>UNHEALTHY</code>、<code>UNKNOWN</code>では後続での利用を止める。</td></tr>
   </tbody></table>
 
   <h2>2. ファイル構成</h2>
   <p>以下はP2-05で作成する予定のファイル構成である。現在は未作成であり、ファイル名と責務をこの設計書の契約として固定する。</p>
   <pre>src/autotrade/market_data/
 ├── __init__.py                    # パッケージ初期化。公開するPortとDTOだけを再公開
-├── contracts.py                   # Request、Payload、Result、HealthEvent、Errorの型定義
-├── request_validation.py          # 取得依頼の必須値、UTC、期間、source_modeの検証
-├── adapter_port.py                # 呼出側が使うHistoricalDataPort Protocol
-├── adapter_service.py             # 取得確認、Gateway呼出し、Raw Store受渡しを順に調停
-├── vendor_gateway.py              # 外部提供元を隠すVendorGateway Protocolと外部エラー変換
-├── fixture_gateway.py             # P2-05用。ローカルfixtureだけを読むGateway実装
-├── health.py                      # HealthEventの生成、状態遷移、監査用Reporter
-├── raw_store.py                   # P2-D06が定義するRawStorePortの呼出し境界
-└── catalog_port.py                # P2-D07が定義するsymbol/definition受渡し境界
+├── contracts.py                   # 依頼・取得結果・利用可否・エラーの型を定める
+├── request_validation.py          # 取得依頼の必須値、協定世界時、期間、取得方法を確認する
+├── adapter_port.py                # 呼出側が使う唯一の受取口を定める
+├── adapter_service.py             # 取得確認、データ取得、元データ保管を順番に調整する
+├── vendor_gateway.py              # 外部提供元の違いと外部エラーを内側に閉じ込める
+├── fixture_gateway.py             # P2-05用。ローカルの固定入力だけを読む
+├── health.py                      # 利用可否の出来事を作り、状態を記録する
+├── raw_store.py                   # P2-D06が定める元データ保管口を呼び出す
+└── catalog_port.py                # P2-D07が定める銘柄記号・銘柄仕様の受渡し口
 
 tests/market_data/
-├── test_request_validation.py     # 依頼値の検証テスト
-├── test_adapter_service.py        # 取得からRaw保存までの処理テスト
-├── test_fixture_gateway.py        # fixture読込と外部エラー変換テスト
-├── test_health.py                 # 状態遷移とSecret非出力テスト
-└── test_adapter_integration.py    # Port、Raw Store、Catalog Portをつないだ結合テスト
+├── test_request_validation.py     # 依頼値を確認する試験
+├── test_adapter_service.py        # 取得から元データ保管までの処理試験
+├── test_fixture_gateway.py        # 固定入力の読込みと外部エラー変換試験
+├── test_health.py                 # 状態遷移と秘密情報を出さない試験
+└── test_adapter_integration.py    # 受取口、保管口、銘柄台帳口をつなぐ結合試験
 
 tests/fixtures/market_data/
-├── historical_ok.ndjson           # 正常な1分足相当fixture
-├── historical_partial.ndjson      # 一部シンボルだけのfixture
-├── historical_degraded.ndjson     # 品質警告を持つfixture
-└── historical_corrupt.bin         # checksum/decode失敗用fixture</pre>
+├── historical_ok.ndjson           # 問題のない一分足相当の固定入力
+├── historical_partial.ndjson      # 一部の銘柄だけを含む固定入力
+├── historical_degraded.ndjson     # 品質上の警告を持つ固定入力
+└── historical_corrupt.bin         # 内容確認または読み解きに失敗する固定入力</pre>
   <table><thead><tr><th>分類</th><th>置くもの</th><th>置いてはいけないもの</th></tr></thead><tbody>
-    <tr><td><code>src/</code></td><td>外部非依存の型、Port、サービス、fixture実装。</td><td>API key、実Account情報、研究用P10コードの直接コピー。</td></tr>
-    <tr><td><code>tests/</code></td><td>契約ごとのunit/integration/failure injectionテスト。</td><td>大容量Raw、実取得データ、Secretを含むファイル。</td></tr>
+    <tr><td><code>src/</code></td><td>外部提供元に依存しない型、受取口、処理、固定入力用の実装。</td><td>APIキー、実際の口座情報、研究用P10コードの直接コピー。</td></tr>
+    <tr><td><code>tests/</code></td><td>契約ごとの単体試験、結合試験、失敗を意図的に起こす試験。</td><td>大容量の元データ、実際に取得したデータ、秘密情報を含むファイル。</td></tr>
     <tr><td><code>tests/fixtures/</code></td><td>小さく匿名化した固定入力と期待結果。</td><td>外部提供元の利用条件に反するデータの再配布物。</td></tr>
   </tbody></table>
 
