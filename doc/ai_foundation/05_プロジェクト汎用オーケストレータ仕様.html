@@ -55,9 +55,9 @@
       <tr><td><code>model</code></td><td><code>gpt-5.5</code></td></tr>
       <tr><td><code>purpose</code></td><td>論理・基本設計を、対象リポジトリで実装できるモジュール、API、永続化、失敗系、コード例、テストまで具体化し、独立レビューと再レビューを統括する。</td></tr>
       <tr><td><code>agents</code></td><td><code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code> と <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code> を主担当とし、A10/A20/A40/A50/A80/A81/A90を明示指定で組み合わせる。</td></tr>
-      <tr><td><code>runbook_schema</code></td><td>共通Runbookに加え、<code>implementation_target</code> と <code>document_coverage_matrix</code> を必須とする。</td></tr>
+      <tr><td><code>runbook_schema</code></td><td>共通Runbookに加え、<code>implementation_target</code>、<code>document_coverage_matrix</code>、<code>detail_design_template</code>、<code>detail_design_prompt_template</code>を必須とする。</td></tr>
       <tr><td><code>workflow_policy</code></td><td>AF-D16/AF-D17確認、対象コード確認、日本語説明・Mermaid図・全試験表を含むDD-01からDD-12のドラフト、A91詳細レビュー、A90横断/Red Team、A80/A81改訂、A91再レビューの順に進める。</td></tr>
-      <tr><td><code>stop_conditions</code></td><td>実装対象不明、DD必須項目不足、Critical/High残存、UnknownのPass、doc/index到達不能、default変更要求。</td></tr>
+      <tr><td><code>stop_conditions</code></td><td>実装対象不明、DD必須項目不足、AF-D16/AF-D17不足、Mermaid以外の図、文字見切れ、表目的不足、単語だけの試験表、Critical/High残存、UnknownのPass、doc/index到達不能、default変更要求。</td></tr>
     </tbody>
   </table>
 
