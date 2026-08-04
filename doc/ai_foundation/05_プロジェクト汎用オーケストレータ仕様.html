@@ -25,12 +25,12 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D05<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.4 / 設計書セット作成オーケストレータ追補反映済み<br>
-    <strong>対象:</strong> <code>AutoTradeProject_Orchestrator_v0_1</code>, <code>AutoTradePhasePlanning_Orchestrator_v0_1</code>, <code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code>, <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code></p>
+    <strong>文書状態:</strong> v0.5 / 実装詳細設計オーケストレータ追補反映済み<br>
+    <strong>対象:</strong> <code>AutoTradeProject_Orchestrator_v0_1</code>, <code>AutoTradePhasePlanning_Orchestrator_v0_1</code>, <code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code>, <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code>, <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></p>
   </section>
 
   <h2>1. 目的</h2>
-  <p><code>AutoTradeProject_Orchestrator_v0_1</code> は、自動売買システムの全Phaseで、AI部品の明示起動、DAG、Human Gate、成果物状態、レビュー反映、Unknown管理を統括する。<code>AutoTradePhasePlanning_Orchestrator_v0_1</code> は各Phase開始前の実行計画作成に特化し、<code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code> はAI部品そのものの作成・変更と仕様追従更新に特化する。<code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code> は、Phase内で複数HTML設計書をセットとして作成・更新する作業に特化する。</p>
+  <p><code>AutoTradeProject_Orchestrator_v0_1</code> は、自動売買システムの全Phaseで、AI部品の明示起動、DAG、Human Gate、成果物状態、レビュー反映、Unknown管理を統括する。<code>AutoTradePhasePlanning_Orchestrator_v0_1</code> は各Phase開始前の実行計画作成に特化し、<code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code> はAI部品そのものの作成・変更と仕様追従更新に特化する。<code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code> は複数HTMLの統合に、<code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code> は実装可能な詳細設計、専門レビュー、改訂、再レビューに特化する。</p>
 
   <h2>2. JSON仕様</h2>
   <table>
@@ -44,6 +44,20 @@
       <tr><td><code>agents</code></td><td><code>AutoTrade_A10</code> から <code>AutoTrade_A90</code> までの9体を主に使う。Phase計画とAI部品保守は専用オーケストレータ側で扱う。</td></tr>
       <tr><td><code>runbook_schema</code></td><td>Phaseごとの <code>phase_id</code>、<code>step_id</code>、<code>output_root</code>、<code>log_root</code>、<code>detail_boundary</code>、<code>human_gate_policy</code>。</td></tr>
       <tr><td><code>workflow_policy</code></td><td>調査、ドラフト、レビュー、修正、統合を標準フローとする。</td></tr>
+    </tbody>
+  </table>
+
+  <h3>2.4 実装詳細設計専用オーケストレータ</h3>
+  <table>
+    <thead><tr><th>キー</th><th>仕様</th></tr></thead>
+    <tbody>
+      <tr><td><code>name</code></td><td><code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></td></tr>
+      <tr><td><code>model</code></td><td><code>gpt-5.5</code></td></tr>
+      <tr><td><code>purpose</code></td><td>論理・基本設計を、対象リポジトリで実装できるモジュール、API、永続化、失敗系、コード例、テストまで具体化し、独立レビューと再レビューを統括する。</td></tr>
+      <tr><td><code>agents</code></td><td><code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code> と <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code> を主担当とし、A10/A20/A40/A50/A80/A81/A90を明示指定で組み合わせる。</td></tr>
+      <tr><td><code>runbook_schema</code></td><td>共通Runbookに加え、<code>implementation_target</code> と <code>document_coverage_matrix</code> を必須とする。</td></tr>
+      <tr><td><code>workflow_policy</code></td><td>対象コード確認、DD-01からDD-12のドラフト、A91詳細レビュー、A90横断/Red Team、A80/A81改訂、A91再レビューの順に進める。</td></tr>
+      <tr><td><code>stop_conditions</code></td><td>実装対象不明、DD必須項目不足、Critical/High残存、UnknownのPass、doc/index到達不能、default変更要求。</td></tr>
     </tbody>
   </table>
 
@@ -99,7 +113,7 @@
   "human_gate_policy": [
     { "gate": "H2-1", "condition": "Market Data基盤方式承認" }
   ],
-  "allowed_orchestrator": "AutoTradeProject_Orchestrator_v0_1 or AutoTradePhasePlanning_Orchestrator_v0_1 or AutoTradeProject_DesignDocSet_Orchestrator_v0_1",
+  "allowed_orchestrator": "AutoTradeProject_Orchestrator_v0_1 or AutoTradePhasePlanning_Orchestrator_v0_1 or AutoTradeProject_DesignDocSet_Orchestrator_v0_1 or AutoTradeProject_ImplementationDesign_Orchestrator_v0_1",
   "allowed_agent_prefix": "AutoTrade_A",
   "allowed_skill_prefix": "autotrade_skill_"
 }</pre>
@@ -149,6 +163,7 @@
       <tr><td>Phase前段統制</td><td class="ok">Pass</td><td>Phase計画専用オーケストレータを追加し、実行計画作成責務を本体オーケストレータから分離した。</td></tr>
       <tr><td>AI部品保守統制</td><td class="ok">Pass</td><td>AI部品作成・変更専用オーケストレータを追加し、再利用調査と仕様追従更新を標準フローに組み込んだ。</td></tr>
       <tr><td>設計書セット作成統制</td><td class="ok">Pass</td><td>複数HTML設計書の共通メタ、相互リンク、レビュー履歴、doc/index導線を管理する専用オーケストレータを追加した。</td></tr>
+      <tr><td>実装詳細設計統制</td><td class="ok">Pass</td><td>実装詳細の必須構成、独立レビュー、改訂、再レビューを専用オーケストレータで固定した。</td></tr>
     </tbody>
   </table>
 </main>
