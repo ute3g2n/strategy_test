@@ -3,7 +3,7 @@
 作成日: 2026-08-04  
 対象: タートルズ・トレンドフォロー自動売買システム  
 対象Phase: Phase 2 Market Data基盤  
-状態: v0.2 / 実装詳細設計基盤・P2-03R追補反映済み
+状態: v0.3 / 実装詳細設計テンプレート・品質基準追補反映済み
 
 参照:
 
@@ -28,6 +28,8 @@
 - `.codex/orchestrators/AutoTradePhasePlanning_Orchestrator_v0_1.json`
 - `doc/ai_foundation/14_実装詳細設計書構成標準.html`
 - `doc/ai_foundation/15_実装詳細設計AI基盤仕様.html`
+- `doc/ai_foundation/16_実装詳細設計書HTMLテンプレート.html`
+- `doc/ai_foundation/17_実装詳細設計書作成依頼プロンプト.html`
 - `settings/ai_component_rules.md`
 
 > 本計画書は、Market Data基盤の詳細設計、最小実装、検証、レビュー、レビュー反映を複数ステップで進めるための実行計画である。投資助言、売買推奨、特定商品の推奨を目的としない。
@@ -39,6 +41,7 @@
 | PLAN-P2-REV-01 | P2-03の成果を論理・構造設計v0.1と明確化し、P2-03Rを追加した。 | 既存詳細設計には、実装可能性を保証するモジュール、契約、永続化、失敗系、コード例、テストが不足していた。 |
 | PLAN-P2-REV-02 | P2-D05からP2-D07を実装詳細設計v0.2へ改訂するDD-01からDD-12、A91専門レビュー、A90監査、改訂、A91再レビューを必須化した。 | 設計書だけを作ってPassにせず、実装開始可能性を独立確認するため。 |
 | PLAN-P2-REV-03 | P2-D15、UNK-P2-10、H2-1の承認対象、DAG依存、成果物パスを追加・修正した。 | レビュー証跡、停止条件、実在する保存先を明確にするため。 |
+| PLAN-P2-REV-04 | AF-D16/AF-D17、P2-D05 v0.5をP2-03R以後の詳細設計書作成・改訂の必須参照へ追加した。 | 日本語説明、Mermaid図、表の前置き、文章化した全テスト仕様を、P2-D06/P2-D07を含む後続改訂でも再現するため。 |
 
 ---
 
@@ -211,7 +214,7 @@ UnknownはPassにしない。各Unknownには担当ステップ、決定タイ�
 | Gate | タイミング | 承認内容 | 未承認時 |
 |---|---|---|---|
 | H2-0 | P2-01完了後 | Phase 2スコープ、対象候補、Unknown台帳、実装保存先候補。 | P2-02以降へ進めない。 |
-| H2-1 | P2-03R・P2-04完了後 | OD-03のPhase 2採用候補、Continuous signal seriesの責務、条件付き銘柄の扱い、P2-D05からP2-D07の実装詳細設計v0.2。 | P2-05の本実装へ進めない。 |
+| H2-1 | P2-03R・P2-04完了後 | OD-03のPhase 2採用候補、Continuous signal seriesの責務、条件付き銘柄の扱い、P2-D05 v0.5を品質基準としたP2-D05からP2-D07の実装詳細設計。 | P2-05の本実装へ進めない。 |
 | H2-2 | P2-07開始前 | Databento API実取得の可否、費用、entitlement、Secret取り扱い。 | 外部API実取得を行わずfixture検証のみ行う。 |
 | H2-3 | P2-09完了後 | 統合レビュー指摘の採否方針。 | P2-10へ進めない。 |
 | H2-4 | P2-10完了後 | Phase 2完了、Phase 3 Strategy / Backtest基盤への移行可否。 | Phase 3へ進めない。 |
@@ -428,6 +431,8 @@ Phase Runbook:
 - human_gate_policy: H2-1でP2-D05からP2-D07の実装詳細設計v0.2とroll/continuous方式を承認する。
 - implementation_target: Python 3.11。予定配置は `src/autotrade/market_data/`、`tests/market_data/`、`tests/fixtures/market_data/`。未承認の外部ライブラリ、外部API実呼出し、Secret実値は設計・コード例に含めない。
 - document_coverage_matrix: DD-01対象/配置、DD-02モジュール依存、DD-03責務、DD-04型付き入出力、DD-05物理保存、DD-06通常/失敗シーケンス、DD-07疑似コード/コード例、DD-08設定/監査/Health、DD-09テスト、DD-10 Run Manifest/data_version、DD-11追跡/Unknown、DD-12レビュー/改訂/再レビュー。
+- detail_design_template: `doc/ai_foundation/16_実装詳細設計書HTMLテンプレート.html`。P2-D05 v0.5を読みやすさと図の具体例として参照するが、Market Data固有の技術判断は流用しない。
+- detail_design_prompt_template: `doc/ai_foundation/17_実装詳細設計書作成依頼プロンプト.html`。
 
 発火制御:
 - 上記の完全名で指定したAI部品だけを使用する。
@@ -439,6 +444,8 @@ Phase Runbook:
 入力:
 - doc/ai_foundation/14_実装詳細設計書構成標準.html
 - doc/ai_foundation/15_実装詳細設計AI基盤仕様.html
+- doc/ai_foundation/16_実装詳細設計書HTMLテンプレート.html
+- doc/ai_foundation/17_実装詳細設計書作成依頼プロンプト.html
 - doc/phase2/01_要件追跡/01_Phase2スコープ定義.html
 - doc/phase2/01_要件追跡/01_Phase2要件追跡マトリクス.html
 - doc/phase2/01_要件追跡/01_Phase2未確定事項台帳.html
@@ -452,27 +459,28 @@ Phase Runbook:
 - README.md、src/、tests/、.gitignore（存在する範囲を確認する。存在しない配置は設計上の予定として明記する。）
 
 タスク:
-P2-D05、P2-D06、P2-D07を実装詳細設計書v0.2へ改訂し、専門レビュー、横断/Red Teamレビュー、改訂、専門再レビューを完了してください。P2-D15として、DD-01からDD-12の網羅表、指摘、採否、再レビュー結果を保存してください。
+P2-D05 v0.5を具体例、AF-D16をHTML構成、AF-D17を依頼形式として、P2-D05、P2-D06、P2-D07を実装詳細設計書へ改訂してください。専門レビュー、横断/Red Teamレビュー、改訂、専門再レビューを完了し、P2-D15として、DD-01からDD-12とAF-D16の網羅表、指摘、採否、再レビュー結果を保存してください。
 
 作業:
-1. 既存P2-D05からP2-D07の不足をDD-01からDD-12で棚卸しし、要件ID、判断ID、Unknown IDとの対応表を作る。
-2. P2-D05に、パッケージ木、Adapter Portと実装クラス、DTO/Event/Error/HealthEventの型付き入出力、Vendor変換境界、取得・正規化・失敗/再試行のシーケンス、擬似コードまたはPythonコード例、fixtureとfailure injectionを追加する。
-3. P2-D06に、Raw/Normalizedのファイルまたは表の物理配置、キー、制約、索引相当、チェックサム、追記専用/再取得差分、冪等性、重複/欠損/破損時の処理、data_version生成、保存/読出しコード例とテストを追加する。
-4. P2-D07に、Catalogのデータ構造、内部ID生成、vendor symbol mapping、contract metadata、calendar/tick/multiplier/margin placeholder、バージョン/移行、検索API、誤マッピング時のfail-closed、コード例とテストを追加する。
-5. 未承認の永続化ライブラリや外部SDKの具体呼出しは固定しない。必要な箇所はPort、Python標準ライブラリ、または擬似コードへ縮退し、Unknown ID、決定タイミング、停止条件を記録する。
-6. P2-D05からP2-D07を既存パスでv0.2に更新し、P2-D15を `doc/phase2/03_市場データ詳細設計/08_実装詳細設計レビュー反映記録.html` に作成する。`doc/index.html` の説明とリンクを更新する。
-7. 実行ログ、DD網羅台帳、レビュー指摘・採否を `plan/phase2/ログ/` と `plan/phase2/台帳/` に記録する。
+1. AF-D16の必須節とDD-01からDD-12で既存P2-D05からP2-D07の不足を棚卸しし、要件ID、判断ID、Unknown IDとの対応表を作る。
+2. コード・固有名詞以外を日本語で説明し、全図をローカルMermaid資産で作成する。各詳細仕様表の前に目的を置き、全テスト表の各セルを文章で記す。
+3. P2-D05に、パッケージ木、Adapter Portと実装クラス、DTO/Event/Error/HealthEventの型付き入出力、Vendor変換境界、取得・正規化・失敗/再試行のシーケンス、擬似コードまたはPythonコード例、fixtureとfailure injectionを追加する。
+4. P2-D06に、Raw/Normalizedのファイルまたは表の物理配置、キー、制約、索引相当、チェックサム、追記専用/再取得差分、冪等性、重複/欠損/破損時の処理、data_version生成、保存/読出しコード例とテストを追加する。
+5. P2-D07に、Catalogのデータ構造、内部ID生成、vendor symbol mapping、contract metadata、calendar/tick/multiplier/margin placeholder、バージョン/移行、検索API、誤マッピング時のfail-closed、コード例とテストを追加する。
+6. 未承認の永続化ライブラリや外部SDKの具体呼出しは固定しない。必要な箇所はPort、Python標準ライブラリ、または擬似コードへ縮退し、Unknown ID、決定タイミング、停止条件を記録する。
+7. P2-D05からP2-D07を既存パスで更新し、P2-D15を `doc/phase2/03_市場データ詳細設計/08_実装詳細設計レビュー反映記録.html` に更新する。`doc/index.html` の説明とリンクを更新する。
+8. 実行ログ、DD網羅台帳、レビュー指摘・採否を `plan/phase2/ログ/` と `plan/phase2/台帳/` に記録する。
 
 レビュー:
-- AutoTrade_A91_ImplementationDetailReviewer_v0_1 がDD-01からDD-12を根拠付きでレビューし、実装担当者が追加推測なしに着手できるかをCritical/High/Medium/Lowで判定する。
+- AutoTrade_A91_ImplementationDetailReviewer_v0_1 がDD-01からDD-12とAF-D16を根拠付きでレビューし、必須節、Mermaid図、図の文字見切れ、表の前置き、日本語説明、文章化した全テストを確認して、実装担当者が追加推測なしに着手できるかをCritical/High/Medium/Lowで判定する。
 - AutoTrade_A90_DesignReviewer_v0_1 がD10/D11/D18との整合性、責務境界、要件追跡、Unknown、Phaseスコープをレビューし、Red Team観点でRaw改変、symbol mapping誤り、品質警告の握りつぶし、データ異常時fail-open、Secret漏えいを監査する。
 - AutoTrade_A80_DocumentIntegrator_v0_1 と AutoTrade_A81_DesignDocSetWriter_v0_1 が指摘を採否付きで反映し、HTML、相互リンク、保存先、doc/index.html、変更履歴を確認する。
 - 反映後、AutoTrade_A91_ImplementationDetailReviewer_v0_1 が再レビューする。CriticalまたはHigh、DD未充足、UnknownのPassが残る場合は完了にしない。
 
 完了条件:
-- P2-D05、P2-D06、P2-D07がDD-01からDD-12を根拠付きで満たすv0.2として存在する。
+- P2-D05、P2-D06、P2-D07がDD-01からDD-12とAF-D16の必須節を根拠付きで満たして存在する。
 - P2-D15が存在し、初回レビュー、A90監査、採否、改訂、A91再レビュー、残Unknownが記録されている。
-- module tree、責務、型付き入出力、物理保存、通常/失敗シーケンス、疑似コードまたはコード例、テスト/fixture/failure injection、data_version/Run Manifest接続を確認できる。
+- ファイルツリー、責務、型付き入出力、物理保存、Mermaidによる通常/失敗シーケンス、疑似コードまたはコード例、文章化した全テスト/fixture/failure injection、data_version/Run Manifest接続を確認できる。
 - A91再レビューでCritical/Highが0件、UnknownはPass扱いされず、H2-1で承認すべき実装詳細設計事項が明確である。
 - doc/index.htmlからP2-D05、P2-D06、P2-D07、P2-D15へ到達できる。
 ```
