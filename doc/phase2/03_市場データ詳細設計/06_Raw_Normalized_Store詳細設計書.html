@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2-D06 Raw Normalized Store詳細設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 32px auto; max-width: 1240px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; font-size: 14px; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code { font-family: Consolas, "Courier New", monospace; background: #f1f5f9; padding: 1px 4px; }
+    .meta, .note, .gate, .unknown, .review { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .gate { border-left-color: #7c3aed; background: #f5f3ff; }
+    .unknown { border-left-color: #b45309; background: #fff7ed; }
+    .review { border-left-color: #15803d; background: #f0fdf4; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>P2-D06 Raw / Normalized Store詳細設計書</h1>
+  <section class="meta">
+    <p><strong>成果物ID:</strong> P2-D06<br>
+    <strong>文書セットID:</strong> P2-MARKET-DATA-DESIGN-DOCSET<br>
+    <strong>Phase / Step:</strong> Phase 2 / P2-03<br>
+    <strong>作成日:</strong> 2026-08-04<br>
+    <strong>文書状態:</strong> v0.1 / A90・Red Team・A80レビュー反映済み<br>
+    <strong>使用Orchestrator:</strong> <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code><br>
+    <strong>担当Agent:</strong> <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code><br>
+    <strong>使用Skill:</strong> <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_architecture_writer_v0_1</code>, <code>autotrade_skill_domain_modeling_v0_1</code>, <code>autotrade_skill_execution_model_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_doc_set_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code></p>
+  </section>
+
+  <h2>1. 目的とレイヤー分離</h2>
+  <p>本書は、外部データの取得証跡を保持するRaw Storeと、内部共通schemaへ変換したNormalized Storeを分離する。Rawは正本の取得証跡、Normalizedは再生成可能な変換結果であり、どちらもStrategyの都合で書き換えない。</p>
+  <table>
+    <thead><tr><th>レイヤー</th><th>正本性</th><th>書込主体</th><th>下流利用</th></tr></thead>
+    <tbody>
+      <tr><td>Raw Store</td><td>外部取得payloadと取得メタデータの不変証跡。</td><td>Market Data Adapter / Raw Writer</td><td>再正規化、監査、再取得差分、DataVersion。</td></tr>
+      <tr><td>Normalized Store</td><td>特定のNormalizationRuleVersionによる再生成結果。</td><td>Normalizer</td><td>Replay Reader、Data Quality、Feature/Signalの入力。</td></tr>
+      <tr><td>Tradable / Signal</td><td>本書の外部保存層ではない。</td><td>Catalog / Strategy</td><td>Phase 3以降で利用。Rawへ逆書きしない。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. Raw Store保存単位</h2>
+  <p>保存単位は「一つの取得要求に対応する不変Raw Object」とする。大きな要求を日付・銘柄・schema単位に分割する場合も、各Objectの元requestと分割順をmetadataに残す。</p>
+  <table>
+    <thead><tr><th>項目</th><th>必須</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td><code>raw_object_id</code></td><td>Yes</td><td>内部不変ID。vendorのjob IDやfile nameを正本IDにしない。</td></tr>
+      <tr><td><code>source</code></td><td>Yes</td><td>vendor、dataset_id、schema_id、encoding、compression、source_version。</td></tr>
+      <tr><td><code>request_metadata</code></td><td>Yes</td><td>request_id、symbols、stype_in/out、start/end UTC、request fingerprint、secret_ref名のみ。</td></tr>
+      <tr><td><code>acquired_at_utc</code></td><td>Yes</td><td>取得完了時刻。送信時刻・イベント時刻とは別に保持。</td></tr>
+      <tr><td><code>payload_uri</code></td><td>Yes</td><td>Raw payloadの格納場所。Gitへ大容量データを無条件に追加しない。</td></tr>
+      <tr><td><code>byte_count</code> / <code>sha256</code></td><td>Yes</td><td>保存前後のサイズと内容同一性。checksum計算不能なら下流へ発行しない。</td></tr>
+      <tr><td><code>dbn_metadata_ref</code></td><td>Conditional</td><td>DBNの場合のmetadata header参照。元requestを再現できる証跡。</td></tr>
+      <tr><td><code>condition_snapshot</code></td><td>Yes</td><td>available/degraded/pending/missing、対象日、last_modified情報。</td></tr>
+      <tr><td><code>created_at_utc</code> / <code>supersedes</code></td><td>Yes</td><td>Object作成時刻と、訂正版があれば参照先。既存Objectの置換ではない。</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><strong>Secretルール:</strong> API key、Authorization header、account ID、個人情報はRaw metadata、HTML、ログへ保存しない。必要な場合は環境変数参照名またはSecret manager参照名だけを保存する。</div>
+
+  <h2>3. Raw上書き禁止と再取得差分</h2>
+  <table>
+    <thead><tr><th>状況</th><th>処理</th><th>禁止事項</th><th>Gate</th></tr></thead>
+    <tbody>
+      <tr><td>同一論理request・同一sha256</td><td>既存Objectを再利用し、再取得観測をAuditへ追加。</td><td>重複Objectを正本として増やすこと。</td><td>Pass。ただし再利用証跡は残す。</td></tr>
+      <tr><td>同一論理request・sha256差異</td><td>新raw_object_idで保存し、<code>supersedes</code>または<code>diff_of</code>を付ける。</td><td>旧Objectを削除・置換・上書きすること。</td><td>Integrity Review / Data Gate stop</td></tr>
+      <tr><td>同一payload・metadata差異</td><td>別request versionとして保存し、data_version候補を分ける。</td><td>metadataを後から書き換えて同一取得に見せること。</td><td>Unknownまたは要承認</td></tr>
+      <tr><td>checksum不明・保存失敗</td><td>隔離領域にエラー証跡を保存し、RawBatchReceivedを発行しない。</td><td>Normalized化、Signal生成、Replay入力化。</td><td>Fail-closed</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. Normalized Store必須列</h2>
+  <table>
+    <thead><tr><th>列</th><th>型・制約</th><th>意味</th></tr></thead>
+    <tbody>
+      <tr><td><code>record_id</code></td><td>内部一意ID</td><td>Normalized recordの識別子。</td></tr>
+      <tr><td><code>event_id</code> / <code>run_id</code></td><td>D07準拠</td><td>イベントとReplay実行の追跡。</td></tr>
+      <tr><td><code>instrument_id</code></td><td>内部ID必須</td><td>外部instrument_id/raw_symbolではなくCatalogの正本ID。</td></tr>
+      <tr><td><code>event_time_utc</code></td><td>UTC必須</td><td>イベントが意味する時刻。順序、監査、Replayの正本。</td></tr>
+      <tr><td><code>received_at_utc</code></td><td>UTC必須</td><td>システムが受信した時刻。遅延と再取得の観測。</td></tr>
+      <tr><td><code>exchange_time_local</code> / <code>business_date</code></td><td>Catalog calendarで算出</td><td>取引所現地時刻と営業日。UTCからの変換ルールをversion管理。</td></tr>
+      <tr><td><code>bar_close_time</code></td><td>確定済みのみ</td><td>Look-ahead防止。未確定バーをStrategyへ渡さない。</td></tr>
+      <tr><td><code>event_kind</code></td><td>bar/trade/statistics/definition等</td><td>異なるschemaを混同しないための分類。</td></tr>
+      <tr><td><code>open/high/low/close/volume</code></td><td>価格scaleを併記</td><td>値と固定精度を保持。null/未適用値を0と同一視しない。</td></tr>
+      <tr><td><code>source_seq</code></td><td>nullable</td><td>外部順序。欠落時は内部順序だけで正本化しない。</td></tr>
+      <tr><td><code>raw_object_id</code> / <code>mapping_id</code></td><td>参照必須</td><td>RawとCatalog mappingまで逆引き可能にする。</td></tr>
+      <tr><td><code>quality_flags</code></td><td>bitsetまたは列挙集合</td><td>missing、duplicate、out_of_order、degraded、partial、price_invalid、volume_invalid、checksum_unverified、no_trade_interval等。</td></tr>
+      <tr><td><code>data_version</code> / <code>normalization_rule_version</code></td><td>必須</td><td>同じRawから異なる変換結果を区別する。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. 時刻、重複、欠損検知</h2>
+  <table>
+    <thead><tr><th>検査</th><th>ルール</th><th>フラグ・処理</th></tr></thead>
+    <tbody>
+      <tr><td>UTC正本</td><td>永続化・順序・監査はUTC。現地時刻と営業日はCatalog calendarから導出。</td><td>変換不能なら<code>TIME_INVALID</code>で停止。</td></tr>
+      <tr><td>バー確定</td><td><code>bar_close_time</code>が確定するまでSignal入力にしない。</td><td><code>UNCONFIRMED_BAR</code>、Replay除外。</td></tr>
+      <tr><td>重複</td><td>第一キーは<code>(instrument_id, event_time_utc, event_kind, data_version)</code>。補助にsource_seqとraw_object_idを使う。</td><td>同値重複はdedup countを保存。値違いは<code>DUPLICATE_CONFLICT</code>で停止。</td></tr>
+      <tr><td>順序逆行</td><td>event_time_utcとsource_seqを検査。整列不能な場合は下流へ流さない。</td><td><code>OUT_OF_ORDER</code>、HealthEvent。</td></tr>
+      <tr><td>空区間</td><td>ohlcv仕様上、取引なし区間はレコードなしの場合がある。</td><td><code>NO_TRADE_INTERVAL</code>と実データ欠損を分離。</td></tr>
+      <tr><td>実欠損</td><td>Catalogのsession、Dataset Condition、前後範囲、期待最小履歴から検知。</td><td><code>MISSING_DATA</code>、Data Gate stopまたは明示的除外。</td></tr>
+      <tr><td>異常値</td><td>high/low/open/close、tick size、volume、価格scale、契約定義を照合。</td><td><code>PRICE_INVALID</code>等。ゼロや補間で隠さない。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>6. data_version構造とRun Manifest</h2>
+  <p>Phase 3のReplayは、個別ファイル名ではなく、次のDataVersionManifestをRun Manifestから参照する。同じIDでRaw、Normalized、Catalog、品質、roll方式が再現できない場合はReplay Gateを通さない。</p>
+  <table>
+    <thead><tr><th>DataVersionManifest項目</th><th>内容</th><th>Run Manifestへの接続</th></tr></thead>
+    <tbody>
+      <tr><td><code>data_version_id</code></td><td>不変のDataVersion ID。</td><td><code>run_manifest.data_version</code>必須値。</td></tr>
+      <tr><td><code>raw_object_ids</code></td><td>利用Raw Objectの完全な集合。</td><td>再取得差分の監査。</td></tr>
+      <tr><td><code>normalized_snapshot_id</code></td><td>Normalized生成スナップショット。</td><td>Replay Readerの入力。</td></tr>
+      <tr><td><code>catalog_version</code> / <code>calendar_version</code></td><td>Instrument定義・営業日・tick/multiplier計算の版。</td><td>同一契約解釈を再現。</td></tr>
+      <tr><td><code>normalization_rule_version</code></td><td>UTC、scale、dedup、missing、qualityの規則版。</td><td>同じRawからの変換差異を追跡。</td></tr>
+      <tr><td><code>roll_rule_version</code></td><td>continuous/contract selectionの版。未承認なら<code>UNKNOWN</code>。</td><td>H2-1未承認時はSignal入力へ昇格不可。</td></tr>
+      <tr><td><code>quality_gate_result</code></td><td>対象範囲、除外範囲、未解決Unknown、判定日時。</td><td>Replay Gateの入力。</td></tr>
+      <tr><td><code>manifest_sha256</code></td><td>Manifest自身の同一性。</td><td>Run証跡と再実行比較。</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><strong>Phase 3参照例:</strong> Run Manifestが<code>data_version=mdv2_...</code>を指定し、Replay ReaderがDataVersionManifestからNormalized snapshot、Catalog version、quality gate resultを解決する。未解決またはUnknownの要素があれば、MarketEventをStrategyへ供給しない。</div>
+
+  <h2>7. Store APIと責務</h2>
+  <table>
+    <thead><tr><th>API</th><th>主体</th><th>保証</th></tr></thead>
+    <tbody>
+      <tr><td><code>put_raw_if_absent</code></td><td>Raw Writer</td><td>raw_object_id/sha256で冪等。既存内容を更新しない。</td></tr>
+      <tr><td><code>record_redelivery_diff</code></td><td>Raw Audit</td><td>旧新Object、差分理由、観測時刻を保存。</td></tr>
+      <tr><td><code>normalize_snapshot</code></td><td>Normalizer</td><td>RuleVersionを固定し、Raw参照を全件保持。</td></tr>
+      <tr><td><code>read_replay_snapshot</code></td><td>Replay Reader</td><td>指定data_version以外を混ぜない。順序・quality gateを検証。</td></tr>
+      <tr><td><code>write_quality_report</code></td><td>Data Quality</td><td>Unknown、除外範囲、判定を別証跡として保存。</td></tr>
+    </tbody>
+  </table>
+
+  <section class="unknown">
+    <h2>8. Unknownと停止条件</h2>
+    <table>
+      <thead><tr><th>ID</th><th>内容</th><th>決定タイミング</th><th>未決時</th></tr></thead>
+      <tbody>
+        <tr><td>UNK-P2-04</td><td>degraded/pending/missing日の採用範囲。</td><td>P2-04 Data Quality Gate</td><td>該当範囲をReplay/Signalから除外。</td></tr>
+        <tr><td>UNK-P2-07</td><td>本番保存先・大容量データの外部パス。</td><td>P2-05実装検証</td><td>小規模fixtureのみ。大規模生成停止。</td></tr>
+        <tr><td>UNK-P2-08</td><td>再取得差分を同一versionへ含める最終規約。</td><td>H2-1 / P2-06</td><td>新versionへ分離し、旧versionを維持。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="gate">
+    <h2>9. H2-1承認対象</h2>
+    <p>Raw Objectの不変保存、Normalized schema、quality flag、data_versionの必須構造、degradedの扱い、保存先と大容量データ方針を承認する。承認前は未確定の保存方式や品質判断をPhase 3の本線入力にしない。</p>
+  </section>
+
+  <section class="review">
+    <h2>10. レビュー履歴</h2>
+    <table>
+      <thead><tr><th>日付</th><th>レビュー部品</th><th>観点</th><th>反映</th></tr></thead>
+      <tbody>
+        <tr><td>2026-08-04</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>D10/D11/D18、Replay/data_version、責務境界、Unknown。</td><td>Raw/Normalized境界、Manifest項目、停止条件を追加。</td></tr>
+        <tr><td>2026-08-04</td><td>Red Team観点</td><td>Raw改変、差分消失、欠損のゼロ埋め、品質警告の握りつぶし。</td><td>append-only、checksum、condition、quality_flags、fail-closedを明記。</td></tr>
+        <tr><td>2026-08-04</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>リンク、保存先、文書セット共通情報。</td><td>D05/D07、D10/D11/D18、doc/index.html導線を設定。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <h2>11. 関連成果物</h2>
+  <ul>
+    <li><a href="./05_Market_Data_Adapter詳細設計書.html">P2-D05 Market Data Adapter詳細設計書</a></li>
+    <li><a href="./07_Instrument_Catalog詳細設計書.html">P2-D07 Instrument Catalog詳細設計書</a></li>
+    <li><a href="../02_データソース調査/02_Databento公式仕様確認結果.html">P2-D04 Databento公式仕様確認結果</a></li>
+    <li><a href="../../phase1/07_実行モデル/07_共通実行モデル設計書.html">D11 共通実行モデル設計書</a></li>
+    <li><a href="../../phase1/10_テスト品質/10_テスト戦略品質Gate設計書.html">D18 テスト戦略品質Gate設計書</a></li>
+  </ul>
+</main>
+</body>
+</html>

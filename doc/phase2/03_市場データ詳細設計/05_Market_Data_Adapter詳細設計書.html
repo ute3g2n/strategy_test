@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2-D05 Market Data Adapter詳細設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 32px auto; max-width: 1240px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; font-size: 14px; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code { font-family: Consolas, "Courier New", monospace; background: #f1f5f9; padding: 1px 4px; }
+    .meta, .note, .gate, .unknown, .review { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .gate { border-left-color: #7c3aed; background: #f5f3ff; }
+    .unknown { border-left-color: #b45309; background: #fff7ed; }
+    .review { border-left-color: #15803d; background: #f0fdf4; }
+    pre { overflow-x: auto; padding: 14px; background: #0f172a; color: #e5e7eb; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>P2-D05 Market Data Adapter詳細設計書</h1>
+  <section class="meta">
+    <p><strong>成果物ID:</strong> P2-D05<br>
+    <strong>文書セットID:</strong> P2-MARKET-DATA-DESIGN-DOCSET<br>
+    <strong>Phase / Step:</strong> Phase 2 / P2-03<br>
+    <strong>作成日:</strong> 2026-08-04<br>
+    <strong>文書状態:</strong> v0.1 / A90・Red Team・A80レビュー反映済み<br>
+    <strong>使用Orchestrator:</strong> <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code><br>
+    <strong>担当Agent:</strong> <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code><br>
+    <strong>使用Skill:</strong> <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_architecture_writer_v0_1</code>, <code>autotrade_skill_domain_modeling_v0_1</code>, <code>autotrade_skill_execution_model_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_doc_set_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code></p>
+  </section>
+
+  <h2>1. 目的と境界</h2>
+  <p>本書は、Databento等の外部Market Data sourceを内部のRaw Store、Normalized Store、Instrument Catalog、Replay入力へ接続するAdapterの実装可能な契約を定義する。外部SDK、HTTP型、vendor symbol、API keyをCore、Strategy、Risk、OMSへ漏らさない。</p>
+  <table>
+    <thead><tr><th>対象</th><th>責務</th><th>非対象</th></tr></thead>
+    <tbody>
+      <tr><td>Market Data Adapter</td><td>取得要求、外部応答のRaw化、mapping/definition取得、エラー分類、HealthEvent生成。</td><td>Strategy判断、売買注文、Risk判断、roll ruleの最終採否。</td></tr>
+      <tr><td>内部Port</td><td>外部に依存しないRequest/Result/Event/Health契約を提供する。</td><td>Databento client object、HTTP response、API key値の公開。</td></tr>
+      <tr><td>後続Store/Catalog</td><td>Raw/Normalized永続化と内部InstrumentIdの正本管理へ渡す。</td><td>Rawの改変、品質警告の削除、未知状態の成功変換。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. Port契約</h2>
+  <table>
+    <thead><tr><th>Port</th><th>入力</th><th>出力</th><th>副作用とGate</th></tr></thead>
+    <tbody>
+      <tr><td><code>FetchHistoricalRange</code></td><td>request_id, dataset_ref, schema_ref, symbol_requests, stype_in, stype_out, start_utc, end_utc, secret_ref</td><td><code>RawBatchReceived</code>または分類済み<code>AdapterError</code></td><td>Raw Storeへの新規オブジェクト作成。H2-2未承認時はfixture/dry-runのみ。</td></tr>
+      <tr><td><code>LoadRawFile</code></td><td>raw_object_id, expected_sha256, local_uri</td><td><code>RawBatchLoaded</code>または<code>RawIntegrityMismatch</code></td><td>既存Rawの上書きは禁止。checksum不一致はData Gate停止。</td></tr>
+      <tr><td><code>ResolveSymbols</code></td><td>dataset_ref, symbol_requests, stype_in, resolution_date_range</td><td><code>SymbolMappingResolved</code>、partial結果、またはエラー</td><td>partial/ambiguous/not_foundは成功扱いにしない。</td></tr>
+      <tr><td><code>FetchInstrumentDefinitions</code></td><td>dataset_ref, external_symbols, date_range</td><td><code>InstrumentDefinitionReceived</code></td><td>Catalog候補へ渡す。spreadとfutureを<code>instrument_class</code>で区別する。</td></tr>
+      <tr><td><code>FetchDatasetCondition</code></td><td>dataset_ref, date_range</td><td><code>DatasetConditionObserved</code></td><td>available以外をquality flagにし、採用判定をData Gateへ渡す。</td></tr>
+      <tr><td><code>Health</code></td><td>接続、Store書込、mapping、品質、再試行の観測値</td><td><code>HealthEvent</code></td><td>Unhealthy/Unknownは対象データの下流利用を停止する。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. Portの共通データ契約</h2>
+  <table>
+    <thead><tr><th>契約</th><th>必須項目</th><th>意味</th></tr></thead>
+    <tbody>
+      <tr><td><code>DatasetRef</code></td><td>vendor, dataset_id, schema_id, source_version</td><td>外部参照を識別するが、CoreのMarketEvent型には公開しない。</td></tr>
+      <tr><td><code>RawBatchReceived</code></td><td>raw_object_id, request_id, received_at_utc, source, payload_uri, byte_count, sha256, metadata_ref, data_version_candidate</td><td>外部payloadと取得証跡をRaw Storeへ渡す。</td></tr>
+      <tr><td><code>SymbolMappingResolved</code></td><td>mapping_id, input_stype, input_symbol, output_stype, output_symbol, external_instrument_id, valid_from_utc, valid_to_utc, resolution_status</td><td>Catalogが内部InstrumentIdを付与する前の対応結果。</td></tr>
+      <tr><td><code>MarketEvent</code></td><td>event_id, run_id, instrument_id, event_time_utc, received_at_utc, exchange_time_local, bar_close_time, event_kind, values, quality_flags, data_version</td><td>D07/D10に合わせた内部イベント。Strategyへ渡るのはこの契約だけ。</td></tr>
+      <tr><td><code>HealthEvent</code></td><td>event_id, run_id, component_name, health_state, severity, observed_at_utc, reason_code, affected_scope, recovery_action</td><td>D06/D07の時刻・ID方針に従い、停止・再開判断の根拠にする。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. 出力イベントと順序</h2>
+  <table>
+    <thead><tr><th>イベント</th><th>生成条件</th><th>下流</th><th>品質条件</th></tr></thead>
+    <tbody>
+      <tr><td><code>RawBatchReceived</code></td><td>payload、metadata、checksumを保存できた。</td><td>Raw Store、DataVersion Builder</td><td>保存成功とchecksum計算が揃わない限り発行しない。</td></tr>
+      <tr><td><code>SymbolMappingResolved</code></td><td>指定期間のmappingが完全かつ一意に解決された。</td><td>Instrument Catalog</td><td>partial/ambiguousなら別の警告イベントとし、成功イベントにしない。</td></tr>
+      <tr><td><code>InstrumentDefinitionUpdated</code></td><td>定義の新規観測または有効期間更新。</td><td>Instrument Catalog</td><td>過去のCatalog行を上書きせず、effective periodを追加する。</td></tr>
+      <tr><td><code>MarketDataGapDetected</code></td><td>期待セッションと受信範囲の不一致、またはcondition異常。</td><td>Data Gate、Health</td><td>対象範囲をSignal/Replayから除外または停止。</td></tr>
+      <tr><td><code>MarketDataConnectionChanged</code></td><td>接続、認証、再接続、切断状態が変化。</td><td>Health、Execution Model</td><td>Live/Paperでは新規利用を停止し、Backtestではfailure injection対象。</td></tr>
+      <tr><td><code>DataVendorRateLimited</code></td><td>rate limitとRetry-Afterを観測。</td><td>Health、Retry Coordinator</td><td>上限回数超過後は停止。無制限再試行をしない。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. エラー分類とFail-closed</h2>
+  <table>
+    <thead><tr><th>ErrorCode</th><th>例</th><th>処理</th><th>Health / Gate</th></tr></thead>
+    <tbody>
+      <tr><td><code>AUTHENTICATION_FAILED</code></td><td>Secret不在、認証失敗</td><td>Secret値をログに出さず停止。手動確認待ち。</td><td>Unhealthy / Data Gate stop</td></tr>
+      <tr><td><code>ENTITLEMENT_DENIED</code></td><td>dataset権限不足、費用上限</td><td>実取得を停止し、H2-2または再承認へ。</td><td>Unknown / Human Gate</td></tr>
+      <tr><td><code>RATE_LIMITED</code></td><td>HTTP 429</td><td>Retry-Afterのみを使った限定再試行。上限後停止。</td><td>DegradedからUnhealthy</td></tr>
+      <tr><td><code>SYMBOL_PARTIAL</code></td><td>HTTP 206、部分解決</td><td>解決済み部分だけを本線へ流さない。対象をPending。</td><td>Data Gate stop</td></tr>
+      <tr><td><code>SYMBOL_NOT_FOUND</code></td><td>404、候補不在</td><td>候補を除外または条件付きへ隔離。自動代替しない。</td><td>Unknown ledger</td></tr>
+      <tr><td><code>DATASET_DEGRADED</code></td><td>degraded/pending/missing</td><td>該当日・範囲にquality flagを付与し、採用不可として扱う。</td><td>Data Gate stop/degrade</td></tr>
+      <tr><td><code>CHECKSUM_MISMATCH</code></td><td>再取得したpayloadとの差異、破損</td><td>新規Rawとして隔離し、既存Rawを置換しない。</td><td>Integrity Gate stop</td></tr>
+      <tr><td><code>DECODE_OR_SCHEMA_ERROR</code></td><td>DBN/CSVの解読・schema不一致</td><td>Normalized化しない。原形とエラー証跡を保存。</td><td>Data Gate stop</td></tr>
+      <tr><td><code>STORE_WRITE_FAILED</code></td><td>Raw/Normalized保存失敗</td><td>受信成功を下流へ通知しない。再試行後停止。</td><td>Health Unhealthy</td></tr>
+      <tr><td><code>UNKNOWN_EXTERNAL_STATE</code></td><td>mapping、定義、conditionが不明</td><td>Unknownとして台帳化し、Strategy/Replay入力へ流さない。</td><td>Unknown / fail-closed</td></tr>
+    </tbody>
+  </table>
+
+  <h2>6. HealthEvent状態</h2>
+  <table>
+    <thead><tr><th>health_state</th><th>意味</th><th>下流利用</th></tr></thead>
+    <tbody>
+      <tr><td><code>HEALTHY</code></td><td>取得、保存、mapping、品質確認が完了。</td><td>通常利用可能。</td></tr>
+      <tr><td><code>DEGRADED</code></td><td>警告はあるが対象範囲が明確で、隔離可能。</td><td>明示的に縮退指定された範囲だけ利用。</td></tr>
+      <tr><td><code>UNHEALTHY</code></td><td>取得、保存、整合性、認証の重大失敗。</td><td>対象Market Data利用を停止。</td></tr>
+      <tr><td><code>UNKNOWN</code></td><td>状態を判定できない、または観測が欠けている。</td><td>Passにせず停止。人間または後続Stepで決定。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. 実行モードとの接続</h2>
+  <table>
+    <thead><tr><th>モード</th><th>入力</th><th>Adapter動作</th><th>許可される副作用</th></tr></thead>
+    <tbody>
+      <tr><td>Backtest</td><td>固定されたRaw/Normalized + Catalog + data_version</td><td>Replay Readerとして動作。外部APIを呼ばない。</td><td>ローカルStore読み取りのみ。</td></tr>
+      <tr><td>Shadow</td><td>準Liveデータ + 固定Run Manifest</td><td>遅延・欠損・mappingをHealthEvent化。</td><td>注文副作用なし。対象範囲外は停止。</td></tr>
+      <tr><td>Paper</td><td>Live-like MarketEvent</td><td>Market Dataのみを提供。Broker接続はPhase 4。</td><td>本書では注文を生成しない。</td></tr>
+      <tr><td>Live</td><td>Live MarketEvent</td><td>本書の設計範囲外。HealthとData Gate契約のみ引き継ぐ。</td><td>Phase 2では実行しない。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>8. 追跡とUnknown</h2>
+  <table>
+    <thead><tr><th>追跡ID</th><th>本書での反映</th><th>未確定事項</th></tr></thead>
+    <tbody>
+      <tr><td>REQ-Q02 / REQ-Q20</td><td>候補市場、期間、Replay入力をCatalog/Raw/Normalizedへ接続。</td><td><code>UNK-P2-03</code> 実アカウントでの候補取得。</td></tr>
+      <tr><td>REQ-Q19 / REQ-OD03</td><td>continuous/rollを外部文字列から分離し、versioned inputへ渡す。</td><td><code>UNK-P2-02</code> roll/continuous最終方式はH2-1。</td></tr>
+      <tr><td>REQ-Q23 / REQ-Q29</td><td>quality_flags、HealthEvent、停止条件、取得証跡を契約化。</td><td><code>UNK-P2-04</code> degraded日の採用方針はP2-04。</td></tr>
+      <tr><td>REQ-OD01</td><td>外部仕様をAdapter境界へ閉じ込め、Coreは内部契約のみ利用。</td><td>Vendor差替え時の追加mapping項目は実装検証で確認。</td></tr>
+      <tr><td>D10 / D11 / D18</td><td>MarketEvent、HealthEvent、data_version、Replay/Data Gate、fail-closedを引継ぎ。</td><td>Phase 3のReplay実装とGolden testで実証。</td></tr>
+    </tbody>
+  </table>
+
+  <section class="gate">
+    <h2>9. H2-1承認対象</h2>
+    <p>H2-1では、Raw/Normalized/Catalogの方式、main/conditional候補の扱い、continuousまたは明示的contract selectionの方式、roll ruleのversioning、degradedデータの停止・縮退方針、Phase 3へ渡すdata_version契約を承認する。</p>
+    <p>承認前は、roll済み系列を本線へ昇格しない。UnknownをPassにせず、fixtureまたは対象範囲縮退で設計・テストを続ける。</p>
+  </section>
+
+  <section class="review">
+    <h2>10. レビュー履歴</h2>
+    <table>
+      <thead><tr><th>日付</th><th>レビュー部品</th><th>観点</th><th>反映</th></tr></thead>
+      <tbody>
+        <tr><td>2026-08-04</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>D10/D11/D18整合、責務境界、追跡、Unknown。</td><td>Port/Event/Error/Manifest境界と追跡表を追加。</td></tr>
+        <tr><td>2026-08-04</td><td>Red Team観点</td><td>Raw改変、mapping誤り、品質警告の握りつぶし、fail-open。</td><td>checksum、partial、degraded、Unknown、停止処理を明記。</td></tr>
+        <tr><td>2026-08-04</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>リンク、保存先、共通メタデータ。</td><td>D06/D07/P2-D04/P2-D01とdoc/index.htmlへの導線を設定。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <h2>11. 関連成果物</h2>
+  <ul>
+    <li><a href="./06_Raw_Normalized_Store詳細設計書.html">P2-D06 Raw / Normalized Store詳細設計書</a></li>
+    <li><a href="./07_Instrument_Catalog詳細設計書.html">P2-D07 Instrument Catalog詳細設計書</a></li>
+    <li><a href="../02_データソース調査/02_Databento公式仕様確認結果.html">P2-D04 Databento公式仕様確認結果</a></li>
+    <li><a href="../../phase1/06_アダプター境界/06_Adapter境界設計書.html">D10 Adapter境界設計書</a></li>
+    <li><a href="../../phase1/07_実行モデル/07_共通実行モデル設計書.html">D11 共通実行モデル設計書</a></li>
+    <li><a href="../../phase1/04_共通モデル/04_イベント注文口座ID時系列設計書.html">D07 イベント・注文・口座・ID・時系列設計書</a></li>
+  </ul>
+</main>
+</body>
+</html>
