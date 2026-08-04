@@ -9,32 +9,32 @@
     {
       "name": "AutoTradePhase1_Orchestrator_v0_1",
       "file": ".codex/orchestrators/AutoTradePhase1_Orchestrator_v0_1.json",
-      "model": "gpt-5.5"
+      "model": "gpt-5.6-luna"
     },
     {
       "name": "AutoTradeProject_Orchestrator_v0_1",
       "file": ".codex/orchestrators/AutoTradeProject_Orchestrator_v0_1.json",
-      "model": "gpt-5.5"
+      "model": "gpt-5.6-luna"
     },
     {
       "name": "AutoTradePhasePlanning_Orchestrator_v0_1",
       "file": ".codex/orchestrators/AutoTradePhasePlanning_Orchestrator_v0_1.json",
-      "model": "gpt-5.5"
+      "model": "gpt-5.6-luna"
     },
     {
       "name": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
       "file": ".codex/orchestrators/AutoTradeComponentLifecycle_Orchestrator_v0_1.json",
-      "model": "gpt-5.5"
+      "model": "gpt-5.6-luna"
     },
     {
       "name": "AutoTradeProject_DesignDocSet_Orchestrator_v0_1",
       "file": ".codex/orchestrators/AutoTradeProject_DesignDocSet_Orchestrator_v0_1.json",
-      "model": "gpt-5.5"
+      "model": "gpt-5.6-luna"
     },
     {
       "name": "AutoTradeProject_ImplementationDesign_Orchestrator_v0_1",
       "file": ".codex/orchestrators/AutoTradeProject_ImplementationDesign_Orchestrator_v0_1.json",
-      "model": "gpt-5.5"
+      "model": "gpt-5.6-luna"
     }
   ],
   "agents_dir": ".codex/agents",

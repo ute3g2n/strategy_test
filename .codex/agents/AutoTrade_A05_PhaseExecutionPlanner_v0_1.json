@@ -1,7 +1,7 @@
 {
   "name": "AutoTrade_A05_PhaseExecutionPlanner_v0_1",
   "display_name": "Auto Trade Phase Execution Planner",
-  "model": "gpt-5.5",
+  "model": "gpt-5.6-luna",
   "skill": "autotrade_skill_phase_execution_planning_v0_1",
   "skills": [
     "autotrade_skill_phase_execution_planning_v0_1",

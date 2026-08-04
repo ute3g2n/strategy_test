@@ -1,7 +1,7 @@
 {
   "name": "AutoTradeProject_DesignDocSet_Orchestrator_v0_1",
   "display_name": "Auto Trade Project Design Document Set Orchestrator v0.1",
-  "model": "gpt-5.5",
+  "model": "gpt-5.6-luna",
   "purpose": "Coordinate creation and revision of multi-document formal HTML design sets within a phase while preserving traceability, common metadata, review history, Human Gates, and doc/index.html reachability.",
   "trigger_examples": [
     "Phase 2の設計書セットを作成して",

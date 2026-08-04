@@ -67,7 +67,7 @@ Phase 1では、誤発火を避けるために `AutoTradePhase1_` と `autotrade
 | ID | 完全名 | 統合元 | 主な責務 | 推奨モデル |
 |---|---|---|---|---|
 | A10 | `AutoTrade_A10_RequirementsCurator_v0_1` | Phase1 A01 | 要件抽出、Phaseスコープ分離、追跡ID、Unknown台帳 | `gpt-5.6-luna` |
-| A20 | `AutoTrade_A20_ArchitectureDomainArchitect_v0_1` | Phase1 A02, A03 | 全体構成、ドメイン分割、共通モデル、依存方向 | `gpt-5.5` |
+| A20 | `AutoTrade_A20_ArchitectureDomainArchitect_v0_1` | Phase1 A02, A03 | 全体構成、ドメイン分割、共通モデル、依存方向 | `gpt-5.6-luna` |
 | A30 | `AutoTrade_A30_StrategyQaArchitect_v0_1` | Phase1 A04, A10の一部 | Strategy Interface、Golden test、Look-ahead防止、戦略QA | `gpt-5.6-luna` |
 | A40 | `AutoTrade_A40_ExecutionEnginePocArchitect_v0_1` | Phase1 A05, A06 | 共通実行モデル、取引エンジンPoC評価、Replay/Realtime整合 | `gpt-5.6-luna` |
 | A50 | `AutoTrade_A50_AdapterArchitect_v0_1` | Phase1 A07 | Broker Adapter、Market Data Adapter、外部ID境界 | `gpt-5.6-luna` |
@@ -213,7 +213,7 @@ AI部品を新規作成または更新するときは、次をプロジェクト
 ロール: AI実行基盤アーキテクト
 使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A10_RequirementsCurator_v0_1, AutoTrade_A20_ArchitectureDomainArchitect_v0_1, AutoTrade_A90_DesignReviewer_v0_1
-使用モデル: gpt-5.5
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_skill_source_reader_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_architecture_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_html_doc_writer_v0_1
 
 発火制御:
@@ -270,7 +270,7 @@ AI部品を新規作成または更新するときは、次をプロジェクト
 ロール: AI部品仕様設計者
 使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A20_ArchitectureDomainArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A90_DesignReviewer_v0_1
-使用モデル: gpt-5.5
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_skill_architecture_writer_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1
 
 発火制御:

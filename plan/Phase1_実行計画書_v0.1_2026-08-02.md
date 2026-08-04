@@ -339,7 +339,7 @@ Phase 1で各設計書を作成するための実行基盤を作成してくだ�
 ロール: Phase 1 実体作成・検証オーケストレーター
 使用オーケストレータ完全名: AutoTradePhase1_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTradePhase1_A00_Orchestrator_v0_1, AutoTradePhase1_A11_HtmlDocumentEngineer_v0_1, AutoTradePhase1_A12_ConsistencyReviewer_v0_1
-使用モデル: gpt-5.5
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_phase1_skill_orchestration_v0_1, autotrade_phase1_skill_html_doc_writer_v0_1, autotrade_phase1_skill_design_reviewer_v0_1
 発火制御:
 - このステップで使用してよいAI部品は、上記の完全名で指定した作成対象だけである。
@@ -471,7 +471,7 @@ Phase 1のすべてのHTML設計書に適用するスタイルガイドと成果
 ロール: 全体アーキテクト
 使用オーケストレータ完全名: AutoTradePhase1_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTradePhase1_A02_SystemArchitect_v0_1, AutoTradePhase1_A03_DomainArchitect_v0_1
-使用モデル: gpt-5.5
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_phase1_skill_architecture_writer_v0_1, autotrade_phase1_skill_domain_modeling_v0_1, autotrade_phase1_skill_html_doc_writer_v0_1
 発火制御:
 - 上記の完全名で指定したAI部品だけを使用する。

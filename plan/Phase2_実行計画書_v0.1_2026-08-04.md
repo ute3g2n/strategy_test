@@ -247,7 +247,7 @@ UnknownはPassにしない。各Unknownには担当ステップ、決定タイ�
 ロール: Phase 2 要件・スコープ整理者
 使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A10_RequirementsCurator_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1
-使用モデル: gpt-5.5
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_skill_source_reader_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1
 
 Phase Runbook:
@@ -308,7 +308,7 @@ Phase 2 Market Data基盤のスコープ、入力条件、成果物、要件追�
 ロール: Market Data公式仕様調査者
 使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A50_AdapterArchitect_v0_1, AutoTrade_A10_RequirementsCurator_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1
-使用モデル: gpt-5.5
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_skill_adapter_boundary_v0_1, autotrade_skill_official_research_v0_1, autotrade_skill_source_reader_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1
 
 Phase Runbook:
@@ -362,7 +362,7 @@ Databentoの公式一次情報を確認し、Phase 2 Market Data基盤に必要�
 ロール: Market Data基盤構造設計者
 使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A50_AdapterArchitect_v0_1, AutoTrade_A20_ArchitectureDomainArchitect_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1
-使用モデル: gpt-5.5
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_skill_adapter_boundary_v0_1, autotrade_skill_architecture_writer_v0_1, autotrade_skill_domain_modeling_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1
 
 Phase Runbook:
@@ -419,7 +419,7 @@ Phase 2 Market Data Adapter、Raw/Normalized Store、Instrument Catalogの構造
 ロール: Market Data基盤 実装詳細設計・改訂者
 使用オーケストレータ完全名: AutoTradeProject_ImplementationDesign_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A10_RequirementsCurator_v0_1, AutoTrade_A20_ArchitectureDomainArchitect_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A50_AdapterArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A82_ImplementationDetailDesigner_v0_1, AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A91_ImplementationDetailReviewer_v0_1
-使用モデル: gpt-5.5
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_skill_implementation_detail_design_v0_1, autotrade_skill_implementation_detail_review_v0_1, autotrade_skill_adapter_boundary_v0_1, autotrade_skill_architecture_writer_v0_1, autotrade_skill_domain_modeling_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_source_reader_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_revision_integration_v0_1, autotrade_skill_orchestration_v0_1
 
 Phase Runbook:
@@ -493,7 +493,7 @@ P2-D05 v0.6を具体例、AF-D16をHTML構成、AF-D17を依頼形式として�
 ロール: Roll Rule / Continuous Signal設計者
 使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A50_AdapterArchitect_v0_1, AutoTrade_A30_StrategyQaArchitect_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1
-使用モデル: gpt-5.5
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_skill_adapter_boundary_v0_1, autotrade_skill_strategy_interface_v0_1, autotrade_skill_turtle_strategy_rules_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1
 
 Phase Runbook:
@@ -550,7 +550,7 @@ Phase 2のRoll Rule / Continuous Signal設計書を作成し、OD-03の決定候
 ロール: Market Data基盤実装者
 使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A50_AdapterArchitect_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A70_OpsSecurityArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A90_DesignReviewer_v0_1
-使用モデル: gpt-5.5
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_skill_adapter_boundary_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_ops_security_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1
 
 Phase Runbook:
@@ -769,7 +769,7 @@ Data Quality / Replay検証を実行し、検証結果HTMLを作成してくだ�
 ロール: Phase 2統合レビュー・レッドチーム監査者
 使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1
-使用モデル: gpt-5.5
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1
 
 Phase Runbook:
@@ -832,7 +832,7 @@ Phase 2成果物全体を統合レビューし、レッドチーム監査結果�
 ロール: Phase 2修正統合者
 使用オーケストレータ完全名: AutoTradeProject_ImplementationDesign_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A91_ImplementationDetailReviewer_v0_1
-使用モデル: gpt-5.5
+使用モデル: gpt-5.6-luna
 使用Skill完全名: autotrade_skill_revision_integration_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_implementation_detail_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_orchestration_v0_1
 
 Phase Runbook:

@@ -1,7 +1,7 @@
 {
   "name": "AutoTradePhase1_Orchestrator_v0_1",
   "display_name": "Auto Trade Phase 1 Orchestrator v0.1",
-  "model": "gpt-5.5",
+  "model": "gpt-5.6-luna",
   "purpose": "Coordinate Phase 1 design-document creation for the Turtle trend-following automated trading system using only explicitly named Phase 1 agents and skills.",
   "trigger_examples": [
     "P1-01を実行して",
