@@ -3,7 +3,7 @@
 作成日: 2026-08-04  
 対象: タートルズ・トレンドフォロー自動売買システム  
 対象Phase: Phase 2 Market Data基盤  
-状態: v0.1 / PX-PLAN-00レビュー反映済み
+状態: v0.2 / 実装詳細設計基盤・P2-03R追補反映済み
 
 参照:
 
@@ -24,7 +24,10 @@
 - `.codex/agents/AutoTrade_A*.json`
 - `.codex/orchestrators/AutoTradeProject_Orchestrator_v0_1.json`
 - `.codex/orchestrators/AutoTradeProject_DesignDocSet_Orchestrator_v0_1.json`
+- `.codex/orchestrators/AutoTradeProject_ImplementationDesign_Orchestrator_v0_1.json`
 - `.codex/orchestrators/AutoTradePhasePlanning_Orchestrator_v0_1.json`
+- `doc/ai_foundation/14_実装詳細設計書構成標準.html`
+- `doc/ai_foundation/15_実装詳細設計AI基盤仕様.html`
 - `settings/ai_component_rules.md`
 
 > 本計画書は、Market Data基盤の詳細設計、最小実装、検証、レビュー、レビュー反映を複数ステップで進めるための実行計画である。投資助言、売買推奨、特定商品の推奨を目的としない。
@@ -39,22 +42,27 @@ PX-PLAN-00で指定されたAI部品はすべて存在するため、不足部�
 |---|---|---|
 | Orchestrator | `AutoTradePhasePlanning_Orchestrator_v0_1` | 存在 |
 | Orchestrator | `AutoTradeProject_DesignDocSet_Orchestrator_v0_1` | 存在 |
+| Orchestrator | `AutoTradeProject_ImplementationDesign_Orchestrator_v0_1` | 存在 |
 | Agent | `AutoTrade_A05_PhaseExecutionPlanner_v0_1` | 存在 |
 | Agent | `AutoTrade_A10_RequirementsCurator_v0_1` | 存在 |
 | Agent | `AutoTrade_A80_DocumentIntegrator_v0_1` | 存在 |
 | Agent | `AutoTrade_A81_DesignDocSetWriter_v0_1` | 存在 |
+| Agent | `AutoTrade_A82_ImplementationDetailDesigner_v0_1` | 存在 |
 | Agent | `AutoTrade_A90_DesignReviewer_v0_1` | 存在 |
+| Agent | `AutoTrade_A91_ImplementationDetailReviewer_v0_1` | 存在 |
 | Skill | `autotrade_skill_phase_execution_planning_v0_1` | 存在 |
 | Skill | `autotrade_skill_source_reader_v0_1` | 存在 |
 | Skill | `autotrade_skill_traceability_v0_1` | 存在 |
 | Skill | `autotrade_skill_orchestration_v0_1` | 存在 |
 | Skill | `autotrade_skill_html_doc_writer_v0_1` | 存在 |
 | Skill | `autotrade_skill_design_doc_set_writer_v0_1` | 存在 |
+| Skill | `autotrade_skill_implementation_detail_design_v0_1` | 存在 |
+| Skill | `autotrade_skill_implementation_detail_review_v0_1` | 存在 |
 | Skill | `autotrade_skill_design_review_v0_1` | 存在 |
 | Skill | `autotrade_skill_red_team_review_v0_1` | 存在 |
 | Skill | `autotrade_skill_revision_integration_v0_1` | 存在 |
 
-Phase 2専用AI部品は作成しない。理由は、Market Data基盤の計画、設計、実装、レビューは既存または今回追加したプロジェクト汎用Orchestrator、Agent、Skillで扱えるためである。設計書作成が多いステップでは `AutoTradeProject_DesignDocSet_Orchestrator_v0_1`、`AutoTrade_A81_DesignDocSetWriter_v0_1`、`autotrade_skill_design_doc_set_writer_v0_1` を標準使用する。既存の `AutoTradePhase1_*` と `autotrade_phase1_skill_*` は参照対象として読むだけにし、実行部品としては起動しない。
+Phase 2専用AI部品は作成しない。理由は、Market Data基盤の計画、設計、実装、レビューは既存または今回追加したプロジェクト汎用Orchestrator、Agent、Skillで扱えるためである。複数HTMLの統合には `AutoTradeProject_DesignDocSet_Orchestrator_v0_1` とA81を、実装着手に用いる詳細設計には `AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、A82、A91と詳細設計2 Skillを使用する。既存の `AutoTradePhase1_*` と `autotrade_phase1_skill_*` は参照対象として読むだけにし、実行部品としては起動しない。
 
 ---
 
@@ -133,9 +141,10 @@ Phase 2開始時点で満たす入力条件は次である。
 | P2-D02 | Phase 2要件追跡マトリクス | `doc/phase2/01_要件追跡/01_Phase2要件追跡マトリクス.html` |
 | P2-D03 | Phase 2未確定事項台帳 | `doc/phase2/01_要件追跡/01_Phase2未確定事項台帳.html` |
 | P2-D04 | Databento公式仕様確認結果 | `doc/phase2/02_データソース調査/02_Databento公式仕様確認結果.html` |
-| P2-D05 | Market Data Adapter詳細設計書 | `doc/phase2/03_データ基盤設計/03_Market_Data_Adapter詳細設計書.html` |
-| P2-D06 | Raw / Normalized Store設計書 | `doc/phase2/03_データ基盤設計/03_Raw_Normalized_Store設計書.html` |
-| P2-D07 | Instrument Catalog設計書 | `doc/phase2/03_データ基盤設計/03_Instrument_Catalog設計書.html` |
+| P2-D05 | Market Data Adapter実装詳細設計書 | `doc/phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html` |
+| P2-D06 | Raw / Normalized Store実装詳細設計書 | `doc/phase2/03_市場データ詳細設計/06_Raw_Normalized_Store詳細設計書.html` |
+| P2-D07 | Instrument Catalog実装詳細設計書 | `doc/phase2/03_市場データ詳細設計/07_Instrument_Catalog詳細設計書.html` |
+| P2-D15 | 実装詳細設計レビュー・反映記録 | `doc/phase2/03_市場データ詳細設計/08_実装詳細設計レビュー反映記録.html` |
 | P2-D08 | Roll Rule / Continuous Signal設計書 | `doc/phase2/04_ロール連続足/04_Roll_Rule_Continuous_Signal設計書.html` |
 | P2-D09 | Market Data実装方針とファイル構成 | `doc/phase2/05_実装方針/05_Market_Data実装方針.html` |
 | P2-D10 | Data Quality / Replay検証結果 | `doc/phase2/06_検証/06_Data_Quality_Replay検証結果.html` |
@@ -184,6 +193,7 @@ UnknownはPassにしない。各Unknownには担当ステップ、決定タイ�
 | UNK-P2-07 | Databento API利用コスト、entitlement、API key利用承認。 | P2-02 / H2-2 | 実取得前 | 外部API実取得を行わず、既存P10サンプルとfixtureだけで検証する。 |
 | UNK-P2-08 | `data/market_data/` をリポジトリ内ローカルデータ置場にするか、外部パスにするか。 | P2-05 | P2-05完了時 | 大容量データ生成を停止し、小型fixtureだけ保存する。 |
 | UNK-P2-09 | Shadow用Live相当データの遅延許容しきい値。 | P2-03 / P2-10 | Phase 6 | Phase 2では測定項目だけ定義し、合否しきい値は未確定のまま送る。 |
+| UNK-P2-10 | P2-D05からP2-D07が実装可能な粒度を満たすか。対象コード、型、保存構造、失敗系、テストの不足を許容しない。 | P2-03R | P2-03R完了時 | A91の再レビューでCritical/HighまたはDD-01からDD-12の未充足が残る場合、P2-04とP2-05を開始しない。 |
 
 ---
 
@@ -192,7 +202,7 @@ UnknownはPassにしない。各Unknownには担当ステップ、決定タイ�
 | Gate | タイミング | 承認内容 | 未承認時 |
 |---|---|---|---|
 | H2-0 | P2-01完了後 | Phase 2スコープ、対象候補、Unknown台帳、実装保存先候補。 | P2-02以降へ進めない。 |
-| H2-1 | P2-04完了後 | OD-03のPhase 2採用候補、Continuous signal seriesの責務、条件付き銘柄の扱い。 | P2-05の本実装へ進めない。 |
+| H2-1 | P2-03R・P2-04完了後 | OD-03のPhase 2採用候補、Continuous signal seriesの責務、条件付き銘柄の扱い、P2-D05からP2-D07の実装詳細設計v0.2。 | P2-05の本実装へ進めない。 |
 | H2-2 | P2-07開始前 | Databento API実取得の可否、費用、entitlement、Secret取り扱い。 | 外部API実取得を行わずfixture検証のみ行う。 |
 | H2-3 | P2-09完了後 | 統合レビュー指摘の採否方針。 | P2-10へ進めない。 |
 | H2-4 | P2-10完了後 | Phase 2完了、Phase 3 Strategy / Backtest基盤への移行可否。 | Phase 3へ進めない。 |
@@ -205,12 +215,13 @@ UnknownはPassにしない。各Unknownには担当ステップ、決定タイ�
 |---|---|---|---|
 | G0 | P2-01 | シーケンシャル | 本計画書、H1-4 |
 | G1 | P2-02, P2-03 | 並列可 | H2-0 |
-| G2 | P2-04 | シーケンシャル | P2-02, P2-03 |
-| G3 | P2-05, P2-06 | 条件付き並列可 | H2-1。P2-06はP2-05の初期構成案を参照してよい。 |
-| G4 | P2-07 | シーケンシャル | P2-05, H2-2 |
-| G5 | P2-08 | シーケンシャル | P2-05, P2-06, P2-07 |
-| G6 | P2-09 | シーケンシャル | P2-01からP2-08 |
-| G7 | P2-10 | シーケンシャル | P2-09, H2-3 |
+| G2 | P2-03R | シーケンシャル | P2-03、AF-D14、AF-D15。A91再レビューで実装可能性を確認する。 |
+| G3 | P2-04 | シーケンシャル | P2-02, P2-03R |
+| G4 | P2-05, P2-06 | 条件付き並列可 | H2-1、P2-03R。P2-06はP2-05の初期構成案を参照してよい。 |
+| G5 | P2-07 | シーケンシャル | P2-05, H2-2 |
+| G6 | P2-08 | シーケンシャル | P2-05, P2-06, P2-07 |
+| G7 | P2-09 | シーケンシャル | P2-01からP2-08、P2-03R |
+| G8 | P2-10 | シーケンシャル | P2-09, H2-3 |
 
 ---
 
