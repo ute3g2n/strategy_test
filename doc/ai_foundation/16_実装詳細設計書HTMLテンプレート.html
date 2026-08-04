@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>実装詳細設計書HTMLテンプレート</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 32px auto; max-width: 1240px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; font-size: 14px; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code { font-family: Consolas, "Courier New", monospace; background: #f1f5f9; padding: 1px 4px; }
+    pre { overflow-x: auto; padding: 14px; background: #0f172a; color: #e5e7eb; }
+    .meta, .note, .gate, .unknown, .review { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .gate { border-left-color: #7c3aed; background: #f5f3ff; }
+    .unknown { border-left-color: #b45309; background: #fff7ed; }
+    .review { border-left-color: #15803d; background: #f0fdf4; }
+    .placeholder { color: #475569; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>[成果物ID] [対象ドメイン名] 詳細設計書</h1>
+  <section class="meta">
+    <p><strong>成果物ID:</strong> [ART-XXX]<br>
+    <strong>文書セットID:</strong> [DOCSET-XXX]<br>
+    <strong>対象フェーズ / 手順:</strong> [Phase X / Step ID]<br>
+    <strong>作成日:</strong> [YYYY-MM-DD]<br>
+    <strong>文書状態:</strong> [版数 / レビュー状態]<br>
+    <strong>使用オーケストレータ:</strong> <code>[完全名]</code><br>
+    <strong>担当サブエージェント:</strong> <code>[完全名を列挙]</code><br>
+    <strong>使用スキル:</strong> <code>[完全名を列挙]</code></p>
+  </section>
+
+  <section class="note"><strong>テンプレートの使い方:</strong> このHTMLを複製して、<span class="placeholder">[角括弧]</span>を対象の承認済み事実へ置き換える。想像で埋めない。コード、変数名、外部仕様の正式名称以外は日本語で書き、英単語を説明文で使う場合は直後に日本語の説明を付ける。</section>
+
+  <h2>0. 詳細設計カバレッジ</h2>
+  <p>この表は、詳細設計に必要な要素を、この文書または補完文書のどこで扱うかを示す。</p>
+  <table><thead><tr><th>設計要素</th><th>本書で示す章</th><th>補完先または対象外の理由</th></tr></thead><tbody>
+    <tr><td>DD-01からDD-04</td><td>[章番号]</td><td>[補完先またはN/A理由]</td></tr>
+    <tr><td>DD-05からDD-07</td><td>[章番号]</td><td>[補完先またはN/A理由]</td></tr>
+    <tr><td>DD-08からDD-10</td><td>[章番号]</td><td>[補完先またはN/A理由]</td></tr>
+    <tr><td>DD-11からDD-12</td><td>[章番号]</td><td>[補完先またはN/A理由]</td></tr>
+  </tbody></table>
+
+  <h2>1. ドメインの概要: [対象ドメイン]は何をするものか</h2>
+  <p>[誰が、何のために使い、どの問題を解く部品かを、略語に頼らず二段落で説明する。問題が起きたときに何を止めるかも説明する。]</p>
+  <table><thead><tr><th>利用者</th><th>期待すること</th><th>このドメインが返すもの</th></tr></thead><tbody>
+    <tr><td>[利用者]</td><td>[利用目的を文章で記す]</td><td>[受け取る結果を文章で記す]</td></tr>
+  </tbody></table>
+  <table><thead><tr><th>機能ID</th><th>機能</th><th>誰にでも分かる説明</th><th>失敗時の動き</th></tr></thead><tbody>
+    <tr><td>[F-01]</td><td>[機能名]</td><td>[何をするかを文章で記す]</td><td>[安全に止める方法を記す]</td></tr>
+  </tbody></table>
+
+  <h2>2. ファイル構成</h2>
+  <p>[予定か既存かを明記した上で、ファイルごとの責務を説明する。ここで示すツリーは図ではなく、実装するファイルの一覧である。]</p>
+  <pre>[src/配下のツリー。各ファイル名の後ろに日本語の責務を書く。]
+[tests/配下のツリー。各試験ファイルの目的を書く。]
+[tests/fixtures/配下のツリー。固定入力の意味を書く。]</pre>
+  <table><thead><tr><th>分類</th><th>置くもの</th><th>置いてはいけないもの</th></tr></thead><tbody>
+    <tr><td>[ディレクトリ]</td><td>[置くものを文章で記す]</td><td>[禁止するものを文章で記す]</td></tr>
+  </tbody></table>
+
+  <h2>3. モジュール構造図</h2>
+  <p>この図は、どの部品がどの部品へ依頼し、どこが外部との境界かを示す。ノード内の文言は短くし、詳しい説明は本文へ置く。</p>
+  <pre class="mermaid">flowchart TD
+    呼出元["呼出元\n[処理名]"] --> 受取口["受取口\n[ファイル名]"]
+    受取口 --> 調停["処理の調整\n[ファイル名]"]
+    調停 --> 外部境界["外部との境界\n[ファイル名]"]
+    調停 --> 保管先["保管先\n[ファイル名]"]
+    共通契約["共通のデータ型\n[ファイル名]"] -. 共通で参照 .-> 受取口
+    共通契約 -. 共通で参照 .-> 調停</pre>
+
+  <h2>4. モジュール仕様と入出力パラメータ</h2>
+  <p>この表は、各ファイルが何を担当し、何を受け取り、何を返し、どんな変更を起こすかを説明する。固定の関数名や型名は<code>code</code>で示し、説明欄は日本語の文章で書く。</p>
+  <table><thead><tr><th>ファイル / 実装単位</th><th>機能説明</th><th>入力</th><th>出力</th><th>副作用・禁止事項</th></tr></thead><tbody>
+    <tr><td><code>[file.py / function]</code></td><td>[機能を文章で記す]</td><td>[入力の意味を文章で記す]</td><td>[出力の意味を文章で記す]</td><td>[保存・通信・禁止事項を文章で記す]</td></tr>
+  </tbody></table>
+  <h3>4.1 [主要な入力型]の入力パラメータ</h3>
+  <p>この表は、呼出元が渡す情報の意味と、受取前に確認する条件を説明する。</p>
+  <table><thead><tr><th>パラメータ名</th><th>型</th><th>必須</th><th>説明と検証</th></tr></thead><tbody>
+    <tr><td><code>[parameter_name]</code></td><td><code>[type]</code></td><td>[必須 / 任意]</td><td>[人が理解できる意味、検証、未指定時の動きを文章で記す]</td></tr>
+  </tbody></table>
+  <h3>4.2 [主要な出力型]の出力パラメータ</h3>
+  <p>この表は、処理後に返す情報、保存先へ渡す情報、利用可否の記録に使う情報を説明する。</p>
+  <table><thead><tr><th>型.パラメータ</th><th>型</th><th>説明</th><th>検証 / 取扱い</th></tr></thead><tbody>
+    <tr><td><code>[Type.parameter]</code></td><td><code>[type]</code></td><td>[人が理解できる意味を文章で記す]</td><td>[検証、秘密情報、上書き、停止条件を文章で記す]</td></tr>
+  </tbody></table>
+
+  <h2>5. モジュール間の処理フロー</h2>
+  <h3>5.1 正常時のシーケンス図</h3>
+  <p>[誰が何を渡し、保管・状態記録・返却のどの順で完了するかを説明する。]</p>
+  <pre class="mermaid">sequenceDiagram
+    participant 呼出元 as 呼出元
+    participant 処理 as 処理部
+    participant 保管先 as 保管先
+    participant 記録先 as 状態記録先
+    呼出元->>処理: [依頼]
+    処理->>保管先: [上書きしない保管]
+    保管先-->>処理: [保管結果]
+    処理->>記録先: [利用可否の記録]
+    記録先-->>処理: [記録完了]
+    処理-->>呼出元: [処理結果]</pre>
+  <h3>5.2 失敗時のフローチャート</h3>
+  <p>[どの問題なら何を記録し、どこを止め、再試行できるのは何かを説明する。判断ノードは短い問いにする。]</p>
+  <pre class="mermaid">flowchart TD
+    開始([依頼を受ける]) --> 確認{"依頼は正しいか"}
+    確認 -- いいえ --> 停止["理由を記録して停止"] --> 終了([終了])
+    確認 -- はい --> 実行["処理を実行する"]
+    実行 --> 問題{"問題があるか"}
+    問題 -- はい --> 隔離["問題を記録し\n後続へ渡さない"] --> 終了
+    問題 -- いいえ --> 完了["完了を記録して返す"] --> 終了</pre>
+
+  <h2>6. テスト仕様</h2>
+  <p>この表は、この設計書の範囲で必要な<strong>全</strong>試験を示す。各セルは単語だけで済ませず、技術者以外が見ても、何を確かめる試験かを判断できる日本語の文章で書く。</p>
+  <table><thead><tr><th>テストID</th><th>テスト概要</th><th>テスト条件（入力値）</th><th>操作</th><th>期待結果</th><th>合否判定基準</th></tr></thead><tbody>
+    <tr><td>[TEST-01]</td><td>[何を確かめる試験かを文章で記す]</td><td>[用意する入力・状態を文章で記す]</td><td>[実行する操作を文章で記す]</td><td>[起きるべき結果を文章で記す]</td><td>[観測して合格と判断する条件を文章で記す]</td></tr>
+  </tbody></table>
+
+  <h2>7. 目的と境界（詳細契約）</h2>
+  <p>ここでは、[対象ドメイン]が自分で行うことと、別のドメインへ任せることを詳しく説明する。</p>
+  <table><thead><tr><th>対象</th><th>責務</th><th>非対象</th></tr></thead><tbody>
+    <tr><td>[対象]</td><td>[行うことを文章で記す]</td><td>[行わないことを文章で記す]</td></tr>
+  </tbody></table>
+
+  <h2>8. 公開する受取口の契約</h2>
+  <p>この表は、他の部品が頼める仕事と、その結果を決める約束を説明する。</p>
+  <table><thead><tr><th>受取口の固定名</th><th>受け取る内容</th><th>返す内容</th><th>起こる変更と停止条件</th></tr></thead><tbody>
+    <tr><td><code>[Operation]</code></td><td>[入力の意味]</td><td>[出力の意味]</td><td>[副作用と停止条件]</td></tr>
+  </tbody></table>
+
+  <h2>9. 共通データ契約</h2>
+  <p>この表は、部品どうしで受け渡すデータの箱に、何を入れ、何を証明するかを説明する。</p>
+  <table><thead><tr><th>データの箱の固定名</th><th>必ず入れる項目</th><th>この箱が説明すること</th></tr></thead><tbody>
+    <tr><td><code>[Type]</code></td><td><code>[field_1]</code>、<code>[field_2]</code></td><td>[人が理解できる意味]</td></tr>
+  </tbody></table>
+
+  <h2>10. 出力イベントと順序</h2>
+  <p>この表は、成功・警告・停止の事実を、どの条件で誰へ知らせるかを説明する。</p>
+  <table><thead><tr><th>出来事の固定名</th><th>作る条件</th><th>受け取る先</th><th>成功として知らせるための条件</th></tr></thead><tbody>
+    <tr><td><code>[Event]</code></td><td>[作る条件]</td><td>[受取先]</td><td>[品質条件]</td></tr>
+  </tbody></table>
+
+  <h2>11. エラー分類と閉じた側へ倒す規則</h2>
+  <p>この表は、失敗したときに何を止めるかを決める。使えると証明できないものは、使えるものとして渡さない。</p>
+  <table><thead><tr><th>エラーの固定名</th><th>起きた状況の例</th><th>この部品が行う処理</th><th>利用可否と停止判断</th></tr></thead><tbody>
+    <tr><td><code>[ERROR]</code></td><td>[状況]</td><td>[処理]</td><td>[停止または縮退]</td></tr>
+  </tbody></table>
+
+  <h2>12. 利用可否の状態</h2>
+  <p>この表は、対象の情報や処理を後続で使ってよいかを、状態ごとに説明する。</p>
+  <table><thead><tr><th>状態を表す固定値</th><th>人にとっての意味</th><th>後続での使い方</th></tr></thead><tbody>
+    <tr><td><code>[STATE]</code></td><td>[意味]</td><td>[利用可否]</td></tr>
+  </tbody></table>
+
+  <h2>13. 実行方法との接続</h2>
+  <p>この表は、過去検証、模擬運用、実運用などで、この部品をどう扱うかを説明する。</p>
+  <table><thead><tr><th>実行方法</th><th>受け取る入力</th><th>この部品の動き</th><th>許される変更</th></tr></thead><tbody>
+    <tr><td>[実行方法]</td><td>[入力]</td><td>[動き]</td><td>[副作用]</td></tr>
+  </tbody></table>
+
+  <h2>14. 追跡と未確定事項</h2>
+  <p>この表は、要件をどこで扱い、まだ決まっていないことをいつ誰が決めるかを説明する。不明を成功として扱わない。</p>
+  <table><thead><tr><th>追跡ID</th><th>本書での反映</th><th>未確定事項と未決時の扱い</th></tr></thead><tbody>
+    <tr><td><code>[REQ/DEC/UNK]</code></td><td>[反映内容]</td><td>[決定時期、担当、停止または縮退]</td></tr>
+  </tbody></table>
+
+  <h2>15. 実装依存方向と公開境界</h2>
+  <p>この図と表は、実装の部品が何を参照してよいか、どこまでを外へ公開するかを説明する。</p>
+  <pre class="mermaid">flowchart LR
+    共通契約["共通の型"] --> 公開口["公開する受取口"] --> 調停["処理の調整"]
+    調停 --> 外部境界["外部との境界"]
+    調停 --> 保管先["保管先"]</pre>
+  <table><thead><tr><th>モジュールの固定名</th><th>外へ見せるもの</th><th>参照してよいもの</th><th>担当しないこと</th></tr></thead><tbody>
+    <tr><td><code>[module]</code></td><td>[公開物]</td><td>[許可依存]</td><td>[非責務]</td></tr>
+  </tbody></table>
+
+  <h2>16. 型付き公開契約</h2>
+  <p>ここでは、実装者が作る型と関数の形を示す。コード例の英語は、プログラム言語の予約語・型名・変数名である。</p>
+  <pre>[対象言語で、主要な型・関数・例外を示す。存在しない依存は使わない。]</pre>
+  <p>次の表は、上の公開関数を人が判断できる言葉で説明する。</p>
+  <table><thead><tr><th>関数の固定名</th><th>返すもの</th><th>起こり得るエラー</th><th>繰り返し実行した場合と変更の内容</th></tr></thead><tbody>
+    <tr><td><code>[function]</code></td><td>[戻り値]</td><td>[エラー]</td><td>[冪等性と副作用]</td></tr>
+  </tbody></table>
+
+  <h2>17. 正常系・失敗系の詳細フロー</h2>
+  <p>ここでは、成功、主要な失敗、停止、復旧、再実行の違いを一枚のMermaid図で説明する。</p>
+  <pre class="mermaid">sequenceDiagram
+    participant 呼出元 as 呼出元
+    participant 処理 as 処理部
+    participant 保管先 as 保管先
+    alt 正常時
+        呼出元->>処理: [依頼]
+        処理->>保管先: [保管]
+        処理-->>呼出元: [結果]
+    else 失敗時
+        処理-->>呼出元: [成功として返さず停止]
+    end</pre>
+
+  <h2>18. 誤実装しやすい規則のコード例</h2>
+  <p>この節は、時刻、重複、差分、承認状態、品質低下など、実装を誤りやすい規則だけを対象言語のコードまたは擬似コードで示す。</p>
+  <pre>[コードまたは擬似コード]</pre>
+
+  <h2>19. 設定、監査、テスト、実行記録</h2>
+  <p>この表は、設定値、秘密情報の境界、監査記録、データ版、試験との接続を説明する。</p>
+  <table><thead><tr><th>区分</th><th>契約</th></tr></thead><tbody>
+    <tr><td>[設定 / 監査 / 実行記録 / テスト]</td><td>[人が判断できる文章]</td></tr>
+  </tbody></table>
+
+  <section class="gate"><h2>20. 人間承認の対象</h2><p>[人間が承認する事項、未承認時に何を停止または縮退するかを記す。]</p></section>
+  <section class="review"><h2>21. レビュー履歴</h2><p>この表は、指摘、採否、改訂、再レビューを残す。</p><table><thead><tr><th>日付</th><th>確認者または部品</th><th>観点</th><th>反映</th></tr></thead><tbody><tr><td>[日付]</td><td>[確認者]</td><td>[指摘]</td><td>[反映と再判定]</td></tr></tbody></table></section>
+  <h2>22. 関連成果物</h2>
+  <p>[上位要件、補完する詳細設計、レビュー記録へのリンクを置く。]</p>
+  <ul><li><a href="[relative-path]">[関連成果物名]</a></li></ul>
+</main>
+<script src="../assets/mermaid.min.js"></script>
+<script src="../assets/mermaid-init.js"></script>
+</body>
+</html>

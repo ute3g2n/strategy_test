@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>実装詳細設計書作成依頼プロンプト</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2 { color: #111827; letter-spacing: 0; } h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; } h2 { border-bottom: 1px solid #cbd5e1; margin-top: 32px; padding-bottom: 6px; }
+    pre { overflow-x: auto; padding: 14px; background: #0f172a; color: #e5e7eb; } code { font-family: Consolas, "Courier New", monospace; background: #f1f5f9; padding: 1px 4px; } a { color: #0f5db8; }
+    .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>実装詳細設計書作成依頼プロンプト</h1>
+  <section class="note"><strong>文書ID:</strong> AF-D17<br><strong>用途:</strong> 今後、実装可能な詳細設計書を新規作成または改訂する依頼で使う標準プロンプト。<strong>必須参照:</strong> AF-D14、AF-D15、AF-D16、および対象領域の承認済み設計書。</section>
+
+  <h2>使い方</h2>
+  <p>下の<code>[角括弧]</code>を案件固有の値へ置き換える。指定するAI部品が存在しない場合は代替せず、不足部品を報告して停止する。<code>default_orchestrator</code>は変更しない。</p>
+
+  <h2>標準プロンプト</h2>
+  <pre>ステップID: [Step ID]
+ロール: [対象ドメイン] 実装詳細設計・専門レビュー・改訂統合者
+使用オーケストレータ完全名: AutoTradeProject_ImplementationDesign_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A10_RequirementsCurator_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A82_ImplementationDetailDesigner_v0_1, AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A91_ImplementationDetailReviewer_v0_1, [領域Agent完全名]
+使用モデル: gpt-5.5
+使用Skill完全名: autotrade_skill_implementation_detail_design_v0_1, autotrade_skill_implementation_detail_review_v0_1, autotrade_skill_source_reader_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_revision_integration_v0_1, [領域Skill完全名]
+
+Phase Runbook:
+- phase_id: [Phase X]
+- step_id: [Step ID]
+- output_root: doc/phaseX/
+- log_root: plan/phaseX/ログ/
+- document_set_id: [DOCSET-ID]
+- detail_boundary: [実装する範囲と対象外]
+- human_gate_policy: [Gate名、承認対象、未承認時の停止または縮退]
+- implementation_target: [言語、予定または既存の配置、依存、試験基盤]
+- document_coverage_matrix: DD-01からDD-12の担当成果物、N/A理由、確認者
+
+発火制御:
+- 上記の完全名で指定したAI部品だけを使用する。
+- 指定AI部品が存在しない場合は既存部品で代替せず、不足部品名を報告して停止する。
+- AutoTradePhase1_* と autotrade_phase1_skill_* は参照対象として読むだけにする。
+- default_orchestrator は変更しない。
+
+入力:
+- doc/ai_foundation/14_実装詳細設計書構成標準.html
+- doc/ai_foundation/15_実装詳細設計AI基盤仕様.html
+- doc/ai_foundation/16_実装詳細設計書HTMLテンプレート.html
+- doc/ai_foundation/17_実装詳細設計書作成依頼プロンプト.html
+- [対象ドメインの要件、構造設計、既存コード、既存試験、Unknown台帳、Human Gate]
+
+タスク:
+1. AF-D16をHTML構成の基礎として使い、対象ドメインの詳細設計書を作成または改訂する。
+2. 最初に、誰にでも分かるドメイン概要、ファイルツリー、Mermaid構造図、モジュールと入出力、Mermaid処理フロー、全テスト仕様を置く。
+3. 固有名詞、コード、変数名、外部仕様の正式名称以外は日本語で記述する。説明文に英単語を残す場合は直後に日本語の説明を置く。
+4. 図はすべてローカルのMermaid資産で描画する。ノードは短い見出しにし、長い条件は矢印または本文へ置く。
+5. 7章以降の各表の前に、何を説明し、読者が何を判断できる表かを平易な日本語で書く。
+6. テスト仕様にはスコープ内の全ケースを列挙し、各セルを単語だけで済ませず、テストID、概要、条件、操作、期待結果、合否基準を文章で書く。
+7. DD-01からDD-12、REQ、DEC、UNK、ART、人間承認、停止または縮退、レビュー履歴、doc/index.html導線を満たす。
+
+レビュー:
+- A91は、AF-D16の全必須節、Mermaid図、日本語説明、表の前置き、全テストケースの文章化を個別に監査する。欠ける場合はCriticalまたはHighとしてFailにする。
+- A90と批判的安全レビューは、責務境界、Secret、閉じた側へ倒す規則、Unknown、Phaseスコープを監査する。
+- A80/A81は、テンプレート準拠、HTMLリンク、保存先、doc/index.html、採否と履歴を統合する。
+- 指摘を反映後、A91が同じチェック表で再レビューする。
+
+完了条件:
+- 正式HTMLが doc/phaseX/ 配下に保存され、doc/index.htmlから到達できる。
+- AF-D16の必須節がすべて存在し、N/Aには理由・確認者・代替リンクがある。
+- 図はすべてMermaidで、文字が見切れず、図内の説明は日本語である。
+- テスト表の全行・全列が文章で書かれ、Critical/Highが0件である。
+- UnknownをPassにせず、未決時の停止または縮退と人間承認が記録されている。</pre>
+
+  <h2>関連文書</h2>
+  <ul>
+    <li><a href="./14_実装詳細設計書構成標準.html">AF-D14 実装詳細設計書構成標準</a></li>
+    <li><a href="./15_実装詳細設計AI基盤仕様.html">AF-D15 実装詳細設計AI基盤仕様</a></li>
+    <li><a href="./16_実装詳細設計書HTMLテンプレート.html">AF-D16 実装詳細設計書HTMLテンプレート</a></li>
+    <li><a href="../phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html">P2-D05 市場データ受渡し部 詳細設計書</a></li>
+  </ul>
+</main>
+</body>
+</html>
