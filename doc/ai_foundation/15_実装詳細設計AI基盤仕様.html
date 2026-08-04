@@ -30,7 +30,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D15<br>
     <strong>作成日:</strong> 2026-08-04<br>
-    <strong>文書状態:</strong> v0.2 / AI部品ライフサイクル・読解順フォーマット反映済み<br>
+    <strong>文書状態:</strong> v0.3 / 日本語表現・Mermaid図・試験記述の基準反映済み<br>
     <strong>変更スコープ:</strong> 汎用詳細設計Skill、専門Agent、実装詳細設計Orchestrator、関連ルールと導線<br>
     <strong>作成部品:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code>, <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></p>
   </section>
@@ -81,7 +81,7 @@
       <tr><td><code>implementation_handoff_gate</code></td><td>A91 Critical/High 0件、A90/Red Team採否済み、Unknownの停止・縮退明記後に実装へ渡す。</td></tr>
     </tbody>
   </table>
-  <section class="note"><strong>文書化の強制順:</strong> A82は技術契約の前に、ドメイン概要、ファイルツリー、モジュール構造図、Moduleごとの入出力、処理フロー、全テストケース表を置く。A91はこの順番と各表・図の実在を監査する。具体例は<a href="../phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html">P2-D05 v0.3</a>、正本は<a href="./14_実装詳細設計書構成標準.html">AF-D14</a>とする。</section>
+  <section class="note"><strong>文書化の強制順:</strong> A82は技術契約の前に、ドメイン概要、ファイルツリー、モジュール構造図、モジュールごとの入出力、処理フロー、全テストケース表を置く。説明文・表・図は日本語を基本とし、図はMermaidで表す。A91はこの順番、各表・図の実在、試験表が単語だけで済んでいないことを監査する。具体例は<a href="../phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html">P2-D05 v0.4</a>、正本は<a href="./14_実装詳細設計書構成標準.html">AF-D14</a>とする。</section>
 
   <h2>5. 発火制御</h2>
   <table>
