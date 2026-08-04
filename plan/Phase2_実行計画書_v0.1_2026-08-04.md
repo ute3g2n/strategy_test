@@ -758,9 +758,9 @@ Data Quality / Replay検証を実行し、検証結果HTMLを作成してくだ�
 ステップID: P2-09
 ロール: Phase 2統合レビュー・レッドチーム監査者
 使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
-担当サブエージェント完全名: AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A91_ImplementationDetailReviewer_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1
+担当サブエージェント完全名: AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1
 使用モデル: gpt-5.5
-使用Skill完全名: autotrade_skill_design_review_v0_1, autotrade_skill_implementation_detail_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1
+使用Skill完全名: autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1
 
 Phase Runbook:
 - phase_id: Phase 2
@@ -799,7 +799,7 @@ Phase 2成果物全体を統合レビューし、レッドチーム監査結果�
 8. Phase 3へ渡すdata_version、Manifest、Replay入力の不足。
 9. doc/index.htmlリンク漏れ。
 10. Phase 2スコープ逸脱。
-11. P2-D05からP2-D07のDD-01からDD-12の未充足、またはP2-03R後の変更に対するA91再レビュー漏れ。
+11. P2-D15に記録されたDD-01からDD-12の未充足、またはP2-03R後の変更に対するA91再レビュー漏れ。
 
 出力形式:
 - 指摘ID
@@ -820,10 +820,10 @@ Phase 2成果物全体を統合レビューし、レッドチーム監査結果�
 ```text
 ステップID: P2-10
 ロール: Phase 2修正統合者
-使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
-担当サブエージェント完全名: AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A91_ImplementationDetailReviewer_v0_1, AutoTrade_A05_PhaseExecutionPlanner_v0_1
+使用オーケストレータ完全名: AutoTradeProject_ImplementationDesign_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A91_ImplementationDetailReviewer_v0_1
 使用モデル: gpt-5.5
-使用Skill完全名: autotrade_skill_revision_integration_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_implementation_detail_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_phase_execution_planning_v0_1
+使用Skill完全名: autotrade_skill_revision_integration_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_implementation_detail_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_orchestration_v0_1
 
 Phase Runbook:
 - phase_id: Phase 2
@@ -833,6 +833,8 @@ Phase Runbook:
 - document_set_id: P2-COMPLETION-DOCSET
 - detail_boundary: レビュー指摘を反映し、Phase 2完了判定とPhase 3引き継ぎを作成する。Phase 3の実装詳細計画は別Phase計画として扱う。
 - human_gate_policy: H2-4でPhase 2完了とPhase 3移行を承認する。
+- implementation_target: P2-03Rで確定した `src/autotrade/market_data/`、`tests/market_data/`、`tests/fixtures/market_data/` とP2-D05からP2-D07。対象外の設計書を実装詳細へ拡張しない。
+- document_coverage_matrix: P2-D15のDD-01からDD-12を正本とし、P2-D05からP2-D07に変更が入る場合だけA91が変更箇所と影響範囲を再確認する。
 
 発火制御:
 - 上記の完全名で指定したAI部品だけを使用する。
