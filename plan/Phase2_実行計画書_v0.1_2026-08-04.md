@@ -399,6 +399,75 @@ Phase 2 Market Data Adapter、Raw/Normalized Store、Instrument Catalogの詳細
 - Phase 3がReplay入力を参照できるdata_version構造が説明されている。
 ```
 
+### P2-03R Market Data実装詳細設計の再設計・専門レビュー・改訂・再レビュー
+
+```text
+ステップID: P2-03R
+ロール: Market Data基盤 実装詳細設計・改訂者
+使用オーケストレータ完全名: AutoTradeProject_ImplementationDesign_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A10_RequirementsCurator_v0_1, AutoTrade_A20_ArchitectureDomainArchitect_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A50_AdapterArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A82_ImplementationDetailDesigner_v0_1, AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A91_ImplementationDetailReviewer_v0_1
+使用モデル: gpt-5.5
+使用Skill完全名: autotrade_skill_implementation_detail_design_v0_1, autotrade_skill_implementation_detail_review_v0_1, autotrade_skill_adapter_boundary_v0_1, autotrade_skill_architecture_writer_v0_1, autotrade_skill_domain_modeling_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_source_reader_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_revision_integration_v0_1, autotrade_skill_orchestration_v0_1
+
+Phase Runbook:
+- phase_id: Phase 2
+- step_id: P2-03R
+- output_root: doc/phase2/
+- log_root: plan/phase2/ログ/
+- document_set_id: P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET
+- detail_boundary: Market Data Adapter、Raw/Normalized Store、Instrument Catalogを実装担当者が追加推測なしで着手できる粒度へ改訂する。Strategyロジック、Broker接続、Backtest Engine本体、未承認のDatabento実取得は対象外。
+- human_gate_policy: H2-1でP2-D05からP2-D07の実装詳細設計v0.2とroll/continuous方式を承認する。
+- implementation_target: Python 3.11。予定配置は `src/autotrade/market_data/`、`tests/market_data/`、`tests/fixtures/market_data/`。未承認の外部ライブラリ、外部API実呼出し、Secret実値は設計・コード例に含めない。
+- document_coverage_matrix: DD-01対象/配置、DD-02モジュール依存、DD-03責務、DD-04型付き入出力、DD-05通常/失敗シーケンス、DD-06物理保存、DD-07疑似コード/コード例、DD-08設定/監査/Health、DD-09テスト、DD-10 Run Manifest/data_version、DD-11追跡/Unknown、DD-12レビュー/改訂/再レビュー。
+
+発火制御:
+- 上記の完全名で指定したAI部品だけを使用する。
+- 指定AI部品が存在しない場合は、既存Skill等で代替せず、不足部品として報告して停止する。
+- AutoTradePhase1_* または autotrade_phase1_skill_* は参照対象として読むだけにする。実行部品として起動しない。
+- Phase専用部品は作成しない。汎用部品で不足すると判断した場合は、不足理由、利用期限、凍結条件を報告して停止する。
+- default_orchestrator は変更しない。
+
+入力:
+- doc/ai_foundation/14_実装詳細設計書構成標準.html
+- doc/ai_foundation/15_実装詳細設計AI基盤仕様.html
+- doc/phase2/01_要件追跡/01_Phase2スコープ定義.html
+- doc/phase2/01_要件追跡/01_Phase2要件追跡マトリクス.html
+- doc/phase2/01_要件追跡/01_Phase2未確定事項台帳.html
+- doc/phase2/02_データソース調査/02_Databento公式仕様確認結果.html
+- doc/phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html
+- doc/phase2/03_市場データ詳細設計/06_Raw_Normalized_Store詳細設計書.html
+- doc/phase2/03_市場データ詳細設計/07_Instrument_Catalog詳細設計書.html
+- doc/phase1/06_アダプター境界/06_Adapter境界設計書.html
+- doc/phase1/07_実行モデル/07_共通実行モデル設計書.html
+- doc/phase1/10_テスト品質/10_テスト戦略品質Gate設計書.html
+- README.md、src/、tests/、.gitignore（存在する範囲を確認する。存在しない配置は設計上の予定として明記する。）
+
+タスク:
+P2-D05、P2-D06、P2-D07を実装詳細設計書v0.2へ改訂し、専門レビュー、横断/Red Teamレビュー、改訂、専門再レビューを完了してください。P2-D15として、DD-01からDD-12の網羅表、指摘、採否、再レビュー結果を保存してください。
+
+作業:
+1. 既存P2-D05からP2-D07の不足をDD-01からDD-12で棚卸しし、要件ID、判断ID、Unknown IDとの対応表を作る。
+2. P2-D05に、パッケージ木、Adapter Portと実装クラス、DTO/Event/Error/HealthEventの型付き入出力、Vendor変換境界、取得・正規化・失敗/再試行のシーケンス、擬似コードまたはPythonコード例、fixtureとfailure injectionを追加する。
+3. P2-D06に、Raw/Normalizedのファイルまたは表の物理配置、キー、制約、索引相当、チェックサム、追記専用/再取得差分、冪等性、重複/欠損/破損時の処理、data_version生成、保存/読出しコード例とテストを追加する。
+4. P2-D07に、Catalogのデータ構造、内部ID生成、vendor symbol mapping、contract metadata、calendar/tick/multiplier/margin placeholder、バージョン/移行、検索API、誤マッピング時のfail-closed、コード例とテストを追加する。
+5. 未承認の永続化ライブラリや外部SDKの具体呼出しは固定しない。必要な箇所はPort、Python標準ライブラリ、または擬似コードへ縮退し、Unknown ID、決定タイミング、停止条件を記録する。
+6. P2-D05からP2-D07を既存パスでv0.2に更新し、P2-D15を `doc/phase2/03_市場データ詳細設計/08_実装詳細設計レビュー反映記録.html` に作成する。`doc/index.html` の説明とリンクを更新する。
+7. 実行ログ、DD網羅台帳、レビュー指摘・採否を `plan/phase2/ログ/` と `plan/phase2/台帳/` に記録する。
+
+レビュー:
+- AutoTrade_A91_ImplementationDetailReviewer_v0_1 がDD-01からDD-12を根拠付きでレビューし、実装担当者が追加推測なしに着手できるかをCritical/High/Medium/Lowで判定する。
+- AutoTrade_A90_DesignReviewer_v0_1 がD10/D11/D18との整合性、責務境界、要件追跡、Unknown、Phaseスコープをレビューし、Red Team観点でRaw改変、symbol mapping誤り、品質警告の握りつぶし、データ異常時fail-open、Secret漏えいを監査する。
+- AutoTrade_A80_DocumentIntegrator_v0_1 と AutoTrade_A81_DesignDocSetWriter_v0_1 が指摘を採否付きで反映し、HTML、相互リンク、保存先、doc/index.html、変更履歴を確認する。
+- 反映後、AutoTrade_A91_ImplementationDetailReviewer_v0_1 が再レビューする。CriticalまたはHigh、DD未充足、UnknownのPassが残る場合は完了にしない。
+
+完了条件:
+- P2-D05、P2-D06、P2-D07がDD-01からDD-12を根拠付きで満たすv0.2として存在する。
+- P2-D15が存在し、初回レビュー、A90監査、採否、改訂、A91再レビュー、残Unknownが記録されている。
+- module tree、責務、型付き入出力、物理保存、通常/失敗シーケンス、疑似コードまたはコード例、テスト/fixture/failure injection、data_version/Run Manifest接続を確認できる。
+- A91再レビューでCritical/Highが0件、UnknownはPass扱いされず、H2-1で承認すべき実装詳細設計事項が明確である。
+- doc/index.htmlからP2-D05、P2-D06、P2-D07、P2-D15へ到達できる。
+```
+
 ### P2-04 Roll Rule / Continuous Signal設計
 
 ```text
