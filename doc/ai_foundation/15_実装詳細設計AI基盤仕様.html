@@ -30,7 +30,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D15<br>
     <strong>作成日:</strong> 2026-08-04<br>
-    <strong>文書状態:</strong> v0.3 / 日本語表現・Mermaid図・試験記述の基準反映済み<br>
+    <strong>文書状態:</strong> v0.4 / モジュール間データ受渡しの可視化基準反映済み<br>
     <strong>変更スコープ:</strong> 汎用詳細設計Skill、専門Agent、実装詳細設計Orchestrator、関連ルールと導線<br>
     <strong>作成部品:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code>, <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></p>
   </section>
@@ -77,11 +77,11 @@
     <tbody>
       <tr><td><code>implementation_target</code></td><td>対象リポジトリ、言語、パッケージ配置、既存依存、テスト基盤、保存制約。</td></tr>
       <tr><td><code>document_coverage_matrix</code></td><td>DD-01からDD-12の各要素を、どの成果物が担当するか、N/A理由、レビュー担当。</td></tr>
-      <tr><td><code>required_evidence</code></td><td>Module tree、API定義、保存schema、シーケンス、コード例、テスト対応表、採否表、再レビュー記録。</td></tr>
+      <tr><td><code>required_evidence</code></td><td>Module tree、矢印に受渡し名を付けた構造図、モジュール間データ受渡し表、API定義、保存schema、シーケンス、コード例、テスト対応表、採否表、再レビュー記録。</td></tr>
       <tr><td><code>implementation_handoff_gate</code></td><td>A91 Critical/High 0件、A90/Red Team採否済み、Unknownの停止・縮退明記後に実装へ渡す。</td></tr>
     </tbody>
   </table>
-  <section class="note"><strong>文書化の強制順:</strong> A82は、<a href="./16_実装詳細設計書HTMLテンプレート.html">AF-D16</a>を構成テンプレート、<a href="./17_実装詳細設計書作成依頼プロンプト.html">AF-D17</a>を依頼テンプレートとして使う。技術契約の前に、ドメイン概要、ファイルツリー、モジュール構造図、モジュールごとの入出力、処理フロー、全テストケース表を置く。説明文・表・図は日本語を基本とし、図はMermaidで表す。A91はこの順番、各表・図の実在、試験表が単語だけで済んでいないことを監査する。P2-D05 v0.5は具体例、AF-D14は正本とする。</section>
+  <section class="note"><strong>文書化の強制順:</strong> A82は、<a href="./16_実装詳細設計書HTMLテンプレート.html">AF-D16</a>を構成テンプレート、<a href="./17_実装詳細設計書作成依頼プロンプト.html">AF-D17</a>を依頼テンプレートとして使う。技術契約の前に、ドメイン概要、ファイルツリー、受渡し名を矢印に付けたモジュール構造図、その直後のモジュール間データ受渡し表、モジュールごとの入出力、処理フロー、全テストケース表を置く。説明文・表・図は日本語を基本とし、図はMermaidで表す。A91はこの順番、各表・図の実在、受渡しの意味・用途・停止条件、試験表が単語だけで済んでいないことを監査する。P2-D05 v0.5は具体例、AF-D14は正本とする。</section>
 
   <h2>5. 発火制御</h2>
   <table>
@@ -119,6 +119,7 @@
         <tr><td>2026-08-04</td><td>Red Team</td><td>具体例要求がSecret・未確認外部仕様・虚構の実装を誘発し得る。</td><td>Secret非出力、未確認値のUnknown化、実在しない依存の禁止をSkill/Agent境界へ追加。</td></tr>
         <tr><td>2026-08-04</td><td>利用者レビュー</td><td>DD-01からDD-12だけでは、設計書の読み始めに必要な構造と全テストの見通しを保証できない。</td><td>A82の出力順とA91のレビュー対象に読解順フォーマットを追加。AF-D14を正本、P2-D05 v0.3を具体例に設定。</td></tr>
         <tr><td>2026-08-04</td><td>利用者承認</td><td>P2-D05 v0.5の品質を次回以降に安定して再現するには、具体例だけでなく複製可能なテンプレートと依頼文が必要。</td><td>AF-D16、AF-D17、Skill、A82、A91、オーケストレータへテンプレート準拠・Mermaid・日本語・試験記述の停止条件を追加。</td></tr>
+        <tr><td>2026-08-05</td><td>利用者レビュー</td><td>モジュールの位置関係だけでなく、部品間で渡すデータの意味を設計書から追える必要がある。</td><td>矢印ラベルと受渡し表を、A82の出力・A91の監査・オーケストレータの停止条件へ追加。</td></tr>
       </tbody>
     </table>
   </section>
