@@ -76,7 +76,7 @@
 - 詳細設計書の説明文・表内の文章・図内の説明は、固有名詞、コード、変数名、外部仕様の正式名称以外は日本語を基本とする。説明文で英単語を使う場合は直後に日本語の説明を添える。
 - 図はローカルで参照できるMermaid資産を使って作成し、文字だけの構造図・処理図は作らない。コード例とファイルツリーは図ではないため、この制約の対象外とする。
 - 8章以降などの詳細契約表には、各表の前に「何を説明し、読者が何を判断できる表か」を平易な日本語で記す。テスト表の各セルは単語のみで済ませず、技術者以外にも条件・操作・期待結果・合否が分かる文章にする。
-- `doc/phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html` v0.4は上記読解順・日本語表現・Mermaid図・試験記述の具体的な書式参照とする。ただし、Phase 2固有の技術判断、外部仕様、Unknownを他の設計書へ自動適用してはならない。
+- `doc/phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html` v0.5は上記読解順・日本語表現・Mermaid図・試験記述の具体的な書式参照とする。ただし、Phase 2固有の技術判断、外部仕様、Unknownを他の設計書へ自動適用してはならない。
 - 実装可能な詳細設計書セットを作成・改訂する場合は、標準として `AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、`AutoTrade_A82_ImplementationDetailDesigner_v0_1`、`AutoTrade_A91_ImplementationDetailReviewer_v0_1`、`autotrade_skill_implementation_detail_design_v0_1`、`autotrade_skill_implementation_detail_review_v0_1` を使用する。
 - A91の初回レビュー、A90の横断/Red Teamレビュー、A80/A81の改訂統合、A91の再レビューを完了するまで、実装詳細設計完了を宣言しない。
 - A91のCriticalまたはHigh指摘が残る、必須構成要素が理由なく欠ける、UnknownをPassにする場合は、実装着手へ進めない。
