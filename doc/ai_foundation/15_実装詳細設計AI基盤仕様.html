@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>実装詳細設計AI基盤仕様</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 32px auto; max-width: 1260px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 32px; padding-bottom: 6px; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14px; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code { font-family: Consolas, "Courier New", monospace; background: #f1f5f9; padding: 1px 4px; }
+    a { color: #0f5db8; }
+    pre { overflow-x: auto; padding: 14px; background: #0f172a; color: #e5e7eb; }
+    .meta, .note, .gate, .warn, .review { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .warn { border-left-color: #b45309; background: #fff7ed; }
+    .gate { border-left-color: #7c3aed; background: #f5f3ff; }
+    .review { border-left-color: #15803d; background: #f0fdf4; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>実装詳細設計AI基盤仕様</h1>
+  <section class="meta">
+    <p><strong>文書ID:</strong> AF-D15<br>
+    <strong>作成日:</strong> 2026-08-04<br>
+    <strong>文書状態:</strong> v0.1 / AI部品ライフサイクル・設計レビュー反映済み<br>
+    <strong>変更スコープ:</strong> 汎用詳細設計Skill、専門Agent、実装詳細設計Orchestrator、関連ルールと導線<br>
+    <strong>作成部品:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code>, <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></p>
+  </section>
+
+  <h2>1. 再利用判断</h2>
+  <table>
+    <thead><tr><th>既存部品</th><th>再利用する責務</th><th>不足していた責務</th><th>判断</th></tr></thead>
+    <tbody>
+      <tr><td><code>autotrade_skill_design_doc_set_writer_v0_1</code> / A81</td><td>HTML設計書セット、共通メタ、相互リンク、Unknown、採否、index更新。</td><td>Module/API/永続化/コード例/テストを必須化する規約。</td><td>維持。専門Skill/A82と組み合わせる。</td></tr>
+      <tr><td><code>autotrade_skill_design_review_v0_1</code> / A90</td><td>整合性、追跡性、境界、Red Team、安全性。</td><td>実装者が追加判断なく着手できるかを監査する充足マトリクス。</td><td>維持。専門Skill/A91を追加する。</td></tr>
+      <tr><td>A20 / A40 / A50</td><td>アーキテクチャ、実行、Adapterという領域判断。</td><td>複数領域の判断を実装Module・型・保存・テストへ落とす専任責務。</td><td>維持。A82が承認済み判断を統合する。</td></tr>
+      <tr><td><code>autotrade_skill_revision_integration_v0_1</code> / A80</td><td>指摘採否、HTML改訂、履歴。</td><td>改訂後に詳細設計の必須要素が満たされたことを再検証する責務。</td><td>維持。A91の再レビューを必須化する。</td></tr>
+    </tbody>
+  </table>
+  <p>不足はPhase 2だけの事情ではなく、Strategy、Risk、Broker、Opsを含む将来Phaseでも繰り返し発生する。したがってPhase専用部品ではなく汎用部品として新設する。利用期限は設けず、凍結条件は後継の互換性を壊さずに同じ責務を満たす正式標準が承認されたときとする。</p>
+
+  <h2>2. 新規AI部品</h2>
+  <table>
+    <thead><tr><th>種別</th><th>完全名</th><th>責務</th><th>停止条件</th></tr></thead>
+    <tbody>
+      <tr><td>Skill</td><td><code>autotrade_skill_implementation_detail_design_v0_1</code></td><td>DD-01からDD-12を満たす実装詳細設計を作る。</td><td>実装対象、モジュール/API/保存/失敗系/テストのいずれかを理由なく省いた場合。</td></tr>
+      <tr><td>Skill</td><td><code>autotrade_skill_implementation_detail_review_v0_1</code></td><td>実装可能性を充足マトリクスで監査し、改訂後に再レビューする。</td><td>Critical/Highが残る、またはUnknownをPassにする場合。</td></tr>
+      <tr><td>Agent</td><td><code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code></td><td>承認済みの領域設計をModule、型、保存、順序、コード例、テストへ展開する。</td><td>未承認の外部仕様・ライブラリ・設計判断を確定扱いにする場合。</td></tr>
+      <tr><td>Agent</td><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>実装者視点の不足をfindings-firstで指摘し、改訂後を再監査する。</td><td>見出しや属性名の存在だけでPassにする場合。</td></tr>
+      <tr><td>Orchestrator</td><td><code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></td><td>構成要素計画、専門設計、専門レビュー、改訂、横断レビュー、再レビューを閉ループ化する。</td><td>必須Runbook項目不足、HTML孤立、Critical/High残存、default変更、Unknown Pass。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. 実行フロー</h2>
+  <pre>1. Validate explicit component names and Runbook
+2. A10: extract requirements, decisions, Unknowns, repository constraints
+3. A20/A40/A50: provide approved domain-specific decisions
+4. A82: make DD-01..DD-12 coverage matrix and draft detailed design set
+5. A91: detailed-design completeness review (findings first)
+6. A90 + Red Team: cross-document, safety, traceability review
+7. A80 + A81: adopt findings, revise HTML, update links and history
+8. A91: re-review revised coverage matrix
+9. Record residual Unknowns, Human Gate, implementation handoff in plan/
+10. Update doc/index.html and stop only when completion gate is met</pre>
+
+  <h2>4. Runbook拡張</h2>
+  <table>
+    <thead><tr><th>項目</th><th>意味</th></tr></thead>
+    <tbody>
+      <tr><td><code>implementation_target</code></td><td>対象リポジトリ、言語、パッケージ配置、既存依存、テスト基盤、保存制約。</td></tr>
+      <tr><td><code>document_coverage_matrix</code></td><td>DD-01からDD-12の各要素を、どの成果物が担当するか、N/A理由、レビュー担当。</td></tr>
+      <tr><td><code>required_evidence</code></td><td>Module tree、API定義、保存schema、シーケンス、コード例、テスト対応表、採否表、再レビュー記録。</td></tr>
+      <tr><td><code>implementation_handoff_gate</code></td><td>A91 Critical/High 0件、A90/Red Team採否済み、Unknownの停止・縮退明記後に実装へ渡す。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. 発火制御</h2>
+  <table>
+    <thead><tr><th>依頼内容</th><th>使用標準</th><th>補助部品</th></tr></thead>
+    <tbody>
+      <tr><td>複数HTMLの方針・論理設計書セット</td><td><code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code></td><td>A81、A80、A90、必要な領域Agent。</td></tr>
+      <tr><td>Module/API/保存/コード例/テストを含む実装詳細設計</td><td><code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></td><td>A82、A91、A81、A80、A90、必要な領域Agent。</td></tr>
+      <tr><td>AI部品そのものの追加・変更</td><td><code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code></td><td>A06、A10、A80、A90。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>6. レビュー・改訂の強制条件</h2>
+  <table>
+    <thead><tr><th>段階</th><th>必須確認</th><th>未達時</th></tr></thead>
+    <tbody>
+      <tr><td>A91初回レビュー</td><td>DD-01からDD-12の充足、N/A理由、実装影響。</td><td>Fail。A82/A80/A81へ改訂指示を返す。</td></tr>
+      <tr><td>A90/Red Team</td><td>領域整合、安全、Secret、fail-closed、追跡、危険な先送り。</td><td>FailまたはHuman Gate。実装へ渡さない。</td></tr>
+      <tr><td>改訂統合</td><td>指摘ごとの採用/部分採用/保留/却下理由、HTML・リンク・Unknown更新。</td><td>採否表不足としてFail。</td></tr>
+      <tr><td>A91再レビュー</td><td>改訂後の同一カバレッジ表、Critical/High 0件。</td><td>再改訂。完了宣言禁止。</td></tr>
+    </tbody>
+  </table>
+
+  <section class="gate">
+    <h2>7. Human Gate</h2>
+    <p>外部API実取得、費用、Secret、実装言語/永続化方式の選択、後方互換性を壊すmigration、roll等の業務判断は人間承認対象とする。詳細設計AI基盤は承認判断を代行せず、承認対象と未承認時の停止・縮退を記録する。</p>
+  </section>
+
+  <section class="review">
+    <h2>8. 作成レビューと反映</h2>
+    <table>
+      <thead><tr><th>日付</th><th>観点</th><th>指摘</th><th>反映</th></tr></thead>
+      <tbody>
+        <tr><td>2026-08-04</td><td>再利用調査</td><td>A81/A90は文書セット・横断レビューを担えるが、実装詳細の作成・完全性監査を明示していない。</td><td>A82/A91と2つの汎用Skillを新設。既存部品は置換せず合成。</td></tr>
+        <tr><td>2026-08-04</td><td>設計レビュー</td><td>改訂を記録しても再レビューがなければ欠落が残り得る。</td><td>Orchestratorの停止条件とworkflowにA91再レビューを追加。</td></tr>
+        <tr><td>2026-08-04</td><td>Red Team</td><td>具体例要求がSecret・未確認外部仕様・虚構の実装を誘発し得る。</td><td>Secret非出力、未確認値のUnknown化、実在しない依存の禁止をSkill/Agent境界へ追加。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <h2>9. 残Unknown</h2>
+  <table>
+    <thead><tr><th>ID</th><th>内容</th><th>決定時期</th><th>未決時</th></tr></thead>
+    <tbody>
+      <tr><td>AF-UNK-05</td><td>本基盤の初回適用で、DD-01からDD-12の粒度がPhase 2のP2-03Rに過不足なく機能するか。</td><td>P2-03R完了時</td><td>A91の指摘を残し、P2-05実装への引継ぎを停止または縮退する。</td></tr>
+      <tr><td>AF-UNK-06</td><td>将来の別言語・別永続化基盤でも、同じ構成標準が十分か。</td><td>複数Phase・複数実装基盤の運用後</td><td>現行標準を保持し、言語固有追加はN/A理由付きで扱う。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>10. 関連文書</h2>
+  <ul>
+    <li><a href="./14_実装詳細設計書構成標準.html">AF-D14 実装詳細設計書構成標準</a></li>
+    <li><a href="./03_プロジェクト汎用Skill仕様.html">AF-D03 プロジェクト汎用Skill仕様</a></li>
+    <li><a href="./04_プロジェクト汎用サブエージェント仕様.html">AF-D04 プロジェクト汎用サブエージェント仕様</a></li>
+    <li><a href="./05_プロジェクト汎用オーケストレータ仕様.html">AF-D05 プロジェクト汎用オーケストレータ仕様</a></li>
+    <li><a href="./06_AI部品相関図発火制御図.html">AF-D06 AI部品相関図・発火制御図</a></li>
+    <li><a href="./07_AI部品作成ルール.html">AF-D07 AI部品作成ルール</a></li>
+  </ul>
+</main>
+</body>
+</html>
