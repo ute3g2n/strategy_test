@@ -321,36 +321,39 @@ tests/fixtures/market_data/
   </table>
 
   <h2>12. HealthEvent状態</h2>
+  <p>この表は、今あるデータを使ってよいかを四段階で表す規則である。状態名は機械が判定するための固定値だが、利用者は右側の説明に従って判断する。</p>
   <table>
-    <thead><tr><th>health_state</th><th>意味</th><th>下流利用</th></tr></thead>
+    <thead><tr><th>状態を表す固定値</th><th>人にとっての意味</th><th>後続での使い方</th></tr></thead>
     <tbody>
-      <tr><td><code>HEALTHY</code></td><td>取得、保存、mapping、品質確認が完了。</td><td>通常利用可能。</td></tr>
-      <tr><td><code>DEGRADED</code></td><td>警告はあるが対象範囲が明確で、隔離可能。</td><td>明示的に縮退指定された範囲だけ利用。</td></tr>
-      <tr><td><code>UNHEALTHY</code></td><td>取得、保存、整合性、認証の重大失敗。</td><td>対象Market Data利用を停止。</td></tr>
-      <tr><td><code>UNKNOWN</code></td><td>状態を判定できない、または観測が欠けている。</td><td>Passにせず停止。人間または後続Stepで決定。</td></tr>
+      <tr><td><code>HEALTHY</code></td><td>取得、保管、銘柄対応、品質確認がすべて終わり、問題がない状態。</td><td>通常どおり利用できる。</td></tr>
+      <tr><td><code>DEGRADED</code></td><td>注意すべき問題はあるが、影響する期間や銘柄を特定して隔離できる状態。</td><td>人間が明示した縮退範囲だけ利用できる。</td></tr>
+      <tr><td><code>UNHEALTHY</code></td><td>取得、保管、内容の整合性、認証のいずれかに重大な失敗がある状態。</td><td>対象の市場データ利用を停止する。</td></tr>
+      <tr><td><code>UNKNOWN</code></td><td>状態を判断できない、または判断に必要な観測が欠けている状態。</td><td>合格として扱わず停止し、人間または後続手順で決める。</td></tr>
     </tbody>
   </table>
 
   <h2>13. 実行モードとの接続</h2>
+  <p>この表は、同じ市場データ受渡し部を、過去検証から将来の実運用まででどう使い分けるかを説明する。Phase 2では外部への実取得や注文を行わず、固定入力を中心に確認する。</p>
   <table>
-    <thead><tr><th>モード</th><th>入力</th><th>Adapter動作</th><th>許可される副作用</th></tr></thead>
+    <thead><tr><th>実行方法</th><th>受け取る入力</th><th>市場データ受渡し部の動き</th><th>許される変更</th></tr></thead>
     <tbody>
-      <tr><td>Backtest</td><td>固定されたRaw/Normalized + Catalog + data_version</td><td>Replay Readerとして動作。外部APIを呼ばない。</td><td>ローカルStore読み取りのみ。</td></tr>
-      <tr><td>Shadow</td><td>準Liveデータ + 固定Run Manifest</td><td>遅延・欠損・mappingをHealthEvent化。</td><td>注文副作用なし。対象範囲外は停止。</td></tr>
-      <tr><td>Paper</td><td>Live-like MarketEvent</td><td>Market Dataのみを提供。Broker接続はPhase 4。</td><td>本書では注文を生成しない。</td></tr>
-      <tr><td>Live</td><td>Live MarketEvent</td><td>本書の設計範囲外。HealthとData Gate契約のみ引き継ぐ。</td><td>Phase 2では実行しない。</td></tr>
+      <tr><td>過去検証（<code>Backtest</code>）</td><td>固定した元データ・整形済みデータ・銘柄台帳・データ版を受け取る。</td><td>再生用の読み手として動き、外部APIを呼ばない。</td><td>ローカルの保管庫を読むだけである。</td></tr>
+      <tr><td>影運用（<code>Shadow</code>）</td><td>実運用に近い市場データと、固定した実行記録を受け取る。</td><td>遅れ、欠損、銘柄対応の問題を利用可否の記録に変える。</td><td>注文は出さない。対象範囲外のデータは停止する。</td></tr>
+      <tr><td>模擬売買（<code>Paper</code>）</td><td>実運用に似せた内部市場イベントを受け取る。</td><td>市場データだけを提供する。証券会社との接続はPhase 4で扱う。</td><td>本書の範囲では注文を作らない。</td></tr>
+      <tr><td>実運用（<code>Live</code>）</td><td>実運用の内部市場イベントを受け取る。</td><td>本書の詳細設計の対象外であり、利用可否とデータ利用判定の約束だけを引き継ぐ。</td><td>Phase 2では実行しない。</td></tr>
     </tbody>
   </table>
 
   <h2>14. 追跡とUnknown</h2>
+  <p>この表は、要件定義書で求められたことを本書のどこで扱い、まだ決まっていないことをどこへ送るかを説明する。<code>Unknown</code>は「不明」を示す固定の管理名であり、不明のまま成功として扱わない。</p>
   <table>
     <thead><tr><th>追跡ID</th><th>本書での反映</th><th>未確定事項</th></tr></thead>
     <tbody>
-      <tr><td>REQ-Q02 / REQ-Q20</td><td>候補市場、期間、Replay入力をCatalog/Raw/Normalizedへ接続。</td><td><code>UNK-P2-03</code> 実アカウントでの候補取得。</td></tr>
-      <tr><td>REQ-Q19 / REQ-OD03</td><td>continuous/rollを外部文字列から分離し、versioned inputへ渡す。</td><td><code>UNK-P2-02</code> roll/continuous最終方式はH2-1。</td></tr>
-      <tr><td>REQ-Q23 / REQ-Q29</td><td>quality_flags、HealthEvent、停止条件、取得証跡を契約化。</td><td><code>UNK-P2-04</code> degraded日の採用方針はP2-04。</td></tr>
-      <tr><td>REQ-OD01</td><td>外部仕様をAdapter境界へ閉じ込め、Coreは内部契約のみ利用。</td><td>Vendor差替え時の追加mapping項目は実装検証で確認。</td></tr>
-      <tr><td>D10 / D11 / D18</td><td>MarketEvent、HealthEvent、data_version、Replay/Data Gate、fail-closedを引継ぎ。</td><td>Phase 3のReplay実装とGolden testで実証。</td></tr>
+      <tr><td><code>REQ-Q02</code> / <code>REQ-Q20</code></td><td>候補市場、対象期間、再生処理の入力を、銘柄台帳・元データ・整形済みデータへつなぐ。</td><td><code>UNK-P2-03</code>は、実際の契約で候補を取得できるかという未確定事項である。</td></tr>
+      <tr><td><code>REQ-Q19</code> / <code>REQ-OD03</code></td><td>連続した価格系列と限月の切替規則を外部表記から分離し、版を持つ入力へ渡す。</td><td><code>UNK-P2-02</code>の最終方式はH2-1で人間が承認する。</td></tr>
+      <tr><td><code>REQ-Q23</code> / <code>REQ-Q29</code></td><td>品質上の注意、利用可否、停止条件、取得の証跡を共通契約にする。</td><td><code>UNK-P2-04</code>の品質低下した日の採用方針はP2-04で決める。</td></tr>
+      <tr><td><code>REQ-OD01</code></td><td>外部仕様を市場データ受渡し部の境界へ閉じ込め、中心部は内部契約だけを使う。</td><td>提供元を差し替えるときに必要な追加の対応項目は、実装検証で確認する。</td></tr>
+      <tr><td><code>D10</code> / <code>D11</code> / <code>D18</code></td><td>内部市場イベント、利用可否、データ版、再生処理、データ利用判定、閉じた側へ倒す規則を引き継ぐ。</td><td>Phase 3の再生処理実装と固定期待値試験で実証する。</td></tr>
     </tbody>
   </table>
 
