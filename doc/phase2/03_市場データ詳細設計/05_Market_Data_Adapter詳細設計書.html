@@ -42,13 +42,222 @@
 
   <h2>0. 詳細設計カバレッジ</h2>
   <table><thead><tr><th>DD</th><th>本書の証拠</th><th>補完先</th></tr></thead><tbody>
-    <tr><td>DD-01〜04</td><td>1〜3章、9〜10章のスコープ、モジュール、公開型。</td><td>P2-D06/D07の保存・Catalog型。</td></tr>
-    <tr><td>DD-05〜07</td><td>4〜7章、11〜12章のRaw受渡し、失敗順序、変換コード。</td><td>物理保存はP2-D06。</td></tr>
-    <tr><td>DD-08〜10</td><td>6〜7章、13章のHealth、Secret境界、Manifest接続。</td><td>P2-D06/D07。</td></tr>
-    <tr><td>DD-11〜12</td><td>8章、14〜15章、およびP2-D15。</td><td>P2-D03、P2-D15。</td></tr>
+    <tr><td>DD-01〜04</td><td>1〜4章、14〜15章のドメイン、ファイル、モジュール、公開型。</td><td>P2-D06/D07の保存・Catalog型。</td></tr>
+    <tr><td>DD-05〜07</td><td>5〜6章、9〜12章、16〜17章のRaw受渡し、失敗順序、変換コード。</td><td>物理保存はP2-D06。</td></tr>
+    <tr><td>DD-08〜10</td><td>6章、11〜12章、18章のHealth、Secret境界、Manifest接続。</td><td>P2-D06/D07。</td></tr>
+    <tr><td>DD-11〜12</td><td>13章、19〜20章、およびP2-D15。</td><td>P2-D03、P2-D15。</td></tr>
   </tbody></table>
 
-  <h2>1. 目的と境界</h2>
+  <h2>1. ドメインの概要: Market Data Adapterは何をするものか</h2>
+  <p>Market Data Adapterは、外部データ提供元から届く市場データを、システムが安全に保管し、後で同じ条件で読み直せる形に受け渡すための入口である。データ提供元ごとの呼び方、通信方式、シンボル表記、認証方法を、この入口の内側だけに閉じ込める。</p>
+  <p>たとえば、外部から「ある銘柄の1分足をください」と受け取ったデータを、そのまま戦略へ渡すことはしない。まず元のデータを改変せず保管し、どの条件で取得したか、壊れていないか、必要な銘柄が全部そろったかを確認する。問題があれば、下流へ進めずに理由を残して止まる。これがこのドメインの役目である。</p>
+  <table><thead><tr><th>利用者</th><th>このドメインに期待すること</th><th>このドメインが返すもの</th></tr></thead><tbody>
+    <tr><td>P2-05の取得ジョブ</td><td>指定期間・指定銘柄のデータを安全に取り込む。</td><td>Raw保存結果、checksum、健康状態、失敗理由。</td></tr>
+    <tr><td>Raw / Normalized Store</td><td>元データと取得条件を改変せず受け取る。</td><td>payload、metadata、request fingerprint、受信時刻。</td></tr>
+    <tr><td>Instrument Catalog</td><td>外部シンボルを内部InstrumentIdへ対応付ける材料を受け取る。</td><td>symbol解決結果、definition観測、失敗理由。</td></tr>
+    <tr><td>Replay / Data Quality</td><td>問題のあるデータを混ぜず、再現できる版を使う。</td><td>健康状態、quality理由、Raw参照、data_version候補。</td></tr>
+  </tbody></table>
+  <table><thead><tr><th>機能ID</th><th>機能</th><th>誰にでも分かる説明</th><th>失敗時</th></tr></thead><tbody>
+    <tr><td>MDA-F01</td><td>取得依頼の確認</td><td>期間、時刻、銘柄、利用モードに抜けや矛盾がないかを、外部へ問い合わせる前に確認する。</td><td>問い合わせずに<code>InvalidRequest</code>を返す。</td></tr>
+    <tr><td>MDA-F02</td><td>データ取得</td><td>fixtureまたは将来の提供元Gatewayから、元データと取得に関する説明を受け取る。</td><td>認証、権限、部分取得、rate limitを成功にしない。</td></tr>
+    <tr><td>MDA-F03</td><td>Raw保存への受渡し</td><td>元データの指紋を計算し、同じ内容を何度も上書きしない形でRaw Storeへ渡す。</td><td>保存失敗時は「取得成功」と知らせない。</td></tr>
+    <tr><td>MDA-F04</td><td>シンボルと契約情報の観測</td><td>外部の名前を内部の銘柄台帳が判断できる材料へ変換する。ただし台帳を勝手に確定しない。</td><td>一意に決まらなければPendingとして止める。</td></tr>
+    <tr><td>MDA-F05</td><td>健康状態と監査</td><td>今のデータが使えるか、どこで問題になったかを、Secretを出さずに記録する。</td><td><code>DEGRADED</code>、<code>UNHEALTHY</code>、<code>UNKNOWN</code>では下流利用を止める。</td></tr>
+  </tbody></table>
+
+  <h2>2. ファイル構成</h2>
+  <p>以下はP2-05で作成する予定のファイル構成である。現在は未作成であり、ファイル名と責務をこの設計書の契約として固定する。</p>
+  <pre>src/autotrade/market_data/
+├── __init__.py                    # パッケージ初期化。公開するPortとDTOだけを再公開
+├── contracts.py                   # Request、Payload、Result、HealthEvent、Errorの型定義
+├── request_validation.py          # 取得依頼の必須値、UTC、期間、source_modeの検証
+├── adapter_port.py                # 呼出側が使うHistoricalDataPort Protocol
+├── adapter_service.py             # 取得確認、Gateway呼出し、Raw Store受渡しを順に調停
+├── vendor_gateway.py              # 外部提供元を隠すVendorGateway Protocolと外部エラー変換
+├── fixture_gateway.py             # P2-05用。ローカルfixtureだけを読むGateway実装
+├── health.py                      # HealthEventの生成、状態遷移、監査用Reporter
+├── raw_store.py                   # P2-D06が定義するRawStorePortの呼出し境界
+└── catalog_port.py                # P2-D07が定義するsymbol/definition受渡し境界
+
+tests/market_data/
+├── test_request_validation.py     # 依頼値の検証テスト
+├── test_adapter_service.py        # 取得からRaw保存までの処理テスト
+├── test_fixture_gateway.py        # fixture読込と外部エラー変換テスト
+├── test_health.py                 # 状態遷移とSecret非出力テスト
+└── test_adapter_integration.py    # Port、Raw Store、Catalog Portをつないだ結合テスト
+
+tests/fixtures/market_data/
+├── historical_ok.ndjson           # 正常な1分足相当fixture
+├── historical_partial.ndjson      # 一部シンボルだけのfixture
+├── historical_degraded.ndjson     # 品質警告を持つfixture
+└── historical_corrupt.bin         # checksum/decode失敗用fixture</pre>
+  <table><thead><tr><th>分類</th><th>置くもの</th><th>置いてはいけないもの</th></tr></thead><tbody>
+    <tr><td><code>src/</code></td><td>外部非依存の型、Port、サービス、fixture実装。</td><td>API key、実Account情報、研究用P10コードの直接コピー。</td></tr>
+    <tr><td><code>tests/</code></td><td>契約ごとのunit/integration/failure injectionテスト。</td><td>大容量Raw、実取得データ、Secretを含むファイル。</td></tr>
+    <tr><td><code>tests/fixtures/</code></td><td>小さく匿名化した固定入力と期待結果。</td><td>外部提供元の利用条件に反するデータの再配布物。</td></tr>
+  </tbody></table>
+
+  <h2>3. モジュール構造図</h2>
+  <pre>                        呼出側 (P2-05 CLI / Job)
+                                      |
+                                      v
+                         +-------------------------+
+                         | adapter_port.py         |
+                         | HistoricalDataPort      |
+                         +------------+------------+
+                                      |
+                                      v
+                         +-------------------------+
+                         | adapter_service.py      |
+                         | IngestionService        |
+                         +--+-----------+-------+--+
+                            |           |       |
+          validate request  |           |       | record health/audit
+                            v           v       v
+              +----------------+  +----------------+  +---------------+
+              | request_       |  | vendor_gateway |  | health.py     |
+              | validation.py  |  | Protocol       |  | Reporter      |
+              +----------------+  +--------+-------+  +---------------+
+                                           |
+                       fixture mode        | external mode (H2-2承認後のみ)
+                                           v
+                                  +-------------------+
+                                  | fixture_gateway.py|
+                                  +-------------------+
+                                           |
+                                           v
+                         +-------------------------+
+                         | raw_store.py             |
+                         | RawStorePort (P2-D06)    |
+                         +-------------------------+
+                                           |
+                                           v
+                         P2-D06 Raw Store / P2-D07 Catalog Port
+
+contracts.py は全モジュールが参照する共通の型だけを持つ。
+矢印と逆向きの依存、Strategy/Risk/OMSからの直接呼出しは禁止する。</pre>
+
+  <h2>4. モジュール仕様と入出力パラメータ</h2>
+  <table><thead><tr><th>ファイル / 実装単位</th><th>機能説明</th><th>入力</th><th>出力</th><th>副作用・禁止事項</th></tr></thead><tbody>
+    <tr><td><code>request_validation.py<br>validate_request</code></td><td>取得依頼が外部へ送れる形かを確認する。</td><td><code>request: HistoricalRequest</code></td><td>検証済み<code>HistoricalRequest</code>または<code>InvalidRequest</code></td><td>副作用なし。時刻や銘柄を補完しない。</td></tr>
+    <tr><td><code>adapter_port.py<br>HistoricalDataPort.ingest</code></td><td>呼出側の唯一の取得入口を表す。</td><td><code>request: HistoricalRequest</code></td><td><code>IngestionResult</code>または分類済み例外</td><td>vendor SDK型を公開しない。</td></tr>
+    <tr><td><code>adapter_service.py<br>IngestionService.ingest</code></td><td>検証、取得、品質確認、Raw保存、Health記録を順番に実行する。</td><td><code>request</code>、注入された<code>gateway</code>/<code>raw_store</code>/<code>reporter</code></td><td><code>IngestionResult</code></td><td>Raw保存が成功するまで成功結果を返さない。</td></tr>
+    <tr><td><code>vendor_gateway.py<br>VendorGateway.fetch</code></td><td>外部提供元の違いを隠し、共通のpayloadへ変換する。</td><td><code>request: HistoricalRequest</code></td><td><code>GatewayPayload</code></td><td>HTTP/SDK例外を<code>AdapterError</code>へ変換。Secretを返さない。</td></tr>
+    <tr><td><code>fixture_gateway.py<br>FixtureGateway.fetch</code></td><td>H2-2未承認中に固定fixtureだけを返す。</td><td><code>request</code>、fixture path（内部設定）</td><td><code>GatewayPayload</code></td><td>ネットワークへ接続しない。fixture不在は<code>FixtureNotFound</code>。</td></tr>
+    <tr><td><code>raw_store.py<br>RawStorePort.put_if_absent</code></td><td>payloadを不変Rawとして保存するP2-D06境界。</td><td><code>raw_write: RawWriteRequest</code></td><td><code>RawWriteResult</code></td><td>同一内容は既存参照、異内容は上書き禁止。</td></tr>
+    <tr><td><code>catalog_port.py<br>CatalogPort.record_observation</code></td><td>symbol/definitionの観測材料をCatalogへ渡す。</td><td><code>observation: SymbolObservation</code></td><td><code>ObservationReceipt</code></td><td>内部InstrumentIdをAdapterが勝手に発行しない。</td></tr>
+    <tr><td><code>health.py<br>HealthReporter.record</code></td><td>利用可否と停止理由を監査可能なHealthEventへする。</td><td><code>event: HealthEvent</code></td><td>なし</td><td>追記のみ。失敗時は呼出元を<code>UNHEALTHY</code>として扱う。</td></tr>
+  </tbody></table>
+  <h3>4.1 HistoricalRequestの入力パラメータ</h3>
+  <table><thead><tr><th>パラメータ名</th><th>型</th><th>必須</th><th>説明と検証</th></tr></thead><tbody>
+    <tr><td><code>request_id</code></td><td>str</td><td>必須</td><td>呼出側が一意に付与する依頼ID。空文字不可。再試行時も同じ論理依頼なら保持する。</td></tr>
+    <tr><td><code>dataset_ref</code></td><td>str</td><td>必須</td><td>datasetを指す公開可能な別名。API keyやURL queryを含めない。</td></tr>
+    <tr><td><code>schema_ref</code></td><td>str</td><td>必須</td><td>要求するデータ形式の別名。未確認schemaを既定値で補完しない。</td></tr>
+    <tr><td><code>symbols</code></td><td>tuple[str, ...]</td><td>必須</td><td>1件以上。外部表記はこの値の中だけに留め、Core IDとして扱わない。</td></tr>
+    <tr><td><code>start_utc</code></td><td>datetime</td><td>必須</td><td>timezone-aware UTC。<code>end_utc</code>より前であること。</td></tr>
+    <tr><td><code>end_utc</code></td><td>datetime</td><td>必須</td><td>timezone-aware UTC。未来時刻を勝手に丸めない。</td></tr>
+    <tr><td><code>source_mode</code></td><td><code>"fixture" | "external"</code></td><td>必須</td><td><code>external</code>はH2-2承認済みだけ。未承認なら即時停止。</td></tr>
+  </tbody></table>
+  <h3>4.2 GatewayPayload、RawWriteRequest、IngestionResultのパラメータ</h3>
+  <table><thead><tr><th>型.パラメータ</th><th>型</th><th>説明</th><th>検証 / 取扱い</th></tr></thead><tbody>
+    <tr><td><code>GatewayPayload.payload</code></td><td>bytes</td><td>取得した元データ。</td><td>SHA-256を計算し、改変せずRaw Storeへ渡す。</td></tr>
+    <tr><td><code>GatewayPayload.metadata</code></td><td>dict[str, str]</td><td>dataset、schema、condition、取得条件などの説明。</td><td>Secret/authorization/accountを含むkeyは拒否する。</td></tr>
+    <tr><td><code>GatewayPayload.condition</code></td><td>literal</td><td>提供元が示す利用可能性。</td><td><code>available</code>以外は成功のRaw取り込みを行わない。</td></tr>
+    <tr><td><code>RawWriteRequest.request_fingerprint</code></td><td>str</td><td>依頼内容を正規化して得る識別子。</td><td>payload SHA-256と組み合わせてRaw object IDを決める。</td></tr>
+    <tr><td><code>RawWriteRequest.received_at_utc</code></td><td>datetime</td><td>Adapterがpayloadを受け取ったUTC時刻。</td><td>timezone-aware UTC必須。</td></tr>
+    <tr><td><code>IngestionResult.raw_object_id</code></td><td>str</td><td>不変Rawの識別子。</td><td>Raw Store成功後だけ返す。</td></tr>
+    <tr><td><code>IngestionResult.payload_sha256</code></td><td>str</td><td>payload完全性のdigest。</td><td>64桁hexであること。</td></tr>
+    <tr><td><code>IngestionResult.health_event_id</code></td><td>str</td><td>今回の取り込み状態を示すHealthEvent ID。</td><td>Health記録失敗なら成功結果を返さない。</td></tr>
+  </tbody></table>
+
+  <h2>5. モジュール間の処理フロー</h2>
+  <h3>5.1 取得からRaw保存までのシーケンス図</h3>
+  <pre>Caller          AdapterPort     IngestionService    Gateway         RawStore       HealthReporter
+  | ingest(req)      |                   |              |                |                 |
+  |----------------->|------------------>|              |                |                 |
+  |                  | validate_request  |              |                |                 |
+  |                  |------------------>|              |                |                 |
+  |                  |                   | fetch(req)   |                |                 |
+  |                  |                   |------------->|                |                 |
+  |                  |                   | payload      |                |                 |
+  |                  |                   |<-------------|                |                 |
+  |                  |                   | put_if_absent(raw_write)       |                 |
+  |                  |                   |------------------------------->|                 |
+  |                  |                   | RawWriteResult                 |                 |
+  |                  |                   |<-------------------------------|                 |
+  |                  |                   | record(HEALTHY)                                  |
+  |                  |                   |------------------------------------------------>| 
+  | IngestionResult  |<------------------|              |                |                 |
+  |<-----------------|                   |              |                |                 |</pre>
+  <h3>5.2 失敗時のアクティビティ図</h3>
+  <pre>[開始]
+  |
+  v
+[依頼を検証] --不正--> [InvalidRequestを返す] --> [終了]
+  |
+  v
+[source_modeはexternalか] --YesかつH2-2未承認--> [HEALTHYにせず停止] --> [終了]
+  |
+  No / 承認済み
+  v
+[Gatewayからpayloadを取得] --認証/権限/部分取得/rate limit--> [HealthEventを記録]
+  |                                                          |
+  |                                                          v
+  |                                              [Retry可能かつ上限内か]
+  |                                                | Yes              | No
+  |                                                v                  v
+  |                                           [限定再試行]        [Data Gate停止]
+  v
+[condition=availableか] --No--> [DEGRADED/UNKNOWNを記録] --> [Raw/Replay/Signalへ渡さない]
+  |
+  Yes
+  v
+[checksum計算とRaw保存] --失敗--> [UNHEALTHYを記録] --> [成功を返さない]
+  |
+  v
+[HEALTHYとIngestionResultを返す] --> [終了]</pre>
+  <h3>5.3 symbol / definition観測フロー</h3>
+  <pre>[Symbol/Definition要求]
+  -> [Gatewayが外部表記で取得]
+  -> [partial / ambiguous / not_found?]
+       -> Yes: [CatalogPortへ成功として渡さない] -> [Pending + HealthEvent] -> [終了]
+       -> No:  [SymbolObservationを作成]
+                -> [CatalogPort.record_observation]
+                -> [ObservationReceipt]
+                -> [終了]
+
+Adapterは内部InstrumentIdを作らない。どの契約へ対応するかの最終判断はP2-D07 Catalogだけが行う。</pre>
+
+  <h2>6. テスト仕様</h2>
+  <p>本表はP2-D05が要求する全テストケースである。P2-05で機能を増やす場合は、対応するケースを追加してから実装する。テスト入力はすべてfixtureまたはmockであり、外部APIを呼ばない。</p>
+  <table><thead><tr><th>テストID</th><th>テスト概要</th><th>テスト条件（入力値）</th><th>操作</th><th>期待結果</th><th>合否判定基準</th></tr></thead><tbody>
+    <tr><td>MDA-T01</td><td>正常fixture取得</td><td>UTC範囲、有効dataset/schema、1 symbol、<code>source_mode=fixture</code>、ok fixture</td><td><code>ingest</code></td><td>Raw保存、HEALTHY、result返却</td><td>created=true、payload SHA一致、HealthがHEALTHY。</td></tr>
+    <tr><td>MDA-T02</td><td>空request_id拒否</td><td><code>request_id=""</code></td><td><code>validate_request</code></td><td>InvalidRequest</td><td>Gateway/RawStore/HealthReporterが呼ばれない。</td></tr>
+    <tr><td>MDA-T03</td><td>空symbols拒否</td><td><code>symbols=()</code></td><td><code>validate_request</code></td><td>InvalidRequest</td><td>reason_codeが<code>SYMBOLS_REQUIRED</code>。</td></tr>
+    <tr><td>MDA-T04</td><td>naive時刻拒否</td><td><code>start_utc.tzinfo=None</code></td><td><code>validate_request</code></td><td>InvalidRequest</td><td>reason_codeが<code>UTC_REQUIRED</code>。</td></tr>
+    <tr><td>MDA-T05</td><td>逆転期間拒否</td><td><code>start_utc &gt;= end_utc</code></td><td><code>validate_request</code></td><td>InvalidRequest</td><td>Gateway未呼出し。</td></tr>
+    <tr><td>MDA-T06</td><td>H2-2未承認external停止</td><td><code>source_mode=external</code>、<code>h2_2_approved=false</code></td><td><code>ingest</code></td><td>ExternalStateError</td><td>ネットワークGateway/RawStoreを呼ばず、成功結果なし。</td></tr>
+    <tr><td>MDA-T07</td><td>fixtureはネットワーク未使用</td><td>正常fixture request</td><td><code>FixtureGateway.fetch</code></td><td>payload返却</td><td>外部clientを生成しないことをmockで確認。</td></tr>
+    <tr><td>MDA-T08</td><td>fixture不在</td><td>存在しないfixture path</td><td><code>FixtureGateway.fetch</code></td><td>FixtureNotFound</td><td>Raw保存、HEALTHY、成功結果がない。</td></tr>
+    <tr><td>MDA-T09</td><td>metadata Secret拒否</td><td><code>metadata={"authorization":"x"}</code></td><td><code>ingest</code></td><td>InvalidMetadata</td><td>payload/metadataをRawへ書かず、Secret値をログしない。</td></tr>
+    <tr><td>MDA-T10</td><td>degraded停止</td><td><code>condition=degraded</code></td><td><code>ingest</code></td><td>ExternalStateError、DEGRADED</td><td>Raw成功結果、Manifest候補、Replay入力が作られない。</td></tr>
+    <tr><td>MDA-T11</td><td>pending停止</td><td><code>condition=pending</code></td><td><code>ingest</code></td><td>ExternalStateError、UNKNOWN</td><td>Data Gateへreason_codeが渡る。</td></tr>
+    <tr><td>MDA-T12</td><td>missing停止</td><td><code>condition=missing</code></td><td><code>ingest</code></td><td>ExternalStateError、UNKNOWN</td><td>成功イベントがない。</td></tr>
+    <tr><td>MDA-T13</td><td>partial symbol停止</td><td>GatewayがPartialSymbolResolutionを送出</td><td><code>ingest</code></td><td>分類済み例外、DEGRADED</td><td>解決済み一部だけをRaw/Replay本線へ渡さない。</td></tr>
+    <tr><td>MDA-T14</td><td>認証失敗</td><td>GatewayがAuthenticationError</td><td><code>ingest</code></td><td>分類済み例外、UNHEALTHY</td><td>Secret値/Authorization値が例外・監査に含まれない。</td></tr>
+    <tr><td>MDA-T15</td><td>権限不足</td><td>GatewayがEntitlementDenied</td><td><code>ingest</code></td><td>分類済み例外、UNKNOWN</td><td>H2-2再確認対象となり、Raw保存なし。</td></tr>
+    <tr><td>MDA-T16</td><td>rate limit限定再試行成功</td><td>最初だけRateLimited、Retry-Afterあり、次回ok</td><td><code>ingest</code></td><td>1回待機後に成功</td><td>指定上限内、Retry-After未満で再試行しない。</td></tr>
+    <tr><td>MDA-T17</td><td>rate limit上限停止</td><td>常にRateLimitedまたはRetry-Afterなし</td><td><code>ingest</code></td><td>UNHEALTHY</td><td>上限超過後に追加fetchせず、成功結果なし。</td></tr>
+    <tr><td>MDA-T18</td><td>Raw初回保存</td><td>正常payload、未保存fingerprint</td><td><code>put_if_absent</code></td><td>新object</td><td>created=true、object_id/digest/metadataが一致。</td></tr>
+    <tr><td>MDA-T19</td><td>同一payload再実行</td><td>同一fingerprint・同一payloadを2回</td><td><code>ingest</code>を2回</td><td>同一Raw参照</td><td>2回目created=false、Raw内容/監査履歴を変更しない。</td></tr>
+    <tr><td>MDA-T20</td><td>差分payload再取得</td><td>同一論理依頼・異なるpayload</td><td><code>ingest</code></td><td>新Rawまたは差分隔離</td><td>旧Rawを上書きせず、reason_codeとdiff対象が記録される。</td></tr>
+    <tr><td>MDA-T21</td><td>Raw書込失敗</td><td>RawStorePortがRawWriteError</td><td><code>ingest</code></td><td>UNHEALTHY</td><td>IngestionResultを返さず、成功イベントを発行しない。</td></tr>
+    <tr><td>MDA-T22</td><td>Health記録失敗</td><td>HealthReporterが例外</td><td><code>ingest</code></td><td>UNHEALTHY</td><td>成功結果なし。Rawが残る場合も利用可能扱いにしない。</td></tr>
+    <tr><td>MDA-T23</td><td>symbol観測一意成功</td><td>resolved mapping 1件、future class</td><td><code>record_observation</code></td><td>ObservationReceipt</td><td>source_raw_object_idと有効期間を含む。</td></tr>
+    <tr><td>MDA-T24</td><td>symbol観測曖昧停止</td><td>ambiguous mappingまたはspread</td><td><code>record_observation</code></td><td>Pending/HealthEvent</td><td>内部InstrumentId、MarketEvent、Tradable昇格を行わない。</td></tr>
+  </tbody></table>
+
+  <h2>7. 目的と境界（詳細契約）</h2>
   <p>本書は、Databento等の外部Market Data sourceを内部のRaw Store、Normalized Store、Instrument Catalog、Replay入力へ接続するAdapterの実装可能な契約を定義する。外部SDK、HTTP型、vendor symbol、API keyをCore、Strategy、Risk、OMSへ漏らさない。</p>
   <table>
     <thead><tr><th>対象</th><th>責務</th><th>非対象</th></tr></thead>
