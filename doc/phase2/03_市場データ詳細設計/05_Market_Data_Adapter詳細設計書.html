@@ -393,18 +393,18 @@ from typing import Literal, Protocol
 
 @dataclass(frozen=True)
 class HistoricalRequest:
-    request_id: str                 # required; caller-generated UUID text
-    dataset_ref: str                # required; e.g. vendor/dataset alias, not a Secret
-    schema_ref: str                 # required
-    symbols: tuple[str, ...]        # required; non-empty; vendor syntax stays here
-    start_utc: datetime             # required; timezone-aware UTC
-    end_utc: datetime               # required; start_utc &lt; end_utc
+    request_id: str                 # 必須。呼出元が作る一意な依頼番号
+    dataset_ref: str                # 必須。提供元とデータ集合を示す別名。秘密情報ではない
+    schema_ref: str                 # 必須。要求するデータ形式の別名
+    symbols: tuple[str, ...]        # 必須。一件以上。提供元の表記はここだけに置く
+    start_utc: datetime             # 必須。時間帯を含む協定世界時
+    end_utc: datetime               # 必須。開始時刻より後の協定世界時
     source_mode: Literal["fixture", "external"]
 
 @dataclass(frozen=True)
 class GatewayPayload:
     payload: bytes
-    metadata: dict[str, str]        # Secret/authorization header is prohibited
+    metadata: dict[str, str]        # 秘密情報や認証用の項目を含めてはならない
     condition: Literal["available", "degraded", "pending", "missing", "unknown"]
 
 class VendorGateway(Protocol):
