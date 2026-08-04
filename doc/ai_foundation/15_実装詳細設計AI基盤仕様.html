@@ -30,7 +30,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D15<br>
     <strong>作成日:</strong> 2026-08-04<br>
-    <strong>文書状態:</strong> v0.1 / AI部品ライフサイクル・設計レビュー反映済み<br>
+    <strong>文書状態:</strong> v0.2 / AI部品ライフサイクル・読解順フォーマット反映済み<br>
     <strong>変更スコープ:</strong> 汎用詳細設計Skill、専門Agent、実装詳細設計Orchestrator、関連ルールと導線<br>
     <strong>作成部品:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code>, <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></p>
   </section>
@@ -81,6 +81,7 @@
       <tr><td><code>implementation_handoff_gate</code></td><td>A91 Critical/High 0件、A90/Red Team採否済み、Unknownの停止・縮退明記後に実装へ渡す。</td></tr>
     </tbody>
   </table>
+  <section class="note"><strong>文書化の強制順:</strong> A82は技術契約の前に、ドメイン概要、ファイルツリー、モジュール構造図、Moduleごとの入出力、処理フロー、全テストケース表を置く。A91はこの順番と各表・図の実在を監査する。具体例は<a href="../phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html">P2-D05 v0.3</a>、正本は<a href="./14_実装詳細設計書構成標準.html">AF-D14</a>とする。</section>
 
   <h2>5. 発火制御</h2>
   <table>
@@ -116,6 +117,7 @@
         <tr><td>2026-08-04</td><td>再利用調査</td><td>A81/A90は文書セット・横断レビューを担えるが、実装詳細の作成・完全性監査を明示していない。</td><td>A82/A91と2つの汎用Skillを新設。既存部品は置換せず合成。</td></tr>
         <tr><td>2026-08-04</td><td>設計レビュー</td><td>改訂を記録しても再レビューがなければ欠落が残り得る。</td><td>Orchestratorの停止条件とworkflowにA91再レビューを追加。</td></tr>
         <tr><td>2026-08-04</td><td>Red Team</td><td>具体例要求がSecret・未確認外部仕様・虚構の実装を誘発し得る。</td><td>Secret非出力、未確認値のUnknown化、実在しない依存の禁止をSkill/Agent境界へ追加。</td></tr>
+        <tr><td>2026-08-04</td><td>利用者レビュー</td><td>DD-01からDD-12だけでは、設計書の読み始めに必要な構造と全テストの見通しを保証できない。</td><td>A82の出力順とA91のレビュー対象に読解順フォーマットを追加。AF-D14を正本、P2-D05 v0.3を具体例に設定。</td></tr>
       </tbody>
     </table>
   </section>

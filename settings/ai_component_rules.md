@@ -71,6 +71,9 @@
 
 - モジュール構成、実装単位、型付き入出力、永続化、正常・異常系シーケンス、非自明な規則のコード例または擬似コード、設定/監査、テスト対応、Run Manifest/互換性、追跡/Unknown、レビュー閉ループを満たす文書だけを「実装詳細設計書」と扱う。
 - 詳細設計の構成標準は `doc/ai_foundation/14_実装詳細設計書構成標準.html` を正本とする。対象外の構成要素は、`N/A` と理由、確認者、代替成果物へのリンクを必須にする。
+- 実装詳細設計書は、技術詳細の前に、(1) 誰にでも分かるドメイン概要と機能、(2) ファイルツリーと各ファイルの説明、(3) モジュール構造図、(4) モジュール機能と入出力パラメータ表、(5) 正常系・主要異常系を含む処理フロー図、(6) スコープ内の全テストケース表をこの順で置く。例外は該当節で `N/A`、理由、確認者、代替リンクを明記する場合だけとする。
+- テストケース表の各行は、テストID、テスト概要、テスト条件（入力値）、操作、期待結果、合否判定基準を必須列とする。「代表例」のみを記載して全テストと扱ってはならない。
+- `doc/phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html` v0.3は上記読解順の具体的な書式参照とする。ただし、Phase 2固有の技術判断、外部仕様、Unknownを他の設計書へ自動適用してはならない。
 - 実装可能な詳細設計書セットを作成・改訂する場合は、標準として `AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、`AutoTrade_A82_ImplementationDetailDesigner_v0_1`、`AutoTrade_A91_ImplementationDetailReviewer_v0_1`、`autotrade_skill_implementation_detail_design_v0_1`、`autotrade_skill_implementation_detail_review_v0_1` を使用する。
 - A91の初回レビュー、A90の横断/Red Teamレビュー、A80/A81の改訂統合、A91の再レビューを完了するまで、実装詳細設計完了を宣言しない。
 - A91のCriticalまたはHigh指摘が残る、必須構成要素が理由なく欠ける、UnknownをPassにする場合は、実装着手へ進めない。

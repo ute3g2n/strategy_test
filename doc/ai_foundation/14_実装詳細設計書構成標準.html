@@ -30,7 +30,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D14<br>
     <strong>作成日:</strong> 2026-08-04<br>
-    <strong>文書状態:</strong> v0.1 / 初版・設計レビュー反映済み<br>
+    <strong>文書状態:</strong> v0.2 / 読解順フォーマット・設計レビュー反映済み<br>
     <strong>対象:</strong> Phase横断の正式HTML詳細設計書<br>
     <strong>関連AI基盤:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code>, <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></p>
   </section>
@@ -80,7 +80,23 @@
     </tbody>
   </table>
 
-  <h2>5. 入出力契約の記法</h2>
+  <h2>5. 読解順フォーマット</h2>
+  <p>DD-01からDD-12は<strong>充足すべき内容</strong>であり、読みにくい順に並べてよい理由にはならない。正式な実装詳細設計書は、実装者だけでなくレビュー担当者と業務担当者も最初に全体を把握できるよう、原則として次の順に置く。技術的な詳細契約は、この導入部の後に続ける。</p>
+  <table>
+    <thead><tr><th>順</th><th>先頭に置く節</th><th>必須の記載</th><th>対応するDD</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>ドメインの概要と機能</td><td>誰が、何のために使い、何をできるようにする領域かを、略語や内部名に依存しない言葉で説明する。主要機能を列挙する。</td><td>DD-01</td></tr>
+      <tr><td>2</td><td>ファイル構成</td><td>予定を含むファイルツリーと、各ファイルの責務、テスト・fixtureの配置、対象外を示す。</td><td>DD-02, DD-03, DD-09</td></tr>
+      <tr><td>3</td><td>モジュール構造図</td><td>呼出元、公開境界、主要Module、保存先、外部境界、依存方向を一枚で示す。</td><td>DD-02</td></tr>
+      <tr><td>4</td><td>モジュール機能と入出力</td><td>各Moduleの機能、入力・出力のパラメータ名、型、必須性、意味、エラー、副作用を表で定義する。</td><td>DD-03, DD-04</td></tr>
+      <tr><td>5</td><td>処理フロー</td><td>正常系、主要な異常系、再試行または停止、境界観測を、シーケンス図・アクティビティ図・フローチャートの適切な組合せで示す。</td><td>DD-06, DD-08, DD-10</td></tr>
+      <tr><td>6</td><td>テスト仕様</td><td>当該設計書のスコープにおける全テストケースを列挙する。各行はテストID、概要、条件（入力値）、操作、期待結果、合否判定基準を持つ。</td><td>DD-09</td></tr>
+    </tbody>
+  </table>
+  <section class="note"><strong>具体的な書式参照:</strong> <a href="../phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html">P2-D05 Market Data Adapter 詳細設計書 v0.3</a> を、この読解順を満たす最初の具体例として扱う。ただし、これはPhase 2固有の技術判断を他の領域へ流用する指示ではない。以後の設計書は、この順番と各領域に必要な内容を適用する。</section>
+  <section class="warn"><strong>N/Aの扱い:</strong> 先頭六節のどれかが不要な場合でも省略しない。N/A、理由、確認者、代替成果物へのリンクをその節に記載する。特にテスト仕様は「テストなし」とせず、対象外の根拠と残る検証責任を示す。</section>
+
+  <h2>6. 入出力契約の記法</h2>
   <p>属性名だけの羅列は禁止する。各公開APIには次の記法を用いる。</p>
   <pre>Module: raw_store.repository
 Function: put_if_absent(request: RawWriteRequest) -&gt; RawWriteResult
@@ -94,7 +110,7 @@ Tests: duplicate same payload, duplicate different payload, write failure, retry
 </pre>
   <p>実在するコードがある場合は対象言語の型・クラス名に合わせる。実装前で型名が未確定なら、仮名であること、確定ステップ、未決時の停止条件をUnknownとして記録する。</p>
 
-  <h2>6. シーケンスと失敗系</h2>
+  <h2>7. シーケンスと失敗系</h2>
   <table>
     <thead><tr><th>必須シナリオ</th><th>記載内容</th></tr></thead>
     <tbody>
@@ -105,12 +121,12 @@ Tests: duplicate same payload, duplicate different payload, write failure, retry
     </tbody>
   </table>
 
-  <h2>7. 完了Gate</h2>
+  <h2>8. 完了Gate</h2>
   <section class="gate">
     <p><strong>実装詳細設計完了:</strong> DD-01からDD-12が設計書セット上で充足、または理由付きN/Aとなり、A91の充足マトリクスでCritical/Highが0件、A90/Red Teamの安全指摘が採否・改訂・再レビューまで閉じていること。UnknownはPassにせず、実装着手を止める範囲または縮退範囲を明記する。</p>
   </section>
 
-  <h2>8. P2-D05からP2-D07への適用</h2>
+  <h2>9. P2-D05からP2-D07への適用</h2>
   <table>
     <thead><tr><th>成果物</th><th>改訂時に追加必須の内容</th></tr></thead>
     <tbody>
@@ -121,17 +137,18 @@ Tests: duplicate same payload, duplicate different payload, write failure, retry
   </table>
 
   <section class="review">
-    <h2>9. レビュー・改訂履歴</h2>
+    <h2>10. レビュー・改訂履歴</h2>
     <table>
       <thead><tr><th>日付</th><th>観点</th><th>指摘</th><th>反映</th></tr></thead>
       <tbody>
         <tr><td>2026-08-04</td><td>上級シニアエンジニア観点</td><td>既存P2-D05からP2-D07は責務・属性・方針中心で、実装単位、API型、保存契約、シーケンス、コード例、テストが不足。</td><td>DD-01からDD-12と実装詳細設計完了Gateを新設。</td></tr>
         <tr><td>2026-08-04</td><td>詳細設計レビュー観点</td><td>見出しの存在だけでは実装可能性を保証できない。</td><td>充足マトリクス、N/A理由、専門レビュー後の再レビューを必須化。</td></tr>
+        <tr><td>2026-08-04</td><td>利用者レビュー</td><td>従来のP2-D05は責務・契約を先に並べ、ドメインの意味、ファイル、構造、入出力、処理、全テストを読める順で示していなかった。</td><td>P2-D05 v0.3を具体例に採用し、先頭六節の読解順フォーマットと全テストケース表を必須化。</td></tr>
       </tbody>
     </table>
   </section>
 
-  <h2>10. 関連文書</h2>
+  <h2>11. 関連文書</h2>
   <ul>
     <li><a href="./15_実装詳細設計AI基盤仕様.html">AF-D15 実装詳細設計AI基盤仕様</a></li>
     <li><a href="./03_プロジェクト汎用Skill仕様.html">AF-D03 プロジェクト汎用Skill仕様</a></li>

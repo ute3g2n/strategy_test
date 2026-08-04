@@ -84,7 +84,7 @@ Skill、サブエージェント、オーケストレータの作成または変
 
 ### 実装詳細設計
 
-実装者がそのまま着手するための設計書は、モジュール構成、型付き入出力、永続化、処理順、異常系、コード例または擬似コード、テストを含めます。標準は [実装詳細設計書構成標準](./doc/ai_foundation/14_実装詳細設計書構成標準.html) です。作成から専門レビュー、改訂、再レビューまでは `AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、`AutoTrade_A82_ImplementationDetailDesigner_v0_1`、`AutoTrade_A91_ImplementationDetailReviewer_v0_1` を使います。
+実装者がそのまま着手するための設計書は、まず誰にでも分かるドメイン概要、ファイル構成、構造図、Moduleごとの入出力、処理フロー、全テストケース表を示し、その後に型付き契約、永続化、異常系、コード例または擬似コードを続けます。標準は [実装詳細設計書構成標準](./doc/ai_foundation/14_実装詳細設計書構成標準.html) です。作成から専門レビュー、改訂、再レビューまでは `AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、`AutoTrade_A82_ImplementationDetailDesigner_v0_1`、`AutoTrade_A91_ImplementationDetailReviewer_v0_1` を使います。
 
 ### 証跡として残す部品
 
