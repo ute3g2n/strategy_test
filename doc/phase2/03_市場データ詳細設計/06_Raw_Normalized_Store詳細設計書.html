@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>P2-D06 Raw Normalized Store詳細設計書</title>
+  <title>P2-D06 元データ・正規化データ保管庫 詳細設計書</title>
   <style>
     :root { color-scheme: light; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 32px auto; max-width: 1240px; color: #172033; background: #f8fafc; }
@@ -16,6 +16,7 @@
     th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
     th { background: #eef2f7; }
     code { font-family: Consolas, "Courier New", monospace; background: #f1f5f9; padding: 1px 4px; }
+    pre { overflow-x: auto; padding: 14px; background: #0f172a; color: #e5e7eb; }
     .meta, .note, .gate, .unknown, .review { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
     .gate { border-left-color: #7c3aed; background: #f5f3ff; }
     .unknown { border-left-color: #b45309; background: #fff7ed; }
@@ -25,157 +26,263 @@
 <body>
 <main>
   <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
-  <h1>P2-D06 Raw / Normalized Store詳細設計書</h1>
+  <h1>P2-D06 元データ・正規化データ保管庫 詳細設計書</h1>
   <section class="meta">
     <p><strong>成果物ID:</strong> P2-D06<br>
     <strong>文書セットID:</strong> P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET<br>
-    <strong>Phase / Step:</strong> Phase 2 / P2-03R<br>
+    <strong>対象フェーズ / 手順:</strong> Phase 2 / P2-03R<br>
     <strong>作成日:</strong> 2026-08-04<br>
-    <strong>文書状態:</strong> v0.2 / P2-03R 実装詳細設計・A91再レビュー反映済み<br>
-    <strong>使用Orchestrator:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code><br>
-    <strong>担当Agent:</strong> <code>AutoTrade_A10_RequirementsCurator_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code><br>
-    <strong>使用Skill:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_execution_model_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code>, <code>autotrade_skill_red_team_review_v0_1</code>, <code>autotrade_skill_revision_integration_v0_1</code></p>
+    <strong>文書状態:</strong> v0.3 / AF-D17形式への改訂および再レビュー反映済み<br>
+    <strong>使用オーケストレータ:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code><br>
+    <strong>担当サブエージェント:</strong> <code>AutoTrade_A10_RequirementsCurator_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code><br>
+    <strong>使用スキル:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_execution_model_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_doc_set_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code>, <code>autotrade_skill_red_team_review_v0_1</code>, <code>autotrade_skill_revision_integration_v0_1</code></p>
   </section>
 
-  <section class="note"><strong>実装前提:</strong> P2-05で作成予定のPython 3.11と標準ライブラリ（<code>pathlib</code>, <code>json</code>, <code>hashlib</code>, <code>datetime</code>）だけを使う最小ローカル実装を定義する。大容量保存先、columnar format、クラウドDBは<code>UNK-P2-08</code>として未決であり、確定したものとして書かない。</section>
+  <section class="note"><strong>実装前提:</strong> P2-05で作る予定のPython 3.11と標準ライブラリだけを使う、小規模なローカル保管を対象にする。大容量向けの保存先、列指向形式、クラウドのデータベースは<code>UNK-P2-07</code>として未決であり、ここでは確定した実装として扱わない。</section>
 
   <h2>0. 詳細設計カバレッジ</h2>
-  <table><thead><tr><th>DD</th><th>証拠</th><th>補完先</th></tr></thead><tbody>
-    <tr><td>DD-01〜04</td><td>1〜7章、8〜10章の予定配置、Repository、DTO、API。</td><td>P2-D05の取得型、P2-D07のInstrumentId。</td></tr>
-    <tr><td>DD-05〜07</td><td>2〜6章、9〜11章の物理レイアウト、キー、正常/失敗順序、コード例。</td><td>なし。</td></tr>
-    <tr><td>DD-08〜10</td><td>5〜7章、12章のQuality、監査、Manifest。</td><td>P2-D05/D07。</td></tr>
-    <tr><td>DD-11〜12</td><td>13〜15章とP2-D15。</td><td>P2-D03、P2-D15。</td></tr>
+  <p>この表は、実装詳細設計として必要な要素を、本書または補完する成果物のどこで扱うかを示す。実装者は、表にない要素を推測で補ってはならない。</p>
+  <table><thead><tr><th>設計要素</th><th>本書で示す章</th><th>補完先または対象外の理由</th></tr></thead><tbody>
+    <tr><td>DD-01からDD-04</td><td>1章から5章、7章から10章、および16章で、保管庫の責務、ファイル、入出力、型、処理順を定義する。</td><td>外部取得の要求内容はP2-D05、内部銘柄番号の決定はP2-D07を正本とする。</td></tr>
+    <tr><td>DD-05からDD-07</td><td>7章から12章、16章から18章で、保存単位、版、差分、失敗時の停止、実装例を定義する。</td><td>保存先製品の選定は未決であり、UNK-P2-07として扱う。</td></tr>
+    <tr><td>DD-08からDD-10</td><td>6章、10章から13章、19章で、試験、品質、監査、実行記録への接続を定義する。</td><td>外部提供元の状態確認はP2-D04およびP2-D05を参照する。</td></tr>
+    <tr><td>DD-11からDD-12</td><td>14章、20章、21章で、要件追跡、未確定事項、人間承認、レビューの閉ループを定義する。</td><td>横断レビューの記録はP2-D15を正本とする。</td></tr>
   </tbody></table>
 
-  <h2>1. 目的とレイヤー分離</h2>
-  <p>本書は、外部データの取得証跡を保持するRaw Storeと、内部共通schemaへ変換したNormalized Storeを分離する。Rawは正本の取得証跡、Normalizedは再生成可能な変換結果であり、どちらもStrategyの都合で書き換えない。</p>
-  <table>
-    <thead><tr><th>レイヤー</th><th>正本性</th><th>書込主体</th><th>下流利用</th></tr></thead>
-    <tbody>
-      <tr><td>Raw Store</td><td>外部取得payloadと取得メタデータの不変証跡。</td><td>Market Data Adapter / Raw Writer</td><td>再正規化、監査、再取得差分、DataVersion。</td></tr>
-      <tr><td>Normalized Store</td><td>特定のNormalizationRuleVersionによる再生成結果。</td><td>Normalizer</td><td>Replay Reader、Data Quality、Feature/Signalの入力。</td></tr>
-      <tr><td>Tradable / Signal</td><td>本書の外部保存層ではない。</td><td>Catalog / Strategy</td><td>Phase 3以降で利用。Rawへ逆書きしない。</td></tr>
-    </tbody>
-  </table>
+  <h2>1. ドメインの概要: 元データ・正規化データ保管庫は何をするものか</h2>
+  <p>このドメインは、外部から受け取った市場データを、あとから「いつ、どの条件で、何を受け取ったか」まで確かめられる形で残すための部品である。元の受信内容は元データ保管庫へそのまま保管し、利用しやすい共通の形へ変換した結果は正規化データ保管庫へ別に保管する。</p>
+  <p>この二つを分けることで、変換の規則を直した場合でも、元データを取り直したり書き換えたりせずに作り直せる。内容が壊れている、欠けている、品質が確認できない場合は、後続の再生処理や売買判断へ渡さずに止める。</p>
+  <table><thead><tr><th>利用者</th><th>期待すること</th><th>このドメインが返すもの</th></tr></thead><tbody>
+    <tr><td>市場データ受渡し部</td><td>受け取った内容を、重複保存や改変をせずに証跡として残せることを期待する。</td><td>内容確認値付きの元データ識別子、または保存できない理由を返す。</td></tr>
+    <tr><td>再生処理</td><td>どの版のデータを使ったかを後から同じ条件でたどれることを期待する。</td><td>品質確認済みの正規化データ一式と、それを識別する<code>data_version</code>を返す。</td></tr>
+    <tr><td>品質確認担当者</td><td>欠損、重複、順序異常、再取得差分を隠さず確認できることを期待する。</td><td>品質報告、監査記録、停止理由を返す。</td></tr>
+  </tbody></table>
+  <table><thead><tr><th>機能ID</th><th>機能</th><th>誰にでも分かる説明</th><th>失敗時の動き</th></tr></thead><tbody>
+    <tr><td>RNS-F01</td><td>元データを不変に保管する</td><td>受け取ったファイルと説明情報を、内容確認値を付けて保管し、後から中身を上書きしない。</td><td>内容確認値を作れない場合は隔離記録だけを残し、通常の保管成功として扱わない。</td></tr>
+    <tr><td>RNS-F02</td><td>共通形式へ変換する</td><td>元データを、時刻・銘柄番号・価格・品質印を持つ共通の行へ変換する。</td><td>変換、銘柄対応、品質確認のどれかが失敗した場合は正規化データの版を発行しない。</td></tr>
+    <tr><td>RNS-F03</td><td>再現できる版を発行する</td><td>使った元データ、変換規則、銘柄台帳、品質報告をまとめて、一つのデータ版として固定する。</td><td>必要な証跡が一つでも欠ける場合は、再生処理に渡す版を作らない。</td></tr>
+  </tbody></table>
 
-  <h2>2. Raw Store保存単位</h2>
-  <p>保存単位は「一つの取得要求に対応する不変Raw Object」とする。大きな要求を日付・銘柄・schema単位に分割する場合も、各Objectの元requestと分割順をmetadataに残す。</p>
-  <table>
-    <thead><tr><th>項目</th><th>必須</th><th>内容</th></tr></thead>
-    <tbody>
-      <tr><td><code>raw_object_id</code></td><td>Yes</td><td>内部不変ID。vendorのjob IDやfile nameを正本IDにしない。</td></tr>
-      <tr><td><code>source</code></td><td>Yes</td><td>vendor、dataset_id、schema_id、encoding、compression、source_version。</td></tr>
-      <tr><td><code>request_metadata</code></td><td>Yes</td><td>request_id、symbols、stype_in/out、start/end UTC、request fingerprint、secret_ref名のみ。</td></tr>
-      <tr><td><code>acquired_at_utc</code></td><td>Yes</td><td>取得完了時刻。送信時刻・イベント時刻とは別に保持。</td></tr>
-      <tr><td><code>payload_uri</code></td><td>Yes</td><td>Raw payloadの格納場所。Gitへ大容量データを無条件に追加しない。</td></tr>
-      <tr><td><code>byte_count</code> / <code>sha256</code></td><td>Yes</td><td>保存前後のサイズと内容同一性。checksum計算不能なら下流へ発行しない。</td></tr>
-      <tr><td><code>dbn_metadata_ref</code></td><td>Conditional</td><td>DBNの場合のmetadata header参照。元requestを再現できる証跡。</td></tr>
-      <tr><td><code>condition_snapshot</code></td><td>Yes</td><td>available/degraded/pending/missing、対象日、last_modified情報。</td></tr>
-      <tr><td><code>created_at_utc</code> / <code>supersedes</code></td><td>Yes</td><td>Object作成時刻と、訂正版があれば参照先。既存Objectの置換ではない。</td></tr>
-    </tbody>
-  </table>
-  <div class="note"><strong>Secretルール:</strong> API key、Authorization header、account ID、個人情報はRaw metadata、HTML、ログへ保存しない。必要な場合は環境変数参照名またはSecret manager参照名だけを保存する。</div>
-
-  <h2>3. Raw上書き禁止と再取得差分</h2>
-  <table>
-    <thead><tr><th>状況</th><th>処理</th><th>禁止事項</th><th>Gate</th></tr></thead>
-    <tbody>
-      <tr><td>同一論理request・同一sha256</td><td>既存Objectを再利用し、再取得観測をAuditへ追加。</td><td>重複Objectを正本として増やすこと。</td><td>Pass。ただし再利用証跡は残す。</td></tr>
-      <tr><td>同一論理request・sha256差異</td><td>新raw_object_idで保存し、<code>supersedes</code>または<code>diff_of</code>を付ける。</td><td>旧Objectを削除・置換・上書きすること。</td><td>Integrity Review / Data Gate stop</td></tr>
-      <tr><td>同一payload・metadata差異</td><td>別request versionとして保存し、data_version候補を分ける。</td><td>metadataを後から書き換えて同一取得に見せること。</td><td>Unknownまたは要承認</td></tr>
-      <tr><td>checksum不明・保存失敗</td><td>隔離領域にエラー証跡を保存し、RawBatchReceivedを発行しない。</td><td>Normalized化、Signal生成、Replay入力化。</td><td>Fail-closed</td></tr>
-    </tbody>
-  </table>
-
-  <h2>4. Normalized Store必須列</h2>
-  <table>
-    <thead><tr><th>列</th><th>型・制約</th><th>意味</th></tr></thead>
-    <tbody>
-      <tr><td><code>record_id</code></td><td>内部一意ID</td><td>Normalized recordの識別子。</td></tr>
-      <tr><td><code>event_id</code> / <code>run_id</code></td><td>D07準拠</td><td>イベントとReplay実行の追跡。</td></tr>
-      <tr><td><code>instrument_id</code></td><td>内部ID必須</td><td>外部instrument_id/raw_symbolではなくCatalogの正本ID。</td></tr>
-      <tr><td><code>event_time_utc</code></td><td>UTC必須</td><td>イベントが意味する時刻。順序、監査、Replayの正本。</td></tr>
-      <tr><td><code>received_at_utc</code></td><td>UTC必須</td><td>システムが受信した時刻。遅延と再取得の観測。</td></tr>
-      <tr><td><code>exchange_time_local</code> / <code>business_date</code></td><td>Catalog calendarで算出</td><td>取引所現地時刻と営業日。UTCからの変換ルールをversion管理。</td></tr>
-      <tr><td><code>bar_close_time</code></td><td>確定済みのみ</td><td>Look-ahead防止。未確定バーをStrategyへ渡さない。</td></tr>
-      <tr><td><code>event_kind</code></td><td>bar/trade/statistics/definition等</td><td>異なるschemaを混同しないための分類。</td></tr>
-      <tr><td><code>open/high/low/close/volume</code></td><td>価格scaleを併記</td><td>値と固定精度を保持。null/未適用値を0と同一視しない。</td></tr>
-      <tr><td><code>source_seq</code></td><td>nullable</td><td>外部順序。欠落時は内部順序だけで正本化しない。</td></tr>
-      <tr><td><code>raw_object_id</code> / <code>mapping_id</code></td><td>参照必須</td><td>RawとCatalog mappingまで逆引き可能にする。</td></tr>
-      <tr><td><code>quality_flags</code></td><td>bitsetまたは列挙集合</td><td>missing、duplicate、out_of_order、degraded、partial、price_invalid、volume_invalid、checksum_unverified、no_trade_interval等。</td></tr>
-      <tr><td><code>data_version</code> / <code>normalization_rule_version</code></td><td>必須</td><td>同じRawから異なる変換結果を区別する。</td></tr>
-    </tbody>
-  </table>
-
-  <h2>5. 時刻、重複、欠損検知</h2>
-  <table>
-    <thead><tr><th>検査</th><th>ルール</th><th>フラグ・処理</th></tr></thead>
-    <tbody>
-      <tr><td>UTC正本</td><td>永続化・順序・監査はUTC。現地時刻と営業日はCatalog calendarから導出。</td><td>変換不能なら<code>TIME_INVALID</code>で停止。</td></tr>
-      <tr><td>バー確定</td><td><code>bar_close_time</code>が確定するまでSignal入力にしない。</td><td><code>UNCONFIRMED_BAR</code>、Replay除外。</td></tr>
-      <tr><td>重複</td><td>第一キーは<code>(instrument_id, event_time_utc, event_kind, data_version)</code>。補助にsource_seqとraw_object_idを使う。</td><td>同値重複はdedup countを保存。値違いは<code>DUPLICATE_CONFLICT</code>で停止。</td></tr>
-      <tr><td>順序逆行</td><td>event_time_utcとsource_seqを検査。整列不能な場合は下流へ流さない。</td><td><code>OUT_OF_ORDER</code>、HealthEvent。</td></tr>
-      <tr><td>空区間</td><td>ohlcv仕様上、取引なし区間はレコードなしの場合がある。</td><td><code>NO_TRADE_INTERVAL</code>と実データ欠損を分離。</td></tr>
-      <tr><td>実欠損</td><td>Catalogのsession、Dataset Condition、前後範囲、期待最小履歴から検知。</td><td><code>MISSING_DATA</code>、Data Gate stopまたは明示的除外。</td></tr>
-      <tr><td>異常値</td><td>high/low/open/close、tick size、volume、価格scale、契約定義を照合。</td><td><code>PRICE_INVALID</code>等。ゼロや補間で隠さない。</td></tr>
-    </tbody>
-  </table>
-
-  <h2>6. data_version構造とRun Manifest</h2>
-  <p>Phase 3のReplayは、個別ファイル名ではなく、次のDataVersionManifestをRun Manifestから参照する。同じIDでRaw、Normalized、Catalog、品質、roll方式が再現できない場合はReplay Gateを通さない。</p>
-  <table>
-    <thead><tr><th>DataVersionManifest項目</th><th>内容</th><th>Run Manifestへの接続</th></tr></thead>
-    <tbody>
-      <tr><td><code>data_version_id</code></td><td>不変のDataVersion ID。</td><td><code>run_manifest.data_version</code>必須値。</td></tr>
-      <tr><td><code>raw_object_ids</code></td><td>利用Raw Objectの完全な集合。</td><td>再取得差分の監査。</td></tr>
-      <tr><td><code>normalized_snapshot_id</code></td><td>Normalized生成スナップショット。</td><td>Replay Readerの入力。</td></tr>
-      <tr><td><code>catalog_version</code> / <code>calendar_version</code></td><td>Instrument定義・営業日・tick/multiplier計算の版。</td><td>同一契約解釈を再現。</td></tr>
-      <tr><td><code>normalization_rule_version</code></td><td>UTC、scale、dedup、missing、qualityの規則版。</td><td>同じRawからの変換差異を追跡。</td></tr>
-      <tr><td><code>roll_rule_version</code></td><td>continuous/contract selectionの版。未承認なら<code>UNKNOWN</code>。</td><td>H2-1未承認時はSignal入力へ昇格不可。</td></tr>
-      <tr><td><code>quality_gate_result</code></td><td>対象範囲、除外範囲、未解決Unknown、判定日時。</td><td>Replay Gateの入力。</td></tr>
-      <tr><td><code>manifest_sha256</code></td><td>Manifest自身の同一性。</td><td>Run証跡と再実行比較。</td></tr>
-    </tbody>
-  </table>
-  <div class="note"><strong>Phase 3参照例:</strong> Run Manifestが<code>data_version=mdv2_...</code>を指定し、Replay ReaderがDataVersionManifestからNormalized snapshot、Catalog version、quality gate resultを解決する。未解決またはUnknownの要素があれば、MarketEventをStrategyへ供給しない。</div>
-
-  <h2>7. Store APIと責務</h2>
-  <table>
-    <thead><tr><th>API</th><th>主体</th><th>保証</th></tr></thead>
-    <tbody>
-      <tr><td><code>put_raw_if_absent</code></td><td>Raw Writer</td><td>raw_object_id/sha256で冪等。既存内容を更新しない。</td></tr>
-      <tr><td><code>record_redelivery_diff</code></td><td>Raw Audit</td><td>旧新Object、差分理由、観測時刻を保存。</td></tr>
-      <tr><td><code>normalize_snapshot</code></td><td>Normalizer</td><td>RuleVersionを固定し、Raw参照を全件保持。</td></tr>
-      <tr><td><code>read_replay_snapshot</code></td><td>Replay Reader</td><td>指定data_version以外を混ぜない。順序・quality gateを検証。</td></tr>
-      <tr><td><code>write_quality_report</code></td><td>Data Quality</td><td>Unknown、除外範囲、判定を別証跡として保存。</td></tr>
-    </tbody>
-  </table>
-
-  <h2>8. 予定モジュールと物理レイアウト</h2>
+  <h2>2. ファイル構成</h2>
+  <p>ここで示すのは、P2-05で作る予定のファイル構成である。実装前の予定であり、保存先の基盤が未決の部分は、下のUnknownと人間承認を経るまで置き換えない。</p>
   <pre>src/autotrade/market_data/
-  raw_store.py          # RawStorePort / LocalRawStore
-  normalized_store.py   # NormalizedStorePort / LocalNormalizedStore
-  normalization.py      # RawBatch -> NormalizedBar[]; quality判定
-  manifest.py           # DataVersionManifestの構築・検証
-  quality.py            # duplicate/gap/ordering/price/tick検査
-  contracts.py          # RawWriteRequest, NormalizedBar, QualityReport
-data/market_data/       # P2-05で決定。Git管理しない候補
-  raw/{raw_object_id}/payload.bin
-  raw/{raw_object_id}/metadata.json
-  raw/{raw_object_id}/audit.ndjson
-  normalized/{data_version}/bars.ndjson
-  normalized/{data_version}/quality_report.json
-  manifests/{data_version}.json</pre>
-  <table><thead><tr><th>保存物</th><th>主キー/パス</th><th>制約</th><th>更新規則</th></tr></thead><tbody>
-    <tr><td>Raw object</td><td><code>raw_object_id = sha256(request_fingerprint + payload_sha256)</code></td><td>payload.binとmetadata.jsonが同じdigestを参照</td><td>追記のみ。衝突かつdigest差異なら新ID + diff監査。</td></tr>
-    <tr><td>Normalized bar</td><td><code>(instrument_id, event_time_utc, bar_schema_version)</code></td><td>UTC、OHLCV、raw_object_id、quality_flagsが必須</td><td>既存data_versionを更新しない。新versionを生成。</td></tr>
-    <tr><td>Manifest</td><td><code>data_version</code></td><td>Raw digest、normalization rule、Catalog snapshot、quality report digest必須</td><td>immutable。互換性変更は新schema_version。</td></tr>
+├── raw_store.py             # 元データを不変に保存し、内容確認値を検査する部品
+├── normalized_store.py      # 正規化済みの行と版を不変に保存する部品
+├── normalization.py         # 元データを共通の市場データ行へ変換する部品
+├── quality.py               # 重複、欠損、順序、価格の品質を検査する部品
+├── manifest.py              # data_versionと実行記録用の一覧を組み立てる部品
+├── store_contracts.py       # 入出力のデータ型と例外を定義する部品
+└── store_audit.py           # 保存、差分、停止理由を監査記録へ残す部品
+data/market_data/            # P2-05で場所を確定する。Gitで管理しない実データの候補
+├── raw/{raw_object_id}/     # 元データ本体、説明情報、内容確認値、監査記録を置く場所
+├── normalized/{data_version}/ # 正規化データ、品質報告、行数証跡を置く場所
+└── manifests/               # 再生処理が参照するデータ版一覧を置く場所
+tests/market_data/
+├── test_raw_store.py        # 元データの不変保存と差分保存を確認する試験
+├── test_normalization.py    # 変換、重複、欠損、時刻の規則を確認する試験
+├── test_normalized_store.py # 正規化データ版の保存と再読込を確認する試験
+└── test_manifest.py         # データ版一覧の再現性と停止条件を確認する試験</pre>
+  <table><thead><tr><th>分類</th><th>置くもの</th><th>置いてはいけないもの</th></tr></thead><tbody>
+    <tr><td><code>src/autotrade/market_data/</code></td><td>保存・変換・品質確認の規則と、外部に公開する受取口を置く。</td><td>外部提供元の通信処理、売買判断、秘密の値を置かない。</td></tr>
+    <tr><td><code>data/market_data/</code></td><td>実データ、固定した品質報告、内容確認値を伴う監査記録を置く。</td><td>認証情報、口座番号、上書きした過去データを置かない。</td></tr>
+    <tr><td><code>tests/market_data/</code></td><td>小さく固定した入力と、失敗を再現する試験を置く。</td><td>費用が発生する外部通信や、実運用の秘密を使う試験を置かない。</td></tr>
   </tbody></table>
 
-  <h2>9. 型付きRepository契約</h2>
-<pre>from dataclasses import dataclass
+  <h2>3. モジュール構造図</h2>
+  <p>この図は、外部から届いたデータが、元データの保管、銘柄確認、変換、品質確認、データ版発行へ進む関係を示す。図中の短い名前の意味は、後続の表で説明する。</p>
+  <pre class="mermaid">flowchart TD
+    受渡し部["市場データ受渡し部"] --> 元保存["元データ保存"]
+    元保存 --> 変換["共通形式へ変換"]
+    銘柄台帳["銘柄台帳"] --> 変換
+    変換 --> 品質確認["品質確認"]
+    品質確認 -->|"合格"| 正規保存["正規化データ保存"]
+    正規保存 --> 版一覧["データ版一覧"]
+    品質確認 -->|"不合格・不明"| 監査記録["監査記録と停止"]
+    元保存 --> 監査記録</pre>
+
+  <h2>4. モジュール仕様と入出力パラメータ</h2>
+  <p>この表は、各ファイルが何を担当し、何を受け取り、何を返すかを説明する。固定の関数名と型名だけを<code>code</code>で示し、動作の説明は日本語で記す。</p>
+  <table><thead><tr><th>ファイル / 実装単位</th><th>機能説明</th><th>入力</th><th>出力</th><th>副作用・禁止事項</th></tr></thead><tbody>
+    <tr><td><code>raw_store.py / LocalRawStore.put_if_absent</code></td><td>受信内容と説明情報を内容確認値付きで保存し、同じ内容は既存の保管物を返す。</td><td><code>RawWriteRequest</code>として、元データ本体、依頼の識別値、秘密を除いた説明情報を受け取る。</td><td><code>RawWriteResult</code>として、元データ識別子、内容確認値、新規作成の有無を返す。</td><td>完成済みの元データを更新しない。秘密らしい項目を見つけた場合は保存しない。</td></tr>
+    <tr><td><code>normalization.py / Normalizer.normalize</code></td><td>元データを、内部銘柄番号と世界共通時刻を持つ共通行へ変換する。</td><td>検査済みの元データ、銘柄台帳の対応関係、変換規則の版を受け取る。</td><td><code>NormalizationResult</code>として、変換した行と品質確認へ渡す観測結果を返す。</td><td>元データを変更しない。銘柄が一つに決まらない行を通常行として返さない。</td></tr>
+    <tr><td><code>quality.py / QualityChecker.check</code></td><td>重複、時刻の逆行、欠損、価格の異常を確認し、利用できるかを決める。</td><td>正規化した行、銘柄台帳の営業日情報、元データの提供状態を受け取る。</td><td><code>QualityReport</code>として、問題、除外範囲、利用可否を返す。</td><td>品質が不明または不合格なら、成功としてのデータ版を発行しない。</td></tr>
+    <tr><td><code>normalized_store.py / LocalNormalizedStore.write_if_absent</code></td><td>品質確認済みの正規化行と品質報告を、一つの不変なデータ版として保存する。</td><td>行の並び、品質報告、<code>DataVersionManifest</code>を受け取る。</td><td><code>NormalizedSnapshotResult</code>として、保存した版の識別子と内容確認値を返す。</td><td>既存の版を更新しない。品質報告が合格でなければ書き込まない。</td></tr>
+    <tr><td><code>manifest.py / ManifestBuilder.build</code></td><td>再生処理が同じ入力を探せるように、利用した証跡を一つの一覧へまとめる。</td><td>元データ識別子、変換規則、銘柄台帳の版、品質報告を受け取る。</td><td><code>DataVersionManifest</code>として、不変の<code>data_version</code>と構成要素を返す。</td><td>入力が欠ける一覧を作らない。既存の<code>data_version</code>へ別内容を上書きしない。</td></tr>
+  </tbody></table>
+  <h3>4.1 <code>RawWriteRequest</code>の入力パラメータ</h3>
+  <p>この表は、元データを保存する依頼に何を渡すかと、保存前に何を確認するかを説明する。</p>
+  <table><thead><tr><th>パラメータ名</th><th>型</th><th>必須</th><th>説明と検証</th></tr></thead><tbody>
+    <tr><td><code>request_fingerprint</code></td><td><code>str</code></td><td>必須</td><td>取得条件を秘密を含めずに表す識別値である。空文字、または同じ依頼で矛盾する値は受け入れない。</td></tr>
+    <tr><td><code>payload</code></td><td><code>bytes</code></td><td>必須</td><td>外部から届いた元の内容である。空の内容、または内容確認値を計算できない内容は通常保管しない。</td></tr>
+    <tr><td><code>metadata</code></td><td><code>dict[str, str]</code></td><td>必須</td><td>提供元、対象、時刻、形式を説明する情報である。<code>authorization</code>や<code>api_key</code>のような秘密の項目があれば拒否する。</td></tr>
+    <tr><td><code>received_at_utc</code></td><td><code>datetime</code></td><td>必須</td><td>このシステムが内容を受け取った世界共通時刻である。時間帯情報がない値は勝手に補正せず拒否する。</td></tr>
+  </tbody></table>
+  <h3>4.2 <code>NormalizedBar</code>と<code>DataVersionManifest</code>の出力パラメータ</h3>
+  <p>この表は、変換後の市場データ行と、その行の集合を再現するためのデータ版一覧に何を残すかを説明する。</p>
+  <table><thead><tr><th>型.パラメータ</th><th>型</th><th>説明</th><th>検証 / 取扱い</th></tr></thead><tbody>
+    <tr><td><code>NormalizedBar.instrument_id</code></td><td><code>str</code></td><td>銘柄台帳が一つに決めた内部の銘柄番号である。</td><td>外部記号だけで代用しない。一意に決まらない場合は行を通常利用へ渡さない。</td></tr>
+    <tr><td><code>NormalizedBar.event_time_utc</code></td><td><code>datetime</code></td><td>市場で出来事が起きたことを表す世界共通時刻である。</td><td>時間帯情報が必要であり、受信時刻やファイル作成時刻と混同しない。</td></tr>
+    <tr><td><code>NormalizedBar.quality_flags</code></td><td><code>tuple[str, ...]</code></td><td>欠損、重複、順序異常など、利用時に注意すべき事実の一覧である。</td><td>問題を空の一覧に置き換えて隠さない。停止が必要な印があれば版を発行しない。</td></tr>
+    <tr><td><code>DataVersionManifest.data_version</code></td><td><code>str</code></td><td>元データ、変換規則、銘柄台帳、品質報告の組合せを表す不変の番号である。</td><td>同じ構成なら同じ値にする。違う構成を同じ値として保存しない。</td></tr>
+    <tr><td><code>DataVersionManifest.quality_report_sha256</code></td><td><code>str</code></td><td>品質報告が作成後に変わっていないことを確認する値である。</td><td>値がない、または保存済み報告と一致しない場合は再生用の版として返さない。</td></tr>
+  </tbody></table>
+
+  <h2>5. モジュール間の処理フロー</h2>
+  <h3>5.1 正常時のシーケンス図</h3>
+  <p>この図は、元データを受け取ってから、再生処理が使えるデータ版を返すまでの順番を示す。元データの保存に成功しても、品質確認が終わるまでは再生用の版を返さない。</p>
+  <pre class="mermaid">sequenceDiagram
+    participant 受渡し部 as 市場データ受渡し部
+    participant 元保存 as 元データ保存
+    participant 変換 as 変換部
+    participant 台帳 as 銘柄台帳
+    participant 品質 as 品質確認
+    participant 正規保存 as 正規化データ保存
+    受渡し部->>元保存: 元データと説明情報を渡す
+    元保存-->>受渡し部: 元データ識別子を返す
+    受渡し部->>変換: 元データ識別子を渡す
+    変換->>台帳: 銘柄番号を確認する
+    台帳-->>変換: 一意の銘柄番号を返す
+    変換->>品質: 変換した行を渡す
+    品質-->>変換: 合格した品質報告を返す
+    変換->>正規保存: 行と版一覧を渡す
+    正規保存-->>受渡し部: data_versionを返す</pre>
+  <h3>5.2 失敗時のフローチャート</h3>
+  <p>この図は、内容が壊れている、銘柄が決まらない、品質が確認できない場合に、どの段階で通常利用を止めるかを示す。</p>
+  <pre class="mermaid">flowchart TD
+    開始(["元データを受け取る"]) --> 内容確認{"内容を確認できるか"}
+    内容確認 -->|"できない"| 隔離["隔離して理由を記録"]
+    内容確認 -->|"できる"| 元保存["元データを保存"]
+    元保存 --> 銘柄確認{"銘柄を一つに決められるか"}
+    銘柄確認 -->|"決められない"| 保留["保留として記録"]
+    銘柄確認 -->|"決められる"| 品質確認{"品質が合格か"}
+    品質確認 -->|"いいえ・不明"| 停止["品質報告を残して停止"]
+    品質確認 -->|"はい"| 版発行["データ版を発行"]
+    隔離 --> 終了(["通常利用へ渡さない"])
+    保留 --> 終了
+    停止 --> 終了
+    版発行 --> 利用可(["再生処理で利用可能"])</pre>
+
+  <h2>6. テスト仕様</h2>
+  <p>この表は、本書の範囲で必要な全試験を示す。各セルは単語だけで済ませず、技術者以外の読者も、何を確かめ、どの状態なら合格なのかを判断できる文章で書く。</p>
+  <table><thead><tr><th>テストID</th><th>テスト概要</th><th>テスト条件（入力値）</th><th>操作</th><th>期待結果</th><th>合否判定基準</th></tr></thead><tbody>
+    <tr><td>RNS-T01</td><td>初めて受け取った元データを、内容確認値付きで不変に保存できることを確認する。</td><td>空でない固定入力、秘密を含まない説明情報、有効な世界共通時刻を持つ<code>RawWriteRequest</code>を用意する。</td><td><code>LocalRawStore.put_if_absent</code>を一回呼び出す。</td><td>新しい元データ識別子と内容確認値が返り、元データ本体と説明情報が完成した場所へ保存される。</td><td><code>created=true</code>であり、保存済み内容から再計算した内容確認値が返却値と一致すること。</td></tr>
+    <tr><td>RNS-T02</td><td>同じ依頼と同じ内容を二度保存しても、過去の元データを増やしたり書き換えたりしないことを確認する。</td><td>RNS-T01と同じ<code>RawWriteRequest</code>を二回使えるように用意する。</td><td><code>LocalRawStore.put_if_absent</code>を続けて二回呼び出す。</td><td>二回目は最初と同じ元データ識別子を返し、新たな保存物を作らない。</td><td>二回目の<code>created</code>が<code>false</code>であり、最初の保存物の内容確認値と更新時刻が変わらないこと。</td></tr>
+    <tr><td>RNS-T03</td><td>同じ取得条件でも内容が異なる再取得を、過去の元データを上書きせずに区別できることを確認する。</td><td>同じ<code>request_fingerprint</code>で、内容確認値が異なる二つの元データを用意する。</td><td>一つ目を保存した後に二つ目を保存し、差分監査の処理を呼び出す。</td><td>二つの元データ識別子が残り、旧新の関係と観測時刻が監査記録へ残る。</td><td>一つ目のファイル内容が変わらず、二つ目が同じ識別子へ上書きされていないこと。</td></tr>
+    <tr><td>RNS-T04</td><td>秘密らしい項目を説明情報に含む依頼を、保存前に拒否できることを確認する。</td><td><code>metadata</code>に<code>authorization</code>または<code>api_key</code>という項目を含む依頼を用意する。</td><td><code>LocalRawStore.put_if_absent</code>を呼び出す。</td><td><code>InvalidMetadata</code>が返り、元データも説明情報も完成場所へ保存されない。</td><td>例外と監査記録に秘密の値そのものが含まれず、保存先に新しいディレクトリがないこと。</td></tr>
+    <tr><td>RNS-T05</td><td>時間帯情報のない受信時刻を、正しい時刻として補正せずに止めることを確認する。</td><td><code>received_at_utc.tzinfo=None</code>とした元データ保存依頼を用意する。</td><td><code>LocalRawStore.put_if_absent</code>を呼び出す。</td><td>時刻が不正であることを示す例外が返り、保存処理を開始しない。</td><td>ファイルが一件も作られず、時刻を現在時刻や世界共通時刻へ勝手に置換していないこと。</td></tr>
+    <tr><td>RNS-T06</td><td>途中で書込みに失敗した場合、未完成の元データを正常な保管物として見せないことを確認する。</td><td>一時保存領域への書込みが途中で失敗するようにした固定入力を用意する。</td><td><code>LocalRawStore.put_if_absent</code>を呼び出す。</td><td>保存失敗の例外または停止結果が返り、完成した元データの場所は作られない。</td><td>次回に同じ依頼を実行でき、未完成の一時領域が再生処理から参照されないこと。</td></tr>
+    <tr><td>RNS-T07</td><td>外部記号が一つの内部銘柄番号に決まる行だけを正規化できることを確認する。</td><td>一意の対応関係を返す銘柄台帳と、正しい価格・時刻を含む固定の元データを用意する。</td><td><code>Normalizer.normalize</code>を呼び出す。</td><td>各行に内部銘柄番号、世界共通時刻、元データ識別子を持つ<code>NormalizedBar</code>が返る。</td><td>返されたすべての行が一意の<code>instrument_id</code>を持ち、外部記号だけで利用可能としていないこと。</td></tr>
+    <tr><td>RNS-T08</td><td>外部記号が複数候補に対応する場合、都合のよい候補を選ばずに止めることを確認する。</td><td>銘柄台帳が複数の有効な対応関係を返す元データ行を用意する。</td><td><code>Normalizer.normalize</code>を呼び出す。</td><td>保留または不合格の品質結果が返り、その行を含む通常用のデータ版は作られない。</td><td>任意の<code>instrument_id</code>を選んだ正規化行がなく、停止理由が品質報告に残ること。</td></tr>
+    <tr><td>RNS-T09</td><td>同じ銘柄、時刻、種別で同じ値の行が重複した場合、重複の事実を残して一行にまとめられることを確認する。</td><td>同じ内容の二行を含む固定の正規化候補を用意する。</td><td><code>QualityChecker.check</code>を呼び出してから正規化データを保存する。</td><td>一行だけが保存候補となり、重複した回数が品質報告に記録される。</td><td>保存候補が一行であり、重複を何もなかったことにする報告になっていないこと。</td></tr>
+    <tr><td>RNS-T10</td><td>同じキーで価格などの値が異なる重複を、どちらかを選ばずに停止できることを確認する。</td><td>同じ銘柄・時刻・種別で、終値だけが異なる二行を用意する。</td><td><code>QualityChecker.check</code>を呼び出す。</td><td><code>DUPLICATE_CONFLICT</code>を含む不合格の品質報告が返る。</td><td>正規化データの版も<code>data_version</code>も発行されず、二つの候補が監査記録で追えること。</td></tr>
+    <tr><td>RNS-T11</td><td>時刻が逆行する行を、再生処理が使える順序として保存しないことを確認する。</td><td>同じ銘柄で後の時刻の行の後に前の時刻の行が来る固定入力を用意する。</td><td><code>QualityChecker.check</code>を呼び出す。</td><td><code>OUT_OF_ORDER</code>を含む品質報告が返り、通常のデータ版は発行されない。</td><td>順序を勝手に並べ替えて合格にせず、問題の元データ識別子と行番号が報告されること。</td></tr>
+    <tr><td>RNS-T12</td><td>取引がなかった時間帯と、あるはずのデータが欠けた時間帯を区別できることを確認する。</td><td>銘柄台帳の営業日情報で休止と分かる区間、および営業中なのに行がない区間を持つ入力を用意する。</td><td><code>QualityChecker.check</code>を呼び出す。</td><td>休止区間には<code>NO_TRADE_INTERVAL</code>、実欠損には<code>MISSING_DATA</code>が記録される。</td><td>実欠損を取引なしとして合格にせず、欠損がある範囲のデータ版を発行しないこと。</td></tr>
+    <tr><td>RNS-T13</td><td>未確定の時間足を、売買判断に使える確定値として保存しないことを確認する。</td><td><code>bar_close_time</code>が確定していないことを示す行を用意する。</td><td><code>Normalizer.normalize</code>と<code>QualityChecker.check</code>を順に呼び出す。</td><td><code>UNCONFIRMED_BAR</code>が記録され、その行は再生用の正規化データから除外される。</td><td>未確定行を含む<code>data_version</code>が、通常利用可能として返らないこと。</td></tr>
+    <tr><td>RNS-T14</td><td>価格が銘柄の最小変動単位に合わない場合、丸めて隠さずに止めることを確認する。</td><td>銘柄台帳が示す最小変動単位に一致しない価格を含む行を用意する。</td><td><code>QualityChecker.check</code>を呼び出す。</td><td><code>PRICE_INVALID</code>を含む不合格の品質報告が返る。</td><td>元の価格を丸めた正規化行が保存されず、停止理由と対象行が報告されること。</td></tr>
+    <tr><td>RNS-T15</td><td>同じ元データ、変換規則、銘柄台帳なら、何度実行しても同じデータ版になることを確認する。</td><td>固定した元データ内容、変換規則の版、銘柄台帳の内容確認値を用意する。</td><td>正規化から<code>ManifestBuilder.build</code>までを二回実行する。</td><td>二回とも同じ<code>data_version</code>と同じ正規化データの内容確認値が返る。</td><td>二回の一覧内容と保存データが同一であり、現在時刻などの変わる値を版番号の材料にしていないこと。</td></tr>
+    <tr><td>RNS-T16</td><td>品質報告が不合格または不明な場合、正規化データの版を作らないことを確認する。</td><td>停止が必要な品質印、または判断不能な品質状態を持つ<code>QualityReport</code>を用意する。</td><td><code>LocalNormalizedStore.write_if_absent</code>を呼び出す。</td><td>保存拒否の結果が返り、正規化データと一覧の完成場所は作られない。</td><td>再生処理が参照できる<code>data_version</code>が返らず、停止理由が監査記録に残ること。</td></tr>
+    <tr><td>RNS-T17</td><td>同じデータ版番号で内容が異なる保存を、上書きせずに拒否できることを確認する。</td><td>同じ<code>data_version</code>で、異なる行または異なる品質報告を持つ二つの保存依頼を用意する。</td><td>一つ目を保存した後に二つ目の<code>LocalNormalizedStore.write_if_absent</code>を呼び出す。</td><td>二つ目は整合性エラーとなり、先に保存した版は変わらない。</td><td>先の版の内容確認値が維持され、二つ目の内容が同じ場所へ混ざらないこと。</td></tr>
+    <tr><td>RNS-T18</td><td>一覧ファイルの保存中に失敗した場合、部分的なデータ版を利用できないことを確認する。</td><td>正規化行の保存後に一覧ファイルの原子的な名前変更が失敗するようにした環境を用意する。</td><td><code>LocalNormalizedStore.write_if_absent</code>を呼び出す。</td><td>データ版は成功として返らず、未完成の一時ファイルは隔離または削除される。</td><td>完成した一覧への参照がなく、次回の同じ実行で安全に保存をやり直せること。</td></tr>
+    <tr><td>RNS-T19</td><td>再生処理が一覧に書かれたすべての証跡を確認してから入力を返すことを確認する。</td><td>元データ、銘柄台帳、品質報告、正規化データの内容確認値が一致する完全な一覧を用意する。</td><td><code>read_replay_snapshot</code>を呼び出す。</td><td>指定した<code>data_version</code>だけの正規化行が、検証済みとして返る。</td><td>返された行の元データ識別子、銘柄台帳の版、品質報告の内容確認値が一覧と全て一致すること。</td></tr>
+    <tr><td>RNS-T20</td><td>一覧の証跡が一つでも一致しない場合、再生処理を開始しないことを確認する。</td><td>品質報告の内容確認値だけを改変した一覧、または参照先を欠いた一覧を用意する。</td><td><code>read_replay_snapshot</code>を呼び出す。</td><td>整合性エラーが返り、再生用の正規化行は一行も返らない。</td><td>不一致の項目名とデータ版番号が監査記録に残り、利用可能な結果として返らないこと。</td></tr>
+  </tbody></table>
+
+  <h2>7. 目的と境界（詳細契約）</h2>
+  <p>この表は、この保管庫が自分で守る約束と、別の部品へ任せることを説明する。読者は、修正する場所を間違えずに判断できる。</p>
+  <table><thead><tr><th>対象</th><th>責務</th><th>非対象</th></tr></thead><tbody>
+    <tr><td>元データ保管庫</td><td>元の内容、説明情報、内容確認値、再取得差分を不変に残す。</td><td>外部からデータを取得する通信、提供元の仕様判断は担当しない。</td></tr>
+    <tr><td>正規化データ保管庫</td><td>変換規則と品質確認済みの行を、再現できる版として保存する。</td><td>売買判断のための特徴量計算、注文作成、口座更新は担当しない。</td></tr>
+    <tr><td>品質確認</td><td>利用可否を事実と規則から判定し、停止理由を残す。</td><td>不明な品質を合格へ読み替えたり、欠損を補間して隠したりしない。</td></tr>
+  </tbody></table>
+
+  <h2>8. 公開する受取口の契約</h2>
+  <p>この表は、他の部品がこの保管庫に依頼できる仕事と、成功として返すための条件を説明する。呼出元は失敗時に独自の保存や再試行を行わず、返された理由に従う。</p>
+  <table><thead><tr><th>受取口の固定名</th><th>受け取る内容</th><th>返す内容</th><th>起こる変更と停止条件</th></tr></thead><tbody>
+    <tr><td><code>RawStorePort.put_if_absent</code></td><td>元データ本体、秘密を含まない説明情報、受信時刻を受け取る。</td><td>元データ識別子、内容確認値、新規保存の有無を返す。</td><td>内容確認値が作れない、秘密が含まれる、時刻が不正なら保存せず停止する。</td></tr>
+    <tr><td><code>Normalizer.normalize</code></td><td>検証済み元データと、特定時点の銘柄台帳の版を受け取る。</td><td>正規化行と、行ごとの品質観測を返す。</td><td>銘柄が一意に決まらない、時刻や価格が不正なら通常行を返さない。</td></tr>
+    <tr><td><code>NormalizedStorePort.write_if_absent</code></td><td>合格した正規化行、品質報告、データ版一覧を受け取る。</td><td>保存済みの<code>data_version</code>と内容確認値を返す。</td><td>品質が不合格・不明、または同じ版番号で内容が違う場合は保存せず停止する。</td></tr>
+    <tr><td><code>read_replay_snapshot</code></td><td>再生処理が指定した<code>data_version</code>を受け取る。</td><td>内容確認済みの正規化行と一覧を返す。</td><td>証跡が欠ける、内容確認値が違う、品質が不合格なら一行も返さない。</td></tr>
+  </tbody></table>
+
+  <h2>9. 共通データ契約</h2>
+  <p>この表は、部品どうしで受け渡すデータの箱が、何を証明し、どの情報を必ず持つかを説明する。外部提供元の型をそのまま内部の約束として使わない。</p>
+  <table><thead><tr><th>データの箱の固定名</th><th>必ず入れる項目</th><th>この箱が説明すること</th></tr></thead><tbody>
+    <tr><td><code>RawWriteRequest</code></td><td><code>request_fingerprint</code>、<code>payload</code>、<code>metadata</code>、<code>received_at_utc</code>を必ず入れる。</td><td>どの条件で受け取った、どの元データを保存するかを表す。</td></tr>
+    <tr><td><code>RawWriteResult</code></td><td><code>raw_object_id</code>、<code>payload_sha256</code>、<code>created</code>を必ず入れる。</td><td>元データが何として保存されたか、または既存物を再利用したかを表す。</td></tr>
+    <tr><td><code>NormalizedBar</code></td><td><code>instrument_id</code>、<code>event_time_utc</code>、価格、<code>raw_object_id</code>、<code>quality_flags</code>を必ず入れる。</td><td>一つの市場の出来事を、内部の銘柄番号と証跡まで結び付けて表す。</td></tr>
+    <tr><td><code>QualityReport</code></td><td>対象範囲、問題一覧、除外範囲、利用可否、規則の版を必ず入れる。</td><td>どの範囲が利用でき、どの範囲を止めたかを説明する。</td></tr>
+    <tr><td><code>DataVersionManifest</code></td><td>元データ一覧、変換規則、銘柄台帳、品質報告、内容確認値を必ず入れる。</td><td>再生処理が同じ入力を再び見つけられるようにする。</td></tr>
+  </tbody></table>
+
+  <h2>10. 出力イベントと順序</h2>
+  <p>この表は、保存や品質確認で起きた事実を、どの順で監査記録へ残すかを説明する。成功の出来事は、必要な保存と品質確認が全て終わるまで出してはならない。</p>
+  <table><thead><tr><th>出来事の固定名</th><th>作る条件</th><th>受け取る先</th><th>成功として知らせるための条件</th></tr></thead><tbody>
+    <tr><td><code>RawStored</code></td><td>元データ本体、説明情報、内容確認値を完成場所へ保存できたときに作る。</td><td>監査記録部と正規化処理が受け取る。</td><td>保存後に再読込した内容確認値が、書込み前に計算した値と一致していること。</td></tr>
+    <tr><td><code>QualityRejected</code></td><td>重複競合、欠損、時刻異常、価格異常、不明状態を見つけたときに作る。</td><td>監査記録部と人間確認の対象が受け取る。</td><td>成功ではない出来事であり、理由、対象範囲、関連する元データ識別子を必ず持つ。</td></tr>
+    <tr><td><code>DataVersionPublished</code></td><td>正規化データ、品質報告、一覧が全て不変に保存できたときに作る。</td><td>再生処理が受け取る。</td><td>一覧に書かれたすべての内容確認値が保存済みの内容と一致していること。</td></tr>
+  </tbody></table>
+
+  <h2>11. エラー分類と閉じた側へ倒す規則</h2>
+  <p>この表は、失敗したときに何を止めるかを決める。使えると証明できないものを、使えるものとして後続へ渡さない。</p>
+  <table><thead><tr><th>エラーの固定名</th><th>起きた状況の例</th><th>この部品が行う処理</th><th>利用可否と停止判断</th></tr></thead><tbody>
+    <tr><td><code>InvalidMetadata</code></td><td>説明情報に認証情報や口座情報らしい項目が含まれる。</td><td>値を記録せずに依頼を拒否し、項目名だけを安全な監査記録に残す。</td><td>元データを保存せず、正規化・再生・データ版発行を全て停止する。</td></tr>
+    <tr><td><code>RawIntegrityError</code></td><td>内容確認値が合わない、または同じ場所に別内容を書こうとした。</td><td>完成場所を変更せず、隔離記録に理由と比較対象を残す。</td><td>該当元データを利用不可とし、再生用の版を発行しない。</td></tr>
+    <tr><td><code>MappingUnresolved</code></td><td>外部記号から内部銘柄番号を一つに決められない。</td><td>行を保留として品質報告へ残し、任意の候補を選ばない。</td><td>その行を含む通常の正規化データとデータ版を発行しない。</td></tr>
+    <tr><td><code>QualityRejected</code></td><td>欠損、重複競合、順序異常、価格異常、品質低下を検出した。</td><td>問題の詳細を品質報告へ残し、対象範囲を明示して停止する。</td><td>問題のある範囲を再生・売買判断へ渡さない。</td></tr>
+    <tr><td><code>ManifestIntegrityError</code></td><td>一覧が参照する内容確認値または保存物が一致しない。</td><td>一覧とデータ版を利用不可として監査記録へ残す。</td><td>再生処理は一行も返さず、同じ版番号を成功として使わない。</td></tr>
+  </tbody></table>
+
+  <h2>12. 利用可否の状態</h2>
+  <p>この表は、保管したデータを後続で使ってよいかを状態ごとに説明する。状態が不明なら、使える状態として扱わない。</p>
+  <table><thead><tr><th>状態を表す固定値</th><th>人にとっての意味</th><th>後続での使い方</th></tr></thead><tbody>
+    <tr><td><code>PENDING</code></td><td>元データは受け取ったが、保存、変換、品質確認のいずれかがまだ終わっていない。</td><td>再生処理、特徴量計算、売買判断へ渡さない。</td></tr>
+    <tr><td><code>AVAILABLE</code></td><td>元データ、正規化データ、品質報告、一覧の整合性を確認できた。</td><td>指定された<code>data_version</code>だけを再生処理の入力として渡せる。</td></tr>
+    <tr><td><code>DEGRADED</code></td><td>提供元の品質低下または利用範囲の除外を記録した。</td><td>人間承認と明示的な縮退方針がない限り、通常利用へ渡さない。</td></tr>
+    <tr><td><code>REJECTED</code></td><td>内容、銘柄対応、品質、一覧のいずれかが不合格だった。</td><td>監査と再調査だけに使い、再生処理の入力にはしない。</td></tr>
+    <tr><td><code>UNKNOWN</code></td><td>判断に必要な事実または規則が不足している。</td><td>Passにせず、Unknown台帳の決定または人間承認まで停止する。</td></tr>
+  </tbody></table>
+
+  <h2>13. 実行方法との接続</h2>
+  <p>この表は、開発時の固定入力、将来の再生処理、将来の運用で、この保管庫をどう使うかを説明する。Phase 2では実運用の保存基盤を確定しない。</p>
+  <table><thead><tr><th>実行方法</th><th>受け取る入力</th><th>この部品の動き</th><th>許される変更</th></tr></thead><tbody>
+    <tr><td>固定入力による試験</td><td>リポジトリに置く小さな元データと、固定した銘柄台帳の写しを受け取る。</td><td>外部通信なしで、保存、変換、品質確認、一覧作成を再現する。</td><td>試験ごとに別の一時保存場所を使う。既存の証跡を上書きしない。</td></tr>
+    <tr><td>Phase 3の再生処理</td><td>承認済みの<code>data_version</code>だけを受け取る。</td><td>一覧の内容確認値を確かめた後に、順序付きの正規化行を返す。</td><td>読み取りだけを行い、元データ・正規化データ・品質報告を変更しない。</td></tr>
+    <tr><td>将来の外部取得</td><td>P2-D05が保存した元データ識別子と、承認済みの品質条件を受け取る。</td><td>元データを追加保存し、新しい規則または新しい証跡なら別のデータ版を作る。</td><td>既存のデータ版を更新せず、新しい版としてのみ追加する。</td></tr>
+  </tbody></table>
+
+  <h2>14. 追跡と未確定事項</h2>
+  <p>この表は、要件や設計判断をどこで守るかと、まだ決まっていないことをいつ誰が決めるかを説明する。不明を成功として扱わない。</p>
+  <table><thead><tr><th>追跡ID</th><th>本書での反映</th><th>未確定事項と未決時の扱い</th></tr></thead><tbody>
+    <tr><td>REQ-Q02</td><td>元データ、内容確認値、再取得差分、監査記録を7章から12章に定義する。</td><td>保存基盤の製品選定はUNK-P2-07であり、未決時は小規模なローカル固定入力だけを使う。</td></tr>
+    <tr><td>REQ-Q19</td><td>欠損、重複、品質低下を6章、10章、11章で利用不可として扱う。</td><td>品質低下日の採用範囲はUNK-P2-04であり、未決時は対象範囲を再生から除外する。</td></tr>
+    <tr><td>REQ-Q20</td><td>時刻、順序、確定時間足、データ版を4章、6章、9章で固定する。</td><td>実データでの細かなセッション規則はP2-D07の銘柄台帳に従い、確認不能なら停止する。</td></tr>
+    <tr><td>REQ-Q23</td><td>再現可能な<code>data_version</code>と一覧の内容確認値を9章、16章、19章で定義する。</td><td>再取得差分を同じ利用範囲へ含める最終規約はUNK-P2-08であり、未決時は必ず新しい版へ分離する。</td></tr>
+    <tr><td>UNK-P2-04</td><td>品質低下、準備中、欠損として通知された日の利用範囲である。</td><td>P2-04の品質確認で決める。未決時は該当範囲を<code>UNKNOWN</code>として通常利用から除外する。</td></tr>
+    <tr><td>UNK-P2-07</td><td>大容量データの保存先と保持方針である。</td><td>P2-05の実装検証とH2-1で決める。未決時は小規模な試験入力以外の生成を停止する。</td></tr>
+    <tr><td>UNK-P2-08</td><td>再取得差分を既存利用範囲へ含めるかを決める規約である。</td><td>H2-1またはP2-06で決める。未決時は旧版を維持し、新しい版を別に作る。</td></tr>
+  </tbody></table>
+
+  <h2>15. 実装依存方向と公開境界</h2>
+  <p>この図と表は、どの実装部品が何を参照してよいかを説明する。保管や品質確認から外部提供元の通信処理へ逆に依存させない。</p>
+  <pre class="mermaid">flowchart LR
+    契約["共通データ型"] --> 元保存["元データ保存"]
+    契約 --> 変換["変換部"]
+    契約 --> 品質["品質確認"]
+    変換 --> 台帳口["銘柄台帳の受取口"]
+    元保存 --> 正規保存["正規化データ保存"]
+    変換 --> 品質
+    品質 --> 正規保存
+    正規保存 --> 一覧["データ版一覧"]</pre>
+  <table><thead><tr><th>モジュールの固定名</th><th>外へ見せるもの</th><th>参照してよいもの</th><th>担当しないこと</th></tr></thead><tbody>
+    <tr><td><code>raw_store</code></td><td>元データを保存・再利用する受取口だけを公開する。</td><td>共通データ型、ファイル操作、内容確認値の計算だけを参照してよい。</td><td>外部通信、銘柄の判定、売買判断を担当しない。</td></tr>
+    <tr><td><code>normalization</code></td><td>変換結果と品質観測を返す受取口だけを公開する。</td><td>元データの読取口と、P2-D07の銘柄台帳の受取口を参照してよい。</td><td>銘柄台帳や元データを直接更新しない。</td></tr>
+    <tr><td><code>quality</code></td><td>品質報告を作る受取口だけを公開する。</td><td>変換した行、銘柄台帳の営業日情報、提供状態を参照してよい。</td><td>異常値を補正したり、未知の品質を合格にしたりしない。</td></tr>
+  </tbody></table>
+
+  <h2>16. 型付き公開契約</h2>
+  <p>ここでは、実装者が作る主な型と関数の形を示す。英語はPythonの予約語、型名、変数名だけであり、実装する業務上の意味は前後の日本語で説明する。</p>
+  <pre>from dataclasses import dataclass
 from datetime import datetime
-from hashlib import sha256
-import json
 from typing import Protocol
 
 @dataclass(frozen=True)
@@ -196,7 +303,11 @@ class RawWriteResult:
 class NormalizedBar:
     instrument_id: str
     event_time_utc: datetime
-    open: str; high: str; low: str; close: str; volume: int
+    open: str
+    high: str
+    low: str
+    close: str
+    volume: int
     raw_object_id: str
     quality_flags: tuple[str, ...]
 
@@ -204,107 +315,86 @@ class RawStorePort(Protocol):
     def put_if_absent(self, request: RawWriteRequest) -&gt; RawWriteResult: ...
 
 class NormalizedStorePort(Protocol):
-    def write_snapshot(self, bars: tuple[NormalizedBar, ...], manifest: "DataVersionManifest") -&gt; str: ...</pre>
-  <pre>@dataclass(frozen=True)
-class DataVersionManifest:
-    schema_version: str
-    data_version: str
-    raw_objects: tuple[tuple[str, str], ...]  # (raw_object_id, payload_sha256)
-    normalization_rule_version: str
-    catalog_version: str
-    catalog_snapshot_sha256: str
-    quality_report_sha256: str
-    created_at_utc: datetime</pre>
-  <p><strong>必須検証:</strong> <code>payload</code>、fingerprint、受信UTC、metadataのdataset/schema/sourceは必須。metadataにSecret、authorization、account IDがあれば<code>InvalidMetadata</code>で保存しない。価格はfloatに変換せず文字列のDecimal表現として受け、tick検査後に保持する。</p>
-
-  <h2>10. Normalization・品質・再実行の順序</h2>
-  <pre>RawStore.put_if_absent
-  -> decode（失敗ならRawは残しNormalizedを作らない）
-  -> Catalog.resolve(event_time_utc, external symbol)
-  -> normalize each record to NormalizedBar
-  -> QualityChecker.check_order / duplicate / expected_session_gap / price_tick
-  -> any ERROR or UNKNOWN? quality report only, snapshotを発行しない
-  -> compute data_version from sorted raw digests + rule + catalog snapshot + schema
-  -> NormalizedStore.write_snapshot
-  -> ManifestStore.write_if_absent
-
-再実行: 同一入力・同一rule・同一Catalog snapshotは同じdata_versionを返す。
-差分再取得: raw digestが異なれば旧snapshotを上書きせず、新data_versionとredelivery_diffを作る。</pre>
-  <table><thead><tr><th>失敗</th><th>保存</th><th>下流</th><th>復旧</th></tr></thead><tbody>
-    <tr><td>decode/schema不一致</td><td>Rawとerror auditのみ</td><td>Normalized/Replay/Signal停止</td><td>decoder/schema修正後、同一Rawから新rule versionで再実行。</td></tr>
-    <tr><td>重複キー・時刻逆行</td><td>quality reportに全候補を記録</td><td>snapshot未発行</td><td>重複規則を勝手に選ばず、原因を修正またはUnknown。</td></tr>
-    <tr><td>期待セッション欠損/degraded</td><td>quality reportとHealthEvent</td><td>Data Gate fail。対象範囲を隔離。</td><td>Calendar/condition承認後に別version。</td></tr>
-    <tr><td>Manifest/ファイル書込失敗</td><td>一時ファイルを削除または隔離。完成パスへrenameしない</td><td>data_versionを返さない</td><td>同じ入力で再実行。部分snapshotを利用しない。</td></tr>
+    def write_if_absent(self, bars: tuple[NormalizedBar, ...], manifest: "DataVersionManifest") -&gt; str: ...</pre>
+  <p>次の表は、上の公開関数を、人が判断できる言葉で説明する。呼出元は、返された識別子だけで品質合格を推測してはならず、一覧と品質報告を確認する。</p>
+  <table><thead><tr><th>関数の固定名</th><th>返すもの</th><th>起こり得るエラー</th><th>繰り返し実行した場合と変更の内容</th></tr></thead><tbody>
+    <tr><td><code>put_if_absent</code></td><td>保存した、または再利用した元データの識別子と内容確認値を返す。</td><td>説明情報に秘密がある、時刻が不正、内容確認値が合わない場合に停止する。</td><td>同じ入力なら既存結果を返す。完成済みの元データを更新しない。</td></tr>
+    <tr><td><code>write_if_absent</code></td><td>品質確認済みのデータ版番号を返す。</td><td>品質不合格、一覧不整合、同じ版番号への異内容保存で停止する。</td><td>同じ内容なら既存版を返す。異なる内容は新しい版として扱う。</td></tr>
+    <tr><td><code>read_replay_snapshot</code></td><td>内容確認済みの正規化行と一覧を返す。</td><td>証跡不足、内容確認値不一致、利用不可状態なら停止する。</td><td>読み取りだけを行い、保存済みの行や一覧を変更しない。</td></tr>
   </tbody></table>
 
-  <h2>11. 非自明規則のコード例</h2>
-  <pre>def put_if_absent(self, request: RawWriteRequest) -&gt; RawWriteResult:
+  <h2>17. 正常系・失敗系の詳細フロー</h2>
+  <p>この図は、品質確認が成功した場合と、途中で問題を見つけた場合の違いを一枚で示す。失敗時は成功の出来事を出さず、理由を残して止める。</p>
+  <pre class="mermaid">sequenceDiagram
+    participant 依頼元 as 依頼元
+    participant 保存 as 元データ保存
+    participant 変換 as 変換と品質確認
+    participant 版 as データ版保存
+    alt 正常時
+        依頼元->>保存: 元データを渡す
+        保存-->>変換: 保存済みの識別子を渡す
+        変換-->>版: 合格した行と品質報告を渡す
+        版-->>依頼元: data_versionを返す
+    else 失敗時
+        変換-->>依頼元: 理由を記録して停止する
+    end</pre>
+
+  <h2>18. 誤実装しやすい規則のコード例</h2>
+  <p>この節は、元データを上書きしないことと、データ版の番号を再現可能に作ることを示す。実装者は、時刻や一時ファイル名のように毎回変わる値を版番号の材料に入れてはならない。</p>
+  <pre>def derive_data_version(raw_sha256s: tuple[str, ...], rule_version: str,
+                        catalog_sha256: str, quality_sha256: str) -&gt; str:
+    material = "|".join(sorted(raw_sha256s) + [
+        rule_version, catalog_sha256, quality_sha256, "normalized-v1"
+    ])
+    return "dv_" + sha256(material.encode("utf-8")).hexdigest()[:20]
+
+def put_if_absent(request: RawWriteRequest) -&gt; RawWriteResult:
     reject_secret_keys(request.metadata)
+    require_utc(request.received_at_utc)
     payload_sha = sha256(request.payload).hexdigest()
     object_id = sha256(f"{request.request_fingerprint}:{payload_sha}".encode()).hexdigest()
-    path = self.raw_root / object_id
-    if path.exists():
-        existing = json.loads((path / "metadata.json").read_text())
-        if existing["payload_sha256"] != payload_sha:
-            raise RawIntegrityError("RAW_OBJECT_COLLISION")
-        return RawWriteResult(object_id, payload_sha, False, str(path))
-    write_directory_atomically(path, request.payload, request.metadata, payload_sha)
-    return RawWriteResult(object_id, payload_sha, True, str(path))
+    if completed_path(object_id).exists():
+        return verify_existing(object_id, payload_sha)
+    write_to_temporary_path(object_id, request, payload_sha)
+    verify_temporary_path(object_id, payload_sha)
+    rename_to_completed_path(object_id)
+    return RawWriteResult(object_id, payload_sha, True, completed_uri(object_id))</pre>
 
-def derive_data_version(raw_sha256s: tuple[str, ...], rule: str, catalog_sha: str) -&gt; str:
-    text = "|".join(sorted(raw_sha256s) + [rule, catalog_sha, "normalized-v1"])
-    return "dv_" + sha256(text.encode()).hexdigest()[:20]</pre>
-  <p><code>write_directory_atomically</code>は<code>{object_id}.tmp</code>へpayload、metadata、digestを全て書込み・fsyncし、再読込したdigestが一致した場合だけ最終<code>{object_id}</code>へrenameするprivate関数とする。例外時はtmpを隔離または削除し、完成パスとManifestを作成しない。</p>
-
-  <h2>12. テスト、監査、Run Manifest</h2>
-  <table><thead><tr><th>テスト</th><th>fixture / 期待値</th><th>受入条件</th></tr></thead><tbody>
-    <tr><td>Raw冪等性</td><td>同一payloadを2回書込</td><td>同一object_id、2回目created=false、payload未更新。</td></tr>
-    <tr><td>再取得差分</td><td>同一fingerprint・異なるpayload</td><td>旧Raw保持、新object_id、diff監査、旧data_version不変。</td></tr>
-    <tr><td>品質失敗</td><td>重複、逆行、欠損、degraded、tick外価格</td><td>Manifest未発行、Replay/Signal入力なし、reasonがreportに残る。</td></tr>
-    <tr><td>再現性</td><td>固定Raw/Rule/Catalog</td><td>2回のdata_versionとbars.ndjsonがbyte単位で同一。</td></tr>
-    <tr><td>failure injection</td><td>一時ファイル書込/rename失敗</td><td>完成snapshotなし、次回再実行可能。</td></tr>
+  <h2>19. 設定、監査、テスト、実行記録</h2>
+  <p>この表は、実装時にどの設定を持ち、何を監査し、どの試験と再生記録へ結び付けるかを説明する。設定値を変えた場合は、同じデータ版を再利用せず、影響を記録する。</p>
+  <table><thead><tr><th>区分</th><th>契約</th></tr></thead><tbody>
+    <tr><td>設定</td><td><code>MARKET_DATA_ROOT</code>は実データの保存場所だけを示す。存在しない場所や書込み不能な場所なら開始せず、実データをリポジトリへ保存しない。</td></tr>
+    <tr><td>秘密情報</td><td>この部品はAPIキーを受け取らない。外部取得に必要な秘密はP2-D05の境界に閉じ込め、説明情報・監査記録・例外へ値を出さない。</td></tr>
+    <tr><td>監査</td><td>元データ識別子、内容確認値、変換規則、銘柄台帳の版、品質結果、停止理由、実行時刻を追記形式で残す。</td></tr>
+    <tr><td>試験</td><td>RNS-T01からRNS-T20を固定入力で実行し、外部通信なしで同じ結果になることを確認する。</td></tr>
+    <tr><td>実行記録</td><td>Run Manifestは<code>data_version</code>、<code>catalog_version</code>、<code>normalization_rule_version</code>、品質報告の内容確認値を必須項目として持つ。</td></tr>
   </tbody></table>
-  <p><code>DataVersionManifest</code>は少なくとも<code>schema_version</code>、<code>data_version</code>、<code>raw_objects[{id,sha256}]</code>、<code>normalization_rule_version</code>、<code>catalog_snapshot_sha256</code>、<code>quality_report_sha256</code>、<code>created_at_utc</code>を持つ。Run Manifestはこの<code>data_version</code>を参照し、未発行ならReplayを開始できない。</p>
 
-  <section class="unknown">
-    <h2>13. Unknownと停止条件</h2>
-    <table>
-      <thead><tr><th>ID</th><th>内容</th><th>決定タイミング</th><th>未決時</th></tr></thead>
-      <tbody>
-        <tr><td>UNK-P2-04</td><td>degraded/pending/missing日の採用範囲。</td><td>P2-04 Data Quality Gate</td><td>該当範囲をReplay/Signalから除外。</td></tr>
-        <tr><td>UNK-P2-07</td><td>本番保存先・大容量データの外部パス。</td><td>P2-05実装検証</td><td>小規模fixtureのみ。大規模生成停止。</td></tr>
-        <tr><td>UNK-P2-08</td><td>再取得差分を同一versionへ含める最終規約。</td><td>H2-1 / P2-06</td><td>新versionへ分離し、旧versionを維持。</td></tr>
-      </tbody>
-    </table>
+  <section class="gate"><h2>20. 人間承認の対象</h2>
+    <p>H2-1では、元データの不変保存、正規化データの必須列、品質不合格時の停止、<code>data_version</code>の構成、大容量保存先の方針を承認する。未承認の保存先や品質規則を、Phase 3の通常入力にしてはならない。</p>
   </section>
 
-  <section class="gate">
-    <h2>14. H2-1承認対象</h2>
-    <p>Raw Objectの不変保存、Normalized schema、quality flag、data_versionの必須構造、degradedの扱い、保存先と大容量データ方針を承認する。承認前は未確定の保存方式や品質判断をPhase 3の本線入力にしない。</p>
+  <section class="review"><h2>21. レビュー履歴</h2>
+    <p>この表は、指摘、採否、改訂、再レビューを残す。P2-D06 v0.3はAF-D16の0章から22章を満たし、CriticalおよびHighの未解決指摘を残さない状態である。</p>
+    <table><thead><tr><th>日付</th><th>確認者または部品</th><th>観点</th><th>反映と再判定</th></tr></thead><tbody>
+      <tr><td>2026-08-04</td><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>AF-D16の冒頭六節、図、入出力、全試験表、実装可能性を確認した。</td><td>v0.2で欠けていた平易な概要、ファイル構成、Mermaid図、RNS-T01からRNS-T20を追加し、Critical/Highは0件と再判定した。</td></tr>
+      <tr><td>2026-08-04</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>Raw改変、品質警告の握りつぶし、P2-D05/P2-D07との責務境界を確認した。</td><td>上書き禁止、一覧不整合時の停止、銘柄台帳を参照する境界を明記し、未解決の重大指摘はないと判定した。</td></tr>
+      <tr><td>2026-08-04</td><td>批判的安全レビュー</td><td>欠損の補間、再取得差分の消失、秘密の記録、失敗時の通常利用を確認した。</td><td>秘密拒否、差分分離、品質不明時の停止を明記し、危険な先送りをUnknown台帳へ移した。</td></tr>
+      <tr><td>2026-08-04</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code>および<code>AutoTrade_A81_DesignDocSetWriter_v0_1</code></td><td>保存先、関連リンク、テンプレート準拠、文書セットとの整合を確認した。</td><td>ローカルMermaid資産、P2-D05/P2-D07/P2-D15へのリンク、版数を反映し、統合上の重大指摘はないと判定した。</td></tr>
+    </tbody></table>
   </section>
 
-  <section class="review">
-    <h2>15. レビュー履歴</h2>
-    <table>
-      <thead><tr><th>日付</th><th>レビュー部品</th><th>観点</th><th>反映</th></tr></thead>
-      <tbody>
-        <tr><td>2026-08-04</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>D10/D11/D18、Replay/data_version、責務境界、Unknown。</td><td>Raw/Normalized境界、Manifest項目、停止条件を追加。</td></tr>
-        <tr><td>2026-08-04</td><td>Red Team観点</td><td>Raw改変、差分消失、欠損のゼロ埋め、品質警告の握りつぶし。</td><td>append-only、checksum、condition、quality_flags、fail-closedを明記。</td></tr>
-        <tr><td>2026-08-04</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>リンク、保存先、文書セット共通情報。</td><td>D05/D07、D10/D11/D18、doc/index.html導線を設定。</td></tr>
-        <tr><td>2026-08-04</td><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>DD-01〜12、物理保存、冪等性、failure injection、Manifest。</td><td>P2-03Rで8〜12章を追加。P2-D15の再レビューでCritical/High 0件を確認。</td></tr>
-      </tbody>
-    </table>
-  </section>
-
-  <h2>16. 関連成果物</h2>
+  <h2>22. 関連成果物</h2>
   <ul>
-    <li><a href="./05_Market_Data_Adapter詳細設計書.html">P2-D05 Market Data Adapter詳細設計書</a></li>
-    <li><a href="./07_Instrument_Catalog詳細設計書.html">P2-D07 Instrument Catalog詳細設計書</a></li>
+    <li><a href="./05_Market_Data_Adapter詳細設計書.html">P2-D05 市場データ受渡し部 詳細設計書</a></li>
+    <li><a href="./07_Instrument_Catalog詳細設計書.html">P2-D07 銘柄台帳 詳細設計書</a></li>
     <li><a href="./08_実装詳細設計レビュー反映記録.html">P2-D15 実装詳細設計レビュー・反映記録</a></li>
     <li><a href="../02_データソース調査/02_Databento公式仕様確認結果.html">P2-D04 Databento公式仕様確認結果</a></li>
     <li><a href="../../phase1/07_実行モデル/07_共通実行モデル設計書.html">D11 共通実行モデル設計書</a></li>
     <li><a href="../../phase1/10_テスト品質/10_テスト戦略品質Gate設計書.html">D18 テスト戦略品質Gate設計書</a></li>
   </ul>
 </main>
+<script src="../../assets/mermaid.min.js"></script>
+<script src="../../assets/mermaid-init.js"></script>
 </body>
 </html>
