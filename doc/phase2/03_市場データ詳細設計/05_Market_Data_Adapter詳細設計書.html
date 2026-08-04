@@ -499,28 +499,30 @@ class HealthEvent:
 
   <section class="gate">
     <h2>20. H2-1承認対象</h2>
-    <p>H2-1では、Raw/Normalized/Catalogの方式、main/conditional候補の扱い、continuousまたは明示的contract selectionの方式、roll ruleのversioning、degradedデータの停止・縮退方針、Phase 3へ渡すdata_version契約を承認する。</p>
-    <p>承認前は、roll済み系列を本線へ昇格しない。UnknownをPassにせず、fixtureまたは対象範囲縮退で設計・テストを続ける。</p>
+    <p>この承認は、元データ・整形済みデータ・銘柄台帳をどの方式で扱うか、主要候補と条件付き候補をどう分けるか、連続した価格系列と限月をどう扱うか、品質低下したデータを停止または縮退利用するか、Phase 3へ渡すデータ版の約束を、人間が決める場である。</p>
+    <p>承認前は、限月をつないだ系列を主要な入力へ昇格しない。不明事項（<code>Unknown</code>）を合格として扱わず、固定入力または対象範囲の縮退で設計・テストを続ける。</p>
   </section>
 
   <section class="review">
     <h2>21. レビュー履歴</h2>
+    <p>この表は、誰がどの観点で読み、どの指摘を本文へ反映したかを残す。部品名は実行記録との対応のために固定の英字名を保つ。</p>
     <table>
       <thead><tr><th>日付</th><th>レビュー部品</th><th>観点</th><th>反映</th></tr></thead>
       <tbody>
-        <tr><td>2026-08-04</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>D10/D11/D18整合、責務境界、追跡、Unknown。</td><td>Port/Event/Error/Manifest境界と追跡表を追加。</td></tr>
-        <tr><td>2026-08-04</td><td>Red Team観点</td><td>Raw改変、mapping誤り、品質警告の握りつぶし、fail-open。</td><td>checksum、partial、degraded、Unknown、停止処理を明記。</td></tr>
-        <tr><td>2026-08-04</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>リンク、保存先、共通メタデータ。</td><td>D06/D07/P2-D04/P2-D01とdoc/index.htmlへの導線を設定。</td></tr>
-        <tr><td>2026-08-04</td><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>DD-01〜12、予定モジュール、型、異常系、テスト。</td><td>P2-03Rで9〜13章を追加。P2-D15の再レビューでCritical/High 0件を確認。</td></tr>
-        <tr><td>2026-08-04</td><td><code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code> / <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>初見の実装者が、ドメイン、ファイル、I/O、フロー、テストを順に理解できるか。</td><td>v0.3で1〜6章を新設し、全テストケースをMDA-T01〜MDA-T24として列挙。モジュールI/O辞書と図を追加した。</td></tr>
+        <tr><td>2026-08-04</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>D10・D11・D18との整合、責務の境界、要件の追跡、未確定事項の扱いを確認した。</td><td>受取口、出来事、エラー、実行記録の境界と追跡表を追加した。</td></tr>
+        <tr><td>2026-08-04</td><td>批判的安全レビュー（<code>Red Team</code>）</td><td>元データの改変、銘柄対応の誤り、品質警告の無視、問題があるのに進める設計を確認した。</td><td>内容確認値、一部解決、品質低下、不明状態、停止処理を明記した。</td></tr>
+        <tr><td>2026-08-04</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>リンク、保存先、共通の文書情報を確認した。</td><td>D06、D07、P2-D04、P2-D01と<code>doc/index.html</code>への導線を設定した。</td></tr>
+        <tr><td>2026-08-04</td><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>DD-01からDD-12、予定モジュール、型、異常系、テストを確認した。</td><td>P2-03Rで9章から13章を追加し、P2-D15の再確認で重大・高重要度の指摘が残らないことを記録した。</td></tr>
+        <tr><td>2026-08-04</td><td>利用者による再指摘</td><td>英語中心の説明、文字だけの図、短すぎて判断できない試験表、7章以降で表の目的が分からない点を指摘した。</td><td>v0.4で固有名詞・コード以外を日本語へ改め、全ての図をMermaidへ統一し、24件の試験表を文章化した。7章以降の各表には、読む目的を先に追加した。</td></tr>
       </tbody>
     </table>
   </section>
 
   <h2>22. 関連成果物</h2>
+  <p>次の文書は、この設計書で決めない保管方式、銘柄台帳、レビュー結果、上位設計を確認するための入口である。</p>
   <ul>
-    <li><a href="./06_Raw_Normalized_Store詳細設計書.html">P2-D06 Raw / Normalized Store詳細設計書</a></li>
-    <li><a href="./07_Instrument_Catalog詳細設計書.html">P2-D07 Instrument Catalog詳細設計書</a></li>
+    <li><a href="./06_Raw_Normalized_Store詳細設計書.html">P2-D06 元データ・整形済みデータ保管庫の詳細設計書</a></li>
+    <li><a href="./07_Instrument_Catalog詳細設計書.html">P2-D07 銘柄台帳の詳細設計書</a></li>
     <li><a href="./08_実装詳細設計レビュー反映記録.html">P2-D15 実装詳細設計レビュー・反映記録</a></li>
     <li><a href="../02_データソース調査/02_Databento公式仕様確認結果.html">P2-D04 Databento公式仕様確認結果</a></li>
     <li><a href="../../phase1/06_アダプター境界/06_Adapter境界設計書.html">D10 Adapter境界設計書</a></li>
@@ -528,5 +530,7 @@ class HealthEvent:
     <li><a href="../../phase1/04_共通モデル/04_イベント注文口座ID時系列設計書.html">D07 イベント・注文・口座・ID・時系列設計書</a></li>
   </ul>
 </main>
+<script src="../../assets/mermaid.min.js"></script>
+<script src="../../assets/mermaid-init.js"></script>
 </body>
 </html>
