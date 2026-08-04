@@ -29,14 +29,24 @@
   <h1>P2-D05 Market Data Adapter詳細設計書</h1>
   <section class="meta">
     <p><strong>成果物ID:</strong> P2-D05<br>
-    <strong>文書セットID:</strong> P2-MARKET-DATA-DESIGN-DOCSET<br>
-    <strong>Phase / Step:</strong> Phase 2 / P2-03<br>
+    <strong>文書セットID:</strong> P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET<br>
+    <strong>Phase / Step:</strong> Phase 2 / P2-03R<br>
     <strong>作成日:</strong> 2026-08-04<br>
-    <strong>文書状態:</strong> v0.1 / A90・Red Team・A80レビュー反映済み<br>
-    <strong>使用Orchestrator:</strong> <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code><br>
-    <strong>担当Agent:</strong> <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code><br>
-    <strong>使用Skill:</strong> <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_architecture_writer_v0_1</code>, <code>autotrade_skill_domain_modeling_v0_1</code>, <code>autotrade_skill_execution_model_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_doc_set_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code></p>
+    <strong>文書状態:</strong> v0.2 / P2-03R 実装詳細設計・A91再レビュー反映済み<br>
+    <strong>使用Orchestrator:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code><br>
+    <strong>担当Agent:</strong> <code>AutoTrade_A10_RequirementsCurator_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code><br>
+    <strong>使用Skill:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code>, <code>autotrade_skill_red_team_review_v0_1</code>, <code>autotrade_skill_revision_integration_v0_1</code></p>
   </section>
+
+  <section class="note"><strong>実装対象:</strong> 現時点で <code>src/</code> と <code>tests/</code> は未作成である。本書の配置はP2-05で作成する予定のPython 3.11パッケージであり、存在しない外部SDK、DB、HTTP clientを前提にしない。外部実取得はH2-2承認前はfixture/dry-runに限定する。</section>
+
+  <h2>0. 詳細設計カバレッジ</h2>
+  <table><thead><tr><th>DD</th><th>本書の証拠</th><th>補完先</th></tr></thead><tbody>
+    <tr><td>DD-01〜04</td><td>1〜3章、9〜10章のスコープ、モジュール、公開型。</td><td>P2-D06/D07の保存・Catalog型。</td></tr>
+    <tr><td>DD-05〜07</td><td>4〜7章、11〜12章のRaw受渡し、失敗順序、変換コード。</td><td>物理保存はP2-D06。</td></tr>
+    <tr><td>DD-08〜10</td><td>6〜7章、13章のHealth、Secret境界、Manifest接続。</td><td>P2-D06/D07。</td></tr>
+    <tr><td>DD-11〜12</td><td>8章、14〜15章、およびP2-D15。</td><td>P2-D03、P2-D15。</td></tr>
+  </tbody></table>
 
   <h2>1. 目的と境界</h2>
   <p>本書は、Databento等の外部Market Data sourceを内部のRaw Store、Normalized Store、Instrument Catalog、Replay入力へ接続するAdapterの実装可能な契約を定義する。外部SDK、HTTP型、vendor symbol、API keyをCore、Strategy、Risk、OMSへ漏らさない。</p>
@@ -138,28 +148,124 @@
     </tbody>
   </table>
 
+  <h2>9. 予定モジュール構成と依存方向</h2>
+  <pre>src/autotrade/market_data/
+  contracts.py          # 外部非依存のDTO、Error、Event
+  adapter_port.py       # HistoricalDataPort Protocol
+  adapter_service.py    # fetch -> RawStore の調停。vendor型を受けない
+  vendor_gateway.py     # Gateway Protocol。P2-05ではFixtureGatewayのみ実装可
+  health.py             # HealthEvent生成と状態集約
+  raw_store.py          # P2-D06のRawStorePort
+  catalog.py            # P2-D07のCatalogPort
+tests/market_data/
+  test_adapter_service.py
+  test_adapter_contracts.py
+tests/fixtures/market_data/
+  historical_ok.ndjson, historical_partial.ndjson, historical_corrupt.bin</pre>
+  <table><thead><tr><th>モジュール</th><th>公開物</th><th>許可依存</th><th>非責務</th></tr></thead><tbody>
+    <tr><td><code>contracts</code></td><td>Request/Result/Event/Error型</td><td>標準ライブラリのみ</td><td>vendor呼出し、ファイルI/O</td></tr>
+    <tr><td><code>adapter_port</code></td><td><code>HistoricalDataPort</code></td><td>contracts</td><td>実装選択、Secret保持</td></tr>
+    <tr><td><code>adapter_service</code></td><td><code>IngestionService.ingest</code></td><td>port、gateway、raw_store、health</td><td>Normalized化、Catalog正本更新</td></tr>
+    <tr><td><code>vendor_gateway</code></td><td><code>VendorGateway</code> Protocol</td><td>contracts</td><td>Core型へのvendor型露出</td></tr>
+    <tr><td><code>health</code></td><td><code>HealthReporter.record</code></td><td>contracts</td><td>再試行決定、注文制御</td></tr>
+  </tbody></table>
+
+  <h2>10. 型付き公開契約</h2>
+  <pre>from dataclasses import dataclass
+from datetime import datetime
+from typing import Literal, Protocol
+
+@dataclass(frozen=True)
+class HistoricalRequest:
+    request_id: str                 # required; caller-generated UUID text
+    dataset_ref: str                # required; e.g. vendor/dataset alias, not a Secret
+    schema_ref: str                 # required
+    symbols: tuple[str, ...]        # required; non-empty; vendor syntax stays here
+    start_utc: datetime             # required; timezone-aware UTC
+    end_utc: datetime               # required; start_utc &lt; end_utc
+    source_mode: Literal["fixture", "external"]
+
+@dataclass(frozen=True)
+class GatewayPayload:
+    payload: bytes
+    metadata: dict[str, str]        # Secret/authorization header is prohibited
+    condition: Literal["available", "degraded", "pending", "missing", "unknown"]
+
+class VendorGateway(Protocol):
+    def fetch(self, request: HistoricalRequest) -&gt; GatewayPayload: ...
+
+class HistoricalDataPort(Protocol):
+    def ingest(self, request: HistoricalRequest) -&gt; "IngestionResult": ...</pre>
+  <table><thead><tr><th>API</th><th>戻り値</th><th>エラー</th><th>冪等性・副作用</th></tr></thead><tbody>
+    <tr><td><code>ingest(request)</code></td><td><code>IngestionResult(raw_object_id, sha256, health_event_id)</code></td><td><code>InvalidRequest</code>, <code>ExternalStateError</code>, <code>RawWriteError</code></td><td>request fingerprintが同じpayloadなら既存Raw参照を返す。新payloadは新Rawとしてのみ保存。</td></tr>
+    <tr><td><code>gateway.fetch(request)</code></td><td><code>GatewayPayload</code></td><td><code>AuthenticationError</code>, <code>RateLimited</code>, <code>PartialSymbolResolution</code></td><td>副作用はGateway内部だけ。CoreへHTTP/SDK例外を送らない。</td></tr>
+    <tr><td><code>reporter.record(event)</code></td><td><code>None</code></td><td>永続化不能時は呼出元を<code>UNHEALTHY</code>へ遷移</td><td>監査イベントは追記のみ。</td></tr>
+  </tbody></table>
+
+  <h2>11. 正常系・失敗系シーケンス</h2>
+  <pre>正常系
+Caller -> IngestionService.ingest(fixture request)
+  -> validate UTC range / H2-2 source_mode
+  -> VendorGateway.fetch
+  -> sha256(payload), request fingerprint
+  -> RawStore.put_if_absent
+  -> HealthReporter.record(HEALTHY)
+  -> IngestionResult (RawBatchReceivedの内部表現)
+
+失敗系: partial / degraded / checksum or write failure
+  -> RawStoreへ成功として通知しない
+  -> HealthReporter.record(DEGRADED or UNHEALTHY)
+  -> DataGate入力へ対象rangeとreason_codeを渡す
+  -> Normalizer / Replay / SignalへMarketEventを発行しない
+  -> retry可能なのはRATE_LIMITEDのみ。Retry-After不明または上限到達は停止。</pre>
+  <p><strong>復旧:</strong> 再実行は同じrequest fingerprintで開始する。payload hashが異なる場合は旧Rawを更新せず、P2-D06の<code>redelivery_diff</code>を作成し、<code>UNKNOWN_EXTERNAL_STATE</code>としてData Gateを停止する。</p>
+
+  <h2>12. 誤実装しやすい規則のコード例</h2>
+  <pre>def ingest(self, request: HistoricalRequest) -&gt; IngestionResult:
+    if request.source_mode == "external" and not self.h2_2_approved:
+        raise ExternalStateError("EXTERNAL_FETCH_NOT_APPROVED")
+    if request.start_utc.tzinfo is None or request.end_utc.tzinfo is None:
+        raise InvalidRequest("UTC_REQUIRED")
+    payload = self.gateway.fetch(request)
+    if payload.condition != "available":
+        self.reporter.record(HealthEvent.degraded(request.request_id, payload.condition))
+        raise ExternalStateError(f"DATASET_{payload.condition.upper()}")
+    digest = sha256(payload.payload).hexdigest()
+    return self.raw_store.put_if_absent(request, payload, digest)</pre>
+  <p>実装時は<code>VendorGateway</code>をfixture実装と将来のvendor実装で差し替える。将来実装がDatabento SDKを使っても、SDK型、API key、HTTP status objectはこの関数の引数・戻り値へ露出させない。</p>
+
+  <h2>13. 設定、監査、テスト、Manifest</h2>
+  <table><thead><tr><th>区分</th><th>契約</th></tr></thead><tbody>
+    <tr><td>設定</td><td><code>MARKET_DATA_SOURCE_MODE</code>は<code>fixture</code>が既定。<code>MARKET_DATA_VENDOR_API_KEY</code>は将来Gatewayだけが参照する名前であり、値・存在有無をHTMLやログへ出さない。</td></tr>
+    <tr><td>監査/Health</td><td><code>request_id</code>、fingerprint、raw_object_id、reason_code、affected_rangeだけを監査する。payloadやSecretは記録しない。</td></tr>
+    <tr><td>Manifest</td><td>Adapterは<code>raw_object_ids</code>、<code>raw_sha256s</code>、<code>source_mode</code>、<code>catalog_version</code>をP2-D06の<code>DataVersionManifest</code>候補へ渡す。</td></tr>
+    <tr><td>テスト</td><td>正常fixture、H2-2未承認external、partial、degraded、429相当、破損payload、Raw書込失敗、同一payload再実行、異なるpayload再取得を単体テスト化する。</td></tr>
+  </tbody></table>
+
   <section class="gate">
-    <h2>9. H2-1承認対象</h2>
+    <h2>14. H2-1承認対象</h2>
     <p>H2-1では、Raw/Normalized/Catalogの方式、main/conditional候補の扱い、continuousまたは明示的contract selectionの方式、roll ruleのversioning、degradedデータの停止・縮退方針、Phase 3へ渡すdata_version契約を承認する。</p>
     <p>承認前は、roll済み系列を本線へ昇格しない。UnknownをPassにせず、fixtureまたは対象範囲縮退で設計・テストを続ける。</p>
   </section>
 
   <section class="review">
-    <h2>10. レビュー履歴</h2>
+    <h2>15. レビュー履歴</h2>
     <table>
       <thead><tr><th>日付</th><th>レビュー部品</th><th>観点</th><th>反映</th></tr></thead>
       <tbody>
         <tr><td>2026-08-04</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>D10/D11/D18整合、責務境界、追跡、Unknown。</td><td>Port/Event/Error/Manifest境界と追跡表を追加。</td></tr>
         <tr><td>2026-08-04</td><td>Red Team観点</td><td>Raw改変、mapping誤り、品質警告の握りつぶし、fail-open。</td><td>checksum、partial、degraded、Unknown、停止処理を明記。</td></tr>
         <tr><td>2026-08-04</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>リンク、保存先、共通メタデータ。</td><td>D06/D07/P2-D04/P2-D01とdoc/index.htmlへの導線を設定。</td></tr>
+        <tr><td>2026-08-04</td><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>DD-01〜12、予定モジュール、型、異常系、テスト。</td><td>P2-03Rで9〜13章を追加。P2-D15の再レビューでCritical/High 0件を確認。</td></tr>
       </tbody>
     </table>
   </section>
 
-  <h2>11. 関連成果物</h2>
+  <h2>16. 関連成果物</h2>
   <ul>
     <li><a href="./06_Raw_Normalized_Store詳細設計書.html">P2-D06 Raw / Normalized Store詳細設計書</a></li>
     <li><a href="./07_Instrument_Catalog詳細設計書.html">P2-D07 Instrument Catalog詳細設計書</a></li>
+    <li><a href="./08_実装詳細設計レビュー反映記録.html">P2-D15 実装詳細設計レビュー・反映記録</a></li>
     <li><a href="../02_データソース調査/02_Databento公式仕様確認結果.html">P2-D04 Databento公式仕様確認結果</a></li>
     <li><a href="../../phase1/06_アダプター境界/06_Adapter境界設計書.html">D10 Adapter境界設計書</a></li>
     <li><a href="../../phase1/07_実行モデル/07_共通実行モデル設計書.html">D11 共通実行モデル設計書</a></li>
