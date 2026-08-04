@@ -494,9 +494,9 @@ Phase Runbook:
 - default_orchestrator は変更しない。
 
 入力:
-- doc/phase2/03_データ基盤設計/03_Market_Data_Adapter詳細設計書.html
-- doc/phase2/03_データ基盤設計/03_Raw_Normalized_Store設計書.html
-- doc/phase2/03_データ基盤設計/03_Instrument_Catalog設計書.html
+- doc/phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html（P2-03R改訂後）
+- doc/phase2/03_市場データ詳細設計/06_Raw_Normalized_Store詳細設計書.html（P2-03R改訂後）
+- doc/phase2/03_市場データ詳細設計/07_Instrument_Catalog詳細設計書.html（P2-03R改訂後）
 - doc/phase2/02_データソース調査/02_Databento公式仕様確認結果.html
 - doc/phase1/05_戦略設計/05_Strategy_Plugin_Interface設計書.html
 - doc/phase1/05_戦略設計/05_Turtle_Golden_test設計書.html
@@ -550,9 +550,9 @@ Phase Runbook:
 - default_orchestrator は変更しない。
 
 入力:
-- doc/phase2/03_データ基盤設計/03_Market_Data_Adapter詳細設計書.html
-- doc/phase2/03_データ基盤設計/03_Raw_Normalized_Store設計書.html
-- doc/phase2/03_データ基盤設計/03_Instrument_Catalog設計書.html
+- doc/phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html（P2-03R改訂後）
+- doc/phase2/03_市場データ詳細設計/06_Raw_Normalized_Store詳細設計書.html（P2-03R改訂後）
+- doc/phase2/03_市場データ詳細設計/07_Instrument_Catalog詳細設計書.html（P2-03R改訂後）
 - doc/phase2/04_ロール連続足/04_Roll_Rule_Continuous_Signal設計書.html
 - doc/phase1/09_非機能要件/09_設定Secrets環境分離設計書.html
 - .gitignore
@@ -608,7 +608,7 @@ Phase Runbook:
 - default_orchestrator は変更しない。
 
 入力:
-- doc/phase2/03_データ基盤設計/*.html
+- doc/phase2/03_市場データ詳細設計/*.html
 - doc/phase2/04_ロール連続足/04_Roll_Rule_Continuous_Signal設計書.html
 - doc/phase1/10_テスト品質/10_テスト戦略品質Gate設計書.html
 - doc/phase1/07_実行モデル/07_共通実行モデル設計書.html
@@ -662,7 +662,7 @@ Phase Runbook:
 
 入力:
 - doc/phase2/02_データソース調査/02_Databento公式仕様確認結果.html
-- doc/phase2/03_データ基盤設計/*.html
+- doc/phase2/03_市場データ詳細設計/*.html
 - doc/phase2/05_実装方針/05_Market_Data実装方針.html
 - doc/phase1/09_非機能要件/09_設定Secrets環境分離設計書.html
 - H2-2承認記録
@@ -718,7 +718,7 @@ Phase Runbook:
 - P2-05実装成果物
 - P2-06テスト設計
 - P2-07取得プロトコルまたはdry-run成果物
-- doc/phase2/03_データ基盤設計/*.html
+- doc/phase2/03_市場データ詳細設計/*.html
 - doc/phase2/04_ロール連続足/04_Roll_Rule_Continuous_Signal設計書.html
 - 小型fixtureまたはH2-2承認済み取得データ
 
@@ -852,7 +852,7 @@ P2-09のレビュー指摘を反映し、Phase 2の最終成果物、レビュ�
 7. Phase 3実行計画で使うべき入力一覧とHuman Gate候補をまとめる。
 
 Phase 2完了Gate:
-- P2-D01からP2-D14が存在する。
+- P2-D01からP2-D15が存在する。
 - doc/index.htmlからすべてのPhase 2 HTML成果物へ到達できる。
 - Raw / Normalized / Catalog / Signal / Rollの責務境界が矛盾していない。
 - Data Quality GateとReplay Gateの結果が根拠付きで記録されている。
@@ -865,7 +865,7 @@ Phase 2完了Gate:
 - AutoTrade_A80_DocumentIntegrator_v0_1 が、リンク、保存先、レビュー履歴、doc/index.html更新を確認する。
 
 完了条件:
-- P2-D13とP2-D14が存在する。
+- P2-D13、P2-D14、P2-D15が存在する。
 - H2-4で人間がPhase 2完了とPhase 3移行可否を判断できる。
 ```
 
