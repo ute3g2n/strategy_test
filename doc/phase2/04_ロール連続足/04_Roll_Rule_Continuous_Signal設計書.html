@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2-D08 Roll Rule / Continuous Signal設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 32px auto; max-width: 1240px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; } h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; } h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14px; } th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; } th { background: #eef2f7; }
+    code { font-family: Consolas, "Courier New", monospace; background: #f1f5f9; padding: 1px 4px; } a { color: #0f5db8; }
+    .meta, .note, .gate, .unknown, .review, .decision { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }.note { border-left-color: #0f766e; background: #f0fdfa; }.gate { border-left-color: #7c3aed; background: #f5f3ff; }.unknown { border-left-color: #b45309; background: #fff7ed; }.review { border-left-color: #15803d; background: #f0fdf4; }.decision { border-left-color: #1d4ed8; background: #eff6ff; }.pass { color: #047857; font-weight: 700; }.fail { color: #b91c1c; font-weight: 700; }
+    pre { overflow-x: auto; padding: 14px; background: #f8fafc; border: 1px solid #d9e2ec; } .mermaid { background: #fff; color: #111827; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>P2-D08 Roll Rule / Continuous Signal設計書</h1>
+  <section class="meta">
+    <p><strong>成果物ID:</strong> P2-D08<br><strong>文書セットID:</strong> P2-ROLL-SIGNAL-DOCSET<br><strong>Phase / Step:</strong> Phase 2 / P2-04<br><strong>作成日:</strong> 2026-08-05<br><strong>文書状態:</strong> v0.1 / H2-1の採用候補とReplay Gateを定義済み<br><strong>使用オーケストレータ:</strong> <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code><br><strong>担当サブエージェント:</strong> <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A30_StrategyQaArchitect_v0_1</code>, <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code><br><strong>使用Skill:</strong> <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_strategy_interface_v0_1</code>, <code>autotrade_skill_turtle_strategy_rules_v0_1</code>, <code>autotrade_skill_execution_model_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_doc_set_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code>, <code>autotrade_skill_red_team_review_v0_1</code></p>
+  </section>
+  <section class="note"><strong>この設計書が扱うこと:</strong> 先物には複数の限月があり、満期が近づくと取引対象を次の契約へ切り替える必要がある。本書は、切替規則と、戦略が連続した価格の流れとして読むための系列を決める。売買の最終パラメータ、注文の出し方、損益計算の詳細はPhase 3以降の責務である。</section>
+
+  <h2>1. 目的と固定する境界</h2>
+  <p>本書の目的は、Phase 3の戦略が、どの契約を取引対象として扱い、どの価格系列を判断材料として読むかを、未来の情報を使わずに再現できるようにすることである。取引する実契約と、分析用に連続化した価格系列を同一視しない。</p>
+  <table><thead><tr><th>本書で固定すること</th><th>後続Phaseで詳細化すること</th></tr></thead><tbody>
+    <tr><td>満期または受渡し注意日の前に固定営業日数で切り替える契約選択、Signal専用の前向き差額調整、対象集合と全根拠の版管理。</td><td>市場別の固定営業日数、実際の注文切替、ロール時の約定・手数料・滑り、損益計算、Strategyパラメータの比較、実運用の流動性しきい値。</td></tr>
+  </tbody></table>
+
+  <h2>2. レイヤーの役割</h2>
+  <p>この表は、同じ価格データをどの目的で持つかを分けて説明する。連続系列は分析用のSignal層にだけ置き、実際に取引する契約・価格・損益の正本にしない。</p>
+  <table><thead><tr><th>レイヤー</th><th>保持するもの</th><th>保持しないもの</th><th>利用者</th></tr></thead><tbody>
+    <tr><td>Raw</td><td>提供元から取得した元の足、definition、取得条件、内容確認値、受信時刻。</td><td>ロール後に書き換えた価格、連続系列、研究用の補正結果。</td><td>市場データ受渡し部と監査。</td></tr>
+    <tr><td>Normalized</td><td>内部銘柄番号、世界共通時刻、品質印、契約ごとの正規化済み価格足。</td><td>どの契約を次に取引するかという判断、連続化の補正値。</td><td>保管庫、銘柄台帳、再生処理。</td></tr>
+    <tr><td>Tradable</td><td>時点ごとの実契約、営業日、満期・受渡し注意日、切替日、取引可否、切替理由。</td><td>補正済みの連続価格、注文、損益の最終値。</td><td>Phase 3のStrategy、Phase 4の注文・Risk。</td></tr>
+    <tr><td>Signal</td><td>実契約の選択履歴から作る連続した分析用価格、補正方法、根拠となる契約、品質印、公開可能時刻。</td><td>注文価格、約定価格、損益の正本、提供元固有の型。</td><td>Strategyの市場入力。</td></tr>
+    <tr><td>Derived</td><td><code>N</code>、Channel、特徴量など、Signalから計算した派生値と計算版。</td><td>Rawへの逆書込み、候補別に最適化した結果を本線へ混ぜること。</td><td>Strategyと分析。</td></tr>
+    <tr><td>Experiment</td><td>出来高最大方式、提供元continuous相当、Proxy/Fallbackの比較結果と根拠。</td><td>Human Gate前の本線Signal、取引対象の自動昇格。</td><td>Phase 3以降の限定検証。</td></tr>
+  </tbody></table>
+
+  <h2>3. 全体構造とデータ受渡し</h2>
+  <p>この図は、契約ごとの正規化済みデータから、取引対象と分析用価格を別々に作る流れを示す。矢印の短い名前は渡す情報の名前であり、詳しい用途と停止条件は直後の表で説明する。</p>
+  <pre class="mermaid">flowchart LR
+    Raw["元データ"] -->|"契約別の取得記録"| Normalized["共通形式の契約別足"]
+    Catalog["銘柄台帳"] -->|"満期・受渡し注意日・営業日"| Tradable["取引対象の契約選択"]
+    Normalized -->|"品質確認済みの契約別足"| Tradable
+    Tradable -->|"実契約・切替日・切替理由"| Signal["連続した分析用系列"]
+    Normalized -->|"選択済み契約の価格足"| Signal
+    Signal -->|"確定済みSignal入力"| Derived["分析用の派生値"]
+    Tradable -->|"実契約の取引可否"| Strategy["Phase 3の戦略"]
+    Derived -->|"指標と根拠"| Strategy
+    Experiment["比較用の候補"] -. "本線へ自動昇格しない" .-> Signal</pre>
+  <h3>3.1 モジュール間データ受渡し表</h3>
+  <p>この表は、図の矢印で短く示した内容を説明する。どの情報が判断に使われ、情報が足りないときにどこで止めるかを、実装担当者と技術に詳しくない確認者の双方が追えるようにする。</p>
+  <table><thead><tr><th>送るレイヤー</th><th>受け取るレイヤー</th><th>渡すデータ・依頼</th><th>受け取り側の用途と停止条件</th></tr></thead><tbody>
+    <tr><td>銘柄台帳</td><td>Tradable</td><td>満期日、受渡し注意日、営業日、契約種別、契約ごとの内部銘柄番号を渡す。</td><td>切替日と候補契約を決める。満期または受渡し注意日が不明なら、当該契約を取引対象にせずSignal生成も停止する。</td></tr>
+    <tr><td>Normalized</td><td>Tradable</td><td>品質確認済みの契約別価格足、品質印、データ版を渡す。</td><td>選択済み契約に必要な足が欠けるか品質不明なら、当該時点の取引可否を不明として停止する。</td></tr>
+    <tr><td>Tradable</td><td>Signal</td><td>選んだ実契約、切替日時、切替理由、ロール規則版、台帳版を渡す。</td><td>連続系列を作る。実契約が一意に決まらない場合、補正値を推測せずSignalを公開しない。</td></tr>
+    <tr><td>Normalized</td><td>Signal</td><td>選択済みの旧契約・新契約の確定済み価格足と品質印を渡す。</td><td>切替時の差額を計算する。二契約の比較可能な確定足がそろわない場合、連続系列を作らず停止理由を記録する。</td></tr>
+    <tr><td>Signal</td><td>Derived</td><td>公開可能時刻を過ぎた連続価格、対応する実契約、品質印、系列版を渡す。</td><td>未確定バー、品質不明、未来の補正を含む値は計算に使わない。</td></tr>
+    <tr><td>Tradable と Derived</td><td>Phase 3の戦略</td><td>取引可能な実契約と、同じ時点までに確定した指標・根拠を渡す。</td><td>戦略はSignalを注文とみなさない。取引可能な実契約がない、または入力の版がそろわない場合、SignalEventを出さない。</td></tr>
+  </tbody></table>
+
+  <h2>4. OD-03の比較と採用候補</h2>
+  <p>この表は、どのロール方式を本線に置くかを判断するための比較である。成績の良さではなく、未来情報を使わないこと、契約・価格・損益を追跡できること、受渡しリスクを避けられることを優先する。</p>
+  <table><thead><tr><th>候補</th><th>切替の根拠</th><th>主な危険</th><th>Phase 2での扱い</th></tr></thead><tbody>
+    <tr><td>期近を維持</td><td>常に満期が近い契約を選ぶ。</td><td>満期・受渡しへ近付き、実取引の安全性を確保できない。</td><td class="fail">不採用。本線・比較用のいずれにも使わない。</td></tr>
+    <tr><td>出来高最大</td><td>時点ごとの出来高が最大の契約を選ぶ。</td><td>日中全体または将来の出来高を参照するとLook-aheadになる。銘柄ごとのしきい値最適化も起きやすい。</td><td>Experiment限定。確定時刻、比較窓、しきい値を別Human Gateで固定するまで本線へ入れない。</td></tr>
+    <tr><td>期限前固定日</td><td>満期日と受渡し注意日のうち早い日から、固定営業日数を引いた日で次契約へ切り替える。</td><td>市場別の固定営業日数と、受渡し注意日の品質を確認する必要がある。</td><td class="pass">H2-1の本線採用候補。具体日数は規則版の設定として承認・固定する。</td></tr>
+    <tr><td>Databento continuous相当</td><td>提供元のcontinuous表記または解決結果を使う。</td><td>切替規則・調整規則を内部の正本として十分に説明できない場合があり、提供元変更にも弱い。</td><td>外部比較・検証材料に限定する。Raw、Tradable、本線Signalの正本にしない。</td></tr>
+    <tr><td>Proxy/Fallback</td><td>別の契約、別市場、または補助系列へ置き換える。</td><td>本来の市場と異なる価格・流動性・満期構造を持つため、結果を混ぜると判断を誤る。</td><td>Experiment限定。対象、理由、開始・終了条件を別版に記録し、Human Gateなしに本線へ入れない。</td></tr>
+  </tbody></table>
+  <section class="decision"><strong>DEC-P2-08:</strong> H2-1の採用候補を「期限前固定日による契約選択」とする。切替基準日は、<code>min(first_notice_date, last_trade_date)</code> が確認できる場合は早い方を使い、確認できない場合は取引可能と判定しない。固定営業日数は市場別設定として版管理し、H2-1で承認するまで本線SignalをPhase 3へ渡さない。</section>
+
+  <h2>5. ロール規則と連続系列の作り方</h2>
+  <p>この表は、実契約の選択と分析用価格の連続化を分けて説明する。連続化は価格の見た目を滑らかにするための処理であり、損益を作り直す処理ではない。</p>
+  <table><thead><tr><th>項目</th><th>固定する規則</th><th>止める条件</th></tr></thead><tbody>
+    <tr><td>候補契約</td><td>銘柄台帳でfutureとして確認され、対象時点に有効で、契約属性がそろう契約だけを候補にする。spreadは除外する。</td><td>候補が0件または複数件で、規則だけでは一意に決まらない場合。</td></tr>
+    <tr><td>切替日</td><td>受渡し注意日と最終取引日の早い方から、<code>roll_lead_business_days</code>を引いた営業日の終了後に、次の有効契約へ切り替える。</td><td>営業日、早い方の日付、または固定営業日数が未確定の場合。</td></tr>
+    <tr><td>切替時刻</td><td>確定済みの1分足が閉じた後にだけ切り替える。次の入力へ使うのは、切替判定が記録された時刻以後の足だけである。</td><td>未確定バー、時刻逆行、閉時刻不明、または品質印が不明の場合。</td></tr>
+    <tr><td>連続価格</td><td>旧契約と新契約の同じ確定時点の終値差を使う前向き差額調整とする。切替後の新契約価格に累積差額を加え、過去の公開済みSignalを後から書き換えない。</td><td>同じ比較時点の二契約価格がそろわない、差額の計算対象が品質不合格、または累積補正版が一致しない場合。</td></tr>
+    <tr><td>Signalと実契約の対応</td><td>各Signal足に<code>signal_series_id</code>、<code>tradable_instrument_id</code>、<code>roll_rule_version</code>、<code>adjustment_version</code>を記録する。</td><td>分析用価格がどの実契約へ対応するか追えない場合。</td></tr>
+    <tr><td>損益・価格差・gap</td><td>ロール損益は実契約の約定・保有・価格から後続層で計算する。連続価格の補正差額、通常の価格差、gapを混同しない。</td><td>補正済みSignal価格を注文価格・約定価格・損益の正本として使おうとする場合。</td></tr>
+  </tbody></table>
+  <pre class="mermaid">sequenceDiagram
+    participant 台帳 as 銘柄台帳
+    participant 選択 as 契約選択
+    participant 正規化 as 契約別の価格足
+    participant 信号 as 分析用の連続系列
+    participant 戦略 as Phase 3の戦略
+    台帳->>選択: 満期・受渡し注意日・営業日
+    正規化->>選択: 品質確認済みの契約別足
+    選択->>選択: 固定営業日規則で実契約を決める
+    選択->>信号: 実契約、切替日時、規則版
+    正規化->>信号: 旧契約・新契約の確定済み終値
+    信号->>信号: 前向き差額を記録して連続化
+    信号->>戦略: 確定済みの分析用価格と実契約
+    Note over 戦略: 注文・損益の正本は実契約を使う</pre>
+
+  <h2>6. 本線候補と条件付き候補の分離</h2>
+  <p>この表は、対象銘柄を同じ品質条件で扱わないための区分である。条件付き候補は、採用候補として調べることを許すが、本線のReplayや比較結果へ混ぜない。</p>
+  <table><thead><tr><th>区分</th><th>対象</th><th>Phase 2で許すこと</th><th>Phase 2で禁止すること</th><th>昇格条件</th></tr></thead><tbody>
+    <tr><td>本線候補</td><td><code>MCL</code>, <code>M6A</code></td><td>契約台帳、固定日ロール、連続Signal、Replay Gateの設計・fixture検証。</td><td>H2-2前の実取得、未確認の満期・受渡し注意日を使う取引可否の確定。</td><td>必要期間のdefinition、契約別1分足、品質状態、切替根拠、固定営業日数をH2-1で承認する。</td></tr>
+    <tr><td>条件付き候補</td><td><code>MZC</code>, <code>MZS</code>, <code>MZW</code></td><td>専用のDatasetVersionとExperimentで、履歴・出来高・空区間・Proxy/Fallbackの必要性を調べる。</td><td>本線のSignal、Replay入力、成績比較、共通の最適化対象へ混ぜる。</td><td>履歴期間、流動性、品質、取引可能な契約、Proxy/Fallbackの根拠を後続Gateで承認する。</td></tr>
+  </tbody></table>
+
+  <h2>7. Look-ahead・最適化を防ぐGate</h2>
+  <p>この表は、未来の価格・出来高・ロール結果を使って過去のSignalを良く見せることを防ぐための機械Gateである。一つでも失敗したデータ版は、Phase 3の戦略入力に渡さない。</p>
+  <table><thead><tr><th>Gate ID</th><th>確認すること</th><th>合格条件</th><th>不合格時</th></tr></thead><tbody>
+    <tr><td>G-P2-RS-01</td><td>時点整合</td><td>各Signal足の<code>published_at_utc</code>以前に確定したNormalized足、台帳版、営業日だけを使う。</td><td>当該時点以後の価格・契約情報を参照した系列を無効化する。</td></tr>
+    <tr><td>G-P2-RS-02</td><td>未来の出来高参照</td><td>本線の固定日方式は出来高を契約選択に使わない。Experimentの出来高方式は、入力の確定時刻と比較窓を監査できる。</td><td>日中全体、翌日以後、または未確定バーの出来高を使った候補を本線へ渡さない。</td></tr>
+    <tr><td>G-P2-RS-03</td><td>過去の書換え</td><td>ロール後に新しい差額を得ても、既に公開したSignal足の価格・根拠・版を変更しない。</td><td>過去を遡って補正する後向き調整系列を本線Signalとして失格にする。</td></tr>
+    <tr><td>G-P2-RS-04</td><td>候補別最適化</td><td><code>roll_lead_business_days</code>、補正方法、品質条件は、銘柄別の成績を見る前に規則版として固定する。</td><td>成績を見て銘柄ごとに規則を変えた結果を比較・採用に使わない。</td></tr>
+    <tr><td>G-P2-RS-05</td><td>受渡し・満期の安全</td><td>最終取引日と受渡し注意日の早い方、営業日、次契約が確認でき、切替後に有効な実契約が一意に存在する。</td><td>当該時点の<code>tradable</code>をfalseにし、SignalEventと新規注文候補を停止する。</td></tr>
+    <tr><td>G-P2-RS-06</td><td>品質と版の一致</td><td>Raw、Normalized、Catalog、Tradable、Signalの各版と内容確認値がRun Manifestにそろって記録される。</td><td>Signal系列をReplay入力に昇格させず、原因調査へ送る。</td></tr>
+  </tbody></table>
+
+  <h2>8. Phase 3へ渡すReplay Gate</h2>
+  <p>この表は、Phase 3がSignal seriesをStrategyへ渡す前に確認する試験である。成績を評価する試験ではなく、同じ入力なら同じSignal入力になり、未来情報が混ざらないことを確認する。</p>
+  <table><thead><tr><th>試験ID</th><th>試験概要</th><th>テスト条件（入力値）</th><th>操作</th><th>期待結果</th><th>合否判定基準</th></tr></thead><tbody>
+    <tr><td>RS-RG-01</td><td>同じ実行記録から同じ連続系列を再現できることを確認する。</td><td>同一のRaw、Normalized、Catalog、固定日規則、補正規則、対象銘柄集合を含む二つの同一Run Manifestを用意する。</td><td>二つの再生処理で同じ期間のSignal系列を生成し、足、実契約、補正累積値、根拠を比較する。</td><td>すべての時点でSignal価格、実契約、切替理由、系列版が一致する。</td><td>一件でも差があれば不合格とし、Phase 3の入力へ渡さない。</td></tr>
+    <tr><td>RS-RG-02</td><td>未来の足を追加しても過去時点のSignalが変わらないことを確認する。</td><td>ある切替日までの入力と、その後の足・出来高を追加した入力を用意する。両方で切替日以前のManifest要素を固定する。</td><td>短い入力と長い入力をそれぞれ再生し、切替日以前に公開されたSignal足を比較する。</td><td>切替日以前のSignal価格、実契約、補正累積値、公開可能時刻は一致する。</td><td>未来の足の有無で過去の公開済みSignalが変われば不合格とする。</td></tr>
+    <tr><td>RS-RG-03</td><td>未来の出来高が本線の契約選択へ混ざらないことを確認する。</td><td>同じ満期日・営業日を持ち、将来時点だけ出来高が異なる二組の契約別足を用意する。</td><td>固定日方式で両入力を再生し、切替日と実契約の選択を比較する。</td><td>出来高の差に関係なく、固定日規則から同じ切替日と実契約が得られる。</td><td>本線の選択結果が未来の出来高で変われば不合格とする。</td></tr>
+    <tr><td>RS-RG-04</td><td>満期または受渡し注意日の情報が欠ける契約を取引対象にしないことを確認する。</td><td>受渡し注意日または最終取引日が欠ける契約候補と、次契約の情報がそろう別期間を用意する。</td><td>契約選択とSignal生成を実行し、当該期間の取引可否と停止記録を確認する。</td><td>情報が欠ける契約では<code>tradable</code>がfalseとなり、Signalは公開されず停止理由が残る。</td><td>欠けた情報を補って取引対象またはSignalを作った場合は不合格とする。</td></tr>
+    <tr><td>RS-RG-05</td><td>ロール差額を損益や注文価格の正本として使わないことを確認する。</td><td>切替時に旧契約と新契約の終値差がある入力、実契約の価格、補正済みSignal価格を用意する。</td><td>Signal生成と、後続へ渡す実契約参照を作成し、価格の出所を確認する。</td><td>Signalには補正値が残るが、取引対象・注文候補・損益入力は実契約の価格と契約番号を参照する。</td><td>補正済みSignal価格を注文価格または損益の正本として出力した場合は不合格とする。</td></tr>
+    <tr><td>RS-RG-06</td><td>条件付き候補が本線のReplayへ混ざらないことを確認する。</td><td><code>MCL/M6A</code>の本線UniverseVersionと、<code>MZC/MZS/MZW</code>を含む条件付きDatasetVersionを用意する。</td><td>本線Replay Manifestを生成し、含まれる対象銘柄とデータ版を検査する。</td><td>本線Manifestには<code>MCL/M6A</code>だけが含まれ、条件付き候補はExperiment側に分離される。</td><td>条件付き候補が本線Manifestへ一件でも混入した場合は不合格とする。</td></tr>
+  </tbody></table>
+
+  <h2>9. 要件・判断・未確定事項の追跡</h2>
+  <p>この表は、なぜこの設計が必要か、何を決め、何をまだ決めていないかを追えるようにする。未確定事項はPassにせず、決定時期まで本線への昇格を止める。</p>
+  <table><thead><tr><th>追跡ID</th><th>本書での扱い</th><th>状態</th></tr></thead><tbody>
+    <tr><td><code>REQ-Q19</code> / <code>REQ-OD03</code></td><td>固定日による契約選択、Signal専用の前向き差額調整、H2-1での採用承認を定義した。</td><td>採用候補を定義。Human Gate待ち。</td></tr>
+    <tr><td><code>REQ-Q20</code></td><td>契約別の1分足を根拠にし、日足・連続系列をRawの正本にしない。</td><td>固定。</td></tr>
+    <tr><td><code>REQ-Q29</code></td><td>Run Manifest、同一入力再現、未来足・未来出来高の非参照をReplay Gateにした。</td><td>固定。P2-08とPhase 3で検証する。</td></tr>
+    <tr><td><code>DEC-P2-05</code></td><td>Continuous signal seriesをRawではなくSignal入力として版管理する方針を、具体的な層と項目へ展開した。</td><td>固定。</td></tr>
+    <tr><td><code>DEC-P2-08</code></td><td>固定日方式を本線の採用候補にし、出来高最大、外部continuous、Proxy/FallbackをExperimentへ隔離する。</td><td>H2-1で承認待ち。</td></tr>
+    <tr><td><code>UNK-P2-02</code></td><td>OD-03の最終採用、固定営業日数、補正方式の採否。</td><td>H2-1まで未確定。本線SignalをPhase 3へ渡さない。</td></tr>
+    <tr><td><code>UNK-P2-04</code></td><td><code>MZC/MZS/MZW</code>の履歴、流動性、Proxy/Fallbackの正式扱い。</td><td>条件付きデータセットへ隔離。本線Replayには入れない。</td></tr>
+    <tr><td><code>UNK-P2-12</code></td><td>市場別の受渡し注意日、固定営業日数、次契約が一意に選べない場合の個別例外。</td><td>H2-1とP2-08で確認。未解決の契約は<code>tradable</code>をfalseにする。</td></tr>
+  </tbody></table>
+
+  <section class="gate"><h2>10. H2-1 人間承認</h2><p><strong>承認すること:</strong> DEC-P2-08の固定日方式、Signal専用の前向き差額調整、実契約と分析用価格の分離、<code>MCL/M6A</code>を本線候補、<code>MZC/MZS/MZW</code>を条件付き候補として隔離すること、固定営業日数を規則版で管理すること、Replay Gateの合格条件。<br><strong>承認しないこと:</strong> 実取引開始、Databento API実取得、費用・entitlement、銘柄別の成績最適化、Proxy/Fallbackの本線採用、注文・損益の最終実装。<br><strong>未承認時:</strong> P2-D08を採用済み設計にせず、Phase 3へ本線Signalを渡さない。fixtureによる設計確認とExperimentの隔離だけを許す。</p></section>
+
+  <h2>11. レビューと反映</h2>
+  <p>この表は、A90の整合性確認と批判的安全レビューで見つかった問題を先に記録し、どう直したかを残す。CriticalまたはHighの指摘を残したままH2-1の承認対象にはしない。</p>
+  <table><thead><tr><th>指摘ID</th><th>重要度</th><th>観点</th><th>指摘</th><th>反映と再判定</th></tr></thead><tbody>
+    <tr><td>DR-P2-04-01</td><td class="fail">High</td><td>Look-ahead</td><td>出来高最大方式を本線にすると、日中全体または翌日の出来高を過去の契約選択へ混ぜる危険がある。</td><td>採用。固定日方式を本線候補へ変更し、出来高最大は公開可能時刻を監査できるExperimentに隔離した。<span class="pass">Closed</span></td></tr>
+    <tr><td>DR-P2-04-02</td><td class="fail">High</td><td>連続価格と損益</td><td>後向き補正や提供元continuousを価格・損益の正本にすると、未来情報と実契約との差を隠す危険がある。</td><td>採用。前向き差額調整をSignalだけに限定し、実契約・注文・損益はTradableを正本とする。<span class="pass">Closed</span></td></tr>
+    <tr><td>DR-P2-04-03</td><td class="fail">High</td><td>物理決済・満期</td><td>受渡し注意日または最終取引日が不明な契約を取引対象にすると、満期持越しを防げない。</td><td>採用。早い方の日付と営業日が確認できない場合は<code>tradable</code>をfalseにするGateを追加した。<span class="pass">Closed</span></td></tr>
+    <tr><td>DRT-P2-04-01</td><td>Medium</td><td>条件付き候補の混入</td><td><code>MZC/MZS/MZW</code>を本線と同じUniverseに入れると、流動性不足やProxy結果が本線の比較をゆがめる。</td><td>採用。本線UniverseVersionと条件付きDatasetVersionを分離し、Replay Gateで混入を検出する。<span class="pass">Closed</span></td></tr>
+    <tr><td>DRT-P2-04-02</td><td>Medium</td><td>D08/D09/D11/D18整合</td><td>Signalを注文承認と扱うと、Strategy、Risk、Replay、監視の既存境界を壊す。</td><td>採用。Signalは分析入力、StrategyはSignalEvent、注文は後続のRisk/OMS責務と明記した。データ欠損時は対象InstrumentのSignal生成を停止する。<span class="pass">Closed</span></td></tr>
+  </tbody></table>
+  <section class="review"><strong>最終判定:</strong> P2-D08は、OD-03の採用候補、保留条件、H2-1、未来情報を防ぐReplay Gateを定義した。残る<code>UNK-P2-02</code>、<code>UNK-P2-04</code>、<code>UNK-P2-12</code>はPass扱いにせず、未承認の本線SignalはPhase 3へ渡さない。</section>
+
+  <h2>12. 関連文書</h2>
+  <ul>
+    <li><a href="../01_要件追跡/01_Phase2要件追跡マトリクス.html">P2-D02 Phase 2要件追跡マトリクス</a></li>
+    <li><a href="../01_要件追跡/01_Phase2未確定事項台帳.html">P2-D03 Phase 2未確定事項台帳</a></li>
+    <li><a href="../02_データソース調査/02_Databento公式仕様確認結果.html">P2-D04 Databento公式仕様確認結果</a></li>
+    <li><a href="../03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html">P2-D05 市場データ受渡し部 詳細設計書</a></li>
+    <li><a href="../03_市場データ詳細設計/06_Raw_Normalized_Store詳細設計書.html">P2-D06 元データ・正規化データ保管庫 詳細設計書</a></li>
+    <li><a href="../03_市場データ詳細設計/07_Instrument_Catalog詳細設計書.html">P2-D07 銘柄台帳 詳細設計書</a></li>
+    <li><a href="../../phase1/06_アダプター境界/06_Adapter境界設計書.html">Phase 1 Adapter境界設計書</a></li>
+    <li><a href="../../phase1/07_実行モデル/07_共通実行モデル設計書.html">Phase 1 共通実行モデル設計書</a></li>
+    <li><a href="../../phase1/10_テスト品質/10_テスト戦略品質Gate設計書.html">Phase 1 テスト戦略品質Gate設計書</a></li>
+  </ul>
+</main>
+<script src="../../assets/mermaid.min.js"></script>
+<script src="../../assets/mermaid-init.js"></script>
+</body>
+</html>
