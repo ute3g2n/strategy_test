@@ -202,6 +202,7 @@ UnknownはPassにしない。各Unknownには担当ステップ、決定タイ�
 | UNK-P2-08 | `data/market_data/` をリポジトリ内ローカルデータ置場にするか、外部パスにするか。 | P2-05 | P2-05完了時 | 大容量データ生成を停止し、小型fixtureだけ保存する。 |
 | UNK-P2-09 | Shadow用Live相当データの遅延許容しきい値。 | P2-03 / P2-10 | Phase 6 | Phase 2では測定項目だけ定義し、合否しきい値は未確定のまま送る。 |
 | UNK-P2-10 | P2-D05からP2-D07が実装可能な粒度を満たすか。対象コード、型、保存構造、失敗系、テストの不足を許容しない。 | P2-03R | P2-03R完了時 | A91の再レビューでCritical/HighまたはDD-01からDD-12の未充足が残る場合、P2-04とP2-05を開始しない。 |
+| UNK-P2-11 | margin placeholderの最終sourceとRisk利用規則。 | Risk設計Phase | Risk設計PhaseのHuman Gate | 値をNotional計算、Order可否、Risk判定に使わず、null/Unknownのまま保持する。 |
 
 ---
 
