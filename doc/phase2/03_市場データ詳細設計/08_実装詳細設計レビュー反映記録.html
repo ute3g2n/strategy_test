@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2-D15 実装詳細設計レビュー・反映記録</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 32px auto; max-width: 1240px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2 { color: #111827; letter-spacing: 0; } h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; } h2 { border-bottom: 1px solid #cbd5e1; margin-top: 32px; padding-bottom: 6px; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14px; } th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; } th { background: #eef2f7; }
+    code { font-family: Consolas, "Courier New", monospace; background: #f1f5f9; padding: 1px 4px; } a { color: #0f5db8; }
+    .meta, .gate, .unknown, .review { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }.gate { border-left-color: #7c3aed; background: #f5f3ff; }.unknown { border-left-color: #b45309; background: #fff7ed; }.review { border-left-color: #15803d; background: #f0fdf4; }.pass { color: #047857; font-weight: 700; }.fail { color: #b91c1c; font-weight: 700; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>P2-D15 実装詳細設計レビュー・反映記録</h1>
+  <section class="meta">
+    <p><strong>成果物ID:</strong> P2-D15<br><strong>文書セットID:</strong> P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET<br><strong>Phase / Step:</strong> Phase 2 / P2-03R<br><strong>作成日:</strong> 2026-08-04<br><strong>文書状態:</strong> v0.1 / A91初回レビュー、A90/Red Team、改訂、A91再レビュー完了<br><strong>使用Orchestrator:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></p>
+  </section>
+
+  <h2>1. 判定</h2>
+  <section class="review"><p><strong class="pass">P2-03R 完了。</strong> P2-D05〜D07は、実装担当者がPython 3.11の予定配置へ着手するためのDD-01〜DD-12を設計書セットで満たす。A91再レビューでCritical/Highは0件である。<code>UNK-P2-02</code>、<code>UNK-P2-03</code>、<code>UNK-P2-04</code>、<code>UNK-P2-07</code>、<code>UNK-P2-08</code>、<code>UNK-P2-09</code>、<code>UNK-P2-11</code>は解消しておらず、各文書の停止・縮退方針に従う。外部API実取得、費用、entitlement、roll方式の承認は本ステップの完了条件ではない。</p></section>
+
+  <h2>2. 実装対象と前提</h2>
+  <table><thead><tr><th>項目</th><th>確定内容</th><th>未確定時の扱い</th></tr></thead><tbody>
+    <tr><td>言語・予定配置</td><td>Python 3.11、<code>src/autotrade/market_data/</code>、<code>tests/market_data/</code>、<code>tests/fixtures/market_data/</code>。</td><td>現在は未作成。P2-05が本書のtreeに従って作成する。</td></tr>
+    <tr><td>最小保存方式</td><td>標準ライブラリのローカルファイル、Raw payload/metadata、NDJSON snapshot、JSON manifest/catalog snapshot。</td><td>大容量/本番保存先は<code>UNK-P2-08</code>。同一契約を満たす実装へ将来差替える。</td></tr>
+    <tr><td>外部取得</td><td>fixture/dry-runだけを設計・テスト対象とする。Gateway Protocolが将来vendor実装を隔離する。</td><td>H2-2未承認ではexternal source_modeをfail-closedで拒否する。</td></tr>
+    <tr><td>非対象</td><td>Strategy、Broker、注文、Backtest Engine本体、roll方式の採否、Riskの証拠金利用。</td><td>後続PhaseまたはH2-1へ送る。</td></tr>
+  </tbody></table>
+
+  <h2>3. A91初回レビューと反映</h2>
+  <table><thead><tr><th>指摘ID</th><th>重要度</th><th>対象</th><th>初回の不足</th><th>採否・反映</th><th>再レビュー</th></tr></thead><tbody>
+    <tr><td>IDR-P2-01</td><td class="fail">High</td><td>P2-D05</td><td>Port名と項目はあるが、予定モジュール、型、呼出し順、fixtureテストが不足。</td><td>採用。9〜13章にmodule tree、Protocol、DTO、コード例、失敗シーケンス、テストを追加。</td><td class="pass">Closed</td></tr>
+    <tr><td>IDR-P2-02</td><td class="fail">High</td><td>P2-D06</td><td>不変方針はあるが、物理パス、キー、原子性、data_version生成、failure injectionが不足。</td><td>採用。8〜12章にファイル契約、Repository型、原子的書込み、擬似コード、受入テストを追加。</td><td class="pass">Closed</td></tr>
+    <tr><td>IDR-P2-03</td><td class="fail">High</td><td>P2-D07</td><td>Catalog概念はあるが、snapshot schema、Resolver API、期限判定、migration、テストが不足。</td><td>採用。9〜13章にJSON snapshot、型、Resolver順序、コード例、テストを追加。</td><td class="pass">Closed</td></tr>
+    <tr><td>IDR-P2-04</td><td>Medium</td><td>全体</td><td>未作成の<code>src/</code>/<code>tests/</code>を既存実装のように読める表現があった。</td><td>採用。全書で「P2-05の予定配置」と明示し、未承認依存を固定しない。</td><td class="pass">Closed</td></tr>
+    <tr><td>IDR-P2-05</td><td>Medium</td><td>全体</td><td>レビュー閉ループの成果物が独立していない。</td><td>採用。本書をP2-D15として作成し、初回/横断/再レビューとUnknownを記録。</td><td class="pass">Closed</td></tr>
+  </tbody></table>
+
+  <h2>4. A90・Red Team監査と反映</h2>
+  <table><thead><tr><th>指摘ID</th><th>観点</th><th>判定</th><th>反映</th></tr></thead><tbody>
+    <tr><td>DRT-P2-01</td><td>外部SDK/Secret漏えい</td><td class="pass">Pass</td><td>Gateway Protocolを境界にし、環境変数名だけを記録。payload metadataのSecret拒否をP2-D06へ追加。</td></tr>
+    <tr><td>DRT-P2-02</td><td>Raw改変・再取得差分消失</td><td class="pass">Pass</td><td>append-only、request fingerprint、payload SHA-256、diff監査、新data_versionをP2-D05/D06へ追加。</td></tr>
+    <tr><td>DRT-P2-03</td><td>symbol mapping誤り</td><td class="pass">Pass</td><td>期間内のresolved行が一意でなければMarketEventを作らないResolverをP2-D07へ追加。</td></tr>
+    <tr><td>DRT-P2-04</td><td>品質警告の握りつぶし/fail-open</td><td class="pass">Pass</td><td>degraded、partial、unknown、書込失敗ではManifestを発行せず、Replay/Signalを停止する。</td></tr>
+    <tr><td>DRT-P2-05</td><td>Phaseスコープ逸脱</td><td class="pass">Pass</td><td>roll最終方式、外部実取得、Risk利用をUnknown/Human Gateに残し、具体値を固定しない。</td></tr>
+  </tbody></table>
+
+  <h2>5. DD-01〜DD-12再レビュー網羅表</h2>
+  <table><thead><tr><th>DD</th><th>P2-D05</th><th>P2-D06</th><th>P2-D07</th><th>A91再判定</th></tr></thead><tbody>
+    <tr><td>DD-01 実装対象/境界</td><td>0〜1、9章</td><td>0〜1、8章</td><td>0〜1、9章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-02 モジュール構成</td><td>9章</td><td>8章</td><td>9章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-03 実装単位</td><td>9〜10章</td><td>8〜9章</td><td>9〜10章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-04 入出力契約</td><td>2〜3、10章</td><td>7、9章</td><td>3、10章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-05 永続化契約</td><td>Raw受渡し契約</td><td>2〜6、8〜9章</td><td>3、11章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-06 処理順/状態</td><td>4〜7、11章</td><td>5、10章</td><td>12章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-07 非自明規則</td><td>12章</td><td>11章</td><td>12章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-08 設定/監査/観測</td><td>6、13章</td><td>5、12章</td><td>5、13章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-09 テスト接続</td><td>13章</td><td>12章</td><td>13章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-10 Manifest/互換性</td><td>7、13章</td><td>6、12章</td><td>8、11、13章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-11 追跡/Unknown</td><td>8、14章</td><td>13章</td><td>14章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-12 改訂閉ループ</td><td>15章</td><td>15章</td><td>16章</td><td class="pass">Pass</td></tr>
+  </tbody></table>
+
+  <h2>6. 要件・判断・Unknown追跡</h2>
+  <table><thead><tr><th>追跡ID</th><th>詳細設計での根拠</th><th>状態</th></tr></thead><tbody>
+    <tr><td>REQ-Q20 / REQ-Q29</td><td>不変Raw、Normalized snapshot、data_version、Manifest、Replay停止、fixtureテスト。</td><td>設計完了。実装・検証はP2-05/P2-06。</td></tr>
+    <tr><td>REQ-Q23</td><td>Secret非出力、fixture既定、H2-2未承認external拒否、監査属性の限定。</td><td>設計完了。H2-2は未承認。</td></tr>
+    <tr><td>REQ-OD01 / REQ-P2-BL02</td><td>CatalogのPending、mapping期限・一意性、future/spread分離。</td><td>候補実測はUNK-P2-03/04。</td></tr>
+    <tr><td>DEC-P2-01〜07</td><td>append-only Raw、UTC/InstrumentId/quality flags、vendor隔離、1分足前提、versioned input、fail-closed、P10非流用。</td><td>設計へ反映。</td></tr>
+    <tr><td>UNK-P2-10</td><td>実装詳細設計の充足可否。</td><td>本書のA91再レビューにより解消。P2-D05〜07変更時は再発し、A91再レビューを必須とする。</td></tr>
+    <tr><td>UNK-P2-11</td><td>margin placeholderのsourceとRisk利用。</td><td>未解消。値をNotional/Order可否に使わない。</td></tr>
+  </tbody></table>
+
+  <section class="unknown"><h2>7. 残Unknownと停止条件</h2><p>残UnknownをPassにしない。H2-2未承認の間は外部取得を実行しない。P2-04/H2-1まではroll/continuousを本線入力にしない。大容量保存先が未決ならfixtureだけを保存する。Catalog mapping、dataset condition、Raw integrity、Manifest digestのいずれかがUnknown/FailならP2-05実装は対象データをReplay/Signalへ渡さない。</p></section>
+
+  <section class="gate"><h2>8. H2-1への引継ぎ</h2><p>H2-1では、P2-D05〜D07 v0.2のPython/ローカルファイル最小実装契約、Raw不変・Normalized新version・Catalog snapshotの方式、条件付き銘柄の隔離、data_version/Manifest契約を承認対象とする。roll/continuousの採否はP2-04と合わせて承認する。未承認ならP2-05本実装を開始しない。</p></section>
+
+  <h2>9. 関連成果物</h2>
+  <ul>
+    <li><a href="./05_Market_Data_Adapter詳細設計書.html">P2-D05 Market Data Adapter実装詳細設計書 v0.2</a></li>
+    <li><a href="./06_Raw_Normalized_Store詳細設計書.html">P2-D06 Raw / Normalized Store実装詳細設計書 v0.2</a></li>
+    <li><a href="./07_Instrument_Catalog詳細設計書.html">P2-D07 Instrument Catalog実装詳細設計書 v0.2</a></li>
+    <li><a href="../01_要件追跡/01_Phase2未確定事項台帳.html">P2-D03 Unknown台帳</a></li>
+    <li><a href="../../ai_foundation/14_実装詳細設計書構成標準.html">AF-D14 実装詳細設計書構成標準</a></li>
+  </ul>
+</main>
+</body>
+</html>
