@@ -32,7 +32,7 @@
     <strong>文書セットID:</strong> P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET<br>
     <strong>Phase / Step:</strong> Phase 2 / P2-03R<br>
     <strong>作成日:</strong> 2026-08-04<br>
-    <strong>文書状態:</strong> v0.2 / P2-03R 実装詳細設計・A91再レビュー反映済み<br>
+    <strong>文書状態:</strong> v0.3 / P2-03R 形式改訂・A91再レビュー反映済み<br>
     <strong>使用Orchestrator:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code><br>
     <strong>担当Agent:</strong> <code>AutoTrade_A10_RequirementsCurator_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code><br>
     <strong>使用Skill:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code>, <code>autotrade_skill_red_team_review_v0_1</code>, <code>autotrade_skill_revision_integration_v0_1</code></p>
@@ -168,6 +168,24 @@ contracts.py は全モジュールが参照する共通の型だけを持つ。
     <tr><td><code>IngestionResult.raw_object_id</code></td><td>str</td><td>不変Rawの識別子。</td><td>Raw Store成功後だけ返す。</td></tr>
     <tr><td><code>IngestionResult.payload_sha256</code></td><td>str</td><td>payload完全性のdigest。</td><td>64桁hexであること。</td></tr>
     <tr><td><code>IngestionResult.health_event_id</code></td><td>str</td><td>今回の取り込み状態を示すHealthEvent ID。</td><td>Health記録失敗なら成功結果を返さない。</td></tr>
+  </tbody></table>
+  <h3>4.3 SymbolObservation、HealthEvent、ObservationReceiptのパラメータ</h3>
+  <table><thead><tr><th>型.パラメータ</th><th>型</th><th>説明</th><th>検証 / 取扱い</th></tr></thead><tbody>
+    <tr><td><code>SymbolObservation.request_id</code></td><td>str</td><td>元の取得・解決依頼を指すID。</td><td>空文字不可。Raw監査と結び付ける。</td></tr>
+    <tr><td><code>SymbolObservation.vendor</code></td><td>str</td><td>観測元の提供元名。</td><td>内部InstrumentIdではない。</td></tr>
+    <tr><td><code>SymbolObservation.dataset_id</code></td><td>str</td><td>観測に用いたdatasetの識別子。</td><td>dataset_refと一致すること。</td></tr>
+    <tr><td><code>SymbolObservation.stype_in / input_symbol</code></td><td>str / str</td><td>Gatewayへ渡した外部表記の種類と値。</td><td>外部境界内だけで使い、Coreの正本にしない。</td></tr>
+    <tr><td><code>SymbolObservation.stype_out / output_symbol</code></td><td>str / str</td><td>Gatewayが解決した外部表記の種類と値。</td><td>partial/ambiguous/not_foundなら成功観測にしない。</td></tr>
+    <tr><td><code>SymbolObservation.external_instrument_id</code></td><td>str | None</td><td>提供元側の補助ID。</td><td>存在しても内部InstrumentIdの代わりにしない。</td></tr>
+    <tr><td><code>SymbolObservation.valid_from_utc / valid_to_utc</code></td><td>datetime / datetime | None</td><td>解決結果が有効なUTC期間。</td><td>開始は必須。時刻が不明ならCatalogへ確定観測を渡さない。</td></tr>
+    <tr><td><code>SymbolObservation.source_raw_object_id</code></td><td>str</td><td>観測根拠となる不変RawのID。</td><td>Raw保存成功後だけ設定する。</td></tr>
+    <tr><td><code>SymbolObservation.status</code></td><td>literal</td><td><code>resolved</code>、<code>partial</code>、<code>ambiguous</code>、<code>not_found</code>、<code>unknown</code>。</td><td><code>resolved</code>以外はCatalog Portの成功操作を呼ばない。</td></tr>
+    <tr><td><code>HealthEvent.event_id</code></td><td>str</td><td>Health記録の一意ID。</td><td>request_idと混同しない。</td></tr>
+    <tr><td><code>HealthEvent.state</code></td><td>literal</td><td><code>HEALTHY</code>、<code>DEGRADED</code>、<code>UNHEALTHY</code>、<code>UNKNOWN</code>。</td><td>HEALTHY以外は下流利用の可否を別途判定し、既定で停止。</td></tr>
+    <tr><td><code>HealthEvent.reason_code</code></td><td>str</td><td>停止・縮退の機械可読な理由。</td><td>Secretや外部レスポンス本文を含めない。</td></tr>
+    <tr><td><code>HealthEvent.affected_range_start_utc / end_utc</code></td><td>datetime | None</td><td>問題が分かっている対象期間。</td><td>不明ならNoneのままUNKNOWNとして扱う。</td></tr>
+    <tr><td><code>ObservationReceipt.observation_id</code></td><td>str</td><td>Catalog Portが受け取った観測のID。</td><td>内部InstrumentIdを含めない。</td></tr>
+    <tr><td><code>ObservationReceipt.accepted</code></td><td>bool</td><td>観測を受領したか。</td><td>falseの場合は理由をHealth/Unknownへ記録し、成功扱いにしない。</td></tr>
   </tbody></table>
 
   <h2>5. モジュール間の処理フロー</h2>
@@ -488,6 +506,7 @@ Caller -> IngestionService.ingest(fixture request)
         <tr><td>2026-08-04</td><td>Red Team観点</td><td>Raw改変、mapping誤り、品質警告の握りつぶし、fail-open。</td><td>checksum、partial、degraded、Unknown、停止処理を明記。</td></tr>
         <tr><td>2026-08-04</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>リンク、保存先、共通メタデータ。</td><td>D06/D07/P2-D04/P2-D01とdoc/index.htmlへの導線を設定。</td></tr>
         <tr><td>2026-08-04</td><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>DD-01〜12、予定モジュール、型、異常系、テスト。</td><td>P2-03Rで9〜13章を追加。P2-D15の再レビューでCritical/High 0件を確認。</td></tr>
+        <tr><td>2026-08-04</td><td><code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code> / <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>初見の実装者が、ドメイン、ファイル、I/O、フロー、テストを順に理解できるか。</td><td>v0.3で1〜6章を新設し、全テストケースをMDA-T01〜MDA-T24として列挙。モジュールI/O辞書と図を追加した。</td></tr>
       </tbody>
     </table>
   </section>
