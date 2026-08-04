@@ -27,7 +27,7 @@
     <strong>文書セットID:</strong> P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET<br>
     <strong>対象フェーズ / 手順:</strong> Phase 2 / P2-03R<br>
     <strong>作成日:</strong> 2026-08-04<br>
-    <strong>文書状態:</strong> v0.3 / AF-D17形式への改訂および再レビュー反映済み<br>
+    <strong>文書状態:</strong> v0.4 / モジュール間データ受渡しの可視化基準を反映<br>
     <strong>使用オーケストレータ:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code><br>
     <strong>担当サブエージェント:</strong> <code>AutoTrade_A10_RequirementsCurator_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code><br>
     <strong>使用スキル:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_domain_modeling_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_doc_set_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code>, <code>autotrade_skill_red_team_review_v0_1</code>, <code>autotrade_skill_revision_integration_v0_1</code></p></section>
@@ -382,12 +382,13 @@ class CatalogRepository(Protocol):
 
   <section class="gate"><h2>20. 人間承認の対象</h2><p>H2-1では、内部銘柄番号の同一性、外部記号との対応期間、最小価格変動と契約の大きさの必須性、営業日版、連続契約を個別契約と同一視しない方針を承認する。H2-2で実取得、費用、利用権限を承認するまでは、実値を台帳の確定値として採用しない。</p></section>
 
-  <section class="review"><h2>21. レビュー履歴</h2><p>この表は、指摘、採否、改訂、再レビューを残す。P2-D07 v0.3はAF-D16の0章から22章を満たし、CriticalおよびHighの未解決指摘を残さない状態である。</p>
+  <section class="review"><h2>21. レビュー履歴</h2><p>この表は、指摘、採否、改訂、再レビューを残す。P2-D07 v0.4はAF-D16の0章から22章を満たし、CriticalおよびHighの未解決指摘を残さない状態である。</p>
     <table><thead><tr><th>日付</th><th>確認者または部品</th><th>観点</th><th>反映と再判定</th></tr></thead><tbody>
       <tr><td>2026-08-04</td><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>AF-D16の冒頭六節、図、入出力、全試験表、実装可能性を確認した。</td><td>v0.2で欠けていた平易な概要、ファイル構成、Mermaid図、IC-T01からIC-T20を追加し、Critical/Highは0件と再判定した。</td></tr>
       <tr><td>2026-08-04</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>誤った対応付け、P2-D05/P2-D06との責務境界、連続契約の先送りを確認した。</td><td>一意でない対応の停止、有効期間、台帳版固定、H2-1への引継ぎを明記し、未解決の重大指摘はないと判定した。</td></tr>
       <tr><td>2026-08-04</td><td>批判的安全レビュー</td><td>未確認の最小価格変動、契約の大きさ、証拠金の仮値、改変した台帳の利用を確認した。</td><td>属性不足時の停止、仮値の非利用、内容確認値不一致の拒否を明記し、危険な先送りをUnknown台帳へ移した。</td></tr>
       <tr><td>2026-08-04</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code>および<code>AutoTrade_A81_DesignDocSetWriter_v0_1</code></td><td>保存先、関連リンク、テンプレート準拠、文書セットとの整合を確認した。</td><td>ローカルMermaid資産、P2-D05/P2-D06/P2-D15へのリンク、版数を反映し、統合上の重大指摘はないと判定した。</td></tr>
+      <tr><td>2026-08-05</td><td>利用者レビューおよび<code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>構造図では台帳の検査と検索の流れは読めるが、根拠と検索結果がどの部品へ渡るかを追えない。</td><td>各実線矢印に短い受渡し名を付け、直後に受渡し表を追加した。観測、属性、台帳版、検索結果、停止理由、監査情報の用途と停止条件を文章で明示した。</td></tr>
     </tbody></table></section>
 
   <h2>22. 関連成果物</h2>

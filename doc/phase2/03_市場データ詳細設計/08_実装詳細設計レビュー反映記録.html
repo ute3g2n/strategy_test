@@ -18,7 +18,7 @@
   <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
   <h1>P2-D15 実装詳細設計レビュー・反映記録</h1>
   <section class="meta">
-    <p><strong>成果物ID:</strong> P2-D15<br><strong>文書セットID:</strong> P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET<br><strong>Phase / Step:</strong> Phase 2 / P2-03R<br><strong>作成日:</strong> 2026-08-04<br><strong>文書状態:</strong> v0.4 / P2-D06・P2-D07のAF-D17形式改訂を記録<br><strong>使用Orchestrator:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></p>
+    <p><strong>成果物ID:</strong> P2-D15<br><strong>文書セットID:</strong> P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET<br><strong>Phase / Step:</strong> Phase 2 / P2-03R<br><strong>作成日:</strong> 2026-08-04<br><strong>文書状態:</strong> v0.5 / モジュール間データ受渡しの可視化基準を記録<br><strong>使用Orchestrator:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></p>
   </section>
 
   <h2>1. 判定</h2>
@@ -56,15 +56,16 @@
     <tr><td>IDR-P2-07</td><td class="fail">High</td><td>P2-D05 v0.3</td><td>英字中心の説明、文字だけの図、単語だけの試験表、後半の表の目的不足により、技術者以外が内容を判断できない。</td><td>採用。P2-D05 v0.4で日本語を基本とし、図をMermaidへ統一、MDA-T01〜T24の全セルを文章化し、7章以降の各表に目的説明を追加した。</td><td class="pass">Closed</td></tr>
     <tr><td>IDR-P2-08</td><td class="fail">High</td><td>P2-D06 v0.2</td><td>保管・変換の契約はあるが、平易なドメイン説明、ファイルツリー、構造図、処理フロー、全試験が読者の作業順に並んでいない。</td><td>採用。P2-D06 v0.3に0〜22章、Mermaid図5種、RNS-T01〜T20、各表の目的説明を追加した。</td><td class="pass">Closed</td></tr>
     <tr><td>IDR-P2-09</td><td class="fail">High</td><td>P2-D07 v0.2</td><td>銘柄台帳の契約はあるが、平易なドメイン説明、ファイルツリー、構造図、処理フロー、全試験が読者の作業順に並んでいない。</td><td>採用。P2-D07 v0.3に0〜22章、Mermaid図5種、IC-T01〜T20、各表の目的説明を追加した。</td><td class="pass">Closed</td></tr>
+    <tr><td>IDR-P2-10</td><td class="fail">High</td><td>P2-D05〜P2-D07</td><td>モジュール構造図が部品の接続だけを示し、部品間で渡す依頼・データ・停止条件を読者が追えない。</td><td>採用。各構造図の実線矢印に短い受渡し名を付け、直後に送る部品、受け取る部品、渡す内容、用途と停止条件を説明する表を追加した。AF-D14〜D17とAI基盤にも同じ基準を反映した。</td><td class="pass">Closed</td></tr>
   </tbody></table>
-  <section class="review"><p><strong>形式方針:</strong> P2-D05 v0.5を、後続の実装詳細設計書で使う読解順と記述品質の具体例とする。HTML構成は<a href="../../ai_foundation/16_実装詳細設計書HTMLテンプレート.html">AF-D16</a>、依頼文は<a href="../../ai_foundation/17_実装詳細設計書作成依頼プロンプト.html">AF-D17</a>を使う。すなわち、平易なドメイン説明、ファイルツリー、Mermaidによる構造図、モジュールと入出力、Mermaidによる処理フロー、文章で書いた全テストケースを前半に置き、その後に型・永続化・例外などの詳細契約を置く。コード・固有名詞以外は日本語で説明し、後半の各仕様表の前に目的を置く。P2-D06/P2-D07には、この方針をv0.3で適用済みである。</p></section>
+  <section class="review"><p><strong>形式方針:</strong> P2-D05 v0.6を、後続の実装詳細設計書で使う読解順と記述品質の具体例とする。HTML構成は<a href="../../ai_foundation/16_実装詳細設計書HTMLテンプレート.html">AF-D16</a>、依頼文は<a href="../../ai_foundation/17_実装詳細設計書作成依頼プロンプト.html">AF-D17</a>を使う。すなわち、平易なドメイン説明、ファイルツリー、受渡し名を矢印に付けたMermaid構造図、直後のモジュール間データ受渡し表、モジュールと入出力、Mermaidによる処理フロー、文章で書いた全テストケースを前半に置き、その後に型・永続化・例外などの詳細契約を置く。コード・固有名詞以外は日本語で説明し、後半の各仕様表の前に目的を置く。P2-D06/P2-D07には、この方針をv0.4で適用済みである。</p></section>
 
   <h2>5. DD-01〜DD-12再レビュー網羅表</h2>
   <table><thead><tr><th>DD</th><th>P2-D05</th><th>P2-D06</th><th>P2-D07</th><th>A91再判定</th></tr></thead><tbody>
     <tr><td>DD-01 実装対象/境界</td><td>0〜1、7章</td><td>0〜1、7章</td><td>0〜1、7章</td><td class="pass">Pass</td></tr>
-    <tr><td>DD-02 モジュール構成</td><td>2〜3、15章</td><td>2〜3、15章</td><td>2〜3、15章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-02 モジュール構成</td><td>2〜3、15章</td><td>2〜3、15章</td><td>2〜3、15章</td><td class="pass">Pass。構造図の矢印と受渡し表を含む。</td></tr>
     <tr><td>DD-03 実装単位</td><td>4章、15〜16章</td><td>4章、15〜16章</td><td>4章、15〜16章</td><td class="pass">Pass</td></tr>
-    <tr><td>DD-04 入出力契約</td><td>4章、8〜9、16章</td><td>4章、8〜9、16章</td><td>4章、8〜9、16章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-04 入出力契約</td><td>3〜4章、8〜9、16章</td><td>3〜4章、8〜9、16章</td><td>3〜4章、8〜9、16章</td><td class="pass">Pass。受渡し表で用途と停止条件を補足。</td></tr>
     <tr><td>DD-05 永続化契約</td><td>4〜5章のRaw受渡し契約</td><td>7〜12、16章</td><td>7〜12、16章</td><td class="pass">Pass</td></tr>
     <tr><td>DD-06 処理順/状態</td><td>5章、10〜13、17章</td><td>5章、10〜13、17章</td><td>5章、10〜13、17章</td><td class="pass">Pass</td></tr>
     <tr><td>DD-07 非自明規則</td><td>18章</td><td>18章</td><td>18章</td><td class="pass">Pass</td></tr>
@@ -87,13 +88,13 @@
 
   <section class="unknown"><h2>7. 残Unknownと停止条件</h2><p>残UnknownをPassにしない。H2-2未承認の間は外部取得を実行しない。P2-04/H2-1まではroll/continuousを本線入力にしない。大容量保存先が未決ならfixtureだけを保存する。Catalog mapping、dataset condition、Raw integrity、Manifest digestのいずれかがUnknown/FailならP2-05実装は対象データをReplay/Signalへ渡さない。</p></section>
 
-  <section class="gate"><h2>8. H2-1への引継ぎ</h2><p>H2-1では、P2-D05 v0.5とP2-D06/P2-D07 v0.3のPython/ローカルファイル最小実装契約、Raw不変・Normalized新version・Catalog snapshotの方式、条件付き銘柄の隔離、data_version/Manifest契約を承認対象とする。roll/continuousの採否はP2-04と合わせて承認する。未承認ならP2-05本実装を開始しない。</p></section>
+  <section class="gate"><h2>8. H2-1への引継ぎ</h2><p>H2-1では、P2-D05 v0.6とP2-D06/P2-D07 v0.4のPython/ローカルファイル最小実装契約、Raw不変・Normalized新version・Catalog snapshotの方式、条件付き銘柄の隔離、data_version/Manifest契約を承認対象とする。構造図と受渡し表で示した境界データと停止条件も確認する。roll/continuousの採否はP2-04と合わせて承認する。未承認ならP2-05本実装を開始しない。</p></section>
 
   <h2>9. 関連成果物</h2>
   <ul>
-    <li><a href="./05_Market_Data_Adapter詳細設計書.html">P2-D05 市場データ受渡し部の実装詳細設計書 v0.5</a></li>
-    <li><a href="./06_Raw_Normalized_Store詳細設計書.html">P2-D06 元データ・正規化データ保管庫 詳細設計書 v0.3</a></li>
-    <li><a href="./07_Instrument_Catalog詳細設計書.html">P2-D07 銘柄台帳 詳細設計書 v0.3</a></li>
+    <li><a href="./05_Market_Data_Adapter詳細設計書.html">P2-D05 市場データ受渡し部の実装詳細設計書 v0.6</a></li>
+    <li><a href="./06_Raw_Normalized_Store詳細設計書.html">P2-D06 元データ・正規化データ保管庫 詳細設計書 v0.4</a></li>
+    <li><a href="./07_Instrument_Catalog詳細設計書.html">P2-D07 銘柄台帳 詳細設計書 v0.4</a></li>
     <li><a href="../01_要件追跡/01_Phase2未確定事項台帳.html">P2-D03 Unknown台帳</a></li>
     <li><a href="../../ai_foundation/14_実装詳細設計書構成標準.html">AF-D14 実装詳細設計書構成標準</a></li>
   </ul>

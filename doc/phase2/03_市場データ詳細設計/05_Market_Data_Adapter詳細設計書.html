@@ -33,7 +33,7 @@
     <strong>文書セットID:</strong> <code>P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET</code><br>
     <strong>対象フェーズ / 手順:</strong> Phase 2 / <code>P2-03R</code><br>
     <strong>作成日:</strong> 2026-08-04<br>
-    <strong>文書状態:</strong> v0.5 / Mermaid図の文字見切れを修正<br>
+    <strong>文書状態:</strong> v0.6 / モジュール間データ受渡しの可視化基準を反映<br>
     <strong>使用オーケストレータ:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code><br>
     <strong>担当サブエージェント:</strong> <code>AutoTrade_A10_RequirementsCurator_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code><br>
     <strong>使用スキル:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code>, <code>autotrade_skill_red_team_review_v0_1</code>, <code>autotrade_skill_revision_integration_v0_1</code></p>
@@ -528,6 +528,7 @@ class HealthEvent:
         <tr><td>2026-08-04</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>リンク、保存先、共通の文書情報を確認した。</td><td>D06、D07、P2-D04、P2-D01と<code>doc/index.html</code>への導線を設定した。</td></tr>
         <tr><td>2026-08-04</td><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>DD-01からDD-12、予定モジュール、型、異常系、テストを確認した。</td><td>P2-03Rで9章から13章を追加し、P2-D15の再確認で重大・高重要度の指摘が残らないことを記録した。</td></tr>
         <tr><td>2026-08-04</td><td>利用者による再指摘</td><td>英語中心の説明、文字だけの図、短すぎて判断できない試験表、7章以降で表の目的が分からない点を指摘した。</td><td>v0.4で固有名詞・コード以外を日本語へ改め、全ての図をMermaidへ統一し、24件の試験表を文章化した。7章以降の各表には、読む目的を先に追加した。</td></tr>
+        <tr><td>2026-08-05</td><td>利用者レビューおよび<code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>構造図では部品の接続は分かるが、部品間で何を受け渡すかを追えない。</td><td>各実線矢印に短い受渡し名を付け、直後に送付先、受取先、内容、用途と停止条件を記す表を追加した。長い説明をノードへ入れず、図の読める大きさを維持した。</td></tr>
       </tbody>
     </table>
   </section>
