@@ -70,7 +70,7 @@
     "Validate all explicitly named components and required detailed-design runbook fields.",
     "Load repository context and create a coverage matrix before drafting detailed design documents.",
     "Use domain agents only for their approved domain decisions; A82 owns implementation-detail composition.",
-    "Require AF-D16 as the HTML template and AF-D17 as the request template; use P2-D05 v0.5 only as a concrete quality example, not as a source of domain decisions.",
+    "Require AF-D16 as the HTML template and AF-D17 as the request template; use P2-D05 v0.6 only as a concrete quality example, not as a source of domain decisions.",
     "Require plain Japanese explanations, Mermaid-only diagrams with short node labels, short data-handoff labels on structural arrows, a module-to-module data handoff table immediately after the structural diagram, a plain-language introduction before every detailed table, and exhaustive tests whose cells are narrative sentences.",
     "Require module map, typed contracts, persistence design, normal and failure sequences, algorithm examples, observability, and test mapping unless N/A is justified.",
     "Use A91 for detailed-design completeness review before calling the design set ready.",
