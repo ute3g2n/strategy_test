@@ -171,8 +171,9 @@ tests/fixtures/market_data/
   </tbody></table>
 
   <h2>10. 型付き公開契約</h2>
-  <pre>from dataclasses import dataclass
+<pre>from dataclasses import dataclass
 from datetime import datetime
+from hashlib import sha256
 from typing import Literal, Protocol
 
 @dataclass(frozen=True)
@@ -196,6 +197,22 @@ class VendorGateway(Protocol):
 
 class HistoricalDataPort(Protocol):
     def ingest(self, request: HistoricalRequest) -&gt; "IngestionResult": ...</pre>
+  <pre>@dataclass(frozen=True)
+class IngestionResult:
+    raw_object_id: str
+    payload_sha256: str
+    health_event_id: str
+    created: bool
+
+@dataclass(frozen=True)
+class HealthEvent:
+    event_id: str
+    component_name: Literal["market_data_adapter"]
+    state: Literal["HEALTHY", "DEGRADED", "UNHEALTHY", "UNKNOWN"]
+    reason_code: str
+    affected_range_start_utc: datetime | None
+    affected_range_end_utc: datetime | None
+    observed_at_utc: datetime</pre>
   <table><thead><tr><th>API</th><th>戻り値</th><th>エラー</th><th>冪等性・副作用</th></tr></thead><tbody>
     <tr><td><code>ingest(request)</code></td><td><code>IngestionResult(raw_object_id, sha256, health_event_id)</code></td><td><code>InvalidRequest</code>, <code>ExternalStateError</code>, <code>RawWriteError</code></td><td>request fingerprintが同じpayloadなら既存Raw参照を返す。新payloadは新Rawとしてのみ保存。</td></tr>
     <tr><td><code>gateway.fetch(request)</code></td><td><code>GatewayPayload</code></td><td><code>AuthenticationError</code>, <code>RateLimited</code>, <code>PartialSymbolResolution</code></td><td>副作用はGateway内部だけ。CoreへHTTP/SDK例外を送らない。</td></tr>

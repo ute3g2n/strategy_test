@@ -172,8 +172,10 @@ data/market_data/       # P2-05で決定。Git管理しない候補
   </tbody></table>
 
   <h2>9. 型付きRepository契約</h2>
-  <pre>from dataclasses import dataclass
+<pre>from dataclasses import dataclass
 from datetime import datetime
+from hashlib import sha256
+import json
 from typing import Protocol
 
 @dataclass(frozen=True)
@@ -203,6 +205,16 @@ class RawStorePort(Protocol):
 
 class NormalizedStorePort(Protocol):
     def write_snapshot(self, bars: tuple[NormalizedBar, ...], manifest: "DataVersionManifest") -&gt; str: ...</pre>
+  <pre>@dataclass(frozen=True)
+class DataVersionManifest:
+    schema_version: str
+    data_version: str
+    raw_objects: tuple[tuple[str, str], ...]  # (raw_object_id, payload_sha256)
+    normalization_rule_version: str
+    catalog_version: str
+    catalog_snapshot_sha256: str
+    quality_report_sha256: str
+    created_at_utc: datetime</pre>
   <p><strong>必須検証:</strong> <code>payload</code>、fingerprint、受信UTC、metadataのdataset/schema/sourceは必須。metadataにSecret、authorization、account IDがあれば<code>InvalidMetadata</code>で保存しない。価格はfloatに変換せず文字列のDecimal表現として受け、tick検査後に保持する。</p>
 
   <h2>10. Normalization・品質・再実行の順序</h2>

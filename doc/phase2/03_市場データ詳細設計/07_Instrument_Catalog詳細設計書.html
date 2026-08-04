@@ -181,8 +181,9 @@ tests/market_data/
   </tbody></table>
 
   <h2>10. 型付きデータ契約</h2>
-  <pre>from dataclasses import dataclass
+<pre>from dataclasses import dataclass
 from datetime import datetime
+from hashlib import sha256
 from typing import Literal
 
 @dataclass(frozen=True)
@@ -205,6 +206,17 @@ class SymbolMapping:
     stype_out: str; output_symbol: str; external_instrument_id: str | None
     valid_from_utc: datetime; valid_to_utc: datetime | None
     status: str; source_raw_object_id: str; mapping_version: str</pre>
+  <pre>@dataclass(frozen=True)
+class CatalogSnapshot:
+    schema_version: Literal["catalog-v1"]
+    catalog_version: str
+    catalog_snapshot_sha256: str
+    instruments: tuple["Instrument", ...]
+    mappings: tuple[SymbolMapping, ...]
+    calendars: tuple["TradingCalendar", ...]
+    created_at_utc: datetime
+
+    def by_id(self, instrument_id: str) -&gt; "Instrument": ...</pre>
   <p>すべての時刻はtimezone-aware UTC。<code>valid_to_utc=None</code>は将来まで有効ではなく「終了未観測」を意味し、現在時刻を使った補完は禁止する。<code>status</code>が<code>resolved</code>以外なら<code>instrument_id</code>をMarketEventへ渡さない。</p>
 
   <h2>11. Snapshot物理契約とmigration</h2>
