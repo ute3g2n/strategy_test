@@ -1,7 +1,7 @@
 {
   "name": "middle-school-explanation-orchestrator",
   "display_name": "Middle School Explanation Orchestrator",
-  "model": "gpt5.5",
+  "model": "gpt-5.6-luna",
   "purpose": "Coordinate chapter-range requests that convert selected chapters from research/タートルズ・トレンドフォロー戦略.md into middle-school-friendly Japanese Markdown files.",
   "trigger_examples": [
     "research/タートルズ・トレンドフォロー戦略.md の 3 章を中学生でも分かるように解説して",

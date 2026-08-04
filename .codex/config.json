@@ -4,7 +4,7 @@
     {
       "name": "middle-school-explanation-orchestrator",
       "file": ".codex/orchestrators/middle-school-explanation-orchestrator.json",
-      "model": "gpt5.5"
+      "model": "gpt-5.6-luna"
     },
     {
       "name": "AutoTradePhase1_Orchestrator_v0_1",
