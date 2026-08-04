@@ -18,7 +18,7 @@
   <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
   <h1>P2-D15 実装詳細設計レビュー・反映記録</h1>
   <section class="meta">
-    <p><strong>成果物ID:</strong> P2-D15<br><strong>文書セットID:</strong> P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET<br><strong>Phase / Step:</strong> Phase 2 / P2-03R<br><strong>作成日:</strong> 2026-08-04<br><strong>文書状態:</strong> v0.1 / A91初回レビュー、A90/Red Team、改訂、A91再レビュー完了<br><strong>使用Orchestrator:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></p>
+    <p><strong>成果物ID:</strong> P2-D15<br><strong>文書セットID:</strong> P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET<br><strong>Phase / Step:</strong> Phase 2 / P2-03R<br><strong>作成日:</strong> 2026-08-04<br><strong>文書状態:</strong> v0.2 / P2-D05形式改訂・A91再レビュー反映済み<br><strong>使用Orchestrator:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></p>
   </section>
 
   <h2>1. 判定</h2>
@@ -50,20 +50,26 @@
     <tr><td>DRT-P2-05</td><td>Phaseスコープ逸脱</td><td class="pass">Pass</td><td>roll最終方式、外部実取得、Risk利用をUnknown/Human Gateに残し、具体値を固定しない。</td></tr>
   </tbody></table>
 
+  <h2>4.1 P2-D05形式改訂レビュー</h2>
+  <table><thead><tr><th>指摘ID</th><th>重要度</th><th>対象</th><th>指摘</th><th>反映</th><th>再判定</th></tr></thead><tbody>
+    <tr><td>IDR-P2-06</td><td class="fail">High</td><td>P2-D05 v0.2</td><td>契約・方針はあるが、ドメインの平易な説明、ファイルツリー、構造図、モジュール単位I/O、実行フロー、全テストケースが読者の作業順に並んでいない。</td><td>採用。P2-D05 v0.3に1〜6章を追加し、ドメイン概要、ファイル構成、構造図、パラメータ辞書、3種の処理図、MDA-T01〜T24を追加した。</td><td class="pass">Closed</td></tr>
+  </tbody></table>
+  <section class="review"><p><strong>形式方針:</strong> P2-D05 v0.3を、後続の実装詳細設計書で使う読解順の標準フォーマットとする。すなわち、平易なドメイン説明、ファイルツリー、構造図、モジュールとI/O、図による処理フロー、全テストケースを前半に置き、その後に型・永続化・例外などの詳細契約を置く。P2-D06/P2-D07へ適用する改訂は別の明示ステップで行う。</p></section>
+
   <h2>5. DD-01〜DD-12再レビュー網羅表</h2>
   <table><thead><tr><th>DD</th><th>P2-D05</th><th>P2-D06</th><th>P2-D07</th><th>A91再判定</th></tr></thead><tbody>
-    <tr><td>DD-01 実装対象/境界</td><td>0〜1、9章</td><td>0〜1、8章</td><td>0〜1、9章</td><td class="pass">Pass</td></tr>
-    <tr><td>DD-02 モジュール構成</td><td>9章</td><td>8章</td><td>9章</td><td class="pass">Pass</td></tr>
-    <tr><td>DD-03 実装単位</td><td>9〜10章</td><td>8〜9章</td><td>9〜10章</td><td class="pass">Pass</td></tr>
-    <tr><td>DD-04 入出力契約</td><td>2〜3、10章</td><td>7、9章</td><td>3、10章</td><td class="pass">Pass</td></tr>
-    <tr><td>DD-05 永続化契約</td><td>Raw受渡し契約</td><td>2〜6、8〜9章</td><td>3、11章</td><td class="pass">Pass</td></tr>
-    <tr><td>DD-06 処理順/状態</td><td>4〜7、11章</td><td>5、10章</td><td>12章</td><td class="pass">Pass</td></tr>
-    <tr><td>DD-07 非自明規則</td><td>12章</td><td>11章</td><td>12章</td><td class="pass">Pass</td></tr>
-    <tr><td>DD-08 設定/監査/観測</td><td>6、13章</td><td>5、12章</td><td>5、13章</td><td class="pass">Pass</td></tr>
-    <tr><td>DD-09 テスト接続</td><td>13章</td><td>12章</td><td>13章</td><td class="pass">Pass</td></tr>
-    <tr><td>DD-10 Manifest/互換性</td><td>7、13章</td><td>6、12章</td><td>8、11、13章</td><td class="pass">Pass</td></tr>
-    <tr><td>DD-11 追跡/Unknown</td><td>8、14章</td><td>13章</td><td>14章</td><td class="pass">Pass</td></tr>
-    <tr><td>DD-12 改訂閉ループ</td><td>15章</td><td>15章</td><td>16章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-01 実装対象/境界</td><td>0〜1、7章</td><td>0〜1、8章</td><td>0〜1、9章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-02 モジュール構成</td><td>2〜3、15章</td><td>8章</td><td>9章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-03 実装単位</td><td>4章、15〜16章</td><td>8〜9章</td><td>9〜10章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-04 入出力契約</td><td>4章、8〜9、16章</td><td>7、9章</td><td>3、10章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-05 永続化契約</td><td>4〜5章のRaw受渡し契約</td><td>2〜6、8〜9章</td><td>3、11章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-06 処理順/状態</td><td>5章、10〜13、17章</td><td>5、10章</td><td>12章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-07 非自明規則</td><td>18章</td><td>11章</td><td>12章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-08 設定/監査/観測</td><td>4〜5、11〜12、19章</td><td>5、12章</td><td>5、13章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-09 テスト接続</td><td>6章、19章</td><td>12章</td><td>13章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-10 Manifest/互換性</td><td>13、19章</td><td>6、12章</td><td>8、11、13章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-11 追跡/Unknown</td><td>14、20章</td><td>13章</td><td>14章</td><td class="pass">Pass</td></tr>
+    <tr><td>DD-12 改訂閉ループ</td><td>21章</td><td>15章</td><td>16章</td><td class="pass">Pass</td></tr>
   </tbody></table>
 
   <h2>6. 要件・判断・Unknown追跡</h2>
