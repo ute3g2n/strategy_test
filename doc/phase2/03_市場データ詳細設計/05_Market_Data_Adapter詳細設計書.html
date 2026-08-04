@@ -358,28 +358,34 @@ tests/fixtures/market_data/
   </table>
 
   <h2>15. 実装依存方向と公開境界</h2>
-  <pre>src/autotrade/market_data/
-  contracts.py          # 外部非依存のDTO、Error、Event
-  adapter_port.py       # HistoricalDataPort Protocol
-  adapter_service.py    # fetch -> RawStore の調停。vendor型を受けない
-  vendor_gateway.py     # Gateway Protocol。P2-05ではFixtureGatewayのみ実装可
-  health.py             # HealthEvent生成と状態集約
-  raw_store.py          # P2-D06のRawStorePort
-  catalog.py            # P2-D07のCatalogPort
-tests/market_data/
-  test_adapter_service.py
-  test_adapter_contracts.py
-tests/fixtures/market_data/
-  historical_ok.ndjson, historical_partial.ndjson, historical_corrupt.bin</pre>
-  <table><thead><tr><th>モジュール</th><th>公開物</th><th>許可依存</th><th>非責務</th></tr></thead><tbody>
-    <tr><td><code>contracts</code></td><td>Request/Result/Event/Error型</td><td>標準ライブラリのみ</td><td>vendor呼出し、ファイルI/O</td></tr>
-    <tr><td><code>adapter_port</code></td><td><code>HistoricalDataPort</code></td><td>contracts</td><td>実装選択、Secret保持</td></tr>
-    <tr><td><code>adapter_service</code></td><td><code>IngestionService.ingest</code></td><td>port、gateway、raw_store、health</td><td>Normalized化、Catalog正本更新</td></tr>
-    <tr><td><code>vendor_gateway</code></td><td><code>VendorGateway</code> Protocol</td><td>contracts</td><td>Core型へのvendor型露出</td></tr>
-    <tr><td><code>health</code></td><td><code>HealthReporter.record</code></td><td>contracts</td><td>再試行決定、注文制御</td></tr>
+  <p>この図と表は、プログラムの部品がどこまでを公開し、何を参照してよいかを決める。これにより、外部提供元の変更がシステム全体へ広がることを防ぐ。ファイルの全体像は2章を正本とする。</p>
+  <pre class="mermaid">flowchart LR
+    契約["contracts.py\n共通のデータ型"]
+    受取口["adapter_port.py\n呼出元へ公開する受取口"]
+    調停["adapter_service.py\n処理順を管理する実装"]
+    取得口["vendor_gateway.py\n外部提供元との境界"]
+    状態["health.py\n利用可否を記録"]
+    保管["raw_store.py\nP2-D06の保管口"]
+    台帳["catalog_port.py\nP2-D07の台帳口"]
+    契約 --> 受取口
+    契約 --> 調停
+    契約 --> 取得口
+    契約 --> 状態
+    調停 --> 取得口
+    調停 --> 状態
+    調停 --> 保管
+    調停 --> 台帳
+    受取口 --> 調停</pre>
+  <table><thead><tr><th>モジュールの固定名</th><th>外へ見せるもの</th><th>参照してよいもの</th><th>担当しないこと</th></tr></thead><tbody>
+    <tr><td><code>contracts</code></td><td>依頼、結果、出来事、エラーを表す共通の型。</td><td>プログラム言語の標準機能だけ。</td><td>提供元への呼出しや、ファイルの読み書きは行わない。</td></tr>
+    <tr><td><code>adapter_port</code></td><td>呼出元が使う<code>HistoricalDataPort</code>という唯一の受取口。</td><td><code>contracts</code>だけ。</td><td>実装の選択や秘密情報の保持は行わない。</td></tr>
+    <tr><td><code>adapter_service</code></td><td><code>IngestionService.ingest</code>という、取り込みを始める処理。</td><td>受取口、取得口、元データ保管口、状態記録部。</td><td>整形済みデータへの変換や、銘柄台帳の正式記録は行わない。</td></tr>
+    <tr><td><code>vendor_gateway</code></td><td><code>VendorGateway</code>という、提供元ごとの違いを隠す受取口。</td><td><code>contracts</code>だけ。</td><td>中心部へ提供元固有の型を見せない。</td></tr>
+    <tr><td><code>health</code></td><td><code>HealthReporter.record</code>という、利用可否を記録する処理。</td><td><code>contracts</code>だけ。</td><td>再試行の最終判断や注文の制御は行わない。</td></tr>
   </tbody></table>
 
   <h2>16. 型付き公開契約</h2>
+  <p>ここでは、実装者が作るプログラム上のデータ型と関数の形を示す。下の英語はPythonのコードそのものであり、実装名・変数名は変更しない。コードの後の表で、人が読むための意味と副作用を説明する。</p>
 <pre>from dataclasses import dataclass
 from datetime import UTC, datetime
 from hashlib import sha256
@@ -427,10 +433,11 @@ class HealthEvent:
     def degraded(cls, request_id: str, reason_code: str) -&gt; "HealthEvent":
         return cls(request_id, "market_data_adapter", "DEGRADED", reason_code,
                    None, None, datetime.now(UTC))</pre>
-  <table><thead><tr><th>API</th><th>戻り値</th><th>エラー</th><th>冪等性・副作用</th></tr></thead><tbody>
-    <tr><td><code>ingest(request)</code></td><td><code>IngestionResult(raw_object_id, sha256, health_event_id)</code></td><td><code>InvalidRequest</code>, <code>ExternalStateError</code>, <code>RawWriteError</code></td><td>request fingerprintが同じpayloadなら既存Raw参照を返す。新payloadは新Rawとしてのみ保存。</td></tr>
-    <tr><td><code>gateway.fetch(request)</code></td><td><code>GatewayPayload</code></td><td><code>AuthenticationError</code>, <code>RateLimited</code>, <code>PartialSymbolResolution</code></td><td>副作用はGateway内部だけ。CoreへHTTP/SDK例外を送らない。</td></tr>
-    <tr><td><code>reporter.record(event)</code></td><td><code>None</code></td><td>永続化不能時は呼出元を<code>UNHEALTHY</code>へ遷移</td><td>監査イベントは追記のみ。</td></tr>
+  <p>次の表は、上のコードに現れる公開関数を、人が判断できる言葉で読み替えるための仕様である。</p>
+  <table><thead><tr><th>関数の固定名</th><th>返すもの</th><th>起こり得るエラー</th><th>繰り返し実行した場合と変更の内容</th></tr></thead><tbody>
+    <tr><td><code>ingest(request)</code></td><td>元データの識別子、内容確認値、状態記録の識別子を含む<code>IngestionResult</code>を返す。</td><td><code>InvalidRequest</code>、<code>ExternalStateError</code>、<code>RawWriteError</code>を返すことがある。</td><td>依頼の内容確認値と元データが同じなら既存の元データ参照を返す。内容が違う元データは新しい記録としてだけ保存する。</td></tr>
+    <tr><td><code>gateway.fetch(request)</code></td><td>元データ本体、取得条件、利用可否を含む<code>GatewayPayload</code>を返す。</td><td><code>AuthenticationError</code>、<code>RateLimited</code>、<code>PartialSymbolResolution</code>を返すことがある。</td><td>外部との通信による変更は取得口の内側だけに閉じ込め、中心部へ通信やSDK由来の例外を渡さない。</td></tr>
+    <tr><td><code>reporter.record(event)</code></td><td>戻り値はない。状態の出来事を監査記録へ追加する。</td><td>記録を永続化できないときは、呼出元を<code>UNHEALTHY</code>として扱う。</td><td>監査記録は追加だけを認め、過去の記録を書き換えない。</td></tr>
   </tbody></table>
 
   <h2>17. 正常系・失敗系シーケンス（詳細）</h2>
