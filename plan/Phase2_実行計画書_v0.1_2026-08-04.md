@@ -32,6 +32,14 @@
 
 > 本計画書は、Market Data基盤の詳細設計、最小実装、検証、レビュー、レビュー反映を複数ステップで進めるための実行計画である。投資助言、売買推奨、特定商品の推奨を目的としない。
 
+### v0.2変更履歴
+
+| 変更ID | 内容 | 理由 |
+|---|---|---|
+| PLAN-P2-REV-01 | P2-03の成果を論理・構造設計v0.1と明確化し、P2-03Rを追加した。 | 既存詳細設計には、実装可能性を保証するモジュール、契約、永続化、失敗系、コード例、テストが不足していた。 |
+| PLAN-P2-REV-02 | P2-D05からP2-D07を実装詳細設計v0.2へ改訂するDD-01からDD-12、A91専門レビュー、A90監査、改訂、A91再レビューを必須化した。 | 設計書だけを作ってPassにせず、実装開始可能性を独立確認するため。 |
+| PLAN-P2-REV-03 | P2-D15、UNK-P2-10、H2-1の承認対象、DAG依存、成果物パスを追加・修正した。 | レビュー証跡、停止条件、実在する保存先を明確にするため。 |
+
 ---
 
 ## 1. AI部品存在確認
@@ -342,11 +350,11 @@ Databentoの公式一次情報を確認し、Phase 2 Market Data基盤に必要�
 - H2-2の承認対象が明確である。
 ```
 
-### P2-03 Market Data Adapter / Store / Catalog詳細設計
+### P2-03 Market Data Adapter / Store / Catalog構造設計
 
 ```text
 ステップID: P2-03
-ロール: Market Data基盤詳細設計者
+ロール: Market Data基盤構造設計者
 使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A50_AdapterArchitect_v0_1, AutoTrade_A20_ArchitectureDomainArchitect_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1
 使用モデル: gpt-5.5
@@ -358,7 +366,7 @@ Phase Runbook:
 - output_root: doc/phase2/
 - log_root: plan/phase2/ログ/
 - document_set_id: P2-MARKET-DATA-DESIGN-DOCSET
-- detail_boundary: Market Data Adapter、Raw/Normalized Store、Instrument Catalogを実装可能な粒度で詳細化する。Strategyロジック、Broker接続、Backtest Engine本体は対象外。
+- detail_boundary: Market Data Adapter、Raw/Normalized Store、Instrument Catalogの責務境界、論理データ構造、追跡を定義する。実装可能性を保証するモジュール/API/物理保存/コード/テストはP2-03Rで詳細化する。Strategyロジック、Broker接続、Backtest Engine本体は対象外。
 - human_gate_policy: H2-1でroll/continuous方式と合わせてデータ基盤方式を承認する。
 
 発火制御:
@@ -378,7 +386,7 @@ Phase Runbook:
 - doc/phase1/10_テスト品質/10_テスト戦略品質Gate設計書.html
 
 タスク:
-Phase 2 Market Data Adapter、Raw/Normalized Store、Instrument Catalogの詳細設計書をHTMLで作成してください。
+Phase 2 Market Data Adapter、Raw/Normalized Store、Instrument Catalogの構造設計書v0.1をHTMLで作成し、P2-03Rへ必要な設計入力を渡してください。
 
 作業:
 1. Market Data AdapterのPort、入力、出力イベント、エラー分類、HealthEventを定義する。
@@ -394,7 +402,7 @@ Phase 2 Market Data Adapter、Raw/Normalized Store、Instrument Catalogの詳細
 - AutoTrade_A80_DocumentIntegrator_v0_1 が、リンク、保存先、レビュー履歴を確認する。
 
 完了条件:
-- P2-D05, P2-D06, P2-D07が存在する。
+- P2-D05, P2-D06, P2-D07の構造設計v0.1が存在し、P2-03Rの入力として不足と残Unknownが明記されている。
 - Adapter境界とStore/Catalog責務が分離されている。
 - Phase 3がReplay入力を参照できるdata_version構造が説明されている。
 ```
@@ -750,9 +758,9 @@ Data Quality / Replay検証を実行し、検証結果HTMLを作成してくだ�
 ステップID: P2-09
 ロール: Phase 2統合レビュー・レッドチーム監査者
 使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
-担当サブエージェント完全名: AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1
+担当サブエージェント完全名: AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A91_ImplementationDetailReviewer_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1
 使用モデル: gpt-5.5
-使用Skill完全名: autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1
+使用Skill完全名: autotrade_skill_design_review_v0_1, autotrade_skill_implementation_detail_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1
 
 Phase Runbook:
 - phase_id: Phase 2
@@ -791,6 +799,7 @@ Phase 2成果物全体を統合レビューし、レッドチーム監査結果�
 8. Phase 3へ渡すdata_version、Manifest、Replay入力の不足。
 9. doc/index.htmlリンク漏れ。
 10. Phase 2スコープ逸脱。
+11. P2-D05からP2-D07のDD-01からDD-12の未充足、またはP2-03R後の変更に対するA91再レビュー漏れ。
 
 出力形式:
 - 指摘ID
@@ -812,9 +821,9 @@ Phase 2成果物全体を統合レビューし、レッドチーム監査結果�
 ステップID: P2-10
 ロール: Phase 2修正統合者
 使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
-担当サブエージェント完全名: AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A05_PhaseExecutionPlanner_v0_1
+担当サブエージェント完全名: AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A91_ImplementationDetailReviewer_v0_1, AutoTrade_A05_PhaseExecutionPlanner_v0_1
 使用モデル: gpt-5.5
-使用Skill完全名: autotrade_skill_revision_integration_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_phase_execution_planning_v0_1
+使用Skill完全名: autotrade_skill_revision_integration_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_implementation_detail_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_phase_execution_planning_v0_1
 
 Phase Runbook:
 - phase_id: Phase 2
@@ -850,6 +859,7 @@ P2-09のレビュー指摘を反映し、Phase 2の最終成果物、レビュ�
 5. `doc/phase2/08_完了判定/08_Phase2完了判定とPhase3移行承認書.html` を作成する。
 6. doc/index.htmlを更新する。
 7. Phase 3実行計画で使うべき入力一覧とHuman Gate候補をまとめる。
+8. P2-D05からP2-D07に修正が入った場合は、AutoTrade_A91_ImplementationDetailReviewer_v0_1 がDD-01からDD-12の再レビューを行い、Critical/Highを0件にする。
 
 Phase 2完了Gate:
 - P2-D01からP2-D15が存在する。
@@ -859,9 +869,11 @@ Phase 2完了Gate:
 - UnknownがPass扱いされず、決定タイミングと担当Phaseを持つ。
 - Secret実値、Account ID、API keyがGit、ログ、HTMLに混入していない。
 - Phase 3へ渡すdata_version、fixture、Replay入力、未解決事項が明確である。
+- P2-D05からP2-D07に対する最終A91レビューでCritical/Highが0件である。
 
 レビュー:
 - AutoTrade_A90_DesignReviewer_v0_1 が、修正反映漏れ、残リスク削除、安全要件弱体化、Phase 3引き継ぎ漏れを確認する。
+- AutoTrade_A91_ImplementationDetailReviewer_v0_1 が、P2-D05からP2-D07の修正後に実装不能な曖昧さを残していないことを再確認する。
 - AutoTrade_A80_DocumentIntegrator_v0_1 が、リンク、保存先、レビュー履歴、doc/index.html更新を確認する。
 
 完了条件:
@@ -877,12 +889,13 @@ Phase 2完了Gate:
 
 | 観点 | 指摘 | 反映 |
 |---|---|---|
-| ステップ粒度 | 設計、実装、検証、レビュー、反映が1ステップにまとまると実行不能。 | P2-01からP2-10へ分割した。 |
-| 依存関係 | Roll設計は公式仕様確認とStore/Catalog設計後に置く必要がある。 | P2-04をP2-02/P2-03依存にした。 |
+| ステップ粒度 | 構造設計と実装詳細設計を同一ステップにすると、実装可能性の不足が見えない。 | P2-03（構造）とP2-03R（実装詳細・専門レビュー・改訂・再レビュー）へ分割した。 |
+| 依存関係 | Roll設計と実装は、公式仕様確認とP2-03Rの合格後に置く必要がある。 | P2-04をP2-02/P2-03R依存、P2-05をH2-1/P2-03R依存にした。 |
 | 発火制御 | 各プロンプトにAI部品完全名と未存在時停止条件が必要。 | 全プロンプトへ完全名と停止条件を記載した。 |
 | Human Gate | 外部API利用とOD-03決定に人間承認が必要。 | H2-1とH2-2を追加した。 |
 | Unknown扱い | `MZC/MZS/MZW` とdegraded品質警告をPass扱いにしない。 | UNK-P2-04, UNK-P2-05を追加した。 |
 | Phaseスコープ | Strategy / Backtest / Broker / Live Runbookへ踏み込みすぎるリスク。 | 後続Phaseへ送る詳細化項目を分離した。 |
+| 実装可能性 | モジュール、契約、保存構造、失敗系、コード例、テストがない設計書をPassにできない。 | DD-01からDD-12、P2-D15、UNK-P2-10、A91の初回/再レビューを追加した。 |
 
 ### 11.2 AutoTrade_A80_DocumentIntegrator_v0_1 観点
 
