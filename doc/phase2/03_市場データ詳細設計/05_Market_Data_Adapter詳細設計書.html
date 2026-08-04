@@ -441,24 +441,40 @@ class HealthEvent:
   </tbody></table>
 
   <h2>17. 正常系・失敗系シーケンス（詳細）</h2>
-  <pre>正常系
-Caller -> IngestionService.ingest(fixture request)
-  -> validate UTC range / H2-2 source_mode
-  -> VendorGateway.fetch
-  -> sha256(payload), request fingerprint
-  -> RawStore.put_if_absent
-  -> HealthReporter.record(HEALTHY)
-  -> IngestionResult (RawBatchReceivedの内部表現)
-
-失敗系: partial / degraded / checksum or write failure
-  -> RawStoreへ成功として通知しない
-  -> HealthReporter.record(DEGRADED or UNHEALTHY)
-  -> DataGate入力へ対象rangeとreason_codeを渡す
-  -> Normalizer / Replay / SignalへMarketEventを発行しない
-  -> retry可能なのはRATE_LIMITEDのみ。Retry-After不明または上限到達は停止。</pre>
-  <p><strong>復旧:</strong> 再実行は同じrequest fingerprintで開始する。payload hashが異なる場合は旧Rawを更新せず、P2-D06の<code>redelivery_diff</code>を作成し、<code>UNKNOWN_EXTERNAL_STATE</code>としてData Gateを停止する。</p>
+  <p>これは5章より細かく、成功・失敗・再実行の判断を一枚で示す図である。再試行できるのは回数制限で待機時間が明示された場合だけであり、それ以外は止める。</p>
+  <pre class="mermaid">sequenceDiagram
+    participant 呼出元 as 呼出元
+    participant 調停 as 取得調停処理
+    participant 取得口 as データ取得口
+    participant 保管先 as 元データ保管庫
+    participant 状態 as 状態記録部
+    participant 判定 as データ利用判定
+    呼出元->>調停: 固定入力または承認済みの取得依頼
+    調停->>調停: 時刻・銘柄・承認状態を確認する
+    alt 依頼が不正または承認前
+        調停-->>呼出元: 不正または未承認として停止する
+    else 取得を許可できる
+        調停->>取得口: 元データを取得する
+        alt 品質低下・一部取得・認証失敗
+            調停->>状態: 問題の状態と理由を記録する
+            調停->>判定: 対象期間と停止理由を渡す
+            調停-->>呼出元: 成功を返さず停止する
+        else 取得内容が利用可能
+            調停->>保管先: 内容確認値付きで上書きせず保管する
+            alt 保管または状態記録に失敗
+                調停->>状態: 重大な問題として記録する
+                調停->>判定: 利用停止を渡す
+                調停-->>呼出元: 成功を返さず停止する
+            else 保管と記録が成功
+                調停->>状態: 利用可能として記録する
+                調停-->>呼出元: 取込結果を返す
+            end
+        end
+    end</pre>
+  <p><strong>復旧の規則:</strong> 再実行は同じ<code>request_fingerprint</code>で開始する。<code>payload</code>の内容確認値が過去と異なる場合は、過去の元データを更新しない。P2-D06の<code>redelivery_diff</code>に差分を記録し、<code>UNKNOWN_EXTERNAL_STATE</code>としてデータ利用判定を停止する。</p>
 
   <h2>18. 誤実装しやすい規則のコード例</h2>
+  <p>このコード例は、承認前の外部取得、時刻の曖昧さ、品質低下したデータを、誤って成功扱いにしないための最小限の実装順を示す。英語はPythonの予約語、型名、変数名、エラー固定名である。</p>
   <pre>def ingest(self, request: HistoricalRequest) -&gt; IngestionResult:
     if request.source_mode == "external" and not self.h2_2_approved:
         raise ExternalStateError("EXTERNAL_FETCH_NOT_APPROVED")
@@ -470,14 +486,15 @@ Caller -> IngestionService.ingest(fixture request)
         raise ExternalStateError(f"DATASET_{payload.condition.upper()}")
     digest = sha256(payload.payload).hexdigest()
     return self.raw_store.put_if_absent(request, payload, digest)</pre>
-  <p>実装時は<code>VendorGateway</code>をfixture実装と将来のvendor実装で差し替える。将来実装がDatabento SDKを使っても、SDK型、API key、HTTP status objectはこの関数の引数・戻り値へ露出させない。</p>
+  <p>実装時は<code>VendorGateway</code>を固定入力用の実装と将来の提供元用実装で差し替える。将来実装がDatabentoのSDKを使っても、SDKの型、APIキー、通信応答のオブジェクトは、この関数の引数・戻り値へ出さない。</p>
 
   <h2>19. 設定、監査、テスト、Manifest</h2>
+  <p>この表は、実行時に何を設定し、何を証跡として残し、どの情報を後続の実行記録へ渡すかを説明する。<code>Manifest</code>は、一回の実行でどのデータ版を使ったかを後から確認するための記録である。</p>
   <table><thead><tr><th>区分</th><th>契約</th></tr></thead><tbody>
-    <tr><td>設定</td><td><code>MARKET_DATA_SOURCE_MODE</code>は<code>fixture</code>が既定。<code>MARKET_DATA_VENDOR_API_KEY</code>は将来Gatewayだけが参照する名前であり、値・存在有無をHTMLやログへ出さない。</td></tr>
-    <tr><td>監査/Health</td><td><code>request_id</code>、fingerprint、raw_object_id、reason_code、affected_rangeだけを監査する。payloadやSecretは記録しない。</td></tr>
-    <tr><td>Manifest</td><td>Adapterは<code>raw_object_ids</code>、<code>raw_sha256s</code>、<code>source_mode</code>、<code>catalog_version</code>をP2-D06の<code>DataVersionManifest</code>候補へ渡す。</td></tr>
-    <tr><td>テスト</td><td>正常fixture、H2-2未承認external、partial、degraded、429相当、破損payload、Raw書込失敗、同一payload再実行、異なるpayload再取得を単体テスト化する。</td></tr>
+    <tr><td>設定</td><td><code>MARKET_DATA_SOURCE_MODE</code>は固定入力を使う<code>fixture</code>を既定値とする。<code>MARKET_DATA_VENDOR_API_KEY</code>は将来データ取得口だけが参照する環境変数名であり、値だけでなく存在するかどうかもHTMLやログへ出さない。</td></tr>
+    <tr><td>監査と利用可否</td><td><code>request_id</code>、<code>request_fingerprint</code>、<code>raw_object_id</code>、<code>reason_code</code>、影響する期間だけを監査する。元データ本体や秘密情報は記録しない。</td></tr>
+    <tr><td>実行記録</td><td>市場データ受渡し部は<code>raw_object_ids</code>、<code>raw_sha256s</code>、<code>source_mode</code>、<code>catalog_version</code>を、P2-D06の<code>DataVersionManifest</code>候補へ渡す。</td></tr>
+    <tr><td>テスト</td><td>正常な固定入力、人間承認前の外部取得、一部だけの銘柄解決、品質低下、回数制限、壊れた元データ、保管失敗、同じ内容の再実行、異なる内容の再取得を、6章の各試験として確認する。</td></tr>
   </tbody></table>
 
   <section class="gate">
