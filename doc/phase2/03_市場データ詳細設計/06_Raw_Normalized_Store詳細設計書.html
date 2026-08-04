@@ -254,6 +254,7 @@ class DataVersionManifest:
 def derive_data_version(raw_sha256s: tuple[str, ...], rule: str, catalog_sha: str) -&gt; str:
     text = "|".join(sorted(raw_sha256s) + [rule, catalog_sha, "normalized-v1"])
     return "dv_" + sha256(text.encode()).hexdigest()[:20]</pre>
+  <p><code>write_directory_atomically</code>は<code>{object_id}.tmp</code>へpayload、metadata、digestを全て書込み・fsyncし、再読込したdigestが一致した場合だけ最終<code>{object_id}</code>へrenameするprivate関数とする。例外時はtmpを隔離または削除し、完成パスとManifestを作成しない。</p>
 
   <h2>12. テスト、監査、Run Manifest</h2>
   <table><thead><tr><th>テスト</th><th>fixture / 期待値</th><th>受入条件</th></tr></thead><tbody>

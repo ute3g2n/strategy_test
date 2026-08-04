@@ -217,6 +217,20 @@ class CatalogSnapshot:
     created_at_utc: datetime
 
     def by_id(self, instrument_id: str) -&gt; "Instrument": ...</pre>
+  <pre>@dataclass(frozen=True)
+class Instrument:
+    instrument_id: str
+    venue: str; product_root: str
+    contract_year: int | None; contract_month: int | None
+    instrument_class: Literal["future", "spread", "continuous", "unknown"]
+    status: Literal["active", "expired", "halted", "unknown"]
+    tick_size: str | None; contract_multiplier: str | None
+    calendar_id: str | None
+
+@dataclass(frozen=True)
+class TradingCalendar:
+    calendar_id: str; timezone: str; effective_from_utc: datetime
+    session_intervals: tuple[str, ...]; holiday_dates: tuple[str, ...]</pre>
   <p>すべての時刻はtimezone-aware UTC。<code>valid_to_utc=None</code>は将来まで有効ではなく「終了未観測」を意味し、現在時刻を使った補完は禁止する。<code>status</code>が<code>resolved</code>以外なら<code>instrument_id</code>をMarketEventへ渡さない。</p>
 
   <h2>11. Snapshot物理契約とmigration</h2>
