@@ -28,14 +28,24 @@
   <h1>P2-D07 Instrument Catalog詳細設計書</h1>
   <section class="meta">
     <p><strong>成果物ID:</strong> P2-D07<br>
-    <strong>文書セットID:</strong> P2-MARKET-DATA-DESIGN-DOCSET<br>
-    <strong>Phase / Step:</strong> Phase 2 / P2-03<br>
+    <strong>文書セットID:</strong> P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET<br>
+    <strong>Phase / Step:</strong> Phase 2 / P2-03R<br>
     <strong>作成日:</strong> 2026-08-04<br>
-    <strong>文書状態:</strong> v0.1 / A90・Red Team・A80レビュー反映済み<br>
-    <strong>使用Orchestrator:</strong> <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code><br>
-    <strong>担当Agent:</strong> <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code><br>
-    <strong>使用Skill:</strong> <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_architecture_writer_v0_1</code>, <code>autotrade_skill_domain_modeling_v0_1</code>, <code>autotrade_skill_execution_model_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_doc_set_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code></p>
+    <strong>文書状態:</strong> v0.2 / P2-03R 実装詳細設計・A91再レビュー反映済み<br>
+    <strong>使用Orchestrator:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code><br>
+    <strong>担当Agent:</strong> <code>AutoTrade_A10_RequirementsCurator_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code><br>
+    <strong>使用Skill:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_domain_modeling_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code>, <code>autotrade_skill_red_team_review_v0_1</code>, <code>autotrade_skill_revision_integration_v0_1</code></p>
   </section>
+
+  <section class="note"><strong>実装前提:</strong> CatalogはP2-05で新設予定のPython 3.11ローカルJSON snapshot実装を対象とする。Databento definitionの実値、外部instrument_id、契約仕様の事実はH2-2承認を経た取得またはfixtureで確認するまで確定しない。</section>
+
+  <h2>0. 詳細設計カバレッジ</h2>
+  <table><thead><tr><th>DD</th><th>証拠</th><th>補完先</th></tr></thead><tbody>
+    <tr><td>DD-01〜04</td><td>1〜6章、9〜10章のEntity、Repository、Resolver、型付き検索API。</td><td>P2-D05の外部解決入力。</td></tr>
+    <tr><td>DD-05〜07</td><td>3〜8章、11〜12章のsnapshot、mapping期限、解決手順、擬似コード。</td><td>Raw証跡はP2-D06。</td></tr>
+    <tr><td>DD-08〜10</td><td>5〜8章、13章の監査、Health、Manifest接続。</td><td>P2-D06。</td></tr>
+    <tr><td>DD-11〜12</td><td>14〜16章とP2-D15。</td><td>P2-D03、P2-D15。</td></tr>
+  </tbody></table>
 
   <h2>1. 目的と責務</h2>
   <p>Instrument Catalogは、外部vendorの記号や数値を内部の不変なInstrumentId、契約定義、営業日、取引可能性へ変換する正本である。Market Data Adapterは観測結果を渡し、Catalogは内部IDと有効期間を管理する。StrategyはCatalogを直接更新しない。</p>
@@ -151,39 +161,126 @@
     </tbody>
   </table>
 
+  <h2>9. 予定モジュール、Snapshot、公開API</h2>
+  <pre>src/autotrade/market_data/
+  catalog.py             # CatalogRepository, CatalogResolver, CatalogSnapshot
+  catalog_models.py      # Instrument, SymbolMapping, ContractMetadata, TradingCalendar
+  catalog_validation.py  # identity / effective-period / class検査
+  contracts.py           # ResolveInstrumentRequest, ResolveInstrumentResult
+data/market_data/catalog/
+  snapshots/{catalog_version}.json
+  snapshots/{catalog_version}.sha256
+  audit.ndjson
+tests/market_data/
+  test_catalog_resolver.py
+  test_catalog_snapshot.py</pre>
+  <table><thead><tr><th>公開API</th><th>入力</th><th>出力</th><th>失敗・副作用</th></tr></thead><tbody>
+    <tr><td><code>CatalogRepository.load(version)</code></td><td>非空のcatalog_version</td><td>検証済み<code>CatalogSnapshot</code></td><td>digest/schema不一致なら<code>CatalogIntegrityError</code>。読み取りだけ。</td></tr>
+    <tr><td><code>CatalogRepository.write_if_absent(snapshot)</code></td><td>全Entity、schema_version、source refs</td><td>catalog_version、sha256</td><td>同一digestは既存を返す。異なる内容を同versionへ上書きしない。</td></tr>
+    <tr><td><code>CatalogResolver.resolve(request)</code></td><td>vendor、dataset、stype、symbol、event_time_utc</td><td>一意の<code>ResolveInstrumentResult</code></td><td>partial/ambiguous/out-of-rangeは例外または<code>status=unknown</code>。MarketEventを作らない。</td></tr>
+  </tbody></table>
+
+  <h2>10. 型付きデータ契約</h2>
+  <pre>from dataclasses import dataclass
+from datetime import datetime
+from typing import Literal
+
+@dataclass(frozen=True)
+class ResolveInstrumentRequest:
+    vendor: str; dataset_id: str; stype: str; symbol: str
+    event_time_utc: datetime
+
+@dataclass(frozen=True)
+class ResolveInstrumentResult:
+    status: Literal["resolved", "partial", "ambiguous", "not_found", "unknown"]
+    instrument_id: str | None
+    mapping_id: str | None
+    catalog_version: str
+    reason_code: str | None
+
+@dataclass(frozen=True)
+class SymbolMapping:
+    mapping_id: str; instrument_id: str | None
+    vendor: str; dataset_id: str; stype_in: str; input_symbol: str
+    stype_out: str; output_symbol: str; external_instrument_id: str | None
+    valid_from_utc: datetime; valid_to_utc: datetime | None
+    status: str; source_raw_object_id: str; mapping_version: str</pre>
+  <p>すべての時刻はtimezone-aware UTC。<code>valid_to_utc=None</code>は将来まで有効ではなく「終了未観測」を意味し、現在時刻を使った補完は禁止する。<code>status</code>が<code>resolved</code>以外なら<code>instrument_id</code>をMarketEventへ渡さない。</p>
+
+  <h2>11. Snapshot物理契約とmigration</h2>
+  <table><thead><tr><th>JSON root key</th><th>必須内容</th><th>制約</th></tr></thead><tbody>
+    <tr><td><code>schema_version</code></td><td><code>catalog-v1</code></td><td>互換性を壊す変更は<code>catalog-v2</code>と別Readerを追加。v1を書換えない。</td></tr>
+    <tr><td><code>catalog_version</code></td><td><code>cv_</code> + canonical JSON SHA-256の先頭20桁</td><td>内容と一致。重複versionで内容が違えばIntegrityError。</td></tr>
+    <tr><td><code>instruments</code></td><td>opaque instrument_id、identity、metadata、effective period</td><td>identity欠落、future/spread不明、tick/multiplier未確認は<code>status=unknown</code>。</td></tr>
+    <tr><td><code>mappings</code></td><td>上記SymbolMapping、source_raw_object_id</td><td>同一vendor/dataset/stype/symbol/期間のresolved行は一意。</td></tr>
+    <tr><td><code>calendars</code></td><td>timezone、session、holiday、effective period</td><td>session状態が不明ならgap判定をPassにしない。</td></tr>
+    <tr><td><code>audit</code></td><td>created_at_utc、creator step、source refs、previous_version</td><td>Secret、vendor authentication、Account ID禁止。</td></tr>
+  </tbody></table>
+  <p>snapshot JSONはキーをソートしUTF-8で直列化してhashを計算する。P2-05の<code>write_if_absent</code>は一時ファイルへ書込み、digestを確認してから最終パスへ原子的renameを行う。失敗時は完成snapshotを残さない。</p>
+
+  <h2>12. Resolverの順序とコード例</h2>
+  <pre>def resolve(snapshot: CatalogSnapshot, request: ResolveInstrumentRequest) -&gt; ResolveInstrumentResult:
+    candidates = [m for m in snapshot.mappings
+                  if m.vendor == request.vendor and m.dataset_id == request.dataset_id
+                  and m.stype_in == request.stype and m.input_symbol == request.symbol
+                  and m.valid_from_utc &lt;= request.event_time_utc
+                  and (m.valid_to_utc is None or request.event_time_utc &lt; m.valid_to_utc)]
+    resolved = [m for m in candidates if m.status == "resolved" and m.instrument_id]
+    if len(resolved) != 1:
+        return ResolveInstrumentResult("ambiguous" if len(resolved) &gt; 1 else "not_found",
+            None, None, snapshot.catalog_version, "MAPPING_NOT_UNIQUE")
+    instrument = snapshot.by_id(resolved[0].instrument_id)
+    if instrument.status != "active" or instrument.instrument_class != "future":
+        return ResolveInstrumentResult("unknown", None, resolved[0].mapping_id,
+            snapshot.catalog_version, "INSTRUMENT_NOT_TRADABLE")
+    return ResolveInstrumentResult("resolved", instrument.instrument_id,
+        resolved[0].mapping_id, snapshot.catalog_version, None)</pre>
+  <p>この順序は外部symbolが複数契約へ解決されること、期限外mapping、future/spread混同をfail-closedにする。continuous/parentは取引可能契約ではないため、P2-04とH2-1承認前に<code>resolve</code>の成功値へ昇格しない。</p>
+
+  <h2>13. 観測、テスト、Run Manifest</h2>
+  <table><thead><tr><th>領域</th><th>契約</th></tr></thead><tbody>
+    <tr><td>監査/Health</td><td><code>catalog_version</code>、mapping_id、reason_code、request時刻、source_raw_object_idを記録。<code>MAPPING_AMBIGUOUS</code>、<code>CATALOG_INTEGRITY_FAILED</code>は<code>UNHEALTHY</code>でData Gate停止。</td></tr>
+    <tr><td>単体テスト</td><td>一意resolved、二重resolved、期限外、future/spread、inactive、digest不一致、同一snapshot再書込、異内容同versionを網羅。</td></tr>
+    <tr><td>結合テスト</td><td>P2-D05の<code>SymbolMappingResolved</code>相当fixtureからP2-D06のNormalizedBarへ一意InstrumentIdが入ることを確認。</td></tr>
+    <tr><td>failure injection</td><td>snapshot rename失敗、壊れたJSON、clock timezoneなし、calendar欠落を注入し、MarketEvent/data_versionが生成されないことを確認。</td></tr>
+    <tr><td>Manifest</td><td><code>catalog_version</code>と<code>catalog_snapshot_sha256</code>を必須にする。両方が一致しないならP2-D06のdata_versionを発行しない。</td></tr>
+  </tbody></table>
+
   <section class="unknown">
-    <h2>9. Unknownと停止条件</h2>
+    <h2>14. Unknownと停止条件</h2>
     <table>
       <thead><tr><th>ID</th><th>内容</th><th>決定タイミング</th><th>未決時</th></tr></thead>
       <tbody>
         <tr><td>UNK-P2-03</td><td>5候補のdefinition、future/spread、期間mapping。</td><td>P2-04またはP2-06検証</td><td>内部IDを発行せず、候補Pending。</td></tr>
         <tr><td>UNK-P2-09</td><td>Shadowの遅延しきい値。</td><td>Phase 6</td><td>測定項目だけを定義し、本書で数値を固定しない。</td></tr>
-        <tr><td>UNK-P2-10</td><td>margin placeholderの最終sourceとRisk利用規則。</td><td>Risk設計Phase</td><td>値をNotional/Order可否へ利用しない。</td></tr>
+        <tr><td>UNK-P2-11</td><td>margin placeholderの最終sourceとRisk利用規則。</td><td>Risk設計Phase</td><td>値をNotional/Order可否へ利用しない。</td></tr>
       </tbody>
     </table>
   </section>
 
   <section class="gate">
-    <h2>10. H2-1承認対象</h2>
+    <h2>15. H2-1承認対象</h2>
     <p>内部InstrumentIdのcanonical identity、vendor mappingの期間管理、契約metadataの必須項目、Calendar version、margin placeholder、continuous/rollをContractSelectionとして管理する方式を承認する。roll ruleの具体的採否はH2-1で別途明示する。</p>
   </section>
 
   <section class="review">
-    <h2>11. レビュー履歴</h2>
+    <h2>16. レビュー履歴</h2>
     <table>
       <thead><tr><th>日付</th><th>レビュー部品</th><th>観点</th><th>反映</th></tr></thead>
       <tbody>
         <tr><td>2026-08-04</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>内部ID、mapping、D10/D11/D18整合、Unknown。</td><td>内部IDとvendor IDを分離し、有効期間とsnapshot versionを追加。</td></tr>
         <tr><td>2026-08-04</td><td>Red Team観点</td><td>誤mapping、未確認tick/multiplier、margin仮値、rollの危険な先送り。</td><td>ambiguous/unknown時の停止、placeholderの非利用、roll承認Gateを追加。</td></tr>
         <tr><td>2026-08-04</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>リンク、保存先、共通メタデータ。</td><td>D05/D06/P2-D04/D10/D11/D18への導線を設定。</td></tr>
+        <tr><td>2026-08-04</td><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>DD-01〜12、Resolver型、snapshot/migration、誤mapping、テスト。</td><td>P2-03Rで9〜13章を追加。P2-D15の再レビューでCritical/High 0件を確認。</td></tr>
       </tbody>
     </table>
   </section>
 
-  <h2>12. 関連成果物</h2>
+  <h2>17. 関連成果物</h2>
   <ul>
     <li><a href="./05_Market_Data_Adapter詳細設計書.html">P2-D05 Market Data Adapter詳細設計書</a></li>
     <li><a href="./06_Raw_Normalized_Store詳細設計書.html">P2-D06 Raw / Normalized Store詳細設計書</a></li>
+    <li><a href="./08_実装詳細設計レビュー反映記録.html">P2-D15 実装詳細設計レビュー・反映記録</a></li>
     <li><a href="../02_データソース調査/02_Databento公式仕様確認結果.html">P2-D04 Databento公式仕様確認結果</a></li>
     <li><a href="../../phase1/04_共通モデル/04_共通ドメインモデル設計書.html">D06 共通ドメインモデル設計書</a></li>
     <li><a href="../../phase1/04_共通モデル/04_イベント注文口座ID時系列設計書.html">D07 イベント・注文・口座・ID・時系列設計書</a></li>
