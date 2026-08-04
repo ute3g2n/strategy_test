@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2-D04 Databento公式仕様確認結果</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 32px auto; max-width: 1240px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; }
+    h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; font-size: 14px; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #eef2f7; }
+    code { font-family: Consolas, "Courier New", monospace; background: #f1f5f9; padding: 1px 4px; }
+    .meta, .note, .gate, .unknown, .review { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .gate { border-left-color: #7c3aed; background: #f5f3ff; }
+    .unknown { border-left-color: #b45309; background: #fff7ed; }
+    .review { border-left-color: #15803d; background: #f0fdf4; }
+    .danger { color: #991b1b; font-weight: 700; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>P2-D04 Databento公式仕様確認結果</h1>
+  <section class="meta">
+    <p><strong>成果物ID:</strong> P2-D04<br>
+    <strong>文書セットID:</strong> P2-DATASOURCE-DOCSET<br>
+    <strong>Phase / Step:</strong> Phase 2 / P2-02<br>
+    <strong>作成日・確認日:</strong> 2026-08-04<br>
+    <strong>文書状態:</strong> v0.1 / 公式一次情報確認・レビュー反映済み<br>
+    <strong>使用Orchestrator:</strong> <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code><br>
+    <strong>担当Agent:</strong> <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A10_RequirementsCurator_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code><br>
+    <strong>使用Skill:</strong> <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_official_research_v0_1</code>, <code>autotrade_skill_source_reader_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_doc_set_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code>, <code>autotrade_skill_red_team_review_v0_1</code></p>
+  </section>
+
+  <h2>1. 調査範囲と結論</h2>
+  <p>Databento Historical API、公式Python client、<code>GLBX.MDP3</code>、<code>ohlcv-1m</code>、<code>definition</code>、<code>statistics</code>、DBN、symbology、Dataset Condition、HTTPエラー、費用の公式情報を確認した。今回固定するのは外部仕様の観測点とAdapter境界であり、Databentoの型・SDK・APIレスポンスをCoreの契約として採用することではない。</p>
+  <div class="note"><strong>Phase 2の採用方針:</strong> 外部応答はRaw Storeへ原形と取得メタデータを保存し、Adapterで内部のUTC、InstrumentId、MarketEvent、quality_flags、data_versionへ変換する。未確認・部分解決・degraded・checksum不一致はPassにせず、Data Gateで停止または縮退させる。</div>
+
+  <h2>2. 公式一次情報の確認台帳</h2>
+  <table>
+    <thead><tr><th>確認ID</th><th>公式URL</th><th>確認内容</th><th>Phase 2での扱い</th></tr></thead>
+    <tbody>
+      <tr><td>OFF-P2-01</td><td><a href="https://databento.com/docs/quickstart">Databento Quickstart</a></td><td>Python clientの導入、<code>Historical</code> client、<code>timeseries.get_range</code>、dataset/schema/symbols/start/endの基本形を確認。</td><td>SDK呼出しはAdapter実装の内部詳細。Coreには呼出し名を公開しない。</td></tr>
+      <tr><td>OFF-P2-02</td><td><a href="https://databento.com/docs/knowledge-base/datasets">Venues and datasets</a></td><td><code>GLBX.MDP3</code>はCME、CBOT、NYMEX、COMEXのMDP 3.0を対象とし、先物・先物オプションを提供する。データには<code>ts_recv</code>も収録される。</td><td>対象候補のdataset候補。実際の利用可能期間・権利はアカウント条件と日付ごとに再確認する。</td></tr>
+      <tr><td>OFF-P2-03</td><td><a href="https://databento.com/docs/schemas-and-data-formats">Schemas and data formats</a></td><td><code>ohlcv-1m</code>は1分間隔、<code>ts_event</code>は区間開始時刻、取引がない区間はレコードが出ない。価格は固定精度、volumeは区間の出来高。<code>statistics</code>は公式統計を表す。</td><td>欠損バーをゼロ埋めして取引事実に見せない。日足や公式清算値は1分OHLCVと同一視しない。</td></tr>
+      <tr><td>OFF-P2-04</td><td><a href="https://databento.com/docs/standards-and-conventions/symbology">Symbology</a></td><td>symbologyは<code>raw_symbol</code>、<code>instrument_id</code>、<code>parent</code>、<code>continuous</code>。<code>GLBX.MDP3</code>はparent/continuous入力に対応し、parentは<code>[ROOT].FUT</code>で関連契約を参照する。</td><td>入力シンボル、解決後raw_symbol、instrument_id、解決期間をCatalogに記録する。continuousはRoll ruleの明示的な入力として隔離する。</td></tr>
+      <tr><td>OFF-P2-05</td><td><a href="https://databento.com/docs/examples/symbology/parent-symbology">Parent symbology example</a></td><td>parent指定のdefinition取得で子契約とspreadが返り得る。<code>instrument_class</code>でfuture/spreadを識別し、<code>expiration</code>等で整理する。</td><td><code>MCL.FUT</code>等の候補確認ではdefinitionを先に取得し、spreadを除外して採用候補を確定する。</td></tr>
+      <tr><td>OFF-P2-06</td><td><a href="https://databento.com/docs/standards-and-conventions/databento-binary-encoding">Databento Binary Encoding</a></td><td>DBNはself-describing metadata headerを持つ正規化データ形式で、公式client/APIの標準的な内部・転送形式。メタデータはdataset/schema等を含む。</td><td>Raw保存時にDBN原形または受信形式、metadata、request fingerprintを保存し、再現性を確保する。</td></tr>
+      <tr><td>OFF-P2-07</td><td><a href="https://databento.com/docs/knowledge-base/new-users/dbn-encoding/getting-started-with-dbn">DBN metadata</a></td><td>DBN metadataには元のHistorical API requestを再構成するための情報が含まれる。Dataset、schemaなどがヘッダーに記録される。</td><td>取得条件の監査証跡に利用する。値をCoreのMarketEventへ無差別に流さない。</td></tr>
+      <tr><td>OFF-P2-08</td><td><a href="https://databento.com/docs/api-reference-historical/basics/authentication?historical=http&live=http">Historical API authentication and errors</a></td><td>HTTP 206は部分的シンボル解決、403は権限不足、404はリソース/シンボル不在、429はrate limit超過。Historical APIには接続・リクエスト種別ごとの上限がある。</td><td>206、403、404、429を成功扱いにしない。retryはRetry-Afterを尊重し、繰返し失敗はData Gate停止とする。</td></tr>
+      <tr><td>OFF-P2-09</td><td><a href="https://databento.com/docs/api-reference-historical/timeseries/timeseries-get-range-to-file?historical=cpp&live=cpp">Dataset condition</a></td><td>Dataset Conditionは日付単位の<code>available</code>、<code>degraded</code>、<code>pending</code>、<code>missing</code>を返す。degradedは欠損または正確性の問題があり得る状態。</td><td>available以外は品質フラグとし、採用可否を日付単位で記録する。degradedをPassにしない。</td></tr>
+      <tr><td>OFF-P2-10</td><td><a href="https://databento.com/docs/faqs/usage-pricing-and-data-credits">Usage-based pricing</a> / <a href="https://databento.com/docs/portal/billing">Billing</a></td><td>Historical dataは未圧縮DBNサイズ基準で課金され、月次上限超過時は追加Historical requestが停止され得る。確定見積りは具体的requestのcustomization後に確認する。</td><td>実取得、費用、entitlementはH2-2承認前に行わない。見積りと承認記録を別管理する。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. Phase 2で扱う外部仕様の境界</h2>
+  <table>
+    <thead><tr><th>外部項目</th><th>Adapter側の責務</th><th>内部へ渡す契約</th><th>固定しない項目</th></tr></thead>
+    <tbody>
+      <tr><td>dataset / schema</td><td>requestの妥当性、取得時のmetadata、dataset conditionを検査する。</td><td>内部のDatasetRef、DataVersion、QualityStatus、MarketEvent。</td><td>Databento SDK enum、HTTP client型、将来のschema追加。</td></tr>
+      <tr><td>symbology</td><td><code>stype_in</code>、解決結果、期間、definitionを保存し、parentからfutureのみを選別する。</td><td>内部InstrumentIdとCatalog上の外部参照。</td><td>Coreが<code>MCL.FUT</code>やcontinuous notationを直接解釈すること。</td></tr>
+      <tr><td>OHLCV</td><td>固定精度価格、UTC時刻、空区間、flags、重複、順序を検査する。</td><td>内部Bar/MarketEventとquality_flags。</td><td>外部の価格整数表現やDBN record class。</td></tr>
+      <tr><td>condition / error</td><td>available/degraded/pending/missing、206/403/404/429等を監査し、停止・再試行・縮退を決める。</td><td>DataGateResultと明示的なFailureReason。</td><td>外部HTTPコードを業務ドメインの状態IDとして再利用すること。</td></tr>
+      <tr><td>continuous / roll</td><td>continuous指定と解決raw_symbolを保存し、roll ruleと対象期間をCatalogへ関連付ける。</td><td>VersionedSignalSeriesまたはContractSelection。</td><td>Databentoのcontinuous価格をRawの真値、または無調整系列を自動的に採用すること。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. 候補5銘柄の取得可能性確認項目</h2>
+  <p>候補の「取得可能性」は、公式サイトの一般仕様だけでは各アカウント・期間・シンボルの取得成功を保証しない。次の確認を候補ごとに行い、未実施はUnknownとする。</p>
+  <table>
+    <thead><tr><th>候補</th><th>要求する確認</th><th>合格条件</th><th>未合格時の扱い</th></tr></thead>
+    <tbody>
+      <tr><td><code>MCL</code></td><td><code>MCL.FUT</code>のdefinition、futureのみの子契約、期間、<code>ohlcv-1m</code>、condition、Raw checksum。</td><td>必要期間の子契約が解決され、definitionと1分データの対応が追跡可能。</td><td>Main候補から一時除外しfixture/dry-runへ縮退。</td></tr>
+      <tr><td><code>M6A</code></td><td><code>M6A.FUT</code>についてMCLと同じ確認。通貨先物固有のcontract size/tick等もCatalogで確認。</td><td>必要期間、definition、1分データ、品質状態が追跡可能。</td><td>Main候補から一時除外しfixture/dry-runへ縮退。</td></tr>
+      <tr><td><code>MZC</code> / <code>MZS</code> / <code>MZW</code></td><td>各parentの子契約、短い履歴の有無、volume/空区間、condition、spread除外、proxy/fallbackの要否。</td><td>条件付き候補として本線と分離したDatasetVersionを作成できる。</td><td>Main Replay inputへ入れず、条件付き検証データとして隔離。</td></tr>
+    </tbody>
+  </table>
+  <p>確認コマンドやAPI keyの値はこの成果物に記録しない。実行時のSecret参照名は <code>DATABENTO_API_KEY</code> のみとし、ログにはマスク済みの環境変数存在フラグだけを残す。</p>
+
+  <h2>5. Unknown台帳と決定タイミング</h2>
+  <table>
+    <thead><tr><th>Unknown ID</th><th>内容</th><th>決定タイミング / 担当</th><th>未決時の停止・縮退</th></tr></thead>
+    <tbody>
+      <tr><td>UNK-P2-02</td><td>実アカウントでのGLBX.MDP3 entitlement、費用、月次上限。</td><td>H2-2 / 人間承認 + P2-03</td><td>実取得停止。公式仕様とP10 fixtureだけで設計継続。</td></tr>
+      <tr><td>UNK-P2-03</td><td>MCL/M6A/MZC/MZS/MZWの必要期間におけるparent解決、definition、1分schemaの実在。</td><td>P2-03完了時 / A50</td><td>候補ごとにPending。main Replayへ投入せず、取得可能なfixtureに縮退。</td></tr>
+      <tr><td>UNK-P2-04</td><td>日付ごとのdegraded/pending/missingと再生成による差分。</td><td>P2-04 Data Quality Gate / A50 + A90</td><td>該当日を除外またはData Gate停止。差分未説明の再取得結果を上書きしない。</td></tr>
+      <tr><td>UNK-P2-05</td><td>実行環境のネットワーク、rate limit、Retry-Afterの運用値。</td><td>P2-03実装検証 / A50</td><td>再試行上限後に停止。手動再実行の承認待ち。</td></tr>
+      <tr><td>UNK-P2-06</td><td>費用見積りの最終値とデータ利用条件。</td><td>H2-2 / 人間承認</td><td>request作成・取得を実行しない。</td></tr>
+    </tbody>
+  </table>
+
+  <section class="gate">
+    <h2>6. H2-2 Human Gate</h2>
+    <p><strong>承認対象:</strong> 外部APIへの実取得を行うか、対象dataset/schema/期間/候補を何にするか、Databento entitlement、費用上限、Secretを参照する実行環境、再取得差分の保存方針。</p>
+    <p><strong>承認時の証跡:</strong> 承認者、承認日時、対象候補、期間、見積り、月次上限、Secret参照名、実行許可範囲を <code>plan/phase2/ログ/</code> のHuman Gate記録へ保存する。API key値、Authorization header、account IDは記録しない。</p>
+    <p><strong>未承認時:</strong> 外部API実取得、費用が発生するrequest、entitlement検証のための認証呼出しを停止する。P10で取得済みの研究用fixtureと公式公開仕様だけでAdapter設計を継続し、取得可否はUnknownのままにする。</p>
+  </section>
+
+  <h2>7. 既存資料との関係</h2>
+  <ul>
+    <li><code>research/asset_selection/10_頑健性バックテスト/10_Databento取得補助レポート_v0.1_2026-08-02.md</code>の5銘柄取得結果は研究用ハーネスの観測証跡であり、現行アカウントでの将来取得保証ではない。</li>
+    <li><code>doc/phase1/06_アダプター境界/06_Adapter境界設計書.html</code>のRaw/Normalized/Tradable等の層分離、fail-closed、InstrumentId境界をPhase 2の外部仕様変換へ引き継ぐ。</li>
+    <li>Phase 2では外部SDKをCoreへ追加せず、将来のData Vendor差替えを可能にする内部ポートを維持する。</li>
+  </ul>
+
+  <section class="review">
+    <h2>8. レビュー反映履歴</h2>
+    <table>
+      <thead><tr><th>日付</th><th>レビュー部品</th><th>指摘観点</th><th>反映</th></tr></thead>
+      <tbody>
+        <tr><td>2026-08-04</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>公式URL、外部仕様のCore漏洩、Unknown、H2-2、Secret出力、費用/rate limit/degraded。</td><td>公式一次情報台帳、Adapter境界表、Unknown台帳、H2-2停止条件、Secret非出力を追加。</td></tr>
+        <tr><td>2026-08-04</td><td>Red Team観点 / <code>autotrade_skill_red_team_review_v0_1</code></td><td>degradedや部分解決を成功扱いしないこと、再取得差分と費用を危険な先送りにしないこと。</td><td>206、429、condition、checksum、月次上限をData Gate/Human Gateへ明記。</td></tr>
+        <tr><td>2026-08-04</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>保存先、リンク、読みやすさ、インデックス導線。</td><td><code>doc/index.html</code>へP2-D04リンクを追加し、関連資料と戻りリンクを設定。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <h2>9. 関連成果物</h2>
+  <ul>
+    <li><a href="../01_要件追跡/01_Phase2スコープ定義.html">P2-D01 Phase 2スコープ定義</a></li>
+    <li><a href="../01_要件追跡/01_Phase2要件追跡マトリクス.html">P2-D02 Phase 2要件追跡マトリクス</a></li>
+    <li><a href="../01_要件追跡/01_Phase2未確定事項台帳.html">P2-D03 Phase 2未確定事項台帳</a></li>
+    <li><a href="../../phase1/06_アダプター境界/06_Adapter境界設計書.html">Phase 1 D10 Adapter境界設計書</a></li>
+    <li><a href="../../index.html">ドキュメントインデックス</a></li>
+  </ul>
+</main>
+</body>
+</html>
