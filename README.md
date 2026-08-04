@@ -106,6 +106,8 @@ Skill、サブエージェント、オーケストレータの作成または変
 - [AI実行基盤整理検証結果](./doc/ai_foundation/08_AI実行基盤整理検証結果.html)
 - [実装詳細設計書構成標準](./doc/ai_foundation/14_実装詳細設計書構成標準.html)
 - [実装詳細設計AI基盤仕様](./doc/ai_foundation/15_実装詳細設計AI基盤仕様.html)
+- [実装詳細設計書HTMLテンプレート](./doc/ai_foundation/16_実装詳細設計書HTMLテンプレート.html)
+- [実装詳細設計書作成依頼プロンプト](./doc/ai_foundation/17_実装詳細設計書作成依頼プロンプト.html)
 
 ## AGENTS.md と README.md の更新タイミング
 
