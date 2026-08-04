@@ -31,6 +31,8 @@
   `AutoTradeProject_Orchestrator_v0_1`
   `AutoTradePhasePlanning_Orchestrator_v0_1`
   `AutoTradeComponentLifecycle_Orchestrator_v0_1`
+  `AutoTradeProject_DesignDocSet_Orchestrator_v0_1`
+  `AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`
 - 汎用Agents:
   `AutoTrade_A05_PhaseExecutionPlanner_v0_1`
   `AutoTrade_A06_AiComponentEngineer_v0_1`
@@ -42,11 +44,15 @@
   `AutoTrade_A60_RiskAccountArchitect_v0_1`
   `AutoTrade_A70_OpsSecurityArchitect_v0_1`
   `AutoTrade_A80_DocumentIntegrator_v0_1`
+  `AutoTrade_A81_DesignDocSetWriter_v0_1`
+  `AutoTrade_A82_ImplementationDetailDesigner_v0_1`
   `AutoTrade_A90_DesignReviewer_v0_1`
+  `AutoTrade_A91_ImplementationDetailReviewer_v0_1`
 - 汎用Skills:
   `.codex/skills/autotrade_skill_*_v0_1/`
   Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を標準で使う。
   AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を標準で使う。
+  実装詳細設計では `autotrade_skill_implementation_detail_design_v0_1` と `autotrade_skill_implementation_detail_review_v0_1` を標準で使う。
 - Phase 1専用部品:
   `AutoTradePhase1_*`
   `autotrade_phase1_skill_*_v0_1`
@@ -69,6 +75,10 @@ AI部品の作成、設計、レビュー、Phase実行に入る前は、原則�
 ## AI部品作成・変更
 
 Skill、サブエージェント、オーケストレータの作成または変更では、まず既存再利用を調査し、その後に実体更新、最後に仕様と導線を更新する。標準の依頼プロンプトは `doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html` を参照する。
+
+## 実装詳細設計
+
+モジュール構成、型付き入出力、永続化、正常・異常系シーケンス、コード例または擬似コード、テストまでを必要とする設計書は、`AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、`AutoTrade_A82_ImplementationDetailDesigner_v0_1`、`AutoTrade_A91_ImplementationDetailReviewer_v0_1` を使用する。構成標準は `doc/ai_foundation/14_実装詳細設計書構成標準.html` を正本とし、専門レビュー、改訂、再レビューを完了してから実装へ引き渡す。
 
 ## 更新ルール
 

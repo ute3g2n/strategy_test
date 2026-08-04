@@ -67,6 +67,15 @@
 - 技術領域の設計判断は、Adapter、Architecture、Execution、QAなどの領域Agentが担当し、A81は承認済み内容の文書セット統合を担当する。
 - 正式HTML成果物は `doc/index.html` から到達できるようにし、UnknownをPassにせず、レビュー指摘の採否を記録する。
 
+## 実装詳細設計書ルール
+
+- モジュール構成、実装単位、型付き入出力、永続化、正常・異常系シーケンス、非自明な規則のコード例または擬似コード、設定/監査、テスト対応、Run Manifest/互換性、追跡/Unknown、レビュー閉ループを満たす文書だけを「実装詳細設計書」と扱う。
+- 詳細設計の構成標準は `doc/ai_foundation/14_実装詳細設計書構成標準.html` を正本とする。対象外の構成要素は、`N/A` と理由、確認者、代替成果物へのリンクを必須にする。
+- 実装可能な詳細設計書セットを作成・改訂する場合は、標準として `AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、`AutoTrade_A82_ImplementationDetailDesigner_v0_1`、`AutoTrade_A91_ImplementationDetailReviewer_v0_1`、`autotrade_skill_implementation_detail_design_v0_1`、`autotrade_skill_implementation_detail_review_v0_1` を使用する。
+- A91の初回レビュー、A90の横断/Red Teamレビュー、A80/A81の改訂統合、A91の再レビューを完了するまで、実装詳細設計完了を宣言しない。
+- A91のCriticalまたはHigh指摘が残る、必須構成要素が理由なく欠ける、UnknownをPassにする場合は、実装着手へ進めない。
+- 実装言語、パッケージ配置、永続化基盤、外部依存が未確定の場合は、実在しない実装を作らず、UnknownとHuman Gateまたは縮退方針を記録する。
+
 ## 安全ルール
 
 - 投資助言、売買推奨、特定商品の推奨をしない。
@@ -98,5 +107,10 @@
   `doc/ai_foundation/05_プロジェクト汎用オーケストレータ仕様.html`
 - 相関、発火制御、利用判断に影響する場合:
   `doc/ai_foundation/06_AI部品相関図発火制御図.html`
+
+実装詳細設計の標準または専用AI基盤に変更がある場合は、加えて次を同じ変更セットで更新する。
+
+- `doc/ai_foundation/14_実装詳細設計書構成標準.html`
+- `doc/ai_foundation/15_実装詳細設計AI基盤仕様.html`
 
 複数種別にまたがる変更では、該当する仕様書をすべて更新する。少なくとも、正式名称、責務、使用Skill、停止条件、相関図、更新対象表が実体と一致していることを確認する。
