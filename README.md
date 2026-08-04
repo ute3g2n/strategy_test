@@ -84,7 +84,7 @@ Skill、サブエージェント、オーケストレータの作成または変
 
 ### 実装詳細設計
 
-実装者がそのまま着手するための設計書は、まず誰にでも分かるドメイン概要、ファイル構成、Mermaidによる構造図、モジュールごとの入出力、Mermaidによる処理フロー、全テストケース表を示し、その後に型付き契約、永続化、異常系、コード例または擬似コードを続けます。コード・固有名詞以外は日本語で説明し、表の前には何を判断する表かを記します。標準は [実装詳細設計書構成標準](./doc/ai_foundation/14_実装詳細設計書構成標準.html) です。作成から専門レビュー、改訂、再レビューまでは `AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、`AutoTrade_A82_ImplementationDetailDesigner_v0_1`、`AutoTrade_A91_ImplementationDetailReviewer_v0_1` を使います。
+実装者がそのまま着手するための設計書は、まず誰にでも分かるドメイン概要、ファイル構成、Mermaidによる構造図、モジュールごとの入出力、Mermaidによる処理フロー、全テストケース表を示し、その後に型付き契約、永続化、異常系、コード例または擬似コードを続けます。コード・固有名詞以外は日本語で説明し、表の前には何を判断する表かを記します。標準は [実装詳細設計書構成標準](./doc/ai_foundation/14_実装詳細設計書構成標準.html)、HTML構成は [実装詳細設計書HTMLテンプレート](./doc/ai_foundation/16_実装詳細設計書HTMLテンプレート.html)、依頼文は [実装詳細設計書作成依頼プロンプト](./doc/ai_foundation/17_実装詳細設計書作成依頼プロンプト.html) です。作成から専門レビュー、改訂、再レビューまでは `AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、`AutoTrade_A82_ImplementationDetailDesigner_v0_1`、`AutoTrade_A91_ImplementationDetailReviewer_v0_1` を使います。
 
 ### 証跡として残す部品
 

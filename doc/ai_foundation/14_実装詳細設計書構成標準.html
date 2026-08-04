@@ -94,7 +94,7 @@
     </tbody>
   </table>
   <section class="note"><strong>表と本文の日本語:</strong> 固有名詞、コード、変数名、外部仕様の正式名称以外は日本語を基本とする。英単語を説明文で残す必要があるときは、直後に日本語の説明を添える。8章以降の各表にも、何を説明する表かを、表の前に誰にでも分かる言葉で記す。</section>
-  <section class="note"><strong>具体的な書式参照:</strong> <a href="../phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html">P2-D05 市場データ受渡し部 詳細設計書 v0.5</a> を、この読解順と記述品質を満たす最初の具体例として扱う。ただし、これはPhase 2固有の技術判断を他の領域へ流用する指示ではない。以後の設計書は、この順番と各領域に必要な内容を適用する。</section>
+  <section class="note"><strong>テンプレートと具体例:</strong> <a href="./16_実装詳細設計書HTMLテンプレート.html">AF-D16 実装詳細設計書HTMLテンプレート</a>を正式な構成テンプレート、<a href="../phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html">P2-D05 市場データ受渡し部 詳細設計書 v0.5</a>を記述品質の具体例として扱う。ただし、P2-D05のPhase 2固有の技術判断を他の領域へ流用してはならない。</section>
   <section class="warn"><strong>N/Aの扱い:</strong> 先頭六節のどれかが不要な場合でも省略しない。N/A、理由、確認者、代替成果物へのリンクをその節に記載する。特にテスト仕様は「テストなし」とせず、対象外の根拠と残る検証責任を示す。</section>
 
   <h2>6. 入出力契約の記法</h2>
@@ -146,6 +146,7 @@ Tests: duplicate same payload, duplicate different payload, write failure, retry
         <tr><td>2026-08-04</td><td>詳細設計レビュー観点</td><td>見出しの存在だけでは実装可能性を保証できない。</td><td>充足マトリクス、N/A理由、専門レビュー後の再レビューを必須化。</td></tr>
         <tr><td>2026-08-04</td><td>利用者レビュー</td><td>従来のP2-D05は責務・契約を先に並べ、ドメインの意味、ファイル、構造、入出力、処理、全テストを読める順で示していなかった。</td><td>P2-D05 v0.3を具体例に採用し、先頭六節の読解順フォーマットと全テストケース表を必須化。</td></tr>
         <tr><td>2026-08-04</td><td>利用者による再指摘</td><td>英語中心の説明、文字だけの図、短すぎる試験仕様、表の目的が分からない後半章は、技術者以外が判断できない。</td><td>日本語を基本とし、図をMermaidへ統一、試験表を文章化、各仕様表の前置き説明を必須化。P2-D05 v0.4を具体例に更新。</td></tr>
+        <tr><td>2026-08-04</td><td>利用者承認</td><td>P2-D05 v0.5を詳細設計書の基準として今後参照できる形にする必要がある。</td><td>AF-D16のHTMLテンプレート、AF-D17の標準依頼プロンプト、AI部品のテンプレート準拠停止条件を追加。</td></tr>
       </tbody>
     </table>
   </section>
@@ -153,6 +154,8 @@ Tests: duplicate same payload, duplicate different payload, write failure, retry
   <h2>11. 関連文書</h2>
   <ul>
     <li><a href="./15_実装詳細設計AI基盤仕様.html">AF-D15 実装詳細設計AI基盤仕様</a></li>
+    <li><a href="./16_実装詳細設計書HTMLテンプレート.html">AF-D16 実装詳細設計書HTMLテンプレート</a></li>
+    <li><a href="./17_実装詳細設計書作成依頼プロンプト.html">AF-D17 実装詳細設計書作成依頼プロンプト</a></li>
     <li><a href="./03_プロジェクト汎用Skill仕様.html">AF-D03 プロジェクト汎用Skill仕様</a></li>
     <li><a href="./04_プロジェクト汎用サブエージェント仕様.html">AF-D04 プロジェクト汎用サブエージェント仕様</a></li>
     <li><a href="./05_プロジェクト汎用オーケストレータ仕様.html">AF-D05 プロジェクト汎用オーケストレータ仕様</a></li>
