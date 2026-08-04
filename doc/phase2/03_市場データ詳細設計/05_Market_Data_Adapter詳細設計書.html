@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>P2-D05 Market Data Adapter詳細設計書</title>
+  <title>P2-D05 市場データ受渡し部 詳細設計書</title>
   <style>
     :root { color-scheme: light; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 32px auto; max-width: 1240px; color: #172033; background: #f8fafc; }
@@ -21,21 +21,22 @@
     .unknown { border-left-color: #b45309; background: #fff7ed; }
     .review { border-left-color: #15803d; background: #f0fdf4; }
     pre { overflow-x: auto; padding: 14px; background: #0f172a; color: #e5e7eb; }
+    .mermaid { background: #fff; }
   </style>
 </head>
 <body>
 <main>
   <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
-  <h1>P2-D05 Market Data Adapter詳細設計書</h1>
+  <h1>P2-D05 市場データ受渡し部（Market Data Adapter）詳細設計書</h1>
   <section class="meta">
     <p><strong>成果物ID:</strong> P2-D05<br>
-    <strong>文書セットID:</strong> P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET<br>
-    <strong>Phase / Step:</strong> Phase 2 / P2-03R<br>
+    <strong>文書セットID:</strong> <code>P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET</code><br>
+    <strong>対象フェーズ / 手順:</strong> Phase 2 / <code>P2-03R</code><br>
     <strong>作成日:</strong> 2026-08-04<br>
-    <strong>文書状態:</strong> v0.3 / P2-03R 形式改訂・A91再レビュー反映済み<br>
-    <strong>使用Orchestrator:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code><br>
-    <strong>担当Agent:</strong> <code>AutoTrade_A10_RequirementsCurator_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code><br>
-    <strong>使用Skill:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code>, <code>autotrade_skill_red_team_review_v0_1</code>, <code>autotrade_skill_revision_integration_v0_1</code></p>
+    <strong>文書状態:</strong> v0.4 / 日本語表現・Mermaid図・テスト仕様を改訂<br>
+    <strong>使用オーケストレータ:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code><br>
+    <strong>担当サブエージェント:</strong> <code>AutoTrade_A10_RequirementsCurator_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code><br>
+    <strong>使用スキル:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code>, <code>autotrade_skill_red_team_review_v0_1</code>, <code>autotrade_skill_revision_integration_v0_1</code></p>
   </section>
 
   <section class="note"><strong>実装対象:</strong> 現時点で <code>src/</code> と <code>tests/</code> は未作成である。本書の配置はP2-05で作成する予定のPython 3.11パッケージであり、存在しない外部SDK、DB、HTTP clientを前提にしない。外部実取得はH2-2承認前はfixture/dry-runに限定する。</section>
@@ -48,8 +49,8 @@
     <tr><td>DD-11〜12</td><td>13章、19〜20章、およびP2-D15。</td><td>P2-D03、P2-D15。</td></tr>
   </tbody></table>
 
-  <h2>1. ドメインの概要: Market Data Adapterは何をするものか</h2>
-  <p>Market Data Adapterは、外部データ提供元から届く市場データを、システムが安全に保管し、後で同じ条件で読み直せる形に受け渡すための入口である。データ提供元ごとの呼び方、通信方式、シンボル表記、認証方法を、この入口の内側だけに閉じ込める。</p>
+  <h2>1. ドメインの概要: 市場データ受渡し部は何をするものか</h2>
+  <p>市場データ受渡し部（Market Data Adapter）は、外部データ提供元から届く市場データを、システムが安全に保管し、後で同じ条件で読み直せる形に受け渡すための入口である。データ提供元ごとの呼び方、通信方式、銘柄記号の表記、認証方法を、この入口の内側だけに閉じ込める。</p>
   <p>たとえば、外部から「ある銘柄の1分足をください」と受け取ったデータを、そのまま戦略へ渡すことはしない。まず元のデータを改変せず保管し、どの条件で取得したか、壊れていないか、必要な銘柄が全部そろったかを確認する。問題があれば、下流へ進めずに理由を残して止まる。これがこのドメインの役目である。</p>
   <table><thead><tr><th>利用者</th><th>このドメインに期待すること</th><th>このドメインが返すもの</th></tr></thead><tbody>
     <tr><td>P2-05の取得ジョブ</td><td>指定期間・指定銘柄のデータを安全に取り込む。</td><td>Raw保存結果、checksum、健康状態、失敗理由。</td></tr>
