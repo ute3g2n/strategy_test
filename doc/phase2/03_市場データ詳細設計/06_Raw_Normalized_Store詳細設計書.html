@@ -28,14 +28,24 @@
   <h1>P2-D06 Raw / Normalized Store詳細設計書</h1>
   <section class="meta">
     <p><strong>成果物ID:</strong> P2-D06<br>
-    <strong>文書セットID:</strong> P2-MARKET-DATA-DESIGN-DOCSET<br>
-    <strong>Phase / Step:</strong> Phase 2 / P2-03<br>
+    <strong>文書セットID:</strong> P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET<br>
+    <strong>Phase / Step:</strong> Phase 2 / P2-03R<br>
     <strong>作成日:</strong> 2026-08-04<br>
-    <strong>文書状態:</strong> v0.1 / A90・Red Team・A80レビュー反映済み<br>
-    <strong>使用Orchestrator:</strong> <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code><br>
-    <strong>担当Agent:</strong> <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code><br>
-    <strong>使用Skill:</strong> <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_architecture_writer_v0_1</code>, <code>autotrade_skill_domain_modeling_v0_1</code>, <code>autotrade_skill_execution_model_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_doc_set_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code></p>
+    <strong>文書状態:</strong> v0.2 / P2-03R 実装詳細設計・A91再レビュー反映済み<br>
+    <strong>使用Orchestrator:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code><br>
+    <strong>担当Agent:</strong> <code>AutoTrade_A10_RequirementsCurator_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code><br>
+    <strong>使用Skill:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_execution_model_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code>, <code>autotrade_skill_red_team_review_v0_1</code>, <code>autotrade_skill_revision_integration_v0_1</code></p>
   </section>
+
+  <section class="note"><strong>実装前提:</strong> P2-05で作成予定のPython 3.11と標準ライブラリ（<code>pathlib</code>, <code>json</code>, <code>hashlib</code>, <code>datetime</code>）だけを使う最小ローカル実装を定義する。大容量保存先、columnar format、クラウドDBは<code>UNK-P2-08</code>として未決であり、確定したものとして書かない。</section>
+
+  <h2>0. 詳細設計カバレッジ</h2>
+  <table><thead><tr><th>DD</th><th>証拠</th><th>補完先</th></tr></thead><tbody>
+    <tr><td>DD-01〜04</td><td>1〜7章、8〜10章の予定配置、Repository、DTO、API。</td><td>P2-D05の取得型、P2-D07のInstrumentId。</td></tr>
+    <tr><td>DD-05〜07</td><td>2〜6章、9〜11章の物理レイアウト、キー、正常/失敗順序、コード例。</td><td>なし。</td></tr>
+    <tr><td>DD-08〜10</td><td>5〜7章、12章のQuality、監査、Manifest。</td><td>P2-D05/D07。</td></tr>
+    <tr><td>DD-11〜12</td><td>13〜15章とP2-D15。</td><td>P2-D03、P2-D15。</td></tr>
+  </tbody></table>
 
   <h2>1. 目的とレイヤー分離</h2>
   <p>本書は、外部データの取得証跡を保持するRaw Storeと、内部共通schemaへ変換したNormalized Storeを分離する。Rawは正本の取得証跡、Normalizedは再生成可能な変換結果であり、どちらもStrategyの都合で書き換えない。</p>
@@ -140,8 +150,111 @@
     </tbody>
   </table>
 
+  <h2>8. 予定モジュールと物理レイアウト</h2>
+  <pre>src/autotrade/market_data/
+  raw_store.py          # RawStorePort / LocalRawStore
+  normalized_store.py   # NormalizedStorePort / LocalNormalizedStore
+  normalization.py      # RawBatch -> NormalizedBar[]; quality判定
+  manifest.py           # DataVersionManifestの構築・検証
+  quality.py            # duplicate/gap/ordering/price/tick検査
+  contracts.py          # RawWriteRequest, NormalizedBar, QualityReport
+data/market_data/       # P2-05で決定。Git管理しない候補
+  raw/{raw_object_id}/payload.bin
+  raw/{raw_object_id}/metadata.json
+  raw/{raw_object_id}/audit.ndjson
+  normalized/{data_version}/bars.ndjson
+  normalized/{data_version}/quality_report.json
+  manifests/{data_version}.json</pre>
+  <table><thead><tr><th>保存物</th><th>主キー/パス</th><th>制約</th><th>更新規則</th></tr></thead><tbody>
+    <tr><td>Raw object</td><td><code>raw_object_id = sha256(request_fingerprint + payload_sha256)</code></td><td>payload.binとmetadata.jsonが同じdigestを参照</td><td>追記のみ。衝突かつdigest差異なら新ID + diff監査。</td></tr>
+    <tr><td>Normalized bar</td><td><code>(instrument_id, event_time_utc, bar_schema_version)</code></td><td>UTC、OHLCV、raw_object_id、quality_flagsが必須</td><td>既存data_versionを更新しない。新versionを生成。</td></tr>
+    <tr><td>Manifest</td><td><code>data_version</code></td><td>Raw digest、normalization rule、Catalog snapshot、quality report digest必須</td><td>immutable。互換性変更は新schema_version。</td></tr>
+  </tbody></table>
+
+  <h2>9. 型付きRepository契約</h2>
+  <pre>from dataclasses import dataclass
+from datetime import datetime
+from typing import Protocol
+
+@dataclass(frozen=True)
+class RawWriteRequest:
+    request_fingerprint: str
+    payload: bytes
+    metadata: dict[str, str]
+    received_at_utc: datetime
+
+@dataclass(frozen=True)
+class RawWriteResult:
+    raw_object_id: str
+    payload_sha256: str
+    created: bool
+    object_uri: str
+
+@dataclass(frozen=True)
+class NormalizedBar:
+    instrument_id: str
+    event_time_utc: datetime
+    open: str; high: str; low: str; close: str; volume: int
+    raw_object_id: str
+    quality_flags: tuple[str, ...]
+
+class RawStorePort(Protocol):
+    def put_if_absent(self, request: RawWriteRequest) -&gt; RawWriteResult: ...
+
+class NormalizedStorePort(Protocol):
+    def write_snapshot(self, bars: tuple[NormalizedBar, ...], manifest: "DataVersionManifest") -&gt; str: ...</pre>
+  <p><strong>必須検証:</strong> <code>payload</code>、fingerprint、受信UTC、metadataのdataset/schema/sourceは必須。metadataにSecret、authorization、account IDがあれば<code>InvalidMetadata</code>で保存しない。価格はfloatに変換せず文字列のDecimal表現として受け、tick検査後に保持する。</p>
+
+  <h2>10. Normalization・品質・再実行の順序</h2>
+  <pre>RawStore.put_if_absent
+  -> decode（失敗ならRawは残しNormalizedを作らない）
+  -> Catalog.resolve(event_time_utc, external symbol)
+  -> normalize each record to NormalizedBar
+  -> QualityChecker.check_order / duplicate / expected_session_gap / price_tick
+  -> any ERROR or UNKNOWN? quality report only, snapshotを発行しない
+  -> compute data_version from sorted raw digests + rule + catalog snapshot + schema
+  -> NormalizedStore.write_snapshot
+  -> ManifestStore.write_if_absent
+
+再実行: 同一入力・同一rule・同一Catalog snapshotは同じdata_versionを返す。
+差分再取得: raw digestが異なれば旧snapshotを上書きせず、新data_versionとredelivery_diffを作る。</pre>
+  <table><thead><tr><th>失敗</th><th>保存</th><th>下流</th><th>復旧</th></tr></thead><tbody>
+    <tr><td>decode/schema不一致</td><td>Rawとerror auditのみ</td><td>Normalized/Replay/Signal停止</td><td>decoder/schema修正後、同一Rawから新rule versionで再実行。</td></tr>
+    <tr><td>重複キー・時刻逆行</td><td>quality reportに全候補を記録</td><td>snapshot未発行</td><td>重複規則を勝手に選ばず、原因を修正またはUnknown。</td></tr>
+    <tr><td>期待セッション欠損/degraded</td><td>quality reportとHealthEvent</td><td>Data Gate fail。対象範囲を隔離。</td><td>Calendar/condition承認後に別version。</td></tr>
+    <tr><td>Manifest/ファイル書込失敗</td><td>一時ファイルを削除または隔離。完成パスへrenameしない</td><td>data_versionを返さない</td><td>同じ入力で再実行。部分snapshotを利用しない。</td></tr>
+  </tbody></table>
+
+  <h2>11. 非自明規則のコード例</h2>
+  <pre>def put_if_absent(self, request: RawWriteRequest) -&gt; RawWriteResult:
+    reject_secret_keys(request.metadata)
+    payload_sha = sha256(request.payload).hexdigest()
+    object_id = sha256(f"{request.request_fingerprint}:{payload_sha}".encode()).hexdigest()
+    path = self.raw_root / object_id
+    if path.exists():
+        existing = json.loads((path / "metadata.json").read_text())
+        if existing["payload_sha256"] != payload_sha:
+            raise RawIntegrityError("RAW_OBJECT_COLLISION")
+        return RawWriteResult(object_id, payload_sha, False, str(path))
+    write_directory_atomically(path, request.payload, request.metadata, payload_sha)
+    return RawWriteResult(object_id, payload_sha, True, str(path))
+
+def derive_data_version(raw_sha256s: tuple[str, ...], rule: str, catalog_sha: str) -&gt; str:
+    text = "|".join(sorted(raw_sha256s) + [rule, catalog_sha, "normalized-v1"])
+    return "dv_" + sha256(text.encode()).hexdigest()[:20]</pre>
+
+  <h2>12. テスト、監査、Run Manifest</h2>
+  <table><thead><tr><th>テスト</th><th>fixture / 期待値</th><th>受入条件</th></tr></thead><tbody>
+    <tr><td>Raw冪等性</td><td>同一payloadを2回書込</td><td>同一object_id、2回目created=false、payload未更新。</td></tr>
+    <tr><td>再取得差分</td><td>同一fingerprint・異なるpayload</td><td>旧Raw保持、新object_id、diff監査、旧data_version不変。</td></tr>
+    <tr><td>品質失敗</td><td>重複、逆行、欠損、degraded、tick外価格</td><td>Manifest未発行、Replay/Signal入力なし、reasonがreportに残る。</td></tr>
+    <tr><td>再現性</td><td>固定Raw/Rule/Catalog</td><td>2回のdata_versionとbars.ndjsonがbyte単位で同一。</td></tr>
+    <tr><td>failure injection</td><td>一時ファイル書込/rename失敗</td><td>完成snapshotなし、次回再実行可能。</td></tr>
+  </tbody></table>
+  <p><code>DataVersionManifest</code>は少なくとも<code>schema_version</code>、<code>data_version</code>、<code>raw_objects[{id,sha256}]</code>、<code>normalization_rule_version</code>、<code>catalog_snapshot_sha256</code>、<code>quality_report_sha256</code>、<code>created_at_utc</code>を持つ。Run Manifestはこの<code>data_version</code>を参照し、未発行ならReplayを開始できない。</p>
+
   <section class="unknown">
-    <h2>8. Unknownと停止条件</h2>
+    <h2>13. Unknownと停止条件</h2>
     <table>
       <thead><tr><th>ID</th><th>内容</th><th>決定タイミング</th><th>未決時</th></tr></thead>
       <tbody>
@@ -153,26 +266,28 @@
   </section>
 
   <section class="gate">
-    <h2>9. H2-1承認対象</h2>
+    <h2>14. H2-1承認対象</h2>
     <p>Raw Objectの不変保存、Normalized schema、quality flag、data_versionの必須構造、degradedの扱い、保存先と大容量データ方針を承認する。承認前は未確定の保存方式や品質判断をPhase 3の本線入力にしない。</p>
   </section>
 
   <section class="review">
-    <h2>10. レビュー履歴</h2>
+    <h2>15. レビュー履歴</h2>
     <table>
       <thead><tr><th>日付</th><th>レビュー部品</th><th>観点</th><th>反映</th></tr></thead>
       <tbody>
         <tr><td>2026-08-04</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>D10/D11/D18、Replay/data_version、責務境界、Unknown。</td><td>Raw/Normalized境界、Manifest項目、停止条件を追加。</td></tr>
         <tr><td>2026-08-04</td><td>Red Team観点</td><td>Raw改変、差分消失、欠損のゼロ埋め、品質警告の握りつぶし。</td><td>append-only、checksum、condition、quality_flags、fail-closedを明記。</td></tr>
         <tr><td>2026-08-04</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>リンク、保存先、文書セット共通情報。</td><td>D05/D07、D10/D11/D18、doc/index.html導線を設定。</td></tr>
+        <tr><td>2026-08-04</td><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>DD-01〜12、物理保存、冪等性、failure injection、Manifest。</td><td>P2-03Rで8〜12章を追加。P2-D15の再レビューでCritical/High 0件を確認。</td></tr>
       </tbody>
     </table>
   </section>
 
-  <h2>11. 関連成果物</h2>
+  <h2>16. 関連成果物</h2>
   <ul>
     <li><a href="./05_Market_Data_Adapter詳細設計書.html">P2-D05 Market Data Adapter詳細設計書</a></li>
     <li><a href="./07_Instrument_Catalog詳細設計書.html">P2-D07 Instrument Catalog詳細設計書</a></li>
+    <li><a href="./08_実装詳細設計レビュー反映記録.html">P2-D15 実装詳細設計レビュー・反映記録</a></li>
     <li><a href="../02_データソース調査/02_Databento公式仕様確認結果.html">P2-D04 Databento公式仕様確認結果</a></li>
     <li><a href="../../phase1/07_実行モデル/07_共通実行モデル設計書.html">D11 共通実行モデル設計書</a></li>
     <li><a href="../../phase1/10_テスト品質/10_テスト戦略品質Gate設計書.html">D18 テスト戦略品質Gate設計書</a></li>
