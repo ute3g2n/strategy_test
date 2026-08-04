@@ -289,32 +289,34 @@ tests/fixtures/market_data/
   </table>
 
   <h2>10. 出力イベントと順序</h2>
+  <p>この表は、何かを受け取った・問題を見つけたという事実を、どの順番で後続へ知らせるかを説明する。イベント名は実装で使う固定名であり、品質条件を満たさない限り「成功」の知らせを出してはならない。</p>
   <table>
-    <thead><tr><th>イベント</th><th>生成条件</th><th>下流</th><th>品質条件</th></tr></thead>
+    <thead><tr><th>出来事の固定名</th><th>作る条件</th><th>受け取る先</th><th>成功として知らせるための条件</th></tr></thead>
     <tbody>
-      <tr><td><code>RawBatchReceived</code></td><td>payload、metadata、checksumを保存できた。</td><td>Raw Store、DataVersion Builder</td><td>保存成功とchecksum計算が揃わない限り発行しない。</td></tr>
-      <tr><td><code>SymbolMappingResolved</code></td><td>指定期間のmappingが完全かつ一意に解決された。</td><td>Instrument Catalog</td><td>partial/ambiguousなら別の警告イベントとし、成功イベントにしない。</td></tr>
-      <tr><td><code>InstrumentDefinitionUpdated</code></td><td>定義の新規観測または有効期間更新。</td><td>Instrument Catalog</td><td>過去のCatalog行を上書きせず、effective periodを追加する。</td></tr>
-      <tr><td><code>MarketDataGapDetected</code></td><td>期待セッションと受信範囲の不一致、またはcondition異常。</td><td>Data Gate、Health</td><td>対象範囲をSignal/Replayから除外または停止。</td></tr>
-      <tr><td><code>MarketDataConnectionChanged</code></td><td>接続、認証、再接続、切断状態が変化。</td><td>Health、Execution Model</td><td>Live/Paperでは新規利用を停止し、Backtestではfailure injection対象。</td></tr>
-      <tr><td><code>DataVendorRateLimited</code></td><td>rate limitとRetry-Afterを観測。</td><td>Health、Retry Coordinator</td><td>上限回数超過後は停止。無制限再試行をしない。</td></tr>
+      <tr><td><code>RawBatchReceived</code></td><td>元データ、取得条件、内容確認値をすべて保管できたとき。</td><td>元データ保管庫と、データ版を組み立てる処理。</td><td>保管成功と内容確認値の計算が両方そろうまで発行しない。</td></tr>
+      <tr><td><code>SymbolMappingResolved</code></td><td>指定期間の銘柄対応が、漏れなく一つに決まったとき。</td><td>銘柄台帳（<code>Instrument Catalog</code>）。</td><td>一部だけ、複数候補、未発見の場合は警告として扱い、成功の出来事にしない。</td></tr>
+      <tr><td><code>InstrumentDefinitionUpdated</code></td><td>銘柄の仕様を初めて観測した、または有効期間が変わったとき。</td><td>銘柄台帳（<code>Instrument Catalog</code>）。</td><td>過去の台帳行を上書きせず、新しい有効期間の記録を追加する。</td></tr>
+      <tr><td><code>MarketDataGapDetected</code></td><td>期待する取引時間と受信範囲が合わない、または提供元の利用可否に異常があるとき。</td><td>データ利用判定と利用可否の記録部。</td><td>問題の対象期間を売買判断用の信号や再生処理から外すか、処理全体を停止する。</td></tr>
+      <tr><td><code>MarketDataConnectionChanged</code></td><td>接続、認証、再接続、切断の状態が変わったとき。</td><td>利用可否の記録部と共通実行モデル。</td><td>実運用・模擬運用では新しい利用を止め、過去検証では失敗を注入する試験対象にする。</td></tr>
+      <tr><td><code>DataVendorRateLimited</code></td><td>提供元の回数制限と<code>Retry-After</code>を観測したとき。</td><td>利用可否の記録部と再試行を調整する処理。</td><td>上限回数を超えたら停止し、回数制限を理由に無制限の再試行を行わない。</td></tr>
     </tbody>
   </table>
 
   <h2>11. エラー分類とFail-closed</h2>
+  <p>この表は、どの失敗なら何を止めるかを決める。<strong>閉じた側へ倒す（Fail-closed）</strong>とは、使えると証明できないデータを、使えるものとして後続へ渡さないという意味である。</p>
   <table>
-    <thead><tr><th>ErrorCode</th><th>例</th><th>処理</th><th>Health / Gate</th></tr></thead>
+    <thead><tr><th>エラーの固定名</th><th>起きた状況の例</th><th>この部品が行う処理</th><th>利用可否と停止判断</th></tr></thead>
     <tbody>
-      <tr><td><code>AUTHENTICATION_FAILED</code></td><td>Secret不在、認証失敗</td><td>Secret値をログに出さず停止。手動確認待ち。</td><td>Unhealthy / Data Gate stop</td></tr>
-      <tr><td><code>ENTITLEMENT_DENIED</code></td><td>dataset権限不足、費用上限</td><td>実取得を停止し、H2-2または再承認へ。</td><td>Unknown / Human Gate</td></tr>
-      <tr><td><code>RATE_LIMITED</code></td><td>HTTP 429</td><td>Retry-Afterのみを使った限定再試行。上限後停止。</td><td>DegradedからUnhealthy</td></tr>
-      <tr><td><code>SYMBOL_PARTIAL</code></td><td>HTTP 206、部分解決</td><td>解決済み部分だけを本線へ流さない。対象をPending。</td><td>Data Gate stop</td></tr>
-      <tr><td><code>SYMBOL_NOT_FOUND</code></td><td>404、候補不在</td><td>候補を除外または条件付きへ隔離。自動代替しない。</td><td>Unknown ledger</td></tr>
-      <tr><td><code>DATASET_DEGRADED</code></td><td>degraded/pending/missing</td><td>該当日・範囲にquality flagを付与し、採用不可として扱う。</td><td>Data Gate stop/degrade</td></tr>
-      <tr><td><code>CHECKSUM_MISMATCH</code></td><td>再取得したpayloadとの差異、破損</td><td>新規Rawとして隔離し、既存Rawを置換しない。</td><td>Integrity Gate stop</td></tr>
-      <tr><td><code>DECODE_OR_SCHEMA_ERROR</code></td><td>DBN/CSVの解読・schema不一致</td><td>Normalized化しない。原形とエラー証跡を保存。</td><td>Data Gate stop</td></tr>
-      <tr><td><code>STORE_WRITE_FAILED</code></td><td>Raw/Normalized保存失敗</td><td>受信成功を下流へ通知しない。再試行後停止。</td><td>Health Unhealthy</td></tr>
-      <tr><td><code>UNKNOWN_EXTERNAL_STATE</code></td><td>mapping、定義、conditionが不明</td><td>Unknownとして台帳化し、Strategy/Replay入力へ流さない。</td><td>Unknown / fail-closed</td></tr>
+      <tr><td><code>AUTHENTICATION_FAILED</code></td><td>秘密情報がない、または認証に失敗した場合。</td><td>秘密の値を記録せずに停止し、人間による確認を待つ。</td><td><code>UNHEALTHY</code>とし、データ利用判定を停止する。</td></tr>
+      <tr><td><code>ENTITLEMENT_DENIED</code></td><td>データ集合を使う権限がない、または費用上限に達した場合。</td><td>実際の取得を停止し、H2-2または再承認へ戻す。</td><td><code>UNKNOWN</code>とし、人間承認が終わるまで使わない。</td></tr>
+      <tr><td><code>RATE_LIMITED</code></td><td>提供元が回数制限を返した場合。たとえば通信応答が429の場合。</td><td><code>Retry-After</code>があるときだけ限定して再試行し、上限後は停止する。</td><td><code>DEGRADED</code>から<code>UNHEALTHY</code>へ移し、通常利用を止める。</td></tr>
+      <tr><td><code>SYMBOL_PARTIAL</code></td><td>銘柄の一部だけが解決された場合。たとえば通信応答が206の場合。</td><td>解決済みの一部だけを通常経路へ流さず、対象を保留にする。</td><td>データ利用判定を停止する。</td></tr>
+      <tr><td><code>SYMBOL_NOT_FOUND</code></td><td>銘柄候補が見つからない場合。たとえば通信応答が404の場合。</td><td>候補を除外または条件付きとして隔離し、別の銘柄へ自動で置き換えない。</td><td>未確定事項台帳に記録し、人間または後続手順で決める。</td></tr>
+      <tr><td><code>DATASET_DEGRADED</code></td><td><code>degraded</code>、<code>pending</code>、<code>missing</code>のように、提供元が通常利用できないと示した場合。</td><td>該当日と範囲へ品質上の注意を付け、採用できないデータとして扱う。</td><td>対象範囲を停止または縮退利用にする。</td></tr>
+      <tr><td><code>CHECKSUM_MISMATCH</code></td><td>再取得した元データが過去と違う、または内容が壊れている場合。</td><td>新しい元データとして隔離し、既存の元データを置き換えない。</td><td>内容の正しさを確認する停止判断を発動する。</td></tr>
+      <tr><td><code>DECODE_OR_SCHEMA_ERROR</code></td><td>DBNまたはCSVを読み解けない、または指定された形式と一致しない場合。</td><td>整形済みデータへ変換せず、元の内容とエラーの証跡を保存する。</td><td>データ利用判定を停止する。</td></tr>
+      <tr><td><code>STORE_WRITE_FAILED</code></td><td>元データまたは整形済みデータを保管できない場合。</td><td>受信成功を後続へ知らせず、許された回数の再試行後に停止する。</td><td><code>UNHEALTHY</code>とし、通常利用を止める。</td></tr>
+      <tr><td><code>UNKNOWN_EXTERNAL_STATE</code></td><td>銘柄対応、銘柄仕様、利用可否のどれかが判断できない場合。</td><td>未確定事項として台帳化し、戦略や再生処理の入力へ渡さない。</td><td>不明のまま成功にせず、閉じた側へ倒して停止する。</td></tr>
     </tbody>
   </table>
 
