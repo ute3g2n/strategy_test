@@ -10,7 +10,6 @@ import pytest
 
 from autotrade.market_data.catalog_resolver import CatalogAudit, CatalogResolver, ResolveInstrumentRequest
 
-
 FIXTURE_PATH = Path(__file__).parents[1] / "fixtures" / "market_data" / "catalog_resolver_fixture.json"
 
 
@@ -19,14 +18,19 @@ def resolver() -> CatalogResolver:
 
 
 def request(symbol: str, observed_at: str = "2026-06-15T12:00:00+00:00") -> ResolveInstrumentRequest:
-    return ResolveInstrumentRequest("fixture_vendor", "fixture_dataset", "raw_symbol", symbol, datetime.fromisoformat(observed_at))
+    return ResolveInstrumentRequest(
+        "fixture_vendor", "fixture_dataset", "raw_symbol", symbol, datetime.fromisoformat(observed_at)
+    )
 
 
 def test_resolves_a_unique_active_mapping_from_fixed_fixture() -> None:
     result = resolver().resolve(request("FIX-2026M"))
 
     assert (result.status, result.instrument_id, result.mapping_id, result.catalog_version) == (
-        "resolved", "fixture-instrument-001", "map-fixture-001", "fixture-catalog-v1"
+        "resolved",
+        "fixture-instrument-001",
+        "map-fixture-001",
+        "fixture-catalog-v1",
     )
 
 
@@ -49,7 +53,9 @@ def test_does_not_choose_between_multiple_valid_mappings() -> None:
 
 
 def test_rejects_a_naive_observed_time_instead_of_using_current_time() -> None:
-    naive = ResolveInstrumentRequest("fixture_vendor", "fixture_dataset", "raw_symbol", "FIX-2026M", datetime(2026, 6, 15, 12))
+    naive = ResolveInstrumentRequest(
+        "fixture_vendor", "fixture_dataset", "raw_symbol", "FIX-2026M", datetime(2026, 6, 15, 12)
+    )
 
     result = resolver().resolve(naive)
 

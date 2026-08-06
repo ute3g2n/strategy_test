@@ -460,7 +460,7 @@ Phase Runbook:
 - 正式設計書はHTML形式で doc/ 配下へ保存する。
 - Phase別HTMLは doc/phaseX/ 配下へ保存する。
 - すべてのHTML成果物は doc/index.html からリンクで到達できるようにする。
-- UnknownをPassにせず、未確定事項台帳または該当HTMLの未確定事項へ記録する。
+- UnknownをPassにせず、元の設計書には発見時のIDと根拠を残し、現在状態は `doc/00_全Phase残課題Blocked統合台帳.html` へ記録する。
 ```
 
 ---

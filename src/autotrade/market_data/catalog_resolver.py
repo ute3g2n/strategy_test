@@ -6,11 +6,11 @@ variables, and makes no network, Broker, or vendor calls.
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
-from datetime import datetime, timezone
-from typing import Literal, Mapping, Protocol, Sequence
-
+from typing import Literal, Protocol
 
 ResolutionStatus = Literal["resolved", "pending", "ambiguous", "not_found", "unknown"]
 
@@ -81,16 +81,23 @@ class CatalogResolver:
         raw_mappings = fixture.get("mappings")
         if not isinstance(catalog_version, str) or not catalog_version or not isinstance(raw_mappings, list):
             raise ValueError("invalid fixed catalog fixture")
-        return cls(catalog_version, tuple(_mapping_from_fixture(item) for item in raw_mappings), audit or InMemoryCatalogAudit())
+        return cls(
+            catalog_version,
+            tuple(_mapping_from_fixture(item) for item in raw_mappings),
+            audit or InMemoryCatalogAudit(),
+        )
 
     def resolve(self, request: ResolveInstrumentRequest) -> ResolveInstrumentResult:
         """Return an ID only for exactly one active mapping valid at the observed UTC time."""
-        if request.observed_at.tzinfo is None or request.observed_at.utcoffset() != timezone.utc.utcoffset(request.observed_at):
+        if request.observed_at.tzinfo is None or request.observed_at.utcoffset() != UTC.utcoffset(request.observed_at):
             return ResolveInstrumentResult("unknown", None, None, self._catalog_version, "OBSERVED_AT_NOT_UTC")
         candidates = tuple(
-            mapping for mapping in self._mappings
-            if mapping.vendor == request.vendor and mapping.dataset_id == request.dataset_id
-            and mapping.stype == request.stype and mapping.symbol == request.symbol
+            mapping
+            for mapping in self._mappings
+            if mapping.vendor == request.vendor
+            and mapping.dataset_id == request.dataset_id
+            and mapping.stype == request.stype
+            and mapping.symbol == request.symbol
             and mapping.valid_from <= request.observed_at
             and (mapping.valid_to is None or request.observed_at < mapping.valid_to)
         )
@@ -100,19 +107,32 @@ class CatalogResolver:
             return ResolveInstrumentResult("ambiguous", None, None, self._catalog_version, "MAPPING_NOT_UNIQUE")
         candidate = candidates[0]
         if candidate.instrument_status != "active" or candidate.tick_size is None:
-            return ResolveInstrumentResult("unknown", None, candidate.mapping_id, self._catalog_version, "REQUIRED_ATTRIBUTE_UNKNOWN")
+            return ResolveInstrumentResult(
+                "unknown", None, candidate.mapping_id, self._catalog_version, "REQUIRED_ATTRIBUTE_UNKNOWN"
+            )
         if not self._audit.record(request, candidate.mapping_id, self._catalog_version):
-            return ResolveInstrumentResult("unknown", None, candidate.mapping_id, self._catalog_version, "CATALOG_AUDIT_FAILED")
-        return ResolveInstrumentResult("resolved", candidate.instrument_id, candidate.mapping_id, self._catalog_version, None)
+            return ResolveInstrumentResult(
+                "unknown", None, candidate.mapping_id, self._catalog_version, "CATALOG_AUDIT_FAILED"
+            )
+        return ResolveInstrumentResult(
+            "resolved", candidate.instrument_id, candidate.mapping_id, self._catalog_version, None
+        )
 
 
 def _mapping_from_fixture(raw: object) -> _Mapping:
     if not isinstance(raw, Mapping):
         raise ValueError("invalid fixed catalog mapping")
-    required = ("mapping_id", "vendor", "dataset_id", "stype", "symbol", "valid_from", "instrument_id", "instrument_status")
-    values = {key: raw.get(key) for key in required}
-    if not all(isinstance(value, str) and value for value in values.values()):
-        raise ValueError("invalid fixed catalog mapping")
+    required = (
+        "mapping_id",
+        "vendor",
+        "dataset_id",
+        "stype",
+        "symbol",
+        "valid_from",
+        "instrument_id",
+        "instrument_status",
+    )
+    values = {key: _required_string(raw, key) for key in required}
     raw_valid_to = raw.get("valid_to")
     if raw_valid_to is not None and not isinstance(raw_valid_to, str):
         raise ValueError("invalid fixed catalog mapping")
@@ -139,9 +159,16 @@ def _mapping_from_fixture(raw: object) -> _Mapping:
 
 def _utc_datetime(value: str) -> datetime:
     parsed = datetime.fromisoformat(value)
-    if parsed.tzinfo is None or parsed.utcoffset() != timezone.utc.utcoffset(parsed):
+    if parsed.tzinfo is None or parsed.utcoffset() != UTC.utcoffset(parsed):
         raise ValueError("invalid fixed catalog mapping")
     return parsed
+
+
+def _required_string(raw: Mapping[str, object], key: str) -> str:
+    value = raw.get(key)
+    if not isinstance(value, str) or not value:
+        raise ValueError("invalid fixed catalog mapping")
+    return value
 
 
 def _is_positive_decimal(value: str) -> bool:

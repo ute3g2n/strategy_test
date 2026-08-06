@@ -32,6 +32,10 @@
     <strong>使用Skill完全名:</strong> <code>autotrade_skill_source_reader_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_doc_set_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code></p>
   </section>
 
+  <section class="unknown">
+    <p><strong>残課題の更新先:</strong> <a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase 残課題・Blocked 統合台帳</a>。本書は要件と元IDの対応を保存し、新規Unknownの現在状態は統合台帳へ登録する。</p>
+  </section>
+
   <h2>目次</h2>
   <ol>
     <li><a href="#summary">概要</a></li>
@@ -79,7 +83,7 @@
     <tbody>
       <tr><td>P2-D01</td><td>Phase 2スコープ定義</td><td>REQ-Q02, REQ-Q19, REQ-Q20, REQ-Q23, REQ-Q29, REQ-OD01, REQ-OD03</td><td>P2-02以降のスコープ境界。</td></tr>
       <tr><td>P2-D02</td><td>Phase 2要件追跡マトリクス</td><td>全P2重点追跡ID</td><td>各設計書の要件対応確認。</td></tr>
-      <tr><td>P2-D03</td><td>Phase 2未確定事項台帳</td><td>UNK-P2-01からUNK-P2-11</td><td>Human Gateとレビュー時のUnknown正本。</td></tr>
+      <tr><td>P2-D03</td><td>Phase 2未確定事項台帳</td><td>UNK-P2-01からUNK-P2-11</td><td>Phase 2設計時の元ID・停止条件を残す履歴。現在状態の正本は全Phase統合台帳。</td></tr>
       <tr><td>P2-D04からP2-D08</td><td>データソース調査、基盤詳細設計、Roll/Signal設計。</td><td>REQ-Q19, REQ-Q20, REQ-OD03, REQ-P2-BL02</td><td>P2-05実装、P2-08検証。</td></tr>
       <tr><td>P2-D15</td><td>実装詳細設計レビュー・反映記録</td><td>REQ-Q20, REQ-Q23, REQ-Q29, REQ-P2-BL01, REQ-P2-BL02</td><td>P2-D05からP2-D07のDD-01からDD-12、A91再レビュー、H2-1の実装詳細設計根拠。</td></tr>
       <tr><td>P2-D09からP2-D14</td><td>実装方針、検証、統合レビュー、完了判定。</td><td>REQ-Q23, REQ-Q29, REQ-DATA-QUALITY</td><td>Phase 3引き継ぎ。</td></tr>
@@ -88,7 +92,7 @@
 
   <h2 id="unknowns">4. Unknown対応</h2>
   <section class="unknown">
-    <p>本マトリクスで未確定またはHuman Gate待ちの項目は、すべて <a href="./01_Phase2未確定事項台帳.html">P2-D03</a> に接続する。UnknownはPass扱いせず、決定タイミングと未決時の停止または縮退方針を持つ。</p>
+    <p>本マトリクスで未確定またはHuman Gate待ちの項目は、元IDと設計時の停止条件を <a href="./01_Phase2未確定事項台帳.html">P2-D03</a> で確認し、現在状態を <a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase統合台帳</a> で確認する。UnknownはPass扱いせず、決定タイミングと未決時の停止または縮退方針を持つ。</p>
   </section>
 
   <h2 id="links">5. 関連文書</h2>
@@ -114,7 +118,7 @@
   </table>
 
   <section class="handoff">
-    <p>P2-02以降の各成果物は、本書の追跡IDを「主な入力」または「要件対応」に記載する。新しいUnknownが見つかった場合はP2-D03へ追記し、H2-3または該当Human Gateへ送る。</p>
+    <p>P2-02以降の各成果物は、本書の追跡IDを「主な入力」または「要件対応」に記載する。新しいUnknownが見つかった場合は全Phase統合台帳へ登録し、H2-3または該当Human Gateへ送る。P2-D03は元IDと設計時点の証拠として残す。</p>
   </section>
 </body>
 </html>

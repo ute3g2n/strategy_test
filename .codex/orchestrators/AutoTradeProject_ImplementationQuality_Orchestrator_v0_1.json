@@ -5,6 +5,8 @@
   "purpose": "Run one approved implementation unit through test-first design, minimal implementation, local verification, bounded debugging, independent review, and a Human Gate without replacing existing project or implementation-design orchestrators.",
   "ecc_source_commit": "623f2c020f052319657674e4e6c29ab5d0ad566b",
   "bootstrap_quality_gate_scope": "scripts/quality_gate and tests/quality_gate only; extending the allowlist to a Phase implementation unit requires a separately approved component update.",
+  "trusted_scope_registry": "scripts/quality_gate/trusted_scopes.json",
+  "phase_scope_policy": "A Run ID must be registered before execution; the registry fixes scope_mode, target paths, excluded paths, fixture checksum, baseline ref, and four command templates. For scope_mode=target_only, unrelated HEAD/worktree paths are not used to decide the test target or change hash; only registered target paths are inspected. The manifest is comparison input, not an execution policy.",
   "trigger_examples": [
     "Run Manifest を入力として Phase 2 の一機能をテスト先行で実装して",
     "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1 で品質ゲートを実行して"
@@ -65,7 +67,8 @@
   "workflow_policy": [
     "Require an approved design and a complete Run Manifest before any implementation.",
     "Run A110 before A120 and require a valid RED result before implementation.",
-    "Run only the local command allowlist in scripts/quality_gate; never use a shell or network command.",
+    "Run only the local command templates in the trusted scope registry; never use a shell or network command.",
+    "Require host outbound isolation confirmation before a phase test subprocess; otherwise return BLOCKED.",
     "On a failed local gate, use A140 and allow at most two attempts for the same root-cause hypothesis.",
     "Require A150 and A160 reviews after local gates pass; Critical or High findings return the unit.",
     "Require an evidence-root human-gate/approval.json record matching run_id and change_hash before ACCEPTED or Phase handoff.",

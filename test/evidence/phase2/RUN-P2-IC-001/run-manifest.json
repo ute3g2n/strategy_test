@@ -3,6 +3,7 @@
   "phase_id": "phase2",
   "step_id": "P2-05",
   "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+  "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
   "agents": [
     "AutoTrade_A110_PythonTestEngineer_v0_1",
     "AutoTrade_A120_PythonImplementer_v0_1",
@@ -32,14 +33,15 @@
   "calendar_version": "fixture-calendar-not-used",
   "source_mode": "fixture_only",
   "data_version": "fixture-catalog-v1",
-  "change_hash": "UNRESOLVED-QUALITY-GATE-SCOPE",
+  "change_hash": "sha256:f36cc96229e5ba713af953593a57a3d9b4b9e4d3526305bd25f5e22fd2e7c42a",
   "baseline_ref": "HEAD",
+  "scope_mode": "target_only",
   "evidence_root": "test/evidence/phase2/RUN-P2-IC-001",
   "checks": [
-    {"gate": "formatter", "command": ["ruff", "format", "--check", "src/autotrade/market_data", "tests/market_data"]},
-    {"gate": "lint", "command": ["ruff", "check", "src/autotrade/market_data", "tests/market_data"]},
-    {"gate": "type", "command": ["mypy", "src/autotrade/market_data"]},
-    {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "pytest", "tests/market_data", "-q"]}
+    {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "tests/market_data"]},
+    {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/market_data", "tests/market_data"]},
+    {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/market_data"]},
+    {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p2_pytest"]}
   ],
   "review": {"critical": 0, "high": 0},
   "network": "prohibited",

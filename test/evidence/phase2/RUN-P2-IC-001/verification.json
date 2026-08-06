@@ -1,13 +1,175 @@
 {
+  "run_id": "RUN-P2-IC-001",
+  "phase_id": "phase2",
+  "step": "S4.4",
+  "prior_step": "S4.3",
+  "status_ledger": "s4-status-ledger.md",
+  "global_blocker_ledger": "doc/00_全Phase残課題Blocked統合台帳.html",
+  "status_ledger_update_policy": "append-only; update after each S4 rerun and review; do not self-approve Human Gate",
+  "global_blocker_ledger_policy": "current blocker state is updated only in the global HTML ledger; this JSON remains run evidence",
   "state": "BLOCKED",
-  "reason": "既存 quality_gate Runner はS2自己検証だけを許可し、P2-D07の対象範囲を受理しない。",
+  "reason": "固定品質ツールの4検査は過去の確認で成功した。現在のRunner再確認はhostのoutbound isolation未確認で最初に停止する。対象外差分を理由に停止するBLK-RUN-001は対象限定scopeへ変更して解消済み、ユーザーはHuman Gateを承認済みだが、正式な署名検証は未完了のためPassにしない。",
+  "user_approval_declared": true,
+  "formal_signed_approval_verified": false,
+  "environment": {
+    "python": "3.12.13",
+    "platform": "win32",
+    "runner_network": "not used; local subprocess and git only",
+    "external_io": "prohibited"
+  },
+  "installation": {
+    "source": "PyPI default index (user-approved acquisition)",
+    "command": ".venv\\Scripts\\python.exe -m pip install --disable-pip-version-check --no-input ruff==0.16.1 mypy==2.3.0",
+    "result": "installed",
+    "runner_installation": "never"
+  },
+  "tool_versions": {
+    "ruff": "0.16.1",
+    "mypy": "2.3.0",
+    "pytest": "9.1.1",
+    "pytest-cov": "7.1.0"
+  },
+  "scope": {
+    "scope_mode": "target_only",
+    "target_paths": ["src/autotrade/market_data", "tests/market_data", "tests/fixtures/market_data"],
+    "executed_paths": ["src/autotrade/market_data", "tests/market_data"],
+    "fixture_path": "tests/fixtures/market_data/catalog_resolver_fixture.json",
+    "excluded_paths": [".env", "third_party/everything-claude-code", "research", "test/evidence/**"]
+  },
+  "hashes": {
+    "fixture_sha256": "sha256:94022229698e972353b8ec9537f455af5cb29d47253f5f2a1ed5d33b08b50169",
+    "actual_diff_sha256": "sha256:f36cc96229e5ba713af953593a57a3d9b4b9e4d3526305bd25f5e22fd2e7c42a",
+    "manifest_change_hash": "sha256:f36cc96229e5ba713af953593a57a3d9b4b9e4d3526305bd25f5e22fd2e7c42a",
+    "runner_recomputed_change_hash": "sha256:f36cc96229e5ba713af953593a57a3d9b4b9e4d3526305bd25f5e22fd2e7c42a",
+    "hash_algorithm": "SHA-256; git diff and untracked content under target_paths only; test/evidence/** excluded"
+  },
   "checks": [
-    {"name": "compileall", "status": "PASS", "command": ".venv\\Scripts\\python.exe -m compileall -q src\\autotrade\\market_data"},
-    {"name": "pytest", "status": "PASS", "command": ".venv\\Scripts\\python.exe -m pytest tests -q", "result": "27 passed"},
-    {"name": "coverage", "status": "PASS", "result": "catalog_resolver.py 91%"},
-    {"name": "forbidden-import-scan", "status": "PASS", "result": "network/Broker/Databento/Secret関連の参照なし"},
-    {"name": "python-review", "status": "PASS", "critical": 0, "high": 0},
-    {"name": "trading-safety-review", "status": "PASS", "critical": 0, "high": 0},
-    {"name": "implementation-quality-preflight", "status": "BLOCKED", "result": "Runner allowlist extension requires approved AI component update"}
-  ]
+    {
+      "name": "formatter",
+      "status": "PASS",
+      "command": ".venv\\Scripts\\python.exe -m ruff format --check src/autotrade/market_data tests/market_data",
+      "exit_code": 0,
+      "tool_version": "ruff 0.16.1",
+      "scope": ["src/autotrade/market_data", "tests/market_data"]
+    },
+    {
+      "name": "lint",
+      "status": "PASS",
+      "command": ".venv\\Scripts\\python.exe -m ruff check src/autotrade/market_data tests/market_data",
+      "exit_code": 0,
+      "tool_version": "ruff 0.16.1",
+      "scope": ["src/autotrade/market_data", "tests/market_data"]
+    },
+    {
+      "name": "type",
+      "status": "PASS",
+      "command": ".venv\\Scripts\\python.exe -m mypy src/autotrade/market_data",
+      "exit_code": 0,
+      "tool_version": "mypy 2.3.0",
+      "scope": ["src/autotrade/market_data"]
+    },
+    {
+      "name": "pytest_wrapper",
+      "status": "PASS",
+      "command": ".venv\\Scripts\\python.exe -m scripts.quality_gate.local_p2_pytest",
+      "exit_code": 0,
+      "tool_version": "pytest 9.1.1",
+      "scope": ["tests/market_data"],
+      "result": "9 passed; PYTEST_DISABLE_PLUGIN_AUTOLOAD=1; socket outbound hooks deny connections"
+    },
+    {
+      "name": "coverage",
+      "status": "PASS",
+      "command": ".venv\\Scripts\\python.exe -m pytest tests/market_data --cov=autotrade.market_data --cov-report=term-missing --cov-report=json:test/evidence/phase2/RUN-P2-IC-001/coverage.json",
+      "exit_code": 0,
+      "tool_version": "pytest 9.1.1 / pytest-cov 7.1.0",
+      "scope": ["src/autotrade/market_data", "tests/market_data"],
+      "result": "9 passed; total coverage 88.43%; fail_under 80%"
+    },
+    {
+      "name": "runner_change_hash_recompute",
+      "status": "PASS",
+      "command": ".venv\\Scripts\\python.exe -c \"from pathlib import Path; from scripts.quality_gate.runner import GitChangeInspector; print(GitChangeInspector().change_hash(Path.cwd(), 'HEAD'))\"",
+      "exit_code": 0,
+      "result": "recomputed value equals manifest change_hash"
+    },
+    {
+      "name": "runner_scope_enforcement",
+      "status": "BLOCKED",
+      "command": ".venv\\Scripts\\python.exe -m scripts.quality_gate.run_quality_gate --project-root . --manifest test/evidence/phase2/RUN-P2-IC-001/run-manifest.json",
+      "exit_code": 1,
+      "result": "Runner now uses scope_mode=target_only; unrelated worktree changes are ignored. This current probe stops earlier because host outbound isolation is unconfirmed."
+    },
+    {
+      "name": "target_only_scope_regression",
+      "status": "PASS",
+      "command": ".venv\\Scripts\\python.exe -m pytest tests/quality_gate/test_runner.py -q",
+      "exit_code": 0,
+      "result": "32 passed; unrelated tracked/untracked worktree changes are ignored for RUN-P2-IC-001, while target-only manifest mutations are rejected before execution"
+    },
+    {
+      "name": "coverage_file_policy",
+      "status": "PASS",
+      "command": "Resolve-Path .coverage; git rm --cached -- .coverage; git ls-files -- .coverage",
+      "result": "repository root .coverage confirmed; removed from index; physical file retained; .gitignore contains .coverage"
+    }
+  ],
+  "blockers": ["hostのoutbound isolationが未確認", "Human Gateの正式な署名検証が未完了"],
+  "blocked_summary": {
+    "root_blocker_count": 2,
+    "root_blocker_ids": ["BLK-RUN-003", "BLK-P2-S4-HUMAN-001"],
+    "host_outbound_isolation_confirmed": false,
+    "scope_outside_changes_relevant": false,
+    "signed_human_gate_present": false,
+    "user_approval_declared": true,
+    "pass_allowed": false
+  },
+  "s4_4_reviews": {
+    "sequence": [
+      "independent_python_review",
+      "trading_safety_review",
+      "quality_gate_review"
+    ],
+    "files": [
+      "reviews/s4-4-python-review.md",
+      "reviews/s4-4-trading-safety-review.md",
+      "reviews/s4-4-quality-gate-review.md"
+    ],
+    "inputs": {
+      "head_commit": "8d3f3d3dd41b6d5b33e6b870a3f5b4f1b10ffab4",
+      "change_hash": "sha256:fd8033a64a8949570ce3231ead103e0a1f28f168b1f14a2a3f8b5bb1ee8a7419",
+      "fixture_hash": "sha256:94022229698e972353b8ec9537f455af5cb29d47253f5f2a1ed5d33b08b50169",
+      "design": "P2-D07",
+      "requirements": ["REQ-Q02", "REQ-Q19", "REQ-Q20", "REQ-Q23"],
+      "scope_registry": "scripts/quality_gate/trusted_scopes.json",
+      "tdd": "tdd-quality-gate-extension-red.md"
+    },
+    "critical_findings": 0,
+    "high_findings": 5,
+    "high_finding_ids": [
+      "S4.4-PY-002",
+      "S4.4-TS-002",
+      "S4.4-TS-003",
+      "S4.4-QG-002",
+      "S4.4-QG-003"
+    ],
+    "state": "BLOCKED",
+    "human_gate_request": "not_created",
+    "approval_json": "not_created; unsigned worktree JSON is not an approval basis"
+  },
+  "post_global_ledger_runner_probe": {
+    "command": ".venv\\Scripts\\python.exe -m scripts.quality_gate.run_quality_gate --project-root . --manifest test/evidence/phase2/RUN-P2-IC-001/run-manifest.json --no-write-evidence",
+    "exit_code": 1,
+    "state": "BLOCKED",
+    "reason": "host の outbound isolation が確認できないため実行を停止しました",
+    "gates_started": 0,
+    "observed_at": "2026-08-06T04:03:42.259179+00:00"
+  },
+  "forbidden_dependencies": {
+    "network": "not accessed by Runner or test wrapper",
+    "databento": "not accessed",
+    "broker": "not accessed",
+    "secret": "not accessed",
+    "live_trading": "not accessed"
+  }
 }

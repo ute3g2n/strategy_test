@@ -14,7 +14,8 @@
 2. `settings/language.md`
 3. `settings/ai_component_rules.md`
 4. `doc/index.html`
-5. 必要に応じて `plan/` 配下の計画書
+5. `doc/00_全Phase残課題Blocked統合台帳.html`
+6. 必要に応じて `plan/` 配下の計画書
 
 ## どこに何があるか
 
@@ -22,6 +23,8 @@
   正式なHTML成果物の保存先。
 - `doc/index.html`
   すべての正式HTML成果物の入口。
+- `doc/00_全Phase残課題Blocked統合台帳.html`
+  Phase 0以降のBlocked、Unknown、残リスク、Human Gate待ちを管理する唯一の正本。旧台帳は履歴として残し、現在の状態はここだけで更新する。
 - `doc/ai_foundation/`
   AI実行基盤の棚卸し、移行方針、仕様、作成ルール、検証結果。
 - `doc/phase1/`
@@ -78,7 +81,7 @@
   Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を使います。
   AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を使います。
   実装詳細設計では `autotrade_skill_implementation_detail_design_v0_1` と `autotrade_skill_implementation_detail_review_v0_1` を使います。
-  Python本実装の品質ループでは `autotrade_skill_python_implementation_v0_1`、`autotrade_skill_python_test_quality_v0_1`、`autotrade_skill_debug_recovery_v0_1`、`autotrade_skill_python_code_review_v0_1` を明示指定します。実行証跡は `test/evidence/{phase_id}/{run_id}/` に保存し、`scripts/quality_gate/` はRun Manifestのローカル許可コマンドだけを実行します。
+  Python本実装の品質ループでは `autotrade_skill_python_implementation_v0_1`、`autotrade_skill_python_test_quality_v0_1`、`autotrade_skill_debug_recovery_v0_1`、`autotrade_skill_python_code_review_v0_1` を明示指定します。実行証跡は `test/evidence/{phase_id}/{run_id}/` に保存し、`scripts/quality_gate/` は `trusted_scopes.json` に登録されたRun IDの固定コマンドだけを実行します。`scope_mode=target_only` のRunは登録済みtarget_pathsだけを試験対象とし、対象外のHEAD/worktree差分では止めません。Phaseのtest subprocessはhost outbound isolation確認がない場合にBLOCKEDとします。
 
 ### Phase実行計画
 

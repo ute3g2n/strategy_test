@@ -24,7 +24,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D08<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.7 / オーケストレータのモデル割当をgpt-5.6-terraへ同期済み<br>
+    <strong>文書状態:</strong> v0.8 / ImplementationQualityのtrusted scope registryとhost outbound隔離契約を反映<br>
     <strong>ステップID:</strong> AF-04<br>
     <strong>対象:</strong> 汎用AI部品、プロジェクトルール、導線、相互参照</p>
   </section>
@@ -36,7 +36,7 @@
   <table>
     <thead><tr><th>区分</th><th>対象</th></tr></thead>
     <tbody>
-      <tr><td>Orchestrator</td><td><code>.codex/orchestrators/AutoTradeProject_Orchestrator_v0_1.json</code>、<code>AutoTradePhasePlanning_Orchestrator_v0_1.json</code>、<code>AutoTradeComponentLifecycle_Orchestrator_v0_1.json</code>、<code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1.json</code>、<code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1.json</code></td></tr>
+      <tr><td>Orchestrator</td><td><code>.codex/orchestrators/AutoTradeProject_Orchestrator_v0_1.json</code>、<code>AutoTradePhasePlanning_Orchestrator_v0_1.json</code>、<code>AutoTradeComponentLifecycle_Orchestrator_v0_1.json</code>、<code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1.json</code>、<code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1.json</code>、<code>AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json</code></td></tr>
       <tr><td>Agents</td><td><code>.codex/agents/AutoTrade_A05_PhaseExecutionPlanner_v0_1.json</code>、<code>AutoTrade_A06_AiComponentEngineer_v0_1.json</code>、<code>AutoTrade_A81_DesignDocSetWriter_v0_1.json</code>、<code>AutoTrade_A82_ImplementationDetailDesigner_v0_1.json</code>、<code>AutoTrade_A91_ImplementationDetailReviewer_v0_1.json</code>、および領域Agent群。</td></tr>
       <tr><td>Skills</td><td><code>.codex/skills/autotrade_skill_*_v0_1/SKILL.md</code></td></tr>
       <tr><td>Project rules</td><td><code>settings/ai_component_rules.md</code>, <code>AGENTS.md</code></td></tr>
@@ -66,6 +66,7 @@
       <tr><td>AF-VR-14</td><td>詳細設計テンプレート基準</td><td class="pass">PASS</td><td>AF-D16、AF-D17、A82、A91、実装詳細設計オーケストレータ、ルール、P2-D05 v0.6の参照が一致し、日本語説明、Mermaid図、文章化した全試験を必須化した。</td></tr>
       <tr><td>AF-VR-15</td><td>モジュール間データ受渡し可視化</td><td class="pass">PASS</td><td>構造図の矢印ラベル、受渡し表、A82/A91、2つの詳細設計Skill、実装詳細設計オーケストレータ、AF-D14からAF-D17、共通ルールが一致し、用途と停止条件まで説明することを必須化した。</td></tr>
       <tr><td>AF-VR-16</td><td>モデル割当</td><td class="pass">PASS</td><td>現行の汎用AutoTrade Orchestrator 5件と<code>.codex/config.json</code>の登録を<code>gpt-5.6-terra</code>へ同期した。Agent JSON、Phase 1の凍結証跡、<code>default_orchestrator</code>は変更していない。</td></tr>
+      <tr><td>AF-VR-17</td><td>ImplementationQuality scope契約</td><td class="pass">PASS</td><td><code>trusted_scopes.json</code>の登録値だけで対象範囲・4 Gate・fixture checksumを固定し、Manifest改変、対象内のtest skip/deletion、host outbound隔離未確認を実行前に停止する実体とpytestを確認した。<code>scope_mode=target_only</code> では、対象外のHEAD/worktree差分を試験対象の判定に使わない。</td></tr>
     </tbody>
   </table>
 

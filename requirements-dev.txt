@@ -1,0 +1,7 @@
+# Python 3.12.13 environment observed for RUN-P2-IC-001.
+# These two packages are present in the approved local .venv and are pinned
+# to the observed versions used by the S4.3 evidence.
+pytest==9.1.1
+pytest-cov==7.1.0
+ruff==0.16.1
+mypy==2.3.0

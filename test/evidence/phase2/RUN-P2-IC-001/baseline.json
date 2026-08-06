@@ -1,0 +1,85 @@
+{
+  "run_id": "RUN-P2-IC-001",
+  "status_ledger": "s4-status-ledger.md",
+  "global_blocker_ledger": "doc/00_全Phase残課題Blocked統合台帳.html",
+  "baseline_note": "S4.1時点の観測値を保存する履歴証拠。現在状態はglobal_blocker_ledgerを参照する。",
+  "phase_id": "phase2",
+  "step_id": "S4.1",
+  "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+  "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+  "observed_head": "8d3f3d3dd41b6d5b33e6b870a3f5b4f1b10ffab4",
+  "design": "P2-D07",
+  "requirements": ["REQ-Q02", "REQ-Q19", "REQ-Q20", "REQ-Q23"],
+  "target_paths": [
+    "src/autotrade/market_data",
+    "tests/market_data",
+    "tests/fixtures/market_data"
+  ],
+  "excluded_paths": [
+    ".env",
+    "third_party/everything-claude-code",
+    "research"
+  ],
+  "current_scope_mode": "target_only",
+  "fixture": {
+    "path": "tests/fixtures/market_data/catalog_resolver_fixture.json",
+    "name": "catalog_resolver_fixture.json",
+    "version": "fixture-catalog-v1",
+    "sha256": "sha256:94022229698e972353b8ec9537f455af5cb29d47253f5f2a1ed5d33b08b50169"
+  },
+  "diff": {
+    "manifest_change_hash": "sha256:fd8033a64a8949570ce3231ead103e0a1f28f168b1f14a2a3f8b5bb1ee8a7419",
+    "runner_recomputed_change_hash": "sha256:fd8033a64a8949570ce3231ead103e0a1f28f168b1f14a2a3f8b5bb1ee8a7419",
+    "hash_excluded_paths": ["test/evidence/**"],
+    "target_scope_sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "worktree_sha256_before_this_evidence_record": "sha256:4aa164c3f2acbc054cef70c7ec9c297d3246f1746bcf472746a59ce1bf08c4dd",
+    "hash_method": "UTF-8 text output of git diff --binary HEAD --, plus sorted untracked paths and bytes; target_scope uses the same method with target_paths only.",
+    "outside_target_changes_at_observation": [
+      "plan/Phase2-5_本実装AI実行基盤構築計画_v0.1_2026-08-06.md"
+    ],
+    "recompute_required_after_evidence_write": false
+  },
+  "current_target_only_change_hash": "sha256:f36cc96229e5ba713af953593a57a3d9b4b9e4d3526305bd25f5e22fd2e7c42a",
+  "s4_3_tool_versions": {
+    "python": "3.12.13",
+    "ruff": "0.16.1",
+    "mypy": "2.3.0",
+    "pytest": "9.1.1",
+    "pytest-cov": "7.1.0"
+  },
+  "known_findings": [
+    {
+      "id": "S4.1-TOOL-001",
+      "category": "ツール設定",
+      "severity": "High",
+      "reason": "Runner の TRUSTED_TARGET_PATHS は S2 bootstrap scope 固定で、P2-D07 を拒否する。"
+    },
+    {
+      "id": "S4.1-TOOL-002",
+      "category": "ツール設定",
+      "severity": "High",
+      "reason": "ruff、mypy、pyright が .venv に導入されていない。"
+    },
+    {
+      "id": "S4.1-TOOL-003",
+      "category": "ツール設定",
+      "severity": "High",
+      "reason": "Run Manifest の change_hash が未解決のプレースホルダーである。"
+    },
+    {
+      "id": "S4.1-GATE-001",
+      "category": "エージェント指示",
+      "severity": "High",
+      "reason": "Human Gate は HUMAN_GATE_REQUIRED で、権限者の承認記録がない。"
+    }
+  ],
+  "external_access": {
+    "network": "prohibited_not_used",
+    "databento": "prohibited_not_used",
+    "broker": "prohibited_not_used",
+    "secrets": "prohibited_not_used",
+    "real_data": "prohibited_not_used"
+  },
+  "status": "BLOCKED",
+  "pass_rule": "Critical/High、証跡欠落、設計外変更が0で、Runnerの4 GateとHuman Gateの整合した承認記録が揃うまでPassにしない。"
+}

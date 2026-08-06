@@ -17,6 +17,7 @@ pnpm-debug.log*
 Thumbs.db
 
 coverage/
+.coverage
 dist/
 build/
 

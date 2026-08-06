@@ -12,6 +12,8 @@
   AI部品の命名、発火制御、保存先、Phase専用部品の作成条件。
 - `doc/index.html`
   正式なHTML成果物の総合インデックス。
+- `doc/00_全Phase残課題Blocked統合台帳.html`
+  Phase 0以降のBlocked、Unknown、残リスク、Human Gate待ちを根本原因でまとめる唯一の正本。新規発見、再オープン、解消はこの台帳へ反映し、旧台帳は履歴・証拠として参照する。
 - `doc/ai_foundation/`
   AI実行基盤の棚卸し、移行方針、汎用Skill仕様、汎用Agent仕様、汎用Orchestrator仕様、作成ルール、検証結果。
 - `doc/phase1/`
@@ -61,7 +63,7 @@
   AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を標準で使う。
   実装詳細設計では `autotrade_skill_implementation_detail_design_v0_1` と `autotrade_skill_implementation_detail_review_v0_1` を標準で使う。
   Python本実装の品質ループでは `autotrade_skill_python_implementation_v0_1`、`autotrade_skill_python_test_quality_v0_1`、`autotrade_skill_debug_recovery_v0_1`、`autotrade_skill_python_code_review_v0_1` を明示指定で使う。
-  実行証跡は `test/evidence/{phase_id}/{run_id}/` に保存し、`scripts/quality_gate/` はRun Manifestのローカル許可コマンドだけを実行する。
+  実行証跡は `test/evidence/{phase_id}/{run_id}/` に保存し、`scripts/quality_gate/` は `trusted_scopes.json` に登録されたRun IDの固定コマンドだけを実行する。`scope_mode=target_only` のRunは登録済みtarget_pathsだけを試験対象とし、対象外のHEAD/worktree差分では止めない。Phaseのtest subprocessはhost outbound isolation確認がない場合にBLOCKEDとする。
 - Phase 1専用部品:
   `AutoTradePhase1_*`
   `autotrade_phase1_skill_*_v0_1`
@@ -75,7 +77,8 @@ AI部品の作成、設計、レビュー、Phase実行に入る前は、原則�
 2. `settings/language.md`
 3. `settings/ai_component_rules.md`
 4. 関連する `doc/index.html` と該当HTML成果物
-5. 必要なら `plan/` 配下の計画書とログ
+5. `doc/00_全Phase残課題Blocked統合台帳.html` で現在の停止条件を確認
+6. 必要なら `plan/` 配下の計画書とログ
 
 ## Phase実行計画
 

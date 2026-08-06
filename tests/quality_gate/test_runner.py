@@ -3,20 +3,22 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
-
-from scripts.quality_gate import run_quality_gate
+from scripts.quality_gate import local_p2_pytest, run_quality_gate
 from scripts.quality_gate.runner import (
     ChangeRecord,
     CommandResult,
     LocalQualityGateRunner,
     ManifestValidationError,
 )
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 @dataclass
@@ -38,18 +40,35 @@ class FakeChangeInspector:
 
     changes: tuple[ChangeRecord, ...] = ()
     has_test_skip: bool = False
+    change_hash_value: str = "test-change-hash"
 
-    def list_changes(self, project_root: Path, baseline_ref: str) -> tuple[ChangeRecord, ...]:
+    requested_paths: tuple[str, ...] | None = None
+
+    def list_changes(
+        self, project_root: Path, baseline_ref: str, paths: tuple[str, ...] | None = None
+    ) -> tuple[ChangeRecord, ...]:
         del project_root, baseline_ref
+        self.requested_paths = paths
         return self.changes
 
-    def has_new_test_skip(self, project_root: Path, baseline_ref: str) -> bool:
+    def has_new_test_skip(self, project_root: Path, baseline_ref: str, paths: tuple[str, ...] | None = None) -> bool:
         del project_root, baseline_ref
+        self.requested_paths = paths
         return self.has_test_skip
 
-    def change_hash(self, project_root: Path, baseline_ref: str) -> str:
+    def change_hash(self, project_root: Path, baseline_ref: str, paths: tuple[str, ...] | None = None) -> str:
         del project_root, baseline_ref
-        return "test-change-hash"
+        self.requested_paths = paths
+        return self.change_hash_value
+
+
+@dataclass
+class FakeNetworkProbe:
+    confirmed: bool
+
+    def is_confirmed(self, project_root: Path) -> bool:
+        del project_root
+        return self.confirmed
 
 
 def manifest(tmp_path: Path, **overrides: object) -> dict[str, object]:
@@ -71,7 +90,10 @@ def manifest(tmp_path: Path, **overrides: object) -> dict[str, object]:
         "excluded_paths": [".env"],
         "evidence_root": str(tmp_path / "test" / "evidence" / "phase2" / "RUN-P2-S2-001"),
         "checks": [
-            {"gate": "formatter", "command": ["ruff", "format", "--check", "scripts/quality_gate", "tests/quality_gate"]},
+            {
+                "gate": "formatter",
+                "command": ["ruff", "format", "--check", "scripts/quality_gate", "tests/quality_gate"],
+            },
             {"gate": "lint", "command": ["ruff", "check", "scripts/quality_gate", "tests/quality_gate"]},
             {"gate": "type", "command": ["mypy", "scripts/quality_gate"]},
             {"gate": "test", "command": ["python", "-m", "scripts.quality_gate.local_pytest"]},
@@ -90,6 +112,18 @@ def successful_executor() -> FakeExecutor:
         ("ruff", "check", "scripts/quality_gate", "tests/quality_gate"),
         ("mypy", "scripts/quality_gate"),
         ("python", "-m", "scripts.quality_gate.local_pytest"),
+        (
+            ".venv/Scripts/python.exe",
+            "-m",
+            "ruff",
+            "format",
+            "--check",
+            "src/autotrade/market_data",
+            "tests/market_data",
+        ),
+        (".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/market_data", "tests/market_data"),
+        (".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/market_data"),
+        (".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p2_pytest"),
     }
     return FakeExecutor(
         results={command: CommandResult(exit_code=0, duration_ms=1) for command in commands},
@@ -97,7 +131,9 @@ def successful_executor() -> FakeExecutor:
     )
 
 
-def runner(tmp_path: Path, executor: FakeExecutor, inspector: FakeChangeInspector | None = None) -> LocalQualityGateRunner:
+def runner(
+    tmp_path: Path, executor: FakeExecutor, inspector: FakeChangeInspector | None = None
+) -> LocalQualityGateRunner:
     return LocalQualityGateRunner(tmp_path, executor=executor, change_inspector=inspector or FakeChangeInspector())
 
 
@@ -172,9 +208,7 @@ def test_rejects_evidence_path_outside_project_test_evidence(tmp_path: Path) -> 
     executor = successful_executor()
 
     with pytest.raises(ManifestValidationError, match="test/evidence"):
-        runner(tmp_path, executor).run(
-            manifest(tmp_path, evidence_root=str(tmp_path / "outside"))
-        )
+        runner(tmp_path, executor).run(manifest(tmp_path, evidence_root=str(tmp_path / "outside")))
 
     assert executor.calls == []
 
@@ -209,6 +243,33 @@ def test_blocks_changes_outside_target_paths_before_running_gates(tmp_path: Path
 
     assert result.state == "BLOCKED"
     assert executor.calls == []
+
+
+def test_p2_target_only_scope_ignores_unrelated_worktree_changes(tmp_path: Path) -> None:
+    executor = successful_executor()
+    run_manifest = p2_manifest(tmp_path)
+    inspector = FakeChangeInspector(
+        changes=(
+            ChangeRecord(status="M", path="settings/ai_component_rules.md"),
+            ChangeRecord(status="A", path="doc/00_全Phase残課題Blocked統合台帳.html"),
+        ),
+        change_hash_value=run_manifest["change_hash"],
+    )
+
+    result = LocalQualityGateRunner(
+        tmp_path,
+        executor=executor,
+        change_inspector=inspector,
+        network_probe=FakeNetworkProbe(confirmed=True),
+    ).run(run_manifest)
+
+    assert result.state == "HUMAN_GATE_REQUIRED"
+    assert inspector.requested_paths == (
+        "src/autotrade/market_data",
+        "tests/market_data",
+        "tests/fixtures/market_data",
+    )
+    assert len(executor.calls) == 4
 
 
 def test_blocks_added_test_skip_before_running_gates(tmp_path: Path) -> None:
@@ -289,3 +350,200 @@ def test_cli_main_reports_invalid_manifest(
 
     assert exit_code == 2
     assert json.loads(capsys.readouterr().out)["state"] == "INVALID_MANIFEST"
+
+
+def p2_manifest(tmp_path: Path, **overrides: object) -> dict[str, object]:
+    """Return the approved P2-D07 pilot manifest shape."""
+    (tmp_path / "scripts" / "quality_gate").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "tests" / "fixtures" / "market_data").mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(
+        PROJECT_ROOT / "scripts" / "quality_gate" / "trusted_scopes.json",
+        tmp_path / "scripts" / "quality_gate" / "trusted_scopes.json",
+    )
+    shutil.copyfile(
+        PROJECT_ROOT / "tests" / "fixtures" / "market_data" / "catalog_resolver_fixture.json",
+        tmp_path / "tests" / "fixtures" / "market_data" / "catalog_resolver_fixture.json",
+    )
+    value = manifest(
+        tmp_path,
+        run_id="RUN-P2-IC-001",
+        step_id="P2-05",
+        requirements=["REQ-Q02", "REQ-Q19", "REQ-Q20", "REQ-Q23"],
+        design="P2-D07",
+        component_lifecycle_orchestrator="AutoTradeComponentLifecycle_Orchestrator_v0_1",
+        agents=[
+            "AutoTrade_A110_PythonTestEngineer_v0_1",
+            "AutoTrade_A120_PythonImplementer_v0_1",
+            "AutoTrade_A130_VerificationEngineer_v0_1",
+            "AutoTrade_A150_PythonCodeReviewer_v0_1",
+            "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+        ],
+        skills=[
+            "autotrade_skill_python_implementation_v0_1",
+            "autotrade_skill_python_test_quality_v0_1",
+            "autotrade_skill_python_code_review_v0_1",
+        ],
+        input_fixture={
+            "name": "catalog_resolver_fixture.json",
+            "version": "fixture-catalog-v1",
+            "checksum": "sha256:94022229698e972353b8ec9537f455af5cb29d47253f5f2a1ed5d33b08b50169",
+        },
+        data_version="fixture-catalog-v1",
+        change_hash="sha256:" + ("a" * 64),
+        target_paths=[
+            "src/autotrade/market_data",
+            "tests/market_data",
+            "tests/fixtures/market_data",
+        ],
+        excluded_paths=[".env", "third_party/everything-claude-code", "research"],
+        scope_mode="target_only",
+        checks=[
+            {
+                "gate": "formatter",
+                "command": [
+                    ".venv/Scripts/python.exe",
+                    "-m",
+                    "ruff",
+                    "format",
+                    "--check",
+                    "src/autotrade/market_data",
+                    "tests/market_data",
+                ],
+            },
+            {
+                "gate": "lint",
+                "command": [
+                    ".venv/Scripts/python.exe",
+                    "-m",
+                    "ruff",
+                    "check",
+                    "src/autotrade/market_data",
+                    "tests/market_data",
+                ],
+            },
+            {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/market_data"]},
+            {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p2_pytest"]},
+        ],
+        human_gate_policy="P2-IC-HG-01",
+    )
+    value.update(overrides)
+    return value
+
+
+def test_p2_registry_accepts_only_the_fixed_scope_and_four_gates(tmp_path: Path) -> None:
+    executor = successful_executor()
+
+    result = runner(tmp_path, executor).run(p2_manifest(tmp_path), dry_run=True)
+
+    assert result.state == "DRY_RUN"
+    assert [gate.command for gate in result.gates] == [
+        (
+            ".venv/Scripts/python.exe",
+            "-m",
+            "ruff",
+            "format",
+            "--check",
+            "src/autotrade/market_data",
+            "tests/market_data",
+        ),
+        (".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/market_data", "tests/market_data"),
+        (".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/market_data"),
+        (".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p2_pytest"),
+    ]
+
+
+@pytest.mark.parametrize(
+    "field_override",
+    [
+        {"target_paths": ["research"]},
+        {"checks": [{"gate": "formatter", "command": ["powershell", "Invoke-WebRequest"]}]},
+        {"checks": [{"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "pytest"]}]},
+        {
+            "input_fixture": {
+                "name": "catalog_resolver_fixture.json",
+                "version": "fixture-catalog-v1",
+                "checksum": "sha256:tampered",
+            }
+        },
+        {"baseline_ref": "main"},
+        {"scope_mode": "all_changes"},
+        {"change_hash": "sha256:tampered"},
+    ],
+)
+def test_p2_manifest_mutations_are_rejected_before_execution(tmp_path: Path, field_override: dict[str, object]) -> None:
+    executor = successful_executor()
+
+    with pytest.raises(ManifestValidationError):
+        runner(tmp_path, executor).run(p2_manifest(tmp_path, **field_override))
+
+    assert executor.calls == []
+
+
+@pytest.mark.parametrize(
+    "inspector",
+    [
+        FakeChangeInspector(changes=(ChangeRecord("A", "untrusted.py"),)),
+        FakeChangeInspector(changes=(ChangeRecord("D", "tests/market_data/test_catalog_resolver.py"),)),
+        FakeChangeInspector(changes=(ChangeRecord("M", ".env"),)),
+        FakeChangeInspector(has_test_skip=True),
+    ],
+)
+def test_p2_untrusted_changes_and_test_mutations_fail_closed(tmp_path: Path, inspector: FakeChangeInspector) -> None:
+    executor = successful_executor()
+
+    inspector.change_hash_value = p2_manifest(tmp_path)["change_hash"]
+    result = runner(tmp_path, executor, inspector).run(p2_manifest(tmp_path))
+
+    assert result.state == "BLOCKED"
+    assert executor.calls == []
+
+
+def test_p2_requires_host_outbound_isolation_confirmation(tmp_path: Path) -> None:
+    executor = successful_executor()
+
+    inspector = FakeChangeInspector(change_hash_value=p2_manifest(tmp_path)["change_hash"])
+    result = runner(tmp_path, executor, inspector).run(p2_manifest(tmp_path))
+
+    assert result.state == "BLOCKED"
+    assert "outbound" in result.reason.lower()
+    assert executor.calls == []
+
+
+def test_p2_runs_fixed_gates_only_after_host_isolation_confirmation(tmp_path: Path) -> None:
+    executor = successful_executor()
+    run_manifest = p2_manifest(tmp_path)
+    inspector = FakeChangeInspector(change_hash_value=run_manifest["change_hash"])
+    quality_runner = LocalQualityGateRunner(
+        tmp_path,
+        executor=executor,
+        change_inspector=inspector,
+        network_probe=FakeNetworkProbe(confirmed=True),
+    )
+
+    result = quality_runner.run(run_manifest)
+
+    assert result.state == "HUMAN_GATE_REQUIRED"
+    assert len(executor.calls) == 4
+
+
+def test_p2_python_module_mutation_is_rejected_against_registry(tmp_path: Path) -> None:
+    executor = successful_executor()
+    checks = list(p2_manifest(tmp_path)["checks"])
+    checks[3] = {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "pytest", "tests/market_data", "-q"]}
+
+    with pytest.raises(ManifestValidationError, match="固定template"):
+        runner(tmp_path, executor).run(p2_manifest(tmp_path, checks=checks))
+
+    assert executor.calls == []
+
+
+def test_p2_pytest_wrapper_has_a_fixed_market_data_target(monkeypatch: pytest.MonkeyPatch) -> None:
+    class FakePytest:
+        @staticmethod
+        def main(args: list[str]) -> int:
+            assert args == ["tests/market_data", "-q"]
+            return 0
+
+    monkeypatch.setitem(sys.modules, "pytest", FakePytest)
+
+    assert local_p2_pytest.main() == 0

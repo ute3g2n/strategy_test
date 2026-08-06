@@ -210,6 +210,8 @@ Phase 2 の承認済み詳細設計から、Raw/Normalized 変換または Instr
 
 ### S4: パイロット評価と基盤の改訂を行う
 
+> **残課題管理の正本:** S4の詳しいRun証跡は `test/evidence/phase2/RUN-P2-IC-001/` に残す。S4を含む全Phaseの現在のBlocked、解消、再オープンは `doc/00_全Phase残課題Blocked統合台帳.html` だけで更新する。
+
 成果物: `plan/phase2-5_ai_foundation/04_パイロット評価.md`、改訂履歴、再レビュー結果。  
 評価軸: 仕様逸脱の検出数、初回 Pass 率、再試行回数、レビューの有効指摘率、テストの振る舞い網羅、証跡欠落数、所要時間。
 
@@ -222,6 +224,117 @@ Critical/High 指摘、証跡欠落、設計外変更が残る場合は Pass に
 ```
 
 完了基準: 改訂は根拠と影響範囲を持ち、品質基盤自身のテスト・レビュー・再レビューが Pass する。
+
+#### S4.1: 評価基準と対象差分を固定する
+
+目的: 既存パイロットの根拠を変更前に固定し、以降の改訂が設計外へ広がらないようにする。
+
+成果物:
+
+- `plan/phase2-5_ai_foundation/04_パイロット評価.md`
+- `test/evidence/phase2/RUN-P2-IC-001/baseline.json`
+
+停止条件:
+
+- P2-D07、REQ-Q02 / REQ-Q19 / REQ-Q20 / REQ-Q23、対象パス、既知の Block 理由を一意にできない。
+- Databento、Broker、Secret、実データ、外部ネットワークを対象に含める提案が出る。
+
+実行プロンプト:
+
+```text
+AutoTradeProject_ImplementationQuality_Orchestrator_v0_1 の S4.1 として、RUN-P2-IC-001 を読取り評価してください。
+
+入力は P2-D07、REQ-Q02/REQ-Q19/REQ-Q20/REQ-Q23、HEAD のコミット、src/autotrade/market_data/、tests/market_data/、tests/fixtures/market_data/、test/evidence/phase2/RUN-P2-IC-001/、scripts/quality_gate/、.codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json です。
+
+仕様・実装・テスト・ツール設定・エージェント指示・外部依存の各分類について、原因、証拠パス、Critical/High/Medium/Low、最小改訂案、影響パスを表にしてください。RUN-P2-IC-001 の対象パス、HEAD commit、fixture SHA-256、実差分 SHA-256、除外パスを baseline.json に記録してください。
+
+既存 Runner が S2 bootstrap scope に固定され P2 対象を拒否すること、ruff/mypy/pyright が未導入であること、change_hash が未解決であること、Human Gate が未承認であることを確認対象に含めてください。外部ネットワーク、Databento、Broker、Secret、実データには接続しないでください。Critical/High、証跡欠落、設計外変更が残る場合は Pass にしないでください。
+```
+
+完了条件: 改訂対象は品質基盤、P2-D07 実装、テスト、fixture、証跡、開発ツール設定だけに固定され、設計外変更がない。
+
+#### S4.2: 信頼済み P2 scope と品質ゲートを TDD で拡張する
+
+目的: Manifest の自己申告で任意コードを実行させず、承認済みの P2-D07 scope だけを品質ゲートで実行できるようにする。
+
+成果物:
+
+- Runner の信頼済み scope 定義（Run ID、対象パス、固定4コマンド、fixture checksum、外部接続禁止条件）
+- Runner の TDD テスト、P2-D07 向けローカル test wrapper、更新済み Orchestrator/Skill/AI基盤仕様
+- `test/evidence/phase2/RUN-P2-IC-001/tdd-quality-gate-extension.md`
+
+禁止事項:
+
+- `target_paths`、実行コマンド、Python module、test path を Manifest だけで自由に指定可能にしない。
+- shell、URL、Broker、Databento SDK、環境変数の Secret、実データ、実取引を使わない。
+- scope 拡張と無関係な既存 Agent / Skill / default_orchestrator を変更しない。
+
+実行プロンプト:
+
+```text
+AutoTradeComponentLifecycle_Orchestrator_v0_1 と AutoTradeProject_ImplementationQuality_Orchestrator_v0_1 を明示指定して、P2-D07 の RUN-P2-IC-001 だけを安全に品質ゲート実行できる最小改訂を行ってください。
+
+最初に scripts/quality_gate/runner.py の pytest を追加し、次を RED で確認してください。
+1. repository 内の信頼済み scope registry に登録された RUN-P2-IC-001 だけが、src/autotrade/market_data、tests/market_data、tests/fixtures/market_data と固定4 Gate を受理する。
+2. Manifest が異なる path、command、Python module、fixture checksum、baseline ref、change hash を指定した場合は、実行前に BLOCKED または ManifestValidationError となる。
+3. 追跡済み・未追跡の差分、test skip、test deletion、excluded path の変更を fail-closed で検出する。
+4. test subprocess は host 側の outbound 遮断が確認済みの場合だけ実行し、確認できない場合は BLOCKED とする。
+
+RED 証跡を保存してから、scope registry を repository 管理の信頼済み設定として実装してください。Runner は registry にある固定 command template だけを使い、Manifest は Run ID、requirements、design、fixture hash、実差分 hash の照合材料として扱ってください。P2-D07 の test wrapper は固定の tests/market_data だけを実行し、外部 I/O、Broker、Databento、Secret、実取引を禁止してください。
+
+実装後、同じ pytest を GREEN にし、品質基盤自身の独立 Python レビューと取引安全レビューを実施してください。AI部品更新ルールに従い、関連する .codex 定義、doc/ai_foundation の仕様、doc/index.html、AGENTS.md/README.md を必要な範囲だけ同期してください。Critical/High または scope 外実行の可能性が残る場合は次へ進まないでください。
+```
+
+完了条件: P2-D07 が Runner の信頼済み scope でのみ実行でき、改竄済み Manifest と scope 外変更は実行前に停止する。品質基盤のテスト・レビュー・再レビューは Pass。
+
+#### S4.3: 開発ツール設定、実行証跡、差分追跡を確定する
+
+目的: formatter、lint、type、test の4 Gateを再現可能にし、生成物・差分・fixture・レビューを同じ Run に結び付ける。
+
+成果物:
+
+- Python 3.11 以上を明記した project tool configuration と lock / 再現手順
+- `.coverage` を追跡しない設定、および既存の追跡済み `.coverage` を履歴を壊さず対象コミットから除外する変更
+- 実差分 SHA-256、fixture SHA-256、formatter / lint / type / pytest の結果を含む `verification.json`
+- 実行ログ、レビュー記録、対象外変更検査を含む `test/evidence/phase2/RUN-P2-IC-001/`
+
+実行プロンプト:
+
+```text
+RUN-P2-IC-001 の S4.3 として、Python 品質ツール設定と証跡を確定してください。
+
+まず既存の Python 実行環境を読取りで確認し、ruff と mypy または pyright の固定バージョン、pytest、pytest-cov を project の開発用設定へ明記してください。パッケージ導入が必要なら、承認済みパッケージレジストリまたは事前取得済み artifact からだけ導入し、Runner 自身はネットワーク接続を行わないでください。導入不能なら BLOCKED として停止してください。
+
+次に、src/autotrade/market_data と tests/market_data に対する formatter、lint、type、pytest、coverage を実行し、コマンド、終了コード、ツール version、対象 scope、実差分 SHA-256、fixture SHA-256 を verification.json へ保存してください。生成された .coverage は Git の追跡対象から外し、.gitignore に追加してください。削除対象は repository root の .coverage だけと読み取りで確認してから、履歴を書き換えずに index から除外してください。
+
+Run Manifest の change_hash を実差分から計算した値へ更新し、Runner が同じ値を再計算して照合できることをテストしてください。コマンド失敗、tool 未導入、hash 不一致、scope 外差分、Secret / Broker / Databento / network 参照が一つでもある場合は BLOCKED にしてください。
+```
+
+完了条件: 4 Gate がすべて実行済み・終了コード0・version付きで証跡化され、`.coverage` は追跡外、fixture と実差分は hash で固定される。
+
+#### S4.4: 独立再レビューと Human Gate を完了する
+
+目的: 実装・品質基盤・証跡の三者を独立に確認し、権限者だけが Phase パイロットの採否を決める。
+
+成果物:
+
+- `reviews/python-review.md`、`reviews/trading-safety-review.md`、`reviews/quality-gate-review.md`
+- `human-gate/P2-IC-HG-01-request.md` と、権限者が作成し公開鍵で検証できる `human-gate/P2-IC-HG-01-approval.json`
+- 最終 `verification.json` と `plan/phase2-5_ai_foundation/04_パイロット評価.md` の Pass/Blocked 判定
+
+実行プロンプト:
+
+```text
+RUN-P2-IC-001 の S4.4 として、独立 Python レビュー、取引安全レビュー、品質ゲートレビューを順番に行ってください。
+
+各レビューは、HEAD commit、実差分 SHA-256、Run Manifest、fixture SHA-256、4 Gate の実行結果、TDD RED/GREEN、scope registry、P2-D07、REQ-Q02/REQ-Q19/REQ-Q20/REQ-Q23 を参照し、Finding ID、重要度、根拠、再現手順、修正要否、再レビュー結果を個別ファイルに記録してください。
+
+次のいずれかが残る場合は verification.json を BLOCKED とし、Human Gate へ進めないでください: Critical/High、証跡欠落、設計外変更、scope 外実行、未実行の formatter/lint/type/test、hash 不一致、未解決 Unknown、Databento/Broker/Secret/実データ/外部ネットワークへの接続。
+
+すべて解消した場合だけ Human Gate の承認依頼を書いてください。承認依頼には Run ID、HEAD commit、実差分 SHA-256、fixture SHA-256、4 Gate、レビュー結果、残件0を含めます。承認 JSON は作業 Agent が作成・自己承認してはなりません。権限者が worktree 外で管理する秘密鍵により署名し、Runner が repository に保存した公開鍵で署名・decision=approved・approved_by・approved_at・run_id・commit・change_hash・fixture_hash・remaining_items=[] を検証できた場合だけ、Runner と verification.json を PASS に更新してください。worktree 内の未署名 JSON は証跡コピーであって承認根拠にしません。承認がない、拒否、署名不正、または内容不一致なら HUMAN_GATE_REQUIRED または BLOCKED のまま停止してください。
+```
+
+完了条件: 独立3レビューの Critical/High が0、証跡・設計外変更が0、かつ権限者の整合する承認記録がある場合のみ `RUN-P2-IC-001` を Pass とする。
 
 ### S5: Phase 3–5 へ段階展開する
 

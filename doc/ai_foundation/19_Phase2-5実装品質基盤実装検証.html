@@ -11,6 +11,7 @@
 <body><main>
   <h1>Phase 2-5 実装品質基盤 実装検証</h1>
   <p class="note"><strong>文書ID:</strong> AF-D19 / <strong>基準設計:</strong> <a href="./18_Phase2-5本実装AI実行基盤設計書.html">AF-D18</a> / <strong>ECC commit:</strong> <code>623f2c020f052319657674e4e6c29ab5d0ad566b</code></p>
+  <p class="note"><strong>現在のBlocked:</strong> <a href="../00_全Phase残課題Blocked統合台帳.html">全Phase 残課題・Blocked 統合台帳</a>を参照する。本書は実装・検証時点の証拠であり、現在状態の正本ではない。</p>
 
   <h2>実装した最小部品</h2>
   <table><thead><tr><th>種別</th><th>実体</th><th>役割</th></tr></thead><tbody>
@@ -23,7 +24,8 @@
   <h2>安全契約</h2>
   <table><thead><tr><th>制約</th><th>実装上の確認</th></tr></thead><tbody>
     <tr><td>外部接続なし</td><td><code>shell=False</code>、固定コマンドテンプレート、最小環境変数。ネットワーク、Broker、Secret、実取引のコマンドや引数を受理しない。</td></tr>
-    <tr><td>範囲の強制</td><td>この最小 Gate は <code>scripts/quality_gate</code> と <code>tests/quality_gate</code> の信頼済み固定範囲だけを許可する。追跡済み・未追跡のローカル git 差分、テスト削除、テスト skip 追加を検査し、実差分 SHA-256 が Manifest と一致しなければ Blocked にする。</td></tr>
+    <tr><td>範囲の強制</td><td>bootstrapは従来の固定範囲を維持し、Phase実装単位は <code>scripts/quality_gate/trusted_scopes.json</code> に登録されたRun IDだけを許可する。<code>scope_mode=target_only</code> のRunは、registryのtarget_paths内だけを差分・hash・skip・削除の検査対象にする。対象外のHEAD/worktree差分は試験対象の判定に使わない。対象内のテスト削除、skip追加、fixture checksumまたは実差分SHA-256不一致はBlockedにする。</td></tr>
+    <tr><td>host outbound境界</td><td>Phaseのtest subprocessは<code>QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED=1</code>のhost確認がない限り起動しない。P2-D07は固定wrapperで<code>tests/market_data</code>だけを実行し、socket接続を拒否する。</td></tr>
     <tr><td>Human Gate</td><td>このスクリプトは書込み可能 worktree の承認ファイルを信頼せず、必ず <code>HUMAN_GATE_REQUIRED</code> で停止する。Phase 引渡しの承認は worktree 外の人間承認チャネルで行う。</td></tr>
     <tr><td>証跡</td><td>標準出力・標準エラー・Secret を保存せず、<code>verification.json</code> に状態、理由、固定コマンド、終了コード、時間だけを保存する。</td></tr>
   </tbody></table>
@@ -31,11 +33,13 @@
   <h2>TDD と独立レビュー</h2>
   <table><thead><tr><th>段階</th><th>確認結果</th></tr></thead><tbody>
     <tr><td>RED</td><td><code>ChangeRecord</code> 未実装の状態で pytest 収集失敗を確認。固定ゲート、変更範囲、Human Gate 証跡を要求するテストを先に追加した。</td></tr>
-    <tr><td>GREEN</td><td class="ok"><code>.venv\Scripts\python.exe -m pytest tests\quality_gate -q --cov=scripts.quality_gate --cov-report=term-missing</code>: 18 passed、総合 coverage 76%。</td></tr>
+    <tr><td>GREEN</td><td class="ok"><code>.venv\Scripts\python.exe -m pytest tests\quality_gate -q</code>: P2 scope、Manifest改変、対象限定差分、host隔離未確認、固定wrapperを含む35 passed。全体 <code>pytest tests -q</code> は42 passed。</td></tr>
     <tr><td>独立レビュー</td><td>2系統のレビューで指摘されたゲート名とコマンドの非対応、任意 pytest 実行、自己申告承認、未追跡ファイル、差分 hash、範囲未強制を修正した。OS による outbound 隔離がない環境では、テスト Gate の本実行は運用上の Human Gate で止める。</td></tr>
     <tr><td>実行状態</td><td class="pending">同梱 Manifest は Unknown を残しており、実行は意図的に <code>BLOCKED</code>。Human Gate 承認前に Accepted にはならない。</td></tr>
   </tbody></table>
 
   <h2>引渡し条件</h2>
   <p>実装単位ごとに対象パス、基準 ref、change hash、fixture、レビュー結果を埋め、ローカル検査の成功後に Human Gate 承認記録を作る。未解決 Unknown、Critical/High 指摘、範囲逸脱、テスト緩和は Phase 引渡しを禁止する。</p>
+  <h2>S4.3 Python 品質ツール確定</h2>
+  <p>開発用設定は <code>requirements-dev.txt</code> と <code>pyproject.toml</code> に固定版を記録する。実行確認値は ruff 0.16.1、mypy 2.3.0、pytest 9.1.1、pytest-cov 7.1.0。P2-D07 の formatter、lint、type、固定 pytest wrapper、coverage は成功した。対象外差分を理由に止めるBLK-RUN-001は、target_only scopeと対象限定hashへ変更して解消した。ただしhost outbound isolation未確認とHuman Gate未承認が残るため、RUN-P2-IC-001の最終状態は <code>BLOCKED</code> とする。機械可読証跡は <code>test/evidence/phase2/RUN-P2-IC-001/verification.json</code> に保存する。</p>
 </main></body></html>
