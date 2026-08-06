@@ -1,0 +1,13 @@
+{
+  "state": "BLOCKED",
+  "reason": "既存 quality_gate Runner はS2自己検証だけを許可し、P2-D07の対象範囲を受理しない。",
+  "checks": [
+    {"name": "compileall", "status": "PASS", "command": ".venv\\Scripts\\python.exe -m compileall -q src\\autotrade\\market_data"},
+    {"name": "pytest", "status": "PASS", "command": ".venv\\Scripts\\python.exe -m pytest tests -q", "result": "27 passed"},
+    {"name": "coverage", "status": "PASS", "result": "catalog_resolver.py 91%"},
+    {"name": "forbidden-import-scan", "status": "PASS", "result": "network/Broker/Databento/Secret関連の参照なし"},
+    {"name": "python-review", "status": "PASS", "critical": 0, "high": 0},
+    {"name": "trading-safety-review", "status": "PASS", "critical": 0, "high": 0},
+    {"name": "implementation-quality-preflight", "status": "BLOCKED", "result": "Runner allowlist extension requires approved AI component update"}
+  ]
+}

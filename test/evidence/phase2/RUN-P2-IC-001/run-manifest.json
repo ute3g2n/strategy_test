@@ -1,0 +1,51 @@
+{
+  "run_id": "RUN-P2-IC-001",
+  "phase_id": "phase2",
+  "step_id": "P2-05",
+  "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+  "agents": [
+    "AutoTrade_A110_PythonTestEngineer_v0_1",
+    "AutoTrade_A120_PythonImplementer_v0_1",
+    "AutoTrade_A130_VerificationEngineer_v0_1",
+    "AutoTrade_A150_PythonCodeReviewer_v0_1",
+    "AutoTrade_A160_TradingSecurityReviewer_v0_1"
+  ],
+  "skills": [
+    "autotrade_skill_python_implementation_v0_1",
+    "autotrade_skill_python_test_quality_v0_1",
+    "autotrade_skill_python_code_review_v0_1"
+  ],
+  "requirements": ["REQ-Q02", "REQ-Q19", "REQ-Q20", "REQ-Q23"],
+  "design": "P2-D07",
+  "design_ids": ["P2-D07", "DD-05", "DD-06", "DD-07", "DD-08", "DD-09", "DD-10", "DD-11", "DD-12"],
+  "behavior": "CatalogResolver.resolve: fixed snapshot only; resolve exactly one active mapping valid at observed UTC time.",
+  "target_paths": ["src/autotrade/market_data", "tests/market_data", "tests/fixtures/market_data"],
+  "excluded_paths": [".env", "third_party/everything-claude-code", "research"],
+  "input_fixture": {
+    "name": "catalog_resolver_fixture.json",
+    "version": "fixture-catalog-v1",
+    "checksum": "sha256:94022229698e972353b8ec9537f455af5cb29d47253f5f2a1ed5d33b08b50169"
+  },
+  "catalog_version": "fixture-catalog-v1",
+  "catalog_snapshot_sha256": "sha256:94022229698e972353b8ec9537f455af5cb29d47253f5f2a1ed5d33b08b50169",
+  "mapping_version": "fixture-mapping-v1",
+  "calendar_version": "fixture-calendar-not-used",
+  "source_mode": "fixture_only",
+  "data_version": "fixture-catalog-v1",
+  "change_hash": "UNRESOLVED-QUALITY-GATE-SCOPE",
+  "baseline_ref": "HEAD",
+  "evidence_root": "test/evidence/phase2/RUN-P2-IC-001",
+  "checks": [
+    {"gate": "formatter", "command": ["ruff", "format", "--check", "src/autotrade/market_data", "tests/market_data"]},
+    {"gate": "lint", "command": ["ruff", "check", "src/autotrade/market_data", "tests/market_data"]},
+    {"gate": "type", "command": ["mypy", "src/autotrade/market_data"]},
+    {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "pytest", "tests/market_data", "-q"]}
+  ],
+  "review": {"critical": 0, "high": 0},
+  "network": "prohibited",
+  "broker": "prohibited",
+  "secrets": "prohibited",
+  "live_trading": "prohibited",
+  "human_gate_policy": "P2-IC-HG-01",
+  "unknowns": []
+}

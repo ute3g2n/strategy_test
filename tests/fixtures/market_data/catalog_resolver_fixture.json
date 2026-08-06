@@ -1,0 +1,65 @@
+{
+  "catalog_version": "fixture-catalog-v1",
+  "mappings": [
+    {
+      "mapping_id": "map-fixture-001",
+      "vendor": "fixture_vendor",
+      "dataset_id": "fixture_dataset",
+      "stype": "raw_symbol",
+      "symbol": "FIX-2026M",
+      "valid_from": "2026-06-01T00:00:00+00:00",
+      "valid_to": "2026-06-30T23:59:59+00:00",
+      "instrument_id": "fixture-instrument-001",
+      "instrument_status": "active",
+      "tick_size": "0.25"
+    },
+    {
+      "mapping_id": "map-fixture-002",
+      "vendor": "fixture_vendor",
+      "dataset_id": "fixture_dataset",
+      "stype": "raw_symbol",
+      "symbol": "PENDING-2026M",
+      "valid_from": "2026-06-01T00:00:00+00:00",
+      "valid_to": "2026-06-30T23:59:59+00:00",
+      "instrument_id": "fixture-instrument-pending",
+      "instrument_status": "pending",
+      "tick_size": null
+    },
+    {
+      "mapping_id": "map-fixture-003",
+      "vendor": "fixture_vendor",
+      "dataset_id": "fixture_dataset",
+      "stype": "raw_symbol",
+      "symbol": "AMB-2026M",
+      "valid_from": "2026-06-01T00:00:00+00:00",
+      "valid_to": "2026-07-01T00:00:00+00:00",
+      "instrument_id": "fixture-instrument-amb-a",
+      "instrument_status": "active",
+      "tick_size": "0.25"
+    },
+    {
+      "mapping_id": "map-fixture-004",
+      "vendor": "fixture_vendor",
+      "dataset_id": "fixture_dataset",
+      "stype": "raw_symbol",
+      "symbol": "AMB-2026M",
+      "valid_from": "2026-06-10T00:00:00+00:00",
+      "valid_to": "2026-06-20T00:00:00+00:00",
+      "instrument_id": "fixture-instrument-amb-b",
+      "instrument_status": "active",
+      "tick_size": "0.25"
+    },
+    {
+      "mapping_id": "map-fixture-005",
+      "vendor": "fixture_vendor",
+      "dataset_id": "fixture_dataset",
+      "stype": "raw_symbol",
+      "symbol": "OPEN-2026M",
+      "valid_from": "2026-06-01T00:00:00+00:00",
+      "valid_to": null,
+      "instrument_id": "fixture-instrument-open",
+      "instrument_status": "active",
+      "tick_size": "0.25"
+    }
+  ]
+}
