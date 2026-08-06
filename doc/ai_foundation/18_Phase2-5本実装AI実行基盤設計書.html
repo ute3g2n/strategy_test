@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 2-5 本実装AI実行基盤設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 36px auto; max-width: 1320px; color: #1f2937; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 30px; }
+    h1, h2, h3 { color: #111827; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 5px; margin-top: 36px; }
+    h3 { margin-top: 28px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0 24px; font-size: 14px; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+    th { background: #f1f5f9; text-align: left; }
+    code { background: #f1f5f9; padding: 1px 4px; border-radius: 4px; }
+    pre { background: #111827; color: #f9fafb; padding: 16px; overflow-x: auto; white-space: pre-wrap; }
+    .mermaid { background: #fff; color: #111827; border: 1px solid #cbd5e1; padding: 16px; margin: 16px 0; overflow-x: auto; }
+    .meta, .note, .gate, .unknown { border-left: 4px solid #2563eb; padding: 12px 16px; background: #eff6ff; margin: 18px 0; }
+    .gate { border-left-color: #d97706; background: #fff7ed; }
+    .unknown { border-left-color: #dc2626; background: #fef2f2; }
+    .candidate { border: 1px solid #cbd5e1; padding: 16px; margin: 22px 0; }
+    .status { color: #b45309; font-weight: 700; }
+    .ok { color: #047857; font-weight: 700; }
+    .small { color: #4b5563; font-size: 13px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Phase 2–5 本実装 AI 実行基盤設計書</h1>
+
+  <section class="meta">
+    <p><strong>文書ID:</strong> AF-D18<br>
+    <strong>作成日:</strong> 2026-08-06<br>
+    <strong>文書状態:</strong> v0.2 / 承認済み仕様。S2最小実装済み（検証結果は AF-D19）<br>
+    <strong>ステップID:</strong> AC-P25-S1<br>
+    <strong>使用Orchestrator:</strong> <code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code><br>
+    <strong>担当Agent:</strong> <code>AutoTrade_A06_AiComponentEngineer_v0_1</code>、<code>AutoTrade_A10_RequirementsCurator_v0_1</code>、<code>AutoTrade_A80_DocumentIntegrator_v0_1</code>、<code>AutoTrade_A90_DesignReviewer_v0_1</code><br>
+    <strong>使用Skill:</strong> <code>autotrade_skill_ai_component_lifecycle_v0_1</code>、<code>autotrade_skill_source_reader_v0_1</code>、<code>autotrade_skill_traceability_v0_1</code>、<code>autotrade_skill_orchestration_v0_1</code>、<code>autotrade_skill_html_doc_writer_v0_1</code>、<code>autotrade_skill_design_review_v0_1</code>、<code>autotrade_skill_revision_integration_v0_1</code>、ECC 導入済み Skill 群<br>
+    <strong>変更範囲:</strong> 仕様設計のみ。候補の実体ファイル、設定、default_orchestrator は変更しない。</p>
+  </section>
+
+  <h2>1. 目的、対象、非対象</h2>
+  <p>本書は、Phase 2–5 の Python 実装を、テスト先行、検証、デバッグ、独立レビュー、Human Gate まで一貫して回すための最小 AI 部品構成を定義する。ECC の一般的な実装知識は再利用し、取引システム固有の時系列、データ品質、Secret、安全停止、証跡だけをプロジェクト側で補う。</p>
+  <table>
+    <thead><tr><th>対象</th><th>この設計で固定すること</th><th>この設計で固定しないこと</th></tr></thead>
+    <tbody>
+      <tr><td>Phase 2</td><td>Market Data の一機能をパイロットにし、固定 fixture、data_version、Replay/Data Gate、Python品質ループを検証する。</td><td>Databentoの費用・権限、実データ取得、Broker接続、注文、Live可否。</td></tr>
+      <tr><td>Phase 3</td><td>Strategy/Backtest の Golden、Look-ahead 防止、再現可能な実行証跡へ同じ品質ループを適用する。</td><td>戦略ルールの新規決定や銘柄推奨。</td></tr>
+      <tr><td>Phase 4</td><td>Paper Adapter、order/fill 整合、障害注入、環境分離のレビュー境界を追加する。</td><td>実口座、発注上限の最終承認。</td></tr>
+      <tr><td>Phase 5</td><td>Kill Switch、監視、ロールバック、最小権限を含む事前検証と手動判断の証跡を残す。</td><td>自律的なLive開始、資格情報登録、発注実行。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. 再利用調査と新設判断</h2>
+  <table>
+    <thead><tr><th>既存部品</th><th>再利用する責務</th><th>不足する責務</th><th>判断</th></tr></thead>
+    <tbody>
+      <tr><td><code>AutoTradeProject_Orchestrator_v0_1</code></td><td>Phase Runbook、明示部品、Human Gate、Unknown、文書統合。</td><td>実装単位ごとのテスト先行、検証、失敗ループ、反復上限。</td><td>本設計の上位入口として再利用し、品質ループだけを候補Orchestratorへ分離。</td></tr>
+      <tr><td><code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code> / A82 / A91</td><td>実装詳細設計、DD-01〜DD-12、初回レビュー、再レビュー。</td><td>設計確定後のコード変更、テスト実行、デバッグ。</td><td>実装開始前の入力として再利用。実装品質候補は重複させない。</td></tr>
+      <tr><td>A10、A20、A30、A40、A50、A60、A70、A80、A90</td><td>要求、設計、QA、Adapter、Risk/Account、Ops/Security、文書、横断レビュー。</td><td>Python コードを編集・検証する実装者、デバッガ、コードレビュー専門家。</td><td>新設候補はこの不足責務だけに限定する。</td></tr>
+      <tr><td><code>autotrade_skill_test_strategy_v0_1</code>、<code>autotrade_skill_orchestration_v0_1</code>、<code>autotrade_skill_ops_security_v0_1</code></td><td>テスト分類、DAG、品質 Gate、Secret、安全停止、監査。</td><td>pytest の実装粒度、失敗復旧、Python固有レビュー。</td><td>候補 Skill は既存 Skill を参照・合成し、重複する規則を書かない。</td></tr>
+      <tr><td>ECC `python-patterns`、`python-testing`、`tdd-workflow`、`verification-loop`、`security-review` 等</td><td>Python慣用、pytest、TDD、検証、レビュー、安全観点。</td><td>本プロジェクトの時系列・取引・Run Manifest・Human Gate。</td><td>ECC は原典知識として導入済み。候補 Skill は取引固有の薄いラッパーとする。</td></tr>
+      <tr><td>現在の Codex ランタイム役割 `worker`、`python-reviewer`、`tdd-guide`、`build-error-resolver` 等</td><td>汎用的な delegated work、Pythonレビュー、TDD、ビルド／失敗修正。</td><td>AutoTrade の入力／出力契約、停止条件、証跡保存先。</td><td>候補 Agent はプロジェクト名空間の契約ラッパーとする。</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><strong>過剰作成を避ける判断:</strong> A100 実装計画 Agent、独立 Verification Skill、Phase 専用部品は新設しない。実装計画は A05／A82 と既存の計画 Skill、検証の共通制御は候補 Orchestrator と既存 test/orchestration Skill で担う。</div>
+
+  <h2>3. 全体構成とデータ受渡し</h2>
+  <pre class="mermaid">flowchart TD
+  R["要件・詳細設計・Unknown"] --> O["実装品質Orchestrator"]
+  O --> T["A110 テスト先行"]
+  T --> I["A120 Python実装"]
+  I --> V["A130 検証"]
+  V -->|"失敗ログ"| D["A140 デバッグ"]
+  D -->|"修正差分"| V
+  V -->|"品質証跡"| C["A150 Pythonレビュー"]
+  C -->|"安全確認"| S["A160 取引安全レビュー"]
+  S --> H{"Human Gate"}
+  H -->|"承認"| X["Phase引渡し"]
+  H -->|"差戻し"| T</pre>
+  <p>この図は「どの部品が何を受け取り、何を次へ渡すか」を示す。矢印上の名前は受渡し物であり、Secret、口座情報、APIキーそのものは受け渡さない。</p>
+  <table>
+    <thead><tr><th>送る部品</th><th>受け取る部品</th><th>渡すデータ</th><th>受け取り側の用途と停止条件</th></tr></thead>
+    <tbody>
+      <tr><td>Runbook / A82</td><td>Orchestrator / A110</td><td>Run Manifest、要件ID、DD-ID、対象・非対象範囲、Unknown</td><td>テスト境界を作る。必須ID・承認済み詳細設計・fixture が欠けたら停止。</td></tr>
+      <tr><td>A110</td><td>A120</td><td>テストファイル、受入条件、失敗系、fixture契約</td><td>実装の正しさを固定する。失敗テストが存在しない場合は実装へ進めない。</td></tr>
+      <tr><td>A120</td><td>A130</td><td>変更差分、実装メモ、依存変更、テスト対象</td><td>静的検査・テストを実行する。対象外差分・Secret・実接続を検出したら停止。</td></tr>
+      <tr><td>A130</td><td>A140</td><td>失敗コマンド、終了コード、ログ、環境識別子、再現条件</td><td>原因を分類する。同じ失敗が2回続いたら自動修正を止める。</td></tr>
+      <tr><td>A130</td><td>A150</td><td>Pass済みの差分、テスト結果、coverage、変更境界</td><td>独立レビューをする。証拠欠落やCritical/Highがあれば差戻し。</td></tr>
+      <tr><td>A150</td><td>A160</td><td>レビュー指摘、外部入力・Secret・取引経路の影響一覧</td><td>取引安全を判定する。実取引到達経路や未解決Secretがあれば停止。</td></tr>
+      <tr><td>A160</td><td>Human Gate</td><td>採否、残件、Unknown、ロールバック、次Phase引渡し提案</td><td>人間が受入・差戻し・保留を決める。承認前はPhase引渡しをしない。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. 共通 Run Manifest と状態遷移</h2>
+  <p>Run Manifest は各実装単位の入力と証跡を一意に結び付ける。以下の必須項目を埋められない場合は、実装を開始せず Unknown として記録する。</p>
+  <div class="note"><strong>実装同期:</strong> 実体は JSON のみを受理する。必須項目は <code>orchestrator</code>、<code>agents</code>、<code>skills</code>、<code>input_fixture(name/version/checksum)</code>、<code>data_version</code>、<code>baseline_ref</code>、<code>change_hash</code>、<code>human_gate_policy</code> を含む。<code>human_gate_approved</code> の自己申告は受理せず、証跡直下の <code>human-gate/approval.json</code> を照合する。</div>
+  <div class="note"><strong>図とテキストの区別:</strong> 次の黒い枠は機械可読な Run Manifest の項目例であり、図ではない。その直後の状態遷移ブロックが、Mermaid によりブラウザ上で図として描画される状態遷移図である。</div>
+  <pre>run_id: RUN-P{phase}-{step}-{timestamp}
+phase_id: Phase 2 | Phase 3 | Phase 4 | Phase 5
+step_id: 実行計画書の完全なステップID
+orchestrator: AutoTradeProject_ImplementationQuality_Orchestrator_v0_1
+agents: 明示指定した AutoTrade_Axx_* の完全名
+skills: 明示指定した autotrade_skill_* と ECC Skill 名
+requirements: REQ-* の一覧
+design: DD-* または承認済み設計書ID
+input_fixture: fixture名、fixture_version、checksum
+data_version: 未確定なら Unknown とし、Passにしない
+target_paths: 変更対象ファイル
+excluded_paths: 変更禁止ファイル
+human_gate_policy: Gate名、承認者、承認条件
+evidence_root: test/evidence/{phase_id}/{run_id}/</pre>
+  <pre class="mermaid">stateDiagram-v2
+  [*] --> READY
+  READY --> TEST_DESIGNED: 入力と範囲を確認
+  TEST_DESIGNED --> IMPLEMENTED: red testを保存
+  IMPLEMENTED --> VERIFIED: 最小差分を保存
+  VERIFIED --> DEBUGGING: 機械Gateが失敗
+  DEBUGGING --> VERIFIED: 原因修正後に再実行
+  VERIFIED --> REVIEWED: 全機械GateがPass
+  REVIEWED --> GATED: 独立レビューがPass
+  GATED --> ACCEPTED: Human Gate承認
+  GATED --> TEST_DESIGNED: 差戻し
+  DEBUGGING --> BLOCKED: 同一失敗2回またはUnknown
+  REVIEWED --> BLOCKED: Critical/Highまたは証跡不足
+  BLOCKED --> [*]
+  ACCEPTED --> [*]</pre>
+  <p>自動ループは <code>DEBUGGING</code> から <code>VERIFIED</code> への再試行を同一原因仮説で最大2回とし、3回目は <code>BLOCKED</code> とする。Human Gate は自動承認しない。</p>
+
+  <h2>5. 新設候補の個別仕様</h2>
+  <p>以下の候補は、すべて作成前の仕様である。実体作成時には <code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code> を再実行し、名前衝突・再利用可否・仕様追従更新を再確認する。更新元 ECC コミットは、現時点の原典 <code>623f2c020f052319657674e4e6c29ab5d0ad566b</code> を意味する。</p>
+
+  <div class="candidate">
+    <h3>5.1 Orchestrator 候補: <code>AutoTradeProject_ImplementationQuality_Orchestrator_v0_1</code></h3>
+    <table><tbody>
+      <tr><th>状態</th><td class="status">候補・未作成</td></tr>
+      <tr><th>責務</th><td>承認済みの詳細設計を入力に、A110→A120→A130→A140→A150→A160 の状態遷移、反復上限、証跡、Human Gate を統括する。Project／ImplementationDesign Orchestrator の責務を置き換えない。</td></tr>
+      <tr><th>入力</th><td>Phase Runbook、Run Manifest、REQ-ID、DD-ID、対象・非対象パス、fixture、品質ツール設定、Unknown、Human Gate 方針。</td></tr>
+      <tr><th>出力</th><td>状態遷移ログ、各 Agent の入出力参照、品質 Gate 集計、差戻し／Blocked 判定、Human Gate 提案、Phase 引渡しパケット。</td></tr>
+      <tr><th>状態遷移</th><td><code>READY → TEST_DESIGNED → IMPLEMENTED → VERIFIED → REVIEWED → GATED</code>。失敗は <code>DEBUGGING</code>、反復超過・Unknown・重大指摘は <code>BLOCKED</code>。</td></tr>
+      <tr><th>禁止事項</th><td><code>default_orchestrator</code> の変更、未指定 Agent／Skill の推測起動、テスト削除・skip、品質設定の弱体化、Secret／実データ／Broker／Live への接続。</td></tr>
+      <tr><th>停止条件</th><td>必須入力欠落、Agent名不在、同一失敗2回、Critical/High残存、UnknownをPassにする必要、Human Gate未承認、実取引到達経路の検出。</td></tr>
+      <tr><th>証跡</th><td><code>test/evidence/{phase_id}/{run_id}/orchestrator.json</code>、state log、Gate結果、Human Gate記録、差分ハッシュ、ツールバージョン。</td></tr>
+      <tr><th>更新元 ECC</th><td><code>623f2c020f052319657674e4e6c29ab5d0ad566b</code>。参照 Skill: <code>continuous-agent-loop</code>、<code>autonomous-loops</code>、<code>verification-loop</code>、<code>workspace-surface-audit</code>。</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="candidate">
+    <h3>5.2 Agent 候補: <code>AutoTrade_A110_PythonTestEngineer_v0_1</code></h3>
+    <table><tbody>
+      <tr><th>状態</th><td class="status">候補・未作成</td></tr>
+      <tr><th>責務</th><td>受入条件を振る舞いテストへ分解し、実装前に失敗する pytest、fixture、境界・異常・回帰ケースを作る。テスト結果を改ざんせず、実装者から独立したテスト観点を保つ。</td></tr>
+      <tr><th>入力</th><td>DD-ID、受入条件、ドメインモデル、既存テスト、fixture契約、quality gate、許容差、禁止データ。</td></tr>
+      <tr><th>出力</th><td>テスト計画、pytestコード、fixture manifest、red実行ログ、テストIDとREQ/DDの追跡表、未解決テストUnknown。</td></tr>
+      <tr><th>状態遷移</th><td><code>TEST_SCOPE → CASE_DESIGNED → RED_CONFIRMED → HANDOFF</code>。入力不足は <code>BLOCKED</code>。</td></tr>
+      <tr><th>禁止事項</th><td>実データ/APIキーのfixture化、期待値の後出し変更、テストのskipでPass、実装コードの修正、Live／Broker接続。</td></tr>
+      <tr><th>停止条件</th><td>受入条件・data_version・fixture checksum不明、redを再現できない、Secret検出、設計外の仕様決定が必要。</td></tr>
+      <tr><th>証跡</th><td><code>test-plan.md</code>、テストID一覧、fixture checksum、red実行ログ、coverage対象表、Unknown台帳。</td></tr>
+      <tr><th>更新元 ECC</th><td><code>623f2c020f052319657674e4e6c29ab5d0ad566b</code>。<code>python-testing</code>、<code>tdd-workflow</code>、<code>ai-regression-testing</code> を再利用。</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="candidate">
+    <h3>5.3 Agent 候補: <code>AutoTrade_A120_PythonImplementer_v0_1</code></h3>
+    <table><tbody>
+      <tr><th>状態</th><td class="status">候補・未作成</td></tr>
+      <tr><th>責務</th><td>承認済みテストと詳細設計の範囲内で、最小の Python 差分を実装する。型、UTC、Decimal、ID、例外境界、Adapter境界を守り、設計判断を勝手に追加しない。</td></tr>
+      <tr><th>入力</th><td>red test、DD-ID、変更許可パス、禁止パス、既存コード規約、fixture、依存バージョン、実装上のUnknown。</td></tr>
+      <tr><th>出力</th><td>実装差分、変更理由、依存変更理由、テスト実行結果、変更ファイル一覧、未実装・保留事項。</td></tr>
+      <tr><th>状態遷移</th><td><code>HANDOFF → EDITING → LOCAL_TEST → IMPLEMENTED</code>。設計不整合は編集せず <code>BLOCKED</code>。</td></tr>
+      <tr><th>禁止事項</th><td>テストを先に弱める、型検査・lint無効化、floatで金額・数量を扱う、未承認SDK追加、外部API／Broker／実データ接続、対象外ファイル編集。</td></tr>
+      <tr><th>停止条件</th><td>red testの意図不明、詳細設計とコード構造の不一致、依存や外部仕様が未確定、Secret・実取引経路・対象外差分を検出。</td></tr>
+      <tr><th>証跡</th><td>変更前後の差分、実装メモ、テスト出力、依存差分、変更パス一覧、設計IDとの対応表。</td></tr>
+      <tr><th>更新元 ECC</th><td><code>623f2c020f052319657674e4e6c29ab5d0ad566b</code>。<code>python-patterns</code>、<code>coding-standards</code>、Codex の <code>worker</code>／<code>architect</code> 観点を再利用。</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="candidate">
+    <h3>5.4 Agent 候補: <code>AutoTrade_A130_VerificationEngineer_v0_1</code></h3>
+    <table><tbody>
+      <tr><th>状態</th><td class="status">候補・未作成</td></tr>
+      <tr><th>責務</th><td>変更後に formatter、lint、型検査、unit、integration、coverage、差分、Secret検査を定義順に実行し、結果を機械的に集計する。</td></tr>
+      <tr><th>入力</th><td>実装差分、Run Manifest、Pythonツールチェーン、必須／任意 Gate、テスト結果、比較対象のbaseline。</td></tr>
+      <tr><th>出力</th><td>Gateごとの Pass／Fail／Unknown、実行コマンド、終了コード、環境情報、coverage、再現用要約、次のデバッグ入力。</td></tr>
+      <tr><th>状態遷移</th><td><code>VERIFY_READY → STATIC_CHECKED → TESTED → EVIDENCE_PACKED</code>。一つでも未実行は <code>INCOMPLETE</code> として停止。</td></tr>
+      <tr><th>禁止事項</th><td>失敗の握りつぶし、閾値を無断変更、外部ネットワーク・資格情報の自動取得、テスト結果の手編集、FailをPassへ変換。</td></tr>
+      <tr><th>停止条件</th><td>ツール未確定、コマンドが存在しない、再現不能な環境差、Secret検出、必須GateのFailure／Unknown。</td></tr>
+      <tr><th>証跡</th><td><code>verification.json</code>、コマンド・終了コード一覧、JUnit／coverage、lint/typeログ、差分ハッシュ、環境識別子。</td></tr>
+      <tr><th>更新元 ECC</th><td><code>623f2c020f052319657674e4e6c29ab5d0ad566b</code>。<code>verification-loop</code>、<code>eval-harness</code>、<code>ai-regression-testing</code> を再利用。</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="candidate">
+    <h3>5.5 Agent 候補: <code>AutoTrade_A140_DebugEngineer_v0_1</code></h3>
+    <table><tbody>
+      <tr><th>状態</th><td class="status">候補・未作成</td></tr>
+      <tr><th>責務</th><td>失敗を再現し、仕様・実装・テスト・環境・外部依存・Agent指示の原因分類を行い、最小修正または人間への選択肢を提示する。</td></tr>
+      <tr><th>入力</th><td>Verificationログ、traceback、再現条件、直近差分、baseline、実行環境、過去の同一失敗履歴。</td></tr>
+      <tr><th>出力</th><td>再現手順、原因仮説、根拠、最小修正差分、再実行結果、残件、再発防止提案。</td></tr>
+      <tr><th>状態遷移</th><td><code>FAILURE_RECEIVED → REPRODUCED → HYPOTHESIS → MINIMAL_FIX → REVERIFIED</code>。同一署名2回で <code>BLOCKED</code>。</td></tr>
+      <tr><th>禁止事項</th><td>原因不明の大規模改修、テスト削除、例外の握りつぶし、ログの改変、Secretの出力、再試行回数の無制限化。</td></tr>
+      <tr><th>停止条件</th><td>再現不能、同一失敗2回、原因が未承認設計にある、外部サービス障害、データ品質Unknownを解消しないと判定できない。</td></tr>
+      <tr><th>証跡</th><td><code>debug-report.md</code>、失敗署名、再現コマンド、仮説履歴、修正差分、再検証ログ、BLOCKED理由。</td></tr>
+      <tr><th>更新元 ECC</th><td><code>623f2c020f052319657674e4e6c29ab5d0ad566b</code>。<code>agent-introspection-debugging</code> と <code>build-error-resolver</code> の観点を再利用。</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="candidate">
+    <h3>5.6 Agent 候補: <code>AutoTrade_A150_PythonCodeReviewer_v0_1</code></h3>
+    <table><tbody>
+      <tr><th>状態</th><td class="status">候補・未作成</td></tr>
+      <tr><th>責務</th><td>実装者と異なる視点で、Pythonの正確性、型、例外、性能、並行性、テスト不足、設計逸脱、回帰リスクを Findings first でレビューする。</td></tr>
+      <tr><th>入力</th><td>レビュー対象差分、DD／REQ追跡、verification証跡、テストコード、既存規約、変更禁止範囲。</td></tr>
+      <tr><th>出力</th><td>重大度、ファイル・行・ID、再現条件、影響、修正提案、採否、残留リスク、再レビュー要否。</td></tr>
+      <tr><th>状態遷移</th><td><code>REVIEW_READY → SCOPE_CHECKED → FINDINGS → DECIDED → REREVIEW_REQUIRED/ACCEPTED</code>。</td></tr>
+      <tr><th>禁止事項</th><td>実装者の自己承認、styleだけでのPass、テスト不在の黙認、UnknownのPass、投資助言や銘柄推奨。</td></tr>
+      <tr><th>停止条件</th><td>差分・証跡不足、変更範囲不明、Critical/High残存、再現にSecret／実口座が必要、レビュー基準未確定。</td></tr>
+      <tr><th>証跡</th><td><code>reviews/python-review.md</code>、Finding ID、重大度、対象行、採否表、再レビュー結果。</td></tr>
+      <tr><th>更新元 ECC</th><td><code>623f2c020f052319657674e4e6c29ab5d0ad566b</code>。<code>python-reviewer</code>、<code>code-reviewer</code>、<code>security-review</code> のコード観点を再利用。</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="candidate">
+    <h3>5.7 Agent 候補: <code>AutoTrade_A160_TradingSecurityReviewer_v0_1</code></h3>
+    <table><tbody>
+      <tr><th>状態</th><td class="status">候補・未作成</td></tr>
+      <tr><th>責務</th><td>外部データ、Secret、認証、取引権限、注文経路、データ完全性、prompt injection、kill switch、監査証跡をコードと設定の境界でレビューする。</td></tr>
+      <tr><th>入力</th><td>A150レビュー、差分、外部入力一覧、Secret参照名、Adapter/Risk/Accountの境界、Ops/Security設計。</td></tr>
+      <tr><th>出力</th><td>安全指摘、攻撃・事故シナリオ、Fail-closed判定、Secret検出結果、修正提案、Human Gate必須事項。</td></tr>
+      <tr><th>状態遷移</th><td><code>SECURITY_SCOPE → THREAT_CHECKED → SAFETY_FINDINGS → GATE_PROPOSAL → ACCEPTED/BLOCKED</code>。</td></tr>
+      <tr><th>禁止事項</th><td>実取引、資格情報の取得・検証、攻撃コードの実行、Secretの出力、失敗時のFail-open、Live開始判断の自動化。</td></tr>
+      <tr><th>停止条件</th><td>Secret混入、注文・Broker到達経路、権限昇格、kill switch不在、監査証跡欠落、外部仕様UnknownをPassにする必要。</td></tr>
+      <tr><th>証跡</th><td><code>reviews/trading-security-review.md</code>、脅威モデル、Secret参照名のみの検出ログ、Gate判定、残件。</td></tr>
+      <tr><th>更新元 ECC</th><td><code>623f2c020f052319657674e4e6c29ab5d0ad566b</code>。<code>security-review</code>、<code>llm-trading-agent-security</code> と既存 <code>AutoTrade_A70_OpsSecurityArchitect_v0_1</code> を再利用。</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="candidate">
+    <h3>5.8 Skill 候補: <code>autotrade_skill_python_implementation_v0_1</code></h3>
+    <table><tbody>
+      <tr><th>状態</th><td class="status">候補・未作成</td></tr>
+      <tr><th>責務</th><td>ECC Python規約へ、UTC時刻、Decimal、InstrumentId、data_version、品質フラグ、Adapter境界、決定性、金融計算の禁止事項を薄く追加する。</td></tr>
+      <tr><th>入力</th><td>DD-ID、既存Python規約、共通ドメインモデル、対象モジュール、外部境界、Phase Runbook。</td></tr>
+      <tr><th>出力</th><td>実装チェックリスト、型・時刻・数値・例外の判断、非対象範囲、Unknownと停止条件。</td></tr>
+      <tr><th>状態遷移</th><td><code>CONTEXT_LOADED → CONTRACT_CHECKED → IMPLEMENTATION_GUIDANCE → HANDOFF</code>。</td></tr>
+      <tr><th>禁止事項</th><td>売買推奨、外部SDKの無断固定、floatによる金額・数量、UTC欠落、外部IDを正本化、実接続の誘導。</td></tr>
+      <tr><th>停止条件</th><td>型・時刻・数値契約不明、設計と要件の不一致、金融計算の許容差未定義、外部仕様未確認。</td></tr>
+      <tr><th>証跡</th><td>Run Manifest のSkill版、適用チェックリスト、判断ID、Unknown、実装者への引渡しメモ。</td></tr>
+      <tr><th>更新元 ECC</th><td><code>623f2c020f052319657674e4e6c29ab5d0ad566b</code> の <code>python-patterns</code>、<code>coding-standards</code> を合成。既存 <code>autotrade_skill_domain_modeling_v0_1</code>、<code>autotrade_skill_adapter_boundary_v0_1</code> を参照。</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="candidate">
+    <h3>5.9 Skill 候補: <code>autotrade_skill_python_test_quality_v0_1</code></h3>
+    <table><tbody>
+      <tr><th>状態</th><td class="status">候補・未作成</td></tr>
+      <tr><th>責務</th><td>ECC の pytest/TDD/verification を、MarketEvent、Replay、Golden、data_version、checksum、品質劣化、failure injection と結び付ける。</td></tr>
+      <tr><th>入力</th><td>受入条件、テスト戦略、fixture、Golden期待値、Run Manifest、coverage方針、Failure scenario。</td></tr>
+      <tr><th>出力</th><td>テスト分類、テストID、fixture契約、期待結果、許容差、Gate基準、失敗時の停止・再実行手順。</td></tr>
+      <tr><th>状態遷移</th><td><code>TEST_SCOPE → FIXTURE_LOCKED → RED/GREEN → QUALITY_GATED → HANDOFF</code>。</td></tr>
+      <tr><th>禁止事項</th><td>テストの後付け、期待値の都合による変更、degradedデータを無条件Pass、Secret・実データのfixture化、coverageだけで品質判定。</td></tr>
+      <tr><th>停止条件</th><td>fixture再現性・checksum・許容差不明、Look-ahead判定不能、Failure injection不足、必須テスト分類が未実施。</td></tr>
+      <tr><th>証跡</th><td>テストマトリクス、fixture manifest、red/greenログ、coverage、Failure injection結果、Data/Replay Gate判定。</td></tr>
+      <tr><th>更新元 ECC</th><td><code>623f2c020f052319657674e4e6c29ab5d0ad566b</code> の <code>python-testing</code>、<code>tdd-workflow</code>、<code>verification-loop</code>、<code>ai-regression-testing</code> を合成。既存 <code>autotrade_skill_test_strategy_v0_1</code> を上位方針として参照。</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="candidate">
+    <h3>5.10 Skill 候補: <code>autotrade_skill_debug_recovery_v0_1</code></h3>
+    <table><tbody>
+      <tr><th>状態</th><td class="status">候補・未作成</td></tr>
+      <tr><th>責務</th><td>失敗署名、再現、根本原因仮説、最小修正、再検証、同一失敗の上限、BLOCKED報告を標準化する。</td></tr>
+      <tr><th>入力</th><td>Verification／pytestログ、traceback、差分、環境情報、過去失敗、再現fixture。</td></tr>
+      <tr><th>出力</th><td>Debug report、原因分類、修正候補、再現結果、再発防止、Human Gateへのエスカレーション。</td></tr>
+      <tr><th>状態遷移</th><td><code>CAPTURE → REPRODUCE → DIAGNOSE → MINIMAL_PATCH → REVERIFY → CLOSE/BLOCK</code>。</td></tr>
+      <tr><th>禁止事項</th><td>無制限リトライ、原因不明の広範囲修正、テスト削除、設定緩和、外部副作用、Secretのログ出力。</td></tr>
+      <tr><th>停止条件</th><td>同一失敗2回、再現不能、環境外部依存、設計Unknown、重大な安全経路、修正が対象範囲を超える。</td></tr>
+      <tr><th>証跡</th><td>失敗署名、再現コマンド、仮説履歴、パッチ差分、再検証結果、BLOCKED理由。</td></tr>
+      <tr><th>更新元 ECC</th><td><code>623f2c020f052319657674e4e6c29ab5d0ad566b</code> の <code>agent-introspection-debugging</code> を合成。<code>build-error-resolver</code> の最小修正原則を参照。</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="candidate">
+    <h3>5.11 Skill 候補: <code>autotrade_skill_python_code_review_v0_1</code></h3>
+    <table><tbody>
+      <tr><th>状態</th><td class="status">候補・未作成</td></tr>
+      <tr><th>責務</th><td>ECC Pythonレビューと安全レビューを、REQ/DD追跡、データ境界、時系列、数値、再現性、取引安全、証跡の観点で統合する。</td></tr>
+      <tr><th>入力</th><td>差分、テスト・verification証跡、REQ/DD、設計境界、既存規約、外部入力・権限一覧。</td></tr>
+      <tr><th>出力</th><td>Findings first のレビュー、重大度、対象行、影響、再現条件、修正提案、採否、再レビュー条件。</td></tr>
+      <tr><th>状態遷移</th><td><code>SCOPE → PYTHON_REVIEW → SAFETY_REVIEW → FINDINGS_DECIDED → REREVIEW/ACCEPTED</code>。</td></tr>
+      <tr><th>禁止事項</th><td>実装者との自己レビュー、styleのみの指摘でPass、Unknownを隠す、Secret・口座・Live可否を自動承認。</td></tr>
+      <tr><th>停止条件</th><td>証跡不足、Critical/High残存、データ・時刻・数値契約不明、実取引到達経路、レビュー対象外差分。</td></tr>
+      <tr><th>証跡</th><td>Pythonレビュー、取引安全レビュー、Finding／採否表、REQ/DD対応、再レビュー結果、残留リスク。</td></tr>
+      <tr><th>更新元 ECC</th><td><code>623f2c020f052319657674e4e6c29ab5d0ad566b</code> の <code>python-patterns</code>、<code>security-review</code>、<code>llm-trading-agent-security</code> を合成。既存 <code>autotrade_skill_design_review_v0_1</code> と <code>autotrade_skill_red_team_review_v0_1</code> を参照。</td></tr>
+    </tbody></table>
+  </div>
+
+  <h2>6. 実行・発火制御</h2>
+  <table>
+    <thead><tr><th>制御</th><th>仕様</th></tr></thead>
+    <tbody>
+      <tr><td>明示指定</td><td>各 Run Manifest と実行プロンプトに Orchestrator、Agent、Skill の完全名を記載する。未指定部品は推測起動しない。</td></tr>
+      <tr><td>再利用優先</td><td>A05/A82、A30、A70、A80/A90/A91、既存 test/orchestration/ops Skill、ECC Skill を先に使い、不足責務だけ候補を作る。</td></tr>
+      <tr><td>モデル</td><td>候補 Orchestrator は既存汎用ルールに従い <code>gpt-5.6-terra</code>。候補 Agent は実体作成時に `.codex/agents/AutoTrade_A*.json` の個別モデル定義として固定する。</td></tr>
+      <tr><td>default</td><td><code>default_orchestrator</code> は変更しない。通常のドキュメント依頼に自動発火させず、Phase Runbook の対象ステップで明示する。</td></tr>
+      <tr><td>並列化</td><td>A110のテスト設計とA10/A20の設計読解は入力が確定していれば並列可。A120実装、A130検証、A150/A160レビューは順序依存で直列とする。</td></tr>
+      <tr><td>外部作用</td><td>検索・公式仕様確認は読み取りに限定。外部API、Broker、実データ取得、資格情報登録、注文、push、mergeはHuman Gateなしに実行しない。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. 証跡と更新契約</h2>
+  <table>
+    <thead><tr><th>証跡</th><th>保存先</th><th>必須内容</th></tr></thead>
+    <tbody>
+      <tr><td>Run Manifest</td><td><code>test/evidence/{phase_id}/{run_id}/run-manifest.json</code></td><td>Phase、Step、REQ/DD、対象範囲、完全名、fixture、data_version、baseline/change hash、Gate方針。</td></tr>
+      <tr><td>Human Gate</td><td><code>test/evidence/{phase_id}/{run_id}/human-gate/approval.json</code></td><td>run_id・change_hash・承認者・時刻・decision・残件を照合する。自己申告 boolean は不可。</td></tr>
+      <tr><td>テスト</td><td><code>test/evidence/{phase_id}/{run_id}/test/</code></td><td>red/green、コマンド、終了コード、coverage、fixture checksum。</td></tr>
+      <tr><td>デバッグ</td><td><code>test/evidence/{phase_id}/{run_id}/debug/</code></td><td>失敗署名、再現、原因仮説、修正、再検証、反復回数。</td></tr>
+      <tr><td>レビュー</td><td><code>test/evidence/{phase_id}/{run_id}/reviews/</code></td><td>Finding、重大度、対象行、採否、A150/A160の再レビュー。</td></tr>
+      <tr><td>Human Gate</td><td><code>test/evidence/{phase_id}/{run_id}/human-gate/</code></td><td>承認者、判断、残件、Unknown、ロールバック、次Phase引渡し。</td></tr>
+      <tr><td>AI部品更新</td><td><code>doc/ai_foundation/03</code>–<code>08</code>、<code>doc/index.html</code></td><td>実体作成後に名称、責務、発火制御、相関、停止条件、検証結果を同期する。</td></tr>
+    </tbody>
+  </table>
+  <p>ECC 更新時は取得コミットを更新元として必ず記録し、スキルの差分、依存、外部実行面を再監査する。Skill の原文を直接変更せず、プロジェクト固有の差分は <code>autotrade_skill_*</code> へ置く。</p>
+
+  <h2>8. 禁止事項と停止条件</h2>
+  <div class="gate"><strong>自動停止:</strong> Secret/APIキー/口座IDの検出、実取引・Broker・Live経路の検出、UnknownをPassにする必要、テスト削除・skip、品質設定の弱体化、対象外差分、同一失敗2回、Critical/High指摘、Human Gate未承認。</div>
+  <ul>
+    <li>新設候補の名前が既存の Skill、Agent、Orchestrator と衝突した場合は上書きせず停止する。</li>
+    <li>Phase 1 専用部品を再利用対象へ昇格させず、参照だけにする。</li>
+    <li>実装言語のパッケージ管理、型検査、lint、coverage の版が未確定なら、実在しない設定を仮定せず Unknown と Human Gate を作る。</li>
+    <li>コードレビューは実装者と別の視点で実行し、A150/A160が未完了のまま受入判定を出さない。</li>
+  </ul>
+
+  <h2>9. Unknown と Human Gate</h2>
+  <div class="unknown">
+    <table><thead><tr><th>ID</th><th>Unknown</th><th>決定時期</th><th>決定前の縮退策</th></tr></thead>
+    <tbody>
+      <tr><td>UNK-AIF-01</td><td>Pythonツールチェーン（uv/pip、ruff、mypy/pyright、pytest、coverage）の正式版。</td><td>Phase 2 パイロット開始前 H2-AIF-01</td><td>品質コマンドを実装せず、候補仕様とdry-runだけにする。</td></tr>
+      <tr><td>UNK-AIF-02</td><td>新設候補を一つのOrchestratorに統合する粒度と、既存A05/A82との最終境界。</td><td>基盤実体作成前 H2-AIF-02</td><td>既存部品を明示指定し、新候補は仕様のみとする。</td></tr>
+      <tr><td>UNK-AIF-03</td><td>Phase 2 実装でE2E面が必要か。</td><td>Phase 2 パイロット対象決定時</td><td>pytestの統合テストを使い、E2EはN/A理由を記録する。</td></tr>
+      <tr><td>UNK-AIF-04</td><td>レビュー重大度とcoverage閾値の業務別最終値。</td><td>品質Gate承認時</td><td>ECC 80%は暫定目安とし、Pass判定を確定しない。</td></tr>
+    </tbody></table>
+  </div>
+  <p>Human Gate は候補部品の実体作成、Pythonツールチェーン固定、Phase 2パイロット受入、Phase 3以降への横展開、Liveに関係する変更のたびに必要とする。</p>
+
+  <h2>10. 実体作成前の検証チェック</h2>
+  <table>
+    <thead><tr><th>確認項目</th><th>判定基準</th><th>現時点</th></tr></thead>
+    <tbody>
+      <tr><td>再利用調査</td><td>既存 AutoTrade 部品、ECC Skill、ランタイム役割を候補ごとに記録した。</td><td class="ok">Pass</td></tr>
+      <tr><td>過剰作成防止</td><td>A100、独立Verification Skill、Phase専用部品を作らない理由がある。</td><td class="ok">Pass</td></tr>
+      <tr><td>完全名</td><td>候補の完全名、更新元、参照 Skill が一意である。</td><td class="ok">Pass</td></tr>
+      <tr><td>状態・停止</td><td>全候補に状態、状態遷移、禁止事項、停止条件がある。</td><td class="ok">Pass</td></tr>
+      <tr><td>証跡</td><td>Run Manifest、test、debug、review、Human Gateの保存先がある。</td><td class="ok">Pass</td></tr>
+      <tr><td>安全</td><td>Secret、実取引、外部書込み、UnknownのPassを禁止している。</td><td class="ok">Pass</td></tr>
+      <tr><td>未実施項目</td><td>実体ファイル作成、JSON登録、03–08更新、実行検証はS2以降に残している。</td><td class="status">Human Gate待ち</td></tr>
+    </tbody>
+  </table>
+
+  <h2>11. 関連文書</h2>
+  <ul>
+    <li><a href="./11_AI部品作成更新AI部品仕様.html">AF-D11 AI部品作成更新AI部品仕様</a></li>
+    <li><a href="./12_AI部品作成更新依頼プロンプト.html">AF-D12 AI部品作成更新依頼プロンプト</a></li>
+    <li><a href="./03_プロジェクト汎用Skill仕様.html">AF-D03 プロジェクト汎用Skill仕様</a></li>
+    <li><a href="./04_プロジェクト汎用サブエージェント仕様.html">AF-D04 プロジェクト汎用サブエージェント仕様</a></li>
+    <li><a href="./05_プロジェクト汎用オーケストレータ仕様.html">AF-D05 プロジェクト汎用オーケストレータ仕様</a></li>
+    <li><a href="./06_AI部品相関図発火制御図.html">AF-D06 AI部品相関図・発火制御図</a></li>
+    <li><a href="./07_AI部品作成ルール.html">AF-D07 AI部品作成ルール</a></li>
+    <li><a href="./08_AI実行基盤整理検証結果.html">AF-D08 AI実行基盤整理検証結果</a></li>
+    <li><a href="../../plan/phase2-5_ai_foundation/00_導入台帳.md">ECC 導入台帳</a></li>
+    <li><a href="../../plan/phase2-5_ai_foundation/00_互換性マトリクス.md">ECC / Codex 互換性マトリクス</a></li>
+    <li><a href="../../test/evidence/README.md">テスト・実装証跡の保存ルート</a></li>
+  </ul>
+</main>
+<script src="../assets/mermaid.min.js"></script>
+<script src="../assets/mermaid-init.js"></script>
+</body>
+</html>

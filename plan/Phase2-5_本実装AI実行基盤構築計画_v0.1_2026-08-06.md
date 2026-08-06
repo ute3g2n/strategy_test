@@ -196,7 +196,7 @@ AutoTradeComponentLifecycle_Orchestrator_v0_1 を用い、Phase 2–5 の Python
 ### S3: Phase 2 の一機能でパイロットする
 
 対象候補: `src/autotrade/market_data/` の Raw/Normalized 変換または Instrument Catalog の一振る舞い。  
-成果物: `plan/phase2/実装証跡/`、`plan/phase2/HumanGate/`、実装・テスト・レビュー差分。
+成果物: `test/evidence/Phase 2/<run-id>/`、実装・テスト・レビュー差分。
 
 実行プロンプト:
 
@@ -244,10 +244,10 @@ Live 接続、権限昇格、Secret 登録、外部サービスへの書込み�
 
 ## 8. 証跡、構成、更新運用
 
-- 実装ログ: `plan/phaseX/実装証跡/<run-id>/`
-- テスト結果: `plan/phaseX/実装証跡/<run-id>/test-results/`
-- レビュー: `plan/phaseX/実装証跡/<run-id>/reviews/`
-- Human Gate: `plan/phaseX/HumanGate/<gate-id>.md`
+- 実装ログ: `test/evidence/<phase-id>/<run-id>/`
+- テスト結果: `test/evidence/<phase-id>/<run-id>/test/`
+- レビュー: `test/evidence/<phase-id>/<run-id>/reviews/`
+- Human Gate: `test/evidence/<phase-id>/<run-id>/human-gate/<gate-id>.md`
 - 基盤の評価: `plan/phase2-5_ai_foundation/`
 - 正式な設計書: `doc/ai_foundation/`。追加・更新時は `doc/index.html` を更新する。
 

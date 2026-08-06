@@ -51,6 +51,7 @@
   `AutoTradeComponentLifecycle_Orchestrator_v0_1`
   `AutoTradeProject_DesignDocSet_Orchestrator_v0_1`
   `AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`
+  `AutoTradeProject_ImplementationQuality_Orchestrator_v0_1`
 - Agents:
   `AutoTrade_A05_PhaseExecutionPlanner_v0_1`
   `AutoTrade_A06_AiComponentEngineer_v0_1`
@@ -66,11 +67,18 @@
   `AutoTrade_A82_ImplementationDetailDesigner_v0_1`
   `AutoTrade_A90_DesignReviewer_v0_1`
   `AutoTrade_A91_ImplementationDetailReviewer_v0_1`
+  `AutoTrade_A110_PythonTestEngineer_v0_1`
+  `AutoTrade_A120_PythonImplementer_v0_1`
+  `AutoTrade_A130_VerificationEngineer_v0_1`
+  `AutoTrade_A140_DebugEngineer_v0_1`
+  `AutoTrade_A150_PythonCodeReviewer_v0_1`
+  `AutoTrade_A160_TradingSecurityReviewer_v0_1`
 - Skills:
   `.codex/skills/autotrade_skill_*_v0_1/`
   Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を使います。
   AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を使います。
   実装詳細設計では `autotrade_skill_implementation_detail_design_v0_1` と `autotrade_skill_implementation_detail_review_v0_1` を使います。
+  Python本実装の品質ループでは `autotrade_skill_python_implementation_v0_1`、`autotrade_skill_python_test_quality_v0_1`、`autotrade_skill_debug_recovery_v0_1`、`autotrade_skill_python_code_review_v0_1` を明示指定します。実行証跡は `test/evidence/{phase_id}/{run_id}/` に保存し、`scripts/quality_gate/` はRun Manifestのローカル許可コマンドだけを実行します。
 
 ### Phase実行計画
 

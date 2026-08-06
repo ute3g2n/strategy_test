@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 2-5 実装品質基盤 実装検証</title>
+  <style>
+    body{font-family:system-ui,sans-serif;line-height:1.7;margin:36px auto;max-width:1100px;background:#f8fafc;color:#172033}main{background:#fff;padding:30px;border:1px solid #d8e0ea}h1,h2{color:#102a43}table{border-collapse:collapse;width:100%;margin:14px 0 24px}th,td{border:1px solid #cbd5e1;padding:8px;vertical-align:top}th{background:#eff6ff;text-align:left}code{background:#f1f5f9;padding:1px 4px}.note{border-left:4px solid #2563eb;background:#eff6ff;padding:12px}.ok{color:#047857;font-weight:700}.pending{color:#b45309;font-weight:700}
+  </style>
+</head>
+<body><main>
+  <h1>Phase 2-5 実装品質基盤 実装検証</h1>
+  <p class="note"><strong>文書ID:</strong> AF-D19 / <strong>基準設計:</strong> <a href="./18_Phase2-5本実装AI実行基盤設計書.html">AF-D18</a> / <strong>ECC commit:</strong> <code>623f2c020f052319657674e4e6c29ab5d0ad566b</code></p>
+
+  <h2>実装した最小部品</h2>
+  <table><thead><tr><th>種別</th><th>実体</th><th>役割</th></tr></thead><tbody>
+    <tr><td>Orchestrator</td><td><code>AutoTradeProject_ImplementationQuality_Orchestrator_v0_1</code></td><td>RED → 実装 → ローカル検査 → 独立レビュー → Human Gate を統括する。</td></tr>
+    <tr><td>Agent</td><td><code>A110</code>–<code>A160</code></td><td>テスト、実装、検証、デバッグ、Pythonレビュー、取引安全レビューを分担する。</td></tr>
+    <tr><td>Skill</td><td><code>autotrade_skill_python_*</code> と <code>autotrade_skill_debug_recovery_v0_1</code></td><td>Python 実装、テスト品質、デバッグ、レビューの薄いプロジェクト適用層。</td></tr>
+    <tr><td>Gate</td><td><code>scripts/quality_gate/</code></td><td>S2 基盤自己検証用。JSON Run Manifest を検証し、固定された formatter/lint/type/test のローカル検査だけを実行する。Phase 実装本体への allowlist 拡張は別途承認済み部品更新で行う。</td></tr>
+  </tbody></table>
+
+  <h2>安全契約</h2>
+  <table><thead><tr><th>制約</th><th>実装上の確認</th></tr></thead><tbody>
+    <tr><td>外部接続なし</td><td><code>shell=False</code>、固定コマンドテンプレート、最小環境変数。ネットワーク、Broker、Secret、実取引のコマンドや引数を受理しない。</td></tr>
+    <tr><td>範囲の強制</td><td>この最小 Gate は <code>scripts/quality_gate</code> と <code>tests/quality_gate</code> の信頼済み固定範囲だけを許可する。追跡済み・未追跡のローカル git 差分、テスト削除、テスト skip 追加を検査し、実差分 SHA-256 が Manifest と一致しなければ Blocked にする。</td></tr>
+    <tr><td>Human Gate</td><td>このスクリプトは書込み可能 worktree の承認ファイルを信頼せず、必ず <code>HUMAN_GATE_REQUIRED</code> で停止する。Phase 引渡しの承認は worktree 外の人間承認チャネルで行う。</td></tr>
+    <tr><td>証跡</td><td>標準出力・標準エラー・Secret を保存せず、<code>verification.json</code> に状態、理由、固定コマンド、終了コード、時間だけを保存する。</td></tr>
+  </tbody></table>
+
+  <h2>TDD と独立レビュー</h2>
+  <table><thead><tr><th>段階</th><th>確認結果</th></tr></thead><tbody>
+    <tr><td>RED</td><td><code>ChangeRecord</code> 未実装の状態で pytest 収集失敗を確認。固定ゲート、変更範囲、Human Gate 証跡を要求するテストを先に追加した。</td></tr>
+    <tr><td>GREEN</td><td class="ok"><code>.venv\Scripts\python.exe -m pytest tests\quality_gate -q --cov=scripts.quality_gate --cov-report=term-missing</code>: 18 passed、総合 coverage 76%。</td></tr>
+    <tr><td>独立レビュー</td><td>2系統のレビューで指摘されたゲート名とコマンドの非対応、任意 pytest 実行、自己申告承認、未追跡ファイル、差分 hash、範囲未強制を修正した。OS による outbound 隔離がない環境では、テスト Gate の本実行は運用上の Human Gate で止める。</td></tr>
+    <tr><td>実行状態</td><td class="pending">同梱 Manifest は Unknown を残しており、実行は意図的に <code>BLOCKED</code>。Human Gate 承認前に Accepted にはならない。</td></tr>
+  </tbody></table>
+
+  <h2>引渡し条件</h2>
+  <p>実装単位ごとに対象パス、基準 ref、change hash、fixture、レビュー結果を埋め、ローカル検査の成功後に Human Gate 承認記録を作る。未解決 Unknown、Critical/High 指摘、範囲逸脱、テスト緩和は Phase 引渡しを禁止する。</p>
+</main></body></html>

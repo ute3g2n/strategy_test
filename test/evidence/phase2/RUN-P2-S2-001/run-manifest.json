@@ -1,0 +1,26 @@
+{
+  "run_id": "RUN-P2-S2-001",
+  "phase_id": "phase2",
+  "step_id": "S2",
+  "requirements": ["AC-P25-S2"],
+  "design": "AF-D18",
+  "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+  "agents": ["AutoTrade_A110_PythonTestEngineer_v0_1", "AutoTrade_A130_VerificationEngineer_v0_1"],
+  "skills": ["autotrade_skill_python_test_quality_v0_1"],
+  "input_fixture": {"name": "quality_gate", "version": "v1", "checksum": "sha256:local-only"},
+  "data_version": "v1",
+  "change_hash": "UNAPPROVED-S2-IMPLEMENTATION",
+  "baseline_ref": "HEAD",
+  "target_paths": ["scripts/quality_gate", "tests/quality_gate"],
+  "excluded_paths": [".env", "third_party/everything-claude-code"],
+  "evidence_root": "test/evidence/phase2/RUN-P2-S2-001",
+  "checks": [
+    {"gate": "formatter", "command": ["ruff", "format", "--check", "scripts/quality_gate", "tests/quality_gate"]},
+    {"gate": "lint", "command": ["ruff", "check", "scripts/quality_gate", "tests/quality_gate"]},
+    {"gate": "type", "command": ["mypy", "scripts/quality_gate"]},
+    {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_pytest"]}
+  ],
+  "review": {"critical": 0, "high": 0},
+  "human_gate_policy": "S2-HG-01",
+  "unknowns": ["UNK-AIF-01: ruff と mypy の正式固定版は Human Gate 未承認"]
+}
