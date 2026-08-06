@@ -120,6 +120,16 @@ Skill、サブエージェント、オーケストレータの作成または変
 - [実装詳細設計書HTMLテンプレート](./doc/ai_foundation/16_実装詳細設計書HTMLテンプレート.html)
 - [実装詳細設計書作成依頼プロンプト](./doc/ai_foundation/17_実装詳細設計書作成依頼プロンプト.html)
 
+### WSL隔離品質ゲート
+
+`RUN-P2-IC-001-WSL` は、P2-D07の固定fixtureをWSL2 `networkingMode=none` で実行する専用scopeです。Linux用venvは `.venv/bin/python` 固定で、証跡は `test/evidence/phase2/RUN-P2-IC-001-WSL/` に保存します。BLK-RUN-003は、実機での隔離・4 Gate・完全復元証跡とHuman Gateがそろうまで解決済みにしません。
+
+Windowsホストからの唯一の実行入口（WSL内から実行しない）:
+
+```powershell
+powershell.exe -NoProfile -File .\scripts\wsl_quality_gate\run_isolated_p2.ps1 -Distro <WSLディストリビューション名> -RepositoryPath <WSL内cloneの絶対パス> -RunId RUN-P2-IC-001-WSL
+```
+
 ## AGENTS.md と README.md の更新タイミング
 
 `AGENTS.md` と `README.md` は常に更新する必要はありません。次のような変化が入ったときに追記または修正します。

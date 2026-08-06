@@ -1,0 +1,59 @@
+{
+  "state": "DRY_RUN",
+  "reason": "ローカル検査のみを予定として確認しました",
+  "gates": [
+    {
+      "gate": "formatter",
+      "status": "PLANNED",
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/autotrade/market_data",
+        "tests/market_data"
+      ],
+      "exit_code": null,
+      "duration_ms": null
+    },
+    {
+      "gate": "lint",
+      "status": "PLANNED",
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/autotrade/market_data",
+        "tests/market_data"
+      ],
+      "exit_code": null,
+      "duration_ms": null
+    },
+    {
+      "gate": "type",
+      "status": "PLANNED",
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "mypy",
+        "src/autotrade/market_data"
+      ],
+      "exit_code": null,
+      "duration_ms": null
+    },
+    {
+      "gate": "test",
+      "status": "PLANNED",
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "scripts.quality_gate.local_p2_pytest"
+      ],
+      "exit_code": null,
+      "duration_ms": null
+    }
+  ],
+  "generated_at": "2026-08-06T09:09:50.990118+00:00"
+}

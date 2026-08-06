@@ -42,4 +42,6 @@
   <p>実装単位ごとに対象パス、基準 ref、change hash、fixture、レビュー結果を埋め、ローカル検査の成功後に Human Gate 承認記録を作る。未解決 Unknown、Critical/High 指摘、範囲逸脱、テスト緩和は Phase 引渡しを禁止する。</p>
   <h2>S4.3 Python 品質ツール確定</h2>
   <p>開発用設定は <code>requirements-dev.txt</code> と <code>pyproject.toml</code> に固定版を記録する。実行確認値は ruff 0.16.1、mypy 2.3.0、pytest 9.1.1、pytest-cov 7.1.0。P2-D07 の formatter、lint、type、固定 pytest wrapper、coverage は成功した。対象外差分を理由に止めるBLK-RUN-001は、target_only scopeと対象限定hashへ変更して解消した。ただしhost outbound isolation未確認とHuman Gate未承認が残るため、RUN-P2-IC-001の最終状態は <code>BLOCKED</code> とする。機械可読証跡は <code>test/evidence/phase2/RUN-P2-IC-001/verification.json</code> に保存する。</p>
+  <h2>WSL隔離Runの追補</h2>
+  <p><code>RUN-P2-IC-001-WSL</code> は、同じP2-D07、REQ-Q02/19/20/23、fixture checksum、target-only範囲をLinux用 <code>.venv/bin/python</code> の固定4 Gateへ結び付ける専用trusted scopeである。Windowsホストの <code>scripts/wsl_quality_gate/run_isolated_p2.ps1</code> が <code>networkingMode=none</code> と <code>firewall=true</code> を一時設定し、<code>try/finally</code> で元の <code>.wslconfig</code> の存在有無・バイト列・SHA-256を復元する。WSL側はdefault route、外向きNIC、Linux tool version、fixture、host-isolation証跡を4 Gateより前に検査する。実機の復元証跡とHuman Gateが未取得の間は、<code>BLK-RUN-003</code> を解決済みに変更しない。</p>
 </main></body></html>
