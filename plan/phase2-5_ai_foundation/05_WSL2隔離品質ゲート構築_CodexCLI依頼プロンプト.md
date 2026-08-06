@@ -11,7 +11,7 @@ AutoTradeComponentLifecycle_Orchestrator_v0_1 のルールに従う実装担当�
 WSL2上のクローンで、RUN-P2-IC-001 と同じP2-D07の固定fixture試験を、
 外向きネットワークを使わない隔離環境で安全に実行できる基盤を構築してください。
 人間の実行操作は、Windowsホストから一つのPowerShellコマンドを実行するだけにします。
-そのコマンドは、隔離設定 → 前提確認 → 固定4 Gate → 証跡保存 → 隔離設定の完全復元を
+そのコマンドは、Windows側のhost確認 → 隔離設定 → wsl --shutdown → Linux側の前提確認 → 固定4 Gate → 証跡保存 → 隔離設定の完全復元を
 try/finallyで必ず行わなければなりません。
 
 最重要の前提
@@ -76,15 +76,17 @@ RED証跡は test/evidence/phase2/RUN-P2-IC-001-WSL/ に保存してください
    - change_hashはWSL cloneの対象3パスだけから計算する。変更前に仮値を置いて通してはいけない。
 
 3. scripts/wsl_quality_gate/run_isolated_p2.ps1
-   - これはWindowsホストから実行する唯一の入口とする。WSL内から .wslconfig を切り替えようとしてはならない。
+   - これは `run_test.ps1` から内部的に呼ばれるWindows host wrapperとする。人間が使う唯一の入口は `run_test.ps1` とし、WSL内から .wslconfig を切り替えようとしてはならない。
    - パラメータは少なくとも -Distro、-RepositoryPath、-RunId（既定RUN-P2-IC-001-WSL）、-DryRun を持つ。
-   - 実行前に、wsl --version、wsl -l -v、対象がVERSION 2、repository path、registry、manifest、
-     Linux wheelhouse、WSL用venvを確認する。足りなければ設定変更前にBLOCKEDで終了する。
+   - 実行前はWindows側で、wsl --version、wsl -l -v、対象がVERSION 2、RepositoryPathの安全な形式だけを確認する。
+     全ディストリビューションがStoppedでない場合や対象がWSL2でない場合は、設定変更前にBLOCKEDで終了する。
+     この段階で `wsl -d` によるLinux起動、repository、manifest、wheelhouse、WSL用venvの確認をしてはならない。
    - %UserProfile%\.wslconfig の存在有無と元バイト列のSHA-256を一意な一時backupへ保存する。
    - [wsl2] networkingMode=none と firewall=true を設定し、wsl --shutdown で反映する。
      既存の別設定は壊さない。実装が安全にpatchできない場合は、元ファイルを完全backupして
      一時的に置換し、finallyで元バイト列を完全復元する。
-   - WSLを非対話で一回だけ起動し、下記のLinux runnerを呼ぶ。
+   - 設定反映後にWSLを非対話で一回だけ起動し、下記のLinux runnerを呼ぶ。Linux runnerがWSL2 kernel、repository、manifest、registry、
+     wheelhouse、WSL用venv、network隔離、Linux tool version、fixture checksumを確認し、成功した場合だけ固定4 Gateを開始する。
    - 成功、テスト失敗、PowerShell例外、Ctrl+C相当の終了でも finally を使い、
      元の .wslconfig を復元し、再度 wsl --shutdown を実行する。
    - 復元後に、元の存在有無とSHA-256が一致することを確認する。違えば最優先FAILEDにする。
@@ -122,10 +124,11 @@ RED証跡は test/evidence/phase2/RUN-P2-IC-001-WSL/ に保存してください
 実装・GREEN・レビュー後に、READMEと最終報告で次の形式の一行だけを示してください。
 これはWindows PowerShellから実行する。WSL内から実行してはならない。
 
-powershell.exe -NoProfile -File .\scripts\wsl_quality_gate\run_isolated_p2.ps1 -Distro <WSLディストリビューション名> -RepositoryPath <WSL内cloneの絶対パス> -RunId RUN-P2-IC-001-WSL
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\wsl_quality_gate\run_test.ps1
 
-この一行の期待動作は、隔離設定 → wsl shutdown → WSL内前提確認 → 固定4 Gate →
-証跡保存 → .wslconfig完全復元 → wsl shutdown である。
+この一行の期待動作は、Windows側host確認 → 隔離設定 → wsl --shutdown → WSL内前提確認 → 固定4 Gate →
+証跡保存 → .wslconfig完全復元 → wsl --shutdown である。
+`run_test.ps1` はwrapper出力、終了コード、最新の前提確認またはverification証跡を automationディレクトリへ保存する。
 どこか一つでも失敗した場合、4 Gateを始めないか、失敗として証跡を残し、復元後に非0で終了する。
 
 検証とレビュー

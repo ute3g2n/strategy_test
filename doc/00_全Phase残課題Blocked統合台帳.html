@@ -210,16 +210,16 @@
     <p>WSL2の通常設定はNATで、Windowsのネットワークを通って外へ出られるため、WSLを起動するだけでは解決しません。WSL2には <code>networkingMode=none</code> があるので、これを使って「ネットワークなし」の実行環境を作ります。設定値の対応状況は、実行する端末のWSL versionとMicrosoftの設定表を確認します。</p>
     <p>Codex CLIにこの環境を構築させるための、そのまま貼り付けられる依頼文は <a href="../plan/phase2-5_ai_foundation/05_WSL2隔離品質ゲート構築_CodexCLI依頼プロンプト.md">WSL2隔離品質ゲート構築_CodexCLI依頼プロンプト</a> に置きます。</p>
     <ol>
-      <li>Windows側で <code>wsl --version</code> と <code>wsl -l -v</code> を読み取り、対象ディストリビューションがVERSION 2であることを確認します。</li>
+      <li>Windows側で <code>wsl --version</code> と <code>wsl -l -v</code> を読み取り、全ディストリビューションが停止中で、対象ディストリビューションがVERSION 2であることを確認します。この確認では <code>wsl -d</code> を呼ばず、WSLを起動しません。</li>
       <li>依存パッケージを先に用意します。ネットワークを切った後はpip installしません。Linux用のPython、ruff、mypy、pytest、pytest-covを、承認済みartifactまたは事前取得wheelからWSL内へ配置します。Windows用の <code>.venv</code> はLinuxで使わず、WSL専用のvenvを作ります。</li>
       <li>Windows側の <code>%UserProfile%\.wslconfig</code> に次を設定します。<code>networkingMode=none</code> は全WSL2へ効くため、他のWSL作業を止められる時間帯に行います。<pre>[wsl2]
 networkingMode=none
 firewall=true</pre></li>
-      <li><code>wsl --shutdown</code> を実行してから対象ディストリビューションを起動します。WSL内で <code>ip addr</code> と <code>ip route</code> を読み取り、通常の外向きインターフェースやdefault routeがないことを記録します。外部サイトへの接続試験はしません。</li>
-      <li>WSL内でリポジトリを開き、Linux用venvと固定版ツールが読めることを確認します。fixture、Manifest、registry、固定wrapperだけを使い、Databento、Broker、Secret、実データを置きません。</li>
+      <li><code>wsl --shutdown</code> を実行して隔離設定を反映し、その後に対象ディストリビューションを一回だけ起動します。起動後のLinux runnerが <code>uname -r</code>、<code>ip addr</code>、<code>ip route</code> を読み取り、WSL2 kernel、通常の外向きインターフェース、default routeの有無を確認します。外部サイトへの接続試験はしません。</li>
+      <li>同じLinux runnerが、repository、Linux用venv、承認済みwheelhouse、fixture、Manifest、registry、固定版ツールを確認します。これらの確認に失敗した場合は4 Gateを開始しません。Databento、Broker、Secret、実データは置きません。</li>
       <li>現在の <code>RUN-P2-IC-001</code> の固定commandは <code>.venv/Scripts/python.exe</code>（Windows用）です。これをWSLから呼ぶとWindows側で実行され、WSLの隔離を使えません。したがって、WSL用の承認済みscope <code>RUN-P2-IC-001-WSL</code> をregistryへ追加し、<code>.venv/bin/python -m ruff</code>、<code>.venv/bin/python -m mypy</code>、<code>.venv/bin/python -m scripts.quality_gate.local_p2_pytest</code> の固定templateを登録します。target_paths、fixture hash、requirements、designは元Runと一致させます。</li>
-      <li>管理者または環境管理者が、WSL version、ディストリビューション、<code>.wslconfig</code>、<code>ip addr</code>、<code>ip route</code>の結果を <code>test/evidence/phase2/RUN-P2-IC-001/host-isolation.json</code> に記録します。markerだけでは証拠にしません。</li>
-      <li>管理者が隔離証跡を確認したWSL内でだけ <code>QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED=1</code> を設定し、WSL用にregistry登録したManifestを指定してRunnerを実行します。Runnerが4 Gateを開始した後、終了コード、version、対象scope、hash、fixture hashをverificationへ保存します。</li>
+      <li>Linux runnerが、WSL version、kernel、ディストリビューション、networkingMode、<code>ip addr</code>、<code>ip route</code>、fixture hashを <code>test/evidence/phase2/RUN-P2-IC-001-WSL/host-isolation.json</code> に記録します。markerだけでは証拠にしません。</li>
+      <li>これらの確認に成功したプロセスだけが <code>QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED=1</code> を設定し、WSL用にregistry登録したManifestで4 Gateを実行します。終了コード、version、対象scope、hash、fixture hashをverificationへ保存します。</li>
     </ol>
     <p><strong>WSL手順の停止条件:</strong> <code>networkingMode=none</code> が使えない、WSLがVERSION 1、default routeが残る、依存パッケージを事前取得できない、host-isolation.jsonを管理者が確認できない場合は、通常WSLへ戻して実行せずBLOCKEDのままにします。</p>
     <p><strong>2026-08-06 実装追補:</strong> WSL専用trusted scope <code>RUN-P2-IC-001-WSL</code>、Windows host wrapper、WSL runner、wheelhouse準備スクリプトとRED契約テストを追加した。実機の <code>host-isolation.json</code>、<code>restore.json</code>、4 Gate結果、Human Gate承認は未取得のため、<code>BLK-RUN-003</code> は解決済みに変更しない。</p>

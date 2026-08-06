@@ -1,0 +1,5 @@
+﻿{
+    "execution_id":  "e88e3f6caaf34afda9c98b0adf86d0dc",
+    "reason":  "\"AddRange\" の引数 \"collection\" (値 \"System.Object[]\") を型 \"System.Collections.Generic.IEnumerable`1[System.String]\" に変換できません: \"\"System.Object[]\" の値を \"System.Object[]\" 型から \"System.Collections.Generic.IEnumerable`1[System.String]\" 型に変換できません。\"",
+    "state":  "FAILED"
+}

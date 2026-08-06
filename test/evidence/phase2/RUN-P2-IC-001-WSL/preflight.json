@@ -1,0 +1,5 @@
+﻿{
+    "execution_id":  "3a6a1ce597a44ebaa3386090e8b6293e",
+    "reason":  "Stop all WSL distributions before running this wrapper. wsl --shutdown terminates all running WSL processes.",
+    "state":  "BLOCKED"
+}

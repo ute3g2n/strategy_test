@@ -14,15 +14,46 @@ $backup = Join-Path ([IO.Path]::GetTempPath()) ("autotrade-wslconfig-" + [guid]:
 $hadConfig = Test-Path -LiteralPath $config -PathType Leaf
 $originalHash = $null
 $executionId = [guid]::NewGuid().ToString("N")
+$debugRecords = [Collections.Generic.List[object]]::new()
+$originalWslHostWrapperExecutionId = $env:WSL_HOST_WRAPPER_EXECUTION_ID
+$originalWslVersion = $env:WSL_VERSION
+$originalWslDistroName = $env:WSL_DISTRO_NAME
+
+function Convert-OutputText([object[]]$Output) {
+    if ($null -eq $Output) { return "" }
+    return (($Output | ForEach-Object { if ($null -eq $_) { "" } else { [string]$_ } }) -join "`n")
+}
+function Add-DebugRecord([string[]]$Arguments, [object[]]$Output, [int]$ExitCode, [string]$Kind) {
+    $text = Convert-OutputText $Output
+    $record = [ordered]@{
+        kind = $Kind
+        command = @("wsl.exe") + $Arguments
+        powershell_location = (Get-Location).Path
+        exit_code = $ExitCode
+        output = $text
+        recorded_at = (Get-Date).ToUniversalTime().ToString("o")
+    }
+    $debugRecords.Add($record)
+    Write-Host ("[WSL-DEBUG] kind={0} exit={1} command={2}" -f $Kind, $ExitCode, ($record.command -join " "))
+    if ($text) { Write-Host ("[WSL-DEBUG] output={0}" -f $text) }
+}
 
 function Invoke-WslText([string[]]$Arguments) {
     $output = & wsl.exe @Arguments 2>&1
-    if ($LASTEXITCODE -ne 0) { throw "wsl.exe failed ($LASTEXITCODE): $($output -join ' ')" }
+    $exitCode = $LASTEXITCODE
+    Add-DebugRecord $Arguments $output $exitCode "strict"
+    if ($exitCode -ne 0) {
+        $detail = Convert-OutputText $output
+        $command = (@("wsl.exe") + $Arguments) -join " "
+        throw "wsl.exe failed ($exitCode) command=$command detail=$detail"
+    }
     return ($output -join "`n")
 }
 function Invoke-WslCapture([string[]]$Arguments) {
     $output = & wsl.exe @Arguments 2>&1
-    return @{ Output = ($output -join "`n"); ExitCode = $LASTEXITCODE }
+    $exitCode = $LASTEXITCODE
+    Add-DebugRecord $Arguments $output $exitCode "capture"
+    return @{ Output = ($output -join "`n"); ExitCode = $exitCode }
 }
 function Get-Hash([string]$Path) { return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() }
 function Write-Evidence([hashtable]$Value, [string]$Name) {
@@ -34,19 +65,28 @@ function Write-WslEvidence([hashtable]$Value, [string]$Name) {
     $encoded = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($json))
     $wslPath = "$RepositoryPath/test/evidence/phase2/$RunId/$Name"
     $command = "mkdir -p '$RepositoryPath/test/evidence/phase2/$RunId'; printf '%s' '$encoded' | base64 -d > '$wslPath'"
-    Invoke-WslText @("-d", $Distro, "--", "bash", "-lc", $command) | Out-Null
+    $arguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && $command")
+    Invoke-WslText $arguments | Out-Null
 }
 
 try {
     if ($RunId -ne "RUN-P2-IC-001-WSL") { throw "RunId is not the fixed WSL scope" }
-    $wslVersion = Invoke-WslText @("--version")
-    $list = Invoke-WslText @("-l", "-v")
-    if ($list -notmatch [regex]::Escape($Distro) -or $list -notmatch "(?m)$([regex]::Escape($Distro)).*\s2\s*$") { throw "対象ディストリビューションがVERSION 2ではありません" }
+    if (-not [string]::IsNullOrWhiteSpace($env:WSL_INTEROP) -or -not [string]::IsNullOrWhiteSpace($env:WSL_DISTRO_NAME)) {
+        throw "Run this wrapper from native Windows PowerShell, not from WSL. wsl --shutdown would terminate the execution environment (current distro: $($env:WSL_DISTRO_NAME))"
+    }
+    $versionArguments = [string[]]("--version")
+    $wslVersion = Invoke-WslText $versionArguments
+    $listArguments = [string[]]("-l", "-v")
+    $list = (Invoke-WslText $listArguments) -replace "`r", ""
+    $list = $list.Replace(([char]0).ToString(), "")
+    if ($list -like "*Running*") { throw "Stop all WSL distributions before running this wrapper. wsl --shutdown terminates all running WSL processes." }
+    $distroLine = ($list -split "`n" | Where-Object { $_ -like "*$Distro*" } | Select-Object -First 1)
+    if ([string]::IsNullOrWhiteSpace($distroLine) -or $distroLine -notlike "* 2") { throw "Target distro is not registered as WSL version 2: $Distro" }
     if ($RepositoryPath -match '[\r\n''"]') { throw "RepositoryPath contains unsafe quoting characters" }
-    Invoke-WslText @("-d", $Distro, "--", "bash", "-lc", "test -d '$RepositoryPath' && test -f '$RepositoryPath/scripts/quality_gate/trusted_scopes.json' && test -f '$RepositoryPath/test/evidence/phase2/$RunId/run-manifest.json' && test -x '$RepositoryPath/.venv/bin/python'") | Out-Null
 }
 catch {
     Write-Evidence @{ state = "BLOCKED"; reason = $_.Exception.Message; execution_id = $executionId } "preflight.json"
+    Write-Evidence @{ state = "BLOCKED"; execution_id = $executionId; error = $_.Exception.ToString(); debug = @($debugRecords) } "preflight-debug.json"
     exit 20
 }
 
@@ -58,7 +98,8 @@ if ($DryRun) {
 try {
     if ($hadConfig) { [IO.File]::Copy($config, $backup, $true); $originalHash = Get-Hash $config }
     $utf8 = New-Object System.Text.UTF8Encoding($false)
-    $lines = if ($hadConfig) { [IO.File]::ReadAllLines($config) } else { @() }
+    [string[]]$lines = @()
+    if ($hadConfig) { $lines = [string[]][IO.File]::ReadAllLines($config) }
     $section = -1
     for ($i = 0; $i -lt $lines.Count; $i++) { if ($lines[$i].Trim() -eq "[wsl2]") { $section = $i; break } }
     if ($section -lt 0) { $lines += "[wsl2]"; $section = $lines.Count - 1 }
@@ -67,18 +108,21 @@ try {
     $body = [Collections.Generic.List[string]]::new()
     for ($i = $section + 1; $i -lt $end; $i++) { if ($lines[$i] -notmatch '^\s*(networkingMode|firewall)\s*=') { $body.Add($lines[$i]) } }
     $body.Add("networkingMode=none"); $body.Add("firewall=true")
-    $newLines = [Collections.Generic.List[string]]::new(); $newLines.AddRange($lines[0..$section]); $newLines.AddRange($body)
-    if ($end -lt $lines.Count) { $newLines.AddRange($lines[$end..($lines.Count - 1)]) }
+    $newLines = [Collections.Generic.List[string]]::new()
+    $newLines.AddRange([string[]]($lines[0..$section])); $newLines.AddRange($body)
+    if ($end -lt $lines.Count) { $newLines.AddRange([string[]]($lines[$end..($lines.Count - 1)])) }
     [IO.File]::WriteAllText($config, (($newLines -join "`r`n") + "`r`n"), $utf8)
     & wsl.exe --shutdown
     if ($LASTEXITCODE -ne 0) { throw "wsl --shutdown failed" }
     $env:WSL_HOST_WRAPPER_EXECUTION_ID = $executionId; $env:WSL_VERSION = $wslVersion; $env:WSL_DISTRO_NAME = $Distro
-    $runner = Invoke-WslCapture @("-d", $Distro, "--", "bash", "-lc", "cd '$RepositoryPath' && exec bash scripts/wsl_quality_gate/run_isolated_p2.sh '$RepositoryPath' '$RunId'")
+    $runnerArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && cd '$RepositoryPath' && exec bash scripts/wsl_quality_gate/run_isolated_p2.sh '$RepositoryPath' '$RunId'")
+    $runner = Invoke-WslCapture $runnerArguments
     Write-Evidence @{ state = if ($runner.ExitCode -eq 0) { "RUNNER_COMPLETED" } else { "RUNNER_NONZERO" }; output = $runner.Output; exit_code = $runner.ExitCode; execution_id = $executionId } "host-runner.json"
     if ($runner.ExitCode -ne 0) { throw "WSL runner returned non-zero; inspect verification.json" }
 }
 catch {
     Write-Evidence @{ state = "FAILED"; reason = $_.Exception.Message; execution_id = $executionId } "host-runner.json"
+    Write-Evidence @{ state = "FAILED"; execution_id = $executionId; error = $_.Exception.ToString(); debug = @($debugRecords) } "host-runner-debug.json"
     throw
 }
 finally {
@@ -89,5 +133,8 @@ finally {
     try { Write-WslEvidence $restoreRecord "restore.json" } catch { Write-Evidence @{ state = "FAILED"; reason = "WSL restore evidence write failed: $($_.Exception.Message)" } "restore-evidence-error.json" }
     & wsl.exe --shutdown
     Remove-Item -LiteralPath $backup -Force -ErrorAction SilentlyContinue
+    if ($null -eq $originalWslHostWrapperExecutionId) { Remove-Item Env:WSL_HOST_WRAPPER_EXECUTION_ID -ErrorAction SilentlyContinue } else { $env:WSL_HOST_WRAPPER_EXECUTION_ID = $originalWslHostWrapperExecutionId }
+    if ($null -eq $originalWslVersion) { Remove-Item Env:WSL_VERSION -ErrorAction SilentlyContinue } else { $env:WSL_VERSION = $originalWslVersion }
+    if ($null -eq $originalWslDistroName) { Remove-Item Env:WSL_DISTRO_NAME -ErrorAction SilentlyContinue } else { $env:WSL_DISTRO_NAME = $originalWslDistroName }
     if (-not $restored) { throw "wslconfig restoration verification failed" }
 }

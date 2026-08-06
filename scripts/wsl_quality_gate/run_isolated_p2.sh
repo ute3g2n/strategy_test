@@ -19,8 +19,11 @@ blocked() {
 [[ "$run_id" == "RUN-P2-IC-001-WSL" ]] || blocked "Run ID is not the fixed WSL scope"
 [[ -d "$repository_path" && -f "$manifest" ]] || blocked "repository or manifest is missing"
 [[ -x "$python_bin" ]] || blocked "Linux .venv/bin/python is missing"
+[[ -d "$repository_path/wheelhouse" ]] || blocked "approved Linux wheelhouse is missing"
 [[ -f "$repository_path/scripts/quality_gate/trusted_scopes.json" ]] || blocked "trusted scope registry is missing"
 [[ -f "$repository_path/tests/fixtures/market_data/catalog_resolver_fixture.json" ]] || blocked "fixture is missing"
+kernel="$(uname -r)"
+[[ "$kernel" == *WSL2* || "$kernel" == *microsoft-standard-WSL2* ]] || blocked "kernel is not WSL2: $kernel"
 if grep -RInE '^[[:space:]]*(import|from)[[:space:]]+(databento|broker|requests|urllib|httpx|socket)([[:space:]]|$)' \
   "$repository_path/src/autotrade/market_data" "$repository_path/tests/market_data" "$repository_path/tests/fixtures/market_data"; then
   blocked "prohibited external dependency found in target scope"
@@ -48,7 +51,7 @@ expected_fixture="sha256:94022229698e972353b8ec9537f455af5cb29d47253f5f2a1ed5d33
 
 cat > "$evidence_root/host-isolation.json" <<EOF
 {
-  "state": "CONFIRMED", "wsl_version": "${WSL_VERSION:-unknown}", "distro": "${distro}", "networking_mode": "none",
+  "state": "CONFIRMED", "wsl_version": "${WSL_VERSION:-unknown}", "kernel": "${kernel}", "distro": "${distro}", "networking_mode": "none",
   "host_wrapper_execution_id": "${host_execution_id}", "ip_addr_summary": $(printf '%s' "$addr_summary" | "$python_bin" -c 'import json,sys; print(json.dumps(sys.stdin.read()))'),
   "ip_route_summary": $(printf '%s' "$route_summary" | "$python_bin" -c 'import json,sys; print(json.dumps(sys.stdin.read()))'),
   "confirmed_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)", "scope": ["src/autotrade/market_data", "tests/market_data", "tests/fixtures/market_data"], "fixture_sha256": "${fixture_hash}"

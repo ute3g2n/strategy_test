@@ -124,11 +124,17 @@ Skill、サブエージェント、オーケストレータの作成または変
 
 `RUN-P2-IC-001-WSL` は、P2-D07の固定fixtureをWSL2 `networkingMode=none` で実行する専用scopeです。Linux用venvは `.venv/bin/python` 固定で、証跡は `test/evidence/phase2/RUN-P2-IC-001-WSL/` に保存します。BLK-RUN-003は、実機での隔離・4 Gate・完全復元証跡とHuman Gateがそろうまで解決済みにしません。
 
-Windowsホストからの唯一の実行入口（WSL内から実行しない）:
+Windowsホストからの唯一の人間向け実行入口は `run_test.ps1`（WSL内から実行しない）です。WSL上のCodexやVS Codeのターミナルから `powershell.exe` を呼び出す場合もWSL内実行に該当するため、Windows側で独立したPowerShellを起動する。実行開始時点では、`wsl -l -v` で全ディストリビューションが `Stopped` であることを確認する。この時点のwrapperはWindows側のWSL version・一覧・対象がWSL2であることだけを確認し、Linux distroを起動する事前確認は行わない。
 
 ```powershell
-powershell.exe -NoProfile -File .\scripts\wsl_quality_gate\run_isolated_p2.ps1 -Distro <WSLディストリビューション名> -RepositoryPath <WSL内cloneの絶対パス> -RunId RUN-P2-IC-001-WSL
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\wsl_quality_gate\run_test.ps1
 ```
+
+`run_test.ps1` が内部で `run_isolated_p2.ps1` を起動し、wrapperの標準出力・標準エラー・終了コードと、最新の `preflight.json` または `verification.json` を `test/evidence/phase2/RUN-P2-IC-001-WSL/automation/` に保存します。`run_test.ps1` は通常実行では `verification.json` を優先し、設定前にBLOCKEDとなった場合だけ `preflight.json` を優先するため、過去の証跡を最新結果と取り違えません。
+
+内部wrapperは `.wslconfig` に `networkingMode=none` と `firewall=true` を一時設定して `wsl --shutdown` を実行した後、対象ディストリビューションを一回だけ起動します。起動後のLinux runnerが、WSL2 kernel、repository、manifest、Linux用venv、wheelhouse、registry、network隔離、固定tool version、fixture checksumを確認し、すべて通過した場合だけ固定4 Gateを実行します。終了後は `try/finally` で `.wslconfig` を元のバイト列へ復元し、再度 `wsl --shutdown` を実行します。
+
+実行後に「実行した」と伝えれば、このautomationディレクトリを確認してデバッグします。
 
 ## AGENTS.md と README.md の更新タイミング
 

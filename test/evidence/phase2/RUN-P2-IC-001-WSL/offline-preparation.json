@@ -1,0 +1,79 @@
+{
+  "source": "approved-local-wheelhouse",
+  "packages": {
+    "pytest": {
+      "required": "9.1.1",
+      "installed": "9.1.1"
+    },
+    "pytest-cov": {
+      "required": "7.1.0",
+      "installed": "7.1.0"
+    },
+    "ruff": {
+      "required": "0.16.1",
+      "installed": "0.16.1"
+    },
+    "mypy": {
+      "required": "2.3.0",
+      "installed": "2.3.0"
+    }
+  },
+  "wheelhouse": [
+    {
+      "name": "ast_serialize-0.6.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "sha256": "dcbed41e9386059fc0261d602445ede0976c2ecec2939688bcbcb9ed0b6f28b7"
+    },
+    {
+      "name": "coverage-7.15.3-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+      "sha256": "63a4ff67364afb2cac826b8bbd78a5c50ce656a7b7137436b44d7b96a9271088"
+    },
+    {
+      "name": "iniconfig-2.3.0-py3-none-any.whl",
+      "sha256": "f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12"
+    },
+    {
+      "name": "librt-0.13.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "sha256": "b222493da6e7b6199db9bd79502436cf5a27da3c1f7fa83c7e285444fc93fd03"
+    },
+    {
+      "name": "mypy-2.3.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "sha256": "56c184d2c20ca6b6378d58d1960270a767f41f5e44acbbd27f05effef4f4e1d7"
+    },
+    {
+      "name": "mypy_extensions-1.1.0-py3-none-any.whl",
+      "sha256": "1be4cccdb0f2482337c4743e60421de3a356cd97508abadd57d47403e94f5505"
+    },
+    {
+      "name": "packaging-26.3-py3-none-any.whl",
+      "sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"
+    },
+    {
+      "name": "pathspec-1.1.1-py3-none-any.whl",
+      "sha256": "a00ce642f577bf7f473932318056212bc4f8bfdf53128c78bbd5af0b9b20b189"
+    },
+    {
+      "name": "pluggy-1.6.0-py3-none-any.whl",
+      "sha256": "e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746"
+    },
+    {
+      "name": "pygments-2.20.0-py3-none-any.whl",
+      "sha256": "81a9e26dd42fd28a23a2d169d86d7ac03b46e2f8b59ed4698fb4785f946d0176"
+    },
+    {
+      "name": "pytest-9.1.1-py3-none-any.whl",
+      "sha256": "37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c"
+    },
+    {
+      "name": "pytest_cov-7.1.0-py3-none-any.whl",
+      "sha256": "a0461110b7865f9a271aa1b51e516c9a95de9d696734a2f71e3e78f46e1d4678"
+    },
+    {
+      "name": "ruff-0.16.1-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "sha256": "39897739f112253ee4fdd2e8aa9a4f9ded99fb2be367d5f31dfa4ded6025584c"
+    },
+    {
+      "name": "typing_extensions-4.16.0-py3-none-any.whl",
+      "sha256": "481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8"
+    }
+  ]
+}
