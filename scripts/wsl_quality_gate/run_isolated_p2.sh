@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 repository_path="${1:?repository path is required}"
 run_id="${2:-RUN-P2-IC-001-WSL}"
-host_execution_id="${WSL_HOST_WRAPPER_EXECUTION_ID:?host wrapper execution id is required}"
+host_execution_id="${WSL_HOST_WRAPPER_EXECUTION_ID:-${3:?host wrapper execution id is required}}"
 distro="${WSL_DISTRO_NAME:-unknown}"
 evidence_root="$repository_path/test/evidence/phase2/$run_id"
 manifest="$evidence_root/run-manifest.json"

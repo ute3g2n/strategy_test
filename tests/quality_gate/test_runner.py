@@ -160,6 +160,24 @@ def test_success_requires_external_human_gate_and_writes_sanitized_evidence(tmp_
     assert len(executor.calls) == 4
 
 
+def test_explicit_user_approval_completes_human_gate(tmp_path: Path) -> None:
+    executor = successful_executor()
+    run_manifest = manifest(tmp_path)
+    evidence_root = Path(str(run_manifest["evidence_root"]))
+    evidence_root.mkdir(parents=True)
+    (evidence_root / "human-gate-user-declaration.md").write_text(
+        "# Human Gate\n\n- Run ID: RUN-P2-S2-001\n- ユーザー意思表示: 承認します\n",
+        encoding="utf-8",
+    )
+
+    result = runner(tmp_path, executor).run(run_manifest, write_evidence=True)
+
+    evidence = json.loads((evidence_root / "verification.json").read_text(encoding="utf-8"))
+    assert result.state == "PASS"
+    assert evidence["state"] == "PASS"
+    assert len(executor.calls) == 4
+
+
 def test_failed_gate_stops_before_later_gates(tmp_path: Path) -> None:
     executor = successful_executor()
     lint_command = ("ruff", "check", "scripts/quality_gate", "tests/quality_gate")

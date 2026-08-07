@@ -105,7 +105,7 @@
   </table>
 
   <h2>2. いま止めている課題</h2>
-  <p>現在の <code>RUN-P2-IC-001</code> を止めている直接の理由は一つです。BLK-RUN-001は対象限定scopeへ変更して解決済み、BLK-RUN-002はユーザー承認により解決済みです。H2-0とH2-1も解決済みです。</p>
+  <p>現在の <code>RUN-P2-IC-001</code> を止めている直接の理由はありません。BLK-RUN-001、BLK-RUN-002、BLK-RUN-003、H2-0、H2-1はすべて解決済みです。この表は、解決した条件と証拠を残すために表示しています。</p>
   <div class="table-scroll">
   <table class="wide">
     <thead><tr><th>ID</th><th>状態</th><th>何が決まっていないか</th><th>なぜ止めるのか</th><th>今してよいこと</th><th>終わったと言える条件</th><th>元のID・証拠</th></tr></thead>
@@ -127,12 +127,12 @@
         <td><code>BLK-RUN-002</code><br>2026-08-06 ユーザー承認</td>
       </tr>
       <tr>
-        <td><code>BLK-RUN-003</code></td><td><span class="badge stop">いま停止</span></td>
-        <td>現在の端末では、テスト用の子プロセスが外のネットワークへ出られないようにOS側で遮断されている、と確認できません。</td>
-        <td>テストコードが間違って外部へ接続しても、確実に止められる保証がないためです。Runnerは安全のため、scope検査やテストより前に停止します。</td>
-        <td>RunnerのテストGateを実行しません。文書確認、hash計算、固定fixtureの読み取りなど、副作用のない確認だけを行います。</td>
-        <td>承認済みの隔離環境、OSのFirewall/Sandbox、または同等の仕組みで外向き通信を遮断し、ホスト側の確認を記録すること。環境変数だけを根拠にしません。</td>
-        <td><code>QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED</code><br><a href="../test/evidence/phase2/RUN-P2-IC-001/verification.json">Runner再確認結果</a></td>
+        <td><code>BLK-RUN-003</code></td><td><span class="badge done">解決済み（2026-08-07）</span></td>
+        <td>WSL2のnetworkingMode=noneを使い、テスト用の子プロセスが外のネットワークへ出られない状態を確認しました。</td>
+        <td>Windows側wrapperが実行IDを渡し、WSL側がkernel、IPアドレス、経路、networking_mode=noneを記録しました。通常のWSL NATでは実行していません。</td>
+        <td>RUN-P2-IC-001-WSLで、formatter、lint、type、pytestの4 Gateが順番どおりPASSになりました。外部ネットワーク、Databento、Broker、Secret、実データは使っていません。</td>
+        <td>host-isolation.jsonのstate=CONFIRMED、networking_mode=none、restore.jsonのstate=RESTORED、Windows側captureの実行ID一致を確認すること。</td>
+        <td><code>QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED</code><br><a href="../test/evidence/phase2/RUN-P2-IC-001-WSL/wsl-verification-capture.json">WSL証跡</a><br><a href="../test/evidence/phase2/RUN-P2-IC-001-WSL/automation/run-test-summary.json">実行概要</a></td>
       </tr>
     </tbody>
   </table>
@@ -161,34 +161,34 @@
 
   <h3>2-2. BLK-RUN-002を詳しく説明すると</h3>
   <div class="note">
-    <p><strong>一言でいうと:</strong> 品質確認の最後に必要な「別の権限者による合格判断」が、まだありません。</p>
-    <p>Human Gateは、AIが自分の作業を自分で合格にする仕組みではありません。テスト、静的検査、レビューがそろった後に、人間が「このRunの範囲、残件、安全条件を確認した」と判断する最後の関門です。</p>
+    <p><strong>一言でいうと:</strong> 以前は署名付きの別チャネルを必要としていましたが、プロジェクト規則を変更し、ユーザーが対象Runについて「承認します」と明示すればHuman Gateを完了することにしました。</p>
+    <p>Human Gateは、機械Gate、レビュー、scope、hash、fixture、安全条件を確認した後に、人間が受入れを決める最後の関門です。ユーザー承認がない状態をAIが推測してはいけません。</p>
   </div>
   <table>
     <thead><tr><th>確認するもの</th><th>現在の状態</th><th>必要な状態</th></tr></thead>
     <tbody>
-      <tr><td>Human Gate依頼</td><td>ユーザーは承認を申告済みです。ただし、正式な署名付き承認JSONはまだありません。</td><td>Run ID、HEAD、change hash、fixture hash、4 Gate、レビュー結果、残件0を記した依頼。</td></tr>
-      <tr><td>署名済み承認</td><td><code>human-gate/approval.json</code>は存在しません。</td><td>worktree外の秘密鍵で権限者が署名したJSON。作業Agentは作成・自己承認しません。</td></tr>
-      <tr><td>検証項目</td><td>現在のverificationは<code>BLOCKED</code>です。ユーザー承認は記録済みですが、正式な署名検証は未完了です。</td><td><code>decision=approved</code>、<code>approved_by</code>、<code>approved_at</code>、<code>run_id</code>、<code>commit</code>、<code>change_hash</code>、<code>fixture_hash</code>、<code>remaining_items=[]</code>が一致し、公開鍵検証に成功すること。</td></tr>
-      <tr><td>設計上の意味</td><td>H2-0/H2-1の設計承認とは別に、個別の実装Runの受入承認が必要です。</td><td>承認後にだけ、RunとverificationをPassへ更新し、次のPhaseへ引き渡します。</td></tr>
+      <tr><td>Human Gate依頼</td><td>ユーザーが対象Runについて「承認します」と明示しました。</td><td>Run ID、HEAD、change hash、fixture hash、4 Gate、レビュー結果、残件0を記録する。</td></tr>
+      <tr><td>署名</td><td>署名鍵や外部承認チャネルは使いません。</td><td>ユーザー意思表示を <code>human-gate-user-declaration.md</code> に保存する。</td></tr>
+      <tr><td>検証項目</td><td>ユーザー承認とRun IDが一致し、機械Gateとレビューが通ればverificationを<code>PASS</code>にします。</td><td>ユーザー承認がない、拒否された、内容がRunと一致しない場合は<code>HUMAN_GATE_REQUIRED</code>または<code>BLOCKED</code>にする。</td></tr>
+      <tr><td>設計上の意味</td><td>H2-0/H2-1の設計承認とは別に、個別の実装Runの受入承認が必要です。</td><td>明示承認と全機械条件の確認後に、RunとverificationをPassへ更新し、次のPhaseへ引き渡します。</td></tr>
     </tbody>
   </table>
   <div class="important">
-    <p><strong>なぜAIの「承認しました」では足りないのか:</strong> AIは実装、テスト、レビューの流れに関わっているため、同じAIが最後の承認者になると独立確認になりません。承認者が別であること、署名が改ざんされていないこと、承認内容が今回のRunと一致することを機械で確認します。</p>
-    <p><strong>解除方法:</strong> BLK-RUN-003を解消し、必要な再確認を終えた後、ユーザー承認内容に対応する正式な署名JSONをworktree外で作成します。Runnerが公開鍵で内容と署名を検証できるまでは、未署名のworktree内JSONを承認根拠にしません。</p>
+    <p><strong>AIが勝手に承認してはいけない理由:</strong> AIはユーザーの明示的な承認を受け取っていない状態で、承認を推測してはいけません。ただし、ユーザーが「承認します」と伝えた場合は、その意思表示を正式なHuman Gateとして記録します。</p>
+    <p><strong>解除方法:</strong> BLK-RUN-003を解消し、必要な再確認を終えた後、ユーザーが対象Runについて「承認します」と伝えます。RunnerがRun IDと機械Gate結果を確認し、verificationをPASSへ更新します。</p>
   </div>
 
   <h3>2-3. BLK-RUN-003を詳しく説明すると</h3>
   <div class="note">
-    <p><strong>一言でいうと:</strong> テスト用の子プロセスが外部ネットワークへ出られないと、OS側で確認できていないため、Runnerがテスト開始前に止まっています。</p>
+    <p><strong>一言でいうと:</strong> 以前は、テスト用の子プロセスが外部ネットワークへ出られないことをOS側で確認できず、Runnerがテスト開始前に止まっていました。2026-08-07のWSL2実機runでこの条件を解消しました。</p>
     <p>このRunは、Databento、Broker、Secret、実データ、実取引、外部ネットワークを使わない契約です。テストコードに万一の誤りがあっても外へ出られないよう、二つの壁を置いています。</p>
   </div>
   <table>
     <thead><tr><th>壁</th><th>何をするか</th><th>限界</th></tr></thead>
     <tbody>
-      <tr><td>第一の壁：host確認</td><td><code>trusted_scopes.json</code>の<code>network_isolation_required=true</code>を読み、Runnerがhostの隔離確認を要求します。確認できなければ子プロセスを起動しません。</td><td>現在はOS Firewall/Sandboxなどの実際の隔離を確認できていません。環境変数を置くだけでは証明になりません。</td></tr>
+      <tr><td>第一の壁：host確認</td><td><code>trusted_scopes.json</code>の<code>network_isolation_required=true</code>を読み、WSL2の<code>networkingMode=none</code>、kernel、IP、経路を確認してから子プロセスを起動します。</td><td>今回の証拠では<code>host-isolation.json</code>が<code>state=CONFIRMED</code>です。環境変数だけを証拠にはしていません。</td></tr>
       <tr><td>第二の壁：wrapper</td><td><code>local_p2_pytest.py</code>が固定の<code>tests/market_data</code>だけを起動し、socket接続を拒否し、pytest pluginの自動読み込みも止めます。</td><td>これは子プロセスが起動した後の壁です。hostそのものの隔離確認の代わりにはなりません。</td></tr>
-      <tr><td>実際の再確認</td><td><code>run_quality_gate.py ... --no-write-evidence</code>を実行し、終了コード1、<code>BLOCKED</code>、理由「host の outbound isolation が確認できないため実行を停止しました」、Gate開始数0を記録しました。</td><td>そのため、今回の再確認ではformatter/lint/type/pytest subprocessを一つも起動していません。</td></tr>
+      <tr><td>実際の再確認</td><td><code>RUN-P2-IC-001-WSL</code>を実行し、host確認後にformatter → lint → type → pytestを順番に起動しました。ユーザーの明示承認も記録しました。</td><td>4 Gate、ユーザー承認、scope、hash、復元がすべて確認できたため、Run全体は<code>PASS</code>です。</td></tr>
     </tbody>
   </table>
   <div class="important">
@@ -222,7 +222,7 @@ firewall=true</pre></li>
       <li>これらの確認に成功したプロセスだけが <code>QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED=1</code> を設定し、WSL用にregistry登録したManifestで4 Gateを実行します。終了コード、version、対象scope、hash、fixture hashをverificationへ保存します。</li>
     </ol>
     <p><strong>WSL手順の停止条件:</strong> <code>networkingMode=none</code> が使えない、WSLがVERSION 1、default routeが残る、依存パッケージを事前取得できない、host-isolation.jsonを管理者が確認できない場合は、通常WSLへ戻して実行せずBLOCKEDのままにします。</p>
-    <p><strong>2026-08-06 実装追補:</strong> WSL専用trusted scope <code>RUN-P2-IC-001-WSL</code>、Windows host wrapper、WSL runner、wheelhouse準備スクリプトとRED契約テストを追加した。実機の <code>host-isolation.json</code>、<code>restore.json</code>、4 Gate結果、Human Gate承認は未取得のため、<code>BLK-RUN-003</code> は解決済みに変更しない。</p>
+    <p><strong>2026-08-07 実機確認:</strong> WSL専用trusted scope <code>RUN-P2-IC-001-WSL</code>をWindows native PowerShellから実行し、<code>host-isolation.json</code>のstate=CONFIRMED、4 GateのPASS、<code>restore.json</code>のstate=RESTORED、実行ID一致、ユーザーの明示承認を確認したため、<code>BLK-RUN-003</code>を解決済み、RunをPASSへ更新した。</p>
   </div>
 
   <h2>3. 期限まで安全に保留する課題</h2>
@@ -266,7 +266,7 @@ firewall=true</pre></li>
       <tr><td><code>RES-AIF-E2E</code></td><td>Phase 2パイロットはブラウザE2Eを使わず、固定pytest wrapperを使うと決めました。</td><td>2026-08-06</td><td><code>UNK-AIF-03</code> / <a href="../scripts/quality_gate/local_p2_pytest.py">固定wrapper</a></td></tr>
       <tr><td><code>RES-RUNNER-SCOPE</code></td><td>Runnerは、信頼済みregistryに登録したP2の固定scopeと固定commandだけを受け付けるようになりました。</td><td>2026-08-06</td><td><a href="../scripts/quality_gate/trusted_scopes.json">trusted_scopes.json</a></td></tr>
       <tr><td><code>RES-RUN-TARGET-ONLY</code></td><td>RUN-P2-IC-001はHEAD全体の差分を試験対象の判定に使わず、registryの三つのtarget_pathsだけを検査するようになりました。</td><td>2026-08-06</td><td><a href="../tests/quality_gate/test_runner.py">対象限定scopeテスト</a> / <a href="../scripts/quality_gate/runner.py">runner.py</a></td></tr>
-      <tr><td><code>RES-RUN-HUMAN-APPROVAL</code></td><td>RUN-P2-IC-001のHuman Gateについて、ユーザーが承認を申告しました。正式な署名検証はPass判定の直前に確認します。</td><td>2026-08-06</td><td><code>BLK-RUN-002</code> / 本台帳の更新履歴</td></tr>
+      <tr><td><code>RES-RUN-HUMAN-APPROVAL</code></td><td>RUN-P2-IC-001のHuman Gateについて、ユーザーが「承認します」と明示しました。署名検証は要求しません。</td><td>2026-08-07</td><td><code>BLK-RUN-002</code> / <code>human-gate-user-declaration.md</code></td></tr>
       <tr><td><code>RES-S4-TOOLS-HASH-I/O</code></td><td>S4開始時に残っていたツール不足、change hash未解決、fixture照合不足、外部接続経路、レビュー証跡不足は解消しました。</td><td>2026-08-06</td><td><a href="../test/evidence/phase2/RUN-P2-IC-001/s4-status-ledger.md">S4証跡台帳</a></td></tr>
       <tr><td><code>RES-P2-H2-0</code></td><td>Phase 2の中心市場と条件付き市場の扱いについて、H2-0をユーザーが承認しました。これは設計範囲の承認であり、実取引の承認ではありません。</td><td>2026-08-06</td><td><code>BLK-P2-001</code>, <code>UNK-P2-01</code> / 本台帳の更新履歴</td></tr>
       <tr><td><code>RES-P2-H2-1</code></td><td>限月切替、連続Signal、受渡し注意日、条件付き市場の扱いについて、H2-1をユーザーが承認しました。これは設計範囲の承認であり、実取引の承認ではありません。</td><td>2026-08-06</td><td><code>BLK-P2-002</code>, <code>UNK-P2-02/04/12</code> / 本台帳の更新履歴</td></tr>
@@ -279,7 +279,7 @@ firewall=true</pre></li>
     <tbody>
       <tr><td>Phase 0</td><td>H4/H5は完了。154件の「証拠不足」は昔の候補全体の記録であり、154件すべてを現在のBlockedには数えません。今も必要な確認だけを <code>BLK-X-001</code> とPhase 2の行へ引き継ぎました。</td><td><code>BLK-X-001</code>, <code>RES-P2-H2-1</code></td></tr>
       <tr><td>Phase 1</td><td>H1-4は完了。基本設計は通過しています。Live、Paper、Risk、運用で後から決める八つの根本課題が残っています。</td><td><code>BLK-P1-001</code>〜<code>008</code></td></tr>
-      <tr><td>Phase 2</td><td>fixture限定の設計・パイロットは進み、H2-0/H2-1、対象限定scope、Human Gateのユーザー承認は解決済みです。ただしhost隔離確認が未完了なので、<code>RUN-P2-IC-001</code>のPassはできません。</td><td><code>RES-P2-H2-0</code>, <code>RES-P2-H2-1</code>, <code>RES-RUN-TARGET-ONLY</code>, <code>RES-RUN-HUMAN-APPROVAL</code>, <code>BLK-RUN-003</code></td></tr>
+      <tr><td>Phase 2</td><td>fixture限定の設計・パイロット、対象限定scope、WSL2 host隔離確認、ユーザーの明示承認は解決済みです。RUN-P2-IC-001-WSLは4 Gateとレビュー条件を確認後、PASSへ更新します。</td><td><code>RES-P2-H2-0</code>, <code>RES-P2-H2-1</code>, <code>RES-RUN-TARGET-ONLY</code>, <code>RES-RUN-HUMAN-APPROVAL</code>, <code>BLK-RUN-003</code>（解決済み）</td></tr>
       <tr><td>Phase 3以降</td><td>まだ実行証跡がないため、「Phaseが未着手」というだけではBlockedに数えません。前Phaseから引き継いだ期限付き課題だけを本台帳で管理します。</td><td>各行の「決める期限」</td></tr>
       <tr><td>AI実行基盤</td><td>Pythonパイロットを回す最小基盤は完成。業務別coverageと、将来の別言語対応だけが保留です。</td><td><code>BLK-AIF-001/002</code></td></tr>
     </tbody>

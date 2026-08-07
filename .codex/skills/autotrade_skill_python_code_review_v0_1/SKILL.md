@@ -18,5 +18,5 @@ ecc_source_commit: 623f2c020f052319657674e4e6c29ab5d0ad566b
 
 ## 禁止事項と停止条件
 
-- Broker、Live、外部ネットワーク、Secretの取得・出力、自動承認をしない。
+- Broker、Live、外部ネットワーク、Secretの取得・出力、ユーザー承認の推測をしない。ユーザーが明示的に承認した場合の記録は許可する。
 - Critical/High、Unknown、証跡不足、実取引到達経路、対象外差分があれば停止する。

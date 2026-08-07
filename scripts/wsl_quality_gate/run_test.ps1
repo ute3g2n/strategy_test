@@ -24,7 +24,8 @@ function Convert-OutputText([object[]]$Output) {
 }
 
 function Write-TextFile([string]$Path, [string]$Text) {
-    Set-Content -LiteralPath $Path -Value $Text -Encoding utf8
+    $normalized = ($Text -replace "`r`n", "`n")
+    [IO.File]::WriteAllText($Path, $normalized, (New-Object System.Text.UTF8Encoding($true)))
 }
 
 function Invoke-Captured([string]$FilePath, [string[]]$Arguments, [int]$TimeoutSeconds = 120) {
@@ -83,7 +84,7 @@ Write-TextFile $wrapperOutputPath $wrapperLog
 
 $preflightPath = Join-Path $evidenceRoot "preflight.json"
 $wslVerificationCapturePath = Join-Path $evidenceRoot "wsl-verification-capture.json"
-$preflightIsRecent = Test-Path -LiteralPath $preflightPath -and ((Get-Item -LiteralPath $preflightPath).LastWriteTimeUtc -ge $startedAt.AddSeconds(-2))
+$preflightIsRecent = (Test-Path -LiteralPath $preflightPath) -and ((Get-Item -LiteralPath $preflightPath).LastWriteTimeUtc -ge $startedAt.AddSeconds(-2))
 $preferPreflight = $wrapperResult.exit_code -eq 20
 $executionIdMatch = [regex]::Match([string]$wrapperResult.output, '(?m)^WSL_HOST_WRAPPER_EXECUTION_ID=([0-9a-f]{32})\s*$')
 $expectedExecutionId = if ($executionIdMatch.Success) { $executionIdMatch.Groups[1].Value } else { "" }
@@ -108,17 +109,17 @@ try { $evidenceState = ([string]$evidenceResult.output | ConvertFrom-Json).state
 $effectiveWrapperExitCode = $wrapperResult.exit_code
 if ($evidenceResult.exit_code -ne 0) {
     $effectiveWrapperExitCode = if ($wrapperResult.exit_code -eq 20) { 20 } else { 1 }
-} elseif ($evidenceState -eq "BLOCKED") {
+} elseif ($evidenceState -in @("BLOCKED", "HUMAN_GATE_REQUIRED")) {
     $effectiveWrapperExitCode = 20
 } elseif ($null -eq $effectiveWrapperExitCode) {
-    $effectiveWrapperExitCode = if ($evidenceState -eq "BLOCKED") { 20 } else { 1 }
+    $effectiveWrapperExitCode = if ($evidenceState -eq "PASS") { 0 } elseif ($evidenceState -in @("BLOCKED", "HUMAN_GATE_REQUIRED")) { 20 } else { 1 }
 }
 
 $exitCodePath = Join-Path $automationRoot "run-test-exit-code.txt"
 Write-TextFile $exitCodePath ([string]$effectiveWrapperExitCode)
 
 $finishedAt = (Get-Date).ToUniversalTime()
-$state = if ($effectiveWrapperExitCode -eq 0) { "COMPLETED" } elseif ($effectiveWrapperExitCode -eq 20) { "BLOCKED" } else { "FAILED" }
+$state = if ($effectiveWrapperExitCode -eq 0) { if ($evidenceState -eq "PASS") { "PASS" } else { "COMPLETED" } } elseif ($effectiveWrapperExitCode -eq 20) { "BLOCKED" } else { "FAILED" }
 $summary = [ordered]@{
     state = $state
     run_id = $RunId
@@ -145,7 +146,8 @@ $summary = [ordered]@{
     }
 }
 $summaryPath = Join-Path $automationRoot "run-test-summary.json"
-$summary | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $summaryPath -Encoding utf8
+$summaryJson = (($summary | ConvertTo-Json -Depth 8) -replace "`r`n", "`n") + "`n"
+Write-TextFile $summaryPath $summaryJson
 
 $runnerWasInvoked = $wrapperResult.output -match 'kind=capture'
 

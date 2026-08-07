@@ -105,6 +105,7 @@ def test_wsl_runner_fails_closed_before_four_gates_on_missing_isolation_prerequi
         assert required in text
     assert re.search(r"\.venv/bin/python", text)
     assert text.index('kernel="$(uname -r)"') < text.index("QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED")
+    assert 'host_execution_id="${WSL_HOST_WRAPPER_EXECUTION_ID:-${3:?host wrapper execution id is required}}"' in text
 
 
 def test_wsl_runner_has_valid_bash_syntax() -> None:
@@ -131,7 +132,10 @@ def test_automation_wrapper_captures_wrapper_and_evidence_results() -> None:
     assert "TimeoutSeconds" in text and "TIMEOUT after" in text
     assert "Select-AutomationEvidence" in text
     assert "evidence_state" in text
+    assert 'evidenceState -in @("BLOCKED", "HUMAN_GATE_REQUIRED")' in text
+    assert 'evidenceState -eq "PASS"' in text
     assert "LastWriteTimeUtc" in text
+    assert "(Test-Path -LiteralPath $preflightPath) -and" in text
     assert "preflightIsRecent" in text and "preferPreflight" in text
     assert "AllowRunningDistro" in text
     assert "runnerWasInvoked" in text
@@ -200,10 +204,57 @@ def test_automation_wrapper_uses_only_execution_matched_wsl_verification_capture
     assert 'Invoke-Captured "wsl.exe"' not in text
 
 
+def test_selector_accepts_raw_wsl_verification_when_nested_json_parse_was_unavailable(tmp_path: Path) -> None:
+    execution_id = "b" * 32
+    capture_path = tmp_path / "wsl-verification-capture.json"
+    capture_path.write_text(
+        json.dumps(
+            {
+                "state": "CAPTURED",
+                "source_kind": "wsl_verification",
+                "execution_id": execution_id,
+                "captured_at": "2026-08-07T00:00:02Z",
+                "verification": None,
+                "verification_raw": json.dumps(
+                    {"state": "HUMAN_GATE_REQUIRED", "host_wrapper_execution_id": execution_id}
+                ),
+            }
+        ),
+        encoding="utf-8",
+    )
+    command = (
+        f". '{EVIDENCE_SELECTOR}'; "
+        "$selected = Select-AutomationEvidence "
+        f"-WrapperExitCode 1 -StartedAt ([DateTimeOffset]'2026-08-07T00:00:00Z') "
+        f"-ExpectedExecutionId '{execution_id}' "
+        f"-WslVerificationCapturePath '{capture_path}'; "
+        "$selected | ConvertTo-Json -Depth 8 -Compress"
+    )
+    result = subprocess.run(
+        ["powershell.exe", "-NoProfile", "-Command", command],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    selected = json.loads(result.stdout)
+    assert selected["source"] == "wsl_verification_capture"
+    assert selected["state"] == "HUMAN_GATE_REQUIRED"
+
+
 def test_host_wrapper_captures_wsl_verification_before_restoring_isolation() -> None:
     text = WRAPPER.read_text(encoding="utf-8")
     assert "WSL_HOST_WRAPPER_EXECUTION_ID=$executionId" in text
+    assert "$env:WSLENV" in text
+    assert "wslEnvNames.Contains('WSL_VERSION')" in text
+    assert "QUALITY_GATE_HUMAN_APPROVED" in text
+    assert '$ErrorActionPreference = "Continue"' in text
     assert "wsl-verification-capture.json" in text
+    assert "host-isolation.json" in text
+    assert "base64 -w0" in text
+    assert "verification_raw" in text
     assert 'source_kind = "wsl_verification"' in text
-    assert "$verification.host_wrapper_execution_id -eq $executionId" in text
-    assert text.index("$verificationCapture = Invoke-WslCapture") < text.index("finally")
+    assert "$verificationId -eq $executionId" in text
+    assert "hostIsolation.host_wrapper_execution_id" in text
+    assert "'$executionId'" in text
+    assert text.index("$verificationCapture = Invoke-WslCapture") < text.rindex("finally")

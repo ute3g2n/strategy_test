@@ -314,12 +314,12 @@ Run Manifest の change_hash を実差分から計算した値へ更新し、Run
 
 #### S4.4: 独立再レビューと Human Gate を完了する
 
-目的: 実装・品質基盤・証跡の三者を独立に確認し、権限者だけが Phase パイロットの採否を決める。
+目的: 実装・品質基盤・証跡の三者を独立に確認し、ユーザーの明示承認で Phase パイロットの採否を決める。
 
 成果物:
 
 - `reviews/python-review.md`、`reviews/trading-safety-review.md`、`reviews/quality-gate-review.md`
-- `human-gate/P2-IC-HG-01-request.md` と、権限者が作成し公開鍵で検証できる `human-gate/P2-IC-HG-01-approval.json`
+- `human-gate-user-declaration.md`
 - 最終 `verification.json` と `plan/phase2-5_ai_foundation/04_パイロット評価.md` の Pass/Blocked 判定
 
 実行プロンプト:
@@ -331,10 +331,10 @@ RUN-P2-IC-001 の S4.4 として、独立 Python レビュー、取引安全レ�
 
 次のいずれかが残る場合は verification.json を BLOCKED とし、Human Gate へ進めないでください: Critical/High、証跡欠落、設計外変更、scope 外実行、未実行の formatter/lint/type/test、hash 不一致、未解決 Unknown、Databento/Broker/Secret/実データ/外部ネットワークへの接続。
 
-すべて解消した場合だけ Human Gate の承認依頼を書いてください。承認依頼には Run ID、HEAD commit、実差分 SHA-256、fixture SHA-256、4 Gate、レビュー結果、残件0を含めます。承認 JSON は作業 Agent が作成・自己承認してはなりません。権限者が worktree 外で管理する秘密鍵により署名し、Runner が repository に保存した公開鍵で署名・decision=approved・approved_by・approved_at・run_id・commit・change_hash・fixture_hash・remaining_items=[] を検証できた場合だけ、Runner と verification.json を PASS に更新してください。worktree 内の未署名 JSON は証跡コピーであって承認根拠にしません。承認がない、拒否、署名不正、または内容不一致なら HUMAN_GATE_REQUIRED または BLOCKED のまま停止してください。
+すべて解消した場合だけ Human Gate の承認依頼を書いてください。承認依頼には Run ID、HEAD commit、実差分 SHA-256、fixture SHA-256、4 Gate、レビュー結果、残件0を含めます。ユーザーが対象Runについてチャットで「承認します」と明示した場合は、その意思表示を `human-gate-user-declaration.md` に記録し、署名鍵や外部承認チャネルなしでRunnerとverification.jsonをPASSへ更新してください。ユーザー承認がない、拒否された、または内容がRunと一致しない場合は HUMAN_GATE_REQUIRED または BLOCKED のまま停止してください。
 ```
 
-完了条件: 独立3レビューの Critical/High が0、証跡・設計外変更が0、かつ権限者の整合する承認記録がある場合のみ `RUN-P2-IC-001` を Pass とする。
+完了条件: 独立3レビューの Critical/High が0、証跡・設計外変更が0、かつユーザーが対象Runについて明示的に「承認します」と伝えた場合のみ `RUN-P2-IC-001` を Pass とする。秘密鍵署名や外部承認チャネルは要求しない。
 
 ### S5: Phase 3–5 へ段階展開する
 

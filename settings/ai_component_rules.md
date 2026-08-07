@@ -51,6 +51,13 @@
 - 解消した行は削除せず、解消日、確認者、テスト、レビュー、Human Gateの証拠を付けて `解決済み` にする。
 - Run固有の生のテスト・レビュー証跡は `test/evidence/{phase_id}/{run_id}/` に置き、統合台帳には短い説明とリンクだけを記録する。
 
+### Human Gateの承認ルール
+
+- ユーザーがチャットで対象Runについて明示的に「承認します」と伝えた場合、その意思表示をHuman Gateの正式な承認として扱う。
+- 作業Agentは承認を推測してはならないが、明示された承認をRun ID、HEAD、change hash、fixture hashとともに `human-gate-user-declaration.md` へ記録してよい。
+- 秘密鍵、公開鍵、署名JSON、worktree外の承認チャネルは要求しない。
+- 機械Gate、レビュー、Unknown、scope、hash、Secret、外部接続の停止条件は、ユーザー承認があっても省略しない。
+
 - 正式な仕様書、設計書、検証結果はHTMLで `doc/` 配下に保存する。
 - 計画書、実行プロンプト、ログ、台帳は `plan/` 配下に保存する。
 - `doc/` 配下のHTML成果物は、すべて `doc/index.html` から到達できるようにする。

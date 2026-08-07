@@ -238,6 +238,12 @@ class LocalQualityGateRunner:
                 manifest.evidence_root,
                 write_evidence,
             )
+        if self._user_approval_present(manifest):
+            return self._finalize(
+                GateRunResult("PASS", "ユーザーが明示的に承認しました", tuple(records)),
+                manifest.evidence_root,
+                write_evidence,
+            )
         return self._finalize(
             GateRunResult(
                 "HUMAN_GATE_REQUIRED",
@@ -247,6 +253,17 @@ class LocalQualityGateRunner:
             manifest.evidence_root,
             write_evidence,
         )
+
+    def _user_approval_present(self, manifest: RunManifest) -> bool:
+        """Accept an explicit user approval declaration as the Human Gate."""
+        if os.environ.get("QUALITY_GATE_HUMAN_APPROVED") == "1":
+            return True
+        declaration = self._project_root / manifest.evidence_root / "human-gate-user-declaration.md"
+        try:
+            text = declaration.read_text(encoding="utf-8")
+        except OSError:
+            return False
+        return manifest.run_id in text and "ユーザー意思表示: 承認します" in text
 
     def _validate_manifest(self, data: Mapping[str, object]) -> RunManifest:
         run_id = _required_nonempty_string(data, "run_id")

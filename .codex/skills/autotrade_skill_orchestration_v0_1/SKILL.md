@@ -26,7 +26,7 @@ description: Phase Runbookを入力に取り、DAG、依存関係、Human Gate�
 
 ## 品質チェック
 - 依存未充足時は停止する
-- Human Gateを自動承認しない
+- ユーザーが対象Runについて「承認します」と明示した場合はHuman Gateを承認済みとして記録する。ユーザー承認がない状態をAIが推測で承認してはならない。
 - 正式HTMLが `doc/index.html` から到達可能になるよう管理する
 
 ## Phase依存パラメータ
@@ -39,4 +39,3 @@ description: Phase Runbookを入力に取り、DAG、依存関係、Human Gate�
 
 ## 参照成果物
 - `doc/ai_foundation/05_プロジェクト汎用オーケストレータ仕様.html`
-

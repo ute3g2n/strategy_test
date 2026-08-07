@@ -71,7 +71,7 @@
     "Require host outbound isolation confirmation before a phase test subprocess; otherwise return BLOCKED.",
     "On a failed local gate, use A140 and allow at most two attempts for the same root-cause hypothesis.",
     "Require A150 and A160 reviews after local gates pass; Critical or High findings return the unit.",
-    "Require an evidence-root human-gate/approval.json record matching run_id and change_hash before ACCEPTED or Phase handoff.",
+    "Require an explicit user approval declaration matching the run_id before PASS or Phase handoff; do not require signature keys or an external approval channel.",
     "Persist sanitized evidence only below test/evidence/{phase_id}/{run_id}/."
   ],
   "stop_conditions": [
@@ -79,6 +79,6 @@
     "Unknown, Secret, Broker, Live-trading, external network, or project-external path detection.",
     "Test deletion, skip-based pass, quality-threshold weakening, or an allowlist violation.",
     "A repeated root-cause hypothesis exceeds two attempts.",
-    "Critical or High review finding remains, or Human Gate is not approved."
+    "Critical or High review finding remains, or the user has not explicitly approved the Run."
   ]
 }

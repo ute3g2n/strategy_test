@@ -1,5 +1,6 @@
 ﻿{
-    "execution_id":  "e88e3f6caaf34afda9c98b0adf86d0dc",
-    "reason":  "\"AddRange\" の引数 \"collection\" (値 \"System.Object[]\") を型 \"System.Collections.Generic.IEnumerable`1[System.String]\" に変換できません: \"\"System.Object[]\" の値を \"System.Object[]\" 型から \"System.Collections.Generic.IEnumerable`1[System.String]\" 型に変換できません。\"",
-    "state":  "FAILED"
+    "output":  "{\"state\": \"PASS\", \"reason\": \"繝ｦ繝ｼ繧ｶ繝ｼ縺梧・遉ｺ逧・↓謇ｿ隱阪＠縺ｾ縺励◆\", \"gates\": [{\"gate\": \"formatter\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"ruff\", \"format\", \"--check\", \"src/autotrade/market_data\", \"tests/market_data\"], \"exit_code\": 0, \"duration_ms\": 115}, {\"gate\": \"lint\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"ruff\", \"check\", \"src/autotrade/market_data\", \"tests/market_data\"], \"exit_code\": 0, \"duration_ms\": 64}, {\"gate\": \"type\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"mypy\", \"src/autotrade/market_data\"], \"exit_code\": 0, \"duration_ms\": 164}, {\"gate\": \"test\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"scripts.quality_gate.local_p2_pytest\"], \"exit_code\": 0, \"duration_ms\": 214}], \"generated_at\": \"2026-08-07T06:17:05.879349+00:00\"}",
+    "exit_code":  0,
+    "execution_id":  "fb7a667b352743c0b1167f4a6d329d0e",
+    "state":  "RUNNER_COMPLETED"
 }

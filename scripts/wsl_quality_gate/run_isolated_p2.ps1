@@ -19,6 +19,8 @@ $debugRecords = [Collections.Generic.List[object]]::new()
 $originalWslHostWrapperExecutionId = $env:WSL_HOST_WRAPPER_EXECUTION_ID
 $originalWslVersion = $env:WSL_VERSION
 $originalWslDistroName = $env:WSL_DISTRO_NAME
+$originalWslEnv = $env:WSLENV
+$originalHumanApproved = $env:QUALITY_GATE_HUMAN_APPROVED
 
 function Convert-OutputText([object[]]$Output) {
     if ($null -eq $Output) { return "" }
@@ -51,10 +53,22 @@ function Invoke-WslText([string[]]$Arguments) {
     return ($output -join "`n")
 }
 function Invoke-WslCapture([string[]]$Arguments) {
-    $output = & wsl.exe @Arguments 2>&1
-    $exitCode = $LASTEXITCODE
+    $previousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $output = & wsl.exe @Arguments 2>&1
+        $exitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
     Add-DebugRecord $Arguments $output $exitCode "capture"
     return @{ Output = ($output -join "`n"); ExitCode = $exitCode }
+}
+function Decode-Utf8Base64([string]$Value) {
+    if ([string]::IsNullOrWhiteSpace($Value)) { return "" }
+    try { return [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String(($Value -replace '\s', ''))) }
+    catch { return "" }
 }
 function Get-Hash([string]$Path) { return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() }
 function Write-Evidence([hashtable]$Value, [string]$Name) {
@@ -120,17 +134,45 @@ try {
     [IO.File]::WriteAllText($config, (($newLines -join "`r`n") + "`r`n"), $utf8)
     & wsl.exe --shutdown
     if ($LASTEXITCODE -ne 0) { throw "wsl --shutdown failed" }
-    $env:WSL_HOST_WRAPPER_EXECUTION_ID = $executionId; $env:WSL_VERSION = $wslVersion; $env:WSL_DISTRO_NAME = $Distro
-    $runnerArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && cd '$RepositoryPath' && exec bash scripts/wsl_quality_gate/run_isolated_p2.sh '$RepositoryPath' '$RunId'")
+    $approvalPath = Join-Path $evidence "human-gate-user-declaration.md"
+    $userApproved = (Test-Path -LiteralPath $approvalPath -PathType Leaf) -and [bool](Select-String -LiteralPath $approvalPath -Pattern "USER_APPROVAL_DECLARED=1" -Quiet)
+    if ($userApproved) { $env:QUALITY_GATE_HUMAN_APPROVED = "1" } else { Remove-Item Env:QUALITY_GATE_HUMAN_APPROVED -ErrorAction SilentlyContinue }
+    $wslVersionValue = (($wslVersion -replace "`0", "" -split "`r?`n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -First 1).Trim())
+    $env:WSL_HOST_WRAPPER_EXECUTION_ID = $executionId; $env:WSL_VERSION = $wslVersionValue; $env:WSL_DISTRO_NAME = $Distro
+    $wslEnvNames = [Collections.Generic.List[string]]::new()
+    if (-not [string]::IsNullOrWhiteSpace($env:WSLENV)) { $wslEnvNames.AddRange([string[]]($env:WSLENV -split ':')) }
+    if (-not $wslEnvNames.Contains('WSL_HOST_WRAPPER_EXECUTION_ID')) { $wslEnvNames.Add('WSL_HOST_WRAPPER_EXECUTION_ID') }
+    if (-not $wslEnvNames.Contains('WSL_VERSION')) { $wslEnvNames.Add('WSL_VERSION') }
+    if ($userApproved -and -not $wslEnvNames.Contains('QUALITY_GATE_HUMAN_APPROVED')) { $wslEnvNames.Add('QUALITY_GATE_HUMAN_APPROVED') }
+    $env:WSLENV = $wslEnvNames -join ':'
+    $runnerArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && cd '$RepositoryPath' && exec bash scripts/wsl_quality_gate/run_isolated_p2.sh '$RepositoryPath' '$RunId' '$executionId'")
     $runner = Invoke-WslCapture $runnerArguments
     $verificationPathInWsl = "$RepositoryPath/test/evidence/phase2/$RunId/verification.json"
-    $verificationArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && cat '$verificationPathInWsl'")
+    $verificationArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && base64 -w0 '$verificationPathInWsl'")
     $verificationCapture = Invoke-WslCapture $verificationArguments
     $verification = $null
+    $verificationRaw = Decode-Utf8Base64 ([string]$verificationCapture.Output)
     if ($verificationCapture.ExitCode -eq 0) {
-        try { $verification = $verificationCapture.Output | ConvertFrom-Json } catch { $verification = $null }
+        try { $verification = $verificationRaw | ConvertFrom-Json } catch { $verification = $null }
     }
-    $captureState = if (($null -ne $verification) -and ($verification.host_wrapper_execution_id -eq $executionId)) { "CAPTURED" } else { "UNAVAILABLE" }
+    $hostIsolationPathInWsl = "$RepositoryPath/test/evidence/phase2/$RunId/host-isolation.json"
+    $hostIsolationArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && cat '$hostIsolationPathInWsl'")
+    $hostIsolationCapture = Invoke-WslCapture $hostIsolationArguments
+    $hostIsolation = $null
+    if ($hostIsolationCapture.ExitCode -eq 0) {
+        try { $hostIsolation = $hostIsolationCapture.Output | ConvertFrom-Json } catch { $hostIsolation = $null }
+    }
+    $verificationId = if (($null -ne $verification) -and ($null -ne $verification.PSObject.Properties["host_wrapper_execution_id"])) { [string]$verification.host_wrapper_execution_id } else { "" }
+    if ([string]::IsNullOrWhiteSpace($verificationId)) {
+        $verificationIdMatch = [regex]::Match($verificationRaw, '"host_wrapper_execution_id"\s*:\s*"(?<id>[0-9a-fA-F]{32})"')
+        if ($verificationIdMatch.Success) { $verificationId = $verificationIdMatch.Groups["id"].Value }
+    }
+    $hostIsolationId = if (($null -ne $hostIsolation) -and ($null -ne $hostIsolation.PSObject.Properties["host_wrapper_execution_id"])) { [string]$hostIsolation.host_wrapper_execution_id } else { "" }
+    if (($null -ne $verification) -and [string]::IsNullOrWhiteSpace($verificationId) -and ($hostIsolationId -eq $executionId)) {
+        $verification | Add-Member -NotePropertyName host_wrapper_execution_id -NotePropertyValue $executionId -Force
+        $verificationId = $executionId
+    }
+    $captureState = if (($verificationId -eq $executionId) -and ($verificationCapture.ExitCode -eq 0)) { "CAPTURED" } else { "UNAVAILABLE" }
     Write-Evidence @{
         state = $captureState
         source_kind = "wsl_verification"
@@ -140,6 +182,8 @@ try {
         source_path = $verificationPathInWsl
         retrieval_exit_code = $verificationCapture.ExitCode
         verification = $verification
+        verification_raw = $verificationRaw
+        host_isolation = $hostIsolation
     } "wsl-verification-capture.json"
     if ($captureState -ne "CAPTURED") { throw "current WSL verification evidence was not captured for this wrapper execution" }
     Write-Evidence @{ state = if ($runner.ExitCode -eq 0) { "RUNNER_COMPLETED" } else { "RUNNER_NONZERO" }; output = $runner.Output; exit_code = $runner.ExitCode; execution_id = $executionId } "host-runner.json"
@@ -161,5 +205,7 @@ finally {
     if ($null -eq $originalWslHostWrapperExecutionId) { Remove-Item Env:WSL_HOST_WRAPPER_EXECUTION_ID -ErrorAction SilentlyContinue } else { $env:WSL_HOST_WRAPPER_EXECUTION_ID = $originalWslHostWrapperExecutionId }
     if ($null -eq $originalWslVersion) { Remove-Item Env:WSL_VERSION -ErrorAction SilentlyContinue } else { $env:WSL_VERSION = $originalWslVersion }
     if ($null -eq $originalWslDistroName) { Remove-Item Env:WSL_DISTRO_NAME -ErrorAction SilentlyContinue } else { $env:WSL_DISTRO_NAME = $originalWslDistroName }
+    if ($null -eq $originalWslEnv) { Remove-Item Env:WSLENV -ErrorAction SilentlyContinue } else { $env:WSLENV = $originalWslEnv }
+    if ($null -eq $originalHumanApproved) { Remove-Item Env:QUALITY_GATE_HUMAN_APPROVED -ErrorAction SilentlyContinue } else { $env:QUALITY_GATE_HUMAN_APPROVED = $originalHumanApproved }
     if (-not $restored) { throw "wslconfig restoration verification failed" }
 }

@@ -43,11 +43,16 @@ function Select-AutomationEvidence {
     }
 
     $capture = ConvertFrom-JsonFile $WslVerificationCapturePath
+    $verification = if (($null -ne $capture) -and ($null -ne $capture.PSObject.Properties['verification'])) { $capture.verification } else { $null }
+    if (($null -eq $verification) -and ($null -ne $capture) -and ($null -ne $capture.PSObject.Properties['verification_raw'])) {
+        try { $verification = ([string]$capture.verification_raw | ConvertFrom-Json) } catch { $verification = $null }
+    }
     $captureIsCurrent = ($null -ne $capture) -and
         ($capture.state -eq "CAPTURED") -and
         ($capture.source_kind -eq "wsl_verification") -and
         ($capture.execution_id -eq $ExpectedExecutionId) -and
-        ($capture.verification.host_wrapper_execution_id -eq $ExpectedExecutionId) -and
+        ($null -ne $verification) -and
+        ($verification.host_wrapper_execution_id -eq $ExpectedExecutionId) -and
         (Test-NotBefore ([string]$capture.captured_at) $StartedAt)
     if (-not $captureIsCurrent) {
         return [ordered]@{ selected = $false; source = ""; state = ""; json = ""; command = ""; reason = "current WSL verification capture is missing or does not match the wrapper execution ID" }
@@ -56,8 +61,8 @@ function Select-AutomationEvidence {
     return [ordered]@{
         selected = $true
         source = "wsl_verification_capture"
-        state = [string]$capture.verification.state
-        json = ($capture.verification | ConvertTo-Json -Depth 8 -Compress)
+        state = [string]$verification.state
+        json = ($verification | ConvertTo-Json -Depth 8 -Compress)
         command = "Get-Content $WslVerificationCapturePath (captured from WSL during isolation)"
         reason = ""
     }

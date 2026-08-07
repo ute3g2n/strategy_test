@@ -122,7 +122,7 @@ Skill、サブエージェント、オーケストレータの作成または変
 
 ### WSL隔離品質ゲート
 
-`RUN-P2-IC-001-WSL` は、P2-D07の固定fixtureをWSL2 `networkingMode=none` で実行する専用scopeです。Linux用venvは `.venv/bin/python` 固定で、証跡は `test/evidence/phase2/RUN-P2-IC-001-WSL/` に保存します。BLK-RUN-003は、実機での隔離・4 Gate・完全復元証跡とHuman Gateがそろうまで解決済みにしません。
+`RUN-P2-IC-001-WSL` は、P2-D07の固定fixtureをWSL2 `networkingMode=none` で実行する専用scopeです。Linux用venvは `.venv/bin/python` 固定で、証跡は `test/evidence/phase2/RUN-P2-IC-001-WSL/` に保存します。BLK-RUN-003は、実機での隔離・4 Gate・完全復元証跡がそろい、ユーザーが「承認します」と明示した時点で解決済みとします。
 
 Windowsホストからの唯一の人間向け実行入口は `run_test.ps1`（WSL内から実行しない）です。WSL上のCodexやVS Codeのターミナルから `powershell.exe` を呼び出す場合もWSL内実行に該当するため、Windows側で独立したPowerShellを起動する。実行開始時点では、`wsl -l -v` で全ディストリビューションが `Stopped` であることを確認する。この時点のwrapperはWindows側のWSL version・一覧・対象がWSL2であることだけを確認し、Linux distroを起動する事前確認は行わない。
 

@@ -1,5 +1,7 @@
 {
-  "source": "approved-local-wheelhouse",
+  "source": "user-authorized-web-staged-local-wheelhouse-before-isolation",
+  "network_used_before_isolation": true,
+  "network_used_during_isolation": false,
   "packages": {
     "pytest": {
       "required": "9.1.1",
