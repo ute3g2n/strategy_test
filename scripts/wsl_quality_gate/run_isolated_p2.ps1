@@ -59,7 +59,8 @@ function Invoke-WslCapture([string[]]$Arguments) {
 function Get-Hash([string]$Path) { return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() }
 function Write-Evidence([hashtable]$Value, [string]$Name) {
     New-Item -ItemType Directory -Force -Path $evidence | Out-Null
-    $Value | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $evidence $Name) -Encoding utf8
+    $json = (($Value | ConvertTo-Json -Depth 8) -replace "`r`n", "`n") + "`n"
+    [IO.File]::WriteAllText((Join-Path $evidence $Name), $json, (New-Object System.Text.UTF8Encoding($true)))
 }
 function Write-WslEvidence([hashtable]$Value, [string]$Name) {
     $json = $Value | ConvertTo-Json -Depth 8 -Compress
@@ -71,6 +72,7 @@ function Write-WslEvidence([hashtable]$Value, [string]$Name) {
 }
 
 try {
+    Write-Host "WSL_HOST_WRAPPER_EXECUTION_ID=$executionId"
     if ($RunId -ne "RUN-P2-IC-001-WSL") { throw "RunId is not the fixed WSL scope" }
     if (-not [string]::IsNullOrWhiteSpace($env:WSL_INTEROP) -or -not [string]::IsNullOrWhiteSpace($env:WSL_DISTRO_NAME)) {
         throw "Run this wrapper from native Windows PowerShell, not from WSL. wsl --shutdown would terminate the execution environment (current distro: $($env:WSL_DISTRO_NAME))"
@@ -121,6 +123,25 @@ try {
     $env:WSL_HOST_WRAPPER_EXECUTION_ID = $executionId; $env:WSL_VERSION = $wslVersion; $env:WSL_DISTRO_NAME = $Distro
     $runnerArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && cd '$RepositoryPath' && exec bash scripts/wsl_quality_gate/run_isolated_p2.sh '$RepositoryPath' '$RunId'")
     $runner = Invoke-WslCapture $runnerArguments
+    $verificationPathInWsl = "$RepositoryPath/test/evidence/phase2/$RunId/verification.json"
+    $verificationArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && cat '$verificationPathInWsl'")
+    $verificationCapture = Invoke-WslCapture $verificationArguments
+    $verification = $null
+    if ($verificationCapture.ExitCode -eq 0) {
+        try { $verification = $verificationCapture.Output | ConvertFrom-Json } catch { $verification = $null }
+    }
+    $captureState = if (($null -ne $verification) -and ($verification.host_wrapper_execution_id -eq $executionId)) { "CAPTURED" } else { "UNAVAILABLE" }
+    Write-Evidence @{
+        state = $captureState
+        source_kind = "wsl_verification"
+        execution_id = $executionId
+        captured_at = (Get-Date).ToUniversalTime().ToString("o")
+        source_repository_path = $RepositoryPath
+        source_path = $verificationPathInWsl
+        retrieval_exit_code = $verificationCapture.ExitCode
+        verification = $verification
+    } "wsl-verification-capture.json"
+    if ($captureState -ne "CAPTURED") { throw "current WSL verification evidence was not captured for this wrapper execution" }
     Write-Evidence @{ state = if ($runner.ExitCode -eq 0) { "RUNNER_COMPLETED" } else { "RUNNER_NONZERO" }; output = $runner.Output; exit_code = $runner.ExitCode; execution_id = $executionId } "host-runner.json"
     if ($runner.ExitCode -ne 0) { throw "WSL runner returned non-zero; inspect verification.json" }
 }

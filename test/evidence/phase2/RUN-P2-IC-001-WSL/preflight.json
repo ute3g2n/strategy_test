@@ -1,5 +1,5 @@
 ﻿{
-    "execution_id":  "c9dfb5780a4e4c10bd7ff38350fe858c",
-    "reason":  "Stop all WSL distributions before running this wrapper. wsl --shutdown terminates all running WSL processes.",
+    "execution_id":  "0534cf43ae574cdb96a44141f6948e81",
+    "reason":  "Target WSL distribution is already Running. Stop Codex and WSL, then rerun with -AllowRunningDistro when launching from a \\\\wsl.localhost path.",
     "state":  "BLOCKED"
 }

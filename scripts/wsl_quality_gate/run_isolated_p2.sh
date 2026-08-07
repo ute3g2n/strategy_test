@@ -12,7 +12,7 @@ python_bin="$repository_path/.venv/bin/python"
 blocked() {
   local reason="$1"
   mkdir -p "$evidence_root"
-  printf '{"state":"BLOCKED","reason":"%s","generated_at":"%s"}\n' "$reason" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$evidence_root/verification.json"
+  printf '{"state":"BLOCKED","reason":"%s","generated_at":"%s","host_wrapper_execution_id":"%s"}\n' "$reason" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$host_execution_id" > "$evidence_root/verification.json"
   exit 20
 }
 
@@ -64,13 +64,13 @@ set +e
 "$python_bin" -m scripts.quality_gate.run_quality_gate --manifest "$manifest" --project-root "$repository_path"
 gate_exit=$?
 set -e
-"$python_bin" - "$evidence_root/verification.json" "$gate_exit" "$python_version" "$ruff_version" "$mypy_version" "$pytest_version" "$cov_version" "$fixture_hash" <<'PY'
+"$python_bin" - "$evidence_root/verification.json" "$gate_exit" "$python_version" "$ruff_version" "$mypy_version" "$pytest_version" "$cov_version" "$fixture_hash" "$host_execution_id" <<'PY'
 import json, sys
 from pathlib import Path
-path, exit_code, python, ruff, mypy, pytest, coverage, fixture = sys.argv[1:]
+path, exit_code, python, ruff, mypy, pytest, coverage, fixture, host_execution_id = sys.argv[1:]
 result = json.loads(Path(path).read_text(encoding="utf-8")) if Path(path).exists() else {"state": "FAILED"}
 manifest = json.loads((Path(path).parent / "run-manifest.json").read_text(encoding="utf-8"))
-result.update({"exit_code": int(exit_code), "tool_versions": {"python": python, "ruff": ruff, "mypy": mypy, "pytest": pytest, "pytest_cov": coverage}, "scope": "target_only", "fixture_sha256": fixture, "target_only_change_sha256": manifest["change_hash"], "restore_pending": True})
+result.update({"exit_code": int(exit_code), "tool_versions": {"python": python, "ruff": ruff, "mypy": mypy, "pytest": pytest, "pytest_cov": coverage}, "scope": "target_only", "fixture_sha256": fixture, "target_only_change_sha256": manifest["change_hash"], "host_wrapper_execution_id": host_execution_id, "restore_pending": True})
 Path(path).write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 PY
 exit "$gate_exit"

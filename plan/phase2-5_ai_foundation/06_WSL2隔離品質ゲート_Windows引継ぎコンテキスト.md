@@ -49,10 +49,11 @@ Windows側の `run_test.ps1` はWindows cloneから実行し、Linux runnerは `
   - Windows hostだけの確認を先に行い、`uname -r`、repository、venv等は隔離後のLinux runnerへ移動済み。
   - WSL内からの起動は拒否する。
   - `-AllowRunningDistro` は、UNCパスを読むだけで対象WSLが起動する場合の明示的な続行許可である。対象WSL内のCodexや他の処理が停止済みである場合だけ使う。
+  - 隔離中にWSL cloneの `verification.json` を採取し、host wrapperのexecution IDを含む `wsl-verification-capture.json` として保存する。隔離解除後に証跡取得のためだけにWSLを再起動しない。
 - `scripts/wsl_quality_gate/run_test.ps1`
   - 人間向けの入口。wrapperの標準出力・標準エラー、終了コード、選択した証跡を `test/evidence/phase2/RUN-P2-IC-001-WSL/automation/` に保存する。
   - 180秒のwrapper timeoutと45秒の証跡取得timeoutを持つ。
-  - `preflight.json` の更新時刻を使い、child PowerShellの終了コードが取得できない場合でも、最新のBLOCKEDを終了コード20として扱うよう修正済み。
+  - 通常実行では、今回のexecution IDと一致する `wsl-verification-capture.json` だけを使う。Windows clone内の `verification.json` は候補にしない。設定前にBLOCKEDとなったときだけ、同じexecution IDかつ今回更新された `preflight.json` を使う。
   - `-AllowRunningDistro` 使用時にrunnerが開始済みなら、automation証跡を書いた後に `wsl --shutdown` を実行する。
 - `tests/quality_gate/test_wsl_quality_gate_contract.py`
   - 固定scope、wrapperの復元・起動順、Linux runnerのfail-closed条件、automationログの契約を静的に確認する。
@@ -80,23 +81,19 @@ Windows側の `run_test.ps1` はWindows cloneから実行し、Linux runnerは `
 
 ## 未解決事項と優先順
 
-### P0: Windows/WSL二重cloneでの証跡取り違え
+### P0: Windows/WSL二重cloneでの証跡取り違え（静的改訂済み、実機未確認）
 
 Windows cloneから `run_test.ps1` を実行すると、`$evidenceRoot` は `C:\project\strategy_test\test\evidence\...` になる。一方、Linux runnerが更新する `verification.json` は `/home/oue/strategy_test/test/evidence/...` である。
 
-現在の `run_test.ps1` は、通常実行時にWindows clone内の既存 `verification.json` が存在すればそれを先に読む。このファイルが古い場合、Linux runnerの今回結果ではなく古い結果をautomationログへ保存する危険がある。Windows側Codexは、実機4 Gateを行う前に次のいずれかで必ず直すこと。
+2026-08-07に、wrapper execution IDで照合する方式を実装した。host wrapperは隔離中にWSL側 `verification.json` を採取し、`wsl-verification-capture.json` に採取元のWSLパス、execution ID、採取時刻、WSL証跡本体を保存する。`run_test.ps1` はこの採取物だけを選び、Windows cloneの `verification.json` を候補にしない。隔離解除後にWSLを再起動して読み直すこともない。
 
-- WSL側の証跡を、今回のrun開始後に更新されたものだけ読む。
-- wrapperのexecution IDを使い、その実行IDと一致する証跡だけ読む。
-- automation証跡をWSL側へ統一し、Windows側の同名ファイルを参照しない。
-
-この修正には、回帰テストを追加すること。古いWindows側 `verification.json` と新しいWSL側 `verification.json` が共存しても、新しいWSL側を選ぶことを検証する。
+古いWindows側 `verification.json`（`DRY_RUN`）と、新しいWSL側採取証跡が共存する回帰テストを追加し、WSL側の `BLOCKED` 証跡だけを選ぶことを確認した。PowerShell parser、Bash構文、契約テストは通過した。実機隔離runで同じexecution IDの証跡が得られることは、ユーザー承認後に別途確認するまで未確認である。
 
 ### P1: 実機PowerShell構文・隔離実行の未検証
 
 Linux側から `powershell.exe` のPowerShell parserを呼ぼうとしたが、WSL interop socket errorで実施できなかった。Windows側で以下を行うこと。
 
-- `run_isolated_p2.ps1` と `run_test.ps1` のPowerShell parser確認。
+- `run_isolated_p2.ps1`、`run_test.ps1`、`select_automation_evidence.ps1` のPowerShell parser確認は2026-08-07に通過した。
 - `.wslconfig` が存在する場合・存在しない場合のDryRunと復元確認。
 - すべての前提が満たされたときの実機隔離run。
 
@@ -125,4 +122,3 @@ Linux側から `powershell.exe` のPowerShell parserを呼ぼうとしたが、W
 4. P0の証跡取り違えを修正し、テストを追加する。
 5. PowerShell parserと契約テストを実行する。
 6. 隔離runは、P0/P1が解消し、ユーザーが実機実行を許可した場合だけ行う。成功してもHuman Gateを自己承認しない。
-

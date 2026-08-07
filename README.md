@@ -132,7 +132,7 @@ Windowsホストからの唯一の人間向け実行入口は `run_test.ps1`（W
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\wsl_quality_gate\run_test.ps1 -AllowRunningDistro
 ```
 
-`run_test.ps1` が内部で `run_isolated_p2.ps1` を起動し、wrapperの標準出力・標準エラー・終了コードと、最新の `preflight.json` または `verification.json` を `test/evidence/phase2/RUN-P2-IC-001-WSL/automation/` に保存します。`run_test.ps1` は通常実行では `verification.json` を優先し、設定前にBLOCKEDとなった場合だけ `preflight.json` を優先するため、過去の証跡を最新結果と取り違えません。許可付き実行では、証跡保存後に `wsl --shutdown` を実行してWSLを停止状態へ戻します。
+`run_test.ps1` が内部で `run_isolated_p2.ps1` を起動し、wrapperの標準出力・標準エラー・終了コードと選択した証跡を `test/evidence/phase2/RUN-P2-IC-001-WSL/automation/` に保存します。通常の実行では、host wrapperが隔離中にWSL cloneから採取した `wsl-verification-capture.json` だけを、今回のwrapper execution IDが一致する場合に限って使います。Windows cloneに残る同名の古い `verification.json` は読みません。設定前にBLOCKEDとなった場合だけ、今回のexecution IDと更新時刻が一致する `preflight.json` を使います。証跡を読むためだけに隔離解除後のWSLを再起動しません。
 
 内部wrapperは `.wslconfig` に `networkingMode=none` と `firewall=true` を一時設定して `wsl --shutdown` を実行した後、対象ディストリビューションを一回だけ起動します。起動後のLinux runnerが、WSL2 kernel、repository、manifest、Linux用venv、wheelhouse、registry、network隔離、固定tool version、fixture checksumを確認し、すべて通過した場合だけ固定4 Gateを実行します。終了後は `try/finally` で `.wslconfig` を元のバイト列へ復元し、再度 `wsl --shutdown` を実行します。
 

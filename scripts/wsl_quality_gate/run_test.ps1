@@ -13,6 +13,7 @@ $repositoryRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $evidenceRoot = Join-Path $repositoryRoot "test/evidence/phase2/$RunId"
 $automationRoot = Join-Path $evidenceRoot "automation"
 $wrapperPath = Join-Path $PSScriptRoot "run_isolated_p2.ps1"
+$evidenceSelectorPath = Join-Path $PSScriptRoot "select_automation_evidence.ps1"
 $startedAt = (Get-Date).ToUniversalTime()
 
 New-Item -ItemType Directory -Force -Path $automationRoot | Out-Null
@@ -62,6 +63,8 @@ function Invoke-Captured([string]$FilePath, [string[]]$Arguments, [int]$TimeoutS
     }
 }
 
+. $evidenceSelectorPath
+
 $wrapperArguments = @(
     "-NoProfile",
     "-ExecutionPolicy", "Bypass",
@@ -78,24 +81,22 @@ $wrapperLog = "COMMAND: $wrapperCommand`n`n$($wrapperResult.output)"
 if ($wrapperResult.error) { $wrapperLog += "`n`nLAUNCH_ERROR:`n$($wrapperResult.error)" }
 Write-TextFile $wrapperOutputPath $wrapperLog
 
-$evidenceRootInWsl = "$RepositoryPath/test/evidence/phase2/$RunId"
 $preflightPath = Join-Path $evidenceRoot "preflight.json"
-$verificationPath = Join-Path $evidenceRoot "verification.json"
-$evidenceCommand = "cat '$evidenceRootInWsl/preflight.json' 2>/dev/null || cat '$evidenceRootInWsl/verification.json' 2>/dev/null"
+$wslVerificationCapturePath = Join-Path $evidenceRoot "wsl-verification-capture.json"
 $preflightIsRecent = Test-Path -LiteralPath $preflightPath -and ((Get-Item -LiteralPath $preflightPath).LastWriteTimeUtc -ge $startedAt.AddSeconds(-2))
-$verificationIsRecent = Test-Path -LiteralPath $verificationPath -and ((Get-Item -LiteralPath $verificationPath).LastWriteTimeUtc -ge $startedAt.AddSeconds(-2))
-$preferPreflight = ($wrapperResult.exit_code -eq 20) -or (($null -eq $wrapperResult.exit_code) -and $preflightIsRecent)
-$evidenceCandidates = if ($preferPreflight) {
-    @(@{ Path = $preflightPath; Command = "Get-Content $preflightPath" }, @{ Path = $verificationPath; Command = "Get-Content $verificationPath" })
+$preferPreflight = $wrapperResult.exit_code -eq 20
+$executionIdMatch = [regex]::Match([string]$wrapperResult.output, '(?m)^WSL_HOST_WRAPPER_EXECUTION_ID=([0-9a-f]{32})\s*$')
+$expectedExecutionId = if ($executionIdMatch.Success) { $executionIdMatch.Groups[1].Value } else { "" }
+$selection = if ($expectedExecutionId) {
+    Select-AutomationEvidence -WrapperExitCode $wrapperResult.exit_code -StartedAt $startedAt -ExpectedExecutionId $expectedExecutionId -PreflightPath $preflightPath -WslVerificationCapturePath $wslVerificationCapturePath
 } else {
-    @(@{ Path = $verificationPath; Command = "Get-Content $verificationPath" }, @{ Path = $preflightPath; Command = "Get-Content $preflightPath" })
+    [ordered]@{ selected = $false; source = ""; state = ""; json = ""; command = ""; reason = "wrapper execution ID was not emitted" }
 }
-$localEvidence = $evidenceCandidates | Where-Object { Test-Path -LiteralPath $_.Path } | Select-Object -First 1
-if ($null -ne $localEvidence) {
-    $evidenceResult = [ordered]@{ exit_code = 0; output = Get-Content -LiteralPath $localEvidence.Path -Raw; error = "" }
-    $evidenceCommand = $localEvidence.Command
+$evidenceCommand = [string]$selection.command
+if ($selection.selected) {
+    $evidenceResult = [ordered]@{ exit_code = 0; output = [string]$selection.json; error = "" }
 } else {
-    $evidenceResult = Invoke-Captured "wsl.exe" @("-d", $Distro, "--", "bash", "-lc", $evidenceCommand) 45
+    $evidenceResult = [ordered]@{ exit_code = 1; output = ""; error = [string]$selection.reason }
 }
 $evidenceOutputPath = Join-Path $automationRoot "run-test-evidence.log"
 $evidenceLog = "COMMAND: $evidenceCommand`n`n$($evidenceResult.output)"
@@ -105,7 +106,11 @@ Write-TextFile $evidenceOutputPath $evidenceLog
 $evidenceState = ""
 try { $evidenceState = ([string]$evidenceResult.output | ConvertFrom-Json).state } catch { $evidenceState = "" }
 $effectiveWrapperExitCode = $wrapperResult.exit_code
-if ($null -eq $effectiveWrapperExitCode) {
+if ($evidenceResult.exit_code -ne 0) {
+    $effectiveWrapperExitCode = if ($wrapperResult.exit_code -eq 20) { 20 } else { 1 }
+} elseif ($evidenceState -eq "BLOCKED") {
+    $effectiveWrapperExitCode = 20
+} elseif ($null -eq $effectiveWrapperExitCode) {
     $effectiveWrapperExitCode = if ($evidenceState -eq "BLOCKED") { 20 } else { 1 }
 }
 
@@ -129,8 +134,10 @@ $summary = [ordered]@{
     evidence_exit_code = $evidenceResult.exit_code
     evidence_error = $evidenceResult.error
     evidence_state = $evidenceState
+    evidence_source = $selection.source
+    expected_execution_id = $expectedExecutionId
     preflight_is_recent = $preflightIsRecent
-    verification_is_recent = $verificationIsRecent
+    wsl_verification_capture_path = $wslVerificationCapturePath
     files = [ordered]@{
         wrapper_log = $wrapperOutputPath
         evidence_log = $evidenceOutputPath
@@ -141,7 +148,6 @@ $summaryPath = Join-Path $automationRoot "run-test-summary.json"
 $summary | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $summaryPath -Encoding utf8
 
 $runnerWasInvoked = $wrapperResult.output -match 'kind=capture'
-if ($AllowRunningDistro -and $runnerWasInvoked) { & wsl.exe --shutdown | Out-Null }
 
 Write-Host "run_test.ps1 completed: state=$state wrapper_exit_code=$effectiveWrapperExitCode"
 Write-Host "summary=$summaryPath"
