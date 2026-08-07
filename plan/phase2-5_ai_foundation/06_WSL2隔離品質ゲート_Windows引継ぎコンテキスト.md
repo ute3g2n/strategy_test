@@ -21,7 +21,7 @@ Human Gateは未承認であり、成功した場合でも自動的にPASSへ進
 | 対象distro | `Ubuntu-24.04` | WSL2でなければならない。 |
 | 固定Run ID | `RUN-P2-IC-001-WSL` | 任意のRun IDやcommandへ差し替えてはならない。 |
 
-Windows側の `run_test.ps1` はWindows cloneから実行し、Linux runnerは `-RepositoryPath /home/oue/strategy_test` でWSL cloneを実行する。二つのcloneは同じGitコミットへそろえること。
+Windows側の `run_test.ps1` はWindows cloneから実行し、Linux runnerは `-RepositoryPath /home/oue/strategy_test` でWSL cloneを実行する。実機Runの前に、ユーザーが必要なタイミングでWSL側に `git pull --ff-only` を実行し、二つのcloneのHEADを確認する。AIはWSL cloneを同時更新しない。
 
 ## 実装済みの成果物
 
@@ -30,7 +30,7 @@ Windows側の `run_test.ps1` はWindows cloneから実行し、Linux runnerは `
 - `scripts/quality_gate/trusted_scopes.json`
   - WSL専用 `RUN-P2-IC-001-WSL` を追加済み。
   - formatter、lint、type、testの4 commandは `.venv/bin/python` に固定。
-- `test/evidence/phase2/RUN-P2-IC-001-WSL/run-manifest.json`
+- `tests/evidence/phase2/RUN-P2-IC-001-WSL/run-manifest.json`
   - P2-D07、REQ-Q02/19/20/23、固定fixture checksum、`scope_mode=target_only` を記録済み。
 - `scripts/wsl_quality_gate/prepare_offline_wsl_env.sh`
   - 承認済みwheelhouseだけを使用し、ネットワークなしでLinux venvを準備するスクリプト。
@@ -51,7 +51,7 @@ Windows側の `run_test.ps1` はWindows cloneから実行し、Linux runnerは `
   - `-AllowRunningDistro` は、UNCパスを読むだけで対象WSLが起動する場合の明示的な続行許可である。対象WSL内のCodexや他の処理が停止済みである場合だけ使う。
   - 隔離中にWSL cloneの `verification.json` を採取し、host wrapperのexecution IDを含む `wsl-verification-capture.json` として保存する。隔離解除後に証跡取得のためだけにWSLを再起動しない。
 - `scripts/wsl_quality_gate/run_test.ps1`
-  - 人間向けの入口。wrapperの標準出力・標準エラー、終了コード、選択した証跡を `test/evidence/phase2/RUN-P2-IC-001-WSL/automation/` に保存する。
+  - 人間向けの入口。wrapperの標準出力・標準エラー、終了コード、選択した証跡を `tests/evidence/phase2/RUN-P2-IC-001-WSL/automation/` に保存する。
   - 180秒のwrapper timeoutと45秒の証跡取得timeoutを持つ。
   - 通常実行では、今回のexecution IDと一致する `wsl-verification-capture.json` だけを使う。Windows clone内の `verification.json` は候補にしない。設定前にBLOCKEDとなったときだけ、同じexecution IDかつ今回更新された `preflight.json` を使う。
   - `-AllowRunningDistro` 使用時にrunnerが開始済みなら、automation証跡を書いた後に `wsl --shutdown` を実行する。
@@ -83,7 +83,7 @@ Windows側の `run_test.ps1` はWindows cloneから実行し、Linux runnerは `
 
 ### P0: Windows/WSL二重cloneでの証跡取り違え（静的改訂済み、実機未確認）
 
-Windows cloneから `run_test.ps1` を実行すると、`$evidenceRoot` は `C:\project\strategy_test\test\evidence\...` になる。一方、Linux runnerが更新する `verification.json` は `/home/oue/strategy_test/test/evidence/...` である。
+Windows cloneから `run_test.ps1` を実行すると、`$evidenceRoot` は `C:\project\strategy_test\tests\evidence\...` になる。一方、Linux runnerが更新する `verification.json` も `/home/oue/strategy_test/tests/evidence/...` である。
 
 2026-08-07に、wrapper execution IDで照合する方式を実装した。host wrapperは隔離中にWSL側 `verification.json` を採取し、`wsl-verification-capture.json` に採取元のWSLパス、execution ID、採取時刻、WSL証跡本体を保存する。`run_test.ps1` はこの採取物だけを選び、Windows cloneの `verification.json` を候補にしない。隔離解除後にWSLを再起動して読み直すこともない。
 
@@ -99,7 +99,7 @@ Linux側から `powershell.exe` のPowerShell parserを呼ぼうとしたが、W
 
 ### P2: 実行前の準備確認
 
-- WSL cloneが今回のGitコミットへ更新済みであること。
+- ユーザーがWSL cloneで `git pull --ff-only` を実行し、今回のGitコミットへ更新済みであること。AIは更新せず、読み取りでHEADだけ確認する。
 - `/home/oue/strategy_test/.venv/bin/python` が存在すること。
 - `/home/oue/strategy_test/wheelhouse/` が存在すること。
 - `ruff 0.16.1`、`mypy 2.3.0`、`pytest 9.1.1`、`pytest-cov 7.1.0`、Python `3.12.13` がLinux venvに入っていること。
@@ -118,7 +118,7 @@ Linux側から `powershell.exe` のPowerShell parserを呼ぼうとしたが、W
 
 1. `git pull --ff-only` でこの文書を含む最新commitへ更新する。
 2. `AGENTS.md`、この文書、`07_WindowsCodex引継ぎプロンプト.md`、`README.md` を読む。
-3. Windows cloneとWSL cloneのcommitを照合する。
+3. ユーザーがWSL側の `git pull --ff-only` を完了した後に、Windows cloneとWSL cloneのcommitを読み取りで照合する。
 4. P0の証跡取り違えを修正し、テストを追加する。
 5. PowerShell parserと契約テストを実行する。
 6. 隔離runは、P0/P1が解消し、ユーザーが実機実行を許可した場合だけ行う。成功してもHuman Gateを自己承認しない。

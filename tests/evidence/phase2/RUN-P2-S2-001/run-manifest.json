@@ -13,7 +13,7 @@
   "baseline_ref": "HEAD",
   "target_paths": ["scripts/quality_gate", "tests/quality_gate"],
   "excluded_paths": [".env", "third_party/everything-claude-code"],
-  "evidence_root": "test/evidence/phase2/RUN-P2-S2-001",
+  "evidence_root": "tests/evidence/phase2/RUN-P2-S2-001",
   "checks": [
     {"gate": "formatter", "command": ["ruff", "format", "--check", "scripts/quality_gate", "tests/quality_gate"]},
     {"gate": "lint", "command": ["ruff", "check", "scripts/quality_gate", "tests/quality_gate"]},

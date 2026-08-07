@@ -48,7 +48,7 @@
                                       "--",
                                       "bash",
                                       "-lc",
-                                      "cd / \u0026\u0026 base64 -w0 \u0027/home/oue/strategy_test/test/evidence/phase2/RUN-P2-IC-001-WSL/verification.json\u0027"
+                                      "cd / \u0026\u0026 base64 -w0 \u0027/home/oue/strategy_test/tests/evidence/phase2/RUN-P2-IC-001-WSL/verification.json\u0027"
                                   ],
                       "powershell_location":  "C:\\project\\strategy_test",
                       "exit_code":  0,
@@ -64,7 +64,7 @@
                                       "--",
                                       "bash",
                                       "-lc",
-                                      "cd / \u0026\u0026 cat \u0027/home/oue/strategy_test/test/evidence/phase2/RUN-P2-IC-001-WSL/host-isolation.json\u0027"
+                                      "cd / \u0026\u0026 cat \u0027/home/oue/strategy_test/tests/evidence/phase2/RUN-P2-IC-001-WSL/host-isolation.json\u0027"
                                   ],
                       "powershell_location":  "C:\\project\\strategy_test",
                       "exit_code":  0,

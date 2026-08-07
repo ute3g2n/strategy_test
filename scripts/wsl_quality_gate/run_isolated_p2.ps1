@@ -9,7 +9,7 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 $root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-$evidence = Join-Path $root "test/evidence/phase2/$RunId"
+$evidence = Join-Path $root "tests/evidence/phase2/$RunId"
 $config = Join-Path $env:UserProfile ".wslconfig"
 $backup = Join-Path ([IO.Path]::GetTempPath()) ("autotrade-wslconfig-" + [guid]::NewGuid().ToString("N") + ".bak")
 $hadConfig = Test-Path -LiteralPath $config -PathType Leaf
@@ -79,8 +79,8 @@ function Write-Evidence([hashtable]$Value, [string]$Name) {
 function Write-WslEvidence([hashtable]$Value, [string]$Name) {
     $json = $Value | ConvertTo-Json -Depth 8 -Compress
     $encoded = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($json))
-    $wslPath = "$RepositoryPath/test/evidence/phase2/$RunId/$Name"
-    $command = "mkdir -p '$RepositoryPath/test/evidence/phase2/$RunId'; printf '%s' '$encoded' | base64 -d > '$wslPath'"
+    $wslPath = "$RepositoryPath/tests/evidence/phase2/$RunId/$Name"
+    $command = "mkdir -p '$RepositoryPath/tests/evidence/phase2/$RunId'; printf '%s' '$encoded' | base64 -d > '$wslPath'"
     $arguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && $command")
     Invoke-WslText $arguments | Out-Null
 }
@@ -147,7 +147,7 @@ try {
     $env:WSLENV = $wslEnvNames -join ':'
     $runnerArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && cd '$RepositoryPath' && exec bash scripts/wsl_quality_gate/run_isolated_p2.sh '$RepositoryPath' '$RunId' '$executionId'")
     $runner = Invoke-WslCapture $runnerArguments
-    $verificationPathInWsl = "$RepositoryPath/test/evidence/phase2/$RunId/verification.json"
+    $verificationPathInWsl = "$RepositoryPath/tests/evidence/phase2/$RunId/verification.json"
     $verificationArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && base64 -w0 '$verificationPathInWsl'")
     $verificationCapture = Invoke-WslCapture $verificationArguments
     $verification = $null
@@ -155,7 +155,7 @@ try {
     if ($verificationCapture.ExitCode -eq 0) {
         try { $verification = $verificationRaw | ConvertFrom-Json } catch { $verification = $null }
     }
-    $hostIsolationPathInWsl = "$RepositoryPath/test/evidence/phase2/$RunId/host-isolation.json"
+    $hostIsolationPathInWsl = "$RepositoryPath/tests/evidence/phase2/$RunId/host-isolation.json"
     $hostIsolationArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && cat '$hostIsolationPathInWsl'")
     $hostIsolationCapture = Invoke-WslCapture $hostIsolationArguments
     $hostIsolation = $null

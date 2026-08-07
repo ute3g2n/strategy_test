@@ -114,7 +114,7 @@ data_version: 未確定なら Unknown とし、Passにしない
 target_paths: 変更対象ファイル
 excluded_paths: 変更禁止ファイル
 human_gate_policy: Gate名、承認者、承認条件
-evidence_root: test/evidence/{phase_id}/{run_id}/</pre>
+evidence_root: tests/evidence/{phase_id}/{run_id}/</pre>
   <pre class="mermaid">stateDiagram-v2
   [*] --> READY
   READY --> TEST_DESIGNED: 入力と範囲を確認
@@ -145,7 +145,7 @@ evidence_root: test/evidence/{phase_id}/{run_id}/</pre>
       <tr><th>状態遷移</th><td><code>READY → TEST_DESIGNED → IMPLEMENTED → VERIFIED → REVIEWED → GATED</code>。失敗は <code>DEBUGGING</code>、反復超過・Unknown・重大指摘は <code>BLOCKED</code>。</td></tr>
       <tr><th>禁止事項</th><td><code>default_orchestrator</code> の変更、未指定 Agent／Skill の推測起動、テスト削除・skip、品質設定の弱体化、Secret／実データ／Broker／Live への接続。</td></tr>
       <tr><th>停止条件</th><td>必須入力欠落、Agent名不在、同一失敗2回、Critical/High残存、UnknownをPassにする必要、Human Gate未承認、実取引到達経路の検出。</td></tr>
-      <tr><th>証跡</th><td><code>test/evidence/{phase_id}/{run_id}/orchestrator.json</code>、state log、Gate結果、Human Gate記録、差分ハッシュ、ツールバージョン。</td></tr>
+      <tr><th>証跡</th><td><code>tests/evidence/{phase_id}/{run_id}/orchestrator.json</code>、state log、Gate結果、Human Gate記録、差分ハッシュ、ツールバージョン。</td></tr>
       <tr><th>更新元 ECC</th><td><code>623f2c020f052319657674e4e6c29ab5d0ad566b</code>。参照 Skill: <code>continuous-agent-loop</code>、<code>autonomous-loops</code>、<code>verification-loop</code>、<code>workspace-surface-audit</code>。</td></tr>
     </tbody></table>
   </div>
@@ -317,12 +317,12 @@ evidence_root: test/evidence/{phase_id}/{run_id}/</pre>
   <table>
     <thead><tr><th>証跡</th><th>保存先</th><th>必須内容</th></tr></thead>
     <tbody>
-      <tr><td>Run Manifest</td><td><code>test/evidence/{phase_id}/{run_id}/run-manifest.json</code></td><td>Phase、Step、REQ/DD、対象範囲、完全名、fixture、data_version、baseline/change hash、Gate方針。</td></tr>
-      <tr><td>Human Gate</td><td><code>test/evidence/{phase_id}/{run_id}/human-gate/approval.json</code></td><td>run_id・change_hash・承認者・時刻・decision・残件を照合する。自己申告 boolean は不可。</td></tr>
-      <tr><td>テスト</td><td><code>test/evidence/{phase_id}/{run_id}/test/</code></td><td>red/green、コマンド、終了コード、coverage、fixture checksum。</td></tr>
-      <tr><td>デバッグ</td><td><code>test/evidence/{phase_id}/{run_id}/debug/</code></td><td>失敗署名、再現、原因仮説、修正、再検証、反復回数。</td></tr>
-      <tr><td>レビュー</td><td><code>test/evidence/{phase_id}/{run_id}/reviews/</code></td><td>Finding、重大度、対象行、採否、A150/A160の再レビュー。</td></tr>
-      <tr><td>Human Gate</td><td><code>test/evidence/{phase_id}/{run_id}/human-gate/</code></td><td>承認者、判断、残件、Unknown、ロールバック、次Phase引渡し。</td></tr>
+      <tr><td>Run Manifest</td><td><code>tests/evidence/{phase_id}/{run_id}/run-manifest.json</code></td><td>Phase、Step、REQ/DD、対象範囲、完全名、fixture、data_version、baseline/change hash、Gate方針。</td></tr>
+      <tr><td>Human Gate</td><td><code>tests/evidence/{phase_id}/{run_id}/human-gate/approval.json</code></td><td>run_id・change_hash・承認者・時刻・decision・残件を照合する。自己申告 boolean は不可。</td></tr>
+      <tr><td>テスト</td><td><code>tests/evidence/{phase_id}/{run_id}/test/</code></td><td>red/green、コマンド、終了コード、coverage、fixture checksum。</td></tr>
+      <tr><td>デバッグ</td><td><code>tests/evidence/{phase_id}/{run_id}/debug/</code></td><td>失敗署名、再現、原因仮説、修正、再検証、反復回数。</td></tr>
+      <tr><td>レビュー</td><td><code>tests/evidence/{phase_id}/{run_id}/reviews/</code></td><td>Finding、重大度、対象行、採否、A150/A160の再レビュー。</td></tr>
+      <tr><td>Human Gate</td><td><code>tests/evidence/{phase_id}/{run_id}/human-gate/</code></td><td>承認者、判断、残件、Unknown、ロールバック、次Phase引渡し。</td></tr>
       <tr><td>AI部品更新</td><td><code>doc/ai_foundation/03</code>–<code>08</code>、<code>doc/index.html</code></td><td>実体作成後に名称、責務、発火制御、相関、停止条件、検証結果を同期する。</td></tr>
     </tbody>
   </table>
@@ -375,7 +375,7 @@ evidence_root: test/evidence/{phase_id}/{run_id}/</pre>
     <li><a href="./08_AI実行基盤整理検証結果.html">AF-D08 AI実行基盤整理検証結果</a></li>
     <li><a href="../../plan/phase2-5_ai_foundation/00_導入台帳.md">ECC 導入台帳</a></li>
     <li><a href="../../plan/phase2-5_ai_foundation/00_互換性マトリクス.md">ECC / Codex 互換性マトリクス</a></li>
-    <li><a href="../../test/evidence/README.md">テスト・実装証跡の保存ルート</a></li>
+    <li><a href="../../tests/evidence/README.md">テスト・実装証跡の保存ルート</a></li>
   </ul>
 </main>
 <script src="../assets/mermaid.min.js"></script>

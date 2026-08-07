@@ -75,7 +75,7 @@
     <p><strong>文書ID:</strong> AT-BLOCKER-LEDGER-01<br>
     <strong>正本:</strong> このHTMLが、Phase 0から今後の全Phaseまでの残課題を管理する唯一の台帳です。<br>
     <strong>初回集約日:</strong> 2026-08-06<br>
-    <strong>最終更新日:</strong> 2026-08-06<br>
+    <strong>最終更新日:</strong> 2026-08-07<br>
     <strong>集約範囲:</strong> Phase 0、Phase 1、Phase 2、AI実行基盤、個別Run。Phase 3以降は、まだ実行していないため、前のPhaseから引き継いだ課題だけを載せています。</p>
   </section>
 
@@ -86,7 +86,7 @@
 
   <h2>1. まず、いまの状態</h2>
   <div class="cards">
-    <div class="card stop"><strong>1件</strong>いま、対象Runを止めている根本課題</div>
+    <div class="card stop"><strong>0件</strong>いま、対象Runを止めている根本課題</div>
     <div class="card wait"><strong>17件</strong>期限までは安全に保留できる根本課題</div>
     <div class="card done"><strong>13組</strong>解決済みとして確認できた主な課題</div>
     <div class="card phase"><strong>0–2</strong>実行済み・着手済みのPhase。Phase 3以降は未着手</div>
@@ -103,8 +103,9 @@
       <tr><td><span class="badge history">過去の記録</span></td><td>昔の判断を残すための文書です。今の状態を決める正本ではありません。</td><td>読み取り専用の証拠として使います。</td></tr>
     </tbody>
   </table>
+  <p class="small">ここにある「いま停止」は状態タグの説明です。現在その状態の課題があるという意味ではありません。現在の件数は上のカードと、次の解決確認表を見てください。</p>
 
-  <h2>2. いま止めている課題</h2>
+  <h2>2. 直近Runの解決確認（現在停止中なし）</h2>
   <p>現在の <code>RUN-P2-IC-001</code> を止めている直接の理由はありません。BLK-RUN-001、BLK-RUN-002、BLK-RUN-003、H2-0、H2-1はすべて解決済みです。この表は、解決した条件と証拠を残すために表示しています。</p>
   <div class="table-scroll">
   <table class="wide">
@@ -122,8 +123,8 @@
         <td><code>RES-RUN-HUMAN-APPROVAL</code></td><td><span class="badge done">解決済み</span></td>
         <td>ユーザーがRUN-P2-IC-001のHuman Gateを承認しました。</td>
         <td>承認の意思表示が得られたため、台帳上のBLK-RUN-002は解決済みとします。</td>
-        <td>署名検証そのものは、正式なPass判定の直前に別途確認します。</td>
-        <td>承認内容がRun ID、commit、change_hash、fixture_hash、remaining_items=[]と一致し、Runnerが署名を検証すること。</td>
+        <td>ユーザーの「承認します」という意思表示を、対象Runと紐づけて保存しました。署名や外部承認チャネルは使いません。</td>
+        <td>承認内容がRun IDと一致し、機械Gate、レビュー、scope、hash、安全条件に残件がないこと。</td>
         <td><code>BLK-RUN-002</code><br>2026-08-06 ユーザー承認</td>
       </tr>
       <tr>
@@ -132,7 +133,7 @@
         <td>Windows側wrapperが実行IDを渡し、WSL側がkernel、IPアドレス、経路、networking_mode=noneを記録しました。通常のWSL NATでは実行していません。</td>
         <td>RUN-P2-IC-001-WSLで、formatter、lint、type、pytestの4 Gateが順番どおりPASSになりました。外部ネットワーク、Databento、Broker、Secret、実データは使っていません。</td>
         <td>host-isolation.jsonのstate=CONFIRMED、networking_mode=none、restore.jsonのstate=RESTORED、Windows側captureの実行ID一致を確認すること。</td>
-        <td><code>QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED</code><br><a href="../test/evidence/phase2/RUN-P2-IC-001-WSL/wsl-verification-capture.json">WSL証跡</a><br><a href="../test/evidence/phase2/RUN-P2-IC-001-WSL/automation/run-test-summary.json">実行概要</a></td>
+        <td><code>QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED</code><br><a href="../tests/evidence/phase2/RUN-P2-IC-001-WSL/wsl-verification-capture.json">WSL証跡</a><br><a href="../tests/evidence/phase2/RUN-P2-IC-001-WSL/automation/run-test-summary.json">実行概要</a></td>
       </tr>
     </tbody>
   </table>
@@ -151,12 +152,12 @@
       <tr><td>品質基盤の変更</td><td><code>scripts/quality_gate/runner.py</code><br><code>scripts/quality_gate/trusted_scopes.json</code><br><code>scripts/quality_gate/local_p2_pytest.py</code><br><code>tests/quality_gate/test_runner.py</code></td><td>Runner自身を直した変更です。P2実装の試験結果と同じ差分に入れると、「試験する道具」と「試験されるコード」が同時に変わった状態になります。</td></tr>
       <tr><td>設定・文書</td><td><code>pyproject.toml</code>、<code>requirements-dev.txt</code>、<code>.gitignore</code>、<code>README.md</code>、<code>AGENTS.md</code>、<code>settings/</code>、<code>doc/</code>、<code>plan/</code></td><td>説明や環境を変えますが、Run Manifestのtarget_pathsにはありません。試験結果に影響したかをRunnerが安全に切り分けられません。</td></tr>
       <tr><td>除外または対象外</td><td><code>research/</code>の変更、root <code>.coverage</code>の削除</td><td>registryの<code>excluded_paths</code>に入る変更や、target_paths外の変更は、より強く拒否する契約です。</td></tr>
-      <tr><td>証拠</td><td><code>test/evidence/phase2/RUN-P2-IC-001/</code></td><td>証拠置場はRunnerの差分hashから除外されます。ただし、除外されるからといって実装変更を置いてよい場所ではありません。</td></tr>
+      <tr><td>証拠</td><td><code>tests/evidence/phase2/RUN-P2-IC-001/</code></td><td>証拠置場はRunnerの差分hashから除外されます。ただし、除外されるからといって実装変更を置いてよい場所ではありません。</td></tr>
     </tbody>
   </table>
   <div class="important">
     <p><strong>安全の境界:</strong> 対象外を無視するのは、registryが信頼済みで、command templateも固定されている場合だけです。対象コード・対象テストの削除、skip追加、fixture改変、hash不一致は、今までどおり実行前に止めます。</p>
-    <p><strong>確認した証拠:</strong> <a href="../tests/quality_gate/test_runner.py">対象限定scopeのGREENテスト</a>、<a href="../scripts/quality_gate/trusted_scopes.json">scope registry</a>、<a href="../test/evidence/phase2/RUN-P2-IC-001/run-manifest.json">Run Manifest</a>。</p>
+    <p><strong>確認した証拠:</strong> <a href="../tests/quality_gate/test_runner.py">対象限定scopeのGREENテスト</a>、<a href="../scripts/quality_gate/trusted_scopes.json">scope registry</a>、<a href="../tests/evidence/phase2/RUN-P2-IC-001/run-manifest.json">Run Manifest</a>。</p>
   </div>
 
   <h3>2-2. BLK-RUN-002を詳しく説明すると</h3>
@@ -193,7 +194,7 @@
   </table>
   <div class="important">
     <p><strong>なぜ「外部接続していないから大丈夫」ではないのか:</strong> これまでのコード検索で外部接続呼出しがないことは確認できます。しかし、品質Gateは将来の変更も実行します。host側の最後の防壁が確認できないまま実行すると、次の変更で誤った通信が入ったときに止められない可能性があります。</p>
-    <p><strong>解除方法（推奨）:</strong> Windows Sandboxまたは承認済みの使い捨てVMを用意し、その中でネットワークアダプターを無効化するか、Windows Firewallの送信を既定拒否にします。ホスト管理者が隔離状態を確認し、VM識別子・確認者・確認時刻・Firewall設定の読み取り結果を <code>test/evidence/phase2/RUN-P2-IC-001/host-isolation.json</code> に記録します。その隔離環境の中へ作業ツリーをコピーし、そこでRunnerを実行します。</p>
+    <p><strong>解除方法（推奨）:</strong> Windows Sandboxまたは承認済みの使い捨てVMを用意し、その中でネットワークアダプターを無効化するか、Windows Firewallの送信を既定拒否にします。ホスト管理者が隔離状態を確認し、VM識別子・確認者・確認時刻・Firewall設定の読み取り結果を <code>tests/evidence/phase2/RUN-P2-IC-001/host-isolation.json</code> に記録します。その隔離環境の中へ作業ツリーをコピーし、そこでRunnerを実行します。</p>
     <table>
       <thead><tr><th>順番</th><th>具体的にすること</th><th>合格条件</th></tr></thead>
       <tbody>
@@ -218,7 +219,7 @@ firewall=true</pre></li>
       <li><code>wsl --shutdown</code> を実行して隔離設定を反映し、その後に対象ディストリビューションを一回だけ起動します。起動後のLinux runnerが <code>uname -r</code>、<code>ip addr</code>、<code>ip route</code> を読み取り、WSL2 kernel、通常の外向きインターフェース、default routeの有無を確認します。外部サイトへの接続試験はしません。</li>
       <li>同じLinux runnerが、repository、Linux用venv、承認済みwheelhouse、fixture、Manifest、registry、固定版ツールを確認します。これらの確認に失敗した場合は4 Gateを開始しません。Databento、Broker、Secret、実データは置きません。</li>
       <li>現在の <code>RUN-P2-IC-001</code> の固定commandは <code>.venv/Scripts/python.exe</code>（Windows用）です。これをWSLから呼ぶとWindows側で実行され、WSLの隔離を使えません。したがって、WSL用の承認済みscope <code>RUN-P2-IC-001-WSL</code> をregistryへ追加し、<code>.venv/bin/python -m ruff</code>、<code>.venv/bin/python -m mypy</code>、<code>.venv/bin/python -m scripts.quality_gate.local_p2_pytest</code> の固定templateを登録します。target_paths、fixture hash、requirements、designは元Runと一致させます。</li>
-      <li>Linux runnerが、WSL version、kernel、ディストリビューション、networkingMode、<code>ip addr</code>、<code>ip route</code>、fixture hashを <code>test/evidence/phase2/RUN-P2-IC-001-WSL/host-isolation.json</code> に記録します。markerだけでは証拠にしません。</li>
+      <li>Linux runnerが、WSL version、kernel、ディストリビューション、networkingMode、<code>ip addr</code>、<code>ip route</code>、fixture hashを <code>tests/evidence/phase2/RUN-P2-IC-001-WSL/host-isolation.json</code> に記録します。markerだけでは証拠にしません。</li>
       <li>これらの確認に成功したプロセスだけが <code>QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED=1</code> を設定し、WSL用にregistry登録したManifestで4 Gateを実行します。終了コード、version、対象scope、hash、fixture hashをverificationへ保存します。</li>
     </ol>
     <p><strong>WSL手順の停止条件:</strong> <code>networkingMode=none</code> が使えない、WSLがVERSION 1、default routeが残る、依存パッケージを事前取得できない、host-isolation.jsonを管理者が確認できない場合は、通常WSLへ戻して実行せずBLOCKEDのままにします。</p>
@@ -261,13 +262,13 @@ firewall=true</pre></li>
       <tr><td><code>RES-P1-H1-4</code></td><td>Phase 1の完了とPhase 2への移行は承認済みです。</td><td>2026-08-02</td><td><a href="./phase1/12_統合レビュー/12_Phase1完了判定とPhase2移行承認書.html">H1-4承認書</a></td></tr>
       <tr><td><code>RES-DD-GRANULARITY</code></td><td>P2-D05からP2-D07は、実装できる細かさまで設計され、A91再レビューを通過しました。</td><td>2026-08-04</td><td><code>UNK-P2-10</code>, <code>AF-UNK-05</code> / <a href="./phase2/03_市場データ詳細設計/08_実装詳細設計レビュー反映記録.html">P2-D15</a></td></tr>
       <tr><td><code>RES-P2-TEST-BASE</code></td><td>Phase 2のpytest、JSON/Markdown/HTML証跡の基盤は用意できました。</td><td>2026-08-06</td><td><code>UNK-P2-06</code> / <a href="./ai_foundation/19_Phase2-5実装品質基盤実装検証.html">AF-D19</a></td></tr>
-      <tr><td><code>RES-AIF-TOOLCHAIN</code></td><td>ruff、mypy、pytest、pytest-covの固定版と実行方法が決まりました。</td><td>2026-08-06</td><td><code>UNK-AIF-01</code> / <a href="../test/evidence/phase2/RUN-P2-IC-001/verification.json">verification.json</a></td></tr>
+      <tr><td><code>RES-AIF-TOOLCHAIN</code></td><td>ruff、mypy、pytest、pytest-covの固定版と実行方法が決まりました。</td><td>2026-08-06</td><td><code>UNK-AIF-01</code> / <a href="../tests/evidence/phase2/RUN-P2-IC-001/verification.json">verification.json</a></td></tr>
       <tr><td><code>RES-AIF-BOUNDARY</code></td><td>実装品質Orchestratorと既存A05/A82の仕事の境界を実体へ反映しました。</td><td>2026-08-06</td><td><code>UNK-AIF-02</code> / <a href="./ai_foundation/19_Phase2-5実装品質基盤実装検証.html">AF-D19</a></td></tr>
       <tr><td><code>RES-AIF-E2E</code></td><td>Phase 2パイロットはブラウザE2Eを使わず、固定pytest wrapperを使うと決めました。</td><td>2026-08-06</td><td><code>UNK-AIF-03</code> / <a href="../scripts/quality_gate/local_p2_pytest.py">固定wrapper</a></td></tr>
       <tr><td><code>RES-RUNNER-SCOPE</code></td><td>Runnerは、信頼済みregistryに登録したP2の固定scopeと固定commandだけを受け付けるようになりました。</td><td>2026-08-06</td><td><a href="../scripts/quality_gate/trusted_scopes.json">trusted_scopes.json</a></td></tr>
       <tr><td><code>RES-RUN-TARGET-ONLY</code></td><td>RUN-P2-IC-001はHEAD全体の差分を試験対象の判定に使わず、registryの三つのtarget_pathsだけを検査するようになりました。</td><td>2026-08-06</td><td><a href="../tests/quality_gate/test_runner.py">対象限定scopeテスト</a> / <a href="../scripts/quality_gate/runner.py">runner.py</a></td></tr>
       <tr><td><code>RES-RUN-HUMAN-APPROVAL</code></td><td>RUN-P2-IC-001のHuman Gateについて、ユーザーが「承認します」と明示しました。署名検証は要求しません。</td><td>2026-08-07</td><td><code>BLK-RUN-002</code> / <code>human-gate-user-declaration.md</code></td></tr>
-      <tr><td><code>RES-S4-TOOLS-HASH-I/O</code></td><td>S4開始時に残っていたツール不足、change hash未解決、fixture照合不足、外部接続経路、レビュー証跡不足は解消しました。</td><td>2026-08-06</td><td><a href="../test/evidence/phase2/RUN-P2-IC-001/s4-status-ledger.md">S4証跡台帳</a></td></tr>
+      <tr><td><code>RES-S4-TOOLS-HASH-I/O</code></td><td>S4開始時に残っていたツール不足、change hash未解決、fixture照合不足、外部接続経路、レビュー証跡不足は解消しました。</td><td>2026-08-06</td><td><a href="../tests/evidence/phase2/RUN-P2-IC-001/s4-status-ledger.md">S4証跡台帳</a></td></tr>
       <tr><td><code>RES-P2-H2-0</code></td><td>Phase 2の中心市場と条件付き市場の扱いについて、H2-0をユーザーが承認しました。これは設計範囲の承認であり、実取引の承認ではありません。</td><td>2026-08-06</td><td><code>BLK-P2-001</code>, <code>UNK-P2-01</code> / 本台帳の更新履歴</td></tr>
       <tr><td><code>RES-P2-H2-1</code></td><td>限月切替、連続Signal、受渡し注意日、条件付き市場の扱いについて、H2-1をユーザーが承認しました。これは設計範囲の承認であり、実取引の承認ではありません。</td><td>2026-08-06</td><td><code>BLK-P2-002</code>, <code>UNK-P2-02/04/12</code> / 本台帳の更新履歴</td></tr>
     </tbody>
@@ -279,7 +280,7 @@ firewall=true</pre></li>
     <tbody>
       <tr><td>Phase 0</td><td>H4/H5は完了。154件の「証拠不足」は昔の候補全体の記録であり、154件すべてを現在のBlockedには数えません。今も必要な確認だけを <code>BLK-X-001</code> とPhase 2の行へ引き継ぎました。</td><td><code>BLK-X-001</code>, <code>RES-P2-H2-1</code></td></tr>
       <tr><td>Phase 1</td><td>H1-4は完了。基本設計は通過しています。Live、Paper、Risk、運用で後から決める八つの根本課題が残っています。</td><td><code>BLK-P1-001</code>〜<code>008</code></td></tr>
-      <tr><td>Phase 2</td><td>fixture限定の設計・パイロット、対象限定scope、WSL2 host隔離確認、ユーザーの明示承認は解決済みです。RUN-P2-IC-001-WSLは4 Gateとレビュー条件を確認後、PASSへ更新します。</td><td><code>RES-P2-H2-0</code>, <code>RES-P2-H2-1</code>, <code>RES-RUN-TARGET-ONLY</code>, <code>RES-RUN-HUMAN-APPROVAL</code>, <code>BLK-RUN-003</code>（解決済み）</td></tr>
+      <tr><td>Phase 2</td><td>fixture限定の設計・パイロット、対象限定scope、WSL2 host隔離確認、ユーザーの明示承認は解決済みです。RUN-P2-IC-001-WSLは4 Gateとレビュー条件を確認し、PASSへ更新済みです。</td><td><code>RES-P2-H2-0</code>, <code>RES-P2-H2-1</code>, <code>RES-RUN-TARGET-ONLY</code>, <code>RES-RUN-HUMAN-APPROVAL</code>, <code>BLK-RUN-003</code>（解決済み）</td></tr>
       <tr><td>Phase 3以降</td><td>まだ実行証跡がないため、「Phaseが未着手」というだけではBlockedに数えません。前Phaseから引き継いだ期限付き課題だけを本台帳で管理します。</td><td>各行の「決める期限」</td></tr>
       <tr><td>AI実行基盤</td><td>Pythonパイロットを回す最小基盤は完成。業務別coverageと、将来の別言語対応だけが保留です。</td><td><code>BLK-AIF-001/002</code></td></tr>
     </tbody>
@@ -302,7 +303,7 @@ firewall=true</pre></li>
     <li>解消条件、担当するPhaseまたはHuman Gate、証拠の保存先。</li>
     <li>解消時は、解消日、確認者、テスト・レビュー・承認へのリンク。</li>
   </ul>
-  <div class="note"><strong>証拠の置き場所:</strong> テストやRunの生の証拠は <code>test/evidence/{phase_id}/{run_id}/</code> に置きます。このHTMLには証拠そのものをコピーせず、短い説明とリンクだけを書きます。</div>
+  <div class="note"><strong>証拠の置き場所:</strong> テストやRunの生の証拠は <code>tests/evidence/{phase_id}/{run_id}/</code> に置きます。このHTMLには証拠そのものをコピーせず、短い説明とリンクだけを書きます。</div>
 
   <h2>7. 旧台帳と証拠の案内</h2>
   <p>下の文書は、今後も証拠として読みます。ただし、現在の状態を更新する場所はこのHTMLだけです。</p>
@@ -316,7 +317,7 @@ firewall=true</pre></li>
       <tr><td>Phase 2 Unknown</td><td><a href="./phase2/01_要件追跡/01_Phase2未確定事項台帳.html">Phase 2未確定事項台帳</a> / <a href="./phase2/01_要件追跡/01_Phase2要件追跡マトリクス.html">要件追跡マトリクス</a></td><td><span class="badge history">過去の記録</span> 設計上の元IDと停止条件を保存。</td></tr>
       <tr><td>詳細設計の残件</td><td><a href="../plan/phase2/台帳/P2-03R_DDカバレッジ台帳_2026-08-04.md">DDカバレッジ台帳</a></td><td><span class="badge history">過去の記録</span> DD-01〜DD-12の検査証拠を保存。</td></tr>
       <tr><td>AI実行基盤 Unknown</td><td><a href="./ai_foundation/15_実装詳細設計AI基盤仕様.html">AF-D15</a> / <a href="./ai_foundation/18_Phase2-5本実装AI実行基盤設計書.html">AF-D18</a></td><td><span class="badge history">過去の記録</span> 元の設計判断を保存。</td></tr>
-      <tr><td>S4 / 個別Run Blocked</td><td><a href="../plan/phase2-5_ai_foundation/04_パイロット評価.md">S4.1評価</a> / <a href="../test/evidence/phase2/RUN-P2-IC-001/s4-status-ledger.md">S4状態台帳</a></td><td><span class="badge history">証拠</span> Run固有の詳しいログは残し、全体状態は本台帳へ集約。</td></tr>
+      <tr><td>S4 / 個別Run Blocked</td><td><a href="../plan/phase2-5_ai_foundation/04_パイロット評価.md">S4.1評価</a> / <a href="../tests/evidence/phase2/RUN-P2-IC-001/s4-status-ledger.md">S4状態台帳</a></td><td><span class="badge history">証拠</span> Run固有の詳しいログは残し、全体状態は本台帳へ集約。</td></tr>
     </tbody>
   </table>
 
@@ -334,7 +335,7 @@ firewall=true</pre></li>
     </tbody>
   </table>
 
-  <div class="ok-note"><strong>読み終わったら:</strong> まず「2. いま止めている課題」の一件を確認してください。新しい作業がどの行にも関係しない場合だけ、その作業を進めます。</div>
+  <div class="ok-note"><strong>読み終わったら:</strong> まず「2. 直近Runの解決確認」を読み、現在停止中の課題がないことを確認してください。新しい作業がどの行にも関係しない場合だけ、その作業を進めます。</div>
 </main>
 </body>
 </html>

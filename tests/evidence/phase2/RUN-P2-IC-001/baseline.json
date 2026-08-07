@@ -30,7 +30,7 @@
   "diff": {
     "manifest_change_hash": "sha256:fd8033a64a8949570ce3231ead103e0a1f28f168b1f14a2a3f8b5bb1ee8a7419",
     "runner_recomputed_change_hash": "sha256:fd8033a64a8949570ce3231ead103e0a1f28f168b1f14a2a3f8b5bb1ee8a7419",
-    "hash_excluded_paths": ["test/evidence/**"],
+    "hash_excluded_paths": ["tests/evidence/**"],
     "target_scope_sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "worktree_sha256_before_this_evidence_record": "sha256:4aa164c3f2acbc054cef70c7ec9c297d3246f1746bcf472746a59ce1bf08c4dd",
     "hash_method": "UTF-8 text output of git diff --binary HEAD --, plus sorted untracked paths and bytes; target_scope uses the same method with target_paths only.",

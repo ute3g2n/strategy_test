@@ -81,7 +81,7 @@
   Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を使います。
   AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を使います。
   実装詳細設計では `autotrade_skill_implementation_detail_design_v0_1` と `autotrade_skill_implementation_detail_review_v0_1` を使います。
-  Python本実装の品質ループでは `autotrade_skill_python_implementation_v0_1`、`autotrade_skill_python_test_quality_v0_1`、`autotrade_skill_debug_recovery_v0_1`、`autotrade_skill_python_code_review_v0_1` を明示指定します。実行証跡は `test/evidence/{phase_id}/{run_id}/` に保存し、`scripts/quality_gate/` は `trusted_scopes.json` に登録されたRun IDの固定コマンドだけを実行します。`scope_mode=target_only` のRunは登録済みtarget_pathsだけを試験対象とし、対象外のHEAD/worktree差分では止めません。Phaseのtest subprocessはhost outbound isolation確認がない場合にBLOCKEDとします。
+  Python本実装の品質ループでは `autotrade_skill_python_implementation_v0_1`、`autotrade_skill_python_test_quality_v0_1`、`autotrade_skill_debug_recovery_v0_1`、`autotrade_skill_python_code_review_v0_1` を明示指定します。実行証跡は `tests/evidence/{phase_id}/{run_id}/` に保存し、`scripts/quality_gate/` は `trusted_scopes.json` に登録されたRun IDの固定コマンドだけを実行します。`scope_mode=target_only` のRunは登録済みtarget_pathsだけを試験対象とし、対象外のHEAD/worktree差分では止めません。Phaseのtest subprocessはhost outbound isolation確認がない場合にBLOCKEDとします。
 
 ### Phase実行計画
 
@@ -122,7 +122,9 @@ Skill、サブエージェント、オーケストレータの作成または変
 
 ### WSL隔離品質ゲート
 
-`RUN-P2-IC-001-WSL` は、P2-D07の固定fixtureをWSL2 `networkingMode=none` で実行する専用scopeです。Linux用venvは `.venv/bin/python` 固定で、証跡は `test/evidence/phase2/RUN-P2-IC-001-WSL/` に保存します。BLK-RUN-003は、実機での隔離・4 Gate・完全復元証跡がそろい、ユーザーが「承認します」と明示した時点で解決済みとします。
+Windows側の本リポジトリとWSLクローンは別の作業ツリーです。編集はWindows側だけで行い、AIがWSL側へ同時に書き込んだりファイルをコピーしたりしません。WSLを実行する必要があるときは、ユーザーが必要なタイミングにWSL側で `git pull --ff-only` を実行してから開始します。AIは同期を自動開始せず、WSL側の証跡取得は必要最小の読み取りに限定します。
+
+`RUN-P2-IC-001-WSL` は、P2-D07の固定fixtureをWSL2 `networkingMode=none` で実行する専用scopeです。Linux用venvは `.venv/bin/python` 固定で、証跡は `tests/evidence/phase2/RUN-P2-IC-001-WSL/` に保存します。BLK-RUN-003は、実機での隔離・4 Gate・完全復元証跡がそろい、ユーザーが「承認します」と明示した時点で解決済みとします。
 
 Windowsホストからの唯一の人間向け実行入口は `run_test.ps1`（WSL内から実行しない）です。WSL上のCodexやVS Codeのターミナルから `powershell.exe` を呼び出す場合もWSL内実行に該当するため、Windows側で独立したPowerShellを起動する。実行開始時点では、`wsl -l -v` で全ディストリビューションが `Stopped` であることを確認する。この時点のwrapperはWindows側のWSL version・一覧・対象がWSL2であることだけを確認し、Linux distroを起動する事前確認は行わない。
 
@@ -132,7 +134,7 @@ Windowsホストからの唯一の人間向け実行入口は `run_test.ps1`（W
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\wsl_quality_gate\run_test.ps1 -AllowRunningDistro
 ```
 
-`run_test.ps1` が内部で `run_isolated_p2.ps1` を起動し、wrapperの標準出力・標準エラー・終了コードと選択した証跡を `test/evidence/phase2/RUN-P2-IC-001-WSL/automation/` に保存します。通常の実行では、host wrapperが隔離中にWSL cloneから採取した `wsl-verification-capture.json` だけを、今回のwrapper execution IDが一致する場合に限って使います。Windows cloneに残る同名の古い `verification.json` は読みません。設定前にBLOCKEDとなった場合だけ、今回のexecution IDと更新時刻が一致する `preflight.json` を使います。証跡を読むためだけに隔離解除後のWSLを再起動しません。
+`run_test.ps1` が内部で `run_isolated_p2.ps1` を起動し、wrapperの標準出力・標準エラー・終了コードと選択した証跡を `tests/evidence/phase2/RUN-P2-IC-001-WSL/automation/` に保存します。通常の実行では、host wrapperが隔離中にWSL cloneから採取した `wsl-verification-capture.json` だけを、今回のwrapper execution IDが一致する場合に限って使います。Windows cloneに残る同名の古い `verification.json` は読みません。設定前にBLOCKEDとなった場合だけ、今回のexecution IDと更新時刻が一致する `preflight.json` を使います。証跡を読むためだけに隔離解除後のWSLを再起動しません。
 
 内部wrapperは `.wslconfig` に `networkingMode=none` と `firewall=true` を一時設定して `wsl --shutdown` を実行した後、対象ディストリビューションを一回だけ起動します。起動後のLinux runnerが、WSL2 kernel、repository、manifest、Linux用venv、wheelhouse、registry、network隔離、固定tool version、fixture checksumを確認し、すべて通過した場合だけ固定4 Gateを実行します。終了後は `try/finally` で `.wslconfig` を元のバイト列へ復元し、再度 `wsl --shutdown` を実行します。
 

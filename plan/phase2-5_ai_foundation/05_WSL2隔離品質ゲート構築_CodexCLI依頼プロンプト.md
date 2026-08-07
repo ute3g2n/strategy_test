@@ -36,7 +36,7 @@ try/finallyで必ず行わなければなりません。
 5. doc/00_全Phase残課題Blocked統合台帳.html の BLK-RUN-003 節
 6. scripts/quality_gate/runner.py
 7. scripts/quality_gate/trusted_scopes.json
-8. test/evidence/phase2/RUN-P2-IC-001/run-manifest.json
+8. tests/evidence/phase2/RUN-P2-IC-001/run-manifest.json
 9. .codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json
 
 実装前の必須作業（TDD）
@@ -54,7 +54,7 @@ try/finallyで必ず行わなければなりません。
 5. WSL内runnerはdefault routeが残る、wheelhouseが不足、Linux用ツールversion不一致、
    target hash不一致、host-isolation証跡欠落のいずれかで、4 Gate開始前にBLOCKEDになる。
 
-RED証跡は test/evidence/phase2/RUN-P2-IC-001-WSL/ に保存してください。
+RED証跡は tests/evidence/phase2/RUN-P2-IC-001-WSL/ に保存してください。
 その後、最小の実装を追加して同じテストをGREENにしてください。
 
 実装する成果物
@@ -71,7 +71,7 @@ RED証跡は test/evidence/phase2/RUN-P2-IC-001-WSL/ に保存してください
      type:      .venv/bin/python -m mypy src/autotrade/market_data
      test:      .venv/bin/python -m scripts.quality_gate.local_p2_pytest
 
-2. test/evidence/phase2/RUN-P2-IC-001-WSL/run-manifest.json
+2. tests/evidence/phase2/RUN-P2-IC-001-WSL/run-manifest.json
    - 新Run ID、P2-D07、REQ-Q02/REQ-Q19/REQ-Q20/REQ-Q23、WSL固定commandを記録する。
    - change_hashはWSL cloneの対象3パスだけから計算する。変更前に仮値を置いて通してはいけない。
 
@@ -92,7 +92,7 @@ RED証跡は test/evidence/phase2/RUN-P2-IC-001-WSL/ に保存してください
    - 成功、テスト失敗、PowerShell例外、Ctrl+C相当の終了でも finally を使い、
      元の .wslconfig を復元し、再度 wsl --shutdown を実行する。
    - 復元後に、元の存在有無とSHA-256が一致することを確認する。違えば最優先FAILEDにする。
-   - isolation証跡とrestore証跡を test/evidence/phase2/RUN-P2-IC-001-WSL/ に書く。
+   - isolation証跡とrestore証跡を tests/evidence/phase2/RUN-P2-IC-001-WSL/ に書く。
    - 通常ホストでmarkerだけを設定する分岐、外部疎通テスト、Firewallの恒久変更は禁止する。
 
 4. scripts/wsl_quality_gate/run_isolated_p2.sh
@@ -118,7 +118,7 @@ RED証跡は test/evidence/phase2/RUN-P2-IC-001-WSL/ に保存してください
 
 6. 関連テスト、README.md、AGENTS.md、doc/ai_foundation、doc/index.html、
    doc/00_全Phase残課題Blocked統合台帳.html
-   - AI部品・保存先・WSL用Run ID・実行入口・証跡の意味だけを必要最小限同期する。
+   - AI部品・保存先・WSL用Run ID・実行入口・証跡の意味はWindows cloneのみ更新する。WSL cloneへの同時更新やファイルコピーは行わず、実機Runの前にユーザーがWSL側で `git pull --ff-only` を実行する。
    - BLK-RUN-003は、実際の隔離実行と復元証跡が揃うまでは解決済みに変更しない。
 
 単一の人間実行コマンド

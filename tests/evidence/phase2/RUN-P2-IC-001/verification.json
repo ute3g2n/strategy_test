@@ -34,14 +34,14 @@
     "target_paths": ["src/autotrade/market_data", "tests/market_data", "tests/fixtures/market_data"],
     "executed_paths": ["src/autotrade/market_data", "tests/market_data"],
     "fixture_path": "tests/fixtures/market_data/catalog_resolver_fixture.json",
-    "excluded_paths": [".env", "third_party/everything-claude-code", "research", "test/evidence/**"]
+    "excluded_paths": [".env", "third_party/everything-claude-code", "research", "tests/evidence/**"]
   },
   "hashes": {
     "fixture_sha256": "sha256:94022229698e972353b8ec9537f455af5cb29d47253f5f2a1ed5d33b08b50169",
     "actual_diff_sha256": "sha256:f36cc96229e5ba713af953593a57a3d9b4b9e4d3526305bd25f5e22fd2e7c42a",
     "manifest_change_hash": "sha256:f36cc96229e5ba713af953593a57a3d9b4b9e4d3526305bd25f5e22fd2e7c42a",
     "runner_recomputed_change_hash": "sha256:f36cc96229e5ba713af953593a57a3d9b4b9e4d3526305bd25f5e22fd2e7c42a",
-    "hash_algorithm": "SHA-256; git diff and untracked content under target_paths only; test/evidence/** excluded"
+    "hash_algorithm": "SHA-256; git diff and untracked content under target_paths only; tests/evidence/** excluded"
   },
   "checks": [
     {
@@ -80,7 +80,7 @@
     {
       "name": "coverage",
       "status": "PASS",
-      "command": ".venv\\Scripts\\python.exe -m pytest tests/market_data --cov=autotrade.market_data --cov-report=term-missing --cov-report=json:test/evidence/phase2/RUN-P2-IC-001/coverage.json",
+      "command": ".venv\\Scripts\\python.exe -m pytest tests/market_data --cov=autotrade.market_data --cov-report=term-missing --cov-report=json:tests/evidence/phase2/RUN-P2-IC-001/coverage.json",
       "exit_code": 0,
       "tool_version": "pytest 9.1.1 / pytest-cov 7.1.0",
       "scope": ["src/autotrade/market_data", "tests/market_data"],
@@ -96,7 +96,7 @@
     {
       "name": "runner_scope_enforcement",
       "status": "BLOCKED",
-      "command": ".venv\\Scripts\\python.exe -m scripts.quality_gate.run_quality_gate --project-root . --manifest test/evidence/phase2/RUN-P2-IC-001/run-manifest.json",
+      "command": ".venv\\Scripts\\python.exe -m scripts.quality_gate.run_quality_gate --project-root . --manifest tests/evidence/phase2/RUN-P2-IC-001/run-manifest.json",
       "exit_code": 1,
       "result": "Runner now uses scope_mode=target_only; unrelated worktree changes are ignored. This current probe stops earlier because host outbound isolation is unconfirmed."
     },
@@ -158,7 +158,7 @@
     "approval_json": "not_created; unsigned worktree JSON is not an approval basis"
   },
   "post_global_ledger_runner_probe": {
-    "command": ".venv\\Scripts\\python.exe -m scripts.quality_gate.run_quality_gate --project-root . --manifest test/evidence/phase2/RUN-P2-IC-001/run-manifest.json --no-write-evidence",
+    "command": ".venv\\Scripts\\python.exe -m scripts.quality_gate.run_quality_gate --project-root . --manifest tests/evidence/phase2/RUN-P2-IC-001/run-manifest.json --no-write-evidence",
     "exit_code": 1,
     "state": "BLOCKED",
     "reason": "host の outbound isolation が確認できないため実行を停止しました",

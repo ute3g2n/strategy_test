@@ -6,8 +6,8 @@ Critical/High: 0。固定registry、target-only change hash、固定コマンド
 
 ## 参照証跡
 
-- `test/evidence/phase2/RUN-P2-IC-001-WSL/wsl-verification-capture.json`
-- `test/evidence/phase2/RUN-P2-IC-001-WSL/automation/run-test-summary.json`
+- `tests/evidence/phase2/RUN-P2-IC-001-WSL/wsl-verification-capture.json`
+- `tests/evidence/phase2/RUN-P2-IC-001-WSL/automation/run-test-summary.json`
 - fixture SHA-256: `sha256:94022229698e972353b8ec9537f455af5cb29d47253f5f2a1ed5d33b08b50169`
 - change SHA-256: `sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
 

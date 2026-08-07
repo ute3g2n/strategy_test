@@ -10,7 +10,7 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-$evidenceRoot = Join-Path $repositoryRoot "test/evidence/phase2/$RunId"
+$evidenceRoot = Join-Path $repositoryRoot "tests/evidence/phase2/$RunId"
 $automationRoot = Join-Path $evidenceRoot "automation"
 $wrapperPath = Join-Path $PSScriptRoot "run_isolated_p2.ps1"
 $evidenceSelectorPath = Join-Path $PSScriptRoot "select_automation_evidence.ps1"

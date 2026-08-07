@@ -14,7 +14,7 @@ ecc_source_commit: 623f2c020f052319657674e4e6c29ab5d0ad566b
 
 1. REDテストと対象境界を確認し、最小差分だけを実装する。
 2. 型、UTC、Decimal、ID、例外、Adapter境界の不明点は Unknown として停止する。
-3. 変更理由とテスト結果を `test/evidence/{phase_id}/{run_id}/` に残す。
+3. 変更理由とテスト結果を `tests/evidence/{phase_id}/{run_id}/` に残す。
 
 ## 禁止事項と停止条件
 

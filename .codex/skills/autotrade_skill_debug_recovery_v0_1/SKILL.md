@@ -14,7 +14,7 @@ ecc_source_commit: 623f2c020f052319657674e4e6c29ab5d0ad566b
 
 1. 失敗をローカルで再現し、仕様・実装・テスト・環境に分類する。
 2. 原因仮説ごとに最小修正を一度だけ行い、同一仮説は最大2回まで再検証する。
-3. 仮説、差分、結果、BLOCKED理由を `test/evidence/{phase_id}/{run_id}/debug/` に残す。
+3. 仮説、差分、結果、BLOCKED理由を `tests/evidence/{phase_id}/{run_id}/debug/` に残す。
 
 ## 禁止事項と停止条件
 

@@ -6,9 +6,9 @@
 - HEAD commit: `8d3f3d3dd41b6d5b33e6b870a3f5b4f1b10ffab4`
 - 実差分 SHA-256: `sha256:fd8033a64a8949570ce3231ead103e0a1f28f168b1f14a2a3f8b5bb1ee8a7419`
 - fixture SHA-256: `sha256:94022229698e972353b8ec9537f455af5cb29d47253f5f2a1ed5d33b08b50169`
-- 参照 Manifest: `test/evidence/phase2/RUN-P2-IC-001/run-manifest.json`
+- 参照 Manifest: `tests/evidence/phase2/RUN-P2-IC-001/run-manifest.json`
 - 参照 registry: `scripts/quality_gate/trusted_scopes.json`
-- TDD 証跡: `test/evidence/phase2/RUN-P2-IC-001/tdd-quality-gate-extension-red.md`
+- TDD 証跡: `tests/evidence/phase2/RUN-P2-IC-001/tdd-quality-gate-extension-red.md`
 
 ## 実施順序と再現手順
 
@@ -27,7 +27,7 @@ TDD は RED（wrapper import 不在）を保存後、GREEN（quality-gate 30 pas
 |---|---|---|---|---|---|---|
 | S4.4-PY-001 | Critical/High なし（Info） | CLOSED | `ruff format --check`、`ruff check`、`mypy`、対象 pytest が全て成功。固定 fixture 以外の I/O はない。 | 上記 1–6 を順番に実行 | 不要 | S4.4 実行で PASS |
 | S4.4-PY-002 | High | OPEN | Runner の実差分検査は `target_paths 外の変更を検出しました` を返している。これは Python 実装の局所品質とは別に、受入 scope を破る残件である。 | host isolation marker を確認した上で `LocalQualityGateRunner(...).run(manifest, write_evidence=False)` を実行 | 必須。scope 外差分を除去するか、承認済み baseline を更新してから hash を再計算 | 未解消。Run は BLOCKED のまま |
-| S4.4-PY-003 | Medium | CLOSED | `GitChangeInspector` は Unicode untracked path を NUL 区切りで扱い、`test/evidence/**` を hash から除外する。Manifest の hash と再計算値が一致する。 | `GitChangeInspector().change_hash(Path.cwd(), "HEAD")` と Manifest の `change_hash` を比較 | 不要 | S4.4 実行で PASS |
+| S4.4-PY-003 | Medium | CLOSED | `GitChangeInspector` は Unicode untracked path を NUL 区切りで扱い、`tests/evidence/**` を hash から除外する。Manifest の hash と再計算値が一致する。 | `GitChangeInspector().change_hash(Path.cwd(), "HEAD")` と Manifest の `change_hash` を比較 | 不要 | S4.4 実行で PASS |
 
 ## 判定
 

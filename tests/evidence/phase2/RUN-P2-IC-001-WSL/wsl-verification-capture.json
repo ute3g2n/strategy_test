@@ -78,7 +78,7 @@
                          "host_wrapper_execution_id":  "fb7a667b352743c0b1167f4a6d329d0e",
                          "restore_pending":  true
                      },
-    "source_path":  "/home/oue/strategy_test/test/evidence/phase2/RUN-P2-IC-001-WSL/verification.json",
+    "source_path":  "/home/oue/strategy_test/tests/evidence/phase2/RUN-P2-IC-001-WSL/verification.json",
     "host_isolation":  {
                            "state":  "CONFIRMED",
                            "wsl_version":  "WSL ・・繝ｻ・ｸ0繝ｻ繝ｻ: 2.6.3.0",

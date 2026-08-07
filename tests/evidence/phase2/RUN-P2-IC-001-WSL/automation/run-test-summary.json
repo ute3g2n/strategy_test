@@ -1,4 +1,4 @@
-﻿{
+{
     "state":  "PASS",
     "run_id":  "RUN-P2-IC-001-WSL",
     "distro":  "Ubuntu-24.04",
@@ -9,17 +9,17 @@
     "wrapper_exit_code":  0,
     "raw_wrapper_exit_code":  null,
     "wrapper_error":  null,
-    "evidence_command":  "Get-Content C:\\project\\strategy_test\\test\\evidence\\phase2\\RUN-P2-IC-001-WSL\\wsl-verification-capture.json (captured from WSL during isolation)",
+    "evidence_command":  "Get-Content C:\\project\\strategy_test\\tests\\evidence\\phase2\\RUN-P2-IC-001-WSL\\wsl-verification-capture.json (captured from WSL during isolation)",
     "evidence_exit_code":  0,
     "evidence_error":  "",
     "evidence_state":  "PASS",
     "evidence_source":  "wsl_verification_capture",
     "expected_execution_id":  "fb7a667b352743c0b1167f4a6d329d0e",
     "preflight_is_recent":  false,
-    "wsl_verification_capture_path":  "C:\\project\\strategy_test\\test\\evidence\\phase2\\RUN-P2-IC-001-WSL\\wsl-verification-capture.json",
+    "wsl_verification_capture_path":  "C:\\project\\strategy_test\\tests\\evidence\\phase2\\RUN-P2-IC-001-WSL\\wsl-verification-capture.json",
     "files":  {
-                  "wrapper_log":  "C:\\project\\strategy_test\\test\\evidence\\phase2\\RUN-P2-IC-001-WSL\\automation\\run-test-wrapper.log",
-                  "evidence_log":  "C:\\project\\strategy_test\\test\\evidence\\phase2\\RUN-P2-IC-001-WSL\\automation\\run-test-evidence.log",
-                  "exit_code":  "C:\\project\\strategy_test\\test\\evidence\\phase2\\RUN-P2-IC-001-WSL\\automation\\run-test-exit-code.txt"
+                  "wrapper_log":  "C:\\project\\strategy_test\\tests\\evidence\\phase2\\RUN-P2-IC-001-WSL\\automation\\run-test-wrapper.log",
+                  "evidence_log":  "C:\\project\\strategy_test\\tests\\evidence\\phase2\\RUN-P2-IC-001-WSL\\automation\\run-test-evidence.log",
+                  "exit_code":  "C:\\project\\strategy_test\\tests\\evidence\\phase2\\RUN-P2-IC-001-WSL\\automation\\run-test-exit-code.txt"
               }
 }

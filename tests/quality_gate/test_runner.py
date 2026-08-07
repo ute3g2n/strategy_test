@@ -88,7 +88,7 @@ def manifest(tmp_path: Path, **overrides: object) -> dict[str, object]:
         "baseline_ref": "HEAD",
         "target_paths": ["scripts/quality_gate", "tests/quality_gate"],
         "excluded_paths": [".env"],
-        "evidence_root": str(tmp_path / "test" / "evidence" / "phase2" / "RUN-P2-S2-001"),
+        "evidence_root": str(tmp_path / "tests" / "evidence" / "phase2" / "RUN-P2-S2-001"),
         "checks": [
             {
                 "gate": "formatter",
@@ -225,7 +225,7 @@ def test_rejects_non_allowlisted_command_without_running_it(tmp_path: Path) -> N
 def test_rejects_evidence_path_outside_project_test_evidence(tmp_path: Path) -> None:
     executor = successful_executor()
 
-    with pytest.raises(ManifestValidationError, match="test/evidence"):
+    with pytest.raises(ManifestValidationError, match="tests/evidence"):
         runner(tmp_path, executor).run(manifest(tmp_path, evidence_root=str(tmp_path / "outside")))
 
     assert executor.calls == []
@@ -302,7 +302,7 @@ def test_blocks_added_test_skip_before_running_gates(tmp_path: Path) -> None:
 def test_cli_runs_from_its_script_path_in_dry_run_mode(tmp_path: Path) -> None:
     run_manifest = manifest(
         tmp_path,
-        evidence_root="test/evidence/phase2/RUN-P2-S2-cli",
+        evidence_root="tests/evidence/phase2/RUN-P2-S2-cli",
     )
     manifest_path = tmp_path / "run-manifest.json"
     manifest_path.write_text(json.dumps(run_manifest), encoding="utf-8")
@@ -333,7 +333,7 @@ def test_cli_main_returns_dry_run_summary_without_writing_evidence(
 ) -> None:
     run_manifest = manifest(
         tmp_path,
-        evidence_root=str(tmp_path / "test" / "evidence" / "phase2" / "RUN-P2-S2-cli-main"),
+        evidence_root=str(tmp_path / "tests" / "evidence" / "phase2" / "RUN-P2-S2-cli-main"),
     )
     manifest_path = tmp_path / "run-manifest.json"
     manifest_path.write_text(json.dumps(run_manifest), encoding="utf-8")

@@ -1,47 +1,33 @@
 {
-  "run_id": "RUN-P2-IC-001",
+  "run_id": "RUN-P2-IC-001-WSL",
   "phase_id": "phase2",
   "step_id": "P2-05",
   "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
   "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
-  "agents": [
-    "AutoTrade_A110_PythonTestEngineer_v0_1",
-    "AutoTrade_A120_PythonImplementer_v0_1",
-    "AutoTrade_A130_VerificationEngineer_v0_1",
-    "AutoTrade_A150_PythonCodeReviewer_v0_1",
-    "AutoTrade_A160_TradingSecurityReviewer_v0_1"
-  ],
-  "skills": [
-    "autotrade_skill_python_implementation_v0_1",
-    "autotrade_skill_python_test_quality_v0_1",
-    "autotrade_skill_python_code_review_v0_1"
-  ],
+  "agents": ["AutoTrade_A110_PythonTestEngineer_v0_1", "AutoTrade_A120_PythonImplementer_v0_1", "AutoTrade_A130_VerificationEngineer_v0_1", "AutoTrade_A150_PythonCodeReviewer_v0_1", "AutoTrade_A160_TradingSecurityReviewer_v0_1"],
+  "skills": ["autotrade_skill_python_implementation_v0_1", "autotrade_skill_python_test_quality_v0_1", "autotrade_skill_python_code_review_v0_1"],
   "requirements": ["REQ-Q02", "REQ-Q19", "REQ-Q20", "REQ-Q23"],
   "design": "P2-D07",
   "design_ids": ["P2-D07", "DD-05", "DD-06", "DD-07", "DD-08", "DD-09", "DD-10", "DD-11", "DD-12"],
   "behavior": "CatalogResolver.resolve: fixed snapshot only; resolve exactly one active mapping valid at observed UTC time.",
   "target_paths": ["src/autotrade/market_data", "tests/market_data", "tests/fixtures/market_data"],
   "excluded_paths": [".env", "third_party/everything-claude-code", "research"],
-  "input_fixture": {
-    "name": "catalog_resolver_fixture.json",
-    "version": "fixture-catalog-v1",
-    "checksum": "sha256:94022229698e972353b8ec9537f455af5cb29d47253f5f2a1ed5d33b08b50169"
-  },
+  "input_fixture": {"name": "catalog_resolver_fixture.json", "version": "fixture-catalog-v1", "checksum": "sha256:94022229698e972353b8ec9537f455af5cb29d47253f5f2a1ed5d33b08b50169"},
   "catalog_version": "fixture-catalog-v1",
   "catalog_snapshot_sha256": "sha256:94022229698e972353b8ec9537f455af5cb29d47253f5f2a1ed5d33b08b50169",
   "mapping_version": "fixture-mapping-v1",
   "calendar_version": "fixture-calendar-not-used",
   "source_mode": "fixture_only",
   "data_version": "fixture-catalog-v1",
-  "change_hash": "sha256:f36cc96229e5ba713af953593a57a3d9b4b9e4d3526305bd25f5e22fd2e7c42a",
+  "change_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "baseline_ref": "HEAD",
   "scope_mode": "target_only",
-  "evidence_root": "test/evidence/phase2/RUN-P2-IC-001",
+  "evidence_root": "tests/evidence/phase2/RUN-P2-IC-001-WSL",
   "checks": [
-    {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "tests/market_data"]},
-    {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/market_data", "tests/market_data"]},
-    {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/market_data"]},
-    {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p2_pytest"]}
+    {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "tests/market_data"]},
+    {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/market_data", "tests/market_data"]},
+    {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/market_data"]},
+    {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p2_pytest"]}
   ],
   "review": {"critical": 0, "high": 0},
   "network": "prohibited",

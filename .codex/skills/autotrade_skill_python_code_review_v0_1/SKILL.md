@@ -14,7 +14,7 @@ ecc_source_commit: 623f2c020f052319657674e4e6c29ab5d0ad566b
 
 1. Pythonの型、例外、決定性、回帰、テスト不足を独立に確認する。
 2. Secret、外部入力、Broker到達経路、Live、fail-open、監査証跡を確認する。
-3. Finding、重大度、採否、残留リスク、再レビュー結果を `test/evidence/{phase_id}/{run_id}/reviews/` に残す。
+3. Finding、重大度、採否、残留リスク、再レビュー結果を `tests/evidence/{phase_id}/{run_id}/reviews/` に残す。
 
 ## 禁止事項と停止条件
 

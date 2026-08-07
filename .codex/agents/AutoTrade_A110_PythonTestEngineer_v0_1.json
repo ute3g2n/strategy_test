@@ -6,7 +6,7 @@
   "skills": ["autotrade_skill_python_test_quality_v0_1", "autotrade_skill_test_strategy_v0_1", "python-testing", "tdd-workflow"],
   "role": "Convert approved acceptance conditions into deterministic pytest cases, fixtures, RED evidence, and traceability before implementation.",
   "inputs": {"design": "Approved DD-ID and acceptance conditions.", "run_manifest": "Target paths, fixture constraints, evidence root, and Unknowns."},
-  "outputs": {"tests": "Failing pytest cases and fixture contracts.", "evidence": "Test plan, RED command result, and REQ/DD mapping under test/evidence."},
+  "outputs": {"tests": "Failing pytest cases and fixture contracts.", "evidence": "Test plan, RED command result, and REQ/DD mapping under tests/evidence."},
   "ecc_source_commit": "623f2c020f052319657674e4e6c29ab5d0ad566b",
   "boundaries": "Do not edit implementation code, use Broker or Live connections, create fixtures from production data, read or output Secret values, or treat skipped tests as Pass."
 }

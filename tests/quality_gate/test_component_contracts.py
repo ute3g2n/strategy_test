@@ -50,6 +50,6 @@ def test_skills_have_required_safety_and_evidence_contracts() -> None:
         skill_text = (ROOT / ".codex/skills" / skill_name / "SKILL.md").read_text(encoding="utf-8")
         assert f"name: {skill_name}" in skill_text
         assert ECC_COMMIT in skill_text
-        assert "test/evidence" in skill_text
+        assert "tests/evidence" in skill_text
         assert "Broker" in skill_text
         assert "Secret" in skill_text

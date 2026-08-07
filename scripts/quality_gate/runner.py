@@ -20,7 +20,7 @@ MAX_TIMEOUT_SECONDS = 60
 TRUSTED_TARGET_PATHS = ("scripts/quality_gate", "tests/quality_gate")
 TRUSTED_SCOPE_REGISTRY_PATH = Path("scripts/quality_gate/trusted_scopes.json")
 LEGACY_BOOTSTRAP_RUN_ID = "RUN-P2-S2-001"
-HASH_EXCLUDED_PATH = "test/evidence"
+HASH_EXCLUDED_PATH = "tests/evidence"
 
 
 class ManifestValidationError(ValueError):
@@ -353,7 +353,7 @@ class LocalQualityGateRunner:
             return "変更範囲を検査できません"
         for change in changes:
             path = _normal_path(change.path, "変更パス")
-            if _within(path, "test/evidence"):
+            if _within(path, "tests/evidence"):
                 continue
             if change.status == "D" and _within(path, "tests"):
                 return "テスト削除を検出しました"
@@ -368,11 +368,11 @@ class LocalQualityGateRunner:
     def _validated_evidence_root(self, raw_path: str) -> Path:
         candidate = Path(raw_path)
         resolved = (self._project_root / candidate).resolve() if not candidate.is_absolute() else candidate.resolve()
-        allowed_root = (self._project_root / "test" / "evidence").resolve()
+        allowed_root = (self._project_root / "tests" / "evidence").resolve()
         try:
             resolved.relative_to(allowed_root)
         except ValueError as error:
-            raise ManifestValidationError("evidence_root は project 内の test/evidence 配下です") from error
+            raise ManifestValidationError("evidence_root は project 内の tests/evidence 配下です") from error
         return resolved
 
     @staticmethod

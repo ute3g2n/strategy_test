@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 repository_path="${1:?repository path is required}"
 wheelhouse="${2:?approved Linux wheelhouse is required}"
-evidence_root="${repository_path}/test/evidence/phase2/RUN-P2-IC-001-WSL"
+evidence_root="${repository_path}/tests/evidence/phase2/RUN-P2-IC-001-WSL"
 requirements="${repository_path}/requirements-dev.txt"
 python_bin="${repository_path}/.venv/bin/python"
 [[ -d "$wheelhouse" ]] || { echo "BLOCKED: approved wheelhouse is missing" >&2; exit 20; }

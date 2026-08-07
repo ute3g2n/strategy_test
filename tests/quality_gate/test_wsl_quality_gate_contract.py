@@ -12,7 +12,7 @@ from scripts.quality_gate.runner import ManifestValidationError, load_manifest
 
 ROOT = Path(__file__).resolve().parents[2]
 REGISTRY = ROOT / "scripts/quality_gate/trusted_scopes.json"
-MANIFEST_PATH = ROOT / "test/evidence/phase2/RUN-P2-IC-001-WSL/run-manifest.json"
+MANIFEST_PATH = ROOT / "tests/evidence/phase2/RUN-P2-IC-001-WSL/run-manifest.json"
 WRAPPER = ROOT / "scripts/wsl_quality_gate/run_isolated_p2.ps1"
 LINUX_RUNNER = ROOT / "scripts/wsl_quality_gate/run_isolated_p2.sh"
 AUTOMATION_WRAPPER = ROOT / "scripts/wsl_quality_gate/run_test.ps1"
@@ -163,7 +163,7 @@ def test_automation_evidence_prefers_current_wsl_capture_over_stale_windows_veri
                 "execution_id": execution_id,
                 "captured_at": "2026-08-07T00:00:02Z",
                 "source_repository_path": "/home/oue/strategy_test",
-                "source_path": "/home/oue/strategy_test/test/evidence/phase2/RUN-P2-IC-001-WSL/verification.json",
+                "source_path": "/home/oue/strategy_test/tests/evidence/phase2/RUN-P2-IC-001-WSL/verification.json",
                 "verification": {
                     "state": "BLOCKED",
                     "host_wrapper_execution_id": execution_id,

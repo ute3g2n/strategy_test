@@ -22,9 +22,9 @@ formatter、lint、type、固定 P2 pytest wrapper、coverage は全て終了コ
 | lint | `.venv\\Scripts\\python.exe -m ruff check src/autotrade/market_data tests/market_data` | ruff 0.16.1 | src / tests | 0 | PASS |
 | type | `.venv\\Scripts\\python.exe -m mypy src/autotrade/market_data` | mypy 2.3.0 | src | 0 | PASS |
 | pytest | `.venv\\Scripts\\python.exe -m scripts.quality_gate.local_p2_pytest` | pytest 9.1.1 | tests/market_data | 0 | 9 passed |
-| coverage | `.venv\\Scripts\\python.exe -m pytest tests/market_data --cov=autotrade.market_data --cov-report=term-missing --cov-report=json:test/evidence/phase2/RUN-P2-IC-001/coverage.json` | pytest-cov 7.1.0 | src / tests | 0 | 88.43% (threshold 80%) |
+| coverage | `.venv\\Scripts\\python.exe -m pytest tests/market_data --cov=autotrade.market_data --cov-report=term-missing --cov-report=json:tests/evidence/phase2/RUN-P2-IC-001/coverage.json` | pytest-cov 7.1.0 | src / tests | 0 | 88.43% (threshold 80%) |
 
-fixture SHA-256 は `sha256:94022229698e972353b8ec9537f455af5cb29d47253f5f2a1ed5d33b08b50169`、Runner が再計算した実差分 SHA-256 と Manifest の `change_hash` は `sha256:fd8033a64a8949570ce3231ead103e0a1f28f168b1f14a2a3f8b5bb1ee8a7419` で一致した。hash 算出では `test/evidence/**` を除外し、証跡の追記が自身の入力を変えないようにした。
+fixture SHA-256 は `sha256:94022229698e972353b8ec9537f455af5cb29d47253f5f2a1ed5d33b08b50169`、Runner が再計算した実差分 SHA-256 と Manifest の `change_hash` は `sha256:fd8033a64a8949570ce3231ead103e0a1f28f168b1f14a2a3f8b5bb1ee8a7419` で一致した。hash 算出では `tests/evidence/**` を除外し、証跡の追記が自身の入力を変えないようにした。
 
 ## `.coverage` の扱い
 

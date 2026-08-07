@@ -179,14 +179,14 @@ Phase 2開始時点で満たす入力条件は次である。
 
 ### 6.3 plan配下の成果物
 
-計画書、実行プロンプト、運用ログ、台帳は `plan/` 配下へ保存する。テスト・実装・デバッグ・レビューの検証証跡は `test/evidence/` 配下へ保存する。Phase 2では次を標準保存先にする。
+計画書、実行プロンプト、運用ログ、台帳は `plan/` 配下へ保存する。テスト・実装・デバッグ・レビューの検証証跡は `tests/evidence/` 配下へ保存する。Phase 2では次を標準保存先にする。
 
 | 区分 | 保存先 |
 |---|---|
 | 本計画書 | `plan/Phase2_実行計画書_v0.1_2026-08-04.md` |
 | 実行ログ | `plan/phase2/ログ/` |
-| 実装・テスト・デバッグ・レビュー証跡 | `test/evidence/Phase 2/<run-id>/` |
-| Human Gate記録 | `test/evidence/Phase 2/<run-id>/human-gate/` |
+| 実装・テスト・デバッグ・レビュー証跡 | `tests/evidence/Phase 2/<run-id>/` |
+| Human Gate記録 | `tests/evidence/Phase 2/<run-id>/human-gate/` |
 | 作業台帳 | `plan/phase2/台帳/` |
 | プロンプト控え | `plan/phase2/プロンプト/` |
 
@@ -917,7 +917,7 @@ Phase 2完了Gate:
 |---|---|---|
 | 読みやすさ | 成果物、DAG、Gate、プロンプトが分かれている必要がある。 | 章を分け、表で整理した。 |
 | リンク | 正式HTMLはdoc/index.htmlから到達可能にする必要がある。 | 各ステップの作業と完了条件へdoc/index.html更新を含めた。 |
-| 保存先 | 計画、ログ、台帳、検証証跡の保存先が曖昧。 | `plan/phase2/ログ/`, `plan/phase2/台帳/`, `plan/phase2/プロンプト/` と `test/evidence/Phase 2/<run-id>/` を定義した。 |
+| 保存先 | 計画、ログ、台帳、検証証跡の保存先が曖昧。 | `plan/phase2/ログ/`, `plan/phase2/台帳/`, `plan/phase2/プロンプト/` と `tests/evidence/Phase 2/<run-id>/` を定義した。 |
 | レビュー反映 | 最終版に採否表と変更履歴が必要。 | P2-10でP2-D13を作成するようにした。 |
 
 ---

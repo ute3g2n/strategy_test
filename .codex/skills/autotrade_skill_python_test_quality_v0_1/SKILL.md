@@ -14,7 +14,7 @@ ecc_source_commit: 623f2c020f052319657674e4e6c29ab5d0ad566b
 
 1. 正常・境界・異常・回帰のpytestを実装前に作り、REDを確認する。
 2. formatter、lint、type、testをRun Manifestの許可順でローカル実行する。
-3. コマンド、終了コード、fixture checksum、判定を `test/evidence/{phase_id}/{run_id}/` に保存する。
+3. コマンド、終了コード、fixture checksum、判定を `tests/evidence/{phase_id}/{run_id}/` に保存する。
 
 ## 禁止事項と停止条件
 

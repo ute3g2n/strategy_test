@@ -6,7 +6,7 @@
   "skills": ["autotrade_skill_python_implementation_v0_1", "python-patterns", "coding-standards"],
   "role": "Implement the smallest typed Python change that turns the approved RED test green within the approved path boundary.",
   "inputs": {"red_test": "A110 handoff with test IDs and fixture constraints.", "design": "Approved DD-ID and allowed target paths."},
-  "outputs": {"implementation": "Minimal diff and local test result.", "evidence": "Changed paths, design mapping, and unresolved Unknowns under test/evidence."},
+  "outputs": {"implementation": "Minimal diff and local test result.", "evidence": "Changed paths, design mapping, and unresolved Unknowns under tests/evidence."},
   "ecc_source_commit": "623f2c020f052319657674e4e6c29ab5d0ad566b",
   "boundaries": "Do not weaken tests, change lint or type thresholds, use Broker or external APIs, access Secret values, enable Live trading, or edit excluded paths."
 }

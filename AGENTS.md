@@ -20,6 +20,12 @@
   Phase 1の正式HTML成果物。
 - `plan/`
   計画書、実行プロンプト、ログ、台帳。
+
+## Windows・WSLの作業ツリー規則
+
+- 通常の編集・実装・文書更新はWindows側の `C:\\project\\strategy_test` だけに行う。
+- AIはWSLクローンへの直接書込み、UNC経由のコピー、同時同期を行わない。WSL側の更新は、ユーザーが必要なタイミングに `git pull --ff-only` で行う。
+- WSLの読み取り確認や実機Runは、ユーザーが同期を完了した後に行う。
 - `.codex/orchestrators/`
   実行可能なOrchestrator定義。
 - `.codex/agents/`
@@ -27,7 +33,7 @@
 - `.codex/skills/`
   実行可能なSkill定義。
 
-WSL隔離品質ゲートの人間向け実行入口は `scripts/wsl_quality_gate/run_test.ps1` だけとする。`run_test.ps1` が内部で `run_isolated_p2.ps1` を呼び出す。UNC上から実行する場合は、Codexと対象WSL内の処理を終了した後に `-AllowRunningDistro` を付ける。Run IDは `RUN-P2-IC-001-WSL`、固定4 Gateと対象範囲は `scripts/quality_gate/trusted_scopes.json`、実行証跡は `test/evidence/phase2/RUN-P2-IC-001-WSL/` に置く。通常WSL NAT、Windows用 `.venv/Scripts/python.exe`、隔離後のpip、markerだけの隔離証明、外部接続を禁止する。ユーザーが対象Runについて「承認します」と明示した場合は、署名なしでHuman Gateを承認済みとして扱う。
+WSL隔離品質ゲートの人間向け実行入口は `scripts/wsl_quality_gate/run_test.ps1` だけとする。`run_test.ps1` が内部で `run_isolated_p2.ps1` を呼び出す。UNC上から実行する場合は、Codexと対象WSL内の処理を終了した後に `-AllowRunningDistro` を付ける。Run IDは `RUN-P2-IC-001-WSL`、固定4 Gateと対象範囲は `scripts/quality_gate/trusted_scopes.json`、実行証跡は `tests/evidence/phase2/RUN-P2-IC-001-WSL/` に置く。通常WSL NAT、Windows用 `.venv/Scripts/python.exe`、隔離後のpip、markerだけの隔離証明、外部接続を禁止する。ユーザーが対象Runについて「承認します」と明示した場合は、署名なしでHuman Gateを承認済みとして扱う。
 
 ## AI実行基盤の現状
 
@@ -65,7 +71,7 @@ WSL隔離品質ゲートの人間向け実行入口は `scripts/wsl_quality_gate
   AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を標準で使う。
   実装詳細設計では `autotrade_skill_implementation_detail_design_v0_1` と `autotrade_skill_implementation_detail_review_v0_1` を標準で使う。
   Python本実装の品質ループでは `autotrade_skill_python_implementation_v0_1`、`autotrade_skill_python_test_quality_v0_1`、`autotrade_skill_debug_recovery_v0_1`、`autotrade_skill_python_code_review_v0_1` を明示指定で使う。
-  実行証跡は `test/evidence/{phase_id}/{run_id}/` に保存し、`scripts/quality_gate/` は `trusted_scopes.json` に登録されたRun IDの固定コマンドだけを実行する。`scope_mode=target_only` のRunは登録済みtarget_pathsだけを試験対象とし、対象外のHEAD/worktree差分では止めない。Phaseのtest subprocessはhost outbound isolation確認がない場合にBLOCKEDとする。
+  実行証跡は `tests/evidence/{phase_id}/{run_id}/` に保存し、`scripts/quality_gate/` は `trusted_scopes.json` に登録されたRun IDの固定コマンドだけを実行する。`scope_mode=target_only` のRunは登録済みtarget_pathsだけを試験対象とし、対象外のHEAD/worktree差分では止めない。Phaseのtest subprocessはhost outbound isolation確認がない場合にBLOCKEDとする。
 - Phase 1専用部品:
   `AutoTradePhase1_*`
   `autotrade_phase1_skill_*_v0_1`

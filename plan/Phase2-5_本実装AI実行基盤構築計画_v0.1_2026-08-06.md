@@ -196,7 +196,7 @@ AutoTradeComponentLifecycle_Orchestrator_v0_1 を用い、Phase 2–5 の Python
 ### S3: Phase 2 の一機能でパイロットする
 
 対象候補: `src/autotrade/market_data/` の Raw/Normalized 変換または Instrument Catalog の一振る舞い。  
-成果物: `test/evidence/Phase 2/<run-id>/`、実装・テスト・レビュー差分。
+成果物: `tests/evidence/Phase 2/<run-id>/`、実装・テスト・レビュー差分。
 
 実行プロンプト:
 
@@ -210,7 +210,7 @@ Phase 2 の承認済み詳細設計から、Raw/Normalized 変換または Instr
 
 ### S4: パイロット評価と基盤の改訂を行う
 
-> **残課題管理の正本:** S4の詳しいRun証跡は `test/evidence/phase2/RUN-P2-IC-001/` に残す。S4を含む全Phaseの現在のBlocked、解消、再オープンは `doc/00_全Phase残課題Blocked統合台帳.html` だけで更新する。
+> **残課題管理の正本:** S4の詳しいRun証跡は `tests/evidence/phase2/RUN-P2-IC-001/` に残す。S4を含む全Phaseの現在のBlocked、解消、再オープンは `doc/00_全Phase残課題Blocked統合台帳.html` だけで更新する。
 
 成果物: `plan/phase2-5_ai_foundation/04_パイロット評価.md`、改訂履歴、再レビュー結果。  
 評価軸: 仕様逸脱の検出数、初回 Pass 率、再試行回数、レビューの有効指摘率、テストの振る舞い網羅、証跡欠落数、所要時間。
@@ -232,7 +232,7 @@ Critical/High 指摘、証跡欠落、設計外変更が残る場合は Pass に
 成果物:
 
 - `plan/phase2-5_ai_foundation/04_パイロット評価.md`
-- `test/evidence/phase2/RUN-P2-IC-001/baseline.json`
+- `tests/evidence/phase2/RUN-P2-IC-001/baseline.json`
 
 停止条件:
 
@@ -244,7 +244,7 @@ Critical/High 指摘、証跡欠落、設計外変更が残る場合は Pass に
 ```text
 AutoTradeProject_ImplementationQuality_Orchestrator_v0_1 の S4.1 として、RUN-P2-IC-001 を読取り評価してください。
 
-入力は P2-D07、REQ-Q02/REQ-Q19/REQ-Q20/REQ-Q23、HEAD のコミット、src/autotrade/market_data/、tests/market_data/、tests/fixtures/market_data/、test/evidence/phase2/RUN-P2-IC-001/、scripts/quality_gate/、.codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json です。
+入力は P2-D07、REQ-Q02/REQ-Q19/REQ-Q20/REQ-Q23、HEAD のコミット、src/autotrade/market_data/、tests/market_data/、tests/fixtures/market_data/、tests/evidence/phase2/RUN-P2-IC-001/、scripts/quality_gate/、.codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json です。
 
 仕様・実装・テスト・ツール設定・エージェント指示・外部依存の各分類について、原因、証拠パス、Critical/High/Medium/Low、最小改訂案、影響パスを表にしてください。RUN-P2-IC-001 の対象パス、HEAD commit、fixture SHA-256、実差分 SHA-256、除外パスを baseline.json に記録してください。
 
@@ -261,7 +261,7 @@ AutoTradeProject_ImplementationQuality_Orchestrator_v0_1 の S4.1 として、RU
 
 - Runner の信頼済み scope 定義（Run ID、対象パス、固定4コマンド、fixture checksum、外部接続禁止条件）
 - Runner の TDD テスト、P2-D07 向けローカル test wrapper、更新済み Orchestrator/Skill/AI基盤仕様
-- `test/evidence/phase2/RUN-P2-IC-001/tdd-quality-gate-extension.md`
+- `tests/evidence/phase2/RUN-P2-IC-001/tdd-quality-gate-extension.md`
 
 禁止事項:
 
@@ -296,7 +296,7 @@ RED 証跡を保存してから、scope registry を repository 管理の信頼�
 - Python 3.11 以上を明記した project tool configuration と lock / 再現手順
 - `.coverage` を追跡しない設定、および既存の追跡済み `.coverage` を履歴を壊さず対象コミットから除外する変更
 - 実差分 SHA-256、fixture SHA-256、formatter / lint / type / pytest の結果を含む `verification.json`
-- 実行ログ、レビュー記録、対象外変更検査を含む `test/evidence/phase2/RUN-P2-IC-001/`
+- 実行ログ、レビュー記録、対象外変更検査を含む `tests/evidence/phase2/RUN-P2-IC-001/`
 
 実行プロンプト:
 
@@ -357,10 +357,10 @@ Live 接続、権限昇格、Secret 登録、外部サービスへの書込み�
 
 ## 8. 証跡、構成、更新運用
 
-- 実装ログ: `test/evidence/<phase-id>/<run-id>/`
-- テスト結果: `test/evidence/<phase-id>/<run-id>/test/`
-- レビュー: `test/evidence/<phase-id>/<run-id>/reviews/`
-- Human Gate: `test/evidence/<phase-id>/<run-id>/human-gate/<gate-id>.md`
+- 実装ログ: `tests/evidence/<phase-id>/<run-id>/`
+- テスト結果: `tests/evidence/<phase-id>/<run-id>/test/`
+- レビュー: `tests/evidence/<phase-id>/<run-id>/reviews/`
+- Human Gate: `tests/evidence/<phase-id>/<run-id>/human-gate/<gate-id>.md`
 - 基盤の評価: `plan/phase2-5_ai_foundation/`
 - 正式な設計書: `doc/ai_foundation/`。追加・更新時は `doc/index.html` を更新する。
 
