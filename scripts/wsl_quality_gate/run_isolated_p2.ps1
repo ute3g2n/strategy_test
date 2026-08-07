@@ -3,7 +3,8 @@ param(
     [Parameter(Mandatory = $true)][string]$Distro,
     [Parameter(Mandatory = $true)][string]$RepositoryPath,
     [string]$RunId = "RUN-P2-IC-001-WSL",
-    [switch]$DryRun
+    [switch]$DryRun,
+    [switch]$AllowRunningDistro
 )
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
@@ -79,7 +80,10 @@ try {
     $listArguments = [string[]]("-l", "-v")
     $list = (Invoke-WslText $listArguments) -replace "`r", ""
     $list = $list.Replace(([char]0).ToString(), "")
-    if ($list -like "*Running*") { throw "Stop all WSL distributions before running this wrapper. wsl --shutdown terminates all running WSL processes." }
+    $runningLines = @($list -split "`n" | Where-Object { $_ -match '\bRunning\b' })
+    $otherRunningLines = @($runningLines | Where-Object { $_ -notlike "*$Distro*" })
+    if ($otherRunningLines.Count -gt 0) { throw "Stop all WSL distributions other than the target before running this wrapper." }
+    if ($runningLines.Count -gt 0 -and -not $AllowRunningDistro) { throw "Target WSL distribution is already Running. Stop Codex and WSL, then rerun with -AllowRunningDistro when launching from a \\wsl.localhost path." }
     $distroLine = ($list -split "`n" | Where-Object { $_ -like "*$Distro*" } | Select-Object -First 1)
     if ([string]::IsNullOrWhiteSpace($distroLine) -or $distroLine -notlike "* 2") { throw "Target distro is not registered as WSL version 2: $Distro" }
     if ($RepositoryPath -match '[\r\n''"]') { throw "RepositoryPath contains unsafe quoting characters" }

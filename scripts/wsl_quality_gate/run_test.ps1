@@ -2,7 +2,8 @@
 param(
     [string]$Distro = "Ubuntu-24.04",
     [string]$RepositoryPath = "/home/oue/strategy_test",
-    [string]$RunId = "RUN-P2-IC-001-WSL"
+    [string]$RunId = "RUN-P2-IC-001-WSL",
+    [switch]$AllowRunningDistro
 )
 
 $ErrorActionPreference = "Stop"
@@ -69,6 +70,7 @@ $wrapperArguments = @(
     "-RepositoryPath", $RepositoryPath,
     "-RunId", $RunId
 )
+if ($AllowRunningDistro) { $wrapperArguments += "-AllowRunningDistro" }
 $wrapperCommand = "powershell.exe " + (($wrapperArguments | ForEach-Object { '"' + $_.Replace('"', '\"') + '"' }) -join " ")
 $wrapperResult = Invoke-Captured "powershell.exe" $wrapperArguments 180
 $wrapperOutputPath = Join-Path $automationRoot "run-test-wrapper.log"
@@ -80,7 +82,10 @@ $evidenceRootInWsl = "$RepositoryPath/test/evidence/phase2/$RunId"
 $preflightPath = Join-Path $evidenceRoot "preflight.json"
 $verificationPath = Join-Path $evidenceRoot "verification.json"
 $evidenceCommand = "cat '$evidenceRootInWsl/preflight.json' 2>/dev/null || cat '$evidenceRootInWsl/verification.json' 2>/dev/null"
-$evidenceCandidates = if ($wrapperResult.exit_code -eq 20) {
+$preflightIsRecent = Test-Path -LiteralPath $preflightPath -and ((Get-Item -LiteralPath $preflightPath).LastWriteTimeUtc -ge $startedAt.AddSeconds(-2))
+$verificationIsRecent = Test-Path -LiteralPath $verificationPath -and ((Get-Item -LiteralPath $verificationPath).LastWriteTimeUtc -ge $startedAt.AddSeconds(-2))
+$preferPreflight = ($wrapperResult.exit_code -eq 20) -or (($null -eq $wrapperResult.exit_code) -and $preflightIsRecent)
+$evidenceCandidates = if ($preferPreflight) {
     @(@{ Path = $preflightPath; Command = "Get-Content $preflightPath" }, @{ Path = $verificationPath; Command = "Get-Content $verificationPath" })
 } else {
     @(@{ Path = $verificationPath; Command = "Get-Content $verificationPath" }, @{ Path = $preflightPath; Command = "Get-Content $preflightPath" })
@@ -124,6 +129,8 @@ $summary = [ordered]@{
     evidence_exit_code = $evidenceResult.exit_code
     evidence_error = $evidenceResult.error
     evidence_state = $evidenceState
+    preflight_is_recent = $preflightIsRecent
+    verification_is_recent = $verificationIsRecent
     files = [ordered]@{
         wrapper_log = $wrapperOutputPath
         evidence_log = $evidenceOutputPath
@@ -132,6 +139,9 @@ $summary = [ordered]@{
 }
 $summaryPath = Join-Path $automationRoot "run-test-summary.json"
 $summary | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $summaryPath -Encoding utf8
+
+$runnerWasInvoked = $wrapperResult.output -match 'kind=capture'
+if ($AllowRunningDistro -and $runnerWasInvoked) { & wsl.exe --shutdown | Out-Null }
 
 Write-Host "run_test.ps1 completed: state=$state wrapper_exit_code=$effectiveWrapperExitCode"
 Write-Host "summary=$summaryPath"

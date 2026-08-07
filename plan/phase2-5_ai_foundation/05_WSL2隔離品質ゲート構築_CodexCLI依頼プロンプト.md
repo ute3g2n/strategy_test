@@ -77,10 +77,12 @@ RED証跡は test/evidence/phase2/RUN-P2-IC-001-WSL/ に保存してください
 
 3. scripts/wsl_quality_gate/run_isolated_p2.ps1
    - これは `run_test.ps1` から内部的に呼ばれるWindows host wrapperとする。人間が使う唯一の入口は `run_test.ps1` とし、WSL内から .wslconfig を切り替えようとしてはならない。
-   - パラメータは少なくとも -Distro、-RepositoryPath、-RunId（既定RUN-P2-IC-001-WSL）、-DryRun を持つ。
+   - パラメータは少なくとも -Distro、-RepositoryPath、-RunId（既定RUN-P2-IC-001-WSL）、-DryRun、-AllowRunningDistro を持つ。
    - 実行前はWindows側で、wsl --version、wsl -l -v、対象がVERSION 2、RepositoryPathの安全な形式だけを確認する。
-     全ディストリビューションがStoppedでない場合や対象がWSL2でない場合は、設定変更前にBLOCKEDで終了する。
-     この段階で `wsl -d` によるLinux起動、repository、manifest、wheelhouse、WSL用venvの確認をしてはならない。
+     対象以外のディストリビューションがRunning、または対象がWSL2でない場合は、設定変更前にBLOCKEDで終了する。対象だけがRunningの場合は、
+     Codexと対象WSL内の処理を終了済みであることを前提に `-AllowRunningDistro` で続行する。
+     `\\wsl.localhost` 上の `run_test.ps1` をWindowsから読むと対象WSLがRunningになるため、Codexと対象WSL内の処理を先に終了した場合だけ
+     `-AllowRunningDistro` を使える。この段階で `wsl -d` によるLinux起動、repository、manifest、wheelhouse、WSL用venvの確認をしてはならない。
    - %UserProfile%\.wslconfig の存在有無と元バイト列のSHA-256を一意な一時backupへ保存する。
    - [wsl2] networkingMode=none と firewall=true を設定し、wsl --shutdown で反映する。
      既存の別設定は壊さない。実装が安全にpatchできない場合は、元ファイルを完全backupして
@@ -124,11 +126,11 @@ RED証跡は test/evidence/phase2/RUN-P2-IC-001-WSL/ に保存してください
 実装・GREEN・レビュー後に、READMEと最終報告で次の形式の一行だけを示してください。
 これはWindows PowerShellから実行する。WSL内から実行してはならない。
 
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\wsl_quality_gate\run_test.ps1
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\wsl_quality_gate\run_test.ps1 -AllowRunningDistro
 
 この一行の期待動作は、Windows側host確認 → 隔離設定 → wsl --shutdown → WSL内前提確認 → 固定4 Gate →
 証跡保存 → .wslconfig完全復元 → wsl --shutdown である。
-`run_test.ps1` はwrapper出力、終了コード、最新の前提確認またはverification証跡を automationディレクトリへ保存する。
+`run_test.ps1` はwrapper出力、終了コード、最新の前提確認またはverification証跡を automationディレクトリへ保存し、許可付き実行では保存後に `wsl --shutdown` を実行する。
 どこか一つでも失敗した場合、4 Gateを始めないか、失敗として証跡を残し、復元後に非0で終了する。
 
 検証とレビュー

@@ -67,6 +67,7 @@ def test_wsl_manifest_is_rejected_when_any_fixed_input_changes(tmp_path: Path) -
 def test_host_wrapper_dry_run_contract_is_declared_without_mutating_wslconfig() -> None:
     text = WRAPPER.read_text(encoding="utf-8")
     assert "[switch]$DryRun" in text
+    assert "[switch]$AllowRunningDistro" in text
     assert "try" in text and "finally" in text
     assert "networkingMode=none" in text
     assert "firewall=true" in text
@@ -75,7 +76,8 @@ def test_host_wrapper_dry_run_contract_is_declared_without_mutating_wslconfig() 
     assert "Set-Content" in text or "WriteAllBytes" in text
     assert "WSL_INTEROP" in text
     assert "[string[]]$lines = @()" in text
-    assert "-like \"*Running*\"" in text
+    assert "runningLines" in text
+    assert "otherRunningLines" in text
     assert "AddRange([string[]]" in text
     preflight = text.split('if ($DryRun)', 1)[0]
     assert "uname -r" not in preflight
@@ -112,3 +114,7 @@ def test_automation_wrapper_captures_wrapper_and_evidence_results() -> None:
     assert "TimeoutSeconds" in text and "TIMEOUT after" in text
     assert "evidenceCandidates" in text
     assert "evidence_state" in text
+    assert "LastWriteTimeUtc" in text
+    assert "preflightIsRecent" in text and "preferPreflight" in text
+    assert "AllowRunningDistro" in text
+    assert "runnerWasInvoked" in text

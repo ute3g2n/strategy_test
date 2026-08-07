@@ -27,7 +27,7 @@
 - `.codex/skills/`
   実行可能なSkill定義。
 
-WSL隔離品質ゲートの人間向け実行入口は `scripts/wsl_quality_gate/run_test.ps1` だけとする。`run_test.ps1` が内部で `run_isolated_p2.ps1` を呼び出す。Run IDは `RUN-P2-IC-001-WSL`、固定4 Gateと対象範囲は `scripts/quality_gate/trusted_scopes.json`、実行証跡は `test/evidence/phase2/RUN-P2-IC-001-WSL/` に置く。通常WSL NAT、Windows用 `.venv/Scripts/python.exe`、隔離後のpip、markerだけの隔離証明、外部接続、自己承認を禁止する。
+WSL隔離品質ゲートの人間向け実行入口は `scripts/wsl_quality_gate/run_test.ps1` だけとする。`run_test.ps1` が内部で `run_isolated_p2.ps1` を呼び出す。UNC上から実行する場合は、Codexと対象WSL内の処理を終了した後に `-AllowRunningDistro` を付ける。Run IDは `RUN-P2-IC-001-WSL`、固定4 Gateと対象範囲は `scripts/quality_gate/trusted_scopes.json`、実行証跡は `test/evidence/phase2/RUN-P2-IC-001-WSL/` に置く。通常WSL NAT、Windows用 `.venv/Scripts/python.exe`、隔離後のpip、markerだけの隔離証明、外部接続、自己承認を禁止する。
 
 ## AI実行基盤の現状
 

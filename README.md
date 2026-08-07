@@ -126,11 +126,13 @@ Skill、サブエージェント、オーケストレータの作成または変
 
 Windowsホストからの唯一の人間向け実行入口は `run_test.ps1`（WSL内から実行しない）です。WSL上のCodexやVS Codeのターミナルから `powershell.exe` を呼び出す場合もWSL内実行に該当するため、Windows側で独立したPowerShellを起動する。実行開始時点では、`wsl -l -v` で全ディストリビューションが `Stopped` であることを確認する。この時点のwrapperはWindows側のWSL version・一覧・対象がWSL2であることだけを確認し、Linux distroを起動する事前確認は行わない。
 
+ただし、`\wsl.localhost` 上のファイルを読むだけで対象WSLが起動するため、Codexや対象Ubuntu内のプロセスが動いている状態で実行してはいけません。Codexを終了し、対象WSL内の処理がないことを確認した後、次の許可付きコマンドを実行します。
+
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\wsl_quality_gate\run_test.ps1
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\wsl_quality_gate\run_test.ps1 -AllowRunningDistro
 ```
 
-`run_test.ps1` が内部で `run_isolated_p2.ps1` を起動し、wrapperの標準出力・標準エラー・終了コードと、最新の `preflight.json` または `verification.json` を `test/evidence/phase2/RUN-P2-IC-001-WSL/automation/` に保存します。`run_test.ps1` は通常実行では `verification.json` を優先し、設定前にBLOCKEDとなった場合だけ `preflight.json` を優先するため、過去の証跡を最新結果と取り違えません。
+`run_test.ps1` が内部で `run_isolated_p2.ps1` を起動し、wrapperの標準出力・標準エラー・終了コードと、最新の `preflight.json` または `verification.json` を `test/evidence/phase2/RUN-P2-IC-001-WSL/automation/` に保存します。`run_test.ps1` は通常実行では `verification.json` を優先し、設定前にBLOCKEDとなった場合だけ `preflight.json` を優先するため、過去の証跡を最新結果と取り違えません。許可付き実行では、証跡保存後に `wsl --shutdown` を実行してWSLを停止状態へ戻します。
 
 内部wrapperは `.wslconfig` に `networkingMode=none` と `firewall=true` を一時設定して `wsl --shutdown` を実行した後、対象ディストリビューションを一回だけ起動します。起動後のLinux runnerが、WSL2 kernel、repository、manifest、Linux用venv、wheelhouse、registry、network隔離、固定tool version、fixture checksumを確認し、すべて通過した場合だけ固定4 Gateを実行します。終了後は `try/finally` で `.wslconfig` を元のバイト列へ復元し、再度 `wsl --shutdown` を実行します。
 
