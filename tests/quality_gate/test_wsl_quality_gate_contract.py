@@ -118,6 +118,7 @@ def test_wsl_runner_fails_closed_before_four_gates_on_missing_isolation_prerequi
     assert '"state": "DECODED_NOT_NORMALIZED"' in text
     assert 'PYTHONPATH="$repository_path/src"' in text
     assert 'runuser -u "$repository_owner" -- git -C "$repository_path"' in text
+    assert '"scope": ${target_scope_json}' in text
 
 
 def test_wsl_runner_has_valid_bash_syntax() -> None:

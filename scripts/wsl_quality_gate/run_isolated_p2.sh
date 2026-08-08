@@ -172,12 +172,22 @@ output_path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", 
 PY
 fi
 
+target_scope_json="$("$python_bin" - "$repository_path/scripts/quality_gate/trusted_scopes.json" "$run_id" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+scope = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))["scopes"][sys.argv[2]]
+print(json.dumps(scope["target_paths"], ensure_ascii=False))
+PY
+)" || blocked "trusted target scope cannot be read"
+
 cat > "$evidence_root/host-isolation.json" <<EOF
 {
   "state": "CONFIRMED", "wsl_version": "${WSL_VERSION:-unknown}", "kernel": "${kernel}", "distro": "${distro}", "networking_mode": "none",
   "host_wrapper_execution_id": "${host_execution_id}", "ip_addr_summary": $(printf '%s' "$addr_summary" | "$python_bin" -c 'import json,sys; print(json.dumps(sys.stdin.read()))'),
   "ip_route_summary": $(printf '%s' "$route_summary" | "$python_bin" -c 'import json,sys; print(json.dumps(sys.stdin.read()))'),
-  "confirmed_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)", "scope": ["src/autotrade/market_data", "tests/market_data", "tests/fixtures/market_data"], "input_sha256": "${input_hash}", "input_kind": "${input_kind}"
+  "confirmed_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)", "scope": ${target_scope_json}, "input_sha256": "${input_hash}", "input_kind": "${input_kind}"
 }
 EOF
 
