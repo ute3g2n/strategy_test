@@ -2,11 +2,11 @@
 
 ## Findings
 
-### DQR-SEC-002 / Medium / Open
+### DQR-SEC-002 / Medium / Resolved
 
 - 対象: 隔離実行の完了証跡
-- 内容: 実装は異常データを警告だけで通さず、`publishable=false` としてSignal境界を停止する。ただしWSLクローン未同期により固定4 Gateの実機証跡が未取得である。
-- 判定: Critical/Highなし。同期後に同じfixtureとManifestで再実行するまで最終Passにしない。
+- 内容: 実装は異常データを警告だけで通さず、`publishable=false` としてSignal境界を停止する。WSL同期後の固定4 Gateでも全Gate PASSを確認した。
+- 判定: Critical/Highなし。最終Passは明示的Human Gate承認まで保留する。
 
 ## 確認事項
 

@@ -2,11 +2,11 @@
 
 ## Findings
 
-### DQR-PY-002 / Medium / Open
+### DQR-PY-002 / Medium / Resolved
 
 - 対象: WSL隔離4 Gate
-- 内容: Windows側の実装・テストはGREENだが、WSLクローンが旧コミットのため `RUN-P2-DQR-001` を認識せず、隔離実行結果をまだ取得できない。
-- 判定: コード上のCritical/Highは確認されない。WSL同期後の同一trusted scope再実行を完了条件とする。
+- 内容: 初回実行時はWSLクローンが旧コミットでRun IDを認識しなかった。
+- 判定: `git pull --ff-only` 後の同一trusted scopeで隔離4 Gateが全てPASS。コード上のCritical/Highは確認されない。残りはHuman Gate承認のみ。
 
 ## 確認済み
 
@@ -14,8 +14,8 @@
 - `QualityChecker`は欠損、重複競合、時刻逆行、価格・出来高異常、checksum不一致、degradedをfail-closedで扱う。
 - `ManifestBuilder`と品質報告hashは現在時刻・外部I/Oに依存せず決定的である。
 - `LocalNormalizedStore.read_replay_snapshot`はManifest、品質報告hash、再構築data_versionを再検証する。
-- 26テスト、coverage 82.68%、ruff、mypyはローカルでGREEN。
+- Windows/WSLとも26テスト、coverage 82.68%、ruff、mypyはGREEN。
 
 ## 再レビュー条件
 
-WSL隔離4 Gateを実行し、同一fixture hash・scope・証跡先が一致することを確認する。
+明示的Human Gate承認を取得し、最終Run状態をPASSへ確定する。
