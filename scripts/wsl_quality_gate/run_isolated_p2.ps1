@@ -87,7 +87,10 @@ function Write-WslEvidence([hashtable]$Value, [string]$Name) {
 
 try {
     Write-Host "WSL_HOST_WRAPPER_EXECUTION_ID=$executionId"
-    if ($RunId -ne "RUN-P2-IC-001-WSL") { throw "RunId is not the fixed WSL scope" }
+    $registryPath = Join-Path $root "scripts/quality_gate/trusted_scopes.json"
+    if (-not (Test-Path -LiteralPath $registryPath -PathType Leaf)) { throw "trusted scope registry is missing" }
+    $registry = Get-Content -LiteralPath $registryPath -Raw -Encoding utf8 | ConvertFrom-Json
+    if ($null -eq $registry.scopes.PSObject.Properties[$RunId]) { throw "RunId is not registered in trusted scopes: $RunId" }
     if (-not [string]::IsNullOrWhiteSpace($env:WSL_INTEROP) -or -not [string]::IsNullOrWhiteSpace($env:WSL_DISTRO_NAME)) {
         throw "Run this wrapper from native Windows PowerShell, not from WSL. wsl --shutdown would terminate the execution environment (current distro: $($env:WSL_DISTRO_NAME))"
     }

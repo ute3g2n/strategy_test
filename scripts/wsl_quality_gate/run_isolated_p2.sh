@@ -16,12 +16,28 @@ blocked() {
   exit 20
 }
 
-[[ "$run_id" == "RUN-P2-IC-001-WSL" ]] || blocked "Run ID is not the fixed WSL scope"
 [[ -d "$repository_path" && -f "$manifest" ]] || blocked "repository or manifest is missing"
 [[ -x "$python_bin" ]] || blocked "Linux .venv/bin/python is missing"
 [[ -d "$repository_path/wheelhouse" ]] || blocked "approved Linux wheelhouse is missing"
 [[ -f "$repository_path/scripts/quality_gate/trusted_scopes.json" ]] || blocked "trusted scope registry is missing"
-[[ -f "$repository_path/tests/fixtures/market_data/catalog_resolver_fixture.json" ]] || blocked "fixture is missing"
+readarray -t fixture_metadata < <("$python_bin" - "$repository_path/scripts/quality_gate/trusted_scopes.json" "$run_id" <<'PY'
+import json
+import sys
+
+registry_path, run_id = sys.argv[1:]
+registry = json.loads(open(registry_path, encoding="utf-8").read())
+scope = registry.get("scopes", {}).get(run_id)
+if not isinstance(scope, dict):
+    raise SystemExit(2)
+fixture = scope.get("fixture", {})
+print(fixture.get("path", ""))
+print(fixture.get("checksum", ""))
+PY
+); [[ "${#fixture_metadata[@]}" -eq 2 ]] || blocked "trusted scope fixture metadata is missing"
+fixture_relative_path="${fixture_metadata[0]}"
+expected_fixture="${fixture_metadata[1]}"
+fixture_path="$repository_path/$fixture_relative_path"
+[[ -f "$fixture_path" ]] || blocked "fixture is missing: $fixture_relative_path"
 kernel="$(uname -r)"
 [[ "$kernel" == *WSL2* || "$kernel" == *microsoft-standard-WSL2* ]] || blocked "kernel is not WSL2: $kernel"
 if grep -RInE '^[[:space:]]*(import|from)[[:space:]]+(databento|broker|requests|urllib|httpx|socket)([[:space:]]|$)' \
@@ -45,8 +61,7 @@ python_version="$($python_bin --version 2>&1)"; ruff_version="$($python_bin -m r
 [[ "$pytest_version" == *"$expected_pytest"* ]] || blocked "pytest version mismatch"
 [[ "$cov_version" == "$expected_cov" ]] || blocked "pytest-cov version mismatch"
 
-fixture_hash="sha256:$(sha256sum "$repository_path/tests/fixtures/market_data/catalog_resolver_fixture.json" | awk '{print $1}')"
-expected_fixture="sha256:94022229698e972353b8ec9537f455af5cb29d47253f5f2a1ed5d33b08b50169"
+fixture_hash="sha256:$(sha256sum "$fixture_path" | awk '{print $1}')"
 [[ "$fixture_hash" == "$expected_fixture" ]] || blocked "fixture checksum mismatch"
 
 cat > "$evidence_root/host-isolation.json" <<EOF
