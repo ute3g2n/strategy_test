@@ -130,10 +130,13 @@ def test_replay_rejects_quality_report_hash_mismatch(tmp_path: Path) -> None:
     )
     store = LocalNormalizedStore(tmp_path)
     store.write_if_absent(bars(), manifest, report)
-    tampered = replace(manifest, quality_report_sha256="sha256:quality-tampered")
+    snapshot_path = tmp_path / "normalized" / f"{manifest.data_version}.json"
+    snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+    snapshot["manifest"]["quality_report_sha256"] = "sha256:quality-tampered"
+    snapshot_path.write_text(json.dumps(snapshot, sort_keys=True, separators=(",", ":")), encoding="utf-8")
 
     with pytest.raises(ValueError, match="MANIFEST_INTEGRITY"):
-        store.read_replay_snapshot(tampered.data_version)
+        store.read_replay_snapshot(manifest.data_version)
 
 
 def test_replay_rejects_future_data_and_conditional_universe_mix() -> None:
