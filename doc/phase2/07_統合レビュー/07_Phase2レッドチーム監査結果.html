@@ -21,18 +21,18 @@
      <strong>作成日:</strong> 2026-08-08<br>
      <strong>状態:</strong> H2-3判断待ち。外部取得、Secret投入、取引判断は実行していない。</p>
 
-  <div class="hold"><strong>監査結論:</strong> 固定fixture・隔離4 Gateの成功を、実データの安全な本線利用と読み替えてはならない。Data Gateは<code>UNKNOWN</code>であり、指摘を解消してH2-3が承認するまでSignal生成とPhase 3 handoffを停止する。</div>
+  <div class="hold"><strong>監査結論:</strong> 固定fixture・隔離4 Gateの成功を、実データの安全な本線利用と読み替えてはならない。Data Gateは<code>UNKNOWN</code>であり、指摘を解消してH2-3が承認するまでSignal生成とPhase 3への引渡しを停止する。</div>
 
   <h2>1. 事故シナリオと指摘</h2>
-  <p>意図しないRaw改変、symbol誤対応、未来情報、費用事故、品質警告の握りつぶしを、失敗時に停止できるかで監査した。各指摘には中学生でも分かる説明を付けている。</p>
+  <p>意図しないRaw改変、symbol誤対応、未来情報、費用事故、品質警告の握りつぶしを、失敗時に停止できるかで監査した。各指摘の問題内容と修正方針の文章の下に、中学生でも分かる説明を記載している。</p>
   <table>
-    <thead><tr><th>指摘ID</th><th>重要度</th><th>対象ファイル / 箇所</th><th>事故シナリオ・問題内容</th><th>中学生でも分かる説明</th><th>停止・修正方針</th><th>Human Gate</th></tr></thead>
+    <thead><tr><th>指摘ID</th><th>重要度</th><th>対象ファイル / 箇所</th><th>事故シナリオ・問題内容</th><th>停止・修正方針</th><th>人による承認</th></tr></thead>
     <tbody>
-      <tr><td><code>RT-P2-10-001</code></td><td class="high">High</td><td><code>src/autotrade/market_data/manifest.py:29-40</code></td><td>fixture、コード、source modeが変わっても同じ<code>data_version</code>を再利用できる。古い変換規則や別sourceのMarketEventを同じReplay入力と誤認し、未来情報・誤ったsymbol mappingを混入させるおそれがある。</td><td>違う中身なのに同じラベルを貼れるため、古いデータを新しいデータだと思い込む危険があります。</td><td>データ版をcanonical content digest、fixture hash、code revision、source modeへ束縛し、差分時の版衝突を拒否する。解消前はP2-D10のfixture版を実データ版に昇格しない。</td><td>H2-3必須。</td></tr>
-      <tr><td><code>RT-P2-10-002</code></td><td class="high">High</td><td><code>tests/evidence/phase2/RUN-P2-RPL-001/run-manifest.json</code><br><code>p2-d10-result.json</code></td><td>WSLのformatter/lint/type/testがPASSで、Run ManifestのUnknownが空であるため、Data Gate UNKNOWNを見落として「検証済み」と誤運用するおそれがある。</td><td>学校のテストで全問正解でも、実際の試合に出てよいとは限りません。機械の合格と本番利用の許可を混同しない表示が必要です。</td><td>業務Data Gate、Unknown、Phase 3 handoff禁止をRun Manifestと統合結果で一貫して表示する。機械Gateだけでは承認不可とする。</td><td>H2-3必須。</td></tr>
-      <tr><td><code>RT-P2-10-003</code></td><td class="medium">Medium</td><td><code>tests/evidence/phase2/RUN-P2-DP-002/acquisition-result.md</code></td><td>最小外部取得は固定範囲で終了したが、最終費用・entitlementはHTTP結果から判定できない。再実行や対象拡大が費用事故になるおそれがある。</td><td>荷物を1回受け取った記録だけでは、月末の請求額は分かりません。追加注文をするときは、先にお金の確認が必要です。</td><td>billing/usageまたは請求証跡まで保留し、追加取得、期間拡大、Secret用途変更をH2-2再承認なしで行わない。</td><td>H2-2（追加取得時）。</td></tr>
-      <tr><td><code>RT-P2-10-004</code></td><td class="medium">Medium</td><td><code>tests/fixtures/market_data/data_quality_replay_fixture.json</code><br><code>tests/market_data/test_p2_09_replay_verification.py</code></td><td><code>MZC/MZS/MZW</code>と<code>MCL/M6A</code>の分離はfixtureでは確認済みだが、実DBN変換が未実装のため、実データで条件付きsymbolが本線へ混ざらない証明はない。</td><td>「条件付き」と書いた3銘柄が、いつの間にか「通常の銘柄」の列に入らないか、本物のデータでも確認する必要があります。</td><td>DBN decoder後のCatalog Resolver・universe分離・Manifestを実データでReplayし、不一致はSignal停止とする。</td><td>H2-3必須。</td></tr>
-      <tr><td><code>RT-P2-10-005</code></td><td class="medium">Medium</td><td><code>src/autotrade/market_data/normalized_store.py</code><br><code>tests/evidence/phase2/RUN-P2-RPL-001/p2-d10-result.json</code></td><td>品質異常を伴うsnapshot改ざんは拒否するが、正常範囲内の行差し替えを検出するcanonical content digestは未実装である。</td><td>明らかに変な数字は見つけられますが、もっともらしい数字にこっそり変えられると、今は見分けられません。</td><td>content digestをDataVersion/Manifestへ追加し、同じ品質報告でも異なる行を拒否するReplay testを追加する。</td><td>H2-3必須。</td></tr>
+      <tr><td><code>RT-P2-10-001</code></td><td class="high">High</td><td><code>src/autotrade/market_data/manifest.py:29-40</code></td><td>fixture、コード、source modeが変わっても同じ<code>data_version</code>を再利用できる。古い変換規則や別sourceのMarketEventを同じReplay入力と誤認し、未来情報・誤ったsymbol mappingを混入させるおそれがある。<br><small>やさしい説明: 違う中身なのに同じラベルを貼れるため、古いデータを新しいデータだと思い込む危険があります。</small></td><td>データ版をcanonical content digest、fixture hash、code revision、source modeへ束縛し、差分時の版衝突を拒否する。解消前はP2-D10のfixture版を実データ版に昇格しない。<br><small>やさしい説明: 中身・材料・作り方が違えば別の番号にし、違うデータを同じものとして使えないようにします。</small></td><td>H2-3の承認が必要。</td></tr>
+      <tr><td><code>RT-P2-10-002</code></td><td class="high">High</td><td><code>tests/evidence/phase2/RUN-P2-RPL-001/run-manifest.json</code><br><code>p2-d10-result.json</code></td><td>WSLのformatter/lint/type/testがPASSで、Run ManifestのUnknownが空であるため、Data Gate UNKNOWNを見落として「検証済み」と誤運用するおそれがある。<br><small>やさしい説明: 機械のテストが合格でも、本番で使ってよいとは限りません。</small></td><td>業務Data Gate、Unknown、Phase 3への引渡し禁止をRun Manifestと統合結果で一貫して表示する。機械Gateだけでは承認不可とする。<br><small>やさしい説明: 機械の合格と、本番で使ってよい許可を別々に表示し、取り違えないようにします。</small></td><td>H2-3の承認が必要。</td></tr>
+      <tr><td><code>RT-P2-10-003</code></td><td class="medium">Medium</td><td><code>tests/evidence/phase2/RUN-P2-DP-002/acquisition-result.md</code></td><td>最小外部取得は固定範囲で終了したが、最終費用・entitlementはHTTP結果から判定できない。再実行や対象拡大が費用事故になるおそれがある。<br><small>やさしい説明: 1回受け取った記録だけでは、月末にいくら請求されるか分かりません。</small></td><td>billing/usageまたは請求証跡まで保留し、追加取得、期間拡大、Secret用途変更をH2-2再承認なしで行わない。<br><small>やさしい説明: 料金を確認するまで、追加でデータを取りに行かないようにします。</small></td><td>追加取得時はH2-2の再承認が必要。</td></tr>
+      <tr><td><code>RT-P2-10-004</code></td><td class="medium">Medium</td><td><code>tests/fixtures/market_data/data_quality_replay_fixture.json</code><br><code>tests/market_data/test_p2_09_replay_verification.py</code></td><td><code>MZC/MZS/MZW</code>と<code>MCL/M6A</code>の分離はfixtureでは確認済みだが、実DBN変換が未実装のため、実データで条件付きsymbolが本線へ混ざらない証明はない。<br><small>やさしい説明: 条件付きの銘柄が、いつの間にか通常の銘柄として扱われる危険があります。</small></td><td>DBN decoder後のCatalog Resolver・universe分離・Manifestを実データでReplayし、不一致はSignal停止とする。<br><small>やさしい説明: 本物のデータでも銘柄の仕分けを確認し、違っていたら信号を出さないようにします。</small></td><td>H2-3の承認が必要。</td></tr>
+      <tr><td><code>RT-P2-10-005</code></td><td class="medium">Medium</td><td><code>src/autotrade/market_data/normalized_store.py</code><br><code>tests/evidence/phase2/RUN-P2-RPL-001/p2-d10-result.json</code></td><td>品質異常を伴うsnapshot改ざんは拒否するが、正常範囲内の行差し替えを検出するcanonical content digestは未実装である。<br><small>やさしい説明: 明らかに変な数字は見つけられますが、もっともらしい数字への変更は見分けられません。</small></td><td>content digestをDataVersion/Manifestへ追加し、同じ品質報告でも異なる行を拒否するReplay testを追加する。<br><small>やさしい説明: 行の中身まで照合し、少しでも違えば同じデータとして使わないようにします。</small></td><td>H2-3の承認が必要。</td></tr>
     </tbody>
   </table>
 
@@ -47,7 +47,7 @@
   <h2>3. H2-3での最低判断条件</h2>
   <ol>
     <li><code>RT-P2-10-001</code>、<code>RT-P2-10-002</code>、<code>RT-P2-10-004</code>、<code>RT-P2-10-005</code>をP2-11の必須対応として採用する。</li>
-    <li>実DBNからの変換・ReplayとDataVersionのcontent bindingを確認するまで、Data Gate UNKNOWN、Signal停止、Phase 3 handoff禁止を維持する。</li>
+    <li>実DBNからの変換・ReplayとDataVersionのcontent bindingを確認するまで、Data Gate UNKNOWN、Signal停止、Phase 3への引渡し禁止を維持する。</li>
     <li>費用・entitlementの保留はH2-2の別課題として維持し、H2-3承認で追加取得を許可しない。</li>
   </ol>
 
