@@ -1,0 +1,16 @@
+{
+  "run_id": "RUN-P2-DBN-001",
+  "step_id": "P2-12-03",
+  "checked_at_utc": "2026-08-08T17:59:33Z",
+  "state": "BLOCKED",
+  "reason_code": "PROTECTED_DBN_INPUT_MISSING",
+  "protected_path": "/var/lib/autotrade/replay/RUN-P2-DBN-001/input.dbn",
+  "expected_sha256": "sha256:8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e",
+  "observed": {"input_exists": false, "run_manifest_exists_in_wsl_before_sync": false, "wsl_repository_revision": "4d1a87c"},
+  "windows_real_dbn_replay": "NOT_RUN",
+  "wsl_fixed_four_gates": "NOT_RUN",
+  "data_gate": "UNKNOWN",
+  "signal_generation": "STOPPED",
+  "phase3_handoff": "PROHIBITED",
+  "prohibited_actions_not_taken": ["追加取得", "外部接続", "Secret投入", "Broker接続", "Windows側の実行結果による代用", "AIによるDBNコピー"]
+}

@@ -1,0 +1,29 @@
+{
+  "run_id": "RUN-P2-DBN-001",
+  "phase_id": "phase2",
+  "step_id": "P2-12-03",
+  "design": "P2-D16",
+  "requirements": ["REQ-Q02", "REQ-Q19", "REQ-Q20", "REQ-Q23", "REQ-Q29"],
+  "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+  "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+  "agents": ["AutoTrade_A130_VerificationEngineer_v0_1", "AutoTrade_A150_PythonCodeReviewer_v0_1", "AutoTrade_A160_TradingSecurityReviewer_v0_1", "AutoTrade_A80_DocumentIntegrator_v0_1"],
+  "skills": ["autotrade_skill_python_test_quality_v0_1", "autotrade_skill_python_code_review_v0_1", "autotrade_skill_execution_model_v0_1", "autotrade_skill_traceability_v0_1", "autotrade_skill_html_doc_writer_v0_1"],
+  "data_version": "dv_pending_real_dbn_input",
+  "code_revision": "634f354",
+  "change_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "baseline_ref": "HEAD",
+  "evidence_root": "tests/evidence/phase2/RUN-P2-DBN-001",
+  "target_paths": ["src/autotrade/market_data", "tests/market_data", "scripts/quality_gate", "scripts/wsl_quality_gate"],
+  "excluded_paths": [".env", "third_party/everything-claude-code", "research", "tests/fixtures/market_data"],
+  "scope_mode": "target_only",
+  "input_dbn": {"name": "p2-08-fixed-dbn", "version": "dbn-ohlcv-1m-p2-08", "checksum": "sha256:8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e"},
+  "human_gate_policy": "H2-5承認済み。WSLの保護場所にある固定入力の内容確認値が一致する場合だけ実行し、H2-3とPhase 3への移行は許可しない。",
+  "review": {"critical": 0, "high": 0, "details": "P2-12-02再レビュー済み。P2-12-03は保護入力の存在確認前である。"},
+  "unknowns": ["UNK-P2-13", "UNK-P2-14"],
+  "checks": [
+    {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "tests/market_data", "scripts/quality_gate", "scripts/wsl_quality_gate"]},
+    {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/market_data", "tests/market_data", "scripts/quality_gate", "scripts/wsl_quality_gate"]},
+    {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/market_data"]},
+    {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p2_pytest"]}
+  ]
+}

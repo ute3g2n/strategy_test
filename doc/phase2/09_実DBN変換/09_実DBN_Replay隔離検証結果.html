@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2-D17 実DBN Replay・WSL隔離検証結果</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 32px auto; max-width: 1120px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; } h1, h2 { color: #111827; } h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; } h2 { border-bottom: 1px solid #cbd5e1; margin-top: 30px; padding-bottom: 6px; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; } th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; } th { background: #eef2f7; } code { background: #f1f5f9; padding: 1px 4px; } a { color: #0f5db8; }
+    .meta, .blocked, .unknown { padding: 12px 14px; margin: 16px 0; border-left: 4px solid #2563eb; background: #eff6ff; } .blocked { border-left-color: #b91c1c; background: #fef2f2; } .unknown { border-left-color: #b45309; background: #fff7ed; } .fail { color: #b91c1c; font-weight: 700; }
+  </style>
+</head>
+<body><main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>P2-D17 実DBN Replay・WSL隔離検証結果</h1>
+  <section class="meta"><strong>成果物ID:</strong> P2-D17<br><strong>Phase / Step:</strong> Phase 2 / P2-12-03<br><strong>Run:</strong> <code>RUN-P2-DBN-001</code><br><strong>最終更新日時:</strong> 2026-08-08T18:06:31Z（UTC）<br><strong>状態:</strong> 入力配置・デコーダ読取り完了、隔離4 Gateは未実行</section>
+
+  <section class="blocked"><strong>Data Gateは引き続きUNKNOWNで、Signal生成は停止中である。</strong><br>Windows側のP2-08固定DBNを使う明示承認を受け、同一SHA-256の一件だけをWSLの <code>/var/lib/autotrade/replay/RUN-P2-DBN-001/input.dbn</code> へ配置した。所有者は<code>root</code>、権限は<code>0400</code>であり、Windows・WSL・事前固定値のSHA-256はすべて <code>8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e</code> と一致した。ただし、P2-08証跡にRaw受信UTC時刻と外部銘柄番号のCatalog対応が無いため、正規化とMarketEvent作成は安全停止した。<br><small>やさしい説明: 本物の箱は鍵付き棚へ置けて、中身の番号も合いました。でも「いつ届いた箱か」「箱の中の番号が何の商品か」が分からないので、翻訳したデータを売買の合図には使いません。</small></section>
+
+  <h2>1. 実行対象と確認結果</h2>
+  <table><thead><tr><th>確認項目</th><th>結果</th><th>根拠</th></tr></thead><tbody>
+    <tr><td>H2-5の承認</td><td>承認済み</td><td>既取得の一件を隔離して読む許可。追加取得やSecret投入は含まない。</td></tr>
+    <tr><td>保護入力の存在</td><td>確認済み</td><td>ユーザーが許可したWindows側P2-08入力一件だけを指定パスへ配置した。</td></tr>
+    <tr><td>入力hash・所有者・権限</td><td>確認済み</td><td>SHA-256一致、<code>root:0400</code>、通常ファイル、サイズ22760 bytes。</td></tr>
+    <tr><td>実DBNデコーダ読取り</td><td>確認済み</td><td><code>DatabentoDbnDecoder.decode(bytes)</code>で<code>ohlcv-1m</code>の4レコードを読取。ネットワーク・Secret・Brokerは使っていない。</td></tr>
+    <tr><td>WSL固定4 Gate</td><td>未実行</td><td>入力が無い状態でformatter/lint/type/testを実行しても、実DBN検証の代わりにならない。</td></tr>
+    <tr><td>実DBNの正規化・MarketEvent・Replay</td><td class="fail">安全停止</td><td>UNK-P2-13（Raw受信UTC時刻なし）とUNK-P2-14（Catalog対応なし）のため、値を作らない。</td></tr>
+  </tbody></table>
+
+  <h2>2. Data Gateと停止範囲</h2>
+  <table><thead><tr><th>項目</th><th>状態</th><th>理由</th></tr></thead><tbody>
+    <tr><td>Data Gate</td><td class="fail">UNKNOWN</td><td>実入力のhash一致とdecoder成功は確認したが、Catalog対応と正規化後のReplay決定性を実測できない。</td></tr>
+    <tr><td>Signal生成</td><td class="fail">停止</td><td>UNKNOWNの市場データをSignalへ渡さない設計である。</td></tr>
+    <tr><td>Phase 3への引渡し</td><td class="fail">禁止</td><td>H2-3は実DBN検証結果を確認してからの別判断である。</td></tr>
+  </tbody></table>
+  <p class="unknown">やさしい説明: 翻訳機があっても、本物の箱で正しく動くか未確認です。未確認のデータを使って売買の合図を出すことはしません。</p>
+
+  <h2>3. 追跡</h2>
+  <table><thead><tr><th>ID</th><th>状態</th><th>対応する成果物・次の条件</th></tr></thead><tbody>
+    <tr><td>REQ-Q02 / REQ-Q19 / REQ-Q20 / REQ-Q23 / REQ-Q29</td><td>入力完全性・decoder読取りは確認、全変換は未確認</td><td>P2-D16、<a href="../../../tests/evidence/phase2/RUN-P2-DBN-001/p2-12-03-input-placement.md">入力配置証跡</a>、<a href="../../../tests/evidence/phase2/RUN-P2-DBN-001/p2-12-03-decoder-probe.json">デコーダ読取り証跡</a></td></tr>
+    <tr><td>UNK-P2-13</td><td>未解消</td><td>Raw受信UTC時刻の証跡を確認できなければ停止する。</td></tr>
+    <tr><td>UNK-P2-14</td><td>未解消</td><td>DBN外部銘柄と内部Catalogを一意に結べなければ停止する。</td></tr>
+    <tr><td>BLK-P2-008</td><td>継続</td><td>隔離4 Gateを実行し、UNK-P2-13/14を解消してから再判定する。</td></tr>
+  </tbody></table>
+
+  <h2>4. 次に必要なこと</h2>
+  <p>H2-5とWindows側の固定入力利用は承認済みである。次に、更新済みの入口でWSL固定4 Gateを実行する。UNK-P2-13またはUNK-P2-14を既存証跡で解消できない場合、Data GateはUNKNOWNのまま停止し、追加の最小取得が必要な時だけH2-2の再承認を求める。</p>
+  <p><small>やさしい説明: 箱を置くところまでは終わりました。次は、ネットにつながらない部屋で決めた4つの安全確認をします。それでも大事な記録が足りなければ、勝手にデータを取り直さず、必要な範囲だけ人に聞きます。</small></p>
+</main></body></html>

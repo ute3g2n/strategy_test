@@ -1,0 +1,17 @@
+{
+  "run_id": "RUN-P2-DBN-001",
+  "step_id": "P2-12-03",
+  "recorded_at_utc": "2026-08-08T18:06:31Z",
+  "state": "PLACED_AND_VERIFIED",
+  "authorization": "ユーザーの『windows側のinputデータを使って下さい。許可します。』",
+  "windows_source": "tests/evidence/phase2/RUN-P2-DP-002/raw/mcl-fut-20260615T1200Z-1201Z.dbn",
+  "wsl_protected_path": "/var/lib/autotrade/replay/RUN-P2-DBN-001/input.dbn",
+  "file_size_bytes": 22760,
+  "expected_sha256": "sha256:8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e",
+  "windows_sha256": "sha256:8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e",
+  "wsl_sha256": "sha256:8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e",
+  "wsl_owner": "root",
+  "wsl_mode": "0400",
+  "input_provenance": "P2-08で取得済みの固定証跡。追加取得なし。",
+  "prohibited_actions_not_taken": ["外部接続", "Secret投入", "Broker接続", "取引", "追加取得"]
+}

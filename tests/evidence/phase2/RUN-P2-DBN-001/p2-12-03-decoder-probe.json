@@ -1,0 +1,25 @@
+{
+  "run_id": "RUN-P2-DBN-001",
+  "step_id": "P2-12-03",
+  "checked_at_utc": "2026-08-08T18:06:31Z",
+  "state": "DECODED_NOT_NORMALIZED",
+  "executor": "Windows側の固定入力を使った、ネットワークなしのDatabentoDbnDecoder.decode(bytes)呼出し",
+  "input_sha256": "sha256:8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e",
+  "schema": "ohlcv-1m",
+  "record_count": 4,
+  "event_times_utc": [
+    "2026-06-15T12:00:00Z",
+    "2026-06-15T12:00:00Z",
+    "2026-06-15T12:00:00Z",
+    "2026-06-15T12:00:00Z"
+  ],
+  "vendor_instrument_ids": [42026511, 42025624, 42460441, 42026750],
+  "publisher_ids": [1, 1, 1, 1],
+  "record_ordinals": [0, 1, 2, 3],
+  "normalization_state": "NOT_RUN_FAIL_CLOSED",
+  "normalization_blockers": ["RAW_RECEIVED_AT_MISSING", "CATALOG_MAPPING_UNRESOLVED"],
+  "market_event_state": "NOT_CREATED",
+  "data_gate": "UNKNOWN",
+  "signal_generation": "STOPPED",
+  "notes": "デコーダの構造的な読取りだけを確認した。raw_received_at_utcにはテスト用の値を置いたが、正規化・Manifest・MarketEventには渡していない。"
+}
