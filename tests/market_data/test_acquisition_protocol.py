@@ -83,7 +83,9 @@ def test_failure_classification_is_fail_closed(status_code: int, reason_code: st
     assert event.event_id.startswith("health-")
 
 
-@pytest.mark.parametrize(("condition", "state"), [("degraded", "DEGRADED"), ("pending", "UNKNOWN"), ("missing", "UNKNOWN")])
+@pytest.mark.parametrize(
+    ("condition", "state"), [("degraded", "DEGRADED"), ("pending", "UNKNOWN"), ("missing", "UNKNOWN")]
+)
 def test_dataset_condition_becomes_health_event(condition: str, state: str) -> None:
     event = classify_failure(request(), condition=condition)
 

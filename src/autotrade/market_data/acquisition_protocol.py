@@ -137,7 +137,9 @@ def classify_failure(
         state = "DEGRADED" if condition == "degraded" else "UNKNOWN"
     else:
         raise ProtocolError("UNKNOWN_EXTERNAL_STATE")
-    return HealthEvent(_health_id(request.request_id, reason_code), request.request_id, state, reason_code, request.start_utc)
+    return HealthEvent(
+        _health_id(request.request_id, reason_code), request.request_id, state, reason_code, request.start_utc
+    )
 
 
 class FixtureGateway:
@@ -245,7 +247,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         plan = build_request_plan(request, fixture_path.as_posix(), fixture_hash)
         output_path = Path(args.output)
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(json.dumps(plan, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
+        output_path.write_text(
+            json.dumps(plan, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8"
+        )
         return 0
     except (OSError, ProtocolError) as exc:
         error = {"schema_version": "p2-dp-request-plan-error-v1", "error_code": str(exc)}
