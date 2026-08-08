@@ -75,7 +75,7 @@
     <p><strong>文書ID:</strong> AT-BLOCKER-LEDGER-01<br>
     <strong>正本:</strong> このHTMLが、Phase 0から今後の全Phaseまでの残課題を管理する唯一の台帳です。<br>
     <strong>初回集約日:</strong> 2026-08-06<br>
-    <strong>最終更新日:</strong> 2026-08-07<br>
+    <strong>最終更新日:</strong> 2026-08-08<br>
     <strong>集約範囲:</strong> Phase 0、Phase 1、Phase 2、AI実行基盤、個別Run。Phase 3以降は、まだ実行していないため、前のPhaseから引き継いだ課題だけを載せています。</p>
   </section>
 
@@ -86,7 +86,7 @@
 
   <h2>1. まず、いまの状態</h2>
   <div class="cards">
-    <div class="card stop"><strong>0件</strong>いま、対象Runを止めている根本課題</div>
+    <div class="card stop"><strong>1件</strong>いま、対象Runを止めている根本課題</div>
     <div class="card wait"><strong>17件</strong>期限までは安全に保留できる根本課題</div>
     <div class="card done"><strong>13組</strong>解決済みとして確認できた主な課題</div>
     <div class="card phase"><strong>0–2</strong>実行済み・着手済みのPhase。Phase 3以降は未着手</div>
@@ -105,8 +105,8 @@
   </table>
   <p class="small">ここにある「いま停止」は状態タグの説明です。現在その状態の課題があるという意味ではありません。現在の件数は上のカードと、次の解決確認表を見てください。</p>
 
-  <h2>2. 直近Runの解決確認（現在停止中なし）</h2>
-  <p>現在の <code>RUN-P2-IC-001</code> を止めている直接の理由はありません。BLK-RUN-001、BLK-RUN-002、BLK-RUN-003、H2-0、H2-1はすべて解決済みです。この表は、解決した条件と証拠を残すために表示しています。</p>
+  <h2>2. 直近Runの解決確認（P2-IC-001は停止中なし）</h2>
+  <p>現在の <code>RUN-P2-IC-001</code> を止めている直接の理由はありません。BLK-RUN-001、BLK-RUN-002、BLK-RUN-003、H2-0、H2-1はすべて解決済みです。一方、P2-06で新設したData Quality / Replay契約テストは、P2-07実装待ちのため別の停止課題として下の台帳へ記録しています。</p>
   <div class="table-scroll">
   <table class="wide">
     <thead><tr><th>ID</th><th>状態</th><th>何が決まっていないか</th><th>なぜ止めるのか</th><th>今してよいこと</th><th>終わったと言える条件</th><th>元のID・証拠</th></tr></thead>
@@ -242,11 +242,12 @@ firewall=true</pre></li>
       <tr><td><code>BLK-P1-007</code></td><td>本番昇格の運用設計時</td><td>研究結果を本番設定へ移すための具体的な承認ツールが未決定です。</td><td>昇格条件を文書で固定し、自動昇格しません。</td><td>承認者、差分、ロールバック、監査ログを扱えるツールの比較結果。</td><td><code>UNK-P1-ARCH-05</code></td></tr>
       <tr><td><code>BLK-P1-008</code></td><td>Live開始前</td><td>Kill Switchを解除した直後に待つ時間と、最初の注文を小さくする規則が未決定です。</td><td>解除後の自動再開を禁止します。</td><td>ウォームアップ時間、初回注文上限、再照合、Human Gateの運用試験。</td><td><code>RT-P1-12-004</code></td></tr>
       <tr><td><code>BLK-P2-003</code></td><td>実データ取得前</td><td>Databentoで使うdataset、schema、銘柄の変換方法、continuous symbolの範囲が実アカウントでは未確定です。</td><td>固定fixtureとdry-runだけにします。</td><td>公式仕様の再確認、実アカウントの権限、固定した設定値、再現試験。</td><td><code>UNK-P2-03</code></td></tr>
-      <tr><td><code>BLK-P2-004</code></td><td>P2-08 / H2-3</td><td>データに警告、欠け、遅れがあった日を、捨てる・注意付きで使う・取り直す、のどれにするか未決定です。</td><td>該当日からSignalを作りません。</td><td>異常fixture、再取得結果、Replay比較、採否理由。</td><td><code>UNK-P2-05</code></td></tr>
+      <tr><td><code>BLK-P2-004</code></td><td>P2-09 / H2-3</td><td>データに警告、欠け、遅れがあった日を、捨てる・注意付きで使う・取り直す、のどれにするか未決定です。</td><td>該当日からSignalを作りません。</td><td>異常fixture、再取得結果、Replay比較、採否理由。</td><td><code>UNK-P2-05</code></td></tr>
       <tr><td><code>BLK-P2-005</code></td><td>H2-2 / 実取得前</td><td>Databentoの費用、利用権限、API keyの利用承認がありません。</td><td>外部APIへ接続せず、費用を発生させません。</td><td>見積り、entitlement、Secret保管方法、権限者のH2-2承認。</td><td><code>UNK-P2-07</code>, <code>H2-2</code></td></tr>
       <tr><td><code>BLK-P2-006</code></td><td>大容量データ作成前</td><td>大きなMarket Dataをリポジトリ内と外部保存先のどちらへ置くか未決定です。</td><td>小さなfixtureだけをGitで管理します。</td><td>容量、バックアップ、アクセス権、費用、復元試験を含む保存方針。</td><td><code>UNK-P2-08</code></td></tr>
       <tr><td><code>BLK-P2-007</code></td><td>Phase 6 / Shadow前</td><td>Liveに近いデータが何秒遅れたら失敗とするか未決定です。</td><td>今は測る項目だけを決め、合否を出しません。</td><td>実測分布、業務上の許容時間、監視と停止の試験。</td><td><code>UNK-P2-09</code></td></tr>
       <tr><td><code>BLK-P2-008</code></td><td>H2-3</td><td>データ品質とReplayの結果をまとめて、人が本線へ渡してよいか判断するGateがまだ終わっていません。</td><td>警告・Unknownがあるデータを次Phaseの本線へ渡しません。</td><td>品質レポート、Replay結果、欠損一覧、解決済みUnknown、H2-3承認。</td><td><code>H2-3</code>, <code>REQ-DATA-QUALITY</code></td></tr>
+      <tr><td><code>BLK-P2-009</code></td><td>P2-07</td><td>P2-06のData Quality / Replay契約テストが、Raw / Normalized Store、Manifestの未実装境界でREDです。</td><td>実装前のREDを勝手にPassへ変えず、P2-07が契約を実装するまでP2-09の本線検証とPhase 3入力昇格を止めます。</td><td>固定fixture、契約テスト、既存Catalog 9件のGREEN、外部接続なしの設計・実装だけを行います。</td><td>P2-07実装、RED→GREEN、trusted scope登録、WSL隔離4 Gate PASS、レビュー証跡。</td><td><code>UNK-P2-12</code> / <a href="../tests/evidence/phase2/RUN-P2-DQR-001/red-test-result.md">P2-06 RED証跡</a> / <a href="../tests/evidence/phase2/RUN-P2-DQR-001/run-manifest.json">Run Manifest</a></td></tr>
       <tr><td><code>BLK-AIF-001</code></td><td>品質Gateの正式承認時</td><td>レビューの重大度ルールと、業務ごとのcoverage合格値は80%を仮の目安にしたままです。</td><td>80%を最終の安全保証とは呼びません。Critical/Highは常に停止します。</td><td>業務別の危険度、欠けた行の内容、テスト実績を見た閾値承認。</td><td><code>UNK-AIF-04</code></td></tr>
       <tr><td><code>BLK-AIF-002</code></td><td>別言語・別保存方式を採用する時</td><td>今の詳細設計ルールがPython以外や別のデータベースでも十分かは未確認です。</td><td>今はPythonと現在のローカル保存だけへ適用します。</td><td>複数Phase・複数基盤での利用結果と差分レビュー。</td><td><code>AF-UNK-06</code></td></tr>
     </tbody>
