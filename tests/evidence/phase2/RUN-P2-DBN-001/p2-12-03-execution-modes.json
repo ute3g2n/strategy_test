@@ -1,0 +1,29 @@
+{
+  "run_id": "RUN-P2-DBN-001",
+  "step_id": "P2-12-03",
+  "policy": "root_or_user_allowed",
+  "user_mode": {
+    "entry": "scripts/wsl_quality_gate/run_test.ps1 -RunId RUN-P2-DBN-001 -AllowRunningDistro",
+    "execution_user": "oue",
+    "execution_uid": 1000,
+    "state": "BLOCKED",
+    "blocker": "UNK-P2-15"
+  },
+  "root_mode": {
+    "entry": "scripts/wsl_quality_gate/run_test.ps1 -RunId RUN-P2-DBN-001 -AllowRunningDistro -RunAsRoot",
+    "execution_user": "root",
+    "execution_uid": 0,
+    "state": "BLOCKED",
+    "blocker": "UNK-P2-15"
+  },
+  "common_checks": {
+    "input_sha256_before_after": "sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d",
+    "networking_mode": "none",
+    "decoder_record_count": 4,
+    "fixed_four_gates": "NOT_STARTED",
+    "data_gate": "UNKNOWN",
+    "signal_generation": "STOPPED",
+    "phase3_handoff": "PROHIBITED"
+  },
+  "conclusion": "root実行を禁止する安全策は撤回し、rootと通常ユーザーの両方を許可した。UNK-P2-15が残るため、権限に関係なく固定4 Gate開始前で停止した。"
+}
