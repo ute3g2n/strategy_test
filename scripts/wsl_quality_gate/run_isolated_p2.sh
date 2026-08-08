@@ -164,8 +164,8 @@ result = {
     "vendor_instrument_ids": [record.vendor_instrument_id for record in records],
     "record_ordinals": [record.record_ordinal for record in records],
     "normalization_state": "NOT_RUN_FAIL_CLOSED",
-    "normalization_blockers": ["RAW_RECEIVED_AT_MISSING", "CATALOG_MAPPING_UNRESOLVED"],
-    "notes": "受信UTC時刻はデコーダが参照しない仮値であり、正規化・Manifest・MarketEventへ渡していない。",
+    "normalization_blockers": ["UNK-P2-15"],
+    "notes": "このprobeはDBN bytesの読取りだけを確認する。受信UTCとCatalog対応は別の固定証跡で確認済みで、spread選別条件が決まるまで正規化・Manifest・MarketEventは開始しない。",
 }
 output_path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 PY
