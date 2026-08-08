@@ -1,0 +1,25 @@
+﻿{
+    "state":  "FAILED",
+    "run_id":  "RUN-P2-DP-001",
+    "distro":  "Ubuntu-24.04",
+    "repository_path":  "/home/oue/strategy_test",
+    "started_at":  "2026-08-08T09:12:29.1823304Z",
+    "finished_at":  "2026-08-08T09:12:44.1498947Z",
+    "wrapper_command":  "powershell.exe \"-NoProfile\" \"-ExecutionPolicy\" \"Bypass\" \"-File\" \"C:\\project\\strategy_test\\scripts\\wsl_quality_gate\\run_isolated_p2.ps1\" \"-Distro\" \"Ubuntu-24.04\" \"-RepositoryPath\" \"/home/oue/strategy_test\" \"-RunId\" \"RUN-P2-DP-001\" \"-AllowRunningDistro\"",
+    "wrapper_exit_code":  1,
+    "raw_wrapper_exit_code":  null,
+    "wrapper_error":  "WSL runner returned non-zero; inspect verification.json\r\n発生場所 C:\\project\\strategy_test\\scripts\\wsl_quality_gate\\run_isolated_p2.ps1:193 文字:35\r\n+ ... de -ne 0) { throw \"WSL runner returned non-zero; inspect verification ...\r\n+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : OperationStopped: (WSL runner retu...rification.json:String) [], RuntimeException\r\n    + FullyQualifiedErrorId : WSL runner returned non-zero; inspect verification.json\r\n \r\n",
+    "evidence_command":  "Get-Content C:\\project\\strategy_test\\tests\\evidence\\phase2\\RUN-P2-DP-001\\wsl-verification-capture.json (captured from WSL during isolation)",
+    "evidence_exit_code":  0,
+    "evidence_error":  "",
+    "evidence_state":  "FAILED",
+    "evidence_source":  "wsl_verification_capture",
+    "expected_execution_id":  "5e4bd185f5bd4aff805da26e3b223161",
+    "preflight_is_recent":  false,
+    "wsl_verification_capture_path":  "C:\\project\\strategy_test\\tests\\evidence\\phase2\\RUN-P2-DP-001\\wsl-verification-capture.json",
+    "files":  {
+                  "wrapper_log":  "C:\\project\\strategy_test\\tests\\evidence\\phase2\\RUN-P2-DP-001\\automation\\run-test-wrapper.log",
+                  "evidence_log":  "C:\\project\\strategy_test\\tests\\evidence\\phase2\\RUN-P2-DP-001\\automation\\run-test-evidence.log",
+                  "exit_code":  "C:\\project\\strategy_test\\tests\\evidence\\phase2\\RUN-P2-DP-001\\automation\\run-test-exit-code.txt"
+              }
+}
