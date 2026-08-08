@@ -23,7 +23,7 @@
     <strong>文書セットID:</strong> P2-DBN-CLOSURE-DOCSET<br>
     <strong>Phase / Step:</strong> Phase 2 / P2-12-01<br>
     <strong>作成日・公式仕様確認日:</strong> 2026-08-08<br>
-    <strong>文書状態:</strong> v0.3 / P2-12-02実装・固定契約試験済み・実DBN隔離ReplayはP2-12-03待ち<br>
+    <strong>文書状態:</strong> v0.4 / P2-12-02実装・固定契約試験済み・P2-12-03は実DBN読取り済みだがUNK-P2-13/14で安全停止<br>
     <strong>使用オーケストレータ:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code><br>
     <strong>担当サブエージェント:</strong> <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code>, <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A70_OpsSecurityArchitect_v0_1</code><br>
     <strong>使用スキル:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_official_research_v0_1</code>, <code>autotrade_skill_test_strategy_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code></p>
@@ -189,7 +189,7 @@ tests/evidence/phase2/RUN-P2-DBN-001/
   <table><thead><tr><th>区分</th><th>契約</th></tr></thead><tbody>
     <tr><td>decoder依存</td><td>公式Databento Python clientの<code>DBNStore.from_file</code>等を候補とするが、P2-12-01では版を確定しない。H2-5後に依存名、版、配布元、wheelファイル名、SHA-256、Python ABIをGit管理の許可一覧で固定し、導入前に照合する。</td></tr>
     <tr><td>import境界</td><td>decoder依存のimportは<code>databento_dbn_decoder.py</code>だけに限定する。Coreの<code>dbn_contracts.py</code>、<code>dbn_normalizer.py</code>、<code>market_event_factory.py</code>は<code>databento</code>、<code>http</code>、<code>socket</code>、<code>os</code>をimportしない。</td></tr>
-    <tr><td>WSL入力</td><td>H2-5後に人がWSL内部の固定保護パスへ置く。root所有、読取専用、symbolic linkでない、<code>/mnt</code>・UNC由来でない、読込前後SHA-256一致を必須とする。AIはコピーしない。</td></tr>
+    <tr><td>WSL入力</td><td>H2-5後に承認済みの固定入力だけをWSL内部の保護パスへ置く。所有者はroot、読取権限は実行アカウントだけが属する専用グループへ限定し、通常権限は<code>root:autotrade-replay:0440</code>、親ディレクトリは<code>root:autotrade-replay:0750</code>とする。symbolic link、<code>/mnt</code>・UNC由来、読込前後SHA-256不一致を拒否する。管理者権限でリポジトリのコードを実行してはならない。<br><small>やさしい説明: 箱の持ち主は管理者のままにし、箱を読む鍵は試験担当だけに渡す。管理者の強い力で翻訳プログラムを動かさないので、プログラムに問題があっても箱全体を触れない。</small></td></tr>
     <tr><td>Git混入防止</td><td>RUN-P2-DBN-001はHEAD、index、stage済み差分に<code>.dbn</code>または実DBN raw pathが無いことを検査する。<code>.gitignore</code>だけに頼らず、強制追加も検出する。</td></tr>
     <tr><td>WSL事前検査の組込み先</td><td>P2-12-02で既存の人間向け入口<code>scripts/wsl_quality_gate/run_test.ps1</code>から、既存の<code>run_isolated_p2.ps1</code>と隔離処理へ<code>RUN-P2-DBN-001</code>を登録して実行する。新しい入口scriptは作らない。Run IDごとの<code>trusted_scopes.json</code>には<code>networkingMode=none</code>、<code>test -L</code>によるlink拒否、<code>/mnt</code>拒否、読込前後<code>sha256sum</code>、<code>--require-hashes</code>、<code>git diff --cached</code>を固定する。H2-5前は実行しない。</td></tr>
     <tr><td>監査</td><td>payload hash、依存版/hash、request context hash、Catalog version/hash、decoder version、code revision、data_version、Data Gateを記録する。API key、Authorization、account、payload本文は記録しない。</td></tr>

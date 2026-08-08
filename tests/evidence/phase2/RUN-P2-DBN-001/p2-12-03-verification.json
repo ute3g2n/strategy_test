@@ -1,0 +1,32 @@
+{
+  "run_id": "RUN-P2-DBN-001",
+  "step_id": "P2-12-03",
+  "finished_at_utc": "2026-08-08T18:25:53Z",
+  "state": "BLOCKED",
+  "reason": "UNK-P2-13およびUNK-P2-14が未解消のため、品質Gateが固定4検査の開始前に安全停止した。",
+  "input": {
+    "sha256_before": "sha256:8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e",
+    "sha256_after": "sha256:8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e",
+    "owner_mode": "root:autotrade-replay:0440",
+    "path": "/var/lib/autotrade/replay/RUN-P2-DBN-001/input.dbn"
+  },
+  "isolation": {
+    "networking_mode": "none",
+    "default_route": "なし",
+    "outward_facing_nic": "なし",
+    "target_paths": ["src/autotrade/market_data", "tests/market_data", "scripts/quality_gate", "scripts/wsl_quality_gate"],
+    "decoder_execution_identity": "通常の実行アカウント（管理者権限でプロジェクトコードを実行しない）"
+  },
+  "decoder": {
+    "state": "DECODED_NOT_NORMALIZED",
+    "schema": "ohlcv-1m",
+    "record_count": 4,
+    "event_time_utc": "2026-06-15T12:00:00Z",
+    "vendor_instrument_ids": [42026511, 42025624, 42460441, 42026750]
+  },
+  "fixed_four_gates": {"state": "NOT_STARTED", "reason": "Unknownを解消する前にformatter/lint/type/testを合格扱いにしないため。"},
+  "normalization_market_event_replay": {"state": "NOT_CREATED_FAIL_CLOSED", "blockers": ["RAW_RECEIVED_AT_MISSING", "CATALOG_MAPPING_UNRESOLVED"]},
+  "data_gate": "UNKNOWN",
+  "signal_generation": "STOPPED",
+  "phase3_handoff": "PROHIBITED"
+}

@@ -1,0 +1,5 @@
+﻿{
+    "execution_id":  "e8ec794ea5b049c4aa49fdde94d4c190",
+    "reason":  "protected DBN input is missing or is a symbolic link: /var/lib/autotrade/replay/RUN-P2-DBN-001/input.dbn",
+    "state":  "BLOCKED"
+}
