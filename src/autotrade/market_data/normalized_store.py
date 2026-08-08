@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import os
 from dataclasses import asdict
 from datetime import datetime
 from decimal import Decimal
@@ -45,9 +44,18 @@ class LocalNormalizedStore:
                 raise ValueError("DATA_VERSION_CONFLICT")
             return manifest.data_version
         path.parent.mkdir(parents=True, exist_ok=True)
-        temporary = path.with_suffix(".json.tmp")
-        temporary.write_text(payload, encoding="utf-8")
-        os.replace(temporary, path)
+        created = False
+        try:
+            with path.open("x", encoding="utf-8", newline="") as handle:
+                created = True
+                handle.write(payload)
+        except FileExistsError:
+            if path.read_text(encoding="utf-8") != payload:
+                raise ValueError("DATA_VERSION_CONFLICT") from None
+        except OSError:
+            if created:
+                path.unlink(missing_ok=True)
+            raise
         return manifest.data_version
 
     def read_replay_snapshot(self, data_version: str) -> ReplaySnapshot:

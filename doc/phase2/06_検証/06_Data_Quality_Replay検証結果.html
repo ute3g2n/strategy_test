@@ -46,7 +46,7 @@
 
   <h2>3. 固定4 Gateとレビュー</h2>
   <ul>
-    <li>Windows: 53 passed、coverage 80.21%、formatter/lint/mypy PASS。naive/non-UTC timestamp、空snapshot、未知quality flag、snapshot改ざん拒否を回帰テストで固定。</li>
+    <li>Windows: 55 passed、coverage 80.00%、formatter/lint/mypy PASS。naive/non-UTC timestamp、空snapshot、未知quality flag、snapshot改ざん拒否、排他的保存失敗を回帰テストで固定。完全な正規化行content digestは未実装でH2-3対象。</li>
     <li>WSL: <a href="../../../tests/evidence/phase2/RUN-P2-RPL-001/wsl-verification-capture.json">networking_mode=none、固定4 Gate、証跡</a>を別Runで確認する。</li>
     <li>レビュー: <a href="../../../tests/evidence/phase2/RUN-P2-RPL-001/reviews/python-review.md">Python / Verification</a>、<a href="../../../tests/evidence/phase2/RUN-P2-RPL-001/reviews/trading-safety-review.md">Trading Security</a>。</li>
   </ul>

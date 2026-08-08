@@ -91,6 +91,52 @@ def test_normalized_store_rejects_bad_quality_and_same_version_conflict(tmp_path
         store.write_if_absent((normalized_bar("70.20"),), good_manifest, report)
 
 
+def test_normalized_store_propagates_exclusive_create_failure(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    store = LocalNormalizedStore(tmp_path)
+    report = QualityChecker.check((normalized_bar(),))
+    good_manifest = manifest(report.quality_report_sha256)
+
+    original_open = Path.open
+
+    def fail_open(path: Path, *args: object, **kwargs: object):
+        if path.name == f"{good_manifest.data_version}.json":
+            raise OSError("disk full")
+        return original_open(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "open", fail_open)
+    with pytest.raises(OSError, match="disk full"):
+        store.write_if_absent((normalized_bar(),), good_manifest, report)
+
+
+def test_normalized_store_cleans_partial_create_failure(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    store = LocalNormalizedStore(tmp_path)
+    report = QualityChecker.check((normalized_bar(),))
+    good_manifest = manifest(report.quality_report_sha256)
+    target_name = f"{good_manifest.data_version}.json"
+
+    class FailingWriter:
+        def __enter__(self) -> FailingWriter:
+            return self
+
+        def __exit__(self, *_args: object) -> None:
+            return None
+
+        def write(self, _payload: str) -> None:
+            raise OSError("write failed")
+
+    original_open = Path.open
+
+    def fail_write(path: Path, *args: object, **kwargs: object):
+        if path.name == target_name:
+            return FailingWriter()
+        return original_open(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "open", fail_write)
+    with pytest.raises(OSError, match="write failed"):
+        store.write_if_absent((normalized_bar(),), good_manifest, report)
+    assert not (tmp_path / "normalized" / target_name).exists()
+
+
 def test_market_event_values_are_read_only_and_keep_data_version() -> None:
     event = MarketEvent(
         event_id="event-001",

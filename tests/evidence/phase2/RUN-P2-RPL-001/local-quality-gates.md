@@ -5,8 +5,8 @@
 | formatter | PASS |
 | lint | PASS |
 | mypy | PASS |
-| pytest | PASS（53 passed） |
-| coverage | PASS（80.21%） |
+| pytest | PASS（55 passed） |
+| coverage | PASS（80.00%） |
 
 WSL: `run_test.ps1` を `RUN-P2-RPL-001` として実行。`networking_mode=none`、host isolation `CONFIRMED`、formatter/lint/type/test の固定4 Gateはすべて PASS。Run全体は H2-3 の外部承認チャネルが未実施のため `HUMAN_GATE_REQUIRED`（wrapper exit 20）であり、これは4 Gateの失敗ではない。
 
