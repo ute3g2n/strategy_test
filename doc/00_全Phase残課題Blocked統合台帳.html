@@ -409,6 +409,48 @@ firewall=true</pre></li>
     <p><small>やさしい説明: 車は動きましたが、ガソリン代、長い荷物の置き場所、何秒遅れたら危険か、という別の約束がまだ残っています。今すぐ車を直す話ではありませんが、本番で使う前に決めておく必要があります。</small></p>
     <p>関連証跡: <a href="../tests/evidence/phase2/RUN-P2-DBN-001/automation/run-test-summary.json">自動実行サマリー</a>、<a href="../tests/evidence/phase2/RUN-P2-DBN-001/wsl-verification-capture.json">WSL捕捉証跡</a>、<a href="../tests/evidence/phase2/RUN-P2-DBN-001/run-manifest.json">Run Manifest</a>、<a href="./phase2/09_実DBN変換/09_実DBN_Replay隔離検証結果.html">P2-D17</a>。</p>
   </section>
+  <section class="note" id="remaining-issues-detail-20260809">
+    <h2>残課題の詳しい説明と現在の対応（2026-08-09）</h2>
+    <p>ここでは、P2-12-03のReplayを止める問題ではないものの、Phase 3以降の運用を決めるために残っている課題を、何が問題で、何を決めれば終わるのかが分かるように整理する。</p>
+
+    <h3>BLK-P2-004 / UNK-P2-05：品質が悪い日の扱い</h3>
+    <p><strong>何が未決定か:</strong> 市場データに欠け、重複、時刻のずれ、異常な価格、異常な出来高などが見つかったとき、その日のデータを「全部捨てる」「警告を付けて研究だけで使う」「取り直す」のどれにするかが、運用ルールとして最後まで決まっていない。</p>
+    <p><strong>なぜ重要か:</strong> 少しだけ悪いデータを許すと、間違った価格から売買シグナルが出る可能性がある。逆に全部捨てると、使えるデータまで失って検証範囲が狭くなる。用途ごとに許可範囲を分けないと、同じ異常を人によって違う扱いにしてしまう。</p>
+    <p><strong>現在の安全側の動き:</strong> 異常データからSignalを作らない。P2-12-03の主線は、<code>future</code> かつ <code>active</code> のデータだけを採用し、spreadは本線から除外して監査記録に残す。</p>
+    <p><strong>解消に必要なこと:</strong> 異常の種類ごとに、研究用・Replay用・Paper用・Live用の扱い、停止条件、取り直し条件、承認者を表にして承認すること。これが決まるまで、Phase 3で「警告付きデータを使った利益評価」を正式な合格根拠にしてはいけない。</p>
+    <p><small>やさしい説明: 食品に「少し傷がある」ものが混ざったとき、給食に出すのか、先生が見るだけにするのか、捨てるのかを先に決める問題です。決めないまま使うと、人によって安全基準が変わります。</small></p>
+
+    <h3>BLK-P2-005：費用と利用権限の最終記録</h3>
+    <p><strong>何が残っているか:</strong> H2-2で許可された最小範囲の取得は済んでいるが、実際にいくら使ったか、契約上どのデータを使う権利があるかを示す最終的な請求・利用量の証跡が、まだ正式記録として閉じていない。</p>
+    <p><strong>なぜ重要か:</strong> 取得範囲を広げると、料金や契約条件が変わる可能性がある。技術的に読めても、契約上使えないデータを本番へ流すことはできない。</p>
+    <p><strong>解消に必要なこと:</strong> 取得日、dataset、schema、symbol、期間、利用量、請求額、利用権限を、公式請求画面または公式利用量記録で確認し、証跡へ固定すること。対象範囲を広げる場合は、別途H2-2を再承認する。</p>
+    <p><small>やさしい説明: 借りた道具を使い終わったあと、「いくら借りたか」「その使い方が許されていたか」をレシートと規則で確認する作業です。</small></p>
+
+    <h3>BLK-P2-006：大容量データの保存先・保全</h3>
+    <p><strong>保存先:</strong> 大容量データはGitリポジトリへ入れず、<code>E:\strategy_test_data</code> 配下へ保存する。今回、次のディレクトリを作成済みである。</p>
+    <ul>
+      <li><code>E:\strategy_test_data\raw\databento\GLBX.MDP3\ohlcv-1m\MCL.FUT\2026-06-15</code>：取得した元DBNなど。元データを上書きしない。</li>
+      <li><code>E:\strategy_test_data\raw\quarantine</code>：checksum不一致、壊れた形式、Catalog未解決などの隔離場所。</li>
+      <li><code>E:\strategy_test_data\normalized\bars</code>：正規化したバー。</li>
+      <li><code>E:\strategy_test_data\normalized\market_events</code>：Signalへ渡す前のMarketEvent。</li>
+      <li><code>E:\strategy_test_data\manifests</code>：data_version、hash、Catalog、コード版などのManifest。</li>
+      <li><code>E:\strategy_test_data\replay\snapshots</code> / <code>runs</code>：Replay入力と実行単位の結果。</li>
+      <li><code>E:\strategy_test_data\evidence</code>：人が確認する証跡。<code>E:\strategy_test_data\tmp</code>：処理中だけ使い、完了後に残さない一時場所。</li>
+    </ul>
+    <p><strong>現在の解消範囲:</strong> 「リポジトリ内か外部保存先か」という保存場所の決定は解消した。既存データは空であり、今回の作業ではデータを移動・コピーしていない。</p>
+    <p><strong>まだ決めること:</strong> 容量上限、バックアップ、復元試験、保存期間、アクセス権、暗号化、障害時の別ディスクへの退避。現時点のACLはWindowsの既存設定を使用しているため、本番運用前に専用アクセス権へ絞るかを確認する。</p>
+    <p><small>やさしい説明: 大きな荷物を教室の机に置かず、倉庫の棚を「元の荷物」「整理済み」「確認記録」「壊れていた荷物」に分けました。置き場所は決まりましたが、倉庫の鍵、予備の倉庫、何年置くかはまだ決める必要があります。</small></p>
+
+    <h3>BLK-P2-007 / UNK-P2-09：データ遅延の合否基準</h3>
+    <p><strong>何が未決定か:</strong> 市場で発生した時刻とシステムが受け取った時刻の差が、何秒・何分になったら「遅すぎて使用禁止」とするかが決まっていない。</p>
+    <p><strong>なぜ重要か:</strong> 遅い価格で判断すると、すでに相場が動いたあとに古い情報でSignalを出す危険がある。許容時間は銘柄、時間足、Paper、Shadow、Liveで変わるため、一つの数字を勝手に置けない。</p>
+    <p><strong>解消に必要なこと:</strong> event_time_utc、received_at_utc、処理完了時刻を記録し、実測分布を集める。そのうえで、通常値、警告値、Signal停止値を用途別に決め、遅延時の監視・通知・Replay再現試験を追加する。これはLiveに近いPhaseで確定する。</p>
+    <p><small>やさしい説明: 電車の時刻表と実際の到着時刻が何分ずれたら「もう乗らない」と決める問題です。列車の種類や目的によって、待てる時間が違います。</small></p>
+
+    <h3>Phase 1・AI基盤の継続課題</h3>
+    <p>Phase 1のPoC、Risk、Shadow、Paper/Live移行条件、通知方法、AI基盤の品質基準などは、統合台帳の各<code>BLK-P1-*</code>・<code>BLK-AIF-*</code>行で継続管理している。これらは今回の実DBN Replayを壊す課題ではないが、実際の自動売買を開始する前には、担当Phase、承認者、証跡、停止条件をそれぞれ閉じる必要がある。</p>
+    <p><small>やさしい説明: 今回は「市場データを正しく読む」試験に合格しました。売買の危険を管理する仕組み、通知の仕組み、本番へ移す条件は別の宿題として残っています。</small></p>
+  </section>
 </main>
 </body>
 </html>
