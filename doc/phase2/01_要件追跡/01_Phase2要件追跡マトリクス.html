@@ -65,9 +65,9 @@
     <tbody>
       <tr><td><code>REQ-Q02</code></td><td>Q2</td><td>対象アセットはPhase 0結果を入力に、Phase 2ではMarket Data基盤の候補として扱う。</td><td>一部確定</td><td><code>MCL/M6A</code>は本線候補、<code>MZC/MZS/MZW</code>は条件付き候補。実取引可否は後送り。</td><td>P2-D01, P2-D02, P2-D03, P2-D07</td><td>UNK-P2-01, UNK-P2-04, H2-0</td></tr>
       <tr><td><code>REQ-Q19</code></td><td>Q19</td><td>限月選択、ロール規則、continuous signal方式をMarket Data設計で詳細化する。</td><td>未確定</td><td>Phase 2で候補とGateを定義し、H2-1で採否を承認する。</td><td>P2-D01, P2-D02, P2-D03, P2-D08</td><td>UNK-P2-02, H2-1</td></tr>
-      <tr><td><code>REQ-Q20</code></td><td>Q20</td><td>初期3-5市場は全期間1分足を基準入力にし、日足は1分足から生成する。</td><td>固定</td><td>1分足、data_version、Replay入力、品質検査をPhase 2で固定する。</td><td>P2-D01, P2-D02, P2-D05, P2-D06, P2-D10</td><td>Data Gate, Replay Gate</td></tr>
+      <tr><td><code>REQ-Q20</code></td><td>Q20</td><td>初期3-5市場は全期間1分足を基準入力にし、日足は1分足から生成する。</td><td>固定</td><td>1分足、data_version、Replay入力、品質検査をPhase 2で固定する。実DBNの変換契約はP2-D16で詳細化した。</td><td>P2-D01, P2-D02, P2-D05, P2-D06, P2-D10, P2-D16</td><td>Data Gate, Replay Gate, UNK-P2-13, UNK-P2-14</td></tr>
       <tr><td><code>REQ-Q23</code></td><td>Q23</td><td>設定は戦略別YAMLと共通設定を分離し、Market Data設定も共通設定またはEnvironment Profileへ閉じ込める。</td><td>固定</td><td>API key実値、Account ID、SecretはHTML、Git、ログへ出さない。</td><td>P2-D01, P2-D05, P2-D09</td><td>H2-2, Secret review</td></tr>
-      <tr><td><code>REQ-Q29</code></td><td>Q29</td><td>テストは証券会社内蔵Backtestに依存せず、保存済みRaw/Normalizedから共通イベント入力を再生する。</td><td>固定</td><td>Phase 2ではMarketEvent入力の再現性とData Quality / Replay検証に限定する。</td><td>P2-D01, P2-D02, P2-D06, P2-D10, P2-D11, P2-D12</td><td>Replay Gate, Bias Gate, H2-3</td></tr>
+      <tr><td><code>REQ-Q29</code></td><td>Q29</td><td>テストは証券会社内蔵Backtestに依存せず、保存済みRaw/Normalizedから共通イベント入力を再生する。</td><td>固定</td><td>Phase 2ではMarketEvent入力の再現性とData Quality / Replay検証に限定する。実DBN ReplayはP2-D16のRED契約から開始する。</td><td>P2-D01, P2-D02, P2-D06, P2-D10, P2-D11, P2-D12, P2-D16</td><td>Replay Gate, Bias Gate, H2-3, H2-5</td></tr>
       <tr><td><code>REQ-OD01</code></td><td>OD-01</td><td>対象アセットと初期3-5市場をPhase 2のデータ基盤候補として承認する。</td><td>Human Gate待ち</td><td>H2-0で本線/条件付き扱いを承認する。Live取引可否は承認しない。</td><td>P2-D01, P2-D02, P2-D03</td><td>UNK-P2-01, H2-0</td></tr>
       <tr><td><code>REQ-OD03</code></td><td>OD-03</td><td>ロール規則とcontinuous signal方式をPhase 2で決める。</td><td>未確定</td><td>P2-04で候補設計、H2-1で採否。未承認ならSignalをPhase 3本線へ渡さない。</td><td>P2-D01, P2-D02, P2-D03, P2-D08, P2-D14</td><td>UNK-P2-02, H2-1</td></tr>
       <tr><td><code>REQ-DATA-RAW</code></td><td>要件8.1/8.2</td><td>Raw、Normalized、Tradable、Signal、Derived、Experimentを分離する。</td><td>固定</td><td>Rawは不変、Normalized以降は版管理する。</td><td>P2-D01, P2-D05, P2-D06</td><td>Data Gate</td></tr>
@@ -86,6 +86,7 @@
       <tr><td>P2-D03</td><td>Phase 2未確定事項台帳</td><td>UNK-P2-01からUNK-P2-11</td><td>Phase 2設計時の元ID・停止条件を残す履歴。現在状態の正本は全Phase統合台帳。</td></tr>
       <tr><td>P2-D04からP2-D08</td><td>データソース調査、基盤詳細設計、Roll/Signal設計。</td><td>REQ-Q19, REQ-Q20, REQ-OD03, REQ-P2-BL02</td><td>P2-05実装、P2-08検証。</td></tr>
       <tr><td>P2-D15</td><td>実装詳細設計レビュー・反映記録</td><td>REQ-Q20, REQ-Q23, REQ-Q29, REQ-P2-BL01, REQ-P2-BL02</td><td>P2-D05からP2-D07のDD-01からDD-12、A91再レビュー、H2-1の実装詳細設計根拠。</td></tr>
+      <tr><td>P2-D16</td><td>実DBN変換・Replay実装詳細設計書</td><td>REQ-Q20, REQ-Q23, REQ-Q29, REQ-DATA-QUALITY, REQ-P2-BL02</td><td>P2-12-02のDBN Decoder Adapter、正規化、MarketEvent、Manifest変更とRED契約。H2-5前は実DBN読取り・依存導入・WSL配置をしない。</td></tr>
       <tr><td>P2-D11</td><td>Phase 2統合レビュー結果</td><td>REQ-Q29, REQ-DATA-QUALITY, REQ-P2-BL01</td><td>H2-3で採否を判断する統合指摘、要件追跡、P2-D15後続変更の確認。</td></tr>
       <tr><td>P2-D12</td><td>Phase 2レッドチーム監査結果</td><td>REQ-Q23, REQ-Q29, REQ-DATA-QUALITY</td><td>Raw改変、future data、Secret、費用、条件付きsymbol、fail-closedの監査。</td></tr>
       <tr><td>P2-D13</td><td>Phase 2レビュー反映履歴</td><td>REQ-Q29, REQ-DATA-QUALITY, REQ-P2-BL01</td><td>P2-10指摘の採否、実装・テスト・証跡への反映、残Highの明示。</td></tr>
@@ -108,6 +109,7 @@
     <li><a href="../07_統合レビュー/07_Phase2レッドチーム監査結果.html">P2-D12 Phase 2レッドチーム監査結果</a></li>
     <li><a href="../08_完了判定/08_Phase2レビュー反映履歴.html">P2-D13 Phase 2レビュー反映履歴</a></li>
     <li><a href="../08_完了判定/08_Phase2完了判定とPhase3移行承認書.html">P2-D14 Phase 2完了判定とPhase 3移行承認書</a></li>
+    <li><a href="../09_実DBN変換/09_実DBN変換_Replay実装詳細設計書.html">P2-D16 実DBN変換・Replay実装詳細設計書</a></li>
     <li><a href="../../requirements/01_自動トレードシステム要件定義書.html">要件定義書</a></li>
     <li><a href="../../phase1/06_アダプター境界/06_Adapter境界設計書.html">D10 Adapter境界設計書</a></li>
     <li><a href="../../phase1/07_実行モデル/07_共通実行モデル設計書.html">D11 共通実行モデル設計書</a></li>
@@ -122,6 +124,7 @@
       <tr><td>2026-08-04</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>要件追跡漏れ、Phase 2スコープ逸脱、Human Gate漏れ。</td><td>Pass。重点要件、バックログ、Data Quality要件を成果物とUnknownへ接続した。</td></tr>
       <tr><td>2026-08-04</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>文書セット内リンク、保存先、doc/index.html導線。</td><td>Pass。P2-D01/P2-D03への相互リンクを確認した。</td></tr>
       <tr><td>2026-08-04</td><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>P2-03Rの実装詳細設計追跡。</td><td>P2-D15、UNK-P2-10、UNK-P2-11を追加し、P2-D05からP2-D07のv0.2改訂へ接続した。</td></tr>
+      <tr><td>2026-08-08</td><td><code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code></td><td>実DBN変換の追跡。</td><td>P2-D16、UNK-P2-13/14、H2-5とP2-12-02のRED契約をREQ-Q20/Q29/REQ-DATA-QUALITYへ接続した。</td></tr>
     </tbody>
   </table>
 

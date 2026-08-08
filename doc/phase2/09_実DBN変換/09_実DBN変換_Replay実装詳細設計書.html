@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2-D16 実DBN変換・Replay実装詳細設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 32px auto; max-width: 1240px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; letter-spacing: 0; } h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; } h2 { border-bottom: 1px solid #cbd5e1; margin-top: 32px; padding-bottom: 6px; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14px; } th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; } th { background: #eef2f7; }
+    code { font-family: Consolas, "Courier New", monospace; background: #f1f5f9; padding: 1px 4px; } pre { overflow-x: auto; padding: 14px; background: #0f172a; color: #e5e7eb; } a { color: #0f5db8; }
+    .meta, .note, .gate, .unknown, .review { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; } .gate { border-left-color: #7c3aed; background: #f5f3ff; } .unknown { border-left-color: #b45309; background: #fff7ed; } .review { border-left-color: #15803d; background: #f0fdf4; } .fail { color: #b91c1c; font-weight: 700; } .pass { color: #047857; font-weight: 700; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>P2-D16 実DBN変換・Replay実装詳細設計書</h1>
+  <section class="meta">
+    <p><strong>成果物ID:</strong> P2-D16<br>
+    <strong>文書セットID:</strong> P2-DBN-CLOSURE-DOCSET<br>
+    <strong>Phase / Step:</strong> Phase 2 / P2-12-01<br>
+    <strong>作成日・公式仕様確認日:</strong> 2026-08-08<br>
+    <strong>文書状態:</strong> v0.2 / A91再レビュー済み・REDテスト設計済み・実装前<br>
+    <strong>使用オーケストレータ:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code><br>
+    <strong>担当サブエージェント:</strong> <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code>, <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A70_OpsSecurityArchitect_v0_1</code><br>
+    <strong>使用スキル:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_official_research_v0_1</code>, <code>autotrade_skill_test_strategy_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code></p>
+  </section>
+
+  <section class="unknown"><strong>実装前の重要な停止条件:</strong> P2-08のDBN本体はWindows側にあり、SHA-256は取得証跡と一致する。しかし、Rawを受信したUTC時刻と、実DBNの外部銘柄を内部<code>instrument_id</code>へ一意に結ぶ固定Catalogは証跡にない。現在時刻や「MCLだろう」という推測で埋めず、<code>RAW_RECEIVED_AT_MISSING</code>または<code>CATALOG_MAPPING_UNRESOLVED</code>として停止する。<br><small>やさしい説明: データそのものが本物でも、「いつ受け取ったか」「どの商品か」が分からなければ、正しい記録とは言えません。分からないまま使う代わりに止めます。</small></section>
+
+  <h2>0. 詳細設計カバレッジ</h2>
+  <p>この表は、実装者が必要な判断をどこで確認できるかを示す。実装済みでない部品は、予定として明示する。</p>
+  <table><thead><tr><th>設計要素</th><th>本書で示す章</th><th>補完先または対象外の理由</th></tr></thead><tbody>
+    <tr><td>DD-01〜DD-04</td><td>1〜4、8〜9、15〜16章</td><td>P2-D05〜P2-D07の既存契約を再利用し、DBN専用境界だけを追加する。</td></tr>
+    <tr><td>DD-05〜DD-07</td><td>10〜11、17〜18章</td><td>Raw / Normalized Storeの物理保存はP2-D06を正本とし、DBNの変換規則と版の結び付けを本書で定める。</td></tr>
+    <tr><td>DD-08〜DD-10</td><td>12〜13、19章</td><td>H2-5、依存wheel、隔離入力、Run Manifest、Replayを定める。</td></tr>
+    <tr><td>DD-11〜DD-12</td><td>14、20〜22章</td><td>Unknown、承認、A50/A70/A91レビュー、改訂と再レビューを記録する。</td></tr>
+  </tbody></table>
+
+  <h2>1. ドメインの概要: 実DBN変換は何をするものか</h2>
+  <p>DBNはDatabentoが市場データを保存・受渡しするためのバイナリ形式である。P2-12は、P2-08で一回だけ取得したDBNのbytesを読み、提供元固有のrecordをCoreに出さず、内部共通形式の<code>NormalizedBar</code>と<code>MarketEvent</code>へ変換する。</p>
+  <p>この部品は通信・認証・注文・戦略判断を行わない。デコード、時刻、銘柄対応、品質、保存、Manifestのどれかを確認できなければ、イベントを一件も返さずData Gateを停止する。</p>
+  <table><thead><tr><th>確認した公式一次情報</th><th>確認日</th><th>この設計で使う事実</th></tr></thead><tbody>
+    <tr><td><a href="https://databento.com/docs/standards-and-conventions/databento-binary-encoding">Databento Binary Encoding</a></td><td>2026-08-08</td><td>DBNはmetadataとrecordからなり、recordには種別、publisher ID、外部instrument ID、イベント時刻がある。公式decoderで読む対象は保存済みbytesだけにする。</td></tr>
+    <tr><td><a href="https://databento.com/docs/schemas-and-data-formats/ohlcv">Databento OHLCV schema</a></td><td>2026-08-08</td><td><code>ohlcv-1m</code>の<code>ts_event</code>は1分バー開始時刻で、価格は固定小数点の整数表現である。時刻や価格の意味を推測で変えない。</td></tr>
+  </tbody></table>
+  <table><thead><tr><th>機能ID</th><th>機能</th><th>誰にでも分かる説明</th><th>失敗時の動き</th></tr></thead><tbody>
+    <tr><td>DBN-F01</td><td>DBNの検証と読取り</td><td>データ箱の形式と中身が、記録した内容確認値どおりかを確かめてから読む。</td><td>形式や内容確認値が違えば、読んだ結果を使わず停止する。</td></tr>
+    <tr><td>DBN-F02</td><td>内部形式への正規化</td><td>外部の数字・銘柄番号を、システム共通の時刻・価格・銘柄IDの形へ写す。</td><td>銘柄や時刻を一つに決められなければ、勝手に選ばず停止する。</td></tr>
+    <tr><td>DBN-F03</td><td>決定的Replay</td><td>同じ箱・同じ規則なら、毎回同じイベント列が作られることを確かめる。</td><td>少しでも入力や規則が変われば別の版として扱い、本線へ渡さない。</td></tr>
+  </tbody></table>
+
+  <h2>2. ファイル構成</h2>
+  <p>以下はP2-12-02で追加する予定のファイルである。P2-12-01の時点では、REDテストだけが存在し、実装モジュールは未作成である。</p>
+  <pre>src/autotrade/market_data/
+  dbn_contracts.py             # 提供元に依存しないDBN入力・中間行・例外の型（予定）
+  databento_dbn_decoder.py     # Databento依存を閉じ込めるDecoder Adapter（予定）
+  dbn_normalizer.py            # 中間行をCatalogと品質確認へつなぐ処理（予定）
+  market_event_factory.py      # 合格済みBarから決定的なMarketEventを作る処理（予定）
+tests/market_data/
+  test_p2_12_dbn_replay_contract.py  # P2-12-01のRED契約
+tests/evidence/phase2/RUN-P2-DBN-001/
+  p2-12-01-red-result.md       # RED/GREEN状態と停止理由</pre>
+  <table><thead><tr><th>分類</th><th>置くもの</th><th>置いてはいけないもの</th></tr></thead><tbody>
+    <tr><td><code>src/autotrade/market_data/</code></td><td>Vendor非依存の契約、Adapter、正規化、イベント生成を置く。</td><td>API key、HTTP呼出し、socket、Broker、実DBN本体、SDK型をCore公開契約へ置かない。</td></tr>
+    <tr><td><code>tests/market_data/</code></td><td>小さい固定入力と失敗注入による単体・契約試験を置く。</td><td>実DBN本体、Secret、現在時刻に依存する期待値を置かない。</td></tr>
+  </tbody></table>
+
+  <h2>3. モジュール構造図</h2>
+  <p>この図は、提供元固有の部品を一か所へ閉じ込め、Coreが受け取る情報を一定に保つ構造を示す。矢印の詳しい意味と停止条件は直後の表に記す。</p>
+  <pre class="mermaid">flowchart LR
+    Raw["既存Raw DBN"] -->|"bytes + hash"| Decoder["Databento Decoder\nAdapter"]
+    Decoder -->|"DecodedOhlcvRecord"| Normalize["DBN Normalizer"]
+    Catalog["Catalog Resolver"] -->|"一意の銘柄対応"| Normalize
+    Normalize -->|"NormalizedBar"| Quality["QualityChecker"]
+    Quality -->|"合格Bar + 品質報告"| Store["Manifest / Normalized Store"]
+    Store -->|"data_version + 合格Bar"| Event["MarketEvent Factory"]
+    Event -->|"順序付きMarketEvent"| Replay["Replay検証"]</pre>
+  <p>この表は、各部品が何を渡し、何が欠けたら止めるかを説明する。</p>
+  <table><thead><tr><th>送る部品</th><th>受け取る部品</th><th>渡すデータ・依頼</th><th>受け取り側の用途と停止条件</th></tr></thead><tbody>
+    <tr><td>既存Raw DBN</td><td>Decoder Adapter</td><td>読取専用bytes、固定SHA-256、Raw object ID、取得条件、固定された受信時刻。</td><td>hash・形式・schemaを確認してrecordを読む。受信時刻が無い、hashが違う、形式が違う場合は停止する。</td></tr>
+    <tr><td>Decoder Adapter</td><td>DBN Normalizer</td><td>Vendor型を含まない<code>DecodedOhlcvRecord</code>列だけを渡す。</td><td>時刻・価格・出来高・順序を確認し、Catalogで一意の内部銘柄IDへ結ぶ。外部SDKの型や例外は受け取らない。</td></tr>
+    <tr><td>Catalog Resolver</td><td>DBN Normalizer</td><td>対象時刻で有効な<code>instrument_id</code>、Catalog版、失敗理由を渡す。</td><td>一意に解決できない場合は通常行を作らず停止する。</td></tr>
+    <tr><td>QualityChecker</td><td>Store / Event Factory</td><td>品質報告と、利用可能な<code>NormalizedBar</code>だけを渡す。</td><td>品質不合格ならManifest・イベントを作らない。</td></tr>
+  </tbody></table>
+
+  <h2>4. モジュール仕様と入出力パラメータ</h2>
+  <p>この表は、各予定モジュールの責務、入力、出力、副作用を定める。外部ライブラリの型はAdapter以外へ渡さない。</p>
+  <table><thead><tr><th>ファイル / 実装単位</th><th>機能説明</th><th>入力</th><th>出力</th><th>副作用・禁止事項</th></tr></thead><tbody>
+    <tr><td><code>dbn_contracts.py</code></td><td>DBN Replayの内部契約と停止理由を定義する。</td><td>なし。</td><td><code>DbnReplayInput</code>、<code>DecodedOhlcvRecord</code>、内部例外型。</td><td>SDK、ファイル、ネットワーク、環境変数をimportしない。</td></tr>
+    <tr><td><code>databento_dbn_decoder.py / DatabentoDbnDecoder.decode</code></td><td>保存済みbytesだけをDatabento公式decoderで読むAdapterである。</td><td>bytesと<code>DbnReplayInput</code>。</td><td>Vendor非依存の<code>DecodedOhlcvRecord</code>タプル。</td><td>このモジュールだけが許可済みdecoder依存をimportできる。HTTP、socket、Secret、現在時刻、ファイル読取りを行わない。</td></tr>
+    <tr><td><code>dbn_normalizer.py / DbnNormalizer.normalize</code></td><td>中間行をCatalog、品質確認、既存Store契約へつなぐ。</td><td>中間行、固定Catalog、Raw入力の証跡。</td><td>品質確認前の<code>NormalizedBar</code>候補または停止例外。</td><td>Catalog未解決時に任意の銘柄を選ばない。</td></tr>
+    <tr><td><code>market_event_factory.py / MarketEventFactory.build</code></td><td>合格済みBarとManifestから順序付きイベントを作る。</td><td>品質合格Bar、品質報告、<code>DataVersionManifest</code>、固定受信時刻。</td><td>不変の<code>MarketEvent</code>タプル。</td><td>現在時刻を使わず、品質不合格時は0件または停止例外にする。</td></tr>
+  </tbody></table>
+
+  <h2>5. モジュール間の処理フロー</h2>
+  <h3>5.1 正常時のシーケンス図</h3>
+  <p>正常時でも、全ての確認が終わるまで成功イベントを作らない。</p>
+  <pre class="mermaid">sequenceDiagram
+    participant 入力 as 読取専用DBN入力
+    participant Decoder as Decoder Adapter
+    participant 正規化 as DBN Normalizer
+    participant 品質 as QualityChecker
+    participant 保存 as Manifest / Store
+    participant Event as Event Factory
+    入力->>Decoder: bytes、hash、固定証跡
+    Decoder->>正規化: DecodedOhlcvRecord列
+    正規化->>品質: NormalizedBar候補
+    品質->>保存: 合格Barと品質報告
+    保存->>Event: data_versionと合格Bar
+    Event-->>入力: 順序付きMarketEvent列</pre>
+  <h3>5.2 失敗時のフローチャート</h3>
+  <p>不明な項目を補ったり、問題のある一部だけを通常利用へ渡したりしない。</p>
+  <pre class="mermaid">flowchart TD
+    Start([DBN入力]) --> Proof{"hash・受信時刻・依存は確認済みか"}
+    Proof -- いいえ --> Stop1["理由を記録して停止"]
+    Proof -- はい --> Decode{"形式・schema・recordは対応済みか"}
+    Decode -- いいえ --> Stop2["DECODE_OR_SCHEMA_ERRORで停止"]
+    Decode -- はい --> Resolve{"Catalogで一意に解決できるか"}
+    Resolve -- いいえ --> Stop3["CATALOG_MAPPING_UNRESOLVEDで停止"]
+    Resolve -- はい --> Quality{"品質は合格か"}
+    Quality -- いいえ --> Stop4["品質不合格として停止"]
+    Quality -- はい --> Publish["ManifestとMarketEventを作る"]</pre>
+
+  <h2>6. テスト仕様</h2>
+  <p>この表はP2-12の範囲で必要な全試験を示す。P2-12-01では、記録済みSHA-256を入力識別子として固定する<code>DBN-T01</code>だけがGREENであり、Git管理外の実DBNは開かない。実装境界の試験は意図したREDである。REDをskipで隠さない。</p>
+  <table><thead><tr><th>テストID</th><th>テスト概要</th><th>テスト条件（入力値）</th><th>操作</th><th>期待結果</th><th>合否判定基準</th></tr></thead><tbody>
+    <tr><td>DBN-T01</td><td>P2-08のDBN入力の識別子を固定する。</td><td>記録済みSHA-256だけ。実DBN本体は入力にしない。</td><td>設計の定数とP2-08証跡のSHA-256を照合する。</td><td>不一致なら設計を中断する。一致しても変換結果は作らない。</td><td>H2-5前は実DBNを開かない。H2-5後に保護場所でhash/headerを再確認する。</td></tr>
+    <tr><td>DBN-T02</td><td>内容確認値が違う入力を読む前に止める。</td><td>正しい形式に見えるが期待SHA-256と異なるbytesを用意する。</td><td><code>DatabentoDbnDecoder.decode</code>を呼ぶ。</td><td><code>RAW_CHECKSUM_MISMATCH</code>で停止する。</td><td>DecodedRecord、NormalizedBar、Manifest、MarketEventが0件である。</td></tr>
+    <tr><td>DBN-T03</td><td>形式、header、対応外schema、未知record、途中で切れたrecordを通常行にしない。</td><td>magic不正、短いheader、許可外version、許可外rtype、切断bytesをそれぞれ用意する。</td><td>Decoderを呼ぶ。</td><td><code>DECODE_OR_SCHEMA_ERROR</code>または<code>DECODE_RECORD_INVALID</code>で停止する。</td><td>SDK例外名やpayload本文を公開例外・証跡へ出さない。</td></tr>
+    <tr><td>DBN-T04</td><td>受信UTC時刻が無い入力を、イベント時刻や現在時刻で補わない。</td><td><code>raw_received_at_utc</code>が無いRaw入力を用意する。</td><td>Normalizerを呼ぶ。</td><td><code>RAW_RECEIVED_AT_MISSING</code>で停止する。</td><td><code>MarketEvent.received_at_utc</code>を推測値で作らない。</td></tr>
+    <tr><td>DBN-T05</td><td>外部銘柄を内部銘柄IDへ一意に結べないとき停止する。</td><td>Catalog無し、候補複数、pending、audit失敗の入力を用意する。</td><td>Normalizerを呼ぶ。</td><td><code>CATALOG_MAPPING_UNRESOLVED</code>で停止する。</td><td>任意の<code>instrument_id</code>を選んだBarやEventがない。</td></tr>
+    <tr><td>DBN-T06</td><td>UTC・一分足・価格・出来高・順序を固定して正規化する。</td><td>UTCの<code>ts_event</code>、固定精度価格、出来高、record順を持つ中間行を用意する。</td><td>Normalizerを呼ぶ。</td><td>bar開始は<code>ts_event</code>、close時刻は規則版に従い一分後、価格は文字列のまま正規化される。</td><td>naive/非UTC、未定義価格、価格関係不正、出来高不正、順序逆行は品質不合格になる。</td></tr>
+    <tr><td>DBN-T07</td><td>品質不合格時にイベントを作らない。</td><td>欠損、重複競合、異常価格、異常出来高、degraded、未知品質を含むBarを用意する。</td><td>QualityChecker後にEvent Factoryを呼ぶ。</td><td><code>QUALITY_REJECTED</code>で停止する。</td><td>Manifest発行、Replay公開、Signal生成のいずれも行われない。</td></tr>
+    <tr><td>DBN-T08</td><td>同じ入力から同じReplay系列を作り、入力や規則の変更を別版にする。</td><td>同一のRaw hash、取得条件、Catalog、decoder版、規則版、code revisionを二回渡す。各入力を一つずつ変えた派生も用意する。</td><td>二回の変換とReplayを比較する。</td><td>同一入力は同一Bar、Manifest、Event ID列になる。変更入力は別<code>data_version</code>になる。</td><td>現在時刻や将来行を版番号へ混ぜない。</td></tr>
+    <tr><td>DBN-T09</td><td>Vendor依存と秘密がCore契約へ漏れないことを確認する。</td><td>公開契約のfield、Coreモジュールのimport、例外文字列を調べる。</td><td>静的検査と契約試験を行う。</td><td>SDK record、SDK例外、API key、Authorization、accountがCore型・証跡に無い。</td><td>Decoder Adapter以外でdecoder依存をimportしていれば不合格である。</td></tr>
+    <tr><td>DBN-T10</td><td>WSL隔離入力と依存wheelのすり替えを検出する。</td><td>H2-5承認済みの保護パス、owner/mode、非リンク、wheel allowlist、入力hashを用意する。</td><td>RUN-P2-DBN-001の事前検査を行う。</td><td>読込前後のhashが一致し、保護条件と依存hashが一致する。</td><td><code>/mnt</code>、UNC、symbolic link、書込み可能入力、未許可wheel、Git index上のDBNを検出したら隔離試験を開始しない。</td></tr>
+  </tbody></table>
+
+  <h2>7. 目的と境界（詳細契約）</h2>
+  <p>この表は、どの部品が何を担当し、何を担当しないかを定める。提供元への接続とデコードを同じ部品に混ぜない。</p>
+  <table><thead><tr><th>対象</th><th>責務</th><th>非対象</th></tr></thead><tbody>
+    <tr><td>Decoder Adapter</td><td>保存済みDBN bytesを検証し、公式decoderの結果をVendor非依存の中間型へ写す。</td><td>HTTP、再取得、Secret、Raw保存、Catalogの推測、品質合格判定。</td></tr>
+    <tr><td>DBN Normalizer</td><td>中間型をCatalogの一意解決、UTC、数値規則、QualityCheckerへ接続する。</td><td>DBN binary解析、Catalog更新、現在時刻の補完。</td></tr>
+    <tr><td>MarketEvent Factory</td><td>合格したBarと固定Manifestから決定的イベントを作る。</td><td>品質の上書き、戦略判断、Signal生成、外部I/O。</td></tr>
+  </tbody></table>
+
+  <h2>8. 公開する受取口の契約</h2>
+  <p>この表は、他の部品が頼める処理と、停止する条件を定める。</p>
+  <table><thead><tr><th>受取口の固定名</th><th>受け取る内容</th><th>返す内容</th><th>起こる変更と停止条件</th></tr></thead><tbody>
+    <tr><td><code>DatabentoDbnDecoder.decode</code></td><td>bytesと、hash・Raw ID・取得条件・固定受信UTC・decoder版を持つ<code>DbnReplayInput</code>。</td><td>順序付き<code>DecodedOhlcvRecord</code>タプル。</td><td>読み取りのみ。hash、header、schema、recordが不正なら停止例外を返す。</td></tr>
+    <tr><td><code>DbnNormalizer.normalize</code></td><td>中間行、Catalog Resolver、Raw入力証跡。</td><td>品質確認へ渡せる<code>NormalizedBar</code>候補。</td><td>Catalogや受信時刻が不足すれば停止し、部分Barを返さない。</td></tr>
+    <tr><td><code>MarketEventFactory.build</code></td><td>品質合格Bar、品質報告、Manifest、Run ID、固定受信UTC。</td><td>イベント時刻順の<code>MarketEvent</code>タプル。</td><td>読み取りだけ。品質不合格やManifest不整合では停止する。</td></tr>
+  </tbody></table>
+
+  <h2>9. 共通データ契約</h2>
+  <p>この表は、DBN固有の値をどこまで内部の型に保持するかを説明する。外部のnumeric instrument IDと、プロジェクト内部の<code>instrument_id</code>は同じ項目にしない。</p>
+  <table><thead><tr><th>データの箱の固定名</th><th>必ず入れる項目</th><th>この箱が説明すること</th></tr></thead><tbody>
+    <tr><td><code>DbnReplayInput</code></td><td><code>payload_sha256</code>、<code>raw_object_id</code>、<code>raw_received_at_utc</code>、<code>source_vendor</code>、<code>dataset_ref</code>、<code>schema_ref</code>、<code>source_symbol</code>、<code>decoder_version</code>。</td><td>どのRawを、どの条件とdecoderで再生するかを示す。不足項目は既定値を持たない。</td></tr>
+    <tr><td><code>DecodedOhlcvRecord</code></td><td><code>source_symbol</code>、<code>event_time_utc</code>、<code>open</code>、<code>high</code>、<code>low</code>、<code>close</code>、<code>volume</code>、<code>record_ordinal</code>、必要時の<code>publisher_id</code>と<code>vendor_instrument_id</code>。</td><td>Decoderが読んだ事実を表す。SDK recordや内部<code>instrument_id</code>を持たない。</td></tr>
+    <tr><td><code>NormalizedBar</code></td><td>既存契約の<code>instrument_id</code>、UTC、OHLC、volume、<code>raw_object_id</code>、品質flags。</td><td>Catalogと基本形式確認を通過した後に作る「品質確認前の候補行」である。QualityCheckerが公開可と判定した候補だけをStore、Manifest、MarketEventへ渡す。</td></tr>
+  </tbody></table>
+
+  <h2>10. 永続化、Manifest、順序</h2>
+  <p>この表は、既存Storeを使うときに何を別のdata_versionとして扱うかを定める。P2-12-01では実装せず、P2-12-02の必須契約とする。</p>
+  <table><thead><tr><th>項目</th><th>固定する規則</th><th>不一致時の扱い</th></tr></thead><tbody>
+    <tr><td>Raw</td><td>既存<code>raw_object_id</code>とpayload SHA-256を再利用し、DBN bytesを上書きしない。</td><td>SHA-256不一致は<code>RAW_CHECKSUM_MISMATCH</code>で停止する。</td></tr>
+    <tr><td>data_version材料</td><td>Raw SHA-256、取得条件hash、Catalog version/hash、normalization rule version、decoder version/artifact hash、品質hash、normalized content hash、code revision、<code>source_mode="dbn_replay"</code>を含める。</td><td>一つでも変更すれば別版にし、既存版を上書きしない。</td></tr>
+    <tr><td>Manifestの型変更</td><td>P2-12-02で既存<code>DataVersionManifest</code>へ<code>request_context_sha256</code>、<code>decoder_version</code>、<code>decoder_artifact_sha256</code>を追加する。<code>source_mode=&quot;dbn_replay&quot;</code>ではRaw SHA-256とこの3項目を必須、<code>fixture_sha256</code>は必ず<code>None</code>にする。<code>source_mode=&quot;fixture_only&quot;</code>では従来どおり<code>fixture_sha256</code>を必須、DBN用3項目は<code>None</code>にする。いずれもその値をdata_version材料に含める。</td><td>source modeに合わない値、または必須値の欠落は<code>MANIFEST_INPUT_MISSING</code>として停止する。<br><small>やさしい説明: 練習用のデータと本物のデータの身分証を混ぜません。どちらのデータかによって、必要な記録をはっきり分けます。</small></td></tr>
+    <tr><td>event順序</td><td><code>event_time_utc</code>昇順、同時刻は<code>record_ordinal</code>昇順で固定する。event IDは<code>data_version</code>、内部銘柄ID、イベント時刻、種別、ordinalだけから決める。</td><td>順序逆行・重複競合は品質不合格として停止する。</td></tr>
+  </tbody></table>
+
+  <h2>11. エラー分類と閉じた側へ倒す規則</h2>
+  <p>この表は、問題を見つけたときに何を止めるかを定める。使えると証明できないデータを、使えるものとして渡さない。</p>
+  <table><thead><tr><th>エラーの固定名</th><th>起きた状況の例</th><th>この部品が行う処理</th><th>利用可否と停止判断</th></tr></thead><tbody>
+    <tr><td><code>RAW_CHECKSUM_MISMATCH</code></td><td>入力bytesと記録済みSHA-256が一致しない。</td><td>Decoderを開始せず、hashだけを安全な証跡へ残す。</td><td>Data Gate FAIL。Bar、Manifest、Event、Signalを作らない。</td></tr>
+    <tr><td><code>DECODE_OR_SCHEMA_ERROR</code></td><td>magic、header、version、schema、rtype、decoder例外が許可条件を満たさない。</td><td>SDK例外名やpayloadを外へ出さず、内部停止コードへ変換する。</td><td>Data Gate UNKNOWNまたはFAIL。通常行を返さない。</td></tr>
+    <tr><td><code>RAW_RECEIVED_AT_MISSING</code></td><td>Rawの受信UTC時刻を証明できない。</td><td>現在時刻・イベント時刻で補完せず、理由を残す。</td><td>Data Gate UNKNOWN。MarketEventを作らない。</td></tr>
+    <tr><td><code>CATALOG_MAPPING_UNRESOLVED</code></td><td>外部symbol/IDが一意の内部銘柄IDへ結べない。</td><td>候補を選ばず、Catalogの理由を監査用に残す。</td><td>Data Gate UNKNOWN。NormalizedBarとMarketEventを作らない。</td></tr>
+    <tr><td><code>QUALITY_REJECTED</code></td><td>価格、出来高、時刻、重複、順序、degraded、未知品質が不合格。</td><td>QualityReportに停止理由を残す。</td><td>Manifest発行、Replay公開、Signal生成を止める。</td></tr>
+  </tbody></table>
+
+  <h2>12. 設定、依存、監査、隔離入力</h2>
+  <p>この表は、P2-12-02とP2-12-03で使用を許すものを狭く定める。H2-5が未承認の間、実DBN読取り・依存導入・WSL実行は行わない。</p>
+  <table><thead><tr><th>区分</th><th>契約</th></tr></thead><tbody>
+    <tr><td>decoder依存</td><td>公式Databento Python clientの<code>DBNStore.from_file</code>等を候補とするが、P2-12-01では版を確定しない。H2-5後に依存名、版、配布元、wheelファイル名、SHA-256、Python ABIをGit管理の許可一覧で固定し、導入前に照合する。</td></tr>
+    <tr><td>import境界</td><td>decoder依存のimportは<code>databento_dbn_decoder.py</code>だけに限定する。Coreの<code>dbn_contracts.py</code>、<code>dbn_normalizer.py</code>、<code>market_event_factory.py</code>は<code>databento</code>、<code>http</code>、<code>socket</code>、<code>os</code>をimportしない。</td></tr>
+    <tr><td>WSL入力</td><td>H2-5後に人がWSL内部の固定保護パスへ置く。root所有、読取専用、symbolic linkでない、<code>/mnt</code>・UNC由来でない、読込前後SHA-256一致を必須とする。AIはコピーしない。</td></tr>
+    <tr><td>Git混入防止</td><td>RUN-P2-DBN-001はHEAD、index、stage済み差分に<code>.dbn</code>または実DBN raw pathが無いことを検査する。<code>.gitignore</code>だけに頼らず、強制追加も検出する。</td></tr>
+    <tr><td>WSL事前検査の組込み先</td><td>P2-12-02で既存の人間向け入口<code>scripts/wsl_quality_gate/run_test.ps1</code>から、既存の<code>run_isolated_p2.ps1</code>と隔離処理へ<code>RUN-P2-DBN-001</code>を登録して実行する。新しい入口scriptは作らない。Run IDごとの<code>trusted_scopes.json</code>には<code>networkingMode=none</code>、<code>test -L</code>によるlink拒否、<code>/mnt</code>拒否、読込前後<code>sha256sum</code>、<code>--require-hashes</code>、<code>git diff --cached</code>を固定する。H2-5前は実行しない。</td></tr>
+    <tr><td>監査</td><td>payload hash、依存版/hash、request context hash、Catalog version/hash、decoder version、code revision、data_version、Data Gateを記録する。API key、Authorization、account、payload本文は記録しない。</td></tr>
+  </tbody></table>
+
+  <h2>13. 実行方法との接続</h2>
+  <p>この表は、P2-12の段階ごとに許される入力と停止条件を整理する。機械の試験合格と人による承認を混同しない。</p>
+  <table><thead><tr><th>実行方法</th><th>受け取る入力</th><th>この部品の動き</th><th>許される変更</th></tr></thead><tbody>
+    <tr><td>P2-12-01</td><td>既存設計、合成固定fixture、P2-08証跡に記録済みのDBN SHA-256。</td><td>詳細設計とREDテストだけを作る。</td><td>外部I/O、依存導入、Git管理外の実DBN読取り、WSL入力配置は行わない。</td></tr>
+    <tr><td>P2-12-02</td><td>H2-5承認、許可済みwheel、固定契約入力。</td><td>Decoder、Normalizer、Event Factoryを実装し、Windowsで確認する。</td><td>P2-D16の範囲だけを変更する。</td></tr>
+    <tr><td>P2-12-03</td><td>H2-5後の保護されたWSL入力、trusted scope。</td><td>ネットワークなしで固定4 Gateと実DBN Replayを行う。</td><td>検証は読み取りだけ。追加取得を行わない。</td></tr>
+  </tbody></table>
+
+  <h2>14. 追跡と未確定事項</h2>
+  <p>この表は、要件と未確定事項を追えるようにする。不明を成功として扱わない。</p>
+  <table><thead><tr><th>追跡ID</th><th>本書での反映</th><th>未確定事項と未決時の扱い</th></tr></thead><tbody>
+    <tr><td>REQ-Q20 / REQ-Q29</td><td>UTCの一分足、決定的な<code>data_version</code>、Replay、MarketEvent順序を3〜11章に定義する。</td><td>実DBN ReplayはP2-12-03までPassにしない。</td></tr>
+    <tr><td>REQ-Q23</td><td>SecretをCore・証跡・図表へ出さず、依存と隔離入力をH2-5の対象にする。</td><td>追加取得やSecret用途変更はH2-2を再承認するまで行わない。</td></tr>
+    <tr><td>DEC-P2-12-01</td><td>Vendor Adapter、Core契約、Normalizer、Event Factoryを分離し、SDK型をCoreへ出さない。</td><td>実装はP2-12-02。未実装のためREDを維持する。</td></tr>
+    <tr><td>UNK-P2-13</td><td>P2-08 Rawの<code>received_at_utc</code>が証跡に無い。</td><td>元の受信時刻を安全に復元できなければ実DBNを利用停止とし、必要ならH2-2再承認後の最小取得で新しいRaw証跡を作る。</td></tr>
+    <tr><td>UNK-P2-14</td><td>実DBNの外部symbol/IDを内部<code>instrument_id</code>へ結ぶ固定Catalogが無い。</td><td>DBN metadataまたは承認済みdefinition/symbology証跡で一意に確認できなければ停止する。推測追加はしない。</td></tr>
+    <tr><td>H2-5</td><td>WSL隔離入力とdecoder依存導入の承認を12章で定義する。</td><td>未承認なら依存導入、実DBN結合試験、WSL検証を開始しない。</td></tr>
+  </tbody></table>
+
+  <h2>15. 実装依存方向と公開境界</h2>
+  <p>この図と表は、Coreが外部提供元のライブラリや接続処理へ逆に依存しないことを示す。</p>
+  <pre class="mermaid">flowchart LR
+    Contracts["dbn_contracts"] --> Adapter["databento_dbn_decoder"]
+    Contracts --> Normalize["dbn_normalizer"]
+    Normalize --> Catalog["catalog_resolver"]
+    Normalize --> Quality["quality"]
+    Normalize --> Manifest["manifest / normalized_store"]
+    Manifest --> Event["market_event_factory"]</pre>
+  <table><thead><tr><th>モジュールの固定名</th><th>外へ見せるもの</th><th>参照してよいもの</th><th>担当しないこと</th></tr></thead><tbody>
+    <tr><td><code>dbn_contracts</code></td><td>入力、中間行、停止例外。</td><td>Python標準ライブラリの型だけ。</td><td>SDK、通信、環境変数、保存。</td></tr>
+    <tr><td><code>databento_dbn_decoder</code></td><td><code>DatabentoDbnDecoder</code>だけ。</td><td><code>dbn_contracts</code>と許可済みdecoder依存。</td><td>HTTP、Secret、Rawの新規取得、Catalog決定。</td></tr>
+    <tr><td><code>dbn_normalizer</code></td><td><code>DbnNormalizer</code>だけ。</td><td>Core契約、Catalog、品質、既存Store契約。</td><td>Vendor SDK、ネットワーク、現在時刻、銘柄の推測。</td></tr>
+    <tr><td><code>market_event_factory</code></td><td><code>MarketEventFactory</code>だけ。</td><td>既存<code>MarketEvent</code>と合格済みのCore契約。</td><td>品質の上書き、Signal、Strategy。</td></tr>
+  </tbody></table>
+
+  <h2>16. 型付き公開契約</h2>
+  <p>このコード例はP2-12-02で実装する公開形を固定する。外部SDKの型は引数・戻り値へ出さない。</p>
+<pre>from dataclasses import dataclass
+from datetime import datetime
+
+class DbnDecodeError(ValueError):
+    code: str
+
+class DbnNormalizationError(ValueError):
+    code: str
+
+class DbnEventBuildError(ValueError):
+    code: str
+
+@dataclass(frozen=True)
+class DbnReplayInput:
+    payload_sha256: str
+    raw_object_id: str
+    raw_received_at_utc: datetime
+    source_vendor: str
+    dataset_ref: str
+    schema_ref: str
+    stype: str
+    source_symbol: str
+    request_start_utc: datetime
+    request_end_utc: datetime
+    request_context_sha256: str
+    decoder_version: str
+    decoder_artifact_sha256: str
+    normalization_rule_version: str
+
+@dataclass(frozen=True)
+class DecodedOhlcvRecord:
+    source_symbol: str
+    vendor_instrument_id: int
+    publisher_id: int
+    event_time_utc: datetime
+    open: str
+    high: str
+    low: str
+    close: str
+    volume: int
+    record_ordinal: int
+
+@dataclass(frozen=True)
+class DbnCatalogBinding:
+    catalog_version: str
+    catalog_sha256: str
+    resolver: CatalogResolver
+
+class DatabentoDbnDecoder:
+    def decode(self, payload: bytes, source: DbnReplayInput) -> tuple[DecodedOhlcvRecord, ...]: ...</pre>
+  <pre>class DbnNormalizer:
+    def __init__(self, catalog: DbnCatalogBinding) -> None: ...
+    def normalize(
+        self,
+        records: tuple[DecodedOhlcvRecord, ...],
+        source: DbnReplayInput | None,
+    ) -> tuple[NormalizedBar, ...]: ...
+
+class MarketEventFactory:
+    def event_id(
+        self,
+        manifest: DataVersionManifest,
+        instrument_id: str,
+        event_time_utc: datetime,
+        record_ordinal: int,
+    ) -> str: ...
+    def build(
+        self,
+        bars: tuple[NormalizedBar, ...],
+        quality_report: QualityReport,
+        manifest: DataVersionManifest,
+        run_id: str,
+        raw_received_at_utc: datetime,
+    ) -> tuple[MarketEvent, ...]: ...</pre>
+  <p>固定受信時刻が無い場合、実DBN用の<code>DbnReplayInput</code>を作れず、通常値や現在時刻で代入してはならない。P2-12-01のテストで使う日時・Vendor・symbolはすべて<em>合成fixture</em>であり、P2-08のprovenanceではない。</p>
+  <p><strong>Catalogを一組で固定する規則:</strong> <code>DbnCatalogBinding</code>がresolver、catalog version、catalog SHA-256を一組で持つ。Normalizerは解決結果の<code>catalog_version</code>がBindingのversionと違えば<code>CATALOG_MAPPING_UNRESOLVED</code>で停止する。DBN用Manifestは新しい<code>ManifestBuilder.build_dbn(..., catalog: DbnCatalogBinding, ...)</code>だけで作り、<code>catalog_version</code>や<code>catalog_sha256</code>を別引数にするAPIを作らない。既存<code>ManifestBuilder.build</code>はfixture専用として残す。<br><small>やさしい説明: 銘柄表の「版番号」と「中身の確認値」を別々に渡すと、違う表を組み合わせられてしまいます。三つを一つの札にまとめて、混ぜられないようにします。</small></p>
+  <p><strong>既存型への具体的変更:</strong> P2-12-02は<code>DataVersionManifest</code>、<code>ManifestBuilder.build</code>、<code>LocalNormalizedStore</code>のserialize、deserialize、再構築を同時に変更する。DBN sourceでは<code>request_context_sha256</code>、<code>decoder_version</code>、<code>decoder_artifact_sha256</code>を必須にし、どれかが無ければ<code>MANIFEST_INPUT_MISSING</code>で停止する。既存fixture sourceは現在の必須入力を維持し、新しい3項目は<code>None</code>として後方互換にする。<br><small>やさしい説明: データの版を作る場所が三つに分かれているため、一か所だけ直すと後で読み戻せません。三か所を同じ決まりで直します。</small></p>
+
+  <h2>17. 正常系・失敗系の詳細フロー</h2>
+  <p>成功と停止のどちらでも、監査に必要な短い停止理由を残す。停止時にMarketEventは作らない。</p>
+  <pre class="mermaid">sequenceDiagram
+    participant 呼出元 as 呼出元
+    participant Decoder as Decoder
+    participant Normalizer as Normalizer
+    participant Catalog as Catalog
+    alt 正常時
+        呼出元->>Decoder: bytesと固定入力証跡
+        Decoder->>Normalizer: 中間行
+        Normalizer->>Catalog: 外部symbolとUTC
+        Catalog-->>Normalizer: 一意の内部銘柄ID
+        Normalizer-->>呼出元: 品質確認可能なBar
+    else 受信時刻またはCatalog不足
+        Normalizer-->>呼出元: 停止コード。Eventは0件
+    else 形式または品質不合格
+        Decoder-->>呼出元: 停止コード。Eventは0件
+    end</pre>
+
+  <h2>18. 誤実装しやすい規則のコード例</h2>
+  <p>この規則は、時刻や銘柄を推測で補わないことと、Vendor依存をCoreから隔離することを示す。</p>
+  <pre>from datetime import timedelta
+
+def require_raw_received_at(value: datetime | None) -> datetime:
+    if value is None or value.tzinfo is None or value.utcoffset() != timedelta(0):
+        raise DbnNormalizationError("RAW_RECEIVED_AT_MISSING")
+    return value
+
+def resolve_or_stop(resolver: CatalogResolver, request: ResolveInstrumentRequest) -> str:
+    result = resolver.resolve(request)
+    if result.status != "resolved" or result.instrument_id is None:
+        raise DbnNormalizationError("CATALOG_MAPPING_UNRESOLVED")
+    return result.instrument_id</pre>
+
+  <h2>19. Run Manifest、互換性、Replay</h2>
+  <p>この表は、同じReplayを再現するために記録する入力を説明する。DBNの取得日や処理開始の現在時刻を版番号の材料にしない。</p>
+  <table><thead><tr><th>記録するもの</th><th>用途</th><th>変更時の扱い</th></tr></thead><tbody>
+    <tr><td>Raw SHA-256、Raw object ID、request context hash</td><td>どのDBNを使ったかを確認する。</td><td>どれかが異なれば別のdata_versionにする。</td></tr>
+    <tr><td>decoder version / artifact hash、normalization rule version</td><td>同じbytesを別のdecoder規則で読んでいないか確認する。</td><td>変更時は既存Replayを上書きせず別版にする。</td></tr>
+    <tr><td>Catalog version/hash、quality hash、normalized content hash、code revision</td><td>銘柄、品質、出力、実装の差を追えるようにする。</td><td>一つでも異なれば同じ結果とは扱わない。</td></tr>
+  </tbody></table>
+
+  <section class="gate"><h2>20. 人による承認の対象</h2>
+    <p><strong>H2-5:</strong> 既取得DBN一件をWSL隔離検証に使う入力配置と、固定版decoder依存の導入を承認する。追加取得、Secret投入、対象範囲拡大は含まない。</p>
+    <p><strong>H2-2再承認が必要になる場合:</strong> <code>RAW_RECEIVED_AT_MISSING</code>または<code>CATALOG_MAPPING_UNRESOLVED</code>を既存証跡で解消できず、受信時刻・definition・symbologyを持つ新しい最小取得が必要になった場合。未承認なら既存DBNを通常利用せずData Gate UNKNOWNのまま停止する。</p>
+  </section>
+
+  <section class="review"><h2>21. レビュー履歴</h2>
+    <p>この表は、P2-12-01で得た専門指摘を設計へ反映した記録である。A91の改訂後再レビューまで完了した。</p>
+    <table><thead><tr><th>日付</th><th>確認者または部品</th><th>問題内容</th><th>修正方針</th><th>状態</th></tr></thead><tbody>
+      <tr><td>2026-08-08</td><td><code>AutoTrade_A50_AdapterArchitect_v0_1</code></td><td>DBN bytesからCoreへ渡す境界が無く、SDK型・例外がStoreや品質部へ漏れるおそれがある。<br><small>やさしい説明: 外部会社専用の部品をシステム全体で使うと、外部の変更で全部が壊れやすくなります。</small></td><td><code>dbn_contracts</code>、Decoder Adapter、Normalizer、Event Factoryの4層に分け、SDK importをAdapterだけに閉じ込める。<br><small>やさしい説明: 外部の言葉を翻訳する人を一人だけ決め、ほかの部品は共通の言葉だけを使います。</small></td><td class="pass">反映済み</td></tr>
+      <tr><td>2026-08-08</td><td><code>AutoTrade_A70_OpsSecurityArchitect_v0_1</code></td><td>現行WSL検査はdecoder依存を一律停止し、実DBNの保護場所・リンク禁止・wheel事前hash確認も未定義である。<br><small>やさしい説明: 正しい鍵か、正しいデータ箱かを確認する決まりが無いと、別のものにすり替わる危険があります。</small></td><td>H2-5で許可範囲を決め、Adapterだけの依存許可、HTTP等の禁止継続、保護パス、owner/mode、リンク禁止、読込前後hash、wheel allowlist、Git混入検査をRUN-P2-DBN-001へ追加する。<br><small>やさしい説明: 使う道具とデータ箱を先に名簿で決め、試験の前後で同じものか確かめます。</small></td><td class="pass">反映済み</td></tr>
+      <tr><td>2026-08-08</td><td><code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code></td><td>Raw受信UTC時刻と実DBN用Catalogが無く、イベント時刻・銘柄を再現できない。<br><small>やさしい説明: 「いつ届いたか」「何の商品か」が分からないと、同じ出来事をもう一度正しく作れません。</small></td><td><code>RAW_RECEIVED_AT_MISSING</code>と<code>CATALOG_MAPPING_UNRESOLVED</code>を停止コードにし、既存証跡で確認できなければH2-2再承認後の最小取得へ送る。<br><small>やさしい説明: 分からない部分を想像で埋めず、必要な記録を取り直す判断を人に任せます。</small></td><td class="pass">反映済み</td></tr>
+      <tr><td>2026-08-08</td><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>初回は、H2-5前に実DBNを読もうとするテスト、実証されていない受信時刻、CatalogとManifestの結び付き不足、WSL入口規則との不一致を指摘した。改訂後はCritical/High 0件で、P2-12-01の設計+REDとして受入可と確認した。残るMediumは、T08で全ての版材料の差分と順序付きEvent列をGREEN時に比べること。<br><small>やさしい説明: 本物の箱を許可前に開かないか、銘柄表と版の記録が同じ組かを何度も確かめました。大きな危険はなくなりましたが、実装後には「同じ並びになるか」をもっと広く確かめます。</small></td><td>実DBNはH2-5後まで開かず、Catalog Bindingと<code>build_dbn</code>を一組にした。既存のWSL入口へRun IDを登録する形に統一した。P2-12-02ではrequest context、Catalog、規則、code revisionの各差分と、順序付き<code>MarketEvent</code>列を比較するGREEN試験を追加する。<br><small>やさしい説明: 大事な札を一組で渡し、正しい入口だけを使います。翻訳機を作ったら、同じ箱を二回読んで同じ順番になることも確かめます。</small></td><td class="pass">受入可（Critical 0 / High 0）</td></tr>
+    </tbody></table>
+  </section>
+
+  <h2>22. 関連成果物</h2>
+  <ul>
+    <li><a href="../02_データソース調査/02_Databento公式仕様確認結果.html">P2-D04 Databento公式仕様確認結果</a></li>
+    <li><a href="../03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html">P2-D05 Market Data Adapter詳細設計書</a></li>
+    <li><a href="../03_市場データ詳細設計/06_Raw_Normalized_Store詳細設計書.html">P2-D06 Raw / Normalized Store詳細設計書</a></li>
+    <li><a href="../03_市場データ詳細設計/07_Instrument_Catalog詳細設計書.html">P2-D07 Instrument Catalog詳細設計書</a></li>
+    <li><a href="../08_完了判定/08_Phase2完了判定とPhase3移行承認書.html">P2-D14 完了判定とPhase 3移行承認書</a></li>
+    <li><a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></li>
+  </ul>
+</main>
+<script src="../../assets/mermaid.min.js"></script>
+<script src="../../assets/mermaid-init.js"></script>
+</body>
+</html>
