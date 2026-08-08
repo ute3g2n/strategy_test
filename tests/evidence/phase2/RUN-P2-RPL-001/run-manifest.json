@@ -20,7 +20,7 @@
     "autotrade_skill_html_doc_writer_v0_1"
   ],
   "data_version": "dv_ed27a1e51b4a39bef629",
-  "code_revision": "HEAD",
+  "code_revision": "3f71a4fac0bca92fa7d6338f91dd80b2edd6c57d",
   "change_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "baseline_ref": "HEAD",
   "evidence_root": "tests/evidence/phase2/RUN-P2-RPL-001",

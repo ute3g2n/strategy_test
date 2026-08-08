@@ -7,6 +7,8 @@ Run ID: `RUN-P2-RPL-001`
 
 Data Quality / Replayの固定fixture検証はPASSした。固定fixtureからは `data_version=dv_ed27a1e51b4a39bef629`、quality report hash `sha256:39de9d12fc61df12cec6c8a4eafb3f1a8cf40772955ae05f94afd3e8f5cccc9b` を再現できる。
 
+Replayのcode revisionは `3f71a4fac0bca92fa7d6338f91dd80b2edd6c57d` に固定した。
+
 一方、P2-08で取得したDatabento DBNはchecksum確認までで、DBN decoderを介したNormalizedBar / MarketEvent変換は未実装である。したがってData Gateは `UNKNOWN`、Signal生成とPhase 3 handoffは許可しない。これは失敗をPassへ変換せず、H2-3の採否対象へ送る判定である。
 
 ## 検証項目
