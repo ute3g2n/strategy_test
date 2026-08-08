@@ -112,7 +112,7 @@ try {
         if ([string]::IsNullOrWhiteSpace($protectedPath) -or $protectedPath -notmatch '^/' -or $protectedPath -match '[\r\n''"]') {
             throw "trusted DBN protected path is invalid"
         }
-        $inputCheckArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "test -f '$protectedPath' && ! test -L '$protectedPath'")
+        $inputCheckArguments = [string[]]("-d", $Distro, "-u", "root", "--", "bash", "-lc", "test -f '$protectedPath' && ! test -L '$protectedPath'")
         $inputCheck = Invoke-WslCapture $inputCheckArguments
         if ($inputCheck.ExitCode -ne 0) {
             throw "protected DBN input is missing or is a symbolic link: $protectedPath"
@@ -160,7 +160,10 @@ try {
     if (-not $wslEnvNames.Contains('WSL_VERSION')) { $wslEnvNames.Add('WSL_VERSION') }
     if ($userApproved -and -not $wslEnvNames.Contains('QUALITY_GATE_HUMAN_APPROVED')) { $wslEnvNames.Add('QUALITY_GATE_HUMAN_APPROVED') }
     $env:WSLENV = $wslEnvNames -join ':'
-    $runnerArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && cd '$RepositoryPath' && exec bash scripts/wsl_quality_gate/run_isolated_p2.sh '$RepositoryPath' '$RunId' '$executionId'")
+    $runnerArguments = [Collections.Generic.List[string]]::new()
+    $runnerArguments.AddRange([string[]]("-d", $Distro))
+    if ($null -ne $dbnScope) { $runnerArguments.AddRange([string[]]("-u", "root")) }
+    $runnerArguments.AddRange([string[]]("--", "bash", "-lc", "cd / && cd '$RepositoryPath' && exec bash scripts/wsl_quality_gate/run_isolated_p2.sh '$RepositoryPath' '$RunId' '$executionId'"))
     $runner = Invoke-WslCapture $runnerArguments
     $verificationPathInWsl = "$RepositoryPath/tests/evidence/phase2/$RunId/verification.json"
     $verificationArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && base64 -w0 '$verificationPathInWsl'")

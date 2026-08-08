@@ -88,6 +88,7 @@ def test_host_wrapper_dry_run_contract_is_declared_without_mutating_wslconfig() 
     assert "dbn_input" in text
     assert "protected DBN input is missing or is a symbolic link" in text
     assert "test -f '$protectedPath' && ! test -L '$protectedPath'" in text
+    assert '"-u", "root"' in text
     preflight = text.split("if ($DryRun)", 1)[0]
     assert "uname -r" not in preflight
     assert "test -x" not in preflight
@@ -109,6 +110,8 @@ def test_wsl_runner_fails_closed_before_four_gates_on_missing_isolation_prerequi
     assert re.search(r"\.venv/bin/python", text)
     assert text.index('kernel="$(uname -r)"') < text.index("QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED")
     assert 'host_execution_id="${WSL_HOST_WRAPPER_EXECUTION_ID:-${3:?host wrapper execution id is required}}"' in text
+    assert "DBN input integrity check must run as root" in text
+    assert "runuser -u \"$repository_owner\"" in text
 
 
 def test_wsl_runner_has_valid_bash_syntax() -> None:

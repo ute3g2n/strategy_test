@@ -47,7 +47,12 @@ input_kind="${input_metadata[0]}"
 input_location="${input_metadata[1]}"
 expected_input_hash="${input_metadata[2]}"
 dbn_requirements="${input_metadata[3]}"
+repository_owner=""
 if [[ "$input_kind" == "dbn" ]]; then
+  [[ "$(id -u)" -eq 0 ]] || blocked "DBN input integrity check must run as root"
+  repository_owner="$(stat -c '%U' "$repository_path")"
+  [[ -n "$repository_owner" && "$repository_owner" != "root" ]] || blocked "repository owner is unsafe for DBN gate"
+  command -v runuser >/dev/null || blocked "runuser is required to drop DBN gate privileges"
   [[ "$input_location" != /mnt/* && "$input_location" != //* ]] || blocked "DBN input must not be mounted from Windows or UNC"
   if test -L "$input_location" || [[ ! -f "$input_location" ]]; then
     blocked "protected DBN input is missing or is a symbolic link"
@@ -129,7 +134,14 @@ EOF
 export QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED=1
 export QUALITY_GATE_HOST_ISOLATION_EVIDENCE="$evidence_root/host-isolation.json"
 set +e
-"$python_bin" -m scripts.quality_gate.run_quality_gate --manifest "$manifest" --project-root "$repository_path"
+if [[ "$input_kind" == "dbn" ]]; then
+  runuser -u "$repository_owner" -- env \
+    QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED=1 \
+    QUALITY_GATE_HOST_ISOLATION_EVIDENCE="$evidence_root/host-isolation.json" \
+    "$python_bin" -m scripts.quality_gate.run_quality_gate --manifest "$manifest" --project-root "$repository_path"
+else
+  "$python_bin" -m scripts.quality_gate.run_quality_gate --manifest "$manifest" --project-root "$repository_path"
+fi
 gate_exit=$?
 set -e
 post_input_hash="sha256:$(sha256sum "$input_location" | awk '{print $1}')"
