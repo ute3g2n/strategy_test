@@ -386,6 +386,12 @@ def resolve_or_stop(resolver: CatalogResolver, request: ResolveInstrumentRequest
     <li><a href="../08_完了判定/08_Phase2完了判定とPhase3移行承認書.html">P2-D14 完了判定とPhase 3移行承認書</a></li>
     <li><a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></li>
   </ul>
+  <section class="notice" id="root-execution-policy-override">
+    <h2>実行権限の現行方針（2026-08-09）</h2>
+    <p>プロジェクトコードはroot権限で実行してよい。本番運用ではroot実行を想定し、WSL入口は <code>-RunAsRoot</code> 指定でrootとして起動する。指定しない場合は通常ユーザーで起動する。したがって、root実行そのものを理由に停止しない。</p>
+    <p>ただし、入力の所有者・権限・読込前後SHA-256、trusted scope、target_only、networkingMode=none、外部接続禁止、固定4 Gate、Secret非出力はroot実行でも必須とする。rootで動くことは、対象範囲や入力固定を省略できるという意味ではない。</p>
+    <p><small>やさしい説明: 強い権限で動かすことは許可します。でも、読む箱を勝手に変えないこと、読む場所を固定すること、ネットワークへ出ないこと、確認テストを通すことは残します。</small></p>
+  </section>
 </main>
 <script src="../../assets/mermaid.min.js"></script>
 <script src="../../assets/mermaid-init.js"></script>

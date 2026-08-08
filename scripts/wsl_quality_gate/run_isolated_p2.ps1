@@ -4,7 +4,8 @@ param(
     [Parameter(Mandatory = $true)][string]$RepositoryPath,
     [string]$RunId = "RUN-P2-IC-001-WSL",
     [switch]$DryRun,
-    [switch]$AllowRunningDistro
+    [switch]$AllowRunningDistro,
+    [switch]$RunAsRoot
 )
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
@@ -161,7 +162,10 @@ try {
     if ($userApproved -and -not $wslEnvNames.Contains('QUALITY_GATE_HUMAN_APPROVED')) { $wslEnvNames.Add('QUALITY_GATE_HUMAN_APPROVED') }
     $env:WSLENV = $wslEnvNames -join ':'
     $runnerArguments = [Collections.Generic.List[string]]::new()
+    # root実行は本番運用で許可するが、通常ユーザー実行も選択できる。
+    # 入力hash、対象範囲、ネットワーク隔離、固定Gateの検証は従来どおり先に行う。
     $runnerArguments.AddRange([string[]]("-d", $Distro))
+    if ($RunAsRoot) { $runnerArguments.AddRange([string[]]("-u", "root")) }
     $runnerArguments.AddRange([string[]]("--", "bash", "-lc", "cd / && cd '$RepositoryPath' && exec bash scripts/wsl_quality_gate/run_isolated_p2.sh '$RepositoryPath' '$RunId' '$executionId'"))
     $runner = Invoke-WslCapture $runnerArguments
     $verificationPathInWsl = "$RepositoryPath/tests/evidence/phase2/$RunId/verification.json"

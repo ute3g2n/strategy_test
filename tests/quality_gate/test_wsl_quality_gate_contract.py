@@ -86,9 +86,12 @@ def test_host_wrapper_dry_run_contract_is_declared_without_mutating_wslconfig() 
     assert "otherRunningLines" in text
     assert "AddRange([string[]]" in text
     assert "dbn_input" in text
+    assert "[switch]$RunAsRoot" in text
+    assert "if ($RunAsRoot)" in text
     assert "protected DBN input is missing or is a symbolic link" in text
     assert "test -f '$protectedPath' && ! test -L '$protectedPath'" in text
-    assert '"-u", "root"' not in text
+    assert "[switch]$RunAsRoot" in text
+    assert 'if ($RunAsRoot)' in text and '"-u", "root"' in text
     preflight = text.split("if ($DryRun)", 1)[0]
     assert "uname -r" not in preflight
     assert "test -x" not in preflight
@@ -117,7 +120,9 @@ def test_wsl_runner_fails_closed_before_four_gates_on_missing_isolation_prerequi
     assert "DBN decoder probe failed" in text
     assert '"state": "DECODED_NOT_NORMALIZED"' in text
     assert 'PYTHONPATH="$repository_path/src"' in text
-    assert 'git -C "$repository_path" diff --cached' in text
+    assert 'if [[ "$(id -u)" != "0" ]]' in text
+    assert '"execution_uid"' in text
+    assert 'git -c safe.directory="$repository_path" -C "$repository_path" diff --cached' in text
     assert '"scope": ${target_scope_json}' in text
 
 

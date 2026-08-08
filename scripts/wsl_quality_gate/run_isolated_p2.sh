@@ -57,14 +57,16 @@ if [[ "$input_kind" == "dbn" ]]; then
   fi
   [[ -n "$expected_protection" && "$(stat -c '%U:%G:%a' "$input_location")" == "$expected_protection" ]] || blocked "protected DBN input protection does not match trusted scope"
   input_group="$(printf '%s' "$expected_protection" | cut -d: -f2)"
-  id -nG | tr ' ' '\n' | grep -Fx "$input_group" >/dev/null || blocked "gate runner is not a member of the protected DBN reader group"
+  if [[ "$(id -u)" != "0" ]]; then
+    id -nG | tr ' ' '\n' | grep -Fx "$input_group" >/dev/null || blocked "gate runner is not a member of the protected DBN reader group"
+  fi
   [[ -n "$dbn_requirements" && -f "$repository_path/$dbn_requirements" ]] || blocked "DBN hash-pinned requirements are missing"
   grep -q -- '--hash=sha256:' "$repository_path/$dbn_requirements" || blocked "DBN requirements hash allowlist is missing"
   grep -q -- '--require-hashes' "$repository_path/scripts/wsl_quality_gate/prepare_offline_wsl_env.sh" || blocked "offline installer must require hashes"
-  if git -C "$repository_path" diff --cached --name-only | grep -E '\.(dbn|DBN)$|(^|/)raw/' >/dev/null; then
+  if git -c safe.directory="$repository_path" -C "$repository_path" diff --cached --name-only | grep -E '\.(dbn|DBN)$|(^|/)raw/' >/dev/null; then
     blocked "DBN or raw input is present in the staged Git changes"
   fi
-  if git -C "$repository_path" ls-files | grep -E '\.(dbn|DBN)$|(^|/)raw/' >/dev/null; then
+  if git -c safe.directory="$repository_path" -C "$repository_path" ls-files | grep -E '\.(dbn|DBN)$|(^|/)raw/' >/dev/null; then
     blocked "DBN or raw input is tracked by Git"
   fi
   "$python_bin" - "$repository_path/scripts/quality_gate/trusted_scopes.json" "$run_id" "$repository_path/$dbn_requirements" "$evidence_root/offline-preparation.json" <<'PY' || blocked "DBN offline dependency evidence does not match the trusted scope"
@@ -157,6 +159,8 @@ source = DbnReplayInput(
 records = DatabentoDbnDecoder().decode(input_path.read_bytes(), source)
 result = {
     "state": "DECODED_NOT_NORMALIZED",
+    "execution_user": __import__("getpass").getuser(),
+    "execution_uid": __import__("os").getuid(),
     "input_sha256": source.payload_sha256,
     "schema": source.schema_ref,
     "record_count": len(records),
@@ -210,7 +214,7 @@ result = json.loads(Path(path).read_text(encoding="utf-8")) if Path(path).exists
 manifest = json.loads((Path(path).parent / "run-manifest.json").read_text(encoding="utf-8"))
 probe_path = Path(path).parent / "dbn-decoder-probe.json"
 probe = json.loads(probe_path.read_text(encoding="utf-8")) if probe_path.exists() else None
-result.update({"exit_code": int(exit_code), "tool_versions": {"python": python, "ruff": ruff, "mypy": mypy, "pytest": pytest, "pytest_cov": coverage}, "scope": "target_only", "input_sha256": fixture, "post_input_sha256": fixture, "target_only_change_sha256": manifest["change_hash"], "host_wrapper_execution_id": host_execution_id, "restore_pending": True, "dbn_decoder_probe": probe})
+result.update({"exit_code": int(exit_code), "tool_versions": {"python": python, "ruff": ruff, "mypy": mypy, "pytest": pytest, "pytest_cov": coverage}, "scope": "target_only", "input_sha256": fixture, "post_input_sha256": fixture, "target_only_change_sha256": manifest["change_hash"], "host_wrapper_execution_id": host_execution_id, "restore_pending": True, "dbn_decoder_probe": probe, "execution_user": __import__("getpass").getuser(), "execution_uid": __import__("os").getuid()})
 Path(path).write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 PY
 exit "$gate_exit"

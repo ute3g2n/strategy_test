@@ -12,6 +12,12 @@
   </style>
 </head>
 <body><main>
+  <section class="notice" id="root-execution-policy-override">
+    <h2>現行の実行権限方針（2026-08-09）</h2>
+    <p>旧証跡にある「通常権限だけ」「rootでプロジェクトコードを動かさない」という制約は、ユーザーの本番運用方針により上書きする。以後は <code>-RunAsRoot</code> 指定時のroot実行と、指定なしの通常ユーザー実行の両方を許可する。root実行を理由にP2-12-03を止めない。</p>
+    <p>入力hash前後一致、保護パス、対象scope、networkingMode=none、外部接続禁止、固定4 Gate、Data Gateのfail-closedは引き続き必須である。</p>
+    <p><small>やさしい説明: 強い権限で翻訳機を動かしてもよいことにしました。ただし、本物の箱が途中で変わらないこと、ネットワークへ出ないこと、決めたテストを通すことは、これからも確認します。</small></p>
+  </section>
   <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
   <h1>P2-D17 実DBN Replay・WSL隔離検証結果</h1>
   <section class="meta"><strong>成果物ID:</strong> P2-D17<br><strong>Phase / Step:</strong> Phase 2 / P2-12-03<br><strong>Run:</strong> <code>RUN-P2-DBN-001</code><br><strong>最終更新日時:</strong> 2026-08-09T06:40:00Z（UTC）<br><strong>状態:</strong> <span class="fail">BLOCKED（UNK-P2-15による安全停止）</span></section>
