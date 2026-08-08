@@ -78,12 +78,12 @@
   </section>
   <section class="ok-note" id="p2-12-03-final-pass-20260809">
     <h2>P2-12-03 最終実行結果（2026-08-09）</h2>
-    <p><strong>判定: PASS</strong>。実行ID <code>a12a2829f4ee4990a78f41d611c4ab1f</code>、root実行モード、ネットワークなしで固定4 Gate（formatter / lint / type / test）をすべて通過した。</p>
+    <p><strong>判定: PASS</strong>。実行ID <code>37da7396f4e84be3b82dfd0aae69a217</code>、root実行モード、ネットワークなしで固定4 Gate（formatter / lint / type / test）をすべて通過した。</p>
     <ul>
       <li>実DBN 4件を読取り、<code>instrument_class=future</code> かつ <code>instrument_status=active</code> の3件を <code>NormalizedBar</code> と <code>MarketEvent</code> に変換。</li>
       <li><code>spread</code> の1件（<code>MCLN6-MCLQ6</code>）はRawと監査記録に残し、本線のNormalizedBar・MarketEvent・Signalから除外。</li>
       <li>入力hashの実行前後は一致（<code>sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d</code>）。Replayのバー系列も一致。</li>
-      <li>品質報告hashは <code>sha256:67601a9a6601e4fe194bf2c77ba684f538c65e5b18c50c9a10d6fbf487a8c2c9</code>、data_versionは <code>dv_6ebf08d99806455360a1</code>。</li>
+      <li>品質報告hashは <code>sha256:30422966a36a6becc273e0a78f86fc6183851e41dec66317c5e6f0bfaa906d43</code>、data_versionは <code>dv_780568eab89680cfc758</code>。</li>
     </ul>
     <p><small>やさしい説明: 4個のデータを読み、売買に使ってよい3個だけを本線へ通しました。組み合わせ商品1個は捨てずに記録だけ残しました。読み始めと読み終わりで箱の中身が同じで、同じ条件なら同じ結果になることも確認済みです。</small></p>
     <p>ユーザーが2026-08-09にH2-3とH2-4を明示承認したため、Data Quality / Replay結果の本線引渡しとPhase 3移行を許可する状態になった。Phase 3の実作業は別の実行指示を受けてから開始する。</p>
