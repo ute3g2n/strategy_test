@@ -3,7 +3,7 @@
 作成日: 2026-08-04  
 対象: タートルズ・トレンドフォロー自動売買システム  
 対象Phase: Phase 2 Market Data基盤  
-状態: v0.5 / オーケストレータのモデル割当をgpt-5.6-terraへ同期済み
+状態: v0.6 / P2-05の実績を反映してP2-06以降を再編済み
 
 参照:
 
@@ -44,6 +44,8 @@
 | PLAN-P2-REV-04 | AF-D16/AF-D17、P2-D05 v0.5をP2-03R以後の詳細設計書作成・改訂の必須参照へ追加した。 | 日本語説明、Mermaid図、表の前置き、文章化した全テスト仕様を、P2-D06/P2-D07を含む後続改訂でも再現するため。 |
 | PLAN-P2-REV-05 | 構造図の矢印へ受渡し名を付け、直後にモジュール間データ受渡し表を置くことをP2-03R以後の必須条件へ追加した。 | 部品の接続だけでなく、渡す依頼・データ・用途・停止条件を実装者と非専門読者が追えるようにするため。 |
 | PLAN-P2-REV-06 | 全ステップの「使用モデル」を、指定する汎用AutoTrade Orchestratorの <code>gpt-5.6-terra</code> へ同期した。 | 実行統括のモデル指定を実体定義と一致させ、サブエージェントの個別モデル定義を変更しないため。 |
+| PLAN-P2-REV-07 | `RUN-P2-IC-001-WSL` の完了範囲を、固定fixtureのInstrument Catalog Resolver（P2-D07の一部）へ限定して明記し、P2-06以降を「テスト設計・RED → Raw/Normalized実装 → Databento dry-run → 検証 → レビュー → 完了判定」に再編した。 | P2-05の隔離品質GateはPASSしているが、Raw/Normalized Store、MarketEvent/DataVersion、P2-D09は未作成であり、Market Data基盤全体の完了として扱わないため。 |
+| PLAN-P2-REV-08 | P2-07の`phase_id`を`Phase 2`へ修正し、H2-1の解決済み状態、H2-2未承認、WSL隔離品質Gateの再利用条件を後続プロンプトへ反映した。 | 実行証跡、統合台帳、現在の品質Gate運用と計画を一致させるため。 |
 
 ---
 
@@ -168,12 +170,12 @@ Phase 2開始時点で満たす入力条件は次である。
 
 ### 6.2 実装成果物
 
-実装成果物の保存先は、P2-05で最終確認する。計画時点の候補は次である。
+実装成果物の保存先はP2-05で確認済みである。P2-05で完了したのは、`CatalogResolver`、その固定fixture、9件の単体テスト、および `RUN-P2-IC-001-WSL` の隔離品質Gateである。Raw / Normalized Store、MarketEvent、DataVersion、Run Manifest生成、P2-D09は未作成であり、P2-07以降の対象とする。
 
 | 区分 | 候補保存先 | ルール |
 |---|---|---|
-| Python実装 | `src/autotrade/market_data/` | 本番候補コードとして扱う。研究用P10コードを直接移植しない。 |
-| テスト | `tests/market_data/` | 小さなfixtureだけGit管理する。 |
+| Python実装 | `src/autotrade/market_data/` | `catalog_resolver.py` はP2-05完了済み。後続実装も本番候補コードとして扱い、研究用P10コードを直接移植しない。 |
+| テスト | `tests/market_data/` | `test_catalog_resolver.py` はP2-05完了済み。後続では小さなfixtureだけGit管理する。 |
 | fixture | `tests/fixtures/market_data/` | Secret、大容量Raw、実Account情報を含めない。 |
 | ローカル取得データ | `data/market_data/` または環境変数で指定する外部パス | 大容量データはGit管理対象外。必要なら `.gitignore` 更新をP2-05で行う。 |
 
@@ -185,8 +187,8 @@ Phase 2開始時点で満たす入力条件は次である。
 |---|---|
 | 本計画書 | `plan/Phase2_実行計画書_v0.1_2026-08-04.md` |
 | 実行ログ | `plan/phase2/ログ/` |
-| 実装・テスト・デバッグ・レビュー証跡 | `tests/evidence/Phase 2/<run-id>/` |
-| Human Gate記録 | `tests/evidence/Phase 2/<run-id>/human-gate/` |
+| 実装・テスト・デバッグ・レビュー証跡 | `tests/evidence/phase2/<run-id>/` |
+| Human Gate記録 | `tests/evidence/phase2/<run-id>/human-gate/` |
 | 作業台帳 | `plan/phase2/台帳/` |
 | プロンプト控え | `plan/phase2/プロンプト/` |
 
@@ -202,13 +204,14 @@ UnknownはPassにしない。各Unknownには担当ステップ、決定タイ�
 | UNK-P2-02 | OD-03: roll ruleとcontinuous signal方式。出来高最大、期近日、期限前固定日、外部continuousのどれを採用候補にするか。 | P2-04 | H2-1 | Signal seriesを本番入力に昇格しない。 |
 | UNK-P2-03 | Databento dataset、schema、stype_in/out、continuous symbology採用範囲。 | P2-02 / P2-03 | P2-03完了時 | Raw取得ジョブ実装をdry-runまたはfixture限定にする。 |
 | UNK-P2-04 | `MZC/MZS/MZW` の履歴期間、流動性、Proxy/Fallbackの正式扱い。 | P2-02 / P2-04 | H2-1 | 本線Backtest入力から除外し、条件付きデータセットに隔離する。 |
-| UNK-P2-05 | データ品質警告日の扱い。Databento degraded品質警告を除外、警告付き採用、再取得対象のどれにするか。 | P2-06 / P2-08 | P2-08完了時 | 該当日をSignal生成対象外にする。 |
-| UNK-P2-06 | Phase 2のテスト実行基盤とレポート形式。 | P2-06 | P2-06完了時 | 最小pytest + JSON/Markdown証跡で開始し、HTML検証結果へ集約する。 |
+| UNK-P2-05 | データ品質警告日の扱い。Databento degraded品質警告を除外、警告付き採用、再取得対象のどれにするか。 | P2-06 / P2-09 | P2-09完了時 | 該当日をSignal生成対象外にする。 |
+| UNK-P2-06 | Phase 2のテスト実行基盤とレポート形式。 | 解決済み（P2-05） | 2026-08-07 | `tests/market_data/`、小型fixture、pytest、JSON/Markdown証跡、`RUN-P2-IC-001-WSL`の固定4 Gateを使う。後続追加コードはtrusted scopeとManifestを更新して同じ隔離Gateを通す。 |
 | UNK-P2-07 | Databento API利用コスト、entitlement、API key利用承認。 | P2-02 / H2-2 | 実取得前 | 外部API実取得を行わず、既存P10サンプルとfixtureだけで検証する。 |
-| UNK-P2-08 | `data/market_data/` をリポジトリ内ローカルデータ置場にするか、外部パスにするか。 | P2-05 | P2-05完了時 | 大容量データ生成を停止し、小型fixtureだけ保存する。 |
+| UNK-P2-08 | `data/market_data/` をリポジトリ内ローカルデータ置場にするか、外部パスにするか。 | P2-07 | P2-07完了時 | 大容量データ生成を停止し、小型fixtureだけ保存する。 |
 | UNK-P2-09 | Shadow用Live相当データの遅延許容しきい値。 | P2-03 / P2-10 | Phase 6 | Phase 2では測定項目だけ定義し、合否しきい値は未確定のまま送る。 |
 | UNK-P2-10 | P2-D05からP2-D07が実装可能な粒度を満たすか。対象コード、型、保存構造、失敗系、テストの不足を許容しない。 | P2-03R | P2-03R完了時 | A91の再レビューでCritical/HighまたはDD-01からDD-12の未充足が残る場合、P2-04とP2-05を開始しない。 |
 | UNK-P2-11 | margin placeholderの最終sourceとRisk利用規則。 | Risk設計Phase | Risk設計PhaseのHuman Gate | 値をNotional計算、Order可否、Risk判定に使わず、null/Unknownのまま保持する。 |
+| UNK-P2-12 | Raw / Normalized Store、MarketEvent、DataVersion、Run Manifest生成の実装範囲と、品質・Replayテストで用いる固定fixtureの最終schema。 | P2-06 / P2-07 | P2-07完了時 | P2-05で完了したCatalog Resolver以外を「実装済み」と扱わず、P2-09の本線検証を開始しない。 |
 
 ---
 
@@ -217,10 +220,10 @@ UnknownはPassにしない。各Unknownには担当ステップ、決定タイ�
 | Gate | タイミング | 承認内容 | 未承認時 |
 |---|---|---|---|
 | H2-0 | P2-01完了後 | Phase 2スコープ、対象候補、Unknown台帳、実装保存先候補。 | P2-02以降へ進めない。 |
-| H2-1 | P2-03R・P2-04完了後 | OD-03のPhase 2採用候補、Continuous signal seriesの責務、条件付き銘柄の扱い、P2-D05 v0.6を品質基準としたP2-D05からP2-D07の実装詳細設計、およびモジュール間データ受渡しと停止条件。 | P2-05の本実装へ進めない。 |
+| H2-1 | P2-03R・P2-04完了後 | OD-03のPhase 2採用候補、Continuous signal seriesの責務、条件付き銘柄の扱い、P2-D05 v0.6を品質基準としたP2-D05からP2-D07の実装詳細設計、およびモジュール間データ受渡しと停止条件。 | 解決済み。統合台帳でH2-1解決と記録済み。 |
 | H2-2 | P2-07開始前 | Databento API実取得の可否、費用、entitlement、Secret取り扱い。 | 外部API実取得を行わずfixture検証のみ行う。 |
-| H2-3 | P2-09完了後 | 統合レビュー指摘の採否方針。 | P2-10へ進めない。 |
-| H2-4 | P2-10完了後 | Phase 2完了、Phase 3 Strategy / Backtest基盤への移行可否。 | Phase 3へ進めない。 |
+| H2-3 | P2-10完了後 | 統合レビュー指摘の採否方針。 | P2-11へ進めない。 |
+| H2-4 | P2-11完了後 | Phase 2完了、Phase 3 Strategy / Backtest基盤への移行可否。 | Phase 3へ進めない。 |
 
 ---
 
@@ -232,11 +235,13 @@ UnknownはPassにしない。各Unknownには担当ステップ、決定タイ�
 | G1 | P2-02, P2-03 | 並列可 | H2-0 |
 | G2 | P2-03R | シーケンシャル | P2-03、AF-D14、AF-D15。A91再レビューで実装可能性を確認する。 |
 | G3 | P2-04 | シーケンシャル | P2-02, P2-03R |
-| G4 | P2-05, P2-06 | 条件付き並列可 | H2-1、P2-03R。P2-06はP2-05の初期構成案を参照してよい。 |
-| G5 | P2-07 | シーケンシャル | P2-05, H2-2 |
-| G6 | P2-08 | シーケンシャル | P2-05, P2-06, P2-07 |
-| G7 | P2-09 | シーケンシャル | P2-01からP2-08、P2-03R |
-| G8 | P2-10 | シーケンシャル | P2-09, H2-3 |
+| G4 | P2-05 | 完了 | 固定fixtureのCatalog Resolverに限定して完了。`RUN-P2-IC-001-WSL`の4 GateがPASS。 |
+| G5 | P2-06 | シーケンシャル | P2-05、P2-03R。Raw / Normalized実装前の品質・Replayテスト設計とREDを確定する。 |
+| G6 | P2-07 | シーケンシャル | P2-06。P2-05に残ったRaw / Normalized Store、MarketEvent、DataVersion、Manifest接続を実装する。 |
+| G7 | P2-08 | シーケンシャル | P2-07、H2-2。H2-2未承認時はDatabento dry-runだけを実施する。 |
+| G8 | P2-09 | シーケンシャル | P2-06からP2-08。Data Quality / Replayを実測しP2-D10を作成する。 |
+| G9 | P2-10 | シーケンシャル | P2-01からP2-09、P2-03R。統合レビューとレッドチーム監査を行う。 |
+| G10 | P2-11 | シーケンシャル | P2-10、H2-3。レビュー反映、完了判定、Phase 3引継ぎを行う。 |
 
 ---
 
@@ -602,24 +607,24 @@ Phase 2 Market Data基盤の最小実装を作成してください。
 - P2-D09が存在し、doc/index.htmlから到達できる。
 ```
 
-### P2-06 Data Quality / Replayテスト設計
+### P2-06 Data Quality / Replayテスト設計とRED
 
 ```text
 ステップID: P2-06
 ロール: Data Quality / Replay QA設計者
-使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
-担当サブエージェント完全名: AutoTrade_A30_StrategyQaArchitect_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1
+使用オーケストレータ完全名: AutoTradeProject_ImplementationQuality_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A110_PythonTestEngineer_v0_1, AutoTrade_A130_VerificationEngineer_v0_1, AutoTrade_A150_PythonCodeReviewer_v0_1, AutoTrade_A160_TradingSecurityReviewer_v0_1
 使用モデル: gpt-5.6-terra
-使用Skill完全名: autotrade_skill_test_strategy_v0_1, autotrade_skill_golden_test_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1
+使用Skill完全名: autotrade_skill_python_test_quality_v0_1, autotrade_skill_test_strategy_v0_1, autotrade_skill_golden_test_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_python_code_review_v0_1
 
 Phase Runbook:
 - phase_id: Phase 2
 - step_id: P2-06
 - output_root: doc/phase2/
 - log_root: plan/phase2/ログ/
-- document_set_id: P2-QA-DOCSET
-- detail_boundary: Data quality、Replay入力、Manifest証跡のテストを設計する。Strategyの利益評価やBacktest採用判定はPhase 3へ送る。
-- human_gate_policy: Data Gate失敗時はSignal生成を停止し、H2-3でレビュー採否を承認する。
+- run_id: RUN-P2-DQR-001（新規trusted scope登録後に使用する）
+- detail_boundary: 固定fixtureのCatalog Resolverを出発点に、Raw / Normalized Store、MarketEvent、DataVersion、Manifest接続の品質・Replayテストを設計し、未実装部はREDで固定する。Strategyの利益評価やBacktest採用判定はPhase 3へ送る。
+- human_gate_policy: Data Gate失敗時はSignal生成を停止する。外部接続、実データ、Secret、Brokerは使わない。H2-3はP2-10の統合レビュー後に扱う。
 
 発火制御:
 - 上記の完全名で指定したAI部品だけを使用する。
@@ -628,38 +633,99 @@ Phase Runbook:
 - default_orchestrator は変更しない。
 
 入力:
-- doc/phase2/03_市場データ詳細設計/*.html
+- doc/phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html
+- doc/phase2/03_市場データ詳細設計/06_Raw_Normalized_Store詳細設計書.html
+- doc/phase2/03_市場データ詳細設計/07_Instrument_Catalog詳細設計書.html
 - doc/phase2/04_ロール連続足/04_Roll_Rule_Continuous_Signal設計書.html
 - doc/phase1/10_テスト品質/10_テスト戦略品質Gate設計書.html
 - doc/phase1/07_実行モデル/07_共通実行モデル設計書.html
-- P2-05で作成された実装案またはテスト雛形
+- src/autotrade/market_data/catalog_resolver.py
+- tests/market_data/test_catalog_resolver.py
+- tests/fixtures/market_data/catalog_resolver_fixture.json
+- tests/evidence/phase2/RUN-P2-IC-001-WSL/wsl-verification-capture.json
+- scripts/quality_gate/trusted_scopes.json
 
 タスク:
-Phase 2のData Quality / Replayテスト設計とテスト実装方針を作成してください。
+Phase 2のData Quality / Replayテスト設計を作成し、未実装の品質境界はREDテストとして固定してください。
 
 作業:
-1. 欠損、重複、時刻逆行、異常価格、異常出来高、checksum不一致、degraded品質警告のテストケースを定義する。
-2. 同一data_versionで同一MarketEvent系列を再現するReplay testを定義する。
-3. Look-ahead防止、未来のroll情報参照禁止、fixture後出し変更禁止をGate化する。
-4. pytest等の最小テスト実行基盤とJSON/Markdown/HTMLレポート形式を決める。
-5. P2-05実装に対する最小テストを作成または更新する。
-6. 検証結果HTMLの雛形を作り、P2-08で実測値を追記できるようにする。
+1. P2-05の完了範囲が`CatalogResolver`、固定fixture、9件の単体テスト、WSL隔離4 Gateだけであることを証跡に照らして確認する。Raw / Normalized Store等を実装済みと記載しない。
+2. 欠損、重複、時刻逆行、異常価格、異常出来高、checksum不一致、degraded品質警告を、入力fixture・期待するfail-closed結果・Signal停止条件まで表にする。
+3. 同一`data_version`、`catalog_version`、fixture hash、code revisionで同一の`MarketEvent`系列を再現するReplay contractを定義する。現時点で未実装の`MarketEvent`は、期待値をREDテストとして固定する。
+4. Look-ahead、未来のroll情報、可変な現在時刻、fixture後出し変更を拒否するテストを定義する。Catalog Resolverの既存テストを壊さず、同じUTC・固定snapshot規則を使う。
+5. `RUN-P2-IC-001-WSL`の実行方式を基準に、新規scopeのtarget_paths、固定4 Gate、fixture hash、Manifest、証跡先を設計する。既存RunのManifestを流用して対象外コードを検査しない。
+6. `tests/market_data/`へテストを先に追加し、P2-07の実装前にREDであること、または境界が純粋関数だけの場合は実装済み部分がGREENであることをJSON/Markdown証跡へ残す。
 
 レビュー:
-- AutoTrade_A90_DesignReviewer_v0_1 が、D18との整合性、テスト漏れ、Human Gateと機械Gateの混同をレビューする。
-- Red Team観点で、データ異常を警告だけで通していないか、Signal生成停止条件が弱くないかを確認する。
-- 指摘を反映してテストとHTMLを更新する。
+- AutoTrade_A150_PythonCodeReviewer_v0_1 が、D18との整合性、テスト漏れ、現在時刻や外部I/Oへの依存をレビューする。
+- AutoTrade_A160_TradingSecurityReviewer_v0_1 が、異常データを警告だけで通していないか、Signal生成停止条件とfixture固定が弱くないかを監査する。
+- 指摘を反映し、RED/GREEN状態、対象scope、未実装境界を証跡へ更新する。
 
 完了条件:
-- Data Quality / Replayのテスト観点が実装可能な粒度で定義されている。
-- UNK-P2-06のテスト基盤暫定方針が決まっている。
-- P2-08が検証を開始できる。
+- Data Quality / Replayのテスト観点、固定fixture schema、期待するfail-closed結果が実装可能な粒度で定義されている。
+- UNK-P2-06を解決済みとして確認し、P2-07対象のREDテストが存在する。
+- P2-07がRaw / Normalized Store等を実装開始できる。P2-D10のPass/Fail結果はまだ作成しない。
 ```
 
-### P2-07 Databento取得プロトコル実装
+### P2-07 Market Dataコア最小実装
 
 ```text
 ステップID: P2-07
+ロール: Market Dataコア実装者
+使用オーケストレータ完全名: AutoTradeProject_ImplementationQuality_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A110_PythonTestEngineer_v0_1, AutoTrade_A120_PythonImplementer_v0_1, AutoTrade_A130_VerificationEngineer_v0_1, AutoTrade_A140_DebugEngineer_v0_1, AutoTrade_A150_PythonCodeReviewer_v0_1, AutoTrade_A160_TradingSecurityReviewer_v0_1
+使用モデル: gpt-5.6-terra
+使用Skill完全名: autotrade_skill_python_implementation_v0_1, autotrade_skill_python_test_quality_v0_1, autotrade_skill_debug_recovery_v0_1, autotrade_skill_python_code_review_v0_1
+
+Phase Runbook:
+- phase_id: Phase 2
+- step_id: P2-07
+- output_root: src/autotrade/market_data/, tests/market_data/, tests/fixtures/market_data/
+- evidence_root: tests/evidence/phase2/RUN-P2-DQR-001/
+- detail_boundary: P2-D05/P2-D06で定義済みのRaw / Normalized Store、MarketEvent、DataVersion、Run Manifest接続を、P2-06のREDテストだけを満たす最小範囲で実装する。既存Catalog Resolverを置換しない。Databento接続、実データ、Broker、Strategy、Backtestは対象外。
+- human_gate_policy: H2-1は解決済み。H2-2が未承認の間は外部APIを呼ばない。品質Gate未合格、Critical/High、またはUnknownが残る境界はP2-09の本線検証へ渡さない。
+
+発火制御:
+- 上記の完全名で指定したAI部品だけを使用する。
+- 指定AI部品が存在しない場合は、既存Skill等で代替せず、不足部品として報告して停止する。
+- AutoTradePhase1_* または autotrade_phase1_skill_* は参照対象として読むだけにする。実行部品として起動しない。
+- default_orchestrator は変更しない。
+
+入力:
+- P2-06のREDテスト、テスト行列、run manifest設計、レビュー記録
+- doc/phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html
+- doc/phase2/03_市場データ詳細設計/06_Raw_Normalized_Store詳細設計書.html
+- doc/phase2/03_市場データ詳細設計/07_Instrument_Catalog詳細設計書.html
+- src/autotrade/market_data/catalog_resolver.py
+- tests/fixtures/market_data/catalog_resolver_fixture.json
+- scripts/quality_gate/trusted_scopes.json
+
+タスク:
+P2-05で未実装だったMarket Dataコアを、P2-06で固定したREDテストの範囲だけ実装してください。
+
+作業:
+1. Raw入力の不変参照・checksum、Normalized BarのUTC時刻・InstrumentId・quality_flags、DataVersion、MarketEventを明示的な型として実装する。
+2. 小型fixture専用のRaw / Normalized Storeを実装する。同じversionへの異なる内容の上書き、checksum不一致、品質不良入力はfail-closedにする。
+3. Run Manifestに`data_version`、`catalog_version`、fixture hash、code revision、品質結果を記録する最小境界を実装する。既存のquality-gate Manifestと責務を混同しない。
+4. P2-06のREDをGREENにし、実装外の仕様はskipやダミー成功で隠さずUnknownとして残す。
+5. `RUN-P2-DQR-001`をtrusted scopeへ登録し、固定4 GateをWSL `networkingMode=none`で実行する。既存`RUN-P2-IC-001-WSL`のPASSを新規コードの合格証跡に流用しない。
+6. P2-D09 `doc/phase2/05_実装方針/05_Market_Data実装方針.html` を作成し、実装済み・未実装・外部I/O禁止・証跡へのリンクを明記して`doc/index.html`を更新する。
+
+レビュー:
+- AutoTrade_A150_PythonCodeReviewer_v0_1 が、型、例外、上書き拒否、UTC、テストの実装範囲をレビューする。
+- AutoTrade_A160_TradingSecurityReviewer_v0_1 が、Raw改変、品質異常のfail-open、Secret/外部I/O、Manifest偽装をレビューする。
+- Critical/Highは修正して再レビューし、Debugが必要な場合だけA140を使う。
+
+完了条件:
+- P2-06の対象テストがGREENで、固定4 GateのPASS証跡が`RUN-P2-DQR-001`にある。
+- P2-D09が存在し、doc/index.htmlから到達できる。
+- P2-05のCatalog Resolverと、新設したRaw / Normalized境界の完了範囲が区別されている。
+```
+
+### P2-08 Databento取得プロトコル実装
+
+```text
+ステップID: P2-08
 ロール: Databento取得プロトコル実装者
 使用オーケストレータ完全名: AutoTradeProject_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A50_AdapterArchitect_v0_1, AutoTrade_A70_OpsSecurityArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A90_DesignReviewer_v0_1
@@ -668,10 +734,10 @@ Phase 2のData Quality / Replayテスト設計とテスト実装方針を作成�
 
 Phase Runbook:
 - phase_id: Phase 2
-- step_id: P2-07
+- step_id: P2-08
 - output_root: doc/phase2/
 - log_root: plan/phase2/ログ/
-- detail_boundary: Databento取得プロトコル、dry-run、small fixture取得、metadata保存、Secret非出力を実装する。大規模取得や本番運用スケジュールは対象外。
+- detail_boundary: Databento取得プロトコルのdry-run、固定fixture読込、metadata保存方針、Secret非出力を実装する。H2-2未承認の現在は外部API、small fixtureの実取得、大規模取得、本番運用スケジュールを対象外にする。
 - human_gate_policy: H2-2が未承認の場合、外部API実取得は行わずdry-runと既存fixtureだけで検証する。
 
 発火制御:
@@ -692,7 +758,7 @@ Databento取得プロトコルの最小実装またはdry-run実装を作成し�
 
 作業:
 1. H2-2承認有無を確認する。
-2. 未承認なら外部APIを呼ばず、CLI引数検証、環境変数名検証、リクエスト計画JSON生成、fixture読込だけを実装する。
+2. 未承認なら外部APIを呼ばず、CLI引数検証、環境変数名検証、リクエスト計画JSON生成、P2-07の固定fixture読込だけを実装する。
 3. 承認済みなら、Secret実値を出力せず、最小期間・最小シンボルで取得する。取得費用やentitlementに影響する処理は事前ログに明記する。
 4. definition、statistics、ohlcv-1m相当のmetadata保存方針を実装またはdry-run出力する。
 5. rate limit、認証失敗、権限不足、degraded品質警告をHealthEventまたはData Quality入力へ渡す。
@@ -706,26 +772,25 @@ Databento取得プロトコルの最小実装またはdry-run実装を作成し�
 完了条件:
 - H2-2状態に応じた安全な取得プロトコルが存在する。
 - Secret実値がGit、ログ、HTMLに含まれていない。
-- P2-08がData Quality / Replay検証を開始できる。
+- P2-09がData Quality / Replay検証を開始できる。
 ```
 
-### P2-08 Data Quality / Replay検証
+### P2-09 Data Quality / Replay検証
 
 ```text
-ステップID: P2-08
+ステップID: P2-09
 ロール: Market Data検証者
-使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
-担当サブエージェント完全名: AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A30_StrategyQaArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1
+使用オーケストレータ完全名: AutoTradeProject_ImplementationQuality_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A130_VerificationEngineer_v0_1, AutoTrade_A150_PythonCodeReviewer_v0_1, AutoTrade_A160_TradingSecurityReviewer_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1
 使用モデル: gpt-5.6-terra
-使用Skill完全名: autotrade_skill_execution_model_v0_1, autotrade_skill_test_strategy_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1
+使用Skill完全名: autotrade_skill_python_test_quality_v0_1, autotrade_skill_python_code_review_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1
 
 Phase Runbook:
 - phase_id: Phase 2
-- step_id: P2-08
+- step_id: P2-09
 - output_root: doc/phase2/
 - log_root: plan/phase2/ログ/
-- document_set_id: P2-VALIDATION-DOCSET
-- detail_boundary: Phase 2実装のData Quality / Replay検証を行い、Phase 3へ渡せるMarketEvent入力と残Unknownを判定する。Strategy収益評価は行わない。
+- detail_boundary: Phase 2実装のData Quality / Replay検証を、P2-07の実装とP2-08 dry-run入力に対して行い、Phase 3へ渡せるMarketEvent入力と残Unknownを判定する。Strategy収益評価は行わない。
 - human_gate_policy: 検証失敗項目はH2-3のレビュー採否対象にする。
 
 発火制御:
@@ -735,18 +800,19 @@ Phase Runbook:
 - default_orchestrator は変更しない。
 
 入力:
-- P2-05実装成果物
+- P2-05のCatalog Resolver成果物
 - P2-06テスト設計
-- P2-07取得プロトコルまたはdry-run成果物
+- P2-07 Market Dataコア実装成果物
+- P2-08取得プロトコルまたはdry-run成果物
 - doc/phase2/03_市場データ詳細設計/*.html
 - doc/phase2/04_ロール連続足/04_Roll_Rule_Continuous_Signal設計書.html
-- 小型fixtureまたはH2-2承認済み取得データ
+- 小型fixture（H2-2未承認の現在の唯一の入力）または、承認済みの最小取得データ
 
 タスク:
 Data Quality / Replay検証を実行し、検証結果HTMLを作成してください。
 
 作業:
-1. テストを実行し、実行コマンド、環境、入力データ、data_version、code_revisionを記録する。
+1. 新規trusted scopeのManifestを使い、WSL `networkingMode=none`で固定4 GateとData Quality / Replayテストを実行する。実行コマンド、環境、入力データ、data_version、code_revisionを記録する。
 2. 欠損、重複、時刻逆行、異常価格、checksum、degraded品質警告の検出結果を記録する。
 3. 同一data_versionで同一MarketEvent系列を再現できるか検証する。
 4. 条件付き銘柄を本線データセットへ混入させていないことを確認する。
@@ -754,9 +820,9 @@ Data Quality / Replay検証を実行し、検証結果HTMLを作成してくだ�
 6. `doc/phase2/06_検証/06_Data_Quality_Replay検証結果.html` を作成し、doc/index.htmlを更新する。
 
 レビュー:
-- AutoTrade_A90_DesignReviewer_v0_1 が、検証結果の根拠、失敗項目の扱い、Replay Gate、Data Gateをレビューする。
-- Red Team観点で、データ異常の握りつぶし、条件付き銘柄の混入、再現不能な入力の昇格を確認する。
-- 指摘を反映してHTMLと修正指示を更新する。
+- AutoTrade_A150_PythonCodeReviewer_v0_1 が、検証結果の根拠、失敗項目の扱い、Replay Gate、Data Gateをレビューする。
+- AutoTrade_A160_TradingSecurityReviewer_v0_1 が、データ異常の握りつぶし、条件付き銘柄の混入、再現不能な入力の昇格を監査する。
+- AutoTrade_A80_DocumentIntegrator_v0_1 が、HTMLとdoc/index.htmlの到達性、実装証跡とのリンクを確認する。
 
 完了条件:
 - P2-D10が存在する。
@@ -764,10 +830,10 @@ Data Quality / Replay検証を実行し、検証結果HTMLを作成してくだ�
 - Phase 3へ渡せるdata_versionまたは渡せない理由が明確である。
 ```
 
-### P2-09 統合レビューとレッドチーム監査
+### P2-10 統合レビューとレッドチーム監査
 
 ```text
-ステップID: P2-09
+ステップID: P2-10
 ロール: Phase 2統合レビュー・レッドチーム監査者
 使用オーケストレータ完全名: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1
@@ -776,7 +842,7 @@ Data Quality / Replay検証を実行し、検証結果HTMLを作成してくだ�
 
 Phase Runbook:
 - phase_id: Phase 2
-- step_id: P2-09
+- step_id: P2-10
 - output_root: doc/phase2/
 - log_root: plan/phase2/ログ/
 - document_set_id: P2-REVIEW-DOCSET
@@ -791,7 +857,7 @@ Phase Runbook:
 
 入力:
 - doc/phase2/**/*.html
-- P2-05からP2-08の実装、テスト、ログ
+- P2-05からP2-09の実装、テスト、ログ
 - doc/requirements/01_自動トレードシステム要件定義書.html
 - doc/phase1/06_アダプター境界/06_Adapter境界設計書.html
 - doc/phase1/07_実行モデル/07_共通実行モデル設計書.html
@@ -827,10 +893,10 @@ Phase 2成果物全体を統合レビューし、レッドチーム監査結果�
 - H2-3で人間が採否判断できる粒度で指摘が整理されている。
 ```
 
-### P2-10 レビュー反映、完了判定、Phase 3引き継ぎ
+### P2-11 レビュー反映、完了判定、Phase 3引き継ぎ
 
 ```text
-ステップID: P2-10
+ステップID: P2-11
 ロール: Phase 2修正統合者
 使用オーケストレータ完全名: AutoTradeProject_ImplementationDesign_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A91_ImplementationDetailReviewer_v0_1
@@ -839,7 +905,7 @@ Phase 2成果物全体を統合レビューし、レッドチーム監査結果�
 
 Phase Runbook:
 - phase_id: Phase 2
-- step_id: P2-10
+- step_id: P2-11
 - output_root: doc/phase2/
 - log_root: plan/phase2/ログ/
 - document_set_id: P2-COMPLETION-DOCSET
@@ -858,12 +924,12 @@ Phase Runbook:
 - doc/phase2/07_統合レビュー/07_Phase2統合レビュー結果.html
 - doc/phase2/07_統合レビュー/07_Phase2レッドチーム監査結果.html
 - doc/phase2/**/*.html
-- P2-05からP2-08の実装、テスト、ログ
+- P2-05からP2-10の実装、テスト、ログ
 - H2-3承認記録
 - plan/Phase2_実行計画書_v0.1_2026-08-04.md
 
 タスク:
-P2-09のレビュー指摘を反映し、Phase 2の最終成果物、レビュー反映履歴、完了判定、Phase 3引き継ぎを作成してください。
+P2-10のレビュー指摘を反映し、Phase 2の最終成果物、レビュー反映履歴、完了判定、Phase 3引き継ぎを作成してください。
 
 作業:
 1. 指摘ごとに採用、部分採用、保留、却下を判断し、理由を記録する。
@@ -917,8 +983,8 @@ Phase 2完了Gate:
 |---|---|---|
 | 読みやすさ | 成果物、DAG、Gate、プロンプトが分かれている必要がある。 | 章を分け、表で整理した。 |
 | リンク | 正式HTMLはdoc/index.htmlから到達可能にする必要がある。 | 各ステップの作業と完了条件へdoc/index.html更新を含めた。 |
-| 保存先 | 計画、ログ、台帳、検証証跡の保存先が曖昧。 | `plan/phase2/ログ/`, `plan/phase2/台帳/`, `plan/phase2/プロンプト/` と `tests/evidence/Phase 2/<run-id>/` を定義した。 |
-| レビュー反映 | 最終版に採否表と変更履歴が必要。 | P2-10でP2-D13を作成するようにした。 |
+| 保存先 | 計画、ログ、台帳、検証証跡の保存先が曖昧。 | `plan/phase2/ログ/`, `plan/phase2/台帳/`, `plan/phase2/プロンプト/` と `tests/evidence/phase2/<run-id>/` を定義した。 |
+| レビュー反映 | 最終版に採否表と変更履歴が必要。 | P2-11でP2-D13を作成するようにした。 |
 
 ---
 
