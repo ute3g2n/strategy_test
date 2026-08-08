@@ -62,10 +62,10 @@ if [[ "$input_kind" == "dbn" ]]; then
   [[ -n "$dbn_requirements" && -f "$repository_path/$dbn_requirements" ]] || blocked "DBN hash-pinned requirements are missing"
   grep -q -- '--hash=sha256:' "$repository_path/$dbn_requirements" || blocked "DBN requirements hash allowlist is missing"
   grep -q -- '--require-hashes' "$repository_path/scripts/wsl_quality_gate/prepare_offline_wsl_env.sh" || blocked "offline installer must require hashes"
-  if (cd "$repository_path" && git diff --cached --name-only) | grep -E '\.(dbn|DBN)$|(^|/)raw/' >/dev/null; then
+  if runuser -u "$repository_owner" -- git -C "$repository_path" diff --cached --name-only | grep -E '\.(dbn|DBN)$|(^|/)raw/' >/dev/null; then
     blocked "DBN or raw input is present in the staged Git changes"
   fi
-  if (cd "$repository_path" && git ls-files) | grep -E '\.(dbn|DBN)$|(^|/)raw/' >/dev/null; then
+  if runuser -u "$repository_owner" -- git -C "$repository_path" ls-files | grep -E '\.(dbn|DBN)$|(^|/)raw/' >/dev/null; then
     blocked "DBN or raw input is tracked by Git"
   fi
   "$python_bin" - "$repository_path/scripts/quality_gate/trusted_scopes.json" "$run_id" "$repository_path/$dbn_requirements" "$evidence_root/offline-preparation.json" <<'PY' || blocked "DBN offline dependency evidence does not match the trusted scope"
@@ -127,7 +127,7 @@ input_hash="sha256:$(sha256sum "$input_location" | awk '{print $1}')"
 [[ "$input_hash" == "$expected_input_hash" ]] || blocked "input checksum mismatch"
 
 if [[ "$input_kind" == "dbn" ]]; then
-  "$python_bin" - "$input_location" "$input_hash" "$evidence_root/dbn-decoder-probe.json" <<'PY' || blocked "DBN decoder probe failed"
+  PYTHONPATH="$repository_path/src" "$python_bin" - "$input_location" "$input_hash" "$evidence_root/dbn-decoder-probe.json" <<'PY' || blocked "DBN decoder probe failed"
 import json
 import sys
 from datetime import UTC, datetime
