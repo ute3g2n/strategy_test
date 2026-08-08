@@ -28,7 +28,14 @@ class ManifestBuilder:
             raise ValueError("MANIFEST_INPUT_MISSING")
         normalized_raw = tuple(sorted(raw_sha256s))
         material = "|".join(
-            (*normalized_raw, normalization_rule_version, catalog_version, catalog_sha256, quality_report_sha256, "normalized-v1")
+            (
+                *normalized_raw,
+                normalization_rule_version,
+                catalog_version,
+                catalog_sha256,
+                quality_report_sha256,
+                "normalized-v1",
+            )
         )
         data_version = "dv_" + sha256(material.encode("utf-8")).hexdigest()[:20]
         return DataVersionManifest(

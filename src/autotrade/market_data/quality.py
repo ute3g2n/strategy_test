@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import json
-from decimal import Decimal, InvalidOperation
 from datetime import datetime
+from decimal import Decimal, InvalidOperation
 from hashlib import sha256
 
 from .store_contracts import NormalizedBar, QualityReport
@@ -69,9 +69,10 @@ class QualityChecker:
             "publishable": publishable,
             "signal_generation_allowed": publishable,
         }
-        report_hash = "sha256:" + sha256(
-            json.dumps(quality_material, sort_keys=True, separators=(",", ":")).encode("utf-8")
-        ).hexdigest()
+        report_hash = (
+            "sha256:"
+            + sha256(json.dumps(quality_material, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+        )
         return QualityReport(
             flags=ordered_flags,
             publishable=publishable,

@@ -13,6 +13,7 @@ from hashlib import sha256
 from pathlib import Path
 
 import pytest
+
 from autotrade.market_data.manifest import ManifestBuilder
 from autotrade.market_data.normalized_store import LocalNormalizedStore
 from autotrade.market_data.quality import QualityChecker

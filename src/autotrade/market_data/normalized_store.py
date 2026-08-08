@@ -70,9 +70,7 @@ class LocalNormalizedStore:
         return self._root / "normalized" / f"{data_version}.json"
 
     @staticmethod
-    def _serialize(
-        bars: tuple[NormalizedBar, ...], manifest: DataVersionManifest, report: QualityReport
-    ) -> str:
+    def _serialize(bars: tuple[NormalizedBar, ...], manifest: DataVersionManifest, report: QualityReport) -> str:
         payload = {
             "bars": [asdict(bar) for bar in bars],
             "manifest": asdict(manifest),
