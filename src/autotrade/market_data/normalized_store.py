@@ -35,7 +35,7 @@ class LocalNormalizedStore:
             raise ValueError("MANIFEST_INTEGRITY")
         if manifest.normalized_content_sha256 != normalized_content_sha256(bars):
             raise ValueError("MANIFEST_INTEGRITY")
-        recomputed_report = QualityChecker.check(bars)
+        recomputed_report = QualityChecker.check(bars, excluded_ranges=report.excluded_ranges)
         if _report_material(recomputed_report) != _report_material(report):
             raise ValueError("MANIFEST_INTEGRITY")
         path = self._path(manifest.data_version)
@@ -76,7 +76,7 @@ class LocalNormalizedStore:
             raise ValueError("MANIFEST_INTEGRITY")
         if manifest.normalized_content_sha256 != normalized_content_sha256(bars):
             raise ValueError("MANIFEST_INTEGRITY")
-        recomputed_report = QualityChecker.check(bars)
+        recomputed_report = QualityChecker.check(bars, excluded_ranges=report.excluded_ranges)
         if _report_material(recomputed_report) != _report_material(report):
             raise ValueError("MANIFEST_INTEGRITY")
         if (

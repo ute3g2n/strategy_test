@@ -49,7 +49,7 @@ class MarketEventFactory:
             rebuilt = ManifestBuilder.rebuild(manifest)
         except ValueError as exc:
             raise DbnEventBuildError("MANIFEST_INTEGRITY") from exc
-        recomputed_report = QualityChecker.check(bars)
+        recomputed_report = QualityChecker.check(bars, excluded_ranges=quality_report.excluded_ranges)
         if (
             manifest.source_mode != "dbn_replay"
             or rebuilt.data_version != manifest.data_version

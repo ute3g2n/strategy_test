@@ -129,21 +129,29 @@ input_hash="sha256:$(sha256sum "$input_location" | awk '{print $1}')"
 
 if [[ "$input_kind" == "dbn" ]]; then
   PYTHONPATH="$repository_path/src" "$python_bin" - "$input_location" "$input_hash" "$evidence_root/dbn-decoder-probe.json" <<'PY' || blocked "DBN decoder probe failed"
+import hashlib
 import json
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
+from autotrade.market_data.catalog_resolver import CatalogResolver
 from autotrade.market_data.databento_dbn_decoder import DatabentoDbnDecoder
-from autotrade.market_data.dbn_contracts import DbnReplayInput
+from autotrade.market_data.dbn_contracts import DbnCatalogBinding, DbnReplayInput
+from autotrade.market_data.dbn_normalizer import DbnNormalizer, MAIN_FUTURE_SELECTION_POLICY
+from autotrade.market_data.market_event_factory import MarketEventFactory
+from autotrade.market_data.manifest import ManifestBuilder, normalized_content_sha256
+from autotrade.market_data.normalized_store import LocalNormalizedStore
+from autotrade.market_data.quality import QualityChecker
 
 input_path = Path(sys.argv[1])
 input_sha256 = sys.argv[2]
 output_path = Path(sys.argv[3])
 source = DbnReplayInput(
     payload_sha256=input_sha256,
-    raw_object_id="p2-08-fixed-dbn-decoder-probe-only",
-    raw_received_at_utc=datetime(1970, 1, 1, tzinfo=UTC),
+    raw_object_id="raw-p2-12-03-reacquired",
+    raw_received_at_utc=datetime(2026, 8, 8, 21, 28, 59, 64530, tzinfo=UTC),
     source_vendor="databento",
     dataset_ref="GLBX.MDP3",
     schema_ref="ohlcv-1m",
@@ -151,14 +159,51 @@ source = DbnReplayInput(
     source_symbol="MCL.FUT",
     request_start_utc=datetime(2026, 6, 15, 12, 0, tzinfo=UTC),
     request_end_utc=datetime(2026, 6, 15, 12, 1, tzinfo=UTC),
-    request_context_sha256="sha256:decoder-probe-only",
+    request_context_sha256="sha256:" + hashlib.sha256(b"GLBX.MDP3|ohlcv-1m|parent|MCL.FUT|2026-06-15T12:00:00Z|2026-06-15T12:01:00Z").hexdigest(),
     decoder_version="databento-0.82.0",
-    decoder_artifact_sha256="sha256:decoder-probe-only",
-    normalization_rule_version="dbn-ohlcv-1m-v1",
+    decoder_artifact_sha256="sha256:" + hashlib.sha256(b"databento-0.82.0|databento-dbn-0.63.0").hexdigest(),
+    normalization_rule_version="dbn-ohlcv-1m-v1+" + MAIN_FUTURE_SELECTION_POLICY,
 )
 records = DatabentoDbnDecoder().decode(input_path.read_bytes(), source)
+repository_root = output_path.parents[4]
+catalog_path = repository_root / "tests" / "fixtures" / "market_data" / "dbn_catalog_mcl_20260615.json"
+catalog_fixture = json.loads(catalog_path.read_text(encoding="utf-8"))
+catalog = DbnCatalogBinding(
+    catalog_fixture["catalog_version"],
+    "sha256:" + hashlib.sha256(catalog_path.read_bytes()).hexdigest(),
+    CatalogResolver.from_fixture(catalog_fixture),
+)
+normalizer = DbnNormalizer(catalog)
+normalized = normalizer.normalize(records, source)
+bars = tuple(item.bar for item in normalized)
+quality_report = QualityChecker.check(bars, excluded_ranges=normalizer.excluded_ranges)
+run_manifest = json.loads((output_path.parent / "run-manifest.json").read_text(encoding="utf-8"))
+manifest = ManifestBuilder.build_dbn(
+    raw_sha256s=(source.payload_sha256,),
+    normalization_rule_version=source.normalization_rule_version,
+    catalog=catalog,
+    quality_report_sha256=quality_report.quality_report_sha256,
+    normalized_content_sha256=normalized_content_sha256(bars),
+    fixture_sha256=None,
+    code_revision=run_manifest["code_revision"],
+    source_mode="dbn_replay",
+    request_context_sha256=source.request_context_sha256,
+    decoder_version=source.decoder_version,
+    decoder_artifact_sha256=source.decoder_artifact_sha256,
+)
+with TemporaryDirectory(prefix="p2-12-03-replay-") as replay_root:
+    store = LocalNormalizedStore(Path(replay_root))
+    store.write_if_absent(bars, manifest, quality_report)
+    replay = store.read_replay_snapshot(manifest.data_version)
+    events = MarketEventFactory().build(
+        normalized,
+        quality_report,
+        replay.manifest,
+        "RUN-P2-DBN-001",
+        source.raw_received_at_utc,
+    )
 result = {
-    "state": "DECODED_NOT_NORMALIZED",
+    "state": "NORMALIZED_WITH_EXCLUSIONS",
     "execution_user": __import__("getpass").getuser(),
     "execution_uid": __import__("os").getuid(),
     "input_sha256": source.payload_sha256,
@@ -167,8 +212,16 @@ result = {
     "event_times_utc": [record.event_time_utc.isoformat().replace("+00:00", "Z") for record in records],
     "vendor_instrument_ids": [record.vendor_instrument_id for record in records],
     "record_ordinals": [record.record_ordinal for record in records],
-    "normalization_state": "NOT_RUN_FAIL_CLOSED",
-    "normalization_blockers": ["UNK-P2-15"],
+    "normalization_state": "PASS_WITH_EXPLICIT_SPREAD_EXCLUSION",
+    "decoded_record_count": len(records),
+    "normalized_record_count": len(normalized),
+    "excluded_ranges": normalizer.excluded_ranges,
+    "quality_report_sha256": quality_report.quality_report_sha256,
+    "data_version": manifest.data_version,
+    "event_count": len(events),
+    "event_ids": [event.event_id for event in events],
+    "replay_bars_equal": replay.bars == bars,
+    "normalization_blockers": [],
     "notes": "このprobeはDBN bytesの読取りだけを確認する。受信UTCとCatalog対応は別の固定証跡で確認済みで、spread選別条件が決まるまで正規化・Manifest・MarketEventは開始しない。",
 }
 output_path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

@@ -182,6 +182,61 @@ def test_normalizer_contract_rejects_catalog_binding_version_mismatch() -> None:
         )
 
 
+def test_normalizer_excludes_pending_spread_from_main_future_series() -> None:
+    contracts = _contracts()
+    catalog_module = importlib.import_module("autotrade.market_data.catalog_resolver")
+
+    class MixedResolver:
+        def resolve(self, request: object) -> object:
+            if request.symbol == "MCLN6-MCLQ6":
+                return catalog_module.ResolveInstrumentResult(
+                    "unknown",
+                    None,
+                    "map-spread",
+                    "catalog-v1",
+                    "REQUIRED_ATTRIBUTE_UNKNOWN",
+                    "spread",
+                    "pending",
+                )
+            return catalog_module.ResolveInstrumentResult(
+                "resolved", "inst-fixture", "map-future", "catalog-v1", None, "future", "active"
+            )
+
+    binding = contracts.DbnCatalogBinding("catalog-v1", "sha256:" + "c" * 64, MixedResolver())
+    normalizer = _normalizer().DbnNormalizer(binding)
+    records = (
+        _record(contracts, source_symbol="MCLN6", record_ordinal=0),
+        _record(contracts, source_symbol="MCLN6-MCLQ6", vendor_instrument_id=42460441, record_ordinal=1),
+    )
+
+    normalized = normalizer.normalize(records, _replay_input(contracts))
+
+    assert len(normalized) == 1
+    assert normalized[0].record_ordinal == 0
+    assert normalizer.excluded_ranges == (
+        "record_ordinal=1|vendor_instrument_id=42460441|source_symbol=MCLN6-MCLQ6|reason=SPREAD_OUT_OF_MAIN_SERIES",
+    )
+
+
+def test_quality_report_binds_excluded_spread_ranges() -> None:
+    quality_module = importlib.import_module("autotrade.market_data.quality")
+    bar = (
+        _normalizer()
+        .DbnNormalizer(_catalog_binding(_contracts()))
+        .normalize((_record(_contracts()),), _replay_input(_contracts()))[0]
+        .bar
+    )
+
+    report = quality_module.QualityChecker.check(
+        (bar,), excluded_ranges=("record_ordinal=1|reason=SPREAD_OUT_OF_MAIN_SERIES",)
+    )
+
+    assert report.excluded_ranges == ("record_ordinal=1|reason=SPREAD_OUT_OF_MAIN_SERIES",)
+    assert report.quality_report_sha256 == quality_module.QualityChecker.report_hash(
+        report.flags, report.deduplicated_count, report.publishable, report.excluded_ranges
+    )
+
+
 def test_normalizer_uses_exact_fixed_catalog_request() -> None:
     contracts = _contracts()
     catalog_module = importlib.import_module("autotrade.market_data.catalog_resolver")
@@ -500,8 +555,8 @@ def test_future_wsl_dbn_preflight_requires_protected_input_and_wheel_allowlist()
         "/mnt",
         "sha256sum",
         "--require-hashes",
-            'git -c safe.directory="$repository_path" -C "$repository_path" diff --cached',
-            'git -c safe.directory="$repository_path" -C "$repository_path" ls-files',
+        'git -c safe.directory="$repository_path" -C "$repository_path" diff --cached',
+        'git -c safe.directory="$repository_path" -C "$repository_path" ls-files',
         "post_input_hash",
         "offline-preparation.json",
         "dbn_requirements_sha256",

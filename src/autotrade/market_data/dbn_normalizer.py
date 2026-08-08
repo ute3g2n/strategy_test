@@ -15,12 +15,20 @@ from .dbn_contracts import (
 )
 from .store_contracts import NormalizedBar
 
+MAIN_FUTURE_SELECTION_POLICY = "main-future-active-only-v1"
+
 
 class DbnNormalizer:
     """Map decoded records to internal bars without vendor I/O or clock access."""
 
     def __init__(self, catalog: DbnCatalogBinding) -> None:
         self._catalog = catalog
+        self._excluded_ranges: tuple[str, ...] = ()
+
+    @property
+    def excluded_ranges(self) -> tuple[str, ...]:
+        """Return deterministic audit entries for records excluded by policy."""
+        return self._excluded_ranges
 
     def normalize(
         self,
@@ -32,6 +40,7 @@ class DbnNormalizer:
         if not records:
             raise DbnNormalizationError("DECODE_RECORD_INVALID")
         normalized: list[DbnNormalizedRecord] = []
+        excluded: list[str] = []
         last_ordinal = -1
         last_event_time: datetime | None = None
         for record in records:
@@ -53,6 +62,20 @@ class DbnNormalizer:
                 or not result.instrument_id
                 or result.catalog_version != self._catalog.catalog_version
             ):
+                if result.instrument_class == "spread" and result.instrument_status == "pending":
+                    excluded.append(
+                        "|".join(
+                            (
+                                f"record_ordinal={record.record_ordinal}",
+                                f"vendor_instrument_id={record.vendor_instrument_id}",
+                                f"source_symbol={record.source_symbol}",
+                                "reason=SPREAD_OUT_OF_MAIN_SERIES",
+                            )
+                        )
+                    )
+                    last_ordinal = record.record_ordinal
+                    last_event_time = record.event_time_utc
+                    continue
                 raise DbnNormalizationError("CATALOG_MAPPING_UNRESOLVED")
             normalized.append(
                 DbnNormalizedRecord(
@@ -72,6 +95,9 @@ class DbnNormalizer:
             )
             last_ordinal = record.record_ordinal
             last_event_time = record.event_time_utc
+        self._excluded_ranges = tuple(excluded)
+        if not normalized:
+            raise DbnNormalizationError("QUALITY_REJECTED")
         return tuple(normalized)
 
 

@@ -20,6 +20,7 @@ class QualityChecker:
         bars: tuple[NormalizedBar, ...],
         *,
         injected_flags: tuple[str, ...] = (),
+        excluded_ranges: tuple[str, ...] = (),
     ) -> QualityReport:
         flags = set(injected_flags)
         if not bars:
@@ -62,13 +63,14 @@ class QualityChecker:
 
         ordered_flags = tuple(sorted(flags))
         publishable = flags <= _NON_BLOCKING_FLAGS
-        report_hash = QualityChecker.report_hash(ordered_flags, deduplicated_count, publishable, ())
+        report_hash = QualityChecker.report_hash(ordered_flags, deduplicated_count, publishable, excluded_ranges)
         return QualityReport(
             flags=ordered_flags,
             publishable=publishable,
             signal_generation_allowed=publishable,
             quality_report_sha256=report_hash,
             deduplicated_count=deduplicated_count,
+            excluded_ranges=tuple(excluded_ranges),
         )
 
     @staticmethod

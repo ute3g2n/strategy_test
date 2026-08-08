@@ -36,3 +36,7 @@ def test_dbn_catalog_snapshot_binds_external_ids_and_rejects_spread() -> None:
             )
         )
         assert (result.status, result.instrument_id) == (status, instrument_id)
+        if vendor_instrument_id == 42460441:
+            assert (result.instrument_class, result.instrument_status) == ("spread", "pending")
+        elif vendor_instrument_id in {42026511, 42025624, 42026750}:
+            assert (result.instrument_class, result.instrument_status) == ("future", "active")

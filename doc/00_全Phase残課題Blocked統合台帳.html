@@ -388,6 +388,12 @@ firewall=true</pre></li>
     <p><strong>プロジェクトコードの実行ユーザーは固定しない。</strong> 本番運用ではroot権限で実行でき、検証では通常ユーザーでも実行できる。実行入口の <code>-RunAsRoot</code> を指定した場合だけrootで動き、指定しなければ通常ユーザーで動く。以前の「rootでプロジェクトコードを動かさない」「sudoグループに属する実行者を別アカウントへ分ける」という記述は、現在の運用方針ではRun停止条件にしない。</p>
     <p><small>やさしい説明: 翻訳プログラムは、強い権限の人でも、普通の権限の人でも動かせます。どちらで動かしたかを記録します。ただし、入力データのhash、読む場所、対象コード、ネットワークなし、固定Gateの確認は、どちらの権限でも続けます。権限を強くしたからといって、勝手に別のデータを読んだり、売買を始めたりはできません。</small></p>
   </section>
+  <section class="ok-note" id="current-status-unk-p2-15-resolved">
+    <h2>UNK-P2-15の解消（2026-08-09）</h2>
+    <p>ユーザー承認により、<code>instrument_class=future</code>かつ<code>instrument_status=active</code>の通常先物だけを本線へ採用する。<code>spread</code>または<code>pending</code>のレコードはRawと除外記録へ残すが、NormalizedBar・MarketEvent・Signalには使用しない。今回の4件は3件を採用し、1件（<code>MCLN6-MCLQ6</code>）を明示的に除外する。</p>
+    <p>この方針を <code>main-future-active-only-v1</code> としてManifestの正規化ルールへ含め、同じ入力・同じCatalog・同じ規則なら同じ除外記録、data_version、Event列になるよう固定する。</p>
+    <p><small>やさしい説明: 普通の商品だけを売買判断に使い、組み合わせ商品は箱と記録には残しますが、売買の合図には混ぜません。何を除外したかも毎回記録するので、あとで同じ結果を再現できます。</small></p>
+  </section>
 </main>
 </body>
 </html>

@@ -392,6 +392,11 @@ def resolve_or_stop(resolver: CatalogResolver, request: ResolveInstrumentRequest
     <p>ただし、入力の所有者・権限・読込前後SHA-256、trusted scope、target_only、networkingMode=none、外部接続禁止、固定4 Gate、Secret非出力はroot実行でも必須とする。rootで動くことは、対象範囲や入力固定を省略できるという意味ではない。</p>
     <p><small>やさしい説明: 強い権限で動かすことは許可します。でも、読む箱を勝手に変えないこと、読む場所を固定すること、ネットワークへ出ないこと、確認テストを通すことは残します。</small></p>
   </section>
+  <section class="ok-note" id="spread-selection-policy-override">
+    <h2>spread選別方針の確定（2026-08-09）</h2>
+    <p><code>UNK-P2-15</code>は、通常先物かつactiveのレコードだけを本線へ採用し、spreadまたはpendingのレコードはRawと除外記録へ残して本線から除外する方針で解消する。選別規則の版は <code>main-future-active-only-v1</code> とし、Manifestの<code>normalization_rule_version</code>へ含める。</p>
+    <p><small>やさしい説明: 普通の商品だけを売買判断に使うルールを決めました。組み合わせ商品は記録として残しますが、普通の商品と混ぜません。</small></p>
+  </section>
 </main>
 <script src="../../assets/mermaid.min.js"></script>
 <script src="../../assets/mermaid-init.js"></script>

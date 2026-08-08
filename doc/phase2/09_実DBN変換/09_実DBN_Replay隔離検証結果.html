@@ -65,4 +65,10 @@
     <p>同じ固定DBN入力で、通常ユーザー実行と <code>-RunAsRoot</code> によるroot実行をそれぞれ実施した。両方ともdecoderは4件を読め、入力hash前後一致・networkingMode=noneを確認した。両方とも <code>UNK-P2-15</code> が残るため、固定4 Gate開始前でBLOCKED、Data Gate=UNKNOWN、Signal=停止、Phase 3引渡し=禁止である。</p>
     <p><small>やさしい説明: 普通の権限と強い権限の両方で同じ箱を読めました。どちらでも箱の中身は同じでしたが、spreadの扱いがまだ決まっていないので、売買に使う道は閉じています。</small></p>
   </section>
+  <section class="ok-note" id="spread-selection-20260809">
+    <h2>UNK-P2-15解消後の選別結果（2026-08-09）</h2>
+    <p>ユーザー承認により、通常先物かつactiveの3件だけを本線へ採用し、spread 1件はRawと除外記録へ残して本線から除外する規則を実装した。実DBNの4件をdecoder→Normalizer→QualityChecker→Manifest→NormalizedStore→MarketEventまで通し、NormalizedBar 3件、MarketEvent 3件、除外1件、Replay一致を確認する。</p>
+    <p>固定4 Gateはこの更新をWSLへ同期した後に再実行する。Gateが全てPASSし、Data GateがPASSになるまでPhase 3へは移行しない。</p>
+    <p><small>やさしい説明: 4件のうち普通の商品3件だけを翻訳して売買用の記録にします。特殊な1件は捨てずに「使わなかった」と記録します。その後、4つの確認テストを全部通すまでPhase 3へ進みません。</small></p>
+  </section>
 </main></body></html>

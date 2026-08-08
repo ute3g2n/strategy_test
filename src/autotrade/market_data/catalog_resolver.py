@@ -36,6 +36,8 @@ class ResolveInstrumentResult:
     mapping_id: str | None
     catalog_version: str
     reason: str | None
+    instrument_class: str | None = None
+    instrument_status: str | None = None
 
 
 @dataclass(frozen=True)
@@ -51,6 +53,7 @@ class _Mapping:
     instrument_status: str
     tick_size: str | None
     vendor_instrument_id: int | None
+    instrument_class: str | None = None
 
 
 class CatalogAudit(Protocol):
@@ -111,14 +114,26 @@ class CatalogResolver:
         candidate = candidates[0]
         if candidate.instrument_status != "active" or candidate.tick_size is None:
             return ResolveInstrumentResult(
-                "unknown", None, candidate.mapping_id, self._catalog_version, "REQUIRED_ATTRIBUTE_UNKNOWN"
+                "unknown",
+                None,
+                candidate.mapping_id,
+                self._catalog_version,
+                "REQUIRED_ATTRIBUTE_UNKNOWN",
+                candidate.instrument_class,
+                candidate.instrument_status,
             )
         if not self._audit.record(request, candidate.mapping_id, self._catalog_version):
             return ResolveInstrumentResult(
                 "unknown", None, candidate.mapping_id, self._catalog_version, "CATALOG_AUDIT_FAILED"
             )
         return ResolveInstrumentResult(
-            "resolved", candidate.instrument_id, candidate.mapping_id, self._catalog_version, None
+            "resolved",
+            candidate.instrument_id,
+            candidate.mapping_id,
+            self._catalog_version,
+            None,
+            candidate.instrument_class,
+            candidate.instrument_status,
         )
 
 
@@ -163,6 +178,7 @@ def _mapping_from_fixture(raw: object) -> _Mapping:
         instrument_status=values["instrument_status"],
         tick_size=tick_size,
         vendor_instrument_id=vendor_instrument_id,
+        instrument_class=_optional_string(raw, "instrument_class"),
     )
 
 
@@ -176,6 +192,13 @@ def _utc_datetime(value: str) -> datetime:
 def _required_string(raw: Mapping[str, object], key: str) -> str:
     value = raw.get(key)
     if not isinstance(value, str) or not value:
+        raise ValueError("invalid fixed catalog mapping")
+    return value
+
+
+def _optional_string(raw: Mapping[str, object], key: str) -> str | None:
+    value = raw.get(key)
+    if value is not None and (not isinstance(value, str) or not value):
         raise ValueError("invalid fixed catalog mapping")
     return value
 
