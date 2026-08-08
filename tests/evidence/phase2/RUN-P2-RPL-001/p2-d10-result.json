@@ -9,6 +9,7 @@
   "quality_report_sha256": "sha256:39de9d12fc61df12cec6c8a4eafb3f1a8cf40772955ae05f94afd3e8f5cccc9b",
   "checks": {
     "fixture_quality_matrix": {"status": "PASS", "signal_generation_allowed": false, "detail": "7異常ケースはfail-closed、duplicate_exactのみ記録付きpublishable"},
+    "timestamp_invalid_fail_closed": {"status": "PASS", "signal_generation_allowed": false, "detail": "timezoneなし日時はTIMESTAMP_INVALIDとしてpublishable=falseを回帰確認"},
     "fixture_replay_manifest": {"status": "PASS", "detail": "同一fixture/raw/catalog/quality入力から同一data_versionを再生成"},
     "fixture_market_event_sequence": {"status": "PASS", "detail": "固定2本のMarketEvent系列とdata_versionを再現"},
     "conditional_universe_isolation": {"status": "PASS", "detail": "MZC/MZS/MZWとMCL/M6Aの集合が非交差"},

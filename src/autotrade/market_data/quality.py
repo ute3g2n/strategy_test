@@ -12,6 +12,7 @@ from .store_contracts import NormalizedBar, QualityReport
 _BLOCKING_FLAGS = frozenset(
     {
         "MISSING_DATA",
+        "TIMESTAMP_INVALID",
         "DUPLICATE_CONFLICT",
         "OUT_OF_ORDER",
         "PRICE_INVALID",

@@ -8,6 +8,7 @@ skips or permissive expected values.
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from datetime import UTC, datetime
 from hashlib import sha256
 from pathlib import Path
@@ -68,6 +69,7 @@ def test_fixed_fixture_has_no_generated_time_and_expected_case_matrix() -> None:
     ("flag", "publishable"),
     [
         ("MISSING_DATA", False),
+        ("TIMESTAMP_INVALID", False),
         ("DUPLICATE_CONFLICT", False),
         ("OUT_OF_ORDER", False),
         ("PRICE_INVALID", False),
@@ -91,6 +93,16 @@ def test_exact_duplicate_is_collapsed_but_recorded() -> None:
     assert report.publishable is True
     assert report.deduplicated_count == 1
     assert "DUPLICATE" in report.flags
+
+
+def test_naive_timestamp_is_fail_closed() -> None:
+    naive_bar = replace(bars()[0], event_time_utc=datetime(2026, 6, 15, 12, 0))
+
+    report = QualityChecker.check((naive_bar,))
+
+    assert "TIMESTAMP_INVALID" in report.flags
+    assert report.publishable is False
+    assert report.signal_generation_allowed is False
 
 
 def test_replay_manifest_is_deterministic_and_excludes_generated_at() -> None:
