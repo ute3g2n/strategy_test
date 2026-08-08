@@ -86,7 +86,7 @@
 
   <h2>1. まず、いまの状態</h2>
   <div class="cards">
-    <div class="card stop"><strong>1件</strong>いま、対象Runを止めている根本課題</div>
+    <div class="card stop"><strong>0件</strong>いま、対象Runを止めている根本課題</div>
     <div class="card wait"><strong>17件</strong>期限までは安全に保留できる根本課題</div>
     <div class="card done"><strong>13組</strong>解決済みとして確認できた主な課題</div>
     <div class="card phase"><strong>0–2</strong>実行済み・着手済みのPhase。Phase 3以降は未着手</div>
@@ -335,6 +335,7 @@ firewall=true</pre></li>
       <tr><td>2026-08-06</td><td>v0.6</td><td>WSL実行時はWindows用の固定commandをそのまま使えないため、WSL専用の承認済みscope/Manifestが必要であることを追記した。</td></tr>
       <tr><td>2026-08-06</td><td>v0.7</td><td>WSL2隔離環境をCodex CLIに構築させるための実行依頼プロンプトをplan配下へ作成し、本台帳から導線を追加した。</td></tr>
       <tr><td>2026-08-08</td><td>v0.8</td><td>P2-07のWSLクローンをAI委譲権限でgit pull --ff-only同期し、固定4 GateとHuman Gate承認を確認してBLK-P2-009を解決済みへ更新した。</td></tr>
+      <tr><td>2026-08-08</td><td>v0.9</td><td>P2-07完了後も残っていた「対象Runを止めている根本課題 1件」の表示を再点検した。H2-3は期限まで安全に保留する後続Gateであり、現在Runの停止課題ではないため、件数を0件へ修正した。</td></tr>
     </tbody>
   </table>
 
