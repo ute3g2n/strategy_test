@@ -84,6 +84,10 @@ def test_fixture_quality_matrix_is_fail_closed() -> None:
         assert report.publishable is case["publishable"]
         assert report.signal_generation_allowed is case["publishable"]
 
+    unknown_report = QualityChecker.check(_bars(), injected_flags=("UNKNOWN_QUALITY",))
+    assert unknown_report.publishable is False
+    assert unknown_report.signal_generation_allowed is False
+
 
 def test_fixture_replay_manifest_and_market_events_are_deterministic() -> None:
     first_manifest, first_report = _manifest()
