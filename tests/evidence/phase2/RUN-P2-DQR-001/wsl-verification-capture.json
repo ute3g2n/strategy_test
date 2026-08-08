@@ -1,0 +1,17 @@
+﻿{
+    "execution_id":  "d734ee5d56f04eadbebb028c6026a0d3",
+    "source_repository_path":  "/home/oue/strategy_test",
+    "source_kind":  "wsl_verification",
+    "verification_raw":  "{\"state\":\"BLOCKED\",\"reason\":\"Run ID is not the fixed WSL scope\",\"generated_at\":\"2026-08-08T08:37:01Z\",\"host_wrapper_execution_id\":\"d734ee5d56f04eadbebb028c6026a0d3\"}\n",
+    "retrieval_exit_code":  0,
+    "captured_at":  "2026-08-08T08:37:01.3902870Z",
+    "state":  "CAPTURED",
+    "verification":  {
+                         "state":  "BLOCKED",
+                         "reason":  "Run ID is not the fixed WSL scope",
+                         "generated_at":  "2026-08-08T08:37:01Z",
+                         "host_wrapper_execution_id":  "d734ee5d56f04eadbebb028c6026a0d3"
+                     },
+    "source_path":  "/home/oue/strategy_test/tests/evidence/phase2/RUN-P2-DQR-001/verification.json",
+    "host_isolation":  null
+}
