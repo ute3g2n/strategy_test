@@ -24,3 +24,4 @@
 ## 次の条件
 
 既存証跡からRaw受信UTC時刻とCatalog対応を確定できなければ、必要最小限の新規取得についてH2-2を改めて承認してもらう。その後にだけ、正規化・MarketEvent・Replay・固定4 Gateを再実行する。
+- 2026-08-08T21:42:34Z UTC（WSL実行ID: `2c62d9e032ff4759bb54a187f8bfc6c9`）に、再取得Raw（SHA-256 `sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d`）を正式入口から確認した。実行前後hash一致、networkingMode=none、4件のDBN読取りを確認し、`UNK-P2-15`で固定4 Gate開始前にBLOCKEDとなった。受信UTCとCatalog対応は別証跡で確定済みである。正本は `wsl-verification-capture.json` と `automation/run-test-summary.json`。

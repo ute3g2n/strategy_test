@@ -9,7 +9,7 @@
                       "powershell_location":  "C:\\project\\strategy_test",
                       "exit_code":  0,
                       "output":  "W\u0000S\u0000L\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00002\u0000.\u00006\u0000.\u00003\u0000.\u00000\u0000\n\u0000\n\u0000ｫ0・ﾍ0・ \u0000ﾐ0・ｸ0・・:\u0000 \u00006\u0000.\u00006\u0000.\u00008\u00007\u0000.\u00002\u0000-\u00001\u0000\n\u0000\n\u0000W\u0000S\u0000L\u0000g\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00000\u0000.\u00007\u00001\u0000\n\u0000\n\u0000M\u0000S\u0000R\u0000D\u0000C\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00002\u0000.\u00006\u00003\u00005\u00003\u0000\n\u0000\n\u0000D\u0000i\u0000r\u0000e\u0000c\u0000t\u00003\u0000D\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00006\u00001\u00001\u0000.\u00001\u0000-\u00008\u00001\u00005\u00002\u00008\u00005\u00001\u00001\u0000\n\u0000\n\u0000D\u0000X\u0000C\u0000o\u0000r\u0000e\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u00000\u0000.\u00000\u0000.\u00002\u00006\u00001\u00000\u00000\u0000.\u00001\u0000-\u00002\u00004\u00000\u00003\u00003\u00001\u0000-\u00001\u00004\u00003\u00005\u0000.\u0000g\u0000e\u0000-\u0000r\u0000e\u0000l\u0000e\u0000a\u0000s\u0000e\u0000\n\u0000\n\u0000W\u0000i\u0000n\u0000d\u0000o\u0000w\u0000s\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u00000\u0000.\u00000\u0000.\u00002\u00006\u00002\u00000\u00000\u0000.\u00008\u00009\u00007\u00003\u0000\n\u0000\n\u0000",
-                      "recorded_at":  "2026-08-08T18:09:56.9156428Z"
+                      "recorded_at":  "2026-08-08T21:39:00.5661451Z"
                   },
                   {
                       "kind":  "strict",
@@ -21,26 +21,10 @@
                       "powershell_location":  "C:\\project\\strategy_test",
                       "exit_code":  0,
                       "output":  " \u0000 \u0000N\u0000A\u0000M\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000S\u0000T\u0000A\u0000T\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000V\u0000E\u0000R\u0000S\u0000I\u0000O\u0000N\u0000\n\u0000\n\u0000*\u0000 \u0000U\u0000b\u0000u\u0000n\u0000t\u0000u\u0000-\u00002\u00004\u0000.\u00000\u00004\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\n\u0000\n\u0000 \u0000 \u0000d\u0000o\u0000c\u0000k\u0000e\u0000r\u0000-\u0000d\u0000e\u0000s\u0000k\u0000t\u0000o\u0000p\u0000 \u0000 \u0000 \u0000 \u0000S\u0000t\u0000o\u0000p\u0000p\u0000e\u0000d\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\n\u0000\n\u0000",
-                      "recorded_at":  "2026-08-08T18:09:56.9651892Z"
-                  },
-                  {
-                      "kind":  "capture",
-                      "command":  [
-                                      "wsl.exe",
-                                      "-d",
-                                      "Ubuntu-24.04",
-                                      "--",
-                                      "bash",
-                                      "-lc",
-                                      "test -f \u0027/var/lib/autotrade/replay/RUN-P2-DBN-001/input.dbn\u0027 \u0026\u0026 ! test -L \u0027/var/lib/autotrade/replay/RUN-P2-DBN-001/input.dbn\u0027"
-                                  ],
-                      "powershell_location":  "C:\\project\\strategy_test",
-                      "exit_code":  1,
-                      "output":  "",
-                      "recorded_at":  "2026-08-08T18:09:57.1267863Z"
+                      "recorded_at":  "2026-08-08T21:39:00.6217806Z"
                   }
               ],
-    "execution_id":  "e8ec794ea5b049c4aa49fdde94d4c190",
-    "error":  "System.Management.Automation.RuntimeException: protected DBN input is missing or is a symbolic link: /var/lib/autotrade/replay/RUN-P2-DBN-001/input.dbn",
+    "execution_id":  "768119e7929947d188376cfc54bf10d6",
+    "error":  "System.Management.Automation.RuntimeException: Target WSL distribution is already Running. Stop Codex and WSL, then rerun with -AllowRunningDistro when launching from a \\\\wsl.localhost path.",
     "state":  "BLOCKED"
 }
