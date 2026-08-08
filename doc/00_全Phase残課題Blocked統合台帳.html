@@ -272,6 +272,7 @@ firewall=true</pre></li>
       <tr><td><code>RES-S4-TOOLS-HASH-I/O</code></td><td>S4開始時に残っていたツール不足、change hash未解決、fixture照合不足、外部接続経路、レビュー証跡不足は解消しました。</td><td>2026-08-06</td><td><a href="../tests/evidence/phase2/RUN-P2-IC-001/s4-status-ledger.md">S4証跡台帳</a></td></tr>
       <tr><td><code>RES-P2-H2-0</code></td><td>Phase 2の中心市場と条件付き市場の扱いについて、H2-0をユーザーが承認しました。これは設計範囲の承認であり、実取引の承認ではありません。</td><td>2026-08-06</td><td><code>BLK-P2-001</code>, <code>UNK-P2-01</code> / 本台帳の更新履歴</td></tr>
       <tr><td><code>RES-P2-H2-1</code></td><td>限月切替、連続Signal、受渡し注意日、条件付き市場の扱いについて、H2-1をユーザーが承認しました。これは設計範囲の承認であり、実取引の承認ではありません。</td><td>2026-08-06</td><td><code>BLK-P2-002</code>, <code>UNK-P2-02/04/12</code> / 本台帳の更新履歴</td></tr>
+      <tr><td><code>RES-P2-DQR-001</code></td><td>P2-07のRaw / Normalized Store、MarketEvent、DataVersion、Manifest接続、Windows検査、WSL固定4 Gate、Human Gate承認が完了しました。</td><td>2026-08-08</td><td><code>BLK-P2-009</code>, <a href="../tests/evidence/phase2/RUN-P2-DQR-001/red-test-result.md">P2-07証跡</a> / <a href="../tests/evidence/phase2/RUN-P2-DQR-001/wsl-verification-capture.json">WSL証跡</a></td></tr>
     </tbody>
   </table>
 
@@ -333,6 +334,7 @@ firewall=true</pre></li>
       <tr><td>2026-08-06</td><td>v0.5</td><td>BLK-RUN-003の解決策として、WSL2のnetworkingMode=noneを使う具体的な隔離手順、依存パッケージの事前配置、証跡、停止条件を追記した。</td></tr>
       <tr><td>2026-08-06</td><td>v0.6</td><td>WSL実行時はWindows用の固定commandをそのまま使えないため、WSL専用の承認済みscope/Manifestが必要であることを追記した。</td></tr>
       <tr><td>2026-08-06</td><td>v0.7</td><td>WSL2隔離環境をCodex CLIに構築させるための実行依頼プロンプトをplan配下へ作成し、本台帳から導線を追加した。</td></tr>
+      <tr><td>2026-08-08</td><td>v0.8</td><td>P2-07のWSLクローンをAI委譲権限でgit pull --ff-only同期し、固定4 GateとHuman Gate承認を確認してBLK-P2-009を解決済みへ更新した。</td></tr>
     </tbody>
   </table>
 
