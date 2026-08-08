@@ -87,8 +87,8 @@
   <h2>1. まず、いまの状態</h2>
   <div class="cards">
     <div class="card stop"><strong>0件</strong>いま、対象Runを止めている根本課題</div>
-    <div class="card wait"><strong>18件</strong>期限までは安全に保留できる根本課題</div>
-    <div class="card done"><strong>13組</strong>解決済みとして確認できた主な課題</div>
+    <div class="card wait"><strong>17件</strong>期限までは安全に保留できる根本課題</div>
+    <div class="card done"><strong>14組</strong>解決済みとして確認できた主な課題</div>
     <div class="card phase"><strong>0–2</strong>実行済み・着手済みのPhase。Phase 3以降は未着手</div>
   </div>
   <p class="small">件数は、同じ原因を別の文書が違う名前で書いている場合に一つへまとめた「根本課題」の数です。たとえば、同じロール規則の問題を Phase 1 と Phase 2 が別IDで書いていても、一件として数えます。</p>
@@ -100,7 +100,7 @@
     <tbody>
       <tr><td><code>H2-0</code></td><td>Phase 2市場範囲</td><td><span class="badge done">承認済み</span></td><td>中心市場・条件付き市場の設計範囲</td><td><code>RES-P2-H2-0</code>、本台帳の解決確認</td></tr>
       <tr><td><code>H2-1</code></td><td>Roll / Continuous</td><td><span class="badge done">承認済み</span></td><td>限月切替・連続Signal・受渡し注意日の設計範囲</td><td><code>RES-P2-H2-1</code>、本台帳の解決確認</td></tr>
-      <tr><td><code>H2-2</code></td><td>Databento外部取得</td><td><span class="badge wait">未承認・保留</span></td><td>対象dataset/schema/symbol/期間、entitlement、費用上限、API key / Secret保管・投入方法</td><td><code>BLK-P2-005</code>。権限者の明示承認、見積り、権限確認、Secret手順、fixture外の再現試験を台帳へリンクしてから外部I/Oを許可</td></tr>
+      <tr><td><code>H2-2</code></td><td>Databento外部取得</td><td><span class="badge done">承認済み（P2-08最小取得）</span></td><td>対象dataset/schema/symbol/期間、entitlement、費用上限、API key / Secret保管・投入方法</td><td><code>RES-P2-H2-2</code>。ユーザーの明示承認を受領。今回の範囲は最小期間・固定対象の一回取得に限定し、取得結果と費用・権限応答を記録する</td></tr>
       <tr><td><code>H2-3</code></td><td>Data Quality / Replay引渡し</td><td><span class="badge wait">未承認・後続Gate</span></td><td>品質レポート、Replay結果、欠損一覧、Unknown解消後に本線へ渡すか</td><td><code>BLK-P2-008</code>。P2-09以降の統合レビューとユーザー判断</td></tr>
       <tr><td><code>H2-4</code></td><td>Phase 2完了・Phase 3移行</td><td><span class="badge wait">未承認・将来Gate</span></td><td>Phase 2の完了、Strategy / Backtest基盤へ進む範囲と条件</td><td><code>BLK-P2-010</code>。P2-11成果物、統合レビュー、残Unknownを確認してからユーザーが明示承認</td></tr>
     </tbody>
@@ -256,7 +256,7 @@ firewall=true</pre></li>
       <tr><td><code>BLK-P1-008</code></td><td>Live開始前</td><td>Kill Switchを解除した直後に待つ時間と、最初の注文を小さくする規則が未決定です。</td><td>解除後の自動再開を禁止します。</td><td>ウォームアップ時間、初回注文上限、再照合、Human Gateの運用試験。</td><td><code>RT-P1-12-004</code></td></tr>
       <tr><td><code>BLK-P2-003</code></td><td>実データ取得前</td><td>Databentoで使うdataset、schema、銘柄の変換方法、continuous symbolの範囲が実アカウントでは未確定です。</td><td>固定fixtureとdry-runだけにします。</td><td>公式仕様の再確認、実アカウントの権限、固定した設定値、再現試験。</td><td><code>UNK-P2-03</code> / <a href="../tests/evidence/phase2/RUN-P2-DP-001/dry-run-result.md">P2-08 dry-run</a></td></tr>
       <tr><td><code>BLK-P2-004</code></td><td>P2-09 / H2-3</td><td>データに警告、欠け、遅れがあった日を、捨てる・注意付きで使う・取り直す、のどれにするか未決定です。</td><td>該当日からSignalを作りません。</td><td>異常fixture、再取得結果、Replay比較、採否理由。</td><td><code>UNK-P2-05</code></td></tr>
-      <tr><td><code>BLK-P2-005</code></td><td>H2-2 / 実取得前</td><td>Databentoの費用、利用権限、API keyの利用承認がありません。</td><td>外部APIへ接続せず、費用を発生させません。P2-08はfixture-only dry-runで完了。</td><td>見積り、entitlement、Secret保管方法、対象範囲、権限者のH2-2承認。</td><td><code>UNK-P2-07</code>, <code>H2-2</code> / <a href="../tests/evidence/phase2/RUN-P2-DP-001/dry-run-result.md">P2-08証跡</a></td></tr>
+      <tr><td><code>BLK-P2-005</code></td><td>H2-2 / 実取得前</td><td>解決済み（P2-08最小取得の承認）</td><td>今回の最小取得範囲ではH2-2承認を確認済み。対象範囲を越える取得、費用発生、Secret用途変更は再承認が必要。</td><td>取得結果、HTTP応答、payload checksum、費用・entitlementの記録。</td><td><code>RES-P2-H2-2</code> / <a href="../tests/evidence/phase2/RUN-P2-DP-002/human-gate-user-declaration.md">承認記録</a></td></tr>
       <tr><td><code>BLK-P2-006</code></td><td>大容量データ作成前</td><td>大きなMarket Dataをリポジトリ内と外部保存先のどちらへ置くか未決定です。</td><td>小さなfixtureだけをGitで管理します。</td><td>容量、バックアップ、アクセス権、費用、復元試験を含む保存方針。</td><td><code>UNK-P2-08</code></td></tr>
       <tr><td><code>BLK-P2-007</code></td><td>Phase 6 / Shadow前</td><td>Liveに近いデータが何秒遅れたら失敗とするか未決定です。</td><td>今は測る項目だけを決め、合否を出しません。</td><td>実測分布、業務上の許容時間、監視と停止の試験。</td><td><code>UNK-P2-09</code></td></tr>
       <tr><td><code>BLK-P2-008</code></td><td>H2-3</td><td>データ品質とReplayの結果をまとめて、人が本線へ渡してよいか判断するGateがまだ終わっていません。</td><td>警告・Unknownがあるデータを次Phaseの本線へ渡しません。</td><td>品質レポート、Replay結果、欠損一覧、解決済みUnknown、H2-3承認。</td><td><code>H2-3</code>, <code>REQ-DATA-QUALITY</code></td></tr>
@@ -286,6 +286,7 @@ firewall=true</pre></li>
       <tr><td><code>RES-S4-TOOLS-HASH-I/O</code></td><td>S4開始時に残っていたツール不足、change hash未解決、fixture照合不足、外部接続経路、レビュー証跡不足は解消しました。</td><td>2026-08-06</td><td><a href="../tests/evidence/phase2/RUN-P2-IC-001/s4-status-ledger.md">S4証跡台帳</a></td></tr>
       <tr><td><code>RES-P2-H2-0</code></td><td>Phase 2の中心市場と条件付き市場の扱いについて、H2-0をユーザーが承認しました。これは設計範囲の承認であり、実取引の承認ではありません。</td><td>2026-08-06</td><td><code>BLK-P2-001</code>, <code>UNK-P2-01</code> / 本台帳の更新履歴</td></tr>
       <tr><td><code>RES-P2-H2-1</code></td><td>限月切替、連続Signal、受渡し注意日、条件付き市場の扱いについて、H2-1をユーザーが承認しました。これは設計範囲の承認であり、実取引の承認ではありません。</td><td>2026-08-06</td><td><code>BLK-P2-002</code>, <code>UNK-P2-02/04/12</code> / 本台帳の更新履歴</td></tr>
+      <tr><td><code>RES-P2-H2-2</code></td><td>ユーザーがH2-2を承認し、Databentoの最小・固定範囲の外部取得を許可しました。対象範囲を越える取得や用途変更は再承認が必要です。</td><td>2026-08-08</td><td><code>BLK-P2-005</code> / <a href="../tests/evidence/phase2/RUN-P2-DP-002/human-gate-user-declaration.md">承認記録</a></td></tr>
       <tr><td><code>RES-P2-DQR-001</code></td><td>P2-07のRaw / Normalized Store、MarketEvent、DataVersion、Manifest接続、Windows検査、WSL固定4 Gate、Human Gate承認が完了しました。</td><td>2026-08-08</td><td><code>BLK-P2-009</code>, <a href="../tests/evidence/phase2/RUN-P2-DQR-001/red-test-result.md">P2-07証跡</a> / <a href="../tests/evidence/phase2/RUN-P2-DQR-001/wsl-verification-capture.json">WSL証跡</a></td></tr>
     </tbody>
   </table>
@@ -351,6 +352,7 @@ firewall=true</pre></li>
       <tr><td>2026-08-08</td><td>v0.8</td><td>P2-07のWSLクローンをAI委譲権限でgit pull --ff-only同期し、固定4 GateとHuman Gate承認を確認してBLK-P2-009を解決済みへ更新した。</td></tr>
       <tr><td>2026-08-08</td><td>v0.9</td><td>P2-07完了後も残っていた「対象Runを止めている根本課題 1件」の表示を再点検した。H2-3は期限まで安全に保留する後続Gateであり、現在Runの停止課題ではないため、件数を0件へ修正した。</td></tr>
       <tr><td>2026-08-08</td><td>v1.0</td><td>H2-2を含む人間の承認・認証・外部利用許可を専用一覧へ集約した。承認記録が見つからない事項も未承認として本台帳へ登録し、台帳だけで対象・期限・再開条件・証拠先を把握できる運用ルールを明記した。</td></tr>
+      <tr><td>2026-08-08</td><td>v1.1</td><td>ユーザーの「H2-2 は承認します」を受領し、P2-08最小取得範囲のH2-2を承認済みへ更新した。対象範囲を越える取得は再承認とし、P2-08承認後Runの証拠先を追加した。</td></tr>
     </tbody>
   </table>
 

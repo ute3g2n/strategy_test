@@ -19,15 +19,15 @@
   <p><strong>成果物ID:</strong> P2-DP-01（P2-08実行証跡）<br>
      <strong>Phase / Step:</strong> Phase 2 / P2-08<br>
      <strong>作成日:</strong> 2026-08-08<br>
-     <strong>文書状態:</strong> v0.1 / fixture-only実装・レビュー済み<br>
-     <strong>Run:</strong> <code>RUN-P2-DP-001</code><br>
+     <strong>文書状態:</strong> v0.2 / fixture-onlyおよびH2-2承認後の最小取得を実装・レビュー済み<br>
+     <strong>Run:</strong> <code>RUN-P2-DP-001</code>（dry-run） / <code>RUN-P2-DP-002</code>（承認後取得）<br>
      <strong>Orchestrator:</strong> <code>AutoTradeProject_Orchestrator_v0_1</code><br>
      <strong>Agents:</strong> <code>AutoTrade_A50_AdapterArchitect_v0_1</code>、<code>AutoTrade_A70_OpsSecurityArchitect_v0_1</code>、<code>AutoTrade_A80_DocumentIntegrator_v0_1</code>、<code>AutoTrade_A90_DesignReviewer_v0_1</code></p>
 
-  <div class="note"><strong>H2-2状態:</strong> Databento外部取得の承認記録は確認できないため、実装・検証は固定fixtureのrequest planと読込みだけに限定した。外部API、実データ、Secret、Brokerは使用していない。<span class="stop">H2-2承認前に外部I/Oを開始してはならない。</span></div>
+  <div class="note"><strong>H2-2状態:</strong> ユーザーが2026-08-08にH2-2を承認した。今回の実取得は <code>GLBX.MDP3</code> / <code>ohlcv-1m</code> / <code>MCL.FUT</code> / UTC 1分間隔の一回だけに限定した。API keyは環境変数から読み、値を出力・保存しない。対象範囲を越える取得は再承認が必要。</div>
 
   <h2>1. 目的と範囲</h2>
-  <p>P2-07で固定したData Quality / Replay fixtureを出発点に、Databento取得条件を安全に表現するCLI、fixture Gateway、metadata保存方針、外部応答のHealthEvent分類を定義した。Strategyの利益評価、Backtest採用、実取得、費用確定は対象外である。</p>
+  <p>P2-07で固定したData Quality / Replay fixtureを出発点に、Databento取得条件を安全に表現するCLI、fixture Gateway、承認後のbounded HTTPS Gateway、metadata保存方針、外部応答のHealthEvent分類を定義した。Strategyの利益評価、Backtest採用、連続取得運用は対象外である。</p>
 
   <h2>2. Adapter境界と処理</h2>
   <pre class="mermaid">flowchart LR
@@ -64,11 +64,13 @@
 
   <h2>6. 検証結果・未確定事項</h2>
   <ul>
-    <li>Windows品質Gate: formatter、lint、mypy、pytest 39 passed、coverage 81.76%。</li>
+    <li>Windows品質Gate: formatter、lint、mypy、pytest 44 passed、coverage 80.05%。</li>
     <li>レビュー: Critical 0、High 0。詳細は<a href="../../../tests/evidence/phase2/RUN-P2-DP-001/reviews/design-review.md">設計レビュー</a>と<a href="../../../tests/evidence/phase2/RUN-P2-DP-001/reviews/red-team-review.md">Red Teamレビュー</a>。</li>
     <li><a href="../../../tests/evidence/phase2/RUN-P2-DP-001/run-manifest.json">Run Manifest</a>と<a href="../../../tests/evidence/phase2/RUN-P2-DP-001/dry-run-result.md">dry-run結果</a>に対象scopeとfixture hashを固定した。</li>
-    <li><strong>H2-2:</strong> 外部取得を許可する対象dataset・symbol・期間・費用上限・Secret投入方法の承認待ち。</li>
-    <li><strong>UNK-P2-07:</strong> 固定Store境界を実Databento応答へ接続する検証は未実施。</li>
+    <li><a href="../../../tests/evidence/phase2/RUN-P2-DP-002/acquisition-result.md">H2-2承認後取得結果</a>にHTTP 200、DBN checksum、取得範囲、Secret非出力を記録した。</li>
+    <li><strong>H2-2:</strong> P2-08最小取得範囲は承認済み。対象範囲・費用上限・Secret用途を変更する場合は再承認。</li>
+    <li><strong>実取得:</strong> HTTP 200、DBN 22,760 bytes、payload SHA256 <code>8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e</code>。RawはGitへ入れず、checksumとmetadataを証跡へ保存。</li>
+    <li><strong>UNK-P2-07:</strong> 実Databento応答をRaw Store / Normalized Storeへ変換するReplay接続はP2-09の検証対象。</li>
   </ul>
 </main>
 </body>

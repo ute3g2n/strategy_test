@@ -10,9 +10,11 @@ from pathlib import Path
 import pytest
 
 from autotrade.market_data.acquisition_protocol import (
+    ExternalGateway,
     FixtureGateway,
     HistoricalRequest,
     ProtocolError,
+    build_external_request_plan,
     build_request_plan,
     classify_failure,
     main,
@@ -127,3 +129,80 @@ def test_cli_writes_a_fixture_only_request_plan(tmp_path: Path) -> None:
     plan = json.loads(output.read_text(encoding="utf-8"))
     assert plan["request"]["source_mode"] == "fixture"
     assert plan["external_io_allowed"] is False
+
+
+class _FakeResponse:
+    status = 200
+
+    def read(self, limit: int) -> bytes:
+        assert limit > 0
+        return b"DBN\x03-payload"
+
+
+class _FakeConnection:
+    requests: list[tuple[str, str, dict[str, str]]] = []
+
+    def __init__(self, host: str, port: int, *, timeout: int) -> None:
+        self.host = host
+        self.port = port
+        self.timeout = timeout
+
+    def request(self, method: str, path: str, *, headers: dict[str, str]) -> None:
+        self.requests.append((method, path, headers))
+
+    def getresponse(self) -> _FakeResponse:
+        return _FakeResponse()
+
+    def close(self) -> None:
+        return None
+
+
+def test_approved_external_gateway_returns_secret_free_metadata() -> None:
+    _FakeConnection.requests.clear()
+    gateway = ExternalGateway("test-secret-value", connection_factory=_FakeConnection)
+
+    payload = gateway.fetch(
+        HistoricalRequest(
+            **{**request("external").__dict__},
+        )
+    )
+
+    assert payload.payload == b"DBN\x03-payload"
+    assert payload.metadata["provider"] == "databento"
+    assert "test-secret-value" not in payload.metadata.values()
+    method, path, headers = _FakeConnection.requests[0]
+    assert method == "GET"
+    assert "dataset=fixture%3A%2F%2Fp2-dqr" in path
+    assert headers["Authorization"].startswith("Basic ")
+
+
+def test_external_gateway_maps_http_failure_to_fail_closed() -> None:
+    class Unauthorized(_FakeResponse):
+        status = 401
+
+    class UnauthorizedConnection(_FakeConnection):
+        def getresponse(self) -> Unauthorized:
+            return Unauthorized()
+
+    with pytest.raises(ProtocolError, match="AUTHENTICATION_FAILED"):
+        ExternalGateway("test-secret-value", connection_factory=UnauthorizedConnection).fetch(request("external"))
+
+
+def test_approved_external_request_plan_contains_no_secret() -> None:
+    plan = build_external_request_plan(request("external"), "https://hist.databento.com/v0/timeseries.get_range")
+
+    assert plan["mode"] == "approved_external"
+    assert plan["external_io_allowed"] is True
+    assert "test-secret-value" not in json.dumps(plan)
+
+
+def test_external_endpoint_is_allowlisted() -> None:
+    with pytest.raises(ProtocolError, match="ENDPOINT_NOT_ALLOWED"):
+        ExternalGateway("test-secret-value", endpoint="https://example.invalid/data")
+
+
+def test_external_gateway_rejects_oversized_payload() -> None:
+    with pytest.raises(ProtocolError, match="PAYLOAD_TOO_LARGE"):
+        ExternalGateway("test-secret-value", connection_factory=_FakeConnection, max_payload_bytes=2).fetch(
+            request("external")
+        )
