@@ -1,0 +1,49 @@
+{
+  "run_id": "RUN-P2-DP-001",
+  "phase_id": "phase2",
+  "step_id": "P2-08",
+  "design": "P2-D05-P2-D06-P2-D07",
+  "requirements": ["REQ-Q02", "REQ-Q23", "REQ-Q29"],
+  "orchestrator": "AutoTradeProject_Orchestrator_v0_1",
+  "agents": [
+    "AutoTrade_A50_AdapterArchitect_v0_1",
+    "AutoTrade_A70_OpsSecurityArchitect_v0_1",
+    "AutoTrade_A80_DocumentIntegrator_v0_1",
+    "AutoTrade_A90_DesignReviewer_v0_1"
+  ],
+  "skills": [
+    "autotrade_skill_adapter_boundary_v0_1",
+    "autotrade_skill_official_research_v0_1",
+    "autotrade_skill_ops_security_v0_1",
+    "autotrade_skill_html_doc_writer_v0_1",
+    "autotrade_skill_design_review_v0_1",
+    "autotrade_skill_red_team_review_v0_1"
+  ],
+  "data_version": "dv_fixture_contract_v1",
+  "change_hash": "sha256:a38aa35132d158adfc656c327149743590ab09f25f15d3430c89f982b7aa501c",
+  "baseline_ref": "7f6e0a7b3aabfd7fa41c86308597c9826659184a",
+  "evidence_root": "tests/evidence/phase2/RUN-P2-DP-001",
+  "target_paths": [
+    "src/autotrade/market_data",
+    "tests/market_data",
+    "tests/fixtures/market_data",
+    "scripts/market_data"
+  ],
+  "excluded_paths": [".env", "third_party/everything-claude-code", "research"],
+  "scope_mode": "target_only",
+  "input_fixture": {
+    "path": "tests/fixtures/market_data/data_quality_replay_fixture.json",
+    "name": "data_quality_replay_fixture.json",
+    "version": "p2-dqr-fixture-v1",
+    "checksum": "sha256:a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79"
+  },
+  "human_gate_policy": "H2-2 approval is absent; fixture-only dry-run and fixed four gates are allowed, external acquisition remains blocked",
+  "review": {"critical": 0, "high": 0},
+  "unknowns": ["H2-2", "UNK-P2-07"],
+  "checks": [
+    {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "tests/market_data", "scripts/market_data"]},
+    {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/market_data", "tests/market_data", "scripts/market_data"]},
+    {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/market_data"]},
+    {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p2_pytest"]}
+  ]
+}
