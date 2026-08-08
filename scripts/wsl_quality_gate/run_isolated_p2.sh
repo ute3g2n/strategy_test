@@ -155,7 +155,7 @@ source = DbnReplayInput(
     source_vendor="databento",
     dataset_ref="GLBX.MDP3",
     schema_ref="ohlcv-1m",
-    stype="parent",
+    stype="raw_symbol",
     source_symbol="MCL.FUT",
     request_start_utc=datetime(2026, 6, 15, 12, 0, tzinfo=UTC),
     request_end_utc=datetime(2026, 6, 15, 12, 1, tzinfo=UTC),
