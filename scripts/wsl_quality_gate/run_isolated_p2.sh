@@ -35,37 +35,36 @@ if isinstance(dbn_input, dict):
     print(dbn_input.get("protected_path", ""))
     print(dbn_input.get("checksum", ""))
     print(scope.get("dbn_requirements", ""))
+    print(dbn_input.get("expected_protection", ""))
 else:
     fixture = scope.get("fixture", {})
     print("fixture")
     print(fixture.get("path", ""))
     print(fixture.get("checksum", ""))
     print("")
+    print("")
 PY
-); [[ "${#input_metadata[@]}" -eq 4 ]] || blocked "trusted scope input metadata is missing"
+); [[ "${#input_metadata[@]}" -eq 5 ]] || blocked "trusted scope input metadata is missing"
 input_kind="${input_metadata[0]}"
 input_location="${input_metadata[1]}"
 expected_input_hash="${input_metadata[2]}"
 dbn_requirements="${input_metadata[3]}"
-repository_owner=""
+expected_protection="${input_metadata[4]}"
 if [[ "$input_kind" == "dbn" ]]; then
-  [[ "$(id -u)" -eq 0 ]] || blocked "DBN input integrity check must run as root"
-  repository_owner="$(stat -c '%U' "$repository_path")"
-  [[ -n "$repository_owner" && "$repository_owner" != "root" ]] || blocked "repository owner is unsafe for DBN gate"
-  command -v runuser >/dev/null || blocked "runuser is required to drop DBN gate privileges"
-  chown -R "$repository_owner" "$evidence_root" || blocked "DBN evidence ownership cannot be prepared"
   [[ "$input_location" != /mnt/* && "$input_location" != //* ]] || blocked "DBN input must not be mounted from Windows or UNC"
   if test -L "$input_location" || [[ ! -f "$input_location" ]]; then
     blocked "protected DBN input is missing or is a symbolic link"
   fi
-  [[ "$(stat -c '%U:%a' "$input_location")" == "root:400" ]] || blocked "protected DBN input must be root-owned read-only mode 400"
+  [[ -n "$expected_protection" && "$(stat -c '%U:%G:%a' "$input_location")" == "$expected_protection" ]] || blocked "protected DBN input protection does not match trusted scope"
+  input_group="$(printf '%s' "$expected_protection" | cut -d: -f2)"
+  id -nG | tr ' ' '\n' | grep -Fx "$input_group" >/dev/null || blocked "gate runner is not a member of the protected DBN reader group"
   [[ -n "$dbn_requirements" && -f "$repository_path/$dbn_requirements" ]] || blocked "DBN hash-pinned requirements are missing"
   grep -q -- '--hash=sha256:' "$repository_path/$dbn_requirements" || blocked "DBN requirements hash allowlist is missing"
   grep -q -- '--require-hashes' "$repository_path/scripts/wsl_quality_gate/prepare_offline_wsl_env.sh" || blocked "offline installer must require hashes"
-  if runuser -u "$repository_owner" -- git -C "$repository_path" diff --cached --name-only | grep -E '\.(dbn|DBN)$|(^|/)raw/' >/dev/null; then
+  if git -C "$repository_path" diff --cached --name-only | grep -E '\.(dbn|DBN)$|(^|/)raw/' >/dev/null; then
     blocked "DBN or raw input is present in the staged Git changes"
   fi
-  if runuser -u "$repository_owner" -- git -C "$repository_path" ls-files | grep -E '\.(dbn|DBN)$|(^|/)raw/' >/dev/null; then
+  if git -C "$repository_path" ls-files | grep -E '\.(dbn|DBN)$|(^|/)raw/' >/dev/null; then
     blocked "DBN or raw input is tracked by Git"
   fi
   "$python_bin" - "$repository_path/scripts/quality_gate/trusted_scopes.json" "$run_id" "$repository_path/$dbn_requirements" "$evidence_root/offline-preparation.json" <<'PY' || blocked "DBN offline dependency evidence does not match the trusted scope"
@@ -194,14 +193,7 @@ EOF
 export QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED=1
 export QUALITY_GATE_HOST_ISOLATION_EVIDENCE="$evidence_root/host-isolation.json"
 set +e
-if [[ "$input_kind" == "dbn" ]]; then
-  runuser -u "$repository_owner" -- env \
-    QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED=1 \
-    QUALITY_GATE_HOST_ISOLATION_EVIDENCE="$evidence_root/host-isolation.json" \
-    "$python_bin" -m scripts.quality_gate.run_quality_gate --manifest "$manifest" --project-root "$repository_path"
-else
-  "$python_bin" -m scripts.quality_gate.run_quality_gate --manifest "$manifest" --project-root "$repository_path"
-fi
+"$python_bin" -m scripts.quality_gate.run_quality_gate --manifest "$manifest" --project-root "$repository_path"
 gate_exit=$?
 set -e
 post_input_hash="sha256:$(sha256sum "$input_location" | awk '{print $1}')"

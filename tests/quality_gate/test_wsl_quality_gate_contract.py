@@ -88,7 +88,7 @@ def test_host_wrapper_dry_run_contract_is_declared_without_mutating_wslconfig() 
     assert "dbn_input" in text
     assert "protected DBN input is missing or is a symbolic link" in text
     assert "test -f '$protectedPath' && ! test -L '$protectedPath'" in text
-    assert '"-u", "root"' in text
+    assert '"-u", "root"' not in text
     preflight = text.split("if ($DryRun)", 1)[0]
     assert "uname -r" not in preflight
     assert "test -x" not in preflight
@@ -110,14 +110,14 @@ def test_wsl_runner_fails_closed_before_four_gates_on_missing_isolation_prerequi
     assert re.search(r"\.venv/bin/python", text)
     assert text.index('kernel="$(uname -r)"') < text.index("QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED")
     assert 'host_execution_id="${WSL_HOST_WRAPPER_EXECUTION_ID:-${3:?host wrapper execution id is required}}"' in text
-    assert "DBN input integrity check must run as root" in text
-    assert "runuser -u \"$repository_owner\"" in text
-    assert "chown -R \"$repository_owner\" \"$evidence_root\"" in text
+    assert "expected_protection" in text
+    assert "protected DBN input protection does not match trusted scope" in text
+    assert "gate runner is not a member of the protected DBN reader group" in text
     assert "registry_path, run_id, requirements_path, evidence_path = sys.argv[1:]" in text
     assert "DBN decoder probe failed" in text
     assert '"state": "DECODED_NOT_NORMALIZED"' in text
     assert 'PYTHONPATH="$repository_path/src"' in text
-    assert 'runuser -u "$repository_owner" -- git -C "$repository_path"' in text
+    assert 'git -C "$repository_path" diff --cached' in text
     assert '"scope": ${target_scope_json}' in text
 
 

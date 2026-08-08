@@ -148,7 +148,8 @@
         "name": "p2-08-fixed-dbn",
         "version": "dbn-ohlcv-1m-p2-08",
         "protected_path": "/var/lib/autotrade/replay/RUN-P2-DBN-001/input.dbn",
-        "checksum": "sha256:8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e"
+        "checksum": "sha256:8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e",
+        "expected_protection": "root:autotrade-replay:440"
       },
       "dbn_requirements": "scripts/wsl_quality_gate/requirements-dbn.txt",
       "dbn_requirements_sha256": "518378a2989ca77f7b586961e2b70177d14f0168750fe6d265b426f4f1dd45bc",
