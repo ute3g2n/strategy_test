@@ -22,7 +22,7 @@
   ],
   "data_version": "dv_fixture_contract_v1",
   "change_hash": "sha256:a38aa35132d158adfc656c327149743590ab09f25f15d3430c89f982b7aa501c",
-  "baseline_ref": "7f6e0a7b3aabfd7fa41c86308597c9826659184a",
+  "baseline_ref": "HEAD",
   "evidence_root": "tests/evidence/phase2/RUN-P2-DP-001",
   "target_paths": [
     "src/autotrade/market_data",
