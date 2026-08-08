@@ -6,7 +6,7 @@
 
 - 対象: 隔離実行の完了証跡
 - 内容: 実装は異常データを警告だけで通さず、`publishable=false` としてSignal境界を停止する。WSL同期後の固定4 Gateでも全Gate PASSを確認した。
-- 判定: Critical/Highなし。最終Passは明示的Human Gate承認まで保留する。
+- 判定: Critical/Highなし。固定4 Gateと明示的Human Gate承認によりP2-07をPASSとする。
 
 ## 確認事項
 

@@ -6,7 +6,7 @@
 
 - 対象: WSL隔離4 Gate
 - 内容: 初回実行時はWSLクローンが旧コミットでRun IDを認識しなかった。
-- 判定: `git pull --ff-only` 後の同一trusted scopeで隔離4 Gateが全てPASS。コード上のCritical/Highは確認されない。残りはHuman Gate承認のみ。
+- 判定: `git pull --ff-only` 後の同一trusted scopeで隔離4 Gateが全てPASSし、ユーザー承認により最終RunもPASS。コード上のCritical/Highは確認されない。
 
 ## 確認済み
 
@@ -18,4 +18,4 @@
 
 ## 再レビュー条件
 
-明示的Human Gate承認を取得し、最終Run状態をPASSへ確定する。
+後続P2-09でReplay実測を行う。
