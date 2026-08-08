@@ -9,7 +9,7 @@
   "agents": ["AutoTrade_A130_VerificationEngineer_v0_1", "AutoTrade_A150_PythonCodeReviewer_v0_1", "AutoTrade_A160_TradingSecurityReviewer_v0_1", "AutoTrade_A80_DocumentIntegrator_v0_1"],
   "skills": ["autotrade_skill_python_test_quality_v0_1", "autotrade_skill_python_code_review_v0_1", "autotrade_skill_execution_model_v0_1", "autotrade_skill_traceability_v0_1", "autotrade_skill_html_doc_writer_v0_1"],
   "data_version": "dv_pending_real_dbn_input",
-  "code_revision": "0a91caf",
+  "code_revision": "b60fd30",
   "change_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "baseline_ref": "HEAD",
   "evidence_root": "tests/evidence/phase2/RUN-P2-DBN-001",
