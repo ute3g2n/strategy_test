@@ -637,7 +637,7 @@ def _non_negative_int(value: object, field_name: str) -> int:
 
 def _git(project_root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        ["git", *args],
+        ["git", "-c", f"safe.directory={project_root}", *args],
         cwd=project_root,
         check=False,
         shell=False,
