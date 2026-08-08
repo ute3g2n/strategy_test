@@ -21,7 +21,7 @@ from autotrade.market_data.quality import QualityChecker
 from autotrade.market_data.store_contracts import DataVersionManifest, NormalizedBar, QualityReport
 
 FIXTURE_PATH = Path(__file__).parents[1] / "fixtures" / "market_data" / "data_quality_replay_fixture.json"
-FIXTURE_SHA256 = "a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79"
+FIXTURE_SHA256 = "c19d1c165f0214c2f64218208684e01c1f6b08b838d2821a2b6f172750637a99"
 
 
 def fixture() -> dict[str, object]:
@@ -70,27 +70,28 @@ def test_fixed_fixture_has_no_generated_time_and_expected_case_matrix() -> None:
     [
         ("MISSING_DATA", False),
         ("TIMESTAMP_INVALID", False),
+        ("DUPLICATE", False),
         ("DUPLICATE_CONFLICT", False),
         ("OUT_OF_ORDER", False),
-        ("PRICE_INVALID", False),
-        ("VOLUME_INVALID", False),
+        ("PRICE_INVALID", True),
+        ("VOLUME_INVALID", True),
         ("CHECKSUM_MISMATCH", False),
-        ("DEGRADED", False),
+        ("DEGRADED", True),
     ],
 )
-def test_fail_closed_quality_flags_never_publish_a_data_version(flag: str, publishable: bool) -> None:
+def test_quality_flag_policy_matches_user_decision(flag: str, publishable: bool) -> None:
     report = QualityChecker.check(bars(), injected_flags=(flag,))
 
     assert isinstance(report, QualityReport)
     assert flag in report.flags
     assert report.publishable is publishable
-    assert report.signal_generation_allowed is False
+    assert report.signal_generation_allowed is publishable
 
 
 def test_exact_duplicate_is_collapsed_but_recorded() -> None:
     report = QualityChecker.check(bars() + (bars()[1],))
 
-    assert report.publishable is True
+    assert report.publishable is False
     assert report.deduplicated_count == 1
     assert "DUPLICATE" in report.flags
 
@@ -137,8 +138,8 @@ def test_missing_bar_identity_is_fail_closed() -> None:
 
 
 def test_quality_report_hash_binds_excluded_ranges() -> None:
-    base = QualityChecker.report_hash(("DUPLICATE",), 1, True)
-    changed = QualityChecker.report_hash(("DUPLICATE",), 1, True, ("2026-06-15T12:00:00Z",))
+    base = QualityChecker.report_hash(("DUPLICATE",), 1, False)
+    changed = QualityChecker.report_hash(("DUPLICATE",), 1, False, ("2026-06-15T12:00:00Z",))
 
     assert changed != base
 

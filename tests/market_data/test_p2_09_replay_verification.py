@@ -96,9 +96,9 @@ def test_fixture_replay_manifest_and_market_events_are_deterministic() -> None:
 
     assert first_manifest == second_manifest
     assert first_report == second_report
-    assert first_manifest.data_version == "dv_0d5783c4a39b4547c8d0"
+    assert first_manifest.data_version == "dv_932574f0e3535e87eb03"
     assert (
-        first_report.quality_report_sha256 == "sha256:bd9b299d0cc13ad894b8128100c1f677b9a57a1ad6eccab26d9cfd335adb48c7"
+        first_report.quality_report_sha256 == "sha256:eda96ab593c12e0edc235c939bb92f2335dbf988a02bdedf5321d5fcc2b413de"
     )
     first_events = _events(first_manifest.data_version)
     second_events = _events(second_manifest.data_version)

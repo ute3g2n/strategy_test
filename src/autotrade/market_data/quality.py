@@ -1,4 +1,4 @@
-"""Deterministic, fail-closed checks for normalized market-data bars."""
+"""Deterministic quality checks with an explicit warning-versus-stop policy."""
 
 from __future__ import annotations
 
@@ -9,7 +9,20 @@ from hashlib import sha256
 
 from .store_contracts import NormalizedBar, QualityReport
 
-_NON_BLOCKING_FLAGS = frozenset({"DUPLICATE"})
+_BLOCKING_FLAGS = frozenset(
+    {
+        "MISSING_DATA",
+        "DUPLICATE",
+        "DUPLICATE_CONFLICT",
+        "OUT_OF_ORDER",
+        "TIMESTAMP_INVALID",
+        "INSTRUMENT_ID_INVALID",
+        "RAW_OBJECT_ID_INVALID",
+        "CHECKSUM_MISMATCH",
+    }
+)
+_WARNING_FLAGS = frozenset({"DEGRADED", "PRICE_INVALID", "VOLUME_INVALID"})
+QUALITY_POLICY_VERSION = "quality-warning-except-missing-duplicate-time-v1"
 
 
 class QualityChecker:
@@ -62,7 +75,8 @@ class QualityChecker:
             flags.update(bar.quality_flags)
 
         ordered_flags = tuple(sorted(flags))
-        publishable = flags <= _NON_BLOCKING_FLAGS
+        unknown_flags = flags - _BLOCKING_FLAGS - _WARNING_FLAGS
+        publishable = not (_BLOCKING_FLAGS & flags) and not unknown_flags
         report_hash = QualityChecker.report_hash(ordered_flags, deduplicated_count, publishable, excluded_ranges)
         return QualityReport(
             flags=ordered_flags,
@@ -82,6 +96,7 @@ class QualityChecker:
     ) -> str:
         """Return the content hash stored with a quality report."""
         quality_material = {
+            "quality_policy_version": QUALITY_POLICY_VERSION,
             "flags": tuple(sorted(flags)),
             "deduplicated_count": deduplicated_count,
             "publishable": publishable,

@@ -29,13 +29,13 @@
   ],
   "cases": {
     "missing_data": {"quality_flags": ["MISSING_DATA"], "publishable": false},
-    "duplicate_exact": {"quality_flags": ["DUPLICATE"], "publishable": true},
+    "duplicate_exact": {"quality_flags": ["DUPLICATE"], "publishable": false},
     "duplicate_conflict": {"quality_flags": ["DUPLICATE_CONFLICT"], "publishable": false},
     "out_of_order": {"quality_flags": ["OUT_OF_ORDER"], "publishable": false},
-    "price_invalid": {"quality_flags": ["PRICE_INVALID"], "publishable": false},
-    "volume_invalid": {"quality_flags": ["VOLUME_INVALID"], "publishable": false},
+    "price_invalid": {"quality_flags": ["PRICE_INVALID"], "publishable": true},
+    "volume_invalid": {"quality_flags": ["VOLUME_INVALID"], "publishable": true},
     "checksum_mismatch": {"quality_flags": ["CHECKSUM_MISMATCH"], "publishable": false},
-    "degraded": {"quality_flags": ["DEGRADED"], "publishable": false}
+    "degraded": {"quality_flags": ["DEGRADED"], "publishable": true}
   },
   "replay_contract": {
     "same_inputs_must_match": [

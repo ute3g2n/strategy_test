@@ -384,13 +384,16 @@ def test_event_id_is_reproducible_for_identical_replay_inputs() -> None:
 
 
 def test_normal_full_chain_preserves_record_ordinal_and_replay_snapshot(tmp_path: Path) -> None:
-    """Two equal-time bars keep a stable order through store and event creation."""
+    """Two ordered bars keep a stable order through store and event creation."""
     contracts = _contracts()
     normalizer = _normalizer().DbnNormalizer(_catalog_binding(contracts))
-    source = _replay_input(contracts)
+    source = dataclasses.replace(
+        _replay_input(contracts),
+        request_end_utc=datetime(2026, 1, 1, 0, 2, tzinfo=UTC),
+    )
     records = (
         _record(contracts, record_ordinal=2),
-        _record(contracts, record_ordinal=3),
+        _record(contracts, record_ordinal=3, event_time_utc=datetime(2026, 1, 1, 0, 1, tzinfo=UTC)),
     )
     normalized = normalizer.normalize(records, source)
     quality_module = importlib.import_module("autotrade.market_data.quality")

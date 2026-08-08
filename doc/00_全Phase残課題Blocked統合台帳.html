@@ -451,6 +451,29 @@ firewall=true</pre></li>
     <p>Phase 1のPoC、Risk、Shadow、Paper/Live移行条件、通知方法、AI基盤の品質基準などは、統合台帳の各<code>BLK-P1-*</code>・<code>BLK-AIF-*</code>行で継続管理している。これらは今回の実DBN Replayを壊す課題ではないが、実際の自動売買を開始する前には、担当Phase、承認者、証跡、停止条件をそれぞれ閉じる必要がある。</p>
     <p><small>やさしい説明: 今回は「市場データを正しく読む」試験に合格しました。売買の危険を管理する仕組み、通知の仕組み、本番へ移す条件は別の宿題として残っています。</small></p>
   </section>
+  <section class="ok-note" id="policy-decisions-20260809">
+    <h2>ユーザー決定の最新反映（2026-08-09）</h2>
+    <h3>BLK-P2-004 / UNK-P2-05：警告付きで使用</h3>
+    <p>ユーザー決定により、<strong>欠損・重複・時刻ずれは停止</strong>し、それ以外の品質異常（DEGRADED、価格異常、出来高異常）は警告を残したうえで使用可能とする。品質方針版は <code>quality-warning-except-missing-duplicate-time-v1</code>。checksum不一致、銘柄ID欠落、元データID欠落、未知の品質フラグは、警告ではなくデータの出所・整合性が壊れている状態なので、従来どおり停止する。</p>
+    <p><small>やさしい説明: 「少し変な価格や出来高」は注意書きを付けて使います。でも、データが抜けている、同じものが二重、時刻が逆向き、出所の確認ができない場合は使いません。</small></p>
+
+    <h3>BLK-P2-005：プロジェクト内の費用・利用権限停止条件を廃止</h3>
+    <p>ユーザー決定により、費用・entitlementの最終記録を理由にRunやPhaseを停止する<strong>プロジェクト内制限を廃止</strong>する。H2-2で許可された取得範囲の拡大承認を求める運用も、この課題を理由には行わない。なお、外部データ提供者との契約条件そのものをこの台帳が変更するものではない。</p>
+    <p><small>やさしい説明: このプロジェクトの中で「費用の確認が終わるまで先へ進めない」という門を外しました。ただし、外部サービスの契約ルールまで消えたわけではありません。</small></p>
+
+    <h3>BLK-P2-006：保存方針を確定</h3>
+    <p>保存先は <code>E:\strategy_test_data</code> 配下に確定し、Raw、Normalized、Manifest、Replay、証跡、隔離、一時領域のディレクトリを作成済み。ユーザー決定により、<strong>バックアップなし、保存期間の制限なし、復元試験なし、容量上限なし、障害時の退避なし、専用アクセス権なし、暗号化なし</strong>とする。これらは未対応ではなく、意図的に採用しない運用方針である。</p>
+    <p><small>やさしい説明: 大きなデータを置く倉庫と棚は用意しました。予備の倉庫、鍵の追加、暗号化、復元練習は行わないと決めています。そのため、壊れたり消えたりしたときに戻せない危険は受け入れた状態です。</small></p>
+
+    <h3>BLK-P2-007 / UNK-P2-09：一般的な遅延基準の調査結果</h3>
+    <p><strong>調査結論:</strong> すべての取引システムに共通する一つの秒数はない。用途、銘柄、時間足、接続場所、売買判断の速さで決める。IBMも、許容遅延は用途と意思決定速度で決まり、単一の世界共通値ではないと説明している。<a href="https://www.ibm.com/think/topics/data-latency">IBM: What Is Data Latency?</a></p>
+    <p><strong>外部の目安:</strong> 金融情報サービス業界のFISDベストプラクティスは、提供者側のend-to-end遅延を99.98%の取引時間で200ms以内とする目標を推奨し、latencyの月次監視・最大値・原因分析も求めている。<a href="https://fisd.net/wp-content/uploads/2021/12/Service-Level-Communications-Working-Group-Best-Practices-Document-7.0FINAL1.pdf">FISD Best Practice Recommendations（10.6.1〜10.6.3）</a></p>
+    <p>Cboeは、取引所からの距離だけでも1〜20msの遅延が生じ得ること、イベントが集中すると単純な平均値では「古い価格を見ている時間」を測れないことを説明している。<a href="https://www.cboe.com/insights/posts/mission-possible/">Cboe: Mission Possible</a> SECの説明も、latencyについて一律の最大値を定めず、最先端の単一市場接続では1ms未満、遠隔市場ではそれ以上になり得るとしている。<a href="https://www.sec.gov/rules-regulations/staff-guidance/trading-markets-frequently-asked-questions-2">SEC Staff Guidance</a></p>
+    <p>Databentoは、<code>ts_event</code>（マッチングエンジン側）、<code>ts_recv</code>（受信側）、<code>ts_in_delta</code>（送信時点との差）を使って、matching engine latencyとfeed latencyを別々に測る方法を示している。<a href="https://databento.com/docs/examples/algo-trading/latency">Databento: Measuring matching engine and feed latency</a> 同社の数値（中央値6.1μs、接続形態別の90パーセンタイル）は提供者の能力値であり、このプロジェクトの保証値ではない。<a href="https://databento.com/live">Databento Real-Time Market Data</a></p>
+    <p><strong>本プロジェクトへの暫定提案（まだ承認前）:</strong> 1分足の売買システムでは、(a) bar_close_timeから受信まで2秒以内を正常、2秒超〜5秒を警告、5秒超をSignal停止、(b) 市場が開いていて次の1分足が15秒以上来なければSignal停止、(c) Provider/transport側は別指標としてp99.98が200ms以内を目標にし、アプリ側の5秒判定と混ぜない、の二層に分ける。これはFISDの200msをそのまま1分足の停止値にしたものではなく、上記の外部目安と本プロジェクトの1分足用途からの<strong>推奨推論</strong>である。実測後に最終承認する。</p>
+    <p><small>やさしい説明: 高速道路の通過時間と、家に荷物が届くまでの時間は別々に測ります。このシステムでは、1分足が締まってから5秒を超えたら、古い情報で売買しない案を提案しています。ただし、実際の測定をしてから最後に決めます。</small></p>
+    <p><strong>調査日:</strong> 2026-08-09。URLと確認日をこの台帳に固定し、基準値を「法律で決まった唯一の値」とは扱わない。</p>
+  </section>
 </main>
 </body>
 </html>
