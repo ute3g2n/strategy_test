@@ -1,10 +1,10 @@
 ﻿{
-    "execution_id":  "5e4bd185f5bd4aff805da26e3b223161",
+    "execution_id":  "c7aadd9159534901b53383574c70e6a5",
     "source_repository_path":  "/home/oue/strategy_test",
     "source_kind":  "wsl_verification",
-    "verification_raw":  "{\n  \"state\": \"FAILED\",\n  \"exit_code\": 2,\n  \"tool_versions\": {\n    \"python\": \"Python 3.12.13\",\n    \"ruff\": \"ruff 0.16.1\",\n    \"mypy\": \"mypy 2.3.0 (compiled: yes)\",\n    \"pytest\": \"pytest 9.1.1\",\n    \"pytest_cov\": \"7.1.0\"\n  },\n  \"scope\": \"target_only\",\n  \"fixture_sha256\": \"sha256:a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79\",\n  \"target_only_change_sha256\": \"sha256:a38aa35132d158adfc656c327149743590ab09f25f15d3430c89f982b7aa501c\",\n  \"host_wrapper_execution_id\": \"5e4bd185f5bd4aff805da26e3b223161\",\n  \"restore_pending\": true\n}\n",
+    "verification_raw":  "{\n  \"state\": \"FAILED\",\n  \"exit_code\": 2,\n  \"tool_versions\": {\n    \"python\": \"Python 3.12.13\",\n    \"ruff\": \"ruff 0.16.1\",\n    \"mypy\": \"mypy 2.3.0 (compiled: yes)\",\n    \"pytest\": \"pytest 9.1.1\",\n    \"pytest_cov\": \"7.1.0\"\n  },\n  \"scope\": \"target_only\",\n  \"fixture_sha256\": \"sha256:a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79\",\n  \"target_only_change_sha256\": \"sha256:a38aa35132d158adfc656c327149743590ab09f25f15d3430c89f982b7aa501c\",\n  \"host_wrapper_execution_id\": \"c7aadd9159534901b53383574c70e6a5\",\n  \"restore_pending\": true\n}\n",
     "retrieval_exit_code":  0,
-    "captured_at":  "2026-08-08T09:12:39.1869532Z",
+    "captured_at":  "2026-08-08T09:13:34.3254223Z",
     "state":  "CAPTURED",
     "verification":  {
                          "state":  "FAILED",
@@ -19,7 +19,7 @@
                          "scope":  "target_only",
                          "fixture_sha256":  "sha256:a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79",
                          "target_only_change_sha256":  "sha256:a38aa35132d158adfc656c327149743590ab09f25f15d3430c89f982b7aa501c",
-                         "host_wrapper_execution_id":  "5e4bd185f5bd4aff805da26e3b223161",
+                         "host_wrapper_execution_id":  "c7aadd9159534901b53383574c70e6a5",
                          "restore_pending":  true
                      },
     "source_path":  "/home/oue/strategy_test/tests/evidence/phase2/RUN-P2-DP-001/verification.json",
@@ -29,10 +29,10 @@
                            "kernel":  "6.6.87.2-microsoft-standard-WSL2",
                            "distro":  "Ubuntu-24.04",
                            "networking_mode":  "none",
-                           "host_wrapper_execution_id":  "5e4bd185f5bd4aff805da26e3b223161",
+                           "host_wrapper_execution_id":  "c7aadd9159534901b53383574c70e6a5",
                            "ip_addr_summary":  "1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\n    inet 127.0.0.1/8 scope host lo\n       valid_lft forever preferred_lft forever\n    inet6 ::1/128 scope host \n       valid_lft forever preferred_lft forever",
                            "ip_route_summary":  "",
-                           "confirmed_at":  "2026-08-08T09:12:38Z",
+                           "confirmed_at":  "2026-08-08T09:13:34Z",
                            "scope":  [
                                          "src/autotrade/market_data",
                                          "tests/market_data",
