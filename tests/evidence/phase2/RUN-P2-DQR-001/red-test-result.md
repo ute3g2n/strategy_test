@@ -3,7 +3,7 @@
 ## 状態
 
 - ローカル実装検証: **GREEN**
-- WSL隔離4 Gate: **BLOCKED（WSLクローン未同期）**
+- WSL隔離4 Gate: **4 Gate PASS / HUMAN_GATE_REQUIRED**
 - 実施日: 2026-08-08
 - 外部ネットワーク、Databento、Broker、Secret、実データ: 不使用
 
@@ -30,10 +30,10 @@ Raw / Normalized Store、`MarketEvent`、`DataVersion`、`Manifest`はP2-05実�
 
 ## WSL隔離結果
 
-Windows側のRun wrapperは `RUN-P2-DQR-001` をtrusted scopeとして登録済みだが、`/home/oue/strategy_test` は旧コミット `0ba78f9` のままで、動的Run ID対応前のwrapperを実行した。そのためW​​SL側は `Run ID is not the fixed WSL scope` で停止し、4 Gateは開始されていない。
+WSLクローンを `git pull --ff-only` で `3af1187f58858e4cd38895b61a6b3504b733d11a` へ同期後、同じRunを再実行した。formatter、lint、mypy、pytestは全てPASSし、`networking_mode=none`、対象scope、fixture hashも確認された。
 
-この停止は実装失敗ではなく、WSL同期前実行を拒否するための証跡である。WSLへ書込みは行っていない。ユーザーがWSLクローンで `git pull --ff-only` を実施した後、同じRunを再実行して隔離4 Gateを確定する。
+Runの最終状態は、明示的なHuman Gate承認が未提示のため `HUMAN_GATE_REQUIRED`（wrapper exit code 20）である。これはGate失敗ではなく、最終Passを保留する承認待ちである。
 
 ## 次の停止条件
 
-WSL隔離4 GateのPASSと明示的なRun承認が得られるまで、P2-09の統合PassおよびPhase 3入力昇格は行わない。
+明示的なRun承認が得られるまで、P2-09の統合PassおよびPhase 3入力昇格は行わない。
