@@ -53,10 +53,11 @@
 
 ### Windows・WSLの作業ツリー規則
 
-- 通常の編集・実装・文書更新は、Windows側の本リポジトリツリーだけで行う。
-- AIは `\\wsl.localhost` 経由の直接書込み、`Copy-Item` などによるWSLクローンへの同時更新、WSL側へのパッチ適用を行わない。トークンと時間を消費する二重更新を避ける。
-- WSLクローンは、実機テストや隔離実行の必要なタイミングに、ユーザーが明示的に指定した方法で `git pull --ff-only` を実行して同期する。AIはその同期を勝手に開始しない。
-- WSL側の証跡の取得やHEAD確認は読み取りに限る。WSL側の更新が必要な場合は、先にWindows側の変更を保存し、ユーザーにpullの実行を依頼する。
+  - 通常の編集・実装・文書更新は、Windows側の本リポジトリツリーだけで行う。
+  - AIは `\\wsl.localhost` 経由の直接書込み、`Copy-Item` などによる同時更新、WSL側へのパッチ適用を行わない。Windows側を正本として先に保存する。
+  - ユーザー委譲（2026-08-08）により、実機テスト・隔離実行に必要な場合はAIがnative Windowsの `wsl.exe` から、clean確認済みの対象WSLクローンへ `git pull --ff-only` を自律実行してよい。
+  - 同期対象は事前に絶対パス、branch、origin、clean状態を読み取り確認する。force、reset、checkout、rebase、UNCコピー、未コミット変更の上書きは禁止する。fast-forward不能や想定外状態は停止して報告する。
+  - 同期後はWSLのHEAD、clean状態、trusted scope、fixture hashを再確認し、WSL側の証跡はWindows側へ取得する。WSL側の成果物を編集しない。
 
 ### Human Gateの承認ルール
 
