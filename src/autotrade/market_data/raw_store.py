@@ -53,9 +53,7 @@ class LocalRawStore:
                 "received_at_utc": request.received_at_utc.isoformat(),
                 "metadata": request.metadata,
             }
-            temporary_metadata.write_text(
-                json.dumps(metadata, sort_keys=True, separators=(",", ":")), encoding="utf-8"
-            )
+            temporary_metadata.write_text(json.dumps(metadata, sort_keys=True, separators=(",", ":")), encoding="utf-8")
             os.replace(temporary_payload, payload_path)
             os.replace(temporary_metadata, metadata_path)
         except OSError:
