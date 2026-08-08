@@ -106,6 +106,18 @@ try {
     $distroLine = ($list -split "`n" | Where-Object { $_ -like "*$Distro*" } | Select-Object -First 1)
     if ([string]::IsNullOrWhiteSpace($distroLine) -or $distroLine -notlike "* 2") { throw "Target distro is not registered as WSL version 2: $Distro" }
     if ($RepositoryPath -match '[\r\n''"]') { throw "RepositoryPath contains unsafe quoting characters" }
+    $dbnScope = $registry.scopes.PSObject.Properties[$RunId].Value.dbn_input
+    if ($null -ne $dbnScope) {
+        $protectedPath = [string]$dbnScope.protected_path
+        if ([string]::IsNullOrWhiteSpace($protectedPath) -or $protectedPath -notmatch '^/' -or $protectedPath -match '[\r\n''"]') {
+            throw "trusted DBN protected path is invalid"
+        }
+        $inputCheckArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "test -f '$protectedPath' && ! test -L '$protectedPath'")
+        $inputCheck = Invoke-WslCapture $inputCheckArguments
+        if ($inputCheck.ExitCode -ne 0) {
+            throw "protected DBN input is missing or is a symbolic link: $protectedPath"
+        }
+    }
 }
 catch {
     Write-Evidence @{ state = "BLOCKED"; reason = $_.Exception.Message; execution_id = $executionId } "preflight.json"

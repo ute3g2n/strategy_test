@@ -19,6 +19,8 @@ Thumbs.db
 coverage/
 .coverage
 tests/evidence/phase2/RUN-P2-DP-002/raw/
+*.dbn
+**/raw/
 dist/
 build/
 
