@@ -89,6 +89,7 @@
       "design": "P2-D05-P2-D06-P2-D07",
       "requirements": ["REQ-Q02", "REQ-Q23", "REQ-Q29"],
       "orchestrator": "AutoTradeProject_Orchestrator_v0_1",
+      "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
       "target_paths": ["src/autotrade/market_data", "tests/market_data", "tests/fixtures/market_data", "scripts/market_data"],
       "excluded_paths": [".env", "third_party/everything-claude-code", "research"],
       "fixture": {
