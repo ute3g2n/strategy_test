@@ -1,47 +1,49 @@
 {
   "run_id": "RUN-P2-DQR-001",
   "phase_id": "phase2",
-  "step_id": "P2-06",
-  "state": "RED_DESIGN",
+  "step_id": "P2-07",
+  "design": "P2-D05-P2-D06-P2-D07",
+  "requirements": ["REQ-Q02", "REQ-Q19", "REQ-Q20", "REQ-Q23", "REQ-Q29"],
   "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+  "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
   "agents": [
     "AutoTrade_A110_PythonTestEngineer_v0_1",
+    "AutoTrade_A120_PythonImplementer_v0_1",
     "AutoTrade_A130_VerificationEngineer_v0_1",
+    "AutoTrade_A140_DebugEngineer_v0_1",
     "AutoTrade_A150_PythonCodeReviewer_v0_1",
     "AutoTrade_A160_TradingSecurityReviewer_v0_1"
   ],
   "skills": [
+    "autotrade_skill_python_implementation_v0_1",
     "autotrade_skill_python_test_quality_v0_1",
-    "autotrade_skill_test_strategy_v0_1",
-    "autotrade_skill_golden_test_v0_1",
-    "autotrade_skill_execution_model_v0_1",
+    "autotrade_skill_debug_recovery_v0_1",
     "autotrade_skill_python_code_review_v0_1"
   ],
-  "design": ["P2-D05", "P2-D06", "P2-D07", "P2-D08", "D11", "D18"],
+  "data_version": "dv_fixture_contract_v1",
+  "change_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "baseline_ref": "HEAD",
+  "evidence_root": "tests/evidence/phase2/RUN-P2-DQR-001",
   "target_paths": [
     "src/autotrade/market_data",
     "tests/market_data",
     "tests/fixtures/market_data"
   ],
-  "excluded_paths": [".env", "research", "third_party/everything-claude-code"],
-  "fixture": {
+  "excluded_paths": [".env", "third_party/everything-claude-code", "research"],
+  "scope_mode": "target_only",
+  "input_fixture": {
     "path": "tests/fixtures/market_data/data_quality_replay_fixture.json",
-    "schema_version": "p2-dqr-fixture-v1",
-    "sha256": "sha256:a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79"
+    "name": "data_quality_replay_fixture.json",
+    "version": "p2-dqr-fixture-v1",
+    "checksum": "sha256:a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79"
   },
-  "source_mode": "fixture_only",
-  "network": "prohibited",
-  "broker": "prohibited",
-  "secrets": "prohibited",
-  "live_trading": "prohibited",
+  "human_gate_policy": "P2-07 implementation quality gate; no external I/O; explicit approval is required for final PASS",
+  "review": {"critical": 0, "high": 0},
+  "unknowns": [],
   "checks": [
-    {"gate": "formatter", "status": "PASS", "command": ".venv/Scripts/python.exe -m ruff format --check tests/market_data/test_data_quality_replay_contract.py"},
-    {"gate": "lint", "status": "PASS", "command": ".venv/Scripts/python.exe -m ruff check tests/market_data/test_data_quality_replay_contract.py"},
-    {"gate": "test_existing_catalog", "status": "PASS", "result": "9 passed"},
-    {"gate": "test_new_contract", "status": "RED", "result": "collection failed: ModuleNotFoundError for autotrade.market_data.manifest"},
-    {"gate": "type", "status": "NOT_STARTED", "reason": "P2-07 implementation modules do not exist"},
-    {"gate": "isolated_quality_gate", "status": "NOT_STARTED", "reason": "RUN-P2-DQR-001 trusted scope is intentionally not registered until P2-07 implementation exists"}
-  ],
-  "unknowns": ["UNK-P2-12"],
-  "human_gate": "H2-3 is not requested by P2-06 and remains pending P2-10"
+    {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "tests/market_data"]},
+    {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/market_data", "tests/market_data"]},
+    {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/market_data"]},
+    {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p2_pytest"]}
+  ]
 }
