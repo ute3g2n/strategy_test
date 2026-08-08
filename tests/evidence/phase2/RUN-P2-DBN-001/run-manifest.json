@@ -1,4 +1,4 @@
-{
+﻿{
   "run_id": "RUN-P2-DBN-001",
   "phase_id": "phase2",
   "step_id": "P2-12-03",
@@ -17,8 +17,8 @@
   "excluded_paths": [".env", "third_party/everything-claude-code", "research", "tests/fixtures/market_data"],
   "scope_mode": "target_only",
   "input_dbn": {"name": "p2-12-03-reacquired-dbn", "version": "dbn-ohlcv-1m-p2-12-03-reacquired", "checksum": "sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d", "prior_attempt_checksum": "sha256:8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e", "expected_protection": "root:autotrade-replay:440"},
-  "human_gate_policy": "H2-5承認済み。WSLの保護場所にある固定入力の内容確認値が一致する場合だけ実行し、H2-3とPhase 3への移行は許可しない。",
-  "review": {"critical": 0, "high": 0, "details": "P2-12-02再レビュー済み。P2-12-03は実DBNデコーダ読取りまで完了し、UNK-P2-13/14で安全停止した。"},
+  "human_gate_policy": "H2-5謇ｿ隱肴ｸ医∩縲８SL縺ｮ菫晁ｭｷ蝣ｴ謇縺ｫ縺ゅｋ蝗ｺ螳壼・蜉帙・蜀・ｮｹ遒ｺ隱榊､縺御ｸ閾ｴ縺吶ｋ蝣ｴ蜷医□縺大ｮ溯｡後＠縲？2-3縺ｨPhase 3縺ｸ縺ｮ遘ｻ陦後・險ｱ蜿ｯ縺励↑縺・・,
+  "review": {"critical": 0, "high": 0, "details": "P2-12-02蜀阪Ξ繝薙Η繝ｼ貂医∩縲１2-12-03縺ｯ螳櫂BN繝・さ繝ｼ繝隱ｭ蜿悶ｊ縺ｾ縺ｧ螳御ｺ・＠縲ゞNK-P2-13/14縺ｧ螳牙・蛛懈ｭ｢縺励◆縲・},
   "unknowns": [],
   "checks": [
     {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "tests/market_data", "scripts/quality_gate", "scripts/wsl_quality_gate"]},
@@ -27,3 +27,4 @@
     {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p2_pytest"]}
   ]
 }
+
