@@ -68,6 +68,11 @@
 </head>
 <body>
 <main>
+  <section class="ok-note" id="latest-authoritative-status-20260809">
+    <h2>最新の正本状態（2026-08-09）</h2>
+    <p><strong>P2-12-03の技術判定はPASS。</strong> ただし、Phase 3への移行はまだ承認済みではない。H2-3（Data Quality / Replay結果の本線引渡し）とH2-4（Phase 2完了・Phase 3開始）の人間承認が残っている。下の古い行は当時の履歴として保持し、この最新欄を現在の判定として扱う。</p>
+    <p><small>やさしい説明: テストには合格しました。でも、次のステージへ進むための人のサインがまだ2つ必要です。古い記録は消さずに残していますが、今の答えはこの欄です。</small></p>
+  </section>
   <p><a href="./index.html">ドキュメント一覧へ戻る</a></p>
   <h1>全Phase 残課題・Blocked 統合台帳</h1>
 
@@ -393,6 +398,14 @@ firewall=true</pre></li>
     <p>ユーザー承認により、<code>instrument_class=future</code>かつ<code>instrument_status=active</code>の通常先物だけを本線へ採用する。<code>spread</code>または<code>pending</code>のレコードはRawと除外記録へ残すが、NormalizedBar・MarketEvent・Signalには使用しない。今回の4件は3件を採用し、1件（<code>MCLN6-MCLQ6</code>）を明示的に除外する。</p>
     <p>この方針を <code>main-future-active-only-v1</code> としてManifestの正規化ルールへ含め、同じ入力・同じCatalog・同じ規則なら同じ除外記録、data_version、Event列になるよう固定する。</p>
     <p><small>やさしい説明: 普通の商品だけを売買判断に使い、組み合わせ商品は箱と記録には残しますが、売買の合図には混ぜません。何を除外したかも毎回記録するので、あとで同じ結果を再現できます。</small></p>
+  </section>
+  <section class="ok-note" id="current-status-p2-12-03-pass-20260809">
+    <h2>P2-12-03 最終状態（2026-08-09）</h2>
+    <p><strong>UNK-P2-15 は解消済み、P2-12-03 はPASS。</strong> ユーザー承認の方針 <code>main-future-active-only-v1</code>（有効な先物だけを本線へ採用）で、実DBN 4件からNormalizedBar 3件、MarketEvent 3件を作成し、spread 1件はRaw・監査記録だけに残した。Replayバー系列は一致し、入力hashは実行前後で一致した。実行IDは <code>6ff212e8cd8d4163803252b3c17ea95f</code>、data_versionは <code>dv_6ebf08d99806455360a1</code>、品質報告hashは <code>sha256:67601a9a6601e4fe194bf2c77ba684f538c65e5b18c50c9a10d6fbf487a8c2c9</code>。固定4 Gateも4件すべてPASS。</p>
+    <p><small>やさしい説明: 本物の市場データ4個を読み、売買に使ってよい3個だけを通しました。組み合わせ商品1個は、あとで確認できるよう記録だけ残しました。最初と最後でデータが変わっておらず、もう一度読んでも同じ結果になることまで確認できています。</small></p>
+    <p><strong>Phase 3の状態:</strong> まだ「移行承認済み」ではない。次に必要なのは、(1) H2-3: このData Quality / Replay結果を本線へ引き渡してよい、という承認、(2) H2-4: Phase 2を完了扱いにしてPhase 3へ進めてよい、という承認の2つ。技術テストはPASSだが、人間承認が終わるまではData GateとPhase 3引渡しを自動で開けない。</p>
+    <p><small>やさしい説明: 車の検査には合格しましたが、出発のサインはまだもらっていません。まず「この検査結果を正式に受け取る」承認、次に「次のPhaseへ進む」承認が必要です。</small></p>
+    <p>関連証跡: <a href="../tests/evidence/phase2/RUN-P2-DBN-001/automation/run-test-summary.json">自動実行サマリー</a>、<a href="../tests/evidence/phase2/RUN-P2-DBN-001/wsl-verification-capture.json">WSL捕捉証跡</a>、<a href="../tests/evidence/phase2/RUN-P2-DBN-001/run-manifest.json">Run Manifest</a>、<a href="./phase2/09_実DBN変換/09_実DBN_Replay隔離検証結果.html">P2-D17</a>。</p>
   </section>
 </main>
 </body>

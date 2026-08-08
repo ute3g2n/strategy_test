@@ -1,19 +1,74 @@
 ﻿{
-    "execution_id":  "fd359638ecab4b9d924a28f5876abab2",
+    "execution_id":  "6ff212e8cd8d4163803252b3c17ea95f",
     "source_repository_path":  "/home/oue/strategy_test",
     "source_kind":  "wsl_verification",
-    "verification_raw":  "{\n  \"state\": \"BLOCKED\",\n  \"reason\": \"Unknown が未解決です\",\n  \"gates\": [],\n  \"generated_at\": \"2026-08-08T22:08:59.625357+00:00\",\n  \"exit_code\": 1,\n  \"tool_versions\": {\n    \"python\": \"Python 3.12.13\",\n    \"ruff\": \"ruff 0.16.1\",\n    \"mypy\": \"mypy 2.3.0 (compiled: yes)\",\n    \"pytest\": \"pytest 9.1.1\",\n    \"pytest_cov\": \"7.1.0\"\n  },\n  \"scope\": \"target_only\",\n  \"input_sha256\": \"sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d\",\n  \"post_input_sha256\": \"sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d\",\n  \"target_only_change_sha256\": \"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n  \"host_wrapper_execution_id\": \"fd359638ecab4b9d924a28f5876abab2\",\n  \"restore_pending\": true,\n  \"dbn_decoder_probe\": {\n    \"state\": \"DECODED_NOT_NORMALIZED\",\n    \"execution_user\": \"root\",\n    \"execution_uid\": 0,\n    \"input_sha256\": \"sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d\",\n    \"schema\": \"ohlcv-1m\",\n    \"record_count\": 4,\n    \"event_times_utc\": [\n      \"2026-06-15T12:00:00Z\",\n      \"2026-06-15T12:00:00Z\",\n      \"2026-06-15T12:00:00Z\",\n      \"2026-06-15T12:00:00Z\"\n    ],\n    \"vendor_instrument_ids\": [\n      42026750,\n      42460441,\n      42026511,\n      42025624\n    ],\n    \"record_ordinals\": [\n      0,\n      1,\n      2,\n      3\n    ],\n    \"normalization_state\": \"NOT_RUN_FAIL_CLOSED\",\n    \"normalization_blockers\": [\n      \"UNK-P2-15\"\n    ],\n    \"notes\": \"このprobeはDBN bytesの読取りだけを確認する。受信UTCとCatalog対応は別の固定証跡で確認済みで、spread選別条件が決まるまで正規化・Manifest・MarketEventは開始しない。\"\n  },\n  \"execution_user\": \"root\",\n  \"execution_uid\": 0\n}\n",
+    "verification_raw":  "{\n  \"state\": \"PASS\",\n  \"reason\": \"ユーザーが明示的に承認しました\",\n  \"gates\": [\n    {\n      \"gate\": \"formatter\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"format\",\n        \"--check\",\n        \"src/autotrade/market_data\",\n        \"tests/market_data\",\n        \"scripts/quality_gate\",\n        \"scripts/wsl_quality_gate\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 214\n    },\n    {\n      \"gate\": \"lint\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"check\",\n        \"src/autotrade/market_data\",\n        \"tests/market_data\",\n        \"scripts/quality_gate\",\n        \"scripts/wsl_quality_gate\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 214\n    },\n    {\n      \"gate\": \"type\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"mypy\",\n        \"src/autotrade/market_data\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 4425\n    },\n    {\n      \"gate\": \"test\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"scripts.quality_gate.local_p2_pytest\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 1068\n    }\n  ],\n  \"generated_at\": \"2026-08-08T23:07:52.373233+00:00\",\n  \"exit_code\": 0,\n  \"tool_versions\": {\n    \"python\": \"Python 3.12.13\",\n    \"ruff\": \"ruff 0.16.1\",\n    \"mypy\": \"mypy 2.3.0 (compiled: yes)\",\n    \"pytest\": \"pytest 9.1.1\",\n    \"pytest_cov\": \"7.1.0\"\n  },\n  \"scope\": \"target_only\",\n  \"input_sha256\": \"sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d\",\n  \"post_input_sha256\": \"sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d\",\n  \"target_only_change_sha256\": \"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n  \"host_wrapper_execution_id\": \"6ff212e8cd8d4163803252b3c17ea95f\",\n  \"restore_pending\": true,\n  \"dbn_decoder_probe\": {\n    \"state\": \"NORMALIZED_WITH_EXCLUSIONS\",\n    \"execution_user\": \"root\",\n    \"execution_uid\": 0,\n    \"input_sha256\": \"sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d\",\n    \"schema\": \"ohlcv-1m\",\n    \"record_count\": 4,\n    \"event_times_utc\": [\n      \"2026-06-15T12:00:00Z\",\n      \"2026-06-15T12:00:00Z\",\n      \"2026-06-15T12:00:00Z\",\n      \"2026-06-15T12:00:00Z\"\n    ],\n    \"vendor_instrument_ids\": [\n      42026750,\n      42460441,\n      42026511,\n      42025624\n    ],\n    \"record_ordinals\": [\n      0,\n      1,\n      2,\n      3\n    ],\n    \"normalization_state\": \"PASS_WITH_EXPLICIT_SPREAD_EXCLUSION\",\n    \"decoded_record_count\": 4,\n    \"normalized_record_count\": 3,\n    \"excluded_ranges\": [\n      \"record_ordinal=1|vendor_instrument_id=42460441|source_symbol=MCLN6-MCLQ6|reason=SPREAD_OUT_OF_MAIN_SERIES\"\n    ],\n    \"quality_report_sha256\": \"sha256:67601a9a6601e4fe194bf2c77ba684f538c65e5b18c50c9a10d6fbf487a8c2c9\",\n    \"data_version\": \"dv_6ebf08d99806455360a1\",\n    \"event_count\": 3,\n    \"event_ids\": [\n      \"evt_0f9e89647fdf52e46be88e7f\",\n      \"evt_c199392c67b041ee1b0e9ac4\",\n      \"evt_d172a078643b44a3a28df546\"\n    ],\n    \"replay_bars_equal\": true,\n    \"normalization_blockers\": [],\n    \"notes\": \"このprobeはDBN bytesの読取りだけを確認する。受信UTCとCatalog対応は別の固定証跡で確認済みで、spread選別条件が決まるまで正規化・Manifest・MarketEventは開始しない。\"\n  },\n  \"execution_user\": \"root\",\n  \"execution_uid\": 0\n}\n",
     "retrieval_exit_code":  0,
-    "captured_at":  "2026-08-08T22:09:00.3881649Z",
+    "captured_at":  "2026-08-08T23:07:53.0994924Z",
     "state":  "CAPTURED",
     "verification":  {
-                         "state":  "BLOCKED",
-                         "reason":  "Unknown が未解決です",
+                         "state":  "PASS",
+                         "reason":  "ユーザーが明示的に承認しました",
                          "gates":  [
-
+                                       {
+                                           "gate":  "formatter",
+                                           "status":  "PASS",
+                                           "command":  [
+                                                           ".venv/bin/python",
+                                                           "-m",
+                                                           "ruff",
+                                                           "format",
+                                                           "--check",
+                                                           "src/autotrade/market_data",
+                                                           "tests/market_data",
+                                                           "scripts/quality_gate",
+                                                           "scripts/wsl_quality_gate"
+                                                       ],
+                                           "exit_code":  0,
+                                           "duration_ms":  214
+                                       },
+                                       {
+                                           "gate":  "lint",
+                                           "status":  "PASS",
+                                           "command":  [
+                                                           ".venv/bin/python",
+                                                           "-m",
+                                                           "ruff",
+                                                           "check",
+                                                           "src/autotrade/market_data",
+                                                           "tests/market_data",
+                                                           "scripts/quality_gate",
+                                                           "scripts/wsl_quality_gate"
+                                                       ],
+                                           "exit_code":  0,
+                                           "duration_ms":  214
+                                       },
+                                       {
+                                           "gate":  "type",
+                                           "status":  "PASS",
+                                           "command":  [
+                                                           ".venv/bin/python",
+                                                           "-m",
+                                                           "mypy",
+                                                           "src/autotrade/market_data"
+                                                       ],
+                                           "exit_code":  0,
+                                           "duration_ms":  4425
+                                       },
+                                       {
+                                           "gate":  "test",
+                                           "status":  "PASS",
+                                           "command":  [
+                                                           ".venv/bin/python",
+                                                           "-m",
+                                                           "scripts.quality_gate.local_p2_pytest"
+                                                       ],
+                                           "exit_code":  0,
+                                           "duration_ms":  1068
+                                       }
                                    ],
-                         "generated_at":  "2026-08-08T22:08:59.625357+00:00",
-                         "exit_code":  1,
+                         "generated_at":  "2026-08-08T23:07:52.373233+00:00",
+                         "exit_code":  0,
                          "tool_versions":  {
                                                "python":  "Python 3.12.13",
                                                "ruff":  "ruff 0.16.1",
@@ -25,10 +80,10 @@
                          "input_sha256":  "sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d",
                          "post_input_sha256":  "sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d",
                          "target_only_change_sha256":  "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-                         "host_wrapper_execution_id":  "fd359638ecab4b9d924a28f5876abab2",
+                         "host_wrapper_execution_id":  "6ff212e8cd8d4163803252b3c17ea95f",
                          "restore_pending":  true,
                          "dbn_decoder_probe":  {
-                                                   "state":  "DECODED_NOT_NORMALIZED",
+                                                   "state":  "NORMALIZED_WITH_EXCLUSIONS",
                                                    "execution_user":  "root",
                                                    "execution_uid":  0,
                                                    "input_sha256":  "sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d",
@@ -52,9 +107,23 @@
                                                                            2,
                                                                            3
                                                                        ],
-                                                   "normalization_state":  "NOT_RUN_FAIL_CLOSED",
+                                                   "normalization_state":  "PASS_WITH_EXPLICIT_SPREAD_EXCLUSION",
+                                                   "decoded_record_count":  4,
+                                                   "normalized_record_count":  3,
+                                                   "excluded_ranges":  [
+                                                                           "record_ordinal=1|vendor_instrument_id=42460441|source_symbol=MCLN6-MCLQ6|reason=SPREAD_OUT_OF_MAIN_SERIES"
+                                                                       ],
+                                                   "quality_report_sha256":  "sha256:67601a9a6601e4fe194bf2c77ba684f538c65e5b18c50c9a10d6fbf487a8c2c9",
+                                                   "data_version":  "dv_6ebf08d99806455360a1",
+                                                   "event_count":  3,
+                                                   "event_ids":  [
+                                                                     "evt_0f9e89647fdf52e46be88e7f",
+                                                                     "evt_c199392c67b041ee1b0e9ac4",
+                                                                     "evt_d172a078643b44a3a28df546"
+                                                                 ],
+                                                   "replay_bars_equal":  true,
                                                    "normalization_blockers":  [
-                                                                                  "UNK-P2-15"
+
                                                                               ],
                                                    "notes":  "このprobeはDBN bytesの読取りだけを確認する。受信UTCとCatalog対応は別の固定証跡で確認済みで、spread選別条件が決まるまで正規化・Manifest・MarketEventは開始しない。"
                                                },
@@ -68,10 +137,10 @@
                            "kernel":  "6.6.87.2-microsoft-standard-WSL2",
                            "distro":  "Ubuntu-24.04",
                            "networking_mode":  "none",
-                           "host_wrapper_execution_id":  "fd359638ecab4b9d924a28f5876abab2",
+                           "host_wrapper_execution_id":  "6ff212e8cd8d4163803252b3c17ea95f",
                            "ip_addr_summary":  "1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\n    inet 127.0.0.1/8 scope host lo\n       valid_lft forever preferred_lft forever\n    inet6 ::1/128 scope host \n       valid_lft forever preferred_lft forever",
                            "ip_route_summary":  "",
-                           "confirmed_at":  "2026-08-08T22:08:59Z",
+                           "confirmed_at":  "2026-08-08T23:07:46Z",
                            "scope":  [
                                          "src/autotrade/market_data",
                                          "tests/market_data",

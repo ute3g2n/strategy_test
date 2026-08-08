@@ -222,7 +222,8 @@ result = {
     "event_ids": [event.event_id for event in events],
     "replay_bars_equal": replay.bars == bars,
     "normalization_blockers": [],
-    "notes": "このprobeはDBN bytesの読取りだけを確認する。受信UTCとCatalog対応は別の固定証跡で確認済みで、spread選別条件が決まるまで正規化・Manifest・MarketEventは開始しない。",
+    "policy_notes": "main-future-active-only-v1: spread remains in Raw/audit and is excluded from NormalizedBar/MarketEvent/Signal.",
+    "notes": "固定方針 main-future-active-only-v1 により、spreadはRawと監査記録へ残し、本線のNormalizedBar・MarketEvent・Signalから除外した。DBN 4件のうち3件を正規化し、1件を明示的に除外した。",
 }
 output_path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 PY

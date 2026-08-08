@@ -9,7 +9,7 @@
                       "powershell_location":  "C:\\project\\strategy_test",
                       "exit_code":  0,
                       "output":  "W\u0000S\u0000L\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00002\u0000.\u00006\u0000.\u00003\u0000.\u00000\u0000\n\u0000\n\u0000ｫ0・ﾍ0・ \u0000ﾐ0・ｸ0・・:\u0000 \u00006\u0000.\u00006\u0000.\u00008\u00007\u0000.\u00002\u0000-\u00001\u0000\n\u0000\n\u0000W\u0000S\u0000L\u0000g\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00000\u0000.\u00007\u00001\u0000\n\u0000\n\u0000M\u0000S\u0000R\u0000D\u0000C\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00002\u0000.\u00006\u00003\u00005\u00003\u0000\n\u0000\n\u0000D\u0000i\u0000r\u0000e\u0000c\u0000t\u00003\u0000D\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00006\u00001\u00001\u0000.\u00001\u0000-\u00008\u00001\u00005\u00002\u00008\u00005\u00001\u00001\u0000\n\u0000\n\u0000D\u0000X\u0000C\u0000o\u0000r\u0000e\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u00000\u0000.\u00000\u0000.\u00002\u00006\u00001\u00000\u00000\u0000.\u00001\u0000-\u00002\u00004\u00000\u00003\u00003\u00001\u0000-\u00001\u00004\u00003\u00005\u0000.\u0000g\u0000e\u0000-\u0000r\u0000e\u0000l\u0000e\u0000a\u0000s\u0000e\u0000\n\u0000\n\u0000W\u0000i\u0000n\u0000d\u0000o\u0000w\u0000s\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u00000\u0000.\u00000\u0000.\u00002\u00006\u00002\u00000\u00000\u0000.\u00008\u00009\u00007\u00003\u0000\n\u0000\n\u0000",
-                      "recorded_at":  "2026-08-08T22:08:47.2590557Z"
+                      "recorded_at":  "2026-08-08T23:05:52.7659136Z"
                   },
                   {
                       "kind":  "strict",
@@ -21,7 +21,7 @@
                       "powershell_location":  "C:\\project\\strategy_test",
                       "exit_code":  0,
                       "output":  " \u0000 \u0000N\u0000A\u0000M\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000S\u0000T\u0000A\u0000T\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000V\u0000E\u0000R\u0000S\u0000I\u0000O\u0000N\u0000\n\u0000\n\u0000*\u0000 \u0000U\u0000b\u0000u\u0000n\u0000t\u0000u\u0000-\u00002\u00004\u0000.\u00000\u00004\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\n\u0000\n\u0000 \u0000 \u0000d\u0000o\u0000c\u0000k\u0000e\u0000r\u0000-\u0000d\u0000e\u0000s\u0000k\u0000t\u0000o\u0000p\u0000 \u0000 \u0000 \u0000 \u0000S\u0000t\u0000o\u0000p\u0000p\u0000e\u0000d\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\n\u0000\n\u0000",
-                      "recorded_at":  "2026-08-08T22:08:47.3084232Z"
+                      "recorded_at":  "2026-08-08T23:05:52.8188504Z"
                   },
                   {
                       "kind":  "capture",
@@ -37,7 +37,7 @@
                       "powershell_location":  "C:\\project\\strategy_test",
                       "exit_code":  0,
                       "output":  "",
-                      "recorded_at":  "2026-08-08T22:08:47.4350757Z"
+                      "recorded_at":  "2026-08-08T23:05:52.9350056Z"
                   },
                   {
                       "kind":  "capture",
@@ -48,12 +48,12 @@
                                       "--",
                                       "bash",
                                       "-lc",
-                                      "cd / \u0026\u0026 cd \u0027/home/oue/strategy_test\u0027 \u0026\u0026 exec bash scripts/wsl_quality_gate/run_isolated_p2.sh \u0027/home/oue/strategy_test\u0027 \u0027RUN-P2-DBN-001\u0027 \u0027fd359638ecab4b9d924a28f5876abab2\u0027"
+                                      "cd / \u0026\u0026 cd \u0027/home/oue/strategy_test\u0027 \u0026\u0026 exec bash scripts/wsl_quality_gate/run_isolated_p2.sh \u0027/home/oue/strategy_test\u0027 \u0027RUN-P2-DBN-001\u0027 \u0027a87ccaddef414ae98ba4607c0c5335b3\u0027"
                                   ],
                       "powershell_location":  "C:\\project\\strategy_test",
                       "exit_code":  1,
-                      "output":  "{\"state\": \"BLOCKED\", \"reason\": \"Unknown 縺梧悴隗｣豎ｺ縺ｧ縺・, \"gates\": [], \"generated_at\": \"2026-08-08T22:08:59.626057+00:00\"}",
-                      "recorded_at":  "2026-08-08T22:08:59.8596383Z"
+                      "output":  "{\"state\": \"BLOCKED\", \"reason\": \"螟画峩遽・峇繧呈､懈渊縺ｧ縺阪∪縺帙ｓ\", \"gates\": [], \"generated_at\": \"2026-08-08T23:06:05.302862+00:00\"}",
+                      "recorded_at":  "2026-08-08T23:06:05.5244841Z"
                   },
                   {
                       "kind":  "capture",
@@ -68,8 +68,8 @@
                                   ],
                       "powershell_location":  "C:\\project\\strategy_test",
                       "exit_code":  0,
-                      "output":  "ewogICJzdGF0ZSI6ICJCTE9DS0VEIiwKICAicmVhc29uIjogIlVua25vd24g44GM5pyq6Kej5rG644Gn44GZIiwKICAiZ2F0ZXMiOiBbXSwKICAiZ2VuZXJhdGVkX2F0IjogIjIwMjYtMDgtMDhUMjI6MDg6NTkuNjI1MzU3KzAwOjAwIiwKICAiZXhpdF9jb2RlIjogMSwKICAidG9vbF92ZXJzaW9ucyI6IHsKICAgICJweXRob24iOiAiUHl0aG9uIDMuMTIuMTMiLAogICAgInJ1ZmYiOiAicnVmZiAwLjE2LjEiLAogICAgIm15cHkiOiAibXlweSAyLjMuMCAoY29tcGlsZWQ6IHllcykiLAogICAgInB5dGVzdCI6ICJweXRlc3QgOS4xLjEiLAogICAgInB5dGVzdF9jb3YiOiAiNy4xLjAiCiAgfSwKICAic2NvcGUiOiAidGFyZ2V0X29ubHkiLAogICJpbnB1dF9zaGEyNTYiOiAic2hhMjU2OjA0ODNlMDExZjVkNDA2MDUzNTkxZDFhYzk4NjljZGUzNDk2MzRlOWU2MTI3OTRlYjdlMDE4OTY1N2VhMWVmMmQiLAogICJwb3N0X2lucHV0X3NoYTI1NiI6ICJzaGEyNTY6MDQ4M2UwMTFmNWQ0MDYwNTM1OTFkMWFjOTg2OWNkZTM0OTYzNGU5ZTYxMjc5NGViN2UwMTg5NjU3ZWExZWYyZCIsCiAgInRhcmdldF9vbmx5X2NoYW5nZV9zaGEyNTYiOiAic2hhMjU2OmUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLAogICJob3N0X3dyYXBwZXJfZXhlY3V0aW9uX2lkIjogImZkMzU5NjM4ZWNhYjRiOWQ5MjRhMjhmNTg3NmFiYWIyIiwKICAicmVzdG9yZV9wZW5kaW5nIjogdHJ1ZSwKICAiZGJuX2RlY29kZXJfcHJvYmUiOiB7CiAgICAic3RhdGUiOiAiREVDT0RFRF9OT1RfTk9STUFMSVpFRCIsCiAgICAiZXhlY3V0aW9uX3VzZXIiOiAicm9vdCIsCiAgICAiZXhlY3V0aW9uX3VpZCI6IDAsCiAgICAiaW5wdXRfc2hhMjU2IjogInNoYTI1NjowNDgzZTAxMWY1ZDQwNjA1MzU5MWQxYWM5ODY5Y2RlMzQ5NjM0ZTllNjEyNzk0ZWI3ZTAxODk2NTdlYTFlZjJkIiwKICAgICJzY2hlbWEiOiAib2hsY3YtMW0iLAogICAgInJlY29yZF9jb3VudCI6IDQsCiAgICAiZXZlbnRfdGltZXNfdXRjIjogWwogICAgICAiMjAyNi0wNi0xNVQxMjowMDowMFoiLAogICAgICAiMjAyNi0wNi0xNVQxMjowMDowMFoiLAogICAgICAiMjAyNi0wNi0xNVQxMjowMDowMFoiLAogICAgICAiMjAyNi0wNi0xNVQxMjowMDowMFoiCiAgICBdLAogICAgInZlbmRvcl9pbnN0cnVtZW50X2lkcyI6IFsKICAgICAgNDIwMjY3NTAsCiAgICAgIDQyNDYwNDQxLAogICAgICA0MjAyNjUxMSwKICAgICAgNDIwMjU2MjQKICAgIF0sCiAgICAicmVjb3JkX29yZGluYWxzIjogWwogICAgICAwLAogICAgICAxLAogICAgICAyLAogICAgICAzCiAgICBdLAogICAgIm5vcm1hbGl6YXRpb25fc3RhdGUiOiAiTk9UX1JVTl9GQUlMX0NMT1NFRCIsCiAgICAibm9ybWFsaXphdGlvbl9ibG9ja2VycyI6IFsKICAgICAgIlVOSy1QMi0xNSIKICAgIF0sCiAgICAibm90ZXMiOiAi44GT44GucHJvYmXjga9EQk4gYnl0ZXPjga7oqq3lj5bjgorjgaDjgZHjgpLnorroqo3jgZnjgovjgILlj5fkv6FVVEPjgahDYXRhbG9n5a++5b+c44Gv5Yil44Gu5Zu65a6a6Ki86Leh44Gn56K66KqN5riI44G/44Gn44CBc3ByZWFk6YG45Yil5p2h5Lu244GM5rG644G+44KL44G+44Gn5q2j6KaP5YyW44O7TWFuaWZlc3Tjg7tNYXJrZXRFdmVudOOBr+mWi+Wni+OBl+OBquOBhOOAgiIKICB9LAogICJleGVjdXRpb25fdXNlciI6ICJyb290IiwKICAiZXhlY3V0aW9uX3VpZCI6IDAKfQo=",
-                      "recorded_at":  "2026-08-08T22:09:00.2398827Z"
+                      "output":  "ewogICJzdGF0ZSI6ICJCTE9DS0VEIiwKICAicmVhc29uIjogIuWkieabtOevhOWbsuOCkuaknOafu+OBp+OBjeOBvuOBm+OCkyIsCiAgImdhdGVzIjogW10sCiAgImdlbmVyYXRlZF9hdCI6ICIyMDI2LTA4LTA4VDIzOjA2OjA1LjMwMjA5MCswMDowMCIsCiAgImV4aXRfY29kZSI6IDEsCiAgInRvb2xfdmVyc2lvbnMiOiB7CiAgICAicHl0aG9uIjogIlB5dGhvbiAzLjEyLjEzIiwKICAgICJydWZmIjogInJ1ZmYgMC4xNi4xIiwKICAgICJteXB5IjogIm15cHkgMi4zLjAgKGNvbXBpbGVkOiB5ZXMpIiwKICAgICJweXRlc3QiOiAicHl0ZXN0IDkuMS4xIiwKICAgICJweXRlc3RfY292IjogIjcuMS4wIgogIH0sCiAgInNjb3BlIjogInRhcmdldF9vbmx5IiwKICAiaW5wdXRfc2hhMjU2IjogInNoYTI1NjowNDgzZTAxMWY1ZDQwNjA1MzU5MWQxYWM5ODY5Y2RlMzQ5NjM0ZTllNjEyNzk0ZWI3ZTAxODk2NTdlYTFlZjJkIiwKICAicG9zdF9pbnB1dF9zaGEyNTYiOiAic2hhMjU2OjA0ODNlMDExZjVkNDA2MDUzNTkxZDFhYzk4NjljZGUzNDk2MzRlOWU2MTI3OTRlYjdlMDE4OTY1N2VhMWVmMmQiLAogICJ0YXJnZXRfb25seV9jaGFuZ2Vfc2hhMjU2IjogInNoYTI1NjplM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwKICAiaG9zdF93cmFwcGVyX2V4ZWN1dGlvbl9pZCI6ICJhODdjY2FkZGVmNDE0YWU5OGJhNDYwN2MwYzUzMzViMyIsCiAgInJlc3RvcmVfcGVuZGluZyI6IHRydWUsCiAgImRibl9kZWNvZGVyX3Byb2JlIjogewogICAgInN0YXRlIjogIk5PUk1BTElaRURfV0lUSF9FWENMVVNJT05TIiwKICAgICJleGVjdXRpb25fdXNlciI6ICJyb290IiwKICAgICJleGVjdXRpb25fdWlkIjogMCwKICAgICJpbnB1dF9zaGEyNTYiOiAic2hhMjU2OjA0ODNlMDExZjVkNDA2MDUzNTkxZDFhYzk4NjljZGUzNDk2MzRlOWU2MTI3OTRlYjdlMDE4OTY1N2VhMWVmMmQiLAogICAgInNjaGVtYSI6ICJvaGxjdi0xbSIsCiAgICAicmVjb3JkX2NvdW50IjogNCwKICAgICJldmVudF90aW1lc191dGMiOiBbCiAgICAgICIyMDI2LTA2LTE1VDEyOjAwOjAwWiIsCiAgICAgICIyMDI2LTA2LTE1VDEyOjAwOjAwWiIsCiAgICAgICIyMDI2LTA2LTE1VDEyOjAwOjAwWiIsCiAgICAgICIyMDI2LTA2LTE1VDEyOjAwOjAwWiIKICAgIF0sCiAgICAidmVuZG9yX2luc3RydW1lbnRfaWRzIjogWwogICAgICA0MjAyNjc1MCwKICAgICAgNDI0NjA0NDEsCiAgICAgIDQyMDI2NTExLAogICAgICA0MjAyNTYyNAogICAgXSwKICAgICJyZWNvcmRfb3JkaW5hbHMiOiBbCiAgICAgIDAsCiAgICAgIDEsCiAgICAgIDIsCiAgICAgIDMKICAgIF0sCiAgICAibm9ybWFsaXphdGlvbl9zdGF0ZSI6ICJQQVNTX1dJVEhfRVhQTElDSVRfU1BSRUFEX0VYQ0xVU0lPTiIsCiAgICAiZGVjb2RlZF9yZWNvcmRfY291bnQiOiA0LAogICAgIm5vcm1hbGl6ZWRfcmVjb3JkX2NvdW50IjogMywKICAgICJleGNsdWRlZF9yYW5nZXMiOiBbCiAgICAgICJyZWNvcmRfb3JkaW5hbD0xfHZlbmRvcl9pbnN0cnVtZW50X2lkPTQyNDYwNDQxfHNvdXJjZV9zeW1ib2w9TUNMTjYtTUNMUTZ8cmVhc29uPVNQUkVBRF9PVVRfT0ZfTUFJTl9TRVJJRVMiCiAgICBdLAogICAgInF1YWxpdHlfcmVwb3J0X3NoYTI1NiI6ICJzaGEyNTY6Njc2MDFhOWE2NjAxZTRmZTE5NGJmMmM3N2JhNjg0ZjUzOGM2NWU1YjE4YzUwYzlhMTBkNmZiZjQ4N2E4YzJjOSIsCiAgICAiZGF0YV92ZXJzaW9uIjogImR2X2Q1MmZiMzAzYTY5MmZkOTRiMmVlIiwKICAgICJldmVudF9jb3VudCI6IDMsCiAgICAiZXZlbnRfaWRzIjogWwogICAgICAiZXZ0X2E5M2E4ZmMyOWFhMmI1MzFjMDIxM2Y4NyIsCiAgICAgICJldnRfNTk4ODFlYTZhNDY3NDQyNWI3YTBmNWRjIiwKICAgICAgImV2dF9hNWQ1MmRkYjIyNDM4ZjRhNTA5YmMzODciCiAgICBdLAogICAgInJlcGxheV9iYXJzX2VxdWFsIjogdHJ1ZSwKICAgICJub3JtYWxpemF0aW9uX2Jsb2NrZXJzIjogW10sCiAgICAibm90ZXMiOiAi44GT44GucHJvYmXjga9EQk4gYnl0ZXPjga7oqq3lj5bjgorjgaDjgZHjgpLnorroqo3jgZnjgovjgILlj5fkv6FVVEPjgahDYXRhbG9n5a++5b+c44Gv5Yil44Gu5Zu65a6a6Ki86Leh44Gn56K66KqN5riI44G/44Gn44CBc3ByZWFk6YG45Yil5p2h5Lu244GM5rG644G+44KL44G+44Gn5q2j6KaP5YyW44O7TWFuaWZlc3Tjg7tNYXJrZXRFdmVudOOBr+mWi+Wni+OBl+OBquOBhOOAgiIKICB9LAogICJleGVjdXRpb25fdXNlciI6ICJyb290IiwKICAiZXhlY3V0aW9uX3VpZCI6IDAKfQo=",
+                      "recorded_at":  "2026-08-08T23:06:05.8983361Z"
                   },
                   {
                       "kind":  "capture",
@@ -84,11 +84,11 @@
                                   ],
                       "powershell_location":  "C:\\project\\strategy_test",
                       "exit_code":  0,
-                      "output":  "{\n  \"state\": \"CONFIRMED\", \"wsl_version\": \"WSL ・・繝ｻ・ｸ0繝ｻ繝ｻ: 2.6.3.0\", \"kernel\": \"6.6.87.2-microsoft-standard-WSL2\", \"distro\": \"Ubuntu-24.04\", \"networking_mode\": \"none\",\n  \"host_wrapper_execution_id\": \"fd359638ecab4b9d924a28f5876abab2\", \"ip_addr_summary\": \"1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\\n    inet 127.0.0.1/8 scope host lo\\n       valid_lft forever preferred_lft forever\\n    inet6 ::1/128 scope host \\n       valid_lft forever preferred_lft forever\",\n  \"ip_route_summary\": \"\",\n  \"confirmed_at\": \"2026-08-08T22:08:59Z\", \"scope\": [\"src/autotrade/market_data\", \"tests/market_data\", \"scripts/quality_gate\", \"scripts/wsl_quality_gate\"], \"input_sha256\": \"sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d\", \"input_kind\": \"dbn\"\n}",
-                      "recorded_at":  "2026-08-08T22:09:00.3836109Z"
+                      "output":  "{\n  \"state\": \"CONFIRMED\", \"wsl_version\": \"WSL ・・繝ｻ・ｸ0繝ｻ繝ｻ: 2.6.3.0\", \"kernel\": \"6.6.87.2-microsoft-standard-WSL2\", \"distro\": \"Ubuntu-24.04\", \"networking_mode\": \"none\",\n  \"host_wrapper_execution_id\": \"a87ccaddef414ae98ba4607c0c5335b3\", \"ip_addr_summary\": \"1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\\n    inet 127.0.0.1/8 scope host lo\\n       valid_lft forever preferred_lft forever\\n    inet6 ::1/128 scope host \\n       valid_lft forever preferred_lft forever\",\n  \"ip_route_summary\": \"\",\n  \"confirmed_at\": \"2026-08-08T23:06:05Z\", \"scope\": [\"src/autotrade/market_data\", \"tests/market_data\", \"scripts/quality_gate\", \"scripts/wsl_quality_gate\"], \"input_sha256\": \"sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d\", \"input_kind\": \"dbn\"\n}",
+                      "recorded_at":  "2026-08-08T23:06:06.0195814Z"
                   }
               ],
-    "execution_id":  "fd359638ecab4b9d924a28f5876abab2",
+    "execution_id":  "a87ccaddef414ae98ba4607c0c5335b3",
     "error":  "System.Management.Automation.RuntimeException: WSL runner returned non-zero; inspect verification.json",
     "state":  "FAILED"
 }
