@@ -63,16 +63,7 @@ class QualityChecker:
 
         ordered_flags = tuple(sorted(flags))
         publishable = not bool(_BLOCKING_FLAGS.intersection(flags))
-        quality_material = {
-            "flags": ordered_flags,
-            "deduplicated_count": deduplicated_count,
-            "publishable": publishable,
-            "signal_generation_allowed": publishable,
-        }
-        report_hash = (
-            "sha256:"
-            + sha256(json.dumps(quality_material, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
-        )
+        report_hash = QualityChecker.report_hash(ordered_flags, deduplicated_count, publishable)
         return QualityReport(
             flags=ordered_flags,
             publishable=publishable,
@@ -80,6 +71,19 @@ class QualityChecker:
             quality_report_sha256=report_hash,
             deduplicated_count=deduplicated_count,
         )
+
+    @staticmethod
+    def report_hash(flags: tuple[str, ...], deduplicated_count: int, publishable: bool) -> str:
+        """Return the content hash stored with a quality report."""
+        quality_material = {
+            "flags": tuple(sorted(flags)),
+            "deduplicated_count": deduplicated_count,
+            "publishable": publishable,
+            "signal_generation_allowed": publishable,
+        }
+        return "sha256:" + sha256(
+            json.dumps(quality_material, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
 
 
 def _valid_prices(bar: NormalizedBar) -> bool:

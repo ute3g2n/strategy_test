@@ -9,6 +9,8 @@ from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
 
+from .manifest import ManifestBuilder
+from .quality import QualityChecker
 from .store_contracts import (
     DataVersionManifest,
     NormalizedBar,
@@ -59,6 +61,20 @@ class LocalNormalizedStore:
         if manifest.data_version != data_version:
             raise ValueError("MANIFEST_INTEGRITY")
         if manifest.quality_report_sha256 != report.quality_report_sha256:
+            raise ValueError("MANIFEST_INTEGRITY")
+        if QualityChecker.report_hash(report.flags, report.deduplicated_count, report.publishable) != report.quality_report_sha256:
+            raise ValueError("MANIFEST_INTEGRITY")
+        rebuilt_manifest = ManifestBuilder.build(
+            raw_sha256s=manifest.raw_sha256s,
+            normalization_rule_version=manifest.normalization_rule_version,
+            catalog_version=manifest.catalog_version,
+            catalog_sha256=manifest.catalog_sha256,
+            quality_report_sha256=manifest.quality_report_sha256,
+            fixture_sha256=manifest.fixture_sha256,
+            code_revision=manifest.code_revision,
+            source_mode=manifest.source_mode,
+        )
+        if rebuilt_manifest.data_version != manifest.data_version:
             raise ValueError("MANIFEST_INTEGRITY")
         if not report.publishable or not report.signal_generation_allowed:
             raise ValueError("QUALITY_REJECTED")
@@ -112,10 +128,14 @@ def _report_from_json(value: object) -> QualityReport:
     flags = value.get("flags")
     if not isinstance(flags, list):
         raise ValueError("MANIFEST_INTEGRITY")
+    publishable = value.get("publishable")
+    signal_generation_allowed = value.get("signal_generation_allowed")
+    if not isinstance(publishable, bool) or not isinstance(signal_generation_allowed, bool):
+        raise ValueError("MANIFEST_INTEGRITY")
     return QualityReport(
         flags=tuple(str(flag) for flag in flags),
-        publishable=value.get("publishable") is True,
-        signal_generation_allowed=value.get("signal_generation_allowed") is True,
+        publishable=publishable,
+        signal_generation_allowed=signal_generation_allowed,
         quality_report_sha256=_string(value, "quality_report_sha256"),
         deduplicated_count=int(value.get("deduplicated_count", 0)),
         excluded_ranges=tuple(str(item) for item in value.get("excluded_ranges", [])),
