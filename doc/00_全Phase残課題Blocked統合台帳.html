@@ -354,6 +354,7 @@ firewall=true</pre></li>
       <tr><td>2026-08-08</td><td>v1.0</td><td>H2-2を含む人間の承認・認証・外部利用許可を専用一覧へ集約した。承認記録が見つからない事項も未承認として本台帳へ登録し、台帳だけで対象・期限・再開条件・証拠先を把握できる運用ルールを明記した。</td></tr>
       <tr><td>2026-08-08</td><td>v1.1</td><td>ユーザーの「H2-2 は承認します」を受領し、P2-08最小取得範囲のH2-2を承認済みへ更新した。対象範囲を越える取得は再承認とし、P2-08承認後Runの証拠先を追加した。</td></tr>
       <tr><td>2026-08-08</td><td>v1.2</td><td>P2-09 / P2-D10を登録した。固定fixtureの品質・Replay・条件付き銘柄分離はPASS、実DBNからNormalizedBar / MarketEventへの変換はUNKNOWNとしてData Gateを停止し、H2-3の判断対象とした。</td></tr>
+      <tr><td>2026-08-08</td><td>v1.3</td><td>P2-09の品質境界を再検証した。未知品質値・空snapshot・非UTC時刻・品質異常を伴う改ざんをfail-closed、同時書込みを排他的保存へ修正し、55 tests / coverage 80.00%とWSL固定4 Gate PASSを記録した。正常範囲内の行変更を束縛するcanonical content digestと実DBN decoderは未実装のため、Data Gate UNKNOWNとH2-3待ちは継続する。</td></tr>
     </tbody>
   </table>
 
