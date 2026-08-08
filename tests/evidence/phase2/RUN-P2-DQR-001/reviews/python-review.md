@@ -1,28 +1,21 @@
-# P2-06 Python品質レビュー（Findings first）
+# P2-07 Python品質レビュー（Findings first）
 
 ## Findings
 
-### DQR-PY-001 / Medium / Open
+### DQR-PY-002 / Medium / Open
 
-- 対象: `tests/market_data/test_data_quality_replay_contract.py`
-- 内容: `ReplayGate`の実装がまだ存在しないため、未来の足を追加して過去の公開済みイベントが変わらないことは、現時点ではfixtureの契約値の確認に留まる。
-- 判定: P2-06ではRED契約として許容するが、P2-07で`MarketEvent`とReplay実装を追加した後、短い入力と未来足を含む入力を実際に再生して同一履歴を比較するテストへ昇格する。
-- 重大度理由: 未実装境界をPass扱いしていないためCritical/Highではない。ただしP2-09の検証結果へこの契約テストのGREENを記録するまで、Phase 3入力へ昇格してはならない。
+- 対象: WSL隔離4 Gate
+- 内容: Windows側の実装・テストはGREENだが、WSLクローンが旧コミットのため `RUN-P2-DQR-001` を認識せず、隔離実行結果をまだ取得できない。
+- 判定: コード上のCritical/Highは確認されない。WSL同期後の同一trusted scope再実行を完了条件とする。
 
 ## 確認済み
 
-- 既存Catalog Resolverテストは9件GREEN。
-- P2-06追加テストは、未実装`manifest`境界でcollection REDとなり、skipや期待値の緩和で隠していない。
-- 固定fixtureにSecret、Account ID、API key、外部接続設定はない。
-- 現在時刻をfixture内容や`data_version`計算の入力にしていない。
-- 品質印（欠損、重複競合、時刻逆行、価格・出来高異常、checksum不一致、degraded）は、データ版発行不可・Signal停止として固定した。
+- `LocalRawStore`はchecksumを再計算し、同一IDの内容変更とSecretキーを拒否する。
+- `QualityChecker`は欠損、重複競合、時刻逆行、価格・出来高異常、checksum不一致、degradedをfail-closedで扱う。
+- `ManifestBuilder`と品質報告hashは現在時刻・外部I/Oに依存せず決定的である。
+- `LocalNormalizedStore.read_replay_snapshot`はManifest、品質報告hash、再構築data_versionを再検証する。
+- 25テスト、coverage 81.80%、ruff、mypyはローカルでGREEN。
 
 ## 再レビュー条件
 
-P2-07で次のモジュールが実装された後に再レビューする。
-
-- `store_contracts.py`
-- `quality.py`
-- `manifest.py`
-- `normalized_store.py`
-- `replay`境界（未来足と過去履歴の不変性を実行するもの）
+WSL隔離4 Gateを実行し、同一fixture hash・scope・証跡先が一致することを確認する。
