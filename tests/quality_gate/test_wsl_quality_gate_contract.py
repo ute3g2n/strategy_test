@@ -114,6 +114,8 @@ def test_wsl_runner_fails_closed_before_four_gates_on_missing_isolation_prerequi
     assert "runuser -u \"$repository_owner\"" in text
     assert "chown -R \"$repository_owner\" \"$evidence_root\"" in text
     assert "registry_path, run_id, requirements_path, evidence_path = sys.argv[1:]" in text
+    assert "DBN decoder probe failed" in text
+    assert '"state": "DECODED_NOT_NORMALIZED"' in text
 
 
 def test_wsl_runner_has_valid_bash_syntax() -> None:

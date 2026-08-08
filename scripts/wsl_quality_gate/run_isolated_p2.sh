@@ -126,6 +126,52 @@ python_version="$($python_bin --version 2>&1)"; ruff_version="$($python_bin -m r
 input_hash="sha256:$(sha256sum "$input_location" | awk '{print $1}')"
 [[ "$input_hash" == "$expected_input_hash" ]] || blocked "input checksum mismatch"
 
+if [[ "$input_kind" == "dbn" ]]; then
+  "$python_bin" - "$input_location" "$input_hash" "$evidence_root/dbn-decoder-probe.json" <<'PY' || blocked "DBN decoder probe failed"
+import json
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+
+from autotrade.market_data.databento_dbn_decoder import DatabentoDbnDecoder
+from autotrade.market_data.dbn_contracts import DbnReplayInput
+
+input_path = Path(sys.argv[1])
+input_sha256 = sys.argv[2]
+output_path = Path(sys.argv[3])
+source = DbnReplayInput(
+    payload_sha256=input_sha256,
+    raw_object_id="p2-08-fixed-dbn-decoder-probe-only",
+    raw_received_at_utc=datetime(1970, 1, 1, tzinfo=UTC),
+    source_vendor="databento",
+    dataset_ref="GLBX.MDP3",
+    schema_ref="ohlcv-1m",
+    stype="parent",
+    source_symbol="MCL.FUT",
+    request_start_utc=datetime(2026, 6, 15, 12, 0, tzinfo=UTC),
+    request_end_utc=datetime(2026, 6, 15, 12, 1, tzinfo=UTC),
+    request_context_sha256="sha256:decoder-probe-only",
+    decoder_version="databento-0.82.0",
+    decoder_artifact_sha256="sha256:decoder-probe-only",
+    normalization_rule_version="dbn-ohlcv-1m-v1",
+)
+records = DatabentoDbnDecoder().decode(input_path.read_bytes(), source)
+result = {
+    "state": "DECODED_NOT_NORMALIZED",
+    "input_sha256": source.payload_sha256,
+    "schema": source.schema_ref,
+    "record_count": len(records),
+    "event_times_utc": [record.event_time_utc.isoformat().replace("+00:00", "Z") for record in records],
+    "vendor_instrument_ids": [record.vendor_instrument_id for record in records],
+    "record_ordinals": [record.record_ordinal for record in records],
+    "normalization_state": "NOT_RUN_FAIL_CLOSED",
+    "normalization_blockers": ["RAW_RECEIVED_AT_MISSING", "CATALOG_MAPPING_UNRESOLVED"],
+    "notes": "受信UTC時刻はデコーダが参照しない仮値であり、正規化・Manifest・MarketEventへ渡していない。",
+}
+output_path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+PY
+fi
+
 cat > "$evidence_root/host-isolation.json" <<EOF
 {
   "state": "CONFIRMED", "wsl_version": "${WSL_VERSION:-unknown}", "kernel": "${kernel}", "distro": "${distro}", "networking_mode": "none",
@@ -160,7 +206,9 @@ from pathlib import Path
 path, exit_code, python, ruff, mypy, pytest, coverage, fixture, host_execution_id = sys.argv[1:]
 result = json.loads(Path(path).read_text(encoding="utf-8")) if Path(path).exists() else {"state": "FAILED"}
 manifest = json.loads((Path(path).parent / "run-manifest.json").read_text(encoding="utf-8"))
-result.update({"exit_code": int(exit_code), "tool_versions": {"python": python, "ruff": ruff, "mypy": mypy, "pytest": pytest, "pytest_cov": coverage}, "scope": "target_only", "input_sha256": fixture, "post_input_sha256": fixture, "target_only_change_sha256": manifest["change_hash"], "host_wrapper_execution_id": host_execution_id, "restore_pending": True})
+probe_path = Path(path).parent / "dbn-decoder-probe.json"
+probe = json.loads(probe_path.read_text(encoding="utf-8")) if probe_path.exists() else None
+result.update({"exit_code": int(exit_code), "tool_versions": {"python": python, "ruff": ruff, "mypy": mypy, "pytest": pytest, "pytest_cov": coverage}, "scope": "target_only", "input_sha256": fixture, "post_input_sha256": fixture, "target_only_change_sha256": manifest["change_hash"], "host_wrapper_execution_id": host_execution_id, "restore_pending": True, "dbn_decoder_probe": probe})
 Path(path).write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 PY
 exit "$gate_exit"
