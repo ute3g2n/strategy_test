@@ -23,6 +23,7 @@ Run ID: `RUN-P2-DP-002`
 - metadata/request planへAPI key、Authorization、Secret値は出力していない。
 - Raw DBNはGitへ登録せず、ローカル `raw/` 配下を `.gitignore` で除外した。checksumと取得条件を本証跡へ固定した。
 - WSL `RUN-P2-DP-002` は `networking_mode=none`、formatter/lint/type/testの4 Gate、Human Gateを確認して `PASS`（<a href="wsl-verification-capture.json">WSL証跡</a>）。
+- HTTP応答だけでは最終請求額・月次利用量は確定しないため、費用・entitlementの最終確認は台帳の保留課題として残す。
 
 ## 制限
 
