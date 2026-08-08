@@ -5,6 +5,7 @@
   "design": "P2-D05-P2-D06-P2-D07",
   "requirements": ["REQ-Q02", "REQ-Q23", "REQ-Q29"],
   "orchestrator": "AutoTradeProject_Orchestrator_v0_1",
+  "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
   "agents": [
     "AutoTrade_A50_AdapterArchitect_v0_1",
     "AutoTrade_A70_OpsSecurityArchitect_v0_1",
