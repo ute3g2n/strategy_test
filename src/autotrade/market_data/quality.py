@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from decimal import Decimal, InvalidOperation
+from datetime import datetime
 from hashlib import sha256
 
 from .store_contracts import NormalizedBar, QualityReport
@@ -34,7 +35,7 @@ class QualityChecker:
         flags = set(injected_flags)
         deduplicated_count = 0
         seen: dict[tuple[str, object], NormalizedBar] = {}
-        last_event_time: dict[str, object] = {}
+        last_event_time: dict[str, datetime] = {}
 
         for bar in bars:
             if bar.event_time_utc.tzinfo is None or bar.event_time_utc.utcoffset() is None:

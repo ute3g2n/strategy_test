@@ -28,7 +28,7 @@ class LocalRawStore:
             raise ValueError("SECRET_METADATA_REJECTED")
 
         payload_sha256 = sha256(request.payload).hexdigest()
-        raw_object_id = sha256(f"{request.request_fingerprint}:{payload_sha256}".encode("utf-8")).hexdigest()
+        raw_object_id = sha256(f"{request.request_fingerprint}:{payload_sha256}".encode()).hexdigest()
         object_dir = self._root / "raw" / raw_object_id
         payload_path = object_dir / "payload.bin"
         metadata_path = object_dir / "metadata.json"

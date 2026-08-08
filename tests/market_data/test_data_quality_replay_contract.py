@@ -8,7 +8,6 @@ skips or permissive expected values.
 from __future__ import annotations
 
 import json
-from dataclasses import replace
 from datetime import UTC, datetime
 from hashlib import sha256
 from pathlib import Path
