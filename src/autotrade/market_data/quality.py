@@ -29,6 +29,10 @@ class QualityChecker:
         last_event_time: dict[str, datetime] = {}
 
         for bar in bars:
+            if not bar.instrument_id:
+                flags.add("INSTRUMENT_ID_INVALID")
+            if not bar.raw_object_id:
+                flags.add("RAW_OBJECT_ID_INVALID")
             if (
                 bar.event_time_utc.tzinfo is None
                 or bar.event_time_utc.utcoffset() is None
@@ -58,7 +62,7 @@ class QualityChecker:
 
         ordered_flags = tuple(sorted(flags))
         publishable = flags <= _NON_BLOCKING_FLAGS
-        report_hash = QualityChecker.report_hash(ordered_flags, deduplicated_count, publishable)
+        report_hash = QualityChecker.report_hash(ordered_flags, deduplicated_count, publishable, ())
         return QualityReport(
             flags=ordered_flags,
             publishable=publishable,
@@ -68,13 +72,19 @@ class QualityChecker:
         )
 
     @staticmethod
-    def report_hash(flags: tuple[str, ...], deduplicated_count: int, publishable: bool) -> str:
+    def report_hash(
+        flags: tuple[str, ...],
+        deduplicated_count: int,
+        publishable: bool,
+        excluded_ranges: tuple[str, ...] = (),
+    ) -> str:
         """Return the content hash stored with a quality report."""
         quality_material = {
             "flags": tuple(sorted(flags)),
             "deduplicated_count": deduplicated_count,
             "publishable": publishable,
             "signal_generation_allowed": publishable,
+            "excluded_ranges": tuple(excluded_ranges),
         }
         return (
             "sha256:" + sha256(json.dumps(quality_material, sort_keys=True, separators=(",", ":")).encode()).hexdigest()

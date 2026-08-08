@@ -59,6 +59,7 @@ class DataVersionManifest:
     catalog_version: str
     catalog_sha256: str
     quality_report_sha256: str
+    normalized_content_sha256: str
     fixture_sha256: str | None = None
     code_revision: str | None = None
     source_mode: str = "fixture_only"

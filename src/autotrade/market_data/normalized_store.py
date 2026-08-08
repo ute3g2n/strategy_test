@@ -5,10 +5,9 @@ from __future__ import annotations
 import json
 from dataclasses import asdict
 from datetime import datetime
-from decimal import Decimal
 from pathlib import Path
 
-from .manifest import ManifestBuilder
+from .manifest import ManifestBuilder, normalized_content_sha256
 from .quality import QualityChecker
 from .store_contracts import (
     DataVersionManifest,
@@ -33,6 +32,8 @@ class LocalNormalizedStore:
         if not report.publishable or not report.signal_generation_allowed:
             raise ValueError("QUALITY_REJECTED")
         if manifest.quality_report_sha256 != report.quality_report_sha256:
+            raise ValueError("MANIFEST_INTEGRITY")
+        if manifest.normalized_content_sha256 != normalized_content_sha256(bars):
             raise ValueError("MANIFEST_INTEGRITY")
         recomputed_report = QualityChecker.check(bars)
         if _report_material(recomputed_report) != _report_material(report):
@@ -73,11 +74,18 @@ class LocalNormalizedStore:
             raise ValueError("MANIFEST_INTEGRITY")
         if manifest.quality_report_sha256 != report.quality_report_sha256:
             raise ValueError("MANIFEST_INTEGRITY")
+        if manifest.normalized_content_sha256 != normalized_content_sha256(bars):
+            raise ValueError("MANIFEST_INTEGRITY")
         recomputed_report = QualityChecker.check(bars)
         if _report_material(recomputed_report) != _report_material(report):
             raise ValueError("MANIFEST_INTEGRITY")
         if (
-            QualityChecker.report_hash(report.flags, report.deduplicated_count, report.publishable)
+            QualityChecker.report_hash(
+                report.flags,
+                report.deduplicated_count,
+                report.publishable,
+                report.excluded_ranges,
+            )
             != report.quality_report_sha256
         ):
             raise ValueError("MANIFEST_INTEGRITY")
@@ -87,6 +95,7 @@ class LocalNormalizedStore:
             catalog_version=manifest.catalog_version,
             catalog_sha256=manifest.catalog_sha256,
             quality_report_sha256=manifest.quality_report_sha256,
+            normalized_content_sha256=manifest.normalized_content_sha256,
             fixture_sha256=manifest.fixture_sha256,
             code_revision=manifest.code_revision,
             source_mode=manifest.source_mode,
@@ -115,8 +124,6 @@ class LocalNormalizedStore:
 def _json_default(value: object) -> str:
     if isinstance(value, datetime):
         return value.isoformat()
-    if isinstance(value, Decimal):
-        return str(value)
     raise TypeError(f"unsupported JSON value: {type(value).__name__}")
 
 
@@ -133,6 +140,7 @@ def _manifest_from_json(value: object) -> DataVersionManifest:
         catalog_version=_string(value, "catalog_version"),
         catalog_sha256=_string(value, "catalog_sha256"),
         quality_report_sha256=_string(value, "quality_report_sha256"),
+        normalized_content_sha256=_string(value, "normalized_content_sha256"),
         fixture_sha256=value.get("fixture_sha256"),
         code_revision=value.get("code_revision"),
         source_mode=_string(value, "source_mode"),
@@ -166,6 +174,7 @@ def _report_material(report: QualityReport) -> tuple[object, ...]:
         report.signal_generation_allowed,
         report.quality_report_sha256,
         report.deduplicated_count,
+        report.excluded_ranges,
     )
 
 

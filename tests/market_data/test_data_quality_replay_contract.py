@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from autotrade.market_data.manifest import ManifestBuilder
+from autotrade.market_data.manifest import ManifestBuilder, normalized_content_sha256
 from autotrade.market_data.normalized_store import LocalNormalizedStore
 from autotrade.market_data.quality import QualityChecker
 from autotrade.market_data.store_contracts import DataVersionManifest, NormalizedBar, QualityReport
@@ -128,6 +128,21 @@ def test_unknown_quality_flag_is_fail_closed() -> None:
     assert report.signal_generation_allowed is False
 
 
+def test_missing_bar_identity_is_fail_closed() -> None:
+    missing_instrument = replace(bars()[0], instrument_id="")
+    missing_raw = replace(bars()[0], raw_object_id="")
+
+    assert QualityChecker.check((missing_instrument,)).publishable is False
+    assert QualityChecker.check((missing_raw,)).publishable is False
+
+
+def test_quality_report_hash_binds_excluded_ranges() -> None:
+    base = QualityChecker.report_hash(("DUPLICATE",), 1, True)
+    changed = QualityChecker.report_hash(("DUPLICATE",), 1, True, ("2026-06-15T12:00:00Z",))
+
+    assert changed != base
+
+
 def test_replay_manifest_is_deterministic_and_excludes_generated_at() -> None:
     raw_sha256s = (sha256(b"fixed-raw").hexdigest(),)
     first = ManifestBuilder.build(
@@ -136,6 +151,9 @@ def test_replay_manifest_is_deterministic_and_excludes_generated_at() -> None:
         catalog_version="fixture-catalog-v1",
         catalog_sha256="sha256:catalog-fixed",
         quality_report_sha256="sha256:quality-fixed",
+        normalized_content_sha256="sha256:normalized-fixed",
+        fixture_sha256="sha256:fixture-fixed",
+        code_revision="code-fixed",
     )
     second = ManifestBuilder.build(
         raw_sha256s=raw_sha256s,
@@ -143,6 +161,9 @@ def test_replay_manifest_is_deterministic_and_excludes_generated_at() -> None:
         catalog_version="fixture-catalog-v1",
         catalog_sha256="sha256:catalog-fixed",
         quality_report_sha256="sha256:quality-fixed",
+        normalized_content_sha256="sha256:normalized-fixed",
+        fixture_sha256="sha256:fixture-fixed",
+        code_revision="code-fixed",
     )
 
     assert isinstance(first, DataVersionManifest)
@@ -159,6 +180,9 @@ def test_replay_rejects_quality_report_hash_mismatch(tmp_path: Path) -> None:
         catalog_version="fixture-catalog-v1",
         catalog_sha256="sha256:catalog-fixed",
         quality_report_sha256=report.quality_report_sha256,
+        normalized_content_sha256=normalized_content_sha256(bars()),
+        fixture_sha256="sha256:fixture-fixed",
+        code_revision="code-fixed",
     )
     store = LocalNormalizedStore(tmp_path)
     store.write_if_absent(bars(), manifest, report)
@@ -179,6 +203,9 @@ def test_replay_rejects_quality_report_payload_tampering(tmp_path: Path) -> None
         catalog_version="fixture-catalog-v1",
         catalog_sha256="sha256:catalog-fixed",
         quality_report_sha256=report.quality_report_sha256,
+        normalized_content_sha256=normalized_content_sha256(bars()),
+        fixture_sha256="sha256:fixture-fixed",
+        code_revision="code-fixed",
     )
     store = LocalNormalizedStore(tmp_path)
     store.write_if_absent(bars(), manifest, report)
@@ -199,6 +226,9 @@ def test_replay_rejects_normalized_bar_tampering(tmp_path: Path) -> None:
         catalog_version="fixture-catalog-v1",
         catalog_sha256="sha256:catalog-fixed",
         quality_report_sha256=report.quality_report_sha256,
+        normalized_content_sha256=normalized_content_sha256(bars()),
+        fixture_sha256="sha256:fixture-fixed",
+        code_revision="code-fixed",
     )
     store = LocalNormalizedStore(tmp_path)
     store.write_if_absent(bars(), manifest, report)
@@ -209,6 +239,39 @@ def test_replay_rejects_normalized_bar_tampering(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="MANIFEST_INTEGRITY"):
         store.read_replay_snapshot(manifest.data_version)
+
+
+def test_replay_round_trip_verifies_content_digest(tmp_path: Path) -> None:
+    report = QualityChecker.check(bars())
+    manifest = ManifestBuilder.build(
+        raw_sha256s=("sha256:raw-fixed",),
+        normalization_rule_version="normalized-v1",
+        catalog_version="fixture-catalog-v1",
+        catalog_sha256="sha256:catalog-fixed",
+        quality_report_sha256=report.quality_report_sha256,
+        normalized_content_sha256=normalized_content_sha256(bars()),
+        fixture_sha256="sha256:fixture-fixed",
+        code_revision="code-fixed",
+    )
+    store = LocalNormalizedStore(tmp_path)
+    store.write_if_absent(bars(), manifest, report)
+
+    snapshot = store.read_replay_snapshot(manifest.data_version)
+
+    assert snapshot.manifest == manifest
+    assert snapshot.bars == bars()
+
+
+def test_manifest_requires_provenance_inputs() -> None:
+    with pytest.raises(ValueError, match="MANIFEST_INPUT_MISSING"):
+        ManifestBuilder.build(
+            raw_sha256s=("sha256:raw-fixed",),
+            normalization_rule_version="normalized-v1",
+            catalog_version="fixture-catalog-v1",
+            catalog_sha256="sha256:catalog-fixed",
+            quality_report_sha256="sha256:quality-fixed",
+            normalized_content_sha256="sha256:normalized-fixed",
+        )
 
 
 def test_replay_rejects_future_data_and_conditional_universe_mix() -> None:

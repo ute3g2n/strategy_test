@@ -7,7 +7,7 @@ from datetime import datetime
 from hashlib import sha256
 from pathlib import Path
 
-from autotrade.market_data.manifest import ManifestBuilder
+from autotrade.market_data.manifest import ManifestBuilder, normalized_content_sha256
 from autotrade.market_data.quality import QualityChecker
 from autotrade.market_data.store_contracts import MarketEvent, NormalizedBar
 
@@ -47,6 +47,7 @@ def _manifest() -> tuple[object, object]:
         catalog_version="fixture-catalog-v1",
         catalog_sha256="sha256:catalog-fixed",
         quality_report_sha256=report.quality_report_sha256,
+        normalized_content_sha256=normalized_content_sha256(bars),
         fixture_sha256="sha256:" + FIXTURE_SHA256,
         code_revision="fixture-code-revision",
         source_mode="fixture_only",
@@ -95,9 +96,9 @@ def test_fixture_replay_manifest_and_market_events_are_deterministic() -> None:
 
     assert first_manifest == second_manifest
     assert first_report == second_report
-    assert first_manifest.data_version == "dv_ed27a1e51b4a39bef629"
+    assert first_manifest.data_version == "dv_0d5783c4a39b4547c8d0"
     assert (
-        first_report.quality_report_sha256 == "sha256:39de9d12fc61df12cec6c8a4eafb3f1a8cf40772955ae05f94afd3e8f5cccc9b"
+        first_report.quality_report_sha256 == "sha256:bd9b299d0cc13ad894b8128100c1f677b9a57a1ad6eccab26d9cfd335adb48c7"
     )
     first_events = _events(first_manifest.data_version)
     second_events = _events(second_manifest.data_version)
@@ -109,3 +110,29 @@ def test_conditional_universe_cannot_mix_into_main_fixture() -> None:
     contract = _fixture()["replay_contract"]
     assert isinstance(contract, dict)
     assert set(contract["conditional_universe"]).isdisjoint(contract["main_universe"])
+
+
+def test_data_version_binds_fixture_code_source_and_normalized_content() -> None:
+    bars = _bars()
+    report = QualityChecker.check(bars)
+    base = dict(
+        raw_sha256s=("sha256:raw-fixed",),
+        normalization_rule_version="normalized-v1",
+        catalog_version="fixture-catalog-v1",
+        catalog_sha256="sha256:catalog-fixed",
+        quality_report_sha256=report.quality_report_sha256,
+        normalized_content_sha256=normalized_content_sha256(bars),
+        fixture_sha256="sha256:fixture-a",
+        code_revision="code-a",
+        source_mode="fixture_only",
+    )
+    baseline = ManifestBuilder.build(**base)
+
+    for field, changed in (
+        ("fixture_sha256", "sha256:fixture-b"),
+        ("code_revision", "code-b"),
+        ("source_mode", "dbn_normalized"),
+        ("normalized_content_sha256", "sha256:normalized-b"),
+    ):
+        variant = ManifestBuilder.build(**{**base, field: changed})
+        assert variant.data_version != baseline.data_version
