@@ -102,10 +102,10 @@
       "unknowns": ["H2-2", "UNK-P2-07"],
       "network_isolation_required": true,
       "checks": [
-        {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "tests/market_data", "scripts/market_data"]},
-        {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/market_data", "tests/market_data", "scripts/market_data"]},
-        {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/market_data"]},
-        {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p2_pytest"]}
+        {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "tests/market_data", "scripts/market_data"]},
+        {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/market_data", "tests/market_data", "scripts/market_data"]},
+        {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/market_data"]},
+        {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p2_pytest"]}
       ]
     }
   }
