@@ -35,6 +35,9 @@ class LocalNormalizedStore:
             raise ValueError("QUALITY_REJECTED")
         if manifest.quality_report_sha256 != report.quality_report_sha256:
             raise ValueError("MANIFEST_INTEGRITY")
+        recomputed_report = QualityChecker.check(bars)
+        if _report_material(recomputed_report) != _report_material(report):
+            raise ValueError("MANIFEST_INTEGRITY")
         path = self._path(manifest.data_version)
         payload = self._serialize(bars, manifest, report)
         if path.exists():
@@ -61,6 +64,9 @@ class LocalNormalizedStore:
         if manifest.data_version != data_version:
             raise ValueError("MANIFEST_INTEGRITY")
         if manifest.quality_report_sha256 != report.quality_report_sha256:
+            raise ValueError("MANIFEST_INTEGRITY")
+        recomputed_report = QualityChecker.check(bars)
+        if _report_material(recomputed_report) != _report_material(report):
             raise ValueError("MANIFEST_INTEGRITY")
         if (
             QualityChecker.report_hash(report.flags, report.deduplicated_count, report.publishable)
@@ -142,6 +148,16 @@ def _report_from_json(value: object) -> QualityReport:
         quality_report_sha256=_string(value, "quality_report_sha256"),
         deduplicated_count=int(value.get("deduplicated_count", 0)),
         excluded_ranges=tuple(str(item) for item in value.get("excluded_ranges", [])),
+    )
+
+
+def _report_material(report: QualityReport) -> tuple[object, ...]:
+    return (
+        report.flags,
+        report.publishable,
+        report.signal_generation_allowed,
+        report.quality_report_sha256,
+        report.deduplicated_count,
     )
 
 

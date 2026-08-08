@@ -3,25 +3,13 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal, InvalidOperation
 from hashlib import sha256
 
 from .store_contracts import NormalizedBar, QualityReport
 
-_BLOCKING_FLAGS = frozenset(
-    {
-        "MISSING_DATA",
-        "TIMESTAMP_INVALID",
-        "DUPLICATE_CONFLICT",
-        "OUT_OF_ORDER",
-        "PRICE_INVALID",
-        "VOLUME_INVALID",
-        "CHECKSUM_MISMATCH",
-        "DEGRADED",
-        "UNCONFIRMED_BAR",
-    }
-)
+_NON_BLOCKING_FLAGS = frozenset({"DUPLICATE"})
 
 
 class QualityChecker:
@@ -34,12 +22,18 @@ class QualityChecker:
         injected_flags: tuple[str, ...] = (),
     ) -> QualityReport:
         flags = set(injected_flags)
+        if not bars:
+            flags.add("MISSING_DATA")
         deduplicated_count = 0
         seen: dict[tuple[str, object], NormalizedBar] = {}
         last_event_time: dict[str, datetime] = {}
 
         for bar in bars:
-            if bar.event_time_utc.tzinfo is None or bar.event_time_utc.utcoffset() is None:
+            if (
+                bar.event_time_utc.tzinfo is None
+                or bar.event_time_utc.utcoffset() is None
+                or bar.event_time_utc.utcoffset() != timedelta(0)
+            ):
                 flags.add("TIMESTAMP_INVALID")
             key = (bar.instrument_id, bar.event_time_utc)
             previous = seen.get(key)
@@ -63,7 +57,7 @@ class QualityChecker:
             flags.update(bar.quality_flags)
 
         ordered_flags = tuple(sorted(flags))
-        publishable = not bool(_BLOCKING_FLAGS.intersection(flags))
+        publishable = flags <= _NON_BLOCKING_FLAGS
         report_hash = QualityChecker.report_hash(ordered_flags, deduplicated_count, publishable)
         return QualityReport(
             flags=ordered_flags,

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import replace
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta, timezone
 from hashlib import sha256
 from pathlib import Path
 
@@ -105,6 +105,29 @@ def test_naive_timestamp_is_fail_closed() -> None:
     assert report.signal_generation_allowed is False
 
 
+def test_non_utc_timestamp_is_fail_closed() -> None:
+    offset_bar = replace(bars()[0], event_time_utc=datetime(2026, 6, 15, 21, tzinfo=timezone(timedelta(hours=9))))
+
+    report = QualityChecker.check((offset_bar,))
+
+    assert "TIMESTAMP_INVALID" in report.flags
+    assert report.publishable is False
+
+
+def test_empty_snapshot_is_fail_closed() -> None:
+    report = QualityChecker.check(())
+
+    assert report.flags == ("MISSING_DATA",)
+    assert report.publishable is False
+
+
+def test_unknown_quality_flag_is_fail_closed() -> None:
+    report = QualityChecker.check(bars(), injected_flags=("UNKNOWN_QUALITY",))
+
+    assert report.publishable is False
+    assert report.signal_generation_allowed is False
+
+
 def test_replay_manifest_is_deterministic_and_excludes_generated_at() -> None:
     raw_sha256s = (sha256(b"fixed-raw").hexdigest(),)
     first = ManifestBuilder.build(
@@ -129,12 +152,7 @@ def test_replay_manifest_is_deterministic_and_excludes_generated_at() -> None:
 
 
 def test_replay_rejects_quality_report_hash_mismatch(tmp_path: Path) -> None:
-    report = QualityReport(
-        flags=(),
-        publishable=True,
-        signal_generation_allowed=True,
-        quality_report_sha256="sha256:quality-fixed",
-    )
+    report = QualityChecker.check(bars())
     manifest = ManifestBuilder.build(
         raw_sha256s=("sha256:raw-fixed",),
         normalization_rule_version="normalized-v1",
@@ -167,6 +185,26 @@ def test_replay_rejects_quality_report_payload_tampering(tmp_path: Path) -> None
     snapshot_path = tmp_path / "normalized" / f"{manifest.data_version}.json"
     snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
     snapshot["quality_report"]["flags"] = ["DEGRADED"]
+    snapshot_path.write_text(json.dumps(snapshot, sort_keys=True, separators=(",", ":")), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="MANIFEST_INTEGRITY"):
+        store.read_replay_snapshot(manifest.data_version)
+
+
+def test_replay_rejects_normalized_bar_tampering(tmp_path: Path) -> None:
+    report = QualityChecker.check(bars())
+    manifest = ManifestBuilder.build(
+        raw_sha256s=("sha256:raw-fixed",),
+        normalization_rule_version="normalized-v1",
+        catalog_version="fixture-catalog-v1",
+        catalog_sha256="sha256:catalog-fixed",
+        quality_report_sha256=report.quality_report_sha256,
+    )
+    store = LocalNormalizedStore(tmp_path)
+    store.write_if_absent(bars(), manifest, report)
+    snapshot_path = tmp_path / "normalized" / f"{manifest.data_version}.json"
+    snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+    snapshot["bars"][0]["close"] = "999.00"
     snapshot_path.write_text(json.dumps(snapshot, sort_keys=True, separators=(",", ":")), encoding="utf-8")
 
     with pytest.raises(ValueError, match="MANIFEST_INTEGRITY"):
