@@ -63,6 +63,9 @@ class DataVersionManifest:
     fixture_sha256: str | None = None
     code_revision: str | None = None
     source_mode: str = "fixture_only"
+    request_context_sha256: str | None = None
+    decoder_version: str | None = None
+    decoder_artifact_sha256: str | None = None
 
 
 @dataclass(frozen=True)

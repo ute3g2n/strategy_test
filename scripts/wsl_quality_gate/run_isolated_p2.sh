@@ -20,7 +20,7 @@ blocked() {
 [[ -x "$python_bin" ]] || blocked "Linux .venv/bin/python is missing"
 [[ -d "$repository_path/wheelhouse" ]] || blocked "approved Linux wheelhouse is missing"
 [[ -f "$repository_path/scripts/quality_gate/trusted_scopes.json" ]] || blocked "trusted scope registry is missing"
-readarray -t fixture_metadata < <("$python_bin" - "$repository_path/scripts/quality_gate/trusted_scopes.json" "$run_id" <<'PY'
+readarray -t input_metadata < <("$python_bin" - "$repository_path/scripts/quality_gate/trusted_scopes.json" "$run_id" <<'PY'
 import json
 import sys
 
@@ -29,20 +29,73 @@ registry = json.loads(open(registry_path, encoding="utf-8").read())
 scope = registry.get("scopes", {}).get(run_id)
 if not isinstance(scope, dict):
     raise SystemExit(2)
-fixture = scope.get("fixture", {})
-print(fixture.get("path", ""))
-print(fixture.get("checksum", ""))
+dbn_input = scope.get("dbn_input")
+if isinstance(dbn_input, dict):
+    print("dbn")
+    print(dbn_input.get("protected_path", ""))
+    print(dbn_input.get("checksum", ""))
+    print(scope.get("dbn_requirements", ""))
+else:
+    fixture = scope.get("fixture", {})
+    print("fixture")
+    print(fixture.get("path", ""))
+    print(fixture.get("checksum", ""))
+    print("")
 PY
-); [[ "${#fixture_metadata[@]}" -eq 2 ]] || blocked "trusted scope fixture metadata is missing"
-fixture_relative_path="${fixture_metadata[0]}"
-expected_fixture="${fixture_metadata[1]}"
-fixture_path="$repository_path/$fixture_relative_path"
-[[ -f "$fixture_path" ]] || blocked "fixture is missing: $fixture_relative_path"
+); [[ "${#input_metadata[@]}" -eq 4 ]] || blocked "trusted scope input metadata is missing"
+input_kind="${input_metadata[0]}"
+input_location="${input_metadata[1]}"
+expected_input_hash="${input_metadata[2]}"
+dbn_requirements="${input_metadata[3]}"
+if [[ "$input_kind" == "dbn" ]]; then
+  [[ "$input_location" != /mnt/* && "$input_location" != //* ]] || blocked "DBN input must not be mounted from Windows or UNC"
+  if test -L "$input_location" || [[ ! -f "$input_location" ]]; then
+    blocked "protected DBN input is missing or is a symbolic link"
+  fi
+  [[ "$(stat -c '%U:%a' "$input_location")" == "root:400" ]] || blocked "protected DBN input must be root-owned read-only mode 400"
+  [[ -n "$dbn_requirements" && -f "$repository_path/$dbn_requirements" ]] || blocked "DBN hash-pinned requirements are missing"
+  grep -q -- '--hash=sha256:' "$repository_path/$dbn_requirements" || blocked "DBN requirements hash allowlist is missing"
+  grep -q -- '--require-hashes' "$repository_path/scripts/wsl_quality_gate/prepare_offline_wsl_env.sh" || blocked "offline installer must require hashes"
+  if (cd "$repository_path" && git diff --cached --name-only) | grep -E '\.(dbn|DBN)$|(^|/)raw/' >/dev/null; then
+    blocked "DBN or raw input is present in the staged Git changes"
+  fi
+  if (cd "$repository_path" && git ls-files) | grep -E '\.(dbn|DBN)$|(^|/)raw/' >/dev/null; then
+    blocked "DBN or raw input is tracked by Git"
+  fi
+  "$python_bin" - "$repository_path/scripts/quality_gate/trusted_scopes.json" "$run_id" "$repository_path/$dbn_requirements" "$evidence_root/offline-preparation.json" <<'PY' || blocked "DBN offline dependency evidence does not match the trusted scope"
+import hashlib
+import json
+import sys
+from importlib import metadata
+from pathlib import Path
+
+registry_path, run_id, requirements_path, evidence_path = map(Path, sys.argv[1:])
+scope = json.loads(registry_path.read_text(encoding="utf-8"))["scopes"][run_id]
+evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+if hashlib.sha256(requirements_path.read_bytes()).hexdigest() != scope["dbn_requirements_sha256"]:
+    raise SystemExit(1)
+if evidence.get("requirements_sha256") != scope["dbn_requirements_sha256"]:
+    raise SystemExit(1)
+for name, version in scope["dbn_required_packages"].items():
+    if metadata.version(name) != version or evidence.get("packages", {}).get(name, {}).get("installed") != version:
+        raise SystemExit(1)
+PY
+else
+  input_location="$repository_path/$input_location"
+  [[ -f "$input_location" ]] || blocked "fixture is missing"
+fi
 kernel="$(uname -r)"
 [[ "$kernel" == *WSL2* || "$kernel" == *microsoft-standard-WSL2* ]] || blocked "kernel is not WSL2: $kernel"
-if grep -RInE '^[[:space:]]*(import|from)[[:space:]]+(databento|broker|requests|urllib|httpx|socket)([[:space:]]|$)' \
+if grep -RInE '^[[:space:]]*(import|from)[[:space:]]+(broker|requests|urllib|httpx|socket)([[:space:]]|$)' \
   "$repository_path/src/autotrade/market_data" "$repository_path/tests/market_data" "$repository_path/tests/fixtures/market_data"; then
   blocked "prohibited external dependency found in target scope"
+fi
+if [[ "$input_kind" == "dbn" ]]; then
+  dbn_imports="$(grep -RIlE '^[[:space:]]*(import|from)[[:space:]]+databento([[:space:]]|$)' "$repository_path/src/autotrade/market_data" || true)"
+  [[ "$dbn_imports" == "$repository_path/src/autotrade/market_data/databento_dbn_decoder.py" ]] || blocked "databento import is allowed only in the DBN decoder adapter"
+elif grep -RInE '^[[:space:]]*(import|from)[[:space:]]+databento([[:space:]]|$)' \
+  "$repository_path/src/autotrade/market_data" "$repository_path/tests/market_data" "$repository_path/tests/fixtures/market_data"; then
+  blocked "databento import is outside the DBN trusted scope"
 fi
 
 addr_summary="$(ip addr show up 2>/dev/null || true)"
@@ -61,15 +114,15 @@ python_version="$($python_bin --version 2>&1)"; ruff_version="$($python_bin -m r
 [[ "$pytest_version" == *"$expected_pytest"* ]] || blocked "pytest version mismatch"
 [[ "$cov_version" == "$expected_cov" ]] || blocked "pytest-cov version mismatch"
 
-fixture_hash="sha256:$(sha256sum "$fixture_path" | awk '{print $1}')"
-[[ "$fixture_hash" == "$expected_fixture" ]] || blocked "fixture checksum mismatch"
+input_hash="sha256:$(sha256sum "$input_location" | awk '{print $1}')"
+[[ "$input_hash" == "$expected_input_hash" ]] || blocked "input checksum mismatch"
 
 cat > "$evidence_root/host-isolation.json" <<EOF
 {
   "state": "CONFIRMED", "wsl_version": "${WSL_VERSION:-unknown}", "kernel": "${kernel}", "distro": "${distro}", "networking_mode": "none",
   "host_wrapper_execution_id": "${host_execution_id}", "ip_addr_summary": $(printf '%s' "$addr_summary" | "$python_bin" -c 'import json,sys; print(json.dumps(sys.stdin.read()))'),
   "ip_route_summary": $(printf '%s' "$route_summary" | "$python_bin" -c 'import json,sys; print(json.dumps(sys.stdin.read()))'),
-  "confirmed_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)", "scope": ["src/autotrade/market_data", "tests/market_data", "tests/fixtures/market_data"], "fixture_sha256": "${fixture_hash}"
+  "confirmed_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)", "scope": ["src/autotrade/market_data", "tests/market_data", "tests/fixtures/market_data"], "input_sha256": "${input_hash}", "input_kind": "${input_kind}"
 }
 EOF
 
@@ -79,13 +132,19 @@ set +e
 "$python_bin" -m scripts.quality_gate.run_quality_gate --manifest "$manifest" --project-root "$repository_path"
 gate_exit=$?
 set -e
-"$python_bin" - "$evidence_root/verification.json" "$gate_exit" "$python_version" "$ruff_version" "$mypy_version" "$pytest_version" "$cov_version" "$fixture_hash" "$host_execution_id" <<'PY'
+post_input_hash="sha256:$(sha256sum "$input_location" | awk '{print $1}')"
+if [[ "$post_input_hash" != "$input_hash" || "$post_input_hash" != "$expected_input_hash" ]]; then
+  printf '{"state":"BLOCKED","reason":"input checksum changed during isolated execution","pre_input_sha256":"%s","post_input_sha256":"%s","host_wrapper_execution_id":"%s"}\n' \
+    "$input_hash" "$post_input_hash" "$host_execution_id" > "$evidence_root/verification.json"
+  exit 20
+fi
+"$python_bin" - "$evidence_root/verification.json" "$gate_exit" "$python_version" "$ruff_version" "$mypy_version" "$pytest_version" "$cov_version" "$input_hash" "$host_execution_id" <<'PY'
 import json, sys
 from pathlib import Path
 path, exit_code, python, ruff, mypy, pytest, coverage, fixture, host_execution_id = sys.argv[1:]
 result = json.loads(Path(path).read_text(encoding="utf-8")) if Path(path).exists() else {"state": "FAILED"}
 manifest = json.loads((Path(path).parent / "run-manifest.json").read_text(encoding="utf-8"))
-result.update({"exit_code": int(exit_code), "tool_versions": {"python": python, "ruff": ruff, "mypy": mypy, "pytest": pytest, "pytest_cov": coverage}, "scope": "target_only", "fixture_sha256": fixture, "target_only_change_sha256": manifest["change_hash"], "host_wrapper_execution_id": host_execution_id, "restore_pending": True})
+result.update({"exit_code": int(exit_code), "tool_versions": {"python": python, "ruff": ruff, "mypy": mypy, "pytest": pytest, "pytest_cov": coverage}, "scope": "target_only", "input_sha256": fixture, "post_input_sha256": fixture, "target_only_change_sha256": manifest["change_hash"], "host_wrapper_execution_id": host_execution_id, "restore_pending": True})
 Path(path).write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 PY
 exit "$gate_exit"

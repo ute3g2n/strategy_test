@@ -9,7 +9,8 @@ from __future__ import annotations
 
 import dataclasses
 import importlib
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
+from hashlib import sha256
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -73,6 +74,23 @@ def _catalog_binding(contracts: object, status: str = "resolved", result_version
     )
 
 
+def _record(contracts: object, **changes: object) -> object:
+    values = {
+        "source_symbol": "FIX.TEST",
+        "vendor_instrument_id": 1,
+        "publisher_id": 1,
+        "event_time_utc": datetime(2026, 1, 1, tzinfo=UTC),
+        "open": "1.000000000",
+        "high": "2.000000000",
+        "low": "1.000000000",
+        "close": "1.500000000",
+        "volume": 1,
+        "record_ordinal": 0,
+    }
+    values.update(changes)
+    return contracts.DecodedOhlcvRecord(**values)
+
+
 def test_p2_12_records_the_approved_real_input_identity_without_opening_it() -> None:
     """P2-12-01 must not open the Git-ignored DBN before H2-5."""
 
@@ -101,25 +119,15 @@ def test_decoder_contract_rejects_malformed_or_unsupported_records(payload: byte
     contracts = _contracts()
     decoder = _decoder()
 
+    source = dataclasses.replace(_replay_input(contracts), payload_sha256="sha256:" + sha256(payload).hexdigest())
     with pytest.raises(contracts.DbnDecodeError, match=expected_code):
-        decoder.DatabentoDbnDecoder().decode(payload, _replay_input(contracts))
+        decoder.DatabentoDbnDecoder().decode(payload, source)
 
 
 def test_normalizer_contract_rejects_missing_raw_received_at() -> None:
     contracts = _contracts()
     normalizer = _normalizer()
-    record = contracts.DecodedOhlcvRecord(
-        source_symbol="FIX.TEST",
-        vendor_instrument_id=1,
-        publisher_id=1,
-        event_time_utc=datetime(2026, 1, 1, tzinfo=UTC),
-        open="1.000000000",
-        high="1.000000000",
-        low="1.000000000",
-        close="1.000000000",
-        volume=1,
-        record_ordinal=0,
-    )
+    record = _record(contracts)
 
     with pytest.raises(contracts.DbnNormalizationError, match="RAW_RECEIVED_AT_MISSING"):
         normalizer.DbnNormalizer(_catalog_binding(contracts)).normalize((record,), source=None)
@@ -129,18 +137,7 @@ def test_normalizer_contract_rejects_missing_raw_received_at() -> None:
 def test_normalizer_contract_rejects_unresolved_catalog_without_guessing(catalog_status: str) -> None:
     contracts = _contracts()
     normalizer = _normalizer()
-    record = contracts.DecodedOhlcvRecord(
-        source_symbol="FIX.TEST",
-        vendor_instrument_id=1,
-        publisher_id=1,
-        event_time_utc=datetime(2026, 1, 1, tzinfo=UTC),
-        open="1.000000000",
-        high="1.000000000",
-        low="1.000000000",
-        close="1.000000000",
-        volume=1,
-        record_ordinal=0,
-    )
+    record = _record(contracts)
 
     with pytest.raises(contracts.DbnNormalizationError, match="CATALOG_MAPPING_UNRESOLVED"):
         normalizer.DbnNormalizer(_catalog_binding(contracts, catalog_status)).normalize(
@@ -151,15 +148,11 @@ def test_normalizer_contract_rejects_unresolved_catalog_without_guessing(catalog
 def test_normalizer_contract_rejects_invalid_time_price_volume_and_order() -> None:
     contracts = _contracts()
     normalizer = _normalizer()
-    invalid_record = contracts.DecodedOhlcvRecord(
-        source_symbol="FIX.TEST",
-        vendor_instrument_id=1,
-        publisher_id=1,
+    invalid_record = _record(
+        contracts,
         event_time_utc=datetime(2026, 1, 1),
         open="NaN",
         high="0.000000000",
-        low="1.000000000",
-        close="1.000000000",
         volume=-1,
         record_ordinal=1,
     )
@@ -173,23 +166,37 @@ def test_normalizer_contract_rejects_invalid_time_price_volume_and_order() -> No
 def test_normalizer_contract_rejects_catalog_binding_version_mismatch() -> None:
     contracts = _contracts()
     normalizer = _normalizer()
-    record = contracts.DecodedOhlcvRecord(
-        source_symbol="FIX.TEST",
-        vendor_instrument_id=1,
-        publisher_id=1,
-        event_time_utc=datetime(2026, 1, 1, tzinfo=UTC),
-        open="1.000000000",
-        high="1.000000000",
-        low="1.000000000",
-        close="1.000000000",
-        volume=1,
-        record_ordinal=0,
-    )
+    record = _record(contracts)
 
     with pytest.raises(contracts.DbnNormalizationError, match="CATALOG_MAPPING_UNRESOLVED"):
         normalizer.DbnNormalizer(_catalog_binding(contracts, result_version="catalog-other")).normalize(
             (record,), source=_replay_input(contracts)
         )
+
+
+def test_normalizer_uses_exact_fixed_catalog_request() -> None:
+    contracts = _contracts()
+    catalog_module = importlib.import_module("autotrade.market_data.catalog_resolver")
+    captured: list[object] = []
+
+    class CapturingResolver:
+        def resolve(self, request: object) -> object:
+            captured.append(request)
+            return catalog_module.ResolveInstrumentResult("resolved", "inst-fixture", "map-fixture", "catalog-v1", None)
+
+    binding = contracts.DbnCatalogBinding("catalog-v1", "sha256:" + "c" * 64, CapturingResolver())
+    source = _replay_input(contracts)
+    _normalizer().DbnNormalizer(binding).normalize((_record(contracts),), source)
+
+    assert len(captured) == 1
+    request = captured[0]
+    assert (request.vendor, request.dataset_id, request.stype, request.symbol, request.observed_at) == (
+        source.source_vendor,
+        source.dataset_ref,
+        source.stype,
+        source.source_symbol,
+        datetime(2026, 1, 1, tzinfo=UTC),
+    )
 
 
 def test_event_factory_contract_requires_publishable_quality_and_deterministic_id() -> None:
@@ -198,7 +205,7 @@ def test_event_factory_contract_requires_publishable_quality_and_deterministic_i
 
     with pytest.raises(contracts.DbnEventBuildError, match="QUALITY_REJECTED"):
         factory.MarketEventFactory().build(
-            bars=(),
+            records=(),
             quality_report=object(),
             manifest=object(),
             run_id="RUN-P2-DBN-001",
@@ -244,6 +251,13 @@ def test_dbn_manifest_contract_changes_version_when_decoder_provenance_changes()
     changed = manifest_module.ManifestBuilder.build_dbn(**{**common, "decoder_artifact_sha256": "sha256:" + "2" * 64})
 
     assert first.data_version != changed.data_version
+
+    for key, value in (
+        ("request_context_sha256", "sha256:" + "3" * 64),
+        ("normalization_rule_version", "dbn-ohlcv-1m-v2"),
+        ("code_revision", "revision-v2"),
+    ):
+        assert first.data_version != manifest_module.ManifestBuilder.build_dbn(**{**common, key: value}).data_version
 
 
 @pytest.mark.parametrize(
@@ -306,6 +320,148 @@ def test_event_id_is_reproducible_for_identical_replay_inputs() -> None:
     assert factory.event_id(*arguments) == factory.event_id(*arguments)
 
 
+def test_normal_full_chain_preserves_record_ordinal_and_replay_snapshot(tmp_path: Path) -> None:
+    """Two equal-time bars keep a stable order through store and event creation."""
+    contracts = _contracts()
+    normalizer = _normalizer().DbnNormalizer(_catalog_binding(contracts))
+    source = _replay_input(contracts)
+    records = (
+        _record(contracts, record_ordinal=2),
+        _record(contracts, record_ordinal=3),
+    )
+    normalized = normalizer.normalize(records, source)
+    quality_module = importlib.import_module("autotrade.market_data.quality")
+    manifest_module = importlib.import_module("autotrade.market_data.manifest")
+    store_module = importlib.import_module("autotrade.market_data.normalized_store")
+    report = quality_module.QualityChecker.check(tuple(item.bar for item in normalized))
+    manifest = manifest_module.ManifestBuilder.build_dbn(
+        raw_sha256s=(source.payload_sha256,),
+        normalization_rule_version=source.normalization_rule_version,
+        catalog=_catalog_binding(contracts),
+        quality_report_sha256=report.quality_report_sha256,
+        normalized_content_sha256=manifest_module.normalized_content_sha256(tuple(item.bar for item in normalized)),
+        fixture_sha256=None,
+        code_revision="revision-v1",
+        source_mode="dbn_replay",
+        request_context_sha256=source.request_context_sha256,
+        decoder_version=source.decoder_version,
+        decoder_artifact_sha256=source.decoder_artifact_sha256,
+    )
+    store = store_module.LocalNormalizedStore(tmp_path)
+    store.write_if_absent(tuple(item.bar for item in normalized), manifest, report)
+    replay = store.read_replay_snapshot(manifest.data_version)
+    events = (
+        _event_factory()
+        .MarketEventFactory()
+        .build(normalized, report, replay.manifest, "RUN-P2-DBN-001", source.raw_received_at_utc)
+    )
+
+    assert [event.event_id for event in events] == [
+        _event_factory().MarketEventFactory().event_id(manifest, "inst-fixture", records[0].event_time_utc, 2),
+        _event_factory().MarketEventFactory().event_id(manifest, "inst-fixture", records[1].event_time_utc, 3),
+    ]
+    assert all(event.received_at_utc == SYNTHETIC_RECEIVED_AT for event in events)
+    assert all(event.bar_close_time == event.event_time_utc + timedelta(minutes=1) for event in events)
+    assert all(event.data_version == manifest.data_version for event in events)
+
+
+def test_dbn_snapshot_rejects_tampered_decoder_provenance(tmp_path: Path) -> None:
+    contracts = _contracts()
+    normalizer = _normalizer().DbnNormalizer(_catalog_binding(contracts))
+    source = _replay_input(contracts)
+    normalized = normalizer.normalize((_record(contracts),), source)
+    quality_module = importlib.import_module("autotrade.market_data.quality")
+    manifest_module = importlib.import_module("autotrade.market_data.manifest")
+    store_module = importlib.import_module("autotrade.market_data.normalized_store")
+    report = quality_module.QualityChecker.check(tuple(item.bar for item in normalized))
+    manifest = manifest_module.ManifestBuilder.build_dbn(
+        raw_sha256s=(source.payload_sha256,),
+        normalization_rule_version=source.normalization_rule_version,
+        catalog=_catalog_binding(contracts),
+        quality_report_sha256=report.quality_report_sha256,
+        normalized_content_sha256=manifest_module.normalized_content_sha256(tuple(item.bar for item in normalized)),
+        fixture_sha256=None,
+        code_revision="revision-v1",
+        source_mode="dbn_replay",
+        request_context_sha256=source.request_context_sha256,
+        decoder_version=source.decoder_version,
+        decoder_artifact_sha256=source.decoder_artifact_sha256,
+    )
+    store = store_module.LocalNormalizedStore(tmp_path)
+    store.write_if_absent(tuple(item.bar for item in normalized), manifest, report)
+    snapshot_path = tmp_path / "normalized" / f"{manifest.data_version}.json"
+    snapshot_path.write_text(
+        snapshot_path.read_text(encoding="utf-8").replace("decoder-v1", "decoder-v2"), encoding="utf-8"
+    )
+    with pytest.raises(ValueError, match="MANIFEST_INTEGRITY"):
+        store.read_replay_snapshot(manifest.data_version)
+
+
+def test_event_factory_rejects_manifest_or_report_for_different_records() -> None:
+    contracts = _contracts()
+    source = _replay_input(contracts)
+    normalized = _normalizer().DbnNormalizer(_catalog_binding(contracts)).normalize((_record(contracts),), source)
+    quality_module = importlib.import_module("autotrade.market_data.quality")
+    manifest_module = importlib.import_module("autotrade.market_data.manifest")
+    report = quality_module.QualityChecker.check(tuple(item.bar for item in normalized))
+    manifest = manifest_module.ManifestBuilder.build_dbn(
+        raw_sha256s=(source.payload_sha256,),
+        normalization_rule_version=source.normalization_rule_version,
+        catalog=_catalog_binding(contracts),
+        quality_report_sha256=report.quality_report_sha256,
+        normalized_content_sha256=manifest_module.normalized_content_sha256(tuple(item.bar for item in normalized)),
+        fixture_sha256=None,
+        code_revision="revision-v1",
+        source_mode="dbn_replay",
+        request_context_sha256=source.request_context_sha256,
+        decoder_version=source.decoder_version,
+        decoder_artifact_sha256=source.decoder_artifact_sha256,
+    )
+    replacement = (
+        _normalizer()
+        .DbnNormalizer(_catalog_binding(contracts))
+        .normalize((_record(contracts, close="1.750000000"),), source)
+    )
+
+    with pytest.raises(contracts.DbnEventBuildError, match="MANIFEST_INTEGRITY"):
+        _event_factory().MarketEventFactory().build(
+            replacement, report, manifest, "RUN-P2-DBN-001", source.raw_received_at_utc
+        )
+
+
+def test_dbn_snapshot_rejects_missing_required_code_revision(tmp_path: Path) -> None:
+    contracts = _contracts()
+    normalizer = _normalizer().DbnNormalizer(_catalog_binding(contracts))
+    source = _replay_input(contracts)
+    normalized = normalizer.normalize((_record(contracts),), source)
+    quality_module = importlib.import_module("autotrade.market_data.quality")
+    manifest_module = importlib.import_module("autotrade.market_data.manifest")
+    store_module = importlib.import_module("autotrade.market_data.normalized_store")
+    report = quality_module.QualityChecker.check(tuple(item.bar for item in normalized))
+    manifest = manifest_module.ManifestBuilder.build_dbn(
+        raw_sha256s=(source.payload_sha256,),
+        normalization_rule_version=source.normalization_rule_version,
+        catalog=_catalog_binding(contracts),
+        quality_report_sha256=report.quality_report_sha256,
+        normalized_content_sha256=manifest_module.normalized_content_sha256(tuple(item.bar for item in normalized)),
+        fixture_sha256=None,
+        code_revision="revision-v1",
+        source_mode="dbn_replay",
+        request_context_sha256=source.request_context_sha256,
+        decoder_version=source.decoder_version,
+        decoder_artifact_sha256=source.decoder_artifact_sha256,
+    )
+    store = store_module.LocalNormalizedStore(tmp_path)
+    store.write_if_absent(tuple(item.bar for item in normalized), manifest, report)
+    snapshot_path = tmp_path / "normalized" / f"{manifest.data_version}.json"
+    snapshot_path.write_text(
+        snapshot_path.read_text(encoding="utf-8").replace('"code_revision":"revision-v1"', '"code_revision":null'),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="MANIFEST_INTEGRITY"):
+        store.read_replay_snapshot(manifest.data_version)
+
+
 def test_future_adapter_boundary_forbids_vendor_and_network_imports_in_core() -> None:
     root = Path(__file__).parents[2] / "src" / "autotrade" / "market_data"
     core_modules = ("dbn_contracts.py", "dbn_normalizer.py", "market_event_factory.py")
@@ -323,6 +479,11 @@ def test_future_wsl_dbn_preflight_requires_protected_input_and_wheel_allowlist()
     root = Path(__file__).parents[2] / "scripts" / "wsl_quality_gate"
     entrypoint = (root / "run_test.ps1").read_text(encoding="utf-8")
     isolated_runner = (root / "run_isolated_p2.ps1").read_text(encoding="utf-8")
+    linux_runner = (root / "run_isolated_p2.sh").read_text(encoding="utf-8")
+    offline_installer = (root / "prepare_offline_wsl_env.sh").read_text(encoding="utf-8")
+    registry = (Path(__file__).parents[2] / "scripts" / "quality_gate" / "trusted_scopes.json").read_text(
+        encoding="utf-8"
+    )
 
     for required_text in (
         "RUN-P2-DBN-001",
@@ -332,8 +493,12 @@ def test_future_wsl_dbn_preflight_requires_protected_input_and_wheel_allowlist()
         "sha256sum",
         "--require-hashes",
         "git diff --cached",
+        "git ls-files",
+        "post_input_hash",
+        "offline-preparation.json",
+        "dbn_requirements_sha256",
     ):
-        assert required_text in entrypoint + isolated_runner
+        assert required_text in entrypoint + isolated_runner + linux_runner + offline_installer + registry
 
 
 def test_core_contracts_do_not_expose_vendor_sdk_or_secret_fields() -> None:

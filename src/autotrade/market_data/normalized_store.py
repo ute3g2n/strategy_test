@@ -89,17 +89,10 @@ class LocalNormalizedStore:
             != report.quality_report_sha256
         ):
             raise ValueError("MANIFEST_INTEGRITY")
-        rebuilt_manifest = ManifestBuilder.build(
-            raw_sha256s=manifest.raw_sha256s,
-            normalization_rule_version=manifest.normalization_rule_version,
-            catalog_version=manifest.catalog_version,
-            catalog_sha256=manifest.catalog_sha256,
-            quality_report_sha256=manifest.quality_report_sha256,
-            normalized_content_sha256=manifest.normalized_content_sha256,
-            fixture_sha256=manifest.fixture_sha256,
-            code_revision=manifest.code_revision,
-            source_mode=manifest.source_mode,
-        )
+        try:
+            rebuilt_manifest = ManifestBuilder.rebuild(manifest)
+        except ValueError as exc:
+            raise ValueError("MANIFEST_INTEGRITY") from exc
         if rebuilt_manifest.data_version != manifest.data_version:
             raise ValueError("MANIFEST_INTEGRITY")
         if not report.publishable or not report.signal_generation_allowed:
@@ -144,6 +137,9 @@ def _manifest_from_json(value: object) -> DataVersionManifest:
         fixture_sha256=value.get("fixture_sha256"),
         code_revision=value.get("code_revision"),
         source_mode=_string(value, "source_mode"),
+        request_context_sha256=value.get("request_context_sha256"),
+        decoder_version=value.get("decoder_version"),
+        decoder_artifact_sha256=value.get("decoder_artifact_sha256"),
     )
 
 

@@ -1,0 +1,38 @@
+{
+  "run_id": "RUN-P2-DBN-001",
+  "phase_id": "Phase 2",
+  "step_id": "P2-12-02",
+  "design_id": "P2-D16",
+  "recorded_at_utc": "2026-08-08T17:53:36Z",
+  "input_mode": "synthetic_contract_only",
+  "real_dbn_opened": false,
+  "network_access": false,
+  "human_gate": {
+    "gate_id": "H2-5",
+    "state": "approved",
+    "declaration": "human-gate-user-declaration.md"
+  },
+  "implemented": [
+    "DatabentoDbnDecoder (caller-owned bytes only)",
+    "DbnNormalizer with fixed Catalog binding",
+    "DbnNormalizedRecord record-order preservation",
+    "MarketEventFactory fail-closed creation",
+    "DBN provenance-bound manifest and snapshot verification",
+    "RUN-P2-DBN-001 protected-input and hash-pinned dependency preflight contract"
+  ],
+  "verification": {
+    "pytest": {"state": "PASS", "passed": 90},
+    "coverage": {"state": "PASS", "percent": 81.58, "threshold_percent": 80.0},
+    "ruff": "PASS",
+    "mypy": "PASS",
+    "local_network_boundary": "PASS",
+    "quality_gate_regression_pytest": {"state": "PASS", "passed": 136}
+  },
+  "not_verified": [
+    "protected WSL input from P2-08",
+    "actual DBN decoder success path",
+    "P2-08 raw_received_at_utc provenance",
+    "actual DBN symbol-to-Catalog mapping"
+  ],
+  "next_step": "P2-12-03 only: protected WSL offline replay; keep Data Gate UNKNOWN and Signal generation stopped until then."
+}

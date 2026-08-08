@@ -23,7 +23,7 @@
     <strong>文書セットID:</strong> P2-DBN-CLOSURE-DOCSET<br>
     <strong>Phase / Step:</strong> Phase 2 / P2-12-01<br>
     <strong>作成日・公式仕様確認日:</strong> 2026-08-08<br>
-    <strong>文書状態:</strong> v0.2 / A91再レビュー済み・REDテスト設計済み・実装前<br>
+    <strong>文書状態:</strong> v0.3 / P2-12-02実装・固定契約試験済み・実DBN隔離ReplayはP2-12-03待ち<br>
     <strong>使用オーケストレータ:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code><br>
     <strong>担当サブエージェント:</strong> <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code>, <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A70_OpsSecurityArchitect_v0_1</code><br>
     <strong>使用スキル:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_official_research_v0_1</code>, <code>autotrade_skill_test_strategy_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code></p>
@@ -75,7 +75,7 @@ tests/evidence/phase2/RUN-P2-DBN-001/
     Raw["既存Raw DBN"] -->|"bytes + hash"| Decoder["Databento Decoder\nAdapter"]
     Decoder -->|"DecodedOhlcvRecord"| Normalize["DBN Normalizer"]
     Catalog["Catalog Resolver"] -->|"一意の銘柄対応"| Normalize
-    Normalize -->|"NormalizedBar"| Quality["QualityChecker"]
+    Normalize -->|"DbnNormalizedRecord（Barと元の順番）"| Quality["QualityChecker"]
     Quality -->|"合格Bar + 品質報告"| Store["Manifest / Normalized Store"]
     Store -->|"data_version + 合格Bar"| Event["MarketEvent Factory"]
     Event -->|"順序付きMarketEvent"| Replay["Replay検証"]</pre>
@@ -92,8 +92,8 @@ tests/evidence/phase2/RUN-P2-DBN-001/
   <table><thead><tr><th>ファイル / 実装単位</th><th>機能説明</th><th>入力</th><th>出力</th><th>副作用・禁止事項</th></tr></thead><tbody>
     <tr><td><code>dbn_contracts.py</code></td><td>DBN Replayの内部契約と停止理由を定義する。</td><td>なし。</td><td><code>DbnReplayInput</code>、<code>DecodedOhlcvRecord</code>、内部例外型。</td><td>SDK、ファイル、ネットワーク、環境変数をimportしない。</td></tr>
     <tr><td><code>databento_dbn_decoder.py / DatabentoDbnDecoder.decode</code></td><td>保存済みbytesだけをDatabento公式decoderで読むAdapterである。</td><td>bytesと<code>DbnReplayInput</code>。</td><td>Vendor非依存の<code>DecodedOhlcvRecord</code>タプル。</td><td>このモジュールだけが許可済みdecoder依存をimportできる。HTTP、socket、Secret、現在時刻、ファイル読取りを行わない。</td></tr>
-    <tr><td><code>dbn_normalizer.py / DbnNormalizer.normalize</code></td><td>中間行をCatalog、品質確認、既存Store契約へつなぐ。</td><td>中間行、固定Catalog、Raw入力の証跡。</td><td>品質確認前の<code>NormalizedBar</code>候補または停止例外。</td><td>Catalog未解決時に任意の銘柄を選ばない。</td></tr>
-    <tr><td><code>market_event_factory.py / MarketEventFactory.build</code></td><td>合格済みBarとManifestから順序付きイベントを作る。</td><td>品質合格Bar、品質報告、<code>DataVersionManifest</code>、固定受信時刻。</td><td>不変の<code>MarketEvent</code>タプル。</td><td>現在時刻を使わず、品質不合格時は0件または停止例外にする。</td></tr>
+    <tr><td><code>dbn_normalizer.py / DbnNormalizer.normalize</code></td><td>中間行をCatalog、品質確認、既存Store契約へつなぐ。</td><td>中間行、固定Catalog、Raw入力の証跡。</td><td>品質確認前の<code>DbnNormalizedRecord</code>候補または停止例外。これはBarと元recordの順番を一組で持つ。</td><td>Catalog未解決時に任意の銘柄を選ばない。</td></tr>
+    <tr><td><code>market_event_factory.py / MarketEventFactory.build</code></td><td>合格済みBarとManifestから順序付きイベントを作る。</td><td>品質合格済みの<code>DbnNormalizedRecord</code>、品質報告、<code>DataVersionManifest</code>、固定受信時刻。</td><td>不変の<code>MarketEvent</code>タプル。</td><td>現在時刻を使わず、品質不合格時は0件または停止例外にする。</td></tr>
   </tbody></table>
 
   <h2>5. モジュール間の処理フロー</h2>
@@ -162,6 +162,7 @@ tests/evidence/phase2/RUN-P2-DBN-001/
     <tr><td><code>DbnReplayInput</code></td><td><code>payload_sha256</code>、<code>raw_object_id</code>、<code>raw_received_at_utc</code>、<code>source_vendor</code>、<code>dataset_ref</code>、<code>schema_ref</code>、<code>source_symbol</code>、<code>decoder_version</code>。</td><td>どのRawを、どの条件とdecoderで再生するかを示す。不足項目は既定値を持たない。</td></tr>
     <tr><td><code>DecodedOhlcvRecord</code></td><td><code>source_symbol</code>、<code>event_time_utc</code>、<code>open</code>、<code>high</code>、<code>low</code>、<code>close</code>、<code>volume</code>、<code>record_ordinal</code>、必要時の<code>publisher_id</code>と<code>vendor_instrument_id</code>。</td><td>Decoderが読んだ事実を表す。SDK recordや内部<code>instrument_id</code>を持たない。</td></tr>
     <tr><td><code>NormalizedBar</code></td><td>既存契約の<code>instrument_id</code>、UTC、OHLC、volume、<code>raw_object_id</code>、品質flags。</td><td>Catalogと基本形式確認を通過した後に作る「品質確認前の候補行」である。QualityCheckerが公開可と判定した候補だけをStore、Manifest、MarketEventへ渡す。</td></tr>
+    <tr><td><code>DbnNormalizedRecord</code></td><td><code>NormalizedBar</code>と<code>record_ordinal</code>。</td><td>同じ時刻のBarが複数あっても、DBN内で何番目だったかを失わないための内部専用の箱である。Storeには既存どおりBarだけを保存し、Event ID作成時だけ順番を使用する。</td></tr>
   </tbody></table>
 
   <h2>10. 永続化、Manifest、順序</h2>
@@ -210,7 +211,7 @@ tests/evidence/phase2/RUN-P2-DBN-001/
     <tr><td>DEC-P2-12-01</td><td>Vendor Adapter、Core契約、Normalizer、Event Factoryを分離し、SDK型をCoreへ出さない。</td><td>実装はP2-12-02。未実装のためREDを維持する。</td></tr>
     <tr><td>UNK-P2-13</td><td>P2-08 Rawの<code>received_at_utc</code>が証跡に無い。</td><td>元の受信時刻を安全に復元できなければ実DBNを利用停止とし、必要ならH2-2再承認後の最小取得で新しいRaw証跡を作る。</td></tr>
     <tr><td>UNK-P2-14</td><td>実DBNの外部symbol/IDを内部<code>instrument_id</code>へ結ぶ固定Catalogが無い。</td><td>DBN metadataまたは承認済みdefinition/symbology証跡で一意に確認できなければ停止する。推測追加はしない。</td></tr>
-    <tr><td>H2-5</td><td>WSL隔離入力とdecoder依存導入の承認を12章で定義する。</td><td>未承認なら依存導入、実DBN結合試験、WSL検証を開始しない。</td></tr>
+    <tr><td>H2-5</td><td>WSL隔離入力とdecoder依存導入の承認を12章で定義する。2026-08-09に承認済みである。</td><td>P2-12-02の依存導入と固定契約試験は実施できる。実DBN結合試験とWSL検証はP2-12-03の保護入力事前検査を通過した時だけ開始する。</td></tr>
   </tbody></table>
 
   <h2>15. 実装依存方向と公開境界</h2>
@@ -274,6 +275,11 @@ class DecodedOhlcvRecord:
     record_ordinal: int
 
 @dataclass(frozen=True)
+class DbnNormalizedRecord:
+    bar: NormalizedBar
+    record_ordinal: int
+
+@dataclass(frozen=True)
 class DbnCatalogBinding:
     catalog_version: str
     catalog_sha256: str
@@ -287,7 +293,7 @@ class DatabentoDbnDecoder:
         self,
         records: tuple[DecodedOhlcvRecord, ...],
         source: DbnReplayInput | None,
-    ) -> tuple[NormalizedBar, ...]: ...
+    ) -> tuple[DbnNormalizedRecord, ...]: ...
 
 class MarketEventFactory:
     def event_id(
@@ -299,7 +305,7 @@ class MarketEventFactory:
     ) -> str: ...
     def build(
         self,
-        bars: tuple[NormalizedBar, ...],
+        records: tuple[DbnNormalizedRecord, ...],
         quality_report: QualityReport,
         manifest: DataVersionManifest,
         run_id: str,
@@ -363,6 +369,10 @@ def resolve_or_stop(resolver: CatalogResolver, request: ResolveInstrumentRequest
       <tr><td>2026-08-08</td><td><code>AutoTrade_A70_OpsSecurityArchitect_v0_1</code></td><td>現行WSL検査はdecoder依存を一律停止し、実DBNの保護場所・リンク禁止・wheel事前hash確認も未定義である。<br><small>やさしい説明: 正しい鍵か、正しいデータ箱かを確認する決まりが無いと、別のものにすり替わる危険があります。</small></td><td>H2-5で許可範囲を決め、Adapterだけの依存許可、HTTP等の禁止継続、保護パス、owner/mode、リンク禁止、読込前後hash、wheel allowlist、Git混入検査をRUN-P2-DBN-001へ追加する。<br><small>やさしい説明: 使う道具とデータ箱を先に名簿で決め、試験の前後で同じものか確かめます。</small></td><td class="pass">反映済み</td></tr>
       <tr><td>2026-08-08</td><td><code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code></td><td>Raw受信UTC時刻と実DBN用Catalogが無く、イベント時刻・銘柄を再現できない。<br><small>やさしい説明: 「いつ届いたか」「何の商品か」が分からないと、同じ出来事をもう一度正しく作れません。</small></td><td><code>RAW_RECEIVED_AT_MISSING</code>と<code>CATALOG_MAPPING_UNRESOLVED</code>を停止コードにし、既存証跡で確認できなければH2-2再承認後の最小取得へ送る。<br><small>やさしい説明: 分からない部分を想像で埋めず、必要な記録を取り直す判断を人に任せます。</small></td><td class="pass">反映済み</td></tr>
       <tr><td>2026-08-08</td><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>初回は、H2-5前に実DBNを読もうとするテスト、実証されていない受信時刻、CatalogとManifestの結び付き不足、WSL入口規則との不一致を指摘した。改訂後はCritical/High 0件で、P2-12-01の設計+REDとして受入可と確認した。残るMediumは、T08で全ての版材料の差分と順序付きEvent列をGREEN時に比べること。<br><small>やさしい説明: 本物の箱を許可前に開かないか、銘柄表と版の記録が同じ組かを何度も確かめました。大きな危険はなくなりましたが、実装後には「同じ並びになるか」をもっと広く確かめます。</small></td><td>実DBNはH2-5後まで開かず、Catalog Bindingと<code>build_dbn</code>を一組にした。既存のWSL入口へRun IDを登録する形に統一した。P2-12-02ではrequest context、Catalog、規則、code revisionの各差分と、順序付き<code>MarketEvent</code>列を比較するGREEN試験を追加する。<br><small>やさしい説明: 大事な札を一組で渡し、正しい入口だけを使います。翻訳機を作ったら、同じ箱を二回読んで同じ順番になることも確かめます。</small></td><td class="pass">受入可（Critical 0 / High 0）</td></tr>
+      <tr><td>2026-08-09</td><td><code>AutoTrade_A110_PythonTestEngineer_v0_1</code></td><td><code>NormalizedBar</code>だけをEvent Factoryへ渡す設計では、同じ時刻の複数recordについて元の順番を失う。また、Storeを経由した通常系のReplay試験とDBN用Manifest改変試験が不足していた。<br><small>やさしい説明: 同じ時刻に二つの紙が届いた時、番号を捨てると、後でどちらが先だったか分からなくなります。</small></td><td><code>DbnNormalizedRecord</code>でBarと<code>record_ordinal</code>を一組にし、Event IDへ番号を入れる。2件の同時刻recordをStore、Manifest、Eventまで通す固定試験と、decoder情報を改ざんしたSnapshotの拒否試験を追加する。<br><small>やさしい説明: 紙に順番の番号を残したまま保管し、番号や記録が書き換えられたら使わないようにします。</small></td><td class="pass">反映済み・再レビュー待ち</td></tr>
+      <tr><td>2026-08-09</td><td><code>AutoTrade_A160_TradingSecurityReviewer_v0_1</code></td><td>従来のWSL検査は<code>databento</code>を一律停止しており、DBN用Runの対象範囲、読取専用入力、wheel hash許可一覧が不足していた。<br><small>やさしい説明: 正しい翻訳道具まで全部禁止すると試験できません。一方で、使う道具を自由にすると、別の危ない道具が入り込めます。</small></td><td><code>RUN-P2-DBN-001</code>を登録し、Adapter一か所だけを許可する静的検査、保護パス・リンク・Windows共有・Git混入の拒否、SHA-256とhash固定依存一覧をP2-12-03の入口へ組み込む。<br><small>やさしい説明: 翻訳道具を使う部屋を一つだけ決め、データ箱と道具の名札が合わなければドアを開けません。</small></td><td class="pass">反映済み・実DBN確認はP2-12-03</td></tr>
+      <tr><td>2026-08-09</td><td><code>AutoTrade_A150_PythonCodeReviewer_v0_1</code> 再レビュー</td><td>初回は、品質報告やManifestを別のBarへ付け替えてもEventを作れること、WSL入力の実行後hash確認が無いこと、保存済みDBN Manifestでcode revision欠落を許すことを指摘した。<br><small>やさしい説明: 別のテストの合格印を貼り替えたり、試験中に箱がすり替わったりしても気付けない穴がありました。</small></td><td>Event Factoryで品質報告・内容hash・Manifest再構築を全て再照合し、不一致を停止する。WSLは実行後にもhashを取り直し、DBN Manifestの必須記録が一つでも欠ければ読まない。対応する固定試験を追加した。<br><small>やさしい説明: 合格印、箱の中身、記録帳が全部同じ組かを最後にもう一度照らし合わせます。一つでも違えば使いません。</small></td><td class="pass">承認可（Critical 0 / High 0）</td></tr>
+      <tr><td>2026-08-09</td><td><code>AutoTrade_A160_TradingSecurityReviewer_v0_1</code> 再レビュー</td><td>初回は、依存wheelの実導入との結び付き、Git追跡済みRawの検出、DBN用Run Manifestの入力形式、固定4 Gateの依存不足を指摘した。<br><small>やさしい説明: 道具の名簿があっても、実際に使った道具が同じか分からず、昔から置かれた危ない箱も見逃す状態でした。</small></td><td>hash固定requirementsとそのdigest、導入済み版、offline準備記録を照合する。stage済みだけでなくGit追跡済みのRawも拒否し、<code>input_dbn</code>を正式なRun入力として検査する。4 Gateの道具も同じ名簿へ追加した。<br><small>やさしい説明: 名簿・実際の道具・準備記録を三つとも比べます。昔からある危ない箱も含め、見つけたら試験を始めません。</small></td><td class="pass">承認可（Critical 0 / High 0）</td></tr>
     </tbody></table>
   </section>
 

@@ -135,6 +135,42 @@
         {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p2_pytest"]}
       ]
     },
+    "RUN-P2-DBN-001": {
+      "phase_id": "phase2",
+      "step_id": "P2-12-03",
+      "design": "P2-D16",
+      "requirements": ["REQ-Q02", "REQ-Q19", "REQ-Q20", "REQ-Q23", "REQ-Q29"],
+      "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+      "target_paths": ["src/autotrade/market_data", "tests/market_data", "scripts/quality_gate", "scripts/wsl_quality_gate"],
+      "excluded_paths": [".env", "third_party/everything-claude-code", "research", "tests/fixtures/market_data"],
+      "dbn_input": {
+        "name": "p2-08-fixed-dbn",
+        "version": "dbn-ohlcv-1m-p2-08",
+        "protected_path": "/var/lib/autotrade/replay/RUN-P2-DBN-001/input.dbn",
+        "checksum": "sha256:8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e"
+      },
+      "dbn_requirements": "scripts/wsl_quality_gate/requirements-dbn.txt",
+      "dbn_requirements_sha256": "518378a2989ca77f7b586961e2b70177d14f0168750fe6d265b426f4f1dd45bc",
+      "dbn_required_packages": {
+        "databento": "0.82.0",
+        "databento-dbn": "0.63.0",
+        "ruff": "0.16.1",
+        "mypy": "2.3.0",
+        "pytest": "9.1.1",
+        "pytest-cov": "7.1.0"
+      },
+      "baseline_ref": "HEAD",
+      "scope_mode": "target_only",
+      "unknowns": ["UNK-P2-13", "UNK-P2-14"],
+      "network_isolation_required": true,
+      "checks": [
+        {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "tests/market_data", "scripts/quality_gate", "scripts/wsl_quality_gate"]},
+        {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/market_data", "tests/market_data", "scripts/quality_gate", "scripts/wsl_quality_gate"]},
+        {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/market_data"]},
+        {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p2_pytest"]}
+      ]
+    },
     "RUN-P2-RPL-001": {
       "phase_id": "phase2",
       "step_id": "P2-09",

@@ -281,15 +281,15 @@ class LocalQualityGateRunner:
         requirements = _required_string_list(data, "requirements")
         _required_string_list(data, "agents")
         _required_string_list(data, "skills")
-        fixture = _mapping(data.get("input_fixture"), "input_fixture")
-        for field in ("name", "version", "checksum"):
-            _required_nonempty_string(fixture, field)
         target_paths = tuple(_validated_paths(_required_string_list(data, "target_paths"), "target_paths"))
         excluded_paths = tuple(_validated_paths(_required_string_list(data, "excluded_paths"), "excluded_paths"))
         evidence_root = self._validated_evidence_root(_required_nonempty_string(data, "evidence_root"))
         network_isolation_required = False
         scope_mode = "all_changes"
         if run_id == LEGACY_BOOTSTRAP_RUN_ID:
+            fixture = _mapping(data.get("input_fixture"), "input_fixture")
+            for field in ("name", "version", "checksum"):
+                _required_nonempty_string(fixture, field)
             if target_paths != TRUSTED_TARGET_PATHS:
                 raise ManifestValidationError(
                     "target_paths は品質ゲート用の信頼済み固定範囲と完全一致する必要があります"
@@ -297,6 +297,10 @@ class LocalQualityGateRunner:
             checks = _validated_checks(data.get("checks"), target_paths, excluded_paths)
         else:
             scope = _load_trusted_scope(self._project_root, run_id)
+            input_field = "input_dbn" if isinstance(scope.get("dbn_input"), Mapping) else "input_fixture"
+            fixture = _mapping(data.get(input_field), input_field)
+            for field in ("name", "version", "checksum"):
+                _required_nonempty_string(fixture, field)
             _validate_manifest_against_scope(
                 self._project_root, data, scope, requirements, fixture, target_paths, excluded_paths
             )
@@ -438,19 +442,26 @@ def _validate_manifest_against_scope(
     )
     if target_paths != expected_targets or excluded_paths != expected_excluded:
         raise ManifestValidationError("target_paths または excluded_paths が trusted scope と一致しません")
-    expected_fixture = _mapping(scope.get("fixture"), "trusted fixture")
+    expected_fixture = _mapping(
+        scope.get("dbn_input") if isinstance(scope.get("dbn_input"), Mapping) else scope.get("fixture"),
+        "trusted input",
+    )
     for field in ("name", "version", "checksum"):
         if fixture.get(field) != expected_fixture.get(field):
-            raise ManifestValidationError(f"input_fixture.{field} が trusted scope と一致しません")
-    fixture_path = _normal_path(_required_nonempty_string(expected_fixture, "path"), "trusted fixture.path")
-    fixture_file = (project_root / fixture_path).resolve()
-    try:
-        fixture_file.relative_to(project_root.resolve())
-        actual_checksum = "sha256:" + hashlib.sha256(fixture_file.read_bytes()).hexdigest()
-    except (OSError, ValueError) as error:
-        raise ManifestValidationError("trusted fixture を読み取れません") from error
-    if actual_checksum != expected_fixture.get("checksum"):
-        raise ManifestValidationError("fixture checksum が trusted scope と一致しません")
+            raise ManifestValidationError(f"input descriptor.{field} が trusted scope と一致しません")
+    if isinstance(scope.get("dbn_input"), Mapping):
+        if not _required_nonempty_string(expected_fixture, "protected_path").startswith("/"):
+            raise ManifestValidationError("trusted DBN input はWSLの絶対保護パスです")
+    else:
+        fixture_path = _normal_path(_required_nonempty_string(expected_fixture, "path"), "trusted fixture.path")
+        fixture_file = (project_root / fixture_path).resolve()
+        try:
+            fixture_file.relative_to(project_root.resolve())
+            actual_checksum = "sha256:" + hashlib.sha256(fixture_file.read_bytes()).hexdigest()
+        except (OSError, ValueError) as error:
+            raise ManifestValidationError("trusted fixture を読み取れません") from error
+        if actual_checksum != expected_fixture.get("checksum"):
+            raise ManifestValidationError("fixture checksum が trusted scope と一致しません")
     change_hash = _required_nonempty_string(data, "change_hash")
     if not _is_sha256(change_hash):
         raise ManifestValidationError("P2 change_hash は sha256:<64桁hex> 形式です")
