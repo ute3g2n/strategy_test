@@ -20,8 +20,8 @@ Raw / Normalized Store、`MarketEvent`、`DataVersion`、`Manifest`はP2-05実�
 
 ## P2-07ローカル結果
 
-- `pytest tests/market_data`: **25 passed**
-- coverage: **81.80%**（fail-under 80%）
+- `pytest tests/market_data`: **26 passed**
+- coverage: **82.68%**（fail-under 80%）
 - ruff format / lint: **PASS**
 - mypy: **PASS**
 - trusted-scope Manifest dry-run: **DRY_RUN / schema valid**

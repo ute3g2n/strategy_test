@@ -14,7 +14,7 @@
 - `QualityChecker`は欠損、重複競合、時刻逆行、価格・出来高異常、checksum不一致、degradedをfail-closedで扱う。
 - `ManifestBuilder`と品質報告hashは現在時刻・外部I/Oに依存せず決定的である。
 - `LocalNormalizedStore.read_replay_snapshot`はManifest、品質報告hash、再構築data_versionを再検証する。
-- 25テスト、coverage 81.80%、ruff、mypyはローカルでGREEN。
+- 26テスト、coverage 82.68%、ruff、mypyはローカルでGREEN。
 
 ## 再レビュー条件
 
