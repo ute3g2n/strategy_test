@@ -21,7 +21,7 @@
     "autotrade_skill_red_team_review_v0_1"
   ],
   "data_version": "dv_fixture_contract_v1",
-  "change_hash": "sha256:a38aa35132d158adfc656c327149743590ab09f25f15d3430c89f982b7aa501c",
+  "change_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "baseline_ref": "HEAD",
   "evidence_root": "tests/evidence/phase2/RUN-P2-DP-001",
   "target_paths": [
