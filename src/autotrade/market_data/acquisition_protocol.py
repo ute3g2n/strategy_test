@@ -12,12 +12,12 @@ import argparse
 import json
 import os
 import re
+from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from hashlib import sha256
 from pathlib import Path
 from types import MappingProxyType
-from collections.abc import Mapping, Sequence
 from typing import Literal
 
 SourceMode = Literal["fixture", "external"]
