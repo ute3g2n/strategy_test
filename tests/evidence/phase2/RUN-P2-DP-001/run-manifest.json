@@ -40,7 +40,7 @@
   },
   "human_gate_policy": "H2-2 approval is absent; fixture-only dry-run and fixed four gates are allowed, external acquisition remains blocked",
   "review": {"critical": 0, "high": 0},
-  "unknowns": ["H2-2", "UNK-P2-07"],
+  "unknowns": [],
   "checks": [
     {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "tests/market_data", "scripts/market_data"]},
     {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/market_data", "tests/market_data", "scripts/market_data"]},

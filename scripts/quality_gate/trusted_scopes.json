@@ -100,7 +100,7 @@
       },
       "baseline_ref": "HEAD",
       "scope_mode": "target_only",
-      "unknowns": ["H2-2", "UNK-P2-07"],
+      "unknowns": [],
       "network_isolation_required": true,
       "checks": [
         {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "tests/market_data", "scripts/market_data"]},
