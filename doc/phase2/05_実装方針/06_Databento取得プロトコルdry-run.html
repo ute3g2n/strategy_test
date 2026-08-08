@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2-08 Databento取得プロトコル dry-run</title>
+  <style>
+    body { font-family: system-ui, sans-serif; line-height: 1.7; max-width: 1160px; margin: 0 auto; padding: 2rem; color: #20242a; }
+    h1, h2 { color: #173b59; } h1 { border-bottom: 3px solid #173b59; padding-bottom: .5rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0 2rem; } th, td { border: 1px solid #cbd5e1; padding: .55rem; vertical-align: top; } th { background: #eef4f8; text-align: left; }
+    code, pre { background: #f5f7f9; } code { padding: .1rem .25rem; } pre { padding: 1rem; overflow-x: auto; }
+    .note { background: #fff8df; border-left: 4px solid #d49b00; padding: .8rem 1rem; } .stop { color: #8a1c1c; font-weight: 700; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメント一覧へ戻る</a></p>
+  <h1>P2-08 Databento取得プロトコル dry-run</h1>
+  <p><strong>成果物ID:</strong> P2-DP-01（P2-08実行証跡）<br>
+     <strong>Phase / Step:</strong> Phase 2 / P2-08<br>
+     <strong>作成日:</strong> 2026-08-08<br>
+     <strong>文書状態:</strong> v0.1 / fixture-only実装・レビュー済み<br>
+     <strong>Run:</strong> <code>RUN-P2-DP-001</code><br>
+     <strong>Orchestrator:</strong> <code>AutoTradeProject_Orchestrator_v0_1</code><br>
+     <strong>Agents:</strong> <code>AutoTrade_A50_AdapterArchitect_v0_1</code>、<code>AutoTrade_A70_OpsSecurityArchitect_v0_1</code>、<code>AutoTrade_A80_DocumentIntegrator_v0_1</code>、<code>AutoTrade_A90_DesignReviewer_v0_1</code></p>
+
+  <div class="note"><strong>H2-2状態:</strong> Databento外部取得の承認記録は確認できないため、実装・検証は固定fixtureのrequest planと読込みだけに限定した。外部API、実データ、Secret、Brokerは使用していない。<span class="stop">H2-2承認前に外部I/Oを開始してはならない。</span></div>
+
+  <h2>1. 目的と範囲</h2>
+  <p>P2-07で固定したData Quality / Replay fixtureを出発点に、Databento取得条件を安全に表現するCLI、fixture Gateway、metadata保存方針、外部応答のHealthEvent分類を定義した。Strategyの利益評価、Backtest採用、実取得、費用確定は対象外である。</p>
+
+  <h2>2. Adapter境界と処理</h2>
+  <pre class="mermaid">flowchart LR
+    CLI[固定引数・UTC] --> Validate[Request validation]
+    Validate --> Plan[Deterministic request plan]
+    Plan --> Fixture[FixtureGateway]
+    Fixture --> Check[SHA256 / schema check]
+    Check --> P207[P2-07 fixed payload]
+    Error[401/403/206/404/429/degraded] --> Health[HealthEvent]
+    Health --> Stop[Data Gate停止 / 縮退]
+    H22[H2-2 approval] -.未承認.-> External[External gateway disabled]</pre>
+  <p>CoreはDatabento SDK、HTTP status、API keyを参照しない。外部仕様はAdapterで内部のrequest plan、HealthEvent、metadataへ変換する。</p>
+
+  <h2>3. Request plan契約</h2>
+  <table><thead><tr><th>項目</th><th>固定値・規則</th><th>証拠</th></tr></thead><tbody>
+    <tr><td>source</td><td><code>fixture</code>のみ。<code>external</code>はH2-2未承認で<code>H2_2_NOT_APPROVED</code>。</td><td><a href="../../../tests/market_data/test_acquisition_protocol.py">protocol tests</a></td></tr>
+    <tr><td>再現性</td><td>request id、dataset/schema、symbol、固定UTC期間、fixture SHA256を使用。<code>generated_at</code>や現在時刻を使用しない。</td><td><a href="../../../tests/evidence/phase2/RUN-P2-DP-001/request-plan.json">request-plan.json</a></td></tr>
+    <tr><td>metadata</td><td>provider、dataset_ref、schema_ref、fixture_sha256、conditionだけ保存。API key、Authorization、account、token、secretは禁止。</td><td><a href="../../../tests/evidence/phase2/RUN-P2-DP-001/reviews/red-team-review.md">security review</a></td></tr>
+    <tr><td>fixture</td><td><code>p2-dqr-fixture-v1</code>、SHA256 <code>a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79</code>、schema検証必須。</td><td><a href="../../../tests/fixtures/market_data/data_quality_replay_fixture.json">固定fixture</a></td></tr>
+  </tbody></table>
+
+  <h2>4. 失敗分類と停止条件</h2>
+  <table><thead><tr><th>観測</th><th>内部reason</th><th>Health state</th><th>扱い</th></tr></thead><tbody>
+    <tr><td>401</td><td>AUTHENTICATION_FAILED</td><td>UNHEALTHY</td><td class="stop">Signal停止。Secretを再出力しない。</td></tr>
+    <tr><td>403</td><td>ENTITLEMENT_DENIED</td><td>UNKNOWN</td><td class="stop">権限確認まで採用不可。</td></tr>
+    <tr><td>206</td><td>SYMBOL_PARTIAL</td><td>UNKNOWN</td><td class="stop">部分解決を成功扱いしない。</td></tr>
+    <tr><td>404</td><td>SYMBOL_NOT_FOUND</td><td>UNKNOWN</td><td class="stop">対象を採用不可。</td></tr>
+    <tr><td>429</td><td>RATE_LIMITED</td><td>DEGRADED</td><td>Retry-After等の運用判断後までData Gateを縮退。</td></tr>
+    <tr><td>degraded / pending / missing</td><td>DATASET_DEGRADED</td><td>DEGRADED / UNKNOWN</td><td class="stop">available以外をPassにしない。</td></tr>
+  </tbody></table>
+
+  <h2>5. 公式仕様との接続</h2>
+  <p>Databentoの一次情報・確認日・URLは <a href="../02_データソース調査/02_Databento公式仕様確認結果.html">P2-D04</a> を参照する。P2-08ではその仕様を再調査して外部取得を実行せず、既存確認済みのHTTPエラー、Dataset Condition、metadata境界だけをテスト契約へ落とした。</p>
+
+  <h2>6. 検証結果・未確定事項</h2>
+  <ul>
+    <li>Windows品質Gate: formatter、lint、mypy、pytest 39 passed、coverage 81.76%。</li>
+    <li>レビュー: Critical 0、High 0。詳細は<a href="../../../tests/evidence/phase2/RUN-P2-DP-001/reviews/design-review.md">設計レビュー</a>と<a href="../../../tests/evidence/phase2/RUN-P2-DP-001/reviews/red-team-review.md">Red Teamレビュー</a>。</li>
+    <li><a href="../../../tests/evidence/phase2/RUN-P2-DP-001/run-manifest.json">Run Manifest</a>と<a href="../../../tests/evidence/phase2/RUN-P2-DP-001/dry-run-result.md">dry-run結果</a>に対象scopeとfixture hashを固定した。</li>
+    <li><strong>H2-2:</strong> 外部取得を許可する対象dataset・symbol・期間・費用上限・Secret投入方法の承認待ち。</li>
+    <li><strong>UNK-P2-07:</strong> 固定Store境界を実Databento応答へ接続する検証は未実施。</li>
+  </ul>
+</main>
+</body>
+</html>
