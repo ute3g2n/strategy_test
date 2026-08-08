@@ -1,0 +1,53 @@
+{
+  "schema_version": "p2-dqr-fixture-v1",
+  "catalog_version": "fixture-catalog-v1",
+  "normalization_rule_version": "normalized-v1",
+  "fixture_hash_scope": "canonical-json-without-generated-at",
+  "bars": [
+    {
+      "instrument_id": "fixture-instrument-001",
+      "event_time_utc": "2026-06-15T12:00:00+00:00",
+      "open": "70.00",
+      "high": "70.25",
+      "low": "69.75",
+      "close": "70.10",
+      "volume": 10,
+      "raw_object_id": "raw-fixture-001",
+      "quality_flags": []
+    },
+    {
+      "instrument_id": "fixture-instrument-001",
+      "event_time_utc": "2026-06-15T12:01:00+00:00",
+      "open": "70.10",
+      "high": "70.40",
+      "low": "70.00",
+      "close": "70.30",
+      "volume": 12,
+      "raw_object_id": "raw-fixture-001",
+      "quality_flags": []
+    }
+  ],
+  "cases": {
+    "missing_data": {"quality_flags": ["MISSING_DATA"], "publishable": false},
+    "duplicate_exact": {"quality_flags": ["DUPLICATE"], "publishable": true},
+    "duplicate_conflict": {"quality_flags": ["DUPLICATE_CONFLICT"], "publishable": false},
+    "out_of_order": {"quality_flags": ["OUT_OF_ORDER"], "publishable": false},
+    "price_invalid": {"quality_flags": ["PRICE_INVALID"], "publishable": false},
+    "volume_invalid": {"quality_flags": ["VOLUME_INVALID"], "publishable": false},
+    "checksum_mismatch": {"quality_flags": ["CHECKSUM_MISMATCH"], "publishable": false},
+    "degraded": {"quality_flags": ["DEGRADED"], "publishable": false}
+  },
+  "replay_contract": {
+    "same_inputs_must_match": [
+      "data_version",
+      "catalog_version",
+      "normalization_rule_version",
+      "quality_report_sha256",
+      "market_events"
+    ],
+    "generated_at_is_not_an_input": true,
+    "future_bars_must_not_change_published_history": true,
+    "conditional_universe": ["MZC", "MZS", "MZW"],
+    "main_universe": ["MCL", "M6A"]
+  }
+}
