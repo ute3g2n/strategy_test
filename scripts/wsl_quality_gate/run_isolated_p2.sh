@@ -53,6 +53,7 @@ if [[ "$input_kind" == "dbn" ]]; then
   repository_owner="$(stat -c '%U' "$repository_path")"
   [[ -n "$repository_owner" && "$repository_owner" != "root" ]] || blocked "repository owner is unsafe for DBN gate"
   command -v runuser >/dev/null || blocked "runuser is required to drop DBN gate privileges"
+  chown -R "$repository_owner" "$evidence_root" || blocked "DBN evidence ownership cannot be prepared"
   [[ "$input_location" != /mnt/* && "$input_location" != //* ]] || blocked "DBN input must not be mounted from Windows or UNC"
   if test -L "$input_location" || [[ ! -f "$input_location" ]]; then
     blocked "protected DBN input is missing or is a symbolic link"
