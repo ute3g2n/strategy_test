@@ -93,6 +93,18 @@
   </div>
   <p class="small">件数は、同じ原因を別の文書が違う名前で書いている場合に一つへまとめた「根本課題」の数です。たとえば、同じロール規則の問題を Phase 1 と Phase 2 が別IDで書いていても、一件として数えます。</p>
 
+  <h2>1.5 承認・認証が必要な事項の一覧</h2>
+  <p>この表は、ユーザーまたは権限者の判断が必要な事項を一か所で確認するための入口です。承認記録が存在しない場合も未承認として記載し、個別の計画書やログだけを見ないと状態が分からない運用を禁止します。</p>
+  <table class="wide">
+    <thead><tr><th>ID</th><th>対象</th><th>現在の状態</th><th>承認・認証が必要な内容</th><th>再開条件・証拠</th></tr></thead>
+    <tbody>
+      <tr><td><code>H2-0</code></td><td>Phase 2市場範囲</td><td><span class="badge done">承認済み</span></td><td>中心市場・条件付き市場の設計範囲</td><td><code>RES-P2-H2-0</code>、本台帳の解決確認</td></tr>
+      <tr><td><code>H2-1</code></td><td>Roll / Continuous</td><td><span class="badge done">承認済み</span></td><td>限月切替・連続Signal・受渡し注意日の設計範囲</td><td><code>RES-P2-H2-1</code>、本台帳の解決確認</td></tr>
+      <tr><td><code>H2-2</code></td><td>Databento外部取得</td><td><span class="badge wait">未承認・保留</span></td><td>対象dataset/schema/symbol/期間、entitlement、費用上限、API key / Secret保管・投入方法</td><td><code>BLK-P2-005</code>。権限者の明示承認、見積り、権限確認、Secret手順、fixture外の再現試験を台帳へリンクしてから外部I/Oを許可</td></tr>
+      <tr><td><code>H2-3</code></td><td>Data Quality / Replay引渡し</td><td><span class="badge wait">未承認・後続Gate</span></td><td>品質レポート、Replay結果、欠損一覧、Unknown解消後に本線へ渡すか</td><td><code>BLK-P2-008</code>。P2-09以降の統合レビューとユーザー判断</td></tr>
+    </tbody>
+  </table>
+
   <h3>言葉の意味</h3>
   <table>
     <thead><tr><th>表示</th><th>やさしい意味</th><th>してよいこと</th></tr></thead>
@@ -290,7 +302,7 @@ firewall=true</pre></li>
 
   <h2>6. これからの更新方法</h2>
   <div class="flow" role="img" aria-label="残課題を見つけてから解決するまでの流れ">
-    <div class="flow-step"><strong>1. 見つける</strong><br>レビュー、テスト、Human Gateで問題を見つけます。</div><div class="arrow">→</div>
+    <div class="flow-step"><strong>1. 見つける</strong><br>レビュー、テスト、Human Gateで問題を見つけます。承認・認証が必要なら未承認でも台帳へ登録します。</div><div class="arrow">→</div>
     <div class="flow-step"><strong>2. 同じ原因か確認</strong><br>既存IDと同じなら、新しい行を増やさず証拠を足します。</div><div class="arrow">→</div>
     <div class="flow-step"><strong>3. 安全に止める</strong><br>してはいけないことと、進めてよい範囲を書きます。</div><div class="arrow">→</div>
     <div class="flow-step"><strong>4. 証拠を作る</strong><br>テスト、レビュー、承認記録を所定の場所へ保存します。</div><div class="arrow">→</div>
