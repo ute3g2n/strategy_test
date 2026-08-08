@@ -74,7 +74,10 @@ import sys
 from importlib import metadata
 from pathlib import Path
 
-registry_path, run_id, requirements_path, evidence_path = map(Path, sys.argv[1:])
+registry_path, run_id, requirements_path, evidence_path = sys.argv[1:]
+registry_path = Path(registry_path)
+requirements_path = Path(requirements_path)
+evidence_path = Path(evidence_path)
 scope = json.loads(registry_path.read_text(encoding="utf-8"))["scopes"][run_id]
 evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
 if hashlib.sha256(requirements_path.read_bytes()).hexdigest() != scope["dbn_requirements_sha256"]:

@@ -112,6 +112,7 @@ def test_wsl_runner_fails_closed_before_four_gates_on_missing_isolation_prerequi
     assert 'host_execution_id="${WSL_HOST_WRAPPER_EXECUTION_ID:-${3:?host wrapper execution id is required}}"' in text
     assert "DBN input integrity check must run as root" in text
     assert "runuser -u \"$repository_owner\"" in text
+    assert "registry_path, run_id, requirements_path, evidence_path = sys.argv[1:]" in text
 
 
 def test_wsl_runner_has_valid_bash_syntax() -> None:
