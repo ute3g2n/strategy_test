@@ -405,6 +405,8 @@ firewall=true</pre></li>
     <p><small>やさしい説明: 本物の市場データ4個を読み、売買に使ってよい3個だけを通しました。組み合わせ商品1個は、あとで確認できるよう記録だけ残しました。最初と最後でデータが変わっておらず、もう一度読んでも同じ結果になることまで確認できています。</small></p>
     <p><strong>Phase 3の状態:</strong> まだ「移行承認済み」ではない。次に必要なのは、(1) H2-3: このData Quality / Replay結果を本線へ引き渡してよい、という承認、(2) H2-4: Phase 2を完了扱いにしてPhase 3へ進めてよい、という承認の2つ。技術テストはPASSだが、人間承認が終わるまではData GateとPhase 3引渡しを自動で開けない。</p>
     <p><small>やさしい説明: 車の検査には合格しましたが、出発のサインはまだもらっていません。まず「この検査結果を正式に受け取る」承認、次に「次のPhaseへ進む」承認が必要です。</small></p>
+    <p><strong>その他の残課題:</strong> P2-09由来の<code>BLK-P2-004 / UNK-P2-05</code>（degraded品質を捨てる・注意付きで使う・取り直すの運用方針）、<code>BLK-P2-005</code>（費用・利用権限の最終記録）、<code>BLK-P2-006</code>（大容量データの保存先）、<code>BLK-P2-007</code>（遅延の合否基準）、およびPhase 1・AI基盤の継続課題は残っている。P2-12-03のReplay自体を止める技術故障ではないが、Phase 3の運用範囲を決める前に、該当するものはH2-3/H2-4の確認対象として判断する。</p>
+    <p><small>やさしい説明: 車は動きましたが、ガソリン代、長い荷物の置き場所、何秒遅れたら危険か、という別の約束がまだ残っています。今すぐ車を直す話ではありませんが、本番で使う前に決めておく必要があります。</small></p>
     <p>関連証跡: <a href="../tests/evidence/phase2/RUN-P2-DBN-001/automation/run-test-summary.json">自動実行サマリー</a>、<a href="../tests/evidence/phase2/RUN-P2-DBN-001/wsl-verification-capture.json">WSL捕捉証跡</a>、<a href="../tests/evidence/phase2/RUN-P2-DBN-001/run-manifest.json">Run Manifest</a>、<a href="./phase2/09_実DBN変換/09_実DBN_Replay隔離検証結果.html">P2-D17</a>。</p>
   </section>
 </main>
