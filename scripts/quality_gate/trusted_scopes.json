@@ -134,6 +134,32 @@
         {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/market_data"]},
         {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p2_pytest"]}
       ]
+    },
+    "RUN-P2-RPL-001": {
+      "phase_id": "phase2",
+      "step_id": "P2-09",
+      "design": "P2-D05-P2-D06-P2-D07-P2-D10",
+      "requirements": ["REQ-Q02", "REQ-Q23", "REQ-Q29", "REQ-DATA-QUALITY"],
+      "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+      "target_paths": ["src/autotrade/market_data", "tests/market_data", "tests/fixtures/market_data", "scripts/market_data"],
+      "excluded_paths": [".env", "third_party/everything-claude-code", "research"],
+      "fixture": {
+        "path": "tests/fixtures/market_data/data_quality_replay_fixture.json",
+        "name": "data_quality_replay_fixture.json",
+        "version": "p2-dqr-fixture-v1",
+        "checksum": "sha256:a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79"
+      },
+      "baseline_ref": "HEAD",
+      "scope_mode": "target_only",
+      "unknowns": [],
+      "network_isolation_required": true,
+      "checks": [
+        {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "tests/market_data", "scripts/market_data"]},
+        {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/market_data", "tests/market_data", "scripts/market_data"]},
+        {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/market_data"]},
+        {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p2_pytest"]}
+      ]
     }
   }
 }

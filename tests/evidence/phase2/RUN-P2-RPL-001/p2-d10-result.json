@@ -1,0 +1,25 @@
+{
+  "schema_version": "p2-d10-verification-v1",
+  "run_id": "RUN-P2-RPL-001",
+  "phase_id": "phase2",
+  "step_id": "P2-09",
+  "fixture_sha256": "sha256:a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79",
+  "databento_raw_sha256": "sha256:8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e",
+  "data_version": "dv_ed27a1e51b4a39bef629",
+  "quality_report_sha256": "sha256:39de9d12fc61df12cec6c8a4eafb3f1a8cf40772955ae05f94afd3e8f5cccc9b",
+  "checks": {
+    "fixture_quality_matrix": {"status": "PASS", "signal_generation_allowed": false, "detail": "7異常ケースはfail-closed、duplicate_exactのみ記録付きpublishable"},
+    "fixture_replay_manifest": {"status": "PASS", "detail": "同一fixture/raw/catalog/quality入力から同一data_versionを再生成"},
+    "fixture_market_event_sequence": {"status": "PASS", "detail": "固定2本のMarketEvent系列とdata_versionを再現"},
+    "conditional_universe_isolation": {"status": "PASS", "detail": "MZC/MZS/MZWとMCL/M6Aの集合が非交差"},
+    "databento_dbn_checksum": {"status": "PASS", "detail": "P2-08取得DBN 22,760 bytesのchecksumを確認"},
+    "databento_dbn_to_normalized_store": {"status": "UNKNOWN", "detail": "DBN decoderおよび実データをNormalizedBar/MarketEventへ変換する本番境界が未実装"},
+    "phase3_handoff": {"status": "NOT_READY", "detail": "fixture data_versionは再現可能だが、Databento実データのMarketEvent handoffはP2-09時点で許可しない"}
+  },
+  "data_gate": {
+    "status": "UNKNOWN",
+    "signal_generation_allowed": false,
+    "phase3_handoff_allowed": false,
+    "human_gate": "H2-3"
+  }
+}

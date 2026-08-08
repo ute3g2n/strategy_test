@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2-D10 Data Quality / Replay検証結果</title>
+  <style>
+    body { font-family: system-ui, sans-serif; line-height: 1.7; max-width: 1180px; margin: 0 auto; padding: 2rem; color: #20242a; }
+    h1, h2 { color: #173b59; } h1 { border-bottom: 3px solid #173b59; padding-bottom: .5rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0 2rem; } th, td { border: 1px solid #cbd5e1; padding: .55rem; vertical-align: top; } th { background: #eef4f8; text-align: left; }
+    code, pre { background: #f5f7f9; } code { padding: .1rem .25rem; } pre { padding: 1rem; overflow-x: auto; }
+    .pass { color: #166534; font-weight: 700; } .unknown { color: #92400e; font-weight: 700; } .stop { color: #991b1b; font-weight: 700; }
+    .note { background: #fff8df; border-left: 4px solid #d49b00; padding: .8rem 1rem; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメント一覧へ戻る</a></p>
+  <h1>P2-D10 Data Quality / Replay検証結果</h1>
+  <p><strong>成果物ID:</strong> P2-D10<br>
+     <strong>Phase / Step:</strong> Phase 2 / P2-09<br>
+     <strong>Run:</strong> <code>RUN-P2-RPL-001</code><br>
+     <strong>作成日:</strong> 2026-08-08<br>
+     <strong>Orchestrator:</strong> <code>AutoTradeProject_ImplementationQuality_Orchestrator_v0_1</code></p>
+
+  <div class="note"><strong>Data Gate判定:</strong> 固定fixtureの品質・ReplayはPASS。しかしP2-08実取得DBNをNormalizedBar / MarketEventへ変換する本番境界が未実装のため、全体Data Gateは <span class="unknown">UNKNOWN</span>。Signal生成とPhase 3 handoffは<span class="stop">停止</span>し、H2-3の採否対象へ送る。</div>
+
+  <h2>1. 入力と再現識別子</h2>
+  <table><thead><tr><th>項目</th><th>値</th></tr></thead><tbody>
+    <tr><td>固定fixture</td><td><code>p2-dqr-fixture-v1</code> / SHA256 <code>a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79</code></td></tr>
+    <tr><td>fixture data_version</td><td><code>dv_ed27a1e51b4a39bef629</code></td></tr>
+    <tr><td>quality report hash</td><td><code>sha256:39de9d12fc61df12cec6c8a4eafb3f1a8cf40772955ae05f94afd3e8f5cccc9b</code></td></tr>
+    <tr><td>P2-08 DBN</td><td>HTTP 200 / 22,760 bytes / SHA256 <code>8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e</code></td></tr>
+    <tr><td>Run Manifest</td><td><a href="../../../tests/evidence/phase2/RUN-P2-RPL-001/run-manifest.json">RUN-P2-RPL-001</a></td></tr>
+  </tbody></table>
+
+  <h2>2. Data Quality / Replay結果</h2>
+  <table><thead><tr><th>検証</th><th>判定</th><th>内容</th><th>根拠</th></tr></thead><tbody>
+    <tr><td>欠損・重複・時刻逆行・異常価格・出来高・checksum・degraded</td><td class="pass">PASS</td><td>異常はpublishable=false、Signal停止。exact duplicateだけ記録付きで縮約。</td><td><a href="../../../tests/market_data/test_data_quality_replay_contract.py">P2-06契約テスト</a></td></tr>
+    <tr><td>同一data_version</td><td class="pass">PASS</td><td>同一raw/catalog/normalization/quality入力から同一versionを再現。</td><td><a href="../../../tests/market_data/test_p2_09_replay_verification.py">P2-09検証テスト</a></td></tr>
+    <tr><td>MarketEvent系列</td><td class="pass">PASS（fixture限定）</td><td>固定2本のイベント、UTC時刻、data_version、値を再現。</td><td><a href="../../../tests/market_data/test_p2_09_replay_verification.py">P2-09検証テスト</a></td></tr>
+    <tr><td>条件付き銘柄混入</td><td class="pass">PASS</td><td><code>MZC/MZS/MZW</code>と本線<code>MCL/M6A</code>は非交差。</td><td>fixture replay_contract</td></tr>
+    <tr><td>実DBN→NormalizedBar / MarketEvent</td><td class="unknown">UNKNOWN</td><td>DBN decoderと変換境界が未実装。checksum確認だけでは本線入力に昇格しない。</td><td><a href="../../../tests/evidence/phase2/RUN-P2-DP-002/acquisition-result.md">P2-08取得結果</a></td></tr>
+    <tr><td>Phase 3 handoff</td><td class="stop">NOT_READY</td><td>Data Gate UNKNOWNのためdata_versionをPhase 3本線へ渡さない。</td><td><a href="../../../tests/evidence/phase2/RUN-P2-RPL-001/p2-d10-result.json">D10 JSON</a></td></tr>
+  </tbody></table>
+
+  <h2>3. 固定4 Gateとレビュー</h2>
+  <ul>
+    <li>Windows: 47 passed、coverage 80.05%、formatter/lint/mypy PASS。</li>
+    <li>WSL: <a href="../../../tests/evidence/phase2/RUN-P2-RPL-001/wsl-verification-capture.json">networking_mode=none、固定4 Gate、証跡</a>を別Runで確認する。</li>
+    <li>レビュー: <a href="../../../tests/evidence/phase2/RUN-P2-RPL-001/reviews/python-review.md">Python / Verification</a>、<a href="../../../tests/evidence/phase2/RUN-P2-RPL-001/reviews/trading-safety-review.md">Trading Security</a>。</li>
+  </ul>
+
+  <h2>4. 再開条件とH2-3</h2>
+  <p>DBNをUTC・InstrumentId・quality_flags付きNormalizedBarへ変換し、MarketEvent系列、Manifest、Replayを実データで再現する。異常fixture、条件付き銘柄分離、固定4 Gateを再実行したうえで、H2-3で本線引渡しの採否を判断する。Strategy利益評価とBacktest採用判定はPhase 3へ送る。</p>
+</main>
+</body>
+</html>
