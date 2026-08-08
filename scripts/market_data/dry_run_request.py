@@ -8,8 +8,12 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-from autotrade.market_data.acquisition_protocol import main  # noqa: E402
+
+def run() -> int:
+    from autotrade.market_data.acquisition_protocol import main
+
+    return main()
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(run())
