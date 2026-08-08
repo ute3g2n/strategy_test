@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2-D12 Phase 2レッドチーム監査結果</title>
+  <style>
+    body { font-family: system-ui, sans-serif; line-height: 1.7; max-width: 1180px; margin: 0 auto; padding: 2rem; color: #20242a; }
+    h1, h2 { color: #173b59; } h1 { border-bottom: 3px solid #173b59; padding-bottom: .5rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0 2rem; } th, td { border: 1px solid #cbd5e1; padding: .55rem; vertical-align: top; } th { background: #eef4f8; text-align: left; }
+    code { background: #f5f7f9; padding: .1rem .25rem; } .high { color: #991b1b; font-weight: 700; } .medium { color: #92400e; font-weight: 700; } .hold { background: #fff8df; border-left: 4px solid #d49b00; padding: .8rem 1rem; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメント一覧へ戻る</a></p>
+  <h1>P2-D12 Phase 2レッドチーム監査結果</h1>
+  <p><strong>成果物ID:</strong> P2-D12<br>
+     <strong>文書セットID:</strong> P2-REVIEW-DOCSET<br>
+     <strong>Phase / Step:</strong> Phase 2 / P2-10<br>
+     <strong>作成日:</strong> 2026-08-08<br>
+     <strong>状態:</strong> H2-3判断待ち。外部取得、Secret投入、取引判断は実行していない。</p>
+
+  <div class="hold"><strong>監査結論:</strong> 固定fixture・隔離4 Gateの成功を、実データの安全な本線利用と読み替えてはならない。Data Gateは<code>UNKNOWN</code>であり、指摘を解消してH2-3が承認するまでSignal生成とPhase 3 handoffを停止する。</div>
+
+  <h2>1. 事故シナリオと指摘</h2>
+  <p>意図しないRaw改変、symbol誤対応、未来情報、費用事故、品質警告の握りつぶしを、失敗時に停止できるかで監査した。</p>
+  <table>
+    <thead><tr><th>指摘ID</th><th>重要度</th><th>対象ファイル / 箇所</th><th>事故シナリオ・問題内容</th><th>停止・修正方針</th><th>Human Gate</th></tr></thead>
+    <tbody>
+      <tr><td><code>RT-P2-10-001</code></td><td class="high">High</td><td><code>src/autotrade/market_data/manifest.py:29-40</code></td><td>fixture、コード、source modeが変わっても同じ<code>data_version</code>を再利用できる。古い変換規則や別sourceのMarketEventを同じReplay入力と誤認し、未来情報・誤ったsymbol mappingを混入させるおそれがある。</td><td>データ版をcanonical content digest、fixture hash、code revision、source modeへ束縛し、差分時の版衝突を拒否する。解消前はP2-D10のfixture版を実データ版に昇格しない。</td><td>H2-3必須。</td></tr>
+      <tr><td><code>RT-P2-10-002</code></td><td class="high">High</td><td><code>tests/evidence/phase2/RUN-P2-RPL-001/run-manifest.json</code><br><code>p2-d10-result.json</code></td><td>WSLのformatter/lint/type/testがPASSで、Run ManifestのUnknownが空であるため、Data Gate UNKNOWNを見落として「検証済み」と誤運用するおそれがある。</td><td>業務Data Gate、Unknown、Phase 3 handoff禁止をRun Manifestと統合結果で一貫して表示する。機械Gateだけでは承認不可とする。</td><td>H2-3必須。</td></tr>
+      <tr><td><code>RT-P2-10-003</code></td><td class="medium">Medium</td><td><code>tests/evidence/phase2/RUN-P2-DP-002/acquisition-result.md</code></td><td>最小外部取得は固定範囲で終了したが、最終費用・entitlementはHTTP結果から判定できない。再実行や対象拡大が費用事故になるおそれがある。</td><td>billing/usageまたは請求証跡まで保留し、追加取得、期間拡大、Secret用途変更をH2-2再承認なしで行わない。</td><td>H2-2（追加取得時）。</td></tr>
+      <tr><td><code>RT-P2-10-004</code></td><td class="medium">Medium</td><td><code>tests/fixtures/market_data/data_quality_replay_fixture.json</code><br><code>tests/market_data/test_p2_09_replay_verification.py</code></td><td><code>MZC/MZS/MZW</code>と<code>MCL/M6A</code>の分離はfixtureでは確認済みだが、実DBN変換が未実装のため、実データで条件付きsymbolが本線へ混ざらない証明はない。</td><td>DBN decoder後のCatalog Resolver・universe分離・Manifestを実データでReplayし、不一致はSignal停止とする。</td><td>H2-3必須。</td></tr>
+      <tr><td><code>RT-P2-10-005</code></td><td class="medium">Medium</td><td><code>src/autotrade/market_data/normalized_store.py</code><br><code>tests/evidence/phase2/RUN-P2-RPL-001/p2-d10-result.json</code></td><td>品質異常を伴うsnapshot改ざんは拒否するが、正常範囲内の行差し替えを検出するcanonical content digestは未実装である。</td><td>content digestをDataVersion/Manifestへ追加し、同じ品質報告でも異なる行を拒否するReplay testを追加する。</td><td>H2-3必須。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. 防御が確認できた事項</h2>
+  <ul>
+    <li>欠損、時刻不正、非UTC、空snapshot、未知quality flag、異常価格・出来高、checksum、degradedはfail-closedでSignal生成を止める。</li>
+    <li>Raw DBNはGit管理外に置き、証跡にはchecksumと固定取得条件だけを残す。API keyやAuthorization値は記録されていない。</li>
+    <li>WSL隔離実行は<code>networking_mode=none</code>で、通常の外向き接続を使わない。</li>
+    <li>Raw、Normalized、Catalog、Signal、Strategyの責務を混在させず、Strategy利益評価をPhase 2から除外している。</li>
+  </ul>
+
+  <h2>3. H2-3での最低判断条件</h2>
+  <ol>
+    <li><code>RT-P2-10-001</code>、<code>RT-P2-10-002</code>、<code>RT-P2-10-004</code>、<code>RT-P2-10-005</code>をP2-11の必須対応として採用する。</li>
+    <li>実DBNからの変換・ReplayとDataVersionのcontent bindingを確認するまで、Data Gate UNKNOWN、Signal停止、Phase 3 handoff禁止を維持する。</li>
+    <li>費用・entitlementの保留はH2-2の別課題として維持し、H2-3承認で追加取得を許可しない。</li>
+  </ol>
+
+  <h2>4. レビュー履歴・関連リンク</h2>
+  <table><thead><tr><th>担当</th><th>観点</th><th>結果</th></tr></thead><tbody>
+    <tr><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>横断整合、要件追跡、責務境界</td><td>P2-D11の指摘へ統合。</td></tr>
+    <tr><td>Red Team監査</td><td>Fail-closed、Raw改変、future data、Secret、費用、条件付きsymbol</td><td>本書の5指摘をH2-3判断対象として登録。</td></tr>
+    <tr><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code> / <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code></td><td>証跡・台帳・index導線</td><td><code>P2-REVIEW-DOCSET</code>へ統合。</td></tr>
+  </tbody></table>
+  <ul>
+    <li><a href="./07_Phase2統合レビュー結果.html">P2-D11 Phase 2統合レビュー結果</a></li>
+    <li><a href="../06_検証/06_Data_Quality_Replay検証結果.html">P2-D10 Data Quality / Replay検証結果</a></li>
+    <li><a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題・Blocked統合台帳</a></li>
+  </ul>
+</main>
+</body>
+</html>

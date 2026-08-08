@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2-D11 Phase 2統合レビュー結果</title>
+  <style>
+    body { font-family: system-ui, sans-serif; line-height: 1.7; max-width: 1180px; margin: 0 auto; padding: 2rem; color: #20242a; }
+    h1, h2 { color: #173b59; } h1 { border-bottom: 3px solid #173b59; padding-bottom: .5rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0 2rem; } th, td { border: 1px solid #cbd5e1; padding: .55rem; vertical-align: top; } th { background: #eef4f8; text-align: left; }
+    code { background: #f5f7f9; padding: .1rem .25rem; } .high { color: #991b1b; font-weight: 700; } .medium { color: #92400e; font-weight: 700; } .hold { background: #fff8df; border-left: 4px solid #d49b00; padding: .8rem 1rem; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメント一覧へ戻る</a></p>
+  <h1>P2-D11 Phase 2統合レビュー結果</h1>
+  <p><strong>成果物ID:</strong> P2-D11<br>
+     <strong>文書セットID:</strong> P2-REVIEW-DOCSET<br>
+     <strong>Phase / Step:</strong> Phase 2 / P2-10<br>
+     <strong>作成日:</strong> 2026-08-08<br>
+     <strong>状態:</strong> H2-3判断待ち。新規設計・実装はこのレビューで追加していない。<br>
+     <strong>Orchestrator:</strong> <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code></p>
+
+  <div class="hold"><strong>結論:</strong> 固定fixtureの品質・Replay、Secret非記録、WSL固定4 Gateは確認できた。一方、実DBNの変換、data_versionの入力束縛、Run ManifestのUnknown表現、P2-03R後の再レビューに未解決がある。Data GateをPASS扱いにせず、Signal生成・Phase 3 handoffを停止したままP2-11の修正対象とする。</div>
+
+  <h2>1. 入力と確認範囲</h2>
+  <ul>
+    <li>Phase 2の正式HTML、P2-05〜P2-09のコード・テスト・実行証跡、P2-D15。</li>
+    <li>要件定義、Phase 1のD10 Adapter境界、D11 実行モデル、D18 テスト品質Gate。</li>
+    <li>対象外: Strategy利益評価、Backtest採用判定、追加の外部取得・Secret投入。</li>
+  </ul>
+
+  <h2>2. 統合レビュー指摘</h2>
+  <p>指摘はH2-3で採否と優先順位を判断できるよう、根拠・停止条件・対応先を分けて記録する。</p>
+  <table>
+    <thead><tr><th>指摘ID</th><th>重要度</th><th>対象ファイル / 箇所</th><th>問題内容</th><th>修正方針</th><th>Human Gate</th></tr></thead>
+    <tbody>
+      <tr><td><code>P2-IR-001</code></td><td class="high">High</td><td><code>src/autotrade/market_data/manifest.py:29-40</code><br><code>tests/market_data/test_p2_09_replay_verification.py</code></td><td><code>fixture_sha256</code>、<code>code_revision</code>、<code>source_mode</code>はManifestに記録されるが、<code>data_version</code>の計算材料に入らない。値だけを変えても同一<code>data_version</code>になることをローカル再現で確認した。Replayの入力同一性を版番号だけで保証できない。</td><td>canonical normalized content digest、fixture hash、code revision、source modeを、data versionの互換性契約または検証可能な署名対象へ束縛する。差分ケースをRED/GREENで固定する。</td><td>H2-3で必須対応として採否。解消までPhase 3 handoff禁止。</td></tr>
+      <tr><td><code>P2-IR-002</code></td><td class="high">High</td><td><code>tests/evidence/phase2/RUN-P2-DP-002/acquisition-result.md</code><br><code>tests/evidence/phase2/RUN-P2-RPL-001/p2-d10-result.json</code></td><td>P2-08のDBNはchecksum確認済みだが、DBN decoderから<code>NormalizedBar</code> / <code>MarketEvent</code>への本番境界が未実装である。固定fixtureのPASSを実データのData Gate PASSへ拡張できない。</td><td>DBN変換、UTC・InstrumentId・quality flags、Raw/Normalized保存、Manifest/Replayを実取得DBNで接続し、失敗時はfail-closedを確認する。</td><td>H2-3で確認。実装・再検証前は不承認。</td></tr>
+      <tr><td><code>P2-IR-003</code></td><td class="medium">Medium</td><td><code>tests/evidence/phase2/RUN-P2-RPL-001/run-manifest.json:33-38</code><br><code>p2-d10-result.json:data_gate</code></td><td>Run Manifestは<code>unknowns: []</code>、<code>review.high: 0</code>だが、同じRunのP2-D10はData Gate <code>UNKNOWN</code>、Phase 3 <code>NOT_READY</code>を記録する。機械GateのPASSが業務Data GateのPASSと誤読されうる。</td><td>Run Manifestまたは対応する統合結果に、業務Unknown・Data Gate状態・handoff禁止を機械可読に接続する。既存証跡は履歴として残す。</td><td>H2-3で表示形式を採否。解消までData Gate UNKNOWN維持。</td></tr>
+      <tr><td><code>P2-IR-004</code></td><td class="medium">Medium</td><td><code>doc/phase2/03_市場データ詳細設計/08_実装詳細設計レビュー反映記録.html</code><br><code>src/autotrade/market_data/acquisition_protocol.py</code>、<code>quality.py</code>、<code>normalized_store.py</code></td><td>P2-D15はDD-01〜DD-12をP2-03R時点でPassとした。その後、外部取得、品質停止、Replay整合性、排他的保存の実装変更が入ったが、A91の変更影響再レビュー証跡がない。P2-D15と実装の対応を再確認できない。</td><td>変更箇所とDD-01〜DD-12への影響をP2-D15へ追記し、A91再レビューを行う。設計変更が必要ならP2-D05〜D07を先に改訂する。</td><td>H2-3の前提。統合台帳の<code>BLK-P2-011</code>で管理。</td></tr>
+      <tr><td><code>P2-IR-005</code></td><td class="medium">Medium</td><td><code>tests/evidence/phase2/RUN-P2-DP-002/acquisition-result.md</code><br><code>doc/00_全Phase残課題Blocked統合台帳.html:BLK-P2-005</code></td><td>承認済みの最小取得は一回で停止しているが、HTTP応答だけでは最終費用・entitlementを確定できない。追加取得や費用上限変更は未承認である。</td><td>公式billing/usageまたは請求証跡で最終記録を確認するまでは、追加取得を行わない。</td><td>追加取得・費用変更時はH2-2再承認。今回のH2-3とは別管理。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. 確認できた整合事項</h2>
+  <ul>
+    <li>Raw、Normalized、Catalog、Signalの責務は文書上分離され、Strategy利益評価をPhase 2へ持ち込んでいない。</li>
+    <li>欠損・重複・時刻・価格・出来高・checksum・degraded、未知quality flag、空snapshotはfail-closed試験で確認されている。</li>
+    <li><code>MZC/MZS/MZW</code>は固定fixture上で<code>MCL/M6A</code>と非交差であり、条件付き扱いを本線へ混在させない。</li>
+    <li>WSLは<code>networking_mode=none</code>で固定4 GateがPASS。ただしこれはData GateのPASSではない。</li>
+  </ul>
+
+  <h2>4. 要件・設計・証跡の対応</h2>
+  <table>
+    <thead><tr><th>追跡対象</th><th>確認結果</th><th>関連指摘 / 次の判断</th></tr></thead>
+    <tbody>
+      <tr><td><code>REQ-DATA-QUALITY</code> / D18</td><td>固定fixtureのfail-closed検証は存在する。実DBNへの接続は未完。</td><td><code>P2-IR-002</code>、<code>P2-IR-003</code></td></tr>
+      <tr><td><code>REQ-Q29</code> / D11</td><td>fixture限定のMarketEvent系列とManifest再現は確認済み。</td><td><code>P2-IR-001</code>の版入力束縛を解消するまで本線handoff不可。</td></tr>
+      <tr><td>D10 Adapter境界</td><td>外部取得はAdapterに閉じ、Secretを証跡へ出していない。</td><td>DBN decoder未実装は<code>P2-IR-002</code>。</td></tr>
+      <tr><td>P2-D15 / DD-01〜DD-12</td><td>P2-03R時点の再レビューはPass。</td><td>後続実装差分のA91確認が必要（<code>P2-IR-004</code>）。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. H2-3への採否提案</h2>
+  <p>本書は承認そのものではない。H2-3では次の方針を明示判断する。</p>
+  <ol>
+    <li><code>P2-IR-001</code>〜<code>P2-IR-004</code>をP2-11の必須修正として採用する。</li>
+    <li>それまではData Gateを<code>UNKNOWN</code>、Signal生成とPhase 3 handoffを禁止のまま維持する。</li>
+    <li><code>P2-IR-005</code>はH2-2の費用・entitlement保留として継続し、追加外部取得を承認しない。</li>
+  </ol>
+
+  <h2>6. レビュー履歴・関連リンク</h2>
+  <table><thead><tr><th>担当</th><th>観点</th><th>結果</th></tr></thead><tbody>
+    <tr><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>要件追跡、D10/D11/D18、責務境界、DD再レビュー</td><td>本書の統合指摘を記録。</td></tr>
+    <tr><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>成果物ID、相互リンク、統合台帳、doc/index.html導線</td><td>P2-D11/P2-D12の導線と台帳対応を反映。</td></tr>
+    <tr><td><code>AutoTrade_A81_DesignDocSetWriter_v0_1</code></td><td>文書セット共通メタ、Unknown、採否表</td><td><code>P2-REVIEW-DOCSET</code>として整合。</td></tr>
+  </tbody></table>
+  <ul>
+    <li><a href="../06_検証/06_Data_Quality_Replay検証結果.html">P2-D10 Data Quality / Replay検証結果</a></li>
+    <li><a href="./07_Phase2レッドチーム監査結果.html">P2-D12 Phase 2レッドチーム監査結果</a></li>
+    <li><a href="../03_市場データ詳細設計/08_実装詳細設計レビュー反映記録.html">P2-D15 実装詳細設計レビュー・反映記録</a></li>
+    <li><a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題・Blocked統合台帳</a></li>
+  </ul>
+</main>
+</body>
+</html>
