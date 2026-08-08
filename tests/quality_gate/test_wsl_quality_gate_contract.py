@@ -156,6 +156,7 @@ def test_automation_wrapper_captures_wrapper_and_evidence_results() -> None:
     assert "(Test-Path -LiteralPath $preflightPath) -and" in text
     assert "preflightIsRecent" in text and "preferPreflight" in text
     assert "AllowRunningDistro" in text
+    assert "RunAsRoot" in text
     assert "runnerWasInvoked" in text
 
 

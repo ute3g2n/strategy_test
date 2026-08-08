@@ -3,7 +3,8 @@ param(
     [string]$Distro = "Ubuntu-24.04",
     [string]$RepositoryPath = "/home/oue/strategy_test",
     [string]$RunId = "RUN-P2-IC-001-WSL",
-    [switch]$AllowRunningDistro
+    [switch]$AllowRunningDistro,
+    [switch]$RunAsRoot
 )
 
 $ErrorActionPreference = "Stop"
@@ -75,6 +76,7 @@ $wrapperArguments = @(
     "-RunId", $RunId
 )
 if ($AllowRunningDistro) { $wrapperArguments += "-AllowRunningDistro" }
+if ($RunAsRoot) { $wrapperArguments += "-RunAsRoot" }
 $wrapperCommand = "powershell.exe " + (($wrapperArguments | ForEach-Object { '"' + $_.Replace('"', '\"') + '"' }) -join " ")
 $wrapperResult = Invoke-Captured "powershell.exe" $wrapperArguments 180
 $wrapperOutputPath = Join-Path $automationRoot "run-test-wrapper.log"
