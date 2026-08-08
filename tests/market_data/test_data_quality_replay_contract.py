@@ -20,6 +20,7 @@ from autotrade.market_data.quality import QualityChecker
 from autotrade.market_data.store_contracts import DataVersionManifest, NormalizedBar, QualityReport
 
 FIXTURE_PATH = Path(__file__).parents[1] / "fixtures" / "market_data" / "data_quality_replay_fixture.json"
+FIXTURE_SHA256 = "a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79"
 
 
 def fixture() -> dict[str, object]:
@@ -46,6 +47,7 @@ def bars() -> tuple[NormalizedBar, ...]:
 
 
 def test_fixed_fixture_has_no_generated_time_and_expected_case_matrix() -> None:
+    assert sha256(FIXTURE_PATH.read_bytes()).hexdigest() == FIXTURE_SHA256
     data = fixture()
     assert data["schema_version"] == "p2-dqr-fixture-v1"
     assert data["fixture_hash_scope"] == "canonical-json-without-generated-at"
@@ -133,6 +135,26 @@ def test_replay_rejects_quality_report_hash_mismatch(tmp_path: Path) -> None:
     snapshot_path = tmp_path / "normalized" / f"{manifest.data_version}.json"
     snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
     snapshot["manifest"]["quality_report_sha256"] = "sha256:quality-tampered"
+    snapshot_path.write_text(json.dumps(snapshot, sort_keys=True, separators=(",", ":")), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="MANIFEST_INTEGRITY"):
+        store.read_replay_snapshot(manifest.data_version)
+
+
+def test_replay_rejects_quality_report_payload_tampering(tmp_path: Path) -> None:
+    report = QualityChecker.check(bars())
+    manifest = ManifestBuilder.build(
+        raw_sha256s=("sha256:raw-fixed",),
+        normalization_rule_version="normalized-v1",
+        catalog_version="fixture-catalog-v1",
+        catalog_sha256="sha256:catalog-fixed",
+        quality_report_sha256=report.quality_report_sha256,
+    )
+    store = LocalNormalizedStore(tmp_path)
+    store.write_if_absent(bars(), manifest, report)
+    snapshot_path = tmp_path / "normalized" / f"{manifest.data_version}.json"
+    snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+    snapshot["quality_report"]["flags"] = ["DEGRADED"]
     snapshot_path.write_text(json.dumps(snapshot, sort_keys=True, separators=(",", ":")), encoding="utf-8")
 
     with pytest.raises(ValueError, match="MANIFEST_INTEGRITY"):
