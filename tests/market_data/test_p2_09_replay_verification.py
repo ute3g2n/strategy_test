@@ -77,8 +77,12 @@ def test_fixture_quality_matrix_is_fail_closed() -> None:
     data = _fixture()
     cases = data["cases"]
     assert isinstance(cases, dict)
-    assert all(case["publishable"] is False for name, case in cases.items() if name != "duplicate_exact")
-    assert cases["duplicate_exact"]["publishable"] is True
+    for case in cases.values():
+        assert isinstance(case, dict)
+        flags = tuple(case["quality_flags"])
+        report = QualityChecker.check(_bars(), injected_flags=flags)
+        assert report.publishable is case["publishable"]
+        assert report.signal_generation_allowed is case["publishable"]
 
 
 def test_fixture_replay_manifest_and_market_events_are_deterministic() -> None:
@@ -87,6 +91,10 @@ def test_fixture_replay_manifest_and_market_events_are_deterministic() -> None:
 
     assert first_manifest == second_manifest
     assert first_report == second_report
+    assert first_manifest.data_version == "dv_ed27a1e51b4a39bef629"
+    assert (
+        first_report.quality_report_sha256 == "sha256:39de9d12fc61df12cec6c8a4eafb3f1a8cf40772955ae05f94afd3e8f5cccc9b"
+    )
     first_events = _events(first_manifest.data_version)
     second_events = _events(second_manifest.data_version)
     assert first_events == second_events
