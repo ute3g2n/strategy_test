@@ -1,0 +1,47 @@
+{
+  "run_id": "RUN-P2-DQR-001",
+  "phase_id": "phase2",
+  "step_id": "P2-06",
+  "state": "RED_DESIGN",
+  "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+  "agents": [
+    "AutoTrade_A110_PythonTestEngineer_v0_1",
+    "AutoTrade_A130_VerificationEngineer_v0_1",
+    "AutoTrade_A150_PythonCodeReviewer_v0_1",
+    "AutoTrade_A160_TradingSecurityReviewer_v0_1"
+  ],
+  "skills": [
+    "autotrade_skill_python_test_quality_v0_1",
+    "autotrade_skill_test_strategy_v0_1",
+    "autotrade_skill_golden_test_v0_1",
+    "autotrade_skill_execution_model_v0_1",
+    "autotrade_skill_python_code_review_v0_1"
+  ],
+  "design": ["P2-D05", "P2-D06", "P2-D07", "P2-D08", "D11", "D18"],
+  "target_paths": [
+    "src/autotrade/market_data",
+    "tests/market_data",
+    "tests/fixtures/market_data"
+  ],
+  "excluded_paths": [".env", "research", "third_party/everything-claude-code"],
+  "fixture": {
+    "path": "tests/fixtures/market_data/data_quality_replay_fixture.json",
+    "schema_version": "p2-dqr-fixture-v1",
+    "sha256": "sha256:a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79"
+  },
+  "source_mode": "fixture_only",
+  "network": "prohibited",
+  "broker": "prohibited",
+  "secrets": "prohibited",
+  "live_trading": "prohibited",
+  "checks": [
+    {"gate": "formatter", "status": "PASS", "command": ".venv/Scripts/python.exe -m ruff format --check tests/market_data/test_data_quality_replay_contract.py"},
+    {"gate": "lint", "status": "PASS", "command": ".venv/Scripts/python.exe -m ruff check tests/market_data/test_data_quality_replay_contract.py"},
+    {"gate": "test_existing_catalog", "status": "PASS", "result": "9 passed"},
+    {"gate": "test_new_contract", "status": "RED", "result": "collection failed: ModuleNotFoundError for autotrade.market_data.manifest"},
+    {"gate": "type", "status": "NOT_STARTED", "reason": "P2-07 implementation modules do not exist"},
+    {"gate": "isolated_quality_gate", "status": "NOT_STARTED", "reason": "RUN-P2-DQR-001 trusted scope is intentionally not registered until P2-07 implementation exists"}
+  ],
+  "unknowns": ["UNK-P2-12"],
+  "human_gate": "H2-3 is not requested by P2-06 and remains pending P2-10"
+}
