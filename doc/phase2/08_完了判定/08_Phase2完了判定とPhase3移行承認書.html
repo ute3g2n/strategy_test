@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2-D14 Phase 2完了判定とPhase 3移行承認書</title>
+  <style>
+    body { font-family: system-ui, sans-serif; line-height: 1.7; max-width: 1240px; margin: 0 auto; padding: 2rem; color: #20242a; }
+    h1, h2 { color: #173b59; } h1 { border-bottom: 3px solid #173b59; padding-bottom: .5rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0 2rem; } th, td { border: 1px solid #cbd5e1; padding: .55rem; vertical-align: top; } th { background: #eef4f8; text-align: left; }
+    code { background: #f5f7f9; padding: .1rem .25rem; } .stop { background: #fff1f2; border-left: 4px solid #be123c; padding: .8rem 1rem; } .wait { background: #fff8df; border-left: 4px solid #d49b00; padding: .8rem 1rem; } .pass { color: #166534; font-weight: 700; } .high { color: #991b1b; font-weight: 700; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメント一覧へ戻る</a></p>
+  <h1>P2-D14 Phase 2完了判定とPhase 3移行承認書</h1>
+  <p><strong>成果物ID:</strong> P2-D14<br>
+     <strong>文書セットID:</strong> P2-COMPLETION-DOCSET<br>
+     <strong>Phase / Step:</strong> Phase 2 / P2-11<br>
+     <strong>作成日:</strong> 2026-08-08<br>
+     <strong>状態:</strong> 完了判定の材料を提示。Phase 2完了・Phase 3移行は未承認。</p>
+
+  <div class="stop"><strong>現在の判定:</strong> Phase 2はまだ完了扱いにしない。実DBN→NormalizedBar→MarketEvent→Replayの本番境界にHighが1件残っているため、Data GateはUNKNOWN、Signal生成とPhase 3への引渡しは禁止する。</div>
+
+  <h2>1. 完了条件の確認</h2>
+  <table><thead><tr><th>確認項目</th><th>結果</th><th>理由・証拠</th></tr></thead><tbody>
+    <tr><td>P2-D01〜P2-D15の存在</td><td class="pass">確認済み</td><td>P2-D13、P2-D14を追加。<a href="../../index.html">index</a>から到達可能。</td></tr>
+    <tr><td>Raw / Normalized / Catalog / Signal / Rollの責務境界</td><td class="pass">確認済み（fixture・設計範囲）</td><td>Phase 2の設計詳細とP2-D15を確認。</td></tr>
+    <tr><td>Data Quality / Replay結果</td><td class="pass">固定fixtureはPASS</td><td>61テスト、coverage 81.59%、WSL固定4 Gate PASS。</td></tr>
+    <tr><td>Unknownを合格扱いしていない</td><td class="pass">確認済み</td><td>実DBN変換はUNKNOWNとして、SignalとPhase 3への引渡しを停止。</td></tr>
+    <tr><td>Secret・API key等の漏えい</td><td class="pass">検出なし</td><td>固定fixture・証跡・レビューで実値を記録していない。</td></tr>
+    <tr><td>Phase 3へ渡す入力の明確化</td><td class="pass">fixture範囲のみ確認</td><td>data_version、fixture、Replay入力、残UnknownをP2-D13と台帳に記録。</td></tr>
+    <tr><td>P2-D05〜D07のA91再レビュー</td><td class="high">High残存のため未完了</td><td>局所変更はPassだが、実DBN変換境界がDD-01/02/03/04/06/09でHigh。</td></tr>
+  </tbody></table>
+
+  <h2>2. 人による承認が必要な項目</h2>
+  <p>ここでは、承認者が何を決めるのかを具体的に書く。承認はチャットで明示的に行い、AIが推測してはいけない。</p>
+  <table><thead><tr><th>承認ID</th><th>今回の状態</th><th>あなたが決めること</th><th>今すぐ承認した場合の意味</th></tr></thead><tbody>
+    <tr><td><code>H2-3</code></td><td>未承認</td><td>「P2-10の指摘の採用方針を承認する。ただし実DBN変換が未実装の間はData Gate UNKNOWN、Signal停止、Phase 3への引渡し禁止を維持する」と承認するか。</td><td>修正済み部分と残課題の扱いを正式に決められる。ただし、本番データ利用やPhase 3移行は許可されない。</td></tr>
+    <tr><td><code>H2-4</code></td><td>未承認・現時点では推奨しない</td><td>Phase 2を完了扱いにし、Phase 3 Strategy / Backtest基盤へ進めるか。</td><td>現在はHighが残るため承認しない。DBN変換と実データReplay再検証後に、改めて判断する。</td></tr>
+    <tr><td><code>H2-2</code></td><td class="pass">最小取得範囲は承認済み</td><td>対象範囲を越える追加取得、期間拡大、費用上限変更、Secret用途変更を許可するか。</td><td>追加許可は含まれない。追加する場合は別途再承認が必要。</td></tr>
+  </tbody></table>
+
+  <h2>3. 承認文の例</h2>
+  <div class="wait">
+    <p><strong>現時点で承認してよい内容（H2-3）:</strong></p>
+    <p>「P2-10の指摘の採用方針とP2-11の修正反映を承認します。ただし、実DBNからNormalizedBar / MarketEventへの変換と実データReplayが未完了の間は、Data Gate UNKNOWN、Signal生成停止、Phase 3への引渡し禁止を維持してください。」</p>
+    <p><strong>現時点で承認しない内容（H2-4）:</strong></p>
+    <p>「Phase 2完了とPhase 3移行は、実DBN変換・実データReplay・High解消後に改めて判断します。」</p>
+  </div>
+
+  <h2>4. 再開条件</h2>
+  <ol>
+    <li>実DBN decoder、Normalizer、MarketEvent生成接続を実装する。</li>
+    <li>UTC、銘柄ID、品質flags、Raw/Normalized保存、Manifest、Replayを実DBNで確認する。</li>
+    <li>固定fixtureの61テスト、固定4 Gate、実データReplay、条件付き銘柄分離を再実行する。</li>
+    <li>Highが0件になったことをA91が確認し、P2-D13・P2-D14と統合台帳を更新する。</li>
+    <li>その後、H2-3（本線への引渡し）とH2-4（Phase 3移行）を改めて承認する。</li>
+  </ol>
+
+  <h2>5. 関連成果物</h2>
+  <ul>
+    <li><a href="./08_Phase2レビュー反映履歴.html">P2-D13 レビュー反映履歴</a></li>
+    <li><a href="../07_統合レビュー/07_Phase2統合レビュー結果.html">P2-D11 統合レビュー</a></li>
+    <li><a href="../07_統合レビュー/07_Phase2レッドチーム監査結果.html">P2-D12 レッドチーム監査</a></li>
+    <li><a href="../03_市場データ詳細設計/08_実装詳細設計レビュー反映記録.html">P2-D15 A91再レビュー</a></li>
+    <li><a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></li>
+  </ul>
+</main>
+</body>
+</html>

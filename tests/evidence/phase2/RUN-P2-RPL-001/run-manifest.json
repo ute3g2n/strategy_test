@@ -19,8 +19,8 @@
     "autotrade_skill_traceability_v0_1",
     "autotrade_skill_html_doc_writer_v0_1"
   ],
-  "data_version": "dv_ed27a1e51b4a39bef629",
-  "code_revision": "7ad43e82dd719ae839d93b5eedf632ab5a8ac2f0",
+  "data_version": "dv_0d5783c4a39b4547c8d0",
+  "code_revision": "33f981938f3cbd983b27fea7a94dba7bfad5b7fa",
   "change_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "baseline_ref": "HEAD",
   "evidence_root": "tests/evidence/phase2/RUN-P2-RPL-001",
@@ -34,8 +34,9 @@
     "checksum": "sha256:a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79"
   },
   "human_gate_policy": "P2-09 verification only; failed or unknown Data Gate items are sent to H2-3 and are not promoted to Phase 3",
-  "review": {"critical": 0, "high": 0},
-  "unknowns": [],
+  "review": {"critical": 0, "high": 1, "details": "実DBNからNormalizedBar/MarketEventへ変換する本番境界が未実装"},
+  "unknowns": ["P2-IR-002", "RT-P2-10-004"],
+  "tests_passed": 61,
   "checks": [
     {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "tests/market_data", "scripts/market_data"]},
     {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/market_data", "tests/market_data", "scripts/market_data"]},

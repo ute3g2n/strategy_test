@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2-D13 Phase 2レビュー反映履歴</title>
+  <style>
+    body { font-family: system-ui, sans-serif; line-height: 1.7; max-width: 1280px; margin: 0 auto; padding: 2rem; color: #20242a; }
+    h1, h2 { color: #173b59; } h1 { border-bottom: 3px solid #173b59; padding-bottom: .5rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0 2rem; } th, td { border: 1px solid #cbd5e1; padding: .55rem; vertical-align: top; } th { background: #eef4f8; text-align: left; }
+    code { background: #f5f7f9; padding: .1rem .25rem; } .hold { background: #fff8df; border-left: 4px solid #d49b00; padding: .8rem 1rem; } .pass { color: #166534; font-weight: 700; } .high { color: #991b1b; font-weight: 700; } .partial { color: #92400e; font-weight: 700; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメント一覧へ戻る</a></p>
+  <h1>P2-D13 Phase 2レビュー反映履歴</h1>
+  <p><strong>成果物ID:</strong> P2-D13<br>
+     <strong>文書セットID:</strong> P2-COMPLETION-DOCSET<br>
+     <strong>Phase / Step:</strong> Phase 2 / P2-11<br>
+     <strong>作成日:</strong> 2026-08-08<br>
+     <strong>状態:</strong> 修正反映済み。ただし実DBN変換境界のHighとH2-3/H2-4未承認が残る。</p>
+
+  <div class="hold"><strong>結論:</strong> P2-10の指摘のうち、data_versionの取り違え、正規化データの改ざん検知、品質境界、証跡の矛盾を修正した。一方、実DBNをNormalizedBar / MarketEventへ変換する本番部品はまだ無いため、Data GateはUNKNOWN、Signal生成とPhase 3への引渡しは停止する。</div>
+
+  <h2>1. 指摘ごとの採否と反映</h2>
+  <p>この表は、P2-10で見つかった問題をP2-11でどう扱ったか、何を直し、何が残っているかを示す。説明は専門用語を知らない人でも判断できるように書いている。</p>
+  <table>
+    <thead><tr><th>指摘ID</th><th>判断</th><th>問題内容とやさしい説明</th><th>修正・反映内容とやさしい説明</th><th>残課題・停止条件</th></tr></thead>
+    <tbody>
+      <tr><td><code>P2-IR-001</code><br><code>RT-P2-10-001</code></td><td class="pass">採用・解消</td><td>材料が違っても同じ<code>data_version</code>になり得た。<br><small>やさしい説明: 違うデータに同じ名前を付けてしまう問題。</small></td><td><code>normalized_content_sha256</code>、fixture hash、code revision、source modeを版番号の計算へ追加。差分テストを追加。<br><small>やさしい説明: 中身・材料・作り方が違えば、必ず別の番号になるようにした。</small></td><td>局所実装は解消。実DBNで作った版の再Replayは残る。</td></tr>
+      <tr><td><code>P2-IR-002</code><br><code>RT-P2-10-004</code></td><td class="partial">部分採用・保留</td><td>実DBNを読んで<code>NormalizedBar</code> / <code>MarketEvent</code>にする本番境界が無い。<br><small>やさしい説明: 本物のデータを、システムが使える形へ翻訳する部品がまだ無い。</small></td><td>既存のfixture境界と停止条件を維持し、実DBN decoderを勝手に仮実装しなかった。<br><small>やさしい説明: 本物を読めないのに「読めた」と言わず、危険な入口を閉じたままにした。</small></td><td class="high">High残存。<code>BLK-P2-008</code>、Data Gate UNKNOWN、Signal停止、Phase 3への引渡し禁止。</td></tr>
+      <tr><td><code>P2-IR-003</code><br><code>RT-P2-10-002</code></td><td class="pass">採用・解消</td><td>機械テストの合格と、本番利用の許可が同じように見えた。<br><small>やさしい説明: 学校のテストに合格しても、試合に出てよいとは限らない。</small></td><td>Run ManifestへUnknown、High残存、Data Gate状態を反映し、D10証跡の版・hash・テスト数を更新。<br><small>やさしい説明: 「機械は合格」「本番はまだ禁止」を同じ証拠で分けて表示した。</small></td><td>H2-3承認までは本番利用不可。</td></tr>
+      <tr><td><code>P2-IR-004</code></td><td class="pass">採用・解消</td><td>P2-03R後の実装変更を設計図と再照合していなかった。<br><small>やさしい説明: 部品を変えたのに、設計図どおりか点検していなかった。</small></td><td>P2-D15へ変更影響表とA91再レビューを追記。今回の局所変更はCritical/High 0件と確認。<br><small>やさしい説明: 変えた部品をもう一度設計図と照らし合わせて記録した。</small></td><td>実DBN境界のHighは<code>BLK-P2-008</code>へ統合。</td></tr>
+      <tr><td><code>P2-IR-005</code><br><code>RT-P2-10-003</code></td><td class="partial">保留・別Gate</td><td>最小取得の記録だけでは最終費用・利用権限を確定できない。<br><small>やさしい説明: 1回受け取っただけでは、月末の請求額は分からない。</small></td><td>追加取得を行わず、費用・利用権限の証拠をH2-2課題として維持。<br><small>やさしい説明: 料金を確認するまで、勝手に追加注文しない。</small></td><td><code>BLK-P2-005</code>。追加取得・範囲拡大はH2-2再承認が必要。</td></tr>
+      <tr><td><code>RT-P2-10-005</code></td><td class="pass">採用・解消</td><td>正常そうな数字の差し替えを検出できなかった。<br><small>やさしい説明: 明らかに変な数字だけでなく、もっともらしい改ざんも見つける必要がある。</small></td><td>正規化内容digestをManifestとReplayへ接続し、正常範囲の行変更を拒否するテストを追加。<br><small>やさしい説明: 行の中身まで照合し、少しでも違えば止めるようにした。</small></td><td>局所実装は解消。実DBNでの同じ検証は未実施。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. 実装・テスト・証跡</h2>
+  <table><thead><tr><th>対象</th><th>結果</th><th>証拠</th></tr></thead><tbody>
+    <tr><td>data_versionと正規化内容</td><td class="pass">実装・テスト済み</td><td><a href="../../../src/autotrade/market_data/manifest.py">manifest.py</a>、<a href="../../../src/autotrade/market_data/normalized_store.py">normalized_store.py</a>、61テスト。</td></tr>
+    <tr><td>品質・Raw安全境界</td><td class="pass">実装・テスト済み</td><td>銘柄ID、元データID、非UTC、Raw途中失敗、品質報告改ざんをfail-closedで固定。</td></tr>
+    <tr><td>Windows品質確認</td><td class="pass">61 passed / coverage 81.59% / formatter・lint・mypy PASS</td><td><a href="../../../tests/market_data/">tests/market_data</a>、<a href="../../../tests/evidence/phase2/RUN-P2-RPL-001/verification-result.md">検証結果</a>。</td></tr>
+    <tr><td>WSL隔離4 Gate</td><td class="pass">4 Gate PASS、状態は人による承認待ち</td><td><a href="../../../tests/evidence/phase2/RUN-P2-RPL-001/wsl-verification-capture.json">WSL証跡</a>。networking_mode=none。</td></tr>
+    <tr><td>実DBN decoder</td><td class="high">未実装・High残存</td><td><code>P2-IR-002</code> / <code>RT-P2-10-004</code> / <code>BLK-P2-008</code>。</td></tr>
+  </tbody></table>
+
+  <h2>3. Phase 3へ渡せるもの</h2>
+  <ul>
+    <li>Phase 3の実装が参照できる設計書、fixture、固定Replay契約、Data Qualityテスト。</li>
+    <li>ただし、実DBN由来のMarketEvent、Data Gate UNKNOWNのデータ、未確認の銘柄変換結果は渡さない。</li>
+    <li>Strategyの利益評価、Backtest採用判定、Live接続はPhase 3以降の範囲であり、本書では承認しない。</li>
+  </ul>
+
+  <h2>4. レビュー履歴</h2>
+  <table><thead><tr><th>担当</th><th>観点</th><th>結果</th></tr></thead><tbody>
+    <tr><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>P2-D05〜D07の変更影響、DD-01〜DD-12、実装可能性</td><td>Critical 0件。局所変更のHigh 0件。ただし実DBN変換境界High 1件を残す。</td></tr>
+    <tr><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code> / <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code></td><td>採否表、リンク、保存先、台帳</td><td>P2-D13/P2-D14、index、統合台帳へ反映。</td></tr>
+  </tbody></table>
+  <p><a href="./08_Phase2完了判定とPhase3移行承認書.html">P2-D14 Phase 2完了判定とPhase 3移行承認書</a>へ進む。</p>
+</main>
+</body>
+</html>

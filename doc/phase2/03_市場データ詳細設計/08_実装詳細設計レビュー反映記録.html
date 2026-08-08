@@ -18,7 +18,7 @@
   <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
   <h1>P2-D15 実装詳細設計レビュー・反映記録</h1>
   <section class="meta">
-    <p><strong>成果物ID:</strong> P2-D15<br><strong>文書セットID:</strong> P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET<br><strong>Phase / Step:</strong> Phase 2 / P2-03R<br><strong>作成日:</strong> 2026-08-04<br><strong>文書状態:</strong> v0.5 / モジュール間データ受渡しの可視化基準を記録<br><strong>使用Orchestrator:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></p>
+    <p><strong>成果物ID:</strong> P2-D15<br><strong>文書セットID:</strong> P2-MARKET-DATA-IMPLEMENTATION-DETAIL-DOCSET<br><strong>Phase / Step:</strong> Phase 2 / P2-03R / P2-11再レビュー<br><strong>作成日:</strong> 2026-08-04（P2-11追記 2026-08-08）<br><strong>文書状態:</strong> v0.6 / P2-11実装変更影響とA91再レビューを追記<br><strong>使用Orchestrator:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></p>
   </section>
 
   <h2>1. 判定</h2>
@@ -76,10 +76,20 @@
     <tr><td>DD-12 改訂閉ループ</td><td>21章</td><td>21章</td><td>21章</td><td class="pass">Pass</td></tr>
   </tbody></table>
 
+  <h2>5.1 P2-11実装変更影響とA91再レビュー</h2>
+  <p>この表は、P2-10後に実装へ入った変更が、DD-01〜DD-12の設計契約へ影響しないかを確認した記録である。実DBNを本番形式へ変換する部品はまだ存在しないため、その範囲をPass扱いにしない。</p>
+  <table><thead><tr><th>変更</th><th>影響するDD</th><th>A91再レビュー結果</th><th>残課題</th></tr></thead><tbody>
+    <tr><td>data_versionへ正規化内容digest、fixture hash、code revision、source modeを束縛</td><td>DD-05、DD-10、DD-11</td><td class="pass">局所変更はPass。差分テストと再現値を確認。</td><td>実DBNから生成した値での再Replayは未実施。</td></tr>
+    <tr><td>Replay読込時のbars digest・品質報告・Manifest再検証</td><td>DD-05、DD-06、DD-09、DD-10</td><td class="pass">局所変更はPass。正常範囲内の行変更も拒否するテストを確認。</td><td>本物のDBNを入力した接続試験は未実施。</td></tr>
+    <tr><td>品質境界（銘柄ID、元データID、非UTC受信時刻、Raw途中失敗）のfail-closed強化</td><td>DD-06、DD-07、DD-08、DD-09</td><td class="pass">局所変更はPass。追加61テスト、formatter/lint/typeを確認。</td><td>実DBN decoderのエラー境界は未実装。</td></tr>
+    <tr><td>DBN decoder・Normalizer・MarketEvent生成接続</td><td>DD-01、DD-02、DD-03、DD-04、DD-06、DD-09</td><td class="fail">High残存。実装部品が存在せず、Pass判定不可。</td><td><code>P2-IR-002</code> / <code>RT-P2-10-004</code> / <code>BLK-P2-008</code>。</td></tr>
+  </tbody></table>
+  <p><strong>A91再レビュー判定:</strong> Critical 0件、今回追加した局所実装のHigh 0件。ただし、実DBN→NormalizedBar→MarketEvent→Replayの本番境界にHigh 1件が残るため、P2-D15全体を「High 0件で完了」とは宣言しない。</p>
+
   <h2>6. 要件・判断・Unknown追跡</h2>
   <table><thead><tr><th>追跡ID</th><th>詳細設計での根拠</th><th>状態</th></tr></thead><tbody>
     <tr><td>REQ-Q20 / REQ-Q29</td><td>不変Raw、Normalized snapshot、data_version、Manifest、Replay停止、fixtureテスト。</td><td>設計完了。実装・検証はP2-05/P2-06。</td></tr>
-    <tr><td>REQ-Q23</td><td>Secret非出力、fixture既定、H2-2未承認external拒否、監査属性の限定。</td><td>設計完了。H2-2は未承認。</td></tr>
+    <tr><td>REQ-Q23</td><td>Secret非出力、fixture既定、H2-2未承認時の外部取得拒否、監査属性の限定。</td><td>設計完了。H2-2は最小取得範囲のみ承認済み。追加取得は再承認が必要。</td></tr>
     <tr><td>REQ-OD01 / REQ-P2-BL02</td><td>CatalogのPending、mapping期限・一意性、future/spread分離。</td><td>候補実測はUNK-P2-03/04。</td></tr>
     <tr><td>DEC-P2-01〜07</td><td>append-only Raw、UTC/InstrumentId/quality flags、vendor隔離、1分足前提、versioned input、fail-closed、P10非流用。</td><td>設計へ反映。</td></tr>
     <tr><td>UNK-P2-10</td><td>実装詳細設計の充足可否。</td><td>本書のA91再レビューにより解消。P2-D05〜07変更時は再発し、A91再レビューを必須とする。</td></tr>
