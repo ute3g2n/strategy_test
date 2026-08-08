@@ -14,7 +14,9 @@
 <body><main>
   <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
   <h1>P2-D17 実DBN Replay・WSL隔離検証結果</h1>
-  <section class="meta"><strong>成果物ID:</strong> P2-D17<br><strong>Phase / Step:</strong> Phase 2 / P2-12-03<br><strong>Run:</strong> <code>RUN-P2-DBN-001</code><br><strong>最終更新日時:</strong> 2026-08-08T18:25:53Z（UTC）<br><strong>状態:</strong> <span class="fail">BLOCKED（UNK-P2-13 / UNK-P2-14による安全停止）</span></section>
+  <section class="meta"><strong>成果物ID:</strong> P2-D17<br><strong>Phase / Step:</strong> Phase 2 / P2-12-03<br><strong>Run:</strong> <code>RUN-P2-DBN-001</code><br><strong>最終更新日時:</strong> 2026-08-09T06:40:00Z（UTC）<br><strong>状態:</strong> <span class="fail">BLOCKED（UNK-P2-15による安全停止）</span></section>
+
+  <section class="unknown"><strong>最新追記:</strong> 承認済みの同一条件1回取得によりRaw受信UTC（<code>2026-08-08T21:28:59.064530Z</code>）は確定し、DBNヘッダーの外部番号→raw symbol→内部IDの固定Catalogも作成した。最新Rawは1915 bytes、SHA-256は<code>sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d</code>である。旧記述にあるUNK-P2-13/14による停止は過去試行の説明であり、現在の停止理由はspread 1件を本線へ入れない選別条件（UNK-P2-15）である。対応証跡は <a href="../../../tests/evidence/phase2/RUN-P2-DBN-001/p2-12-03-reacquisition.json">再取得記録</a>、<a href="../../../tests/evidence/phase2/RUN-P2-DBN-001/p2-12-03-catalog-resolution.json">Catalog解決記録</a>。</section>
 
   <section class="blocked"><strong>Data Gateは引き続きUNKNOWNで、Signal生成は停止中である。</strong><br>Windows側のP2-08固定DBNを使う明示承認を受け、同一SHA-256の一件だけをWSLの <code>/var/lib/autotrade/replay/RUN-P2-DBN-001/input.dbn</code> へ配置した。保護方式は<code>root:autotrade-replay:0440</code>（親ディレクトリ<code>0750</code>）で、実行アカウントだけが読める。デコーダは通常権限で動き、管理者権限でプロジェクトコードを実行しない。Windows・WSL・事前固定値のSHA-256はすべて <code>8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e</code> と一致した。ただし、P2-08証跡にRaw受信UTC時刻と外部銘柄番号のCatalog対応が無いため、正規化とMarketEvent作成は安全停止した。<br><small>やさしい説明: 本物の箱は鍵付き棚へ置けて、中身の番号も合いました。箱を読む鍵は試験担当だけが持ち、強い管理者権限で翻訳機を動かしません。でも「いつ届いた箱か」「箱の中の番号が何の商品か」が分からないので、翻訳したデータを売買の合図には使いません。</small></section>
 
@@ -25,7 +27,7 @@
     <tr><td>入力hash・所有者・権限</td><td>確認済み</td><td>SHA-256一致、<code>root:autotrade-replay:0440</code>、親ディレクトリ0750、通常ファイル、サイズ22760 bytes。</td></tr>
     <tr><td>実DBNデコーダ読取り</td><td>確認済み</td><td>ネットワークなしのWSLで、通常の実行アカウントが<code>DatabentoDbnDecoder.decode(bytes)</code>を動かし、<code>ohlcv-1m</code>の4レコードを読取。入力hashは実行前後で一致し、Secret・Brokerは使っていない。</td></tr>
     <tr><td>WSL固定4 Gate</td><td class="fail">開始前にBLOCKED</td><td>UNK-P2-13/14が残るため、formatter / lint / 型検査 / pytestを合格扱いにする前に停止した。4 Gateの不合格ではない。</td></tr>
-    <tr><td>実DBNの正規化・MarketEvent・Replay</td><td class="fail">安全停止</td><td>UNK-P2-13（Raw受信UTC時刻なし）とUNK-P2-14（Catalog対応なし）のため、値を作らない。</td></tr>
+    <tr><td>実DBNの正規化・MarketEvent・Replay</td><td class="fail">安全停止</td><td>Raw受信UTCとCatalog対応は確定したが、spread 1件が採用対象外として保留のため、全件fail-closedで値を作らない。</td></tr>
   </tbody></table>
 
   <h2>2. Data Gateと停止範囲</h2>
@@ -39,8 +41,9 @@
   <h2>3. 追跡</h2>
   <table><thead><tr><th>ID</th><th>状態</th><th>対応する成果物・次の条件</th></tr></thead><tbody>
     <tr><td>REQ-Q02 / REQ-Q19 / REQ-Q20 / REQ-Q23 / REQ-Q29</td><td>入力完全性・WSL decoder読取りは確認、全変換は未確認</td><td>P2-D16、<a href="../../../tests/evidence/phase2/RUN-P2-DBN-001/p2-12-03-verification.md">P2-12-03検証証跡</a>、<a href="../../../tests/evidence/phase2/RUN-P2-DBN-001/wsl-verification-capture.json">WSL捕捉証跡</a></td></tr>
-    <tr><td>UNK-P2-13</td><td>未解消</td><td>Raw受信UTC時刻の証跡を確認できなければ停止する。</td></tr>
-    <tr><td>UNK-P2-14</td><td>未解消</td><td>DBN外部銘柄と内部Catalogを一意に結べなければ停止する。</td></tr>
+    <tr><td>UNK-P2-13</td><td class="pass">解消</td><td>承認済み同一条件1回取得で実受信UTCを記録した。</td></tr>
+    <tr><td>UNK-P2-14</td><td class="pass">解消</td><td>DBNヘッダーの外部番号→raw symbol→内部IDの固定Catalogを作成した。</td></tr>
+    <tr><td>UNK-P2-15</td><td>未解消</td><td>spreadを本線の先物データへ混ぜない選別条件を確定するまで停止する。</td></tr>
     <tr><td>BLK-P2-008</td><td>継続</td><td>UNK-P2-13/14を解消してから、正規化・MarketEvent・Replay・隔離4 Gateを再実行する。</td></tr>
   </tbody></table>
 

@@ -23,7 +23,7 @@
     <strong>文書セットID:</strong> P2-DBN-CLOSURE-DOCSET<br>
     <strong>Phase / Step:</strong> Phase 2 / P2-12-01<br>
     <strong>作成日・公式仕様確認日:</strong> 2026-08-08<br>
-    <strong>文書状態:</strong> v0.4 / P2-12-02実装・固定契約試験済み・P2-12-03は実DBN読取り済みだがUNK-P2-13/14で安全停止<br>
+    <strong>文書状態:</strong> v0.5 / P2-12-02実装・固定契約試験済み・P2-12-03は受信UTC/Catalogを確定したがUNK-P2-15で安全停止<br>
     <strong>使用オーケストレータ:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code><br>
     <strong>担当サブエージェント:</strong> <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code>, <code>AutoTrade_A50_AdapterArchitect_v0_1</code>, <code>AutoTrade_A70_OpsSecurityArchitect_v0_1</code><br>
     <strong>使用スキル:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>autotrade_skill_adapter_boundary_v0_1</code>, <code>autotrade_skill_official_research_v0_1</code>, <code>autotrade_skill_test_strategy_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code></p>
@@ -209,8 +209,9 @@ tests/evidence/phase2/RUN-P2-DBN-001/
     <tr><td>REQ-Q20 / REQ-Q29</td><td>UTCの一分足、決定的な<code>data_version</code>、Replay、MarketEvent順序を3〜11章に定義する。</td><td>実DBN ReplayはP2-12-03までPassにしない。</td></tr>
     <tr><td>REQ-Q23</td><td>SecretをCore・証跡・図表へ出さず、依存と隔離入力をH2-5の対象にする。</td><td>追加取得やSecret用途変更はH2-2を再承認するまで行わない。</td></tr>
     <tr><td>DEC-P2-12-01</td><td>Vendor Adapter、Core契約、Normalizer、Event Factoryを分離し、SDK型をCoreへ出さない。</td><td>実装はP2-12-02。未実装のためREDを維持する。</td></tr>
-    <tr><td>UNK-P2-13</td><td>P2-08 Rawの<code>received_at_utc</code>が証跡に無い。</td><td>元の受信時刻を安全に復元できなければ実DBNを利用停止とし、必要ならH2-2再承認後の最小取得で新しいRaw証跡を作る。</td></tr>
-    <tr><td>UNK-P2-14</td><td>実DBNの外部symbol/IDを内部<code>instrument_id</code>へ結ぶ固定Catalogが無い。</td><td>DBN metadataまたは承認済みdefinition/symbology証跡で一意に確認できなければ停止する。推測追加はしない。</td></tr>
+    <tr><td>UNK-P2-13</td><td><span class="pass">解消済み</span> P2-08 Rawの<code>received_at_utc</code>が旧証跡に無かった。</td><td>承認済みの同一条件1回取得で実受信UTCを記録した。ファイル時刻や現在時刻で補っていない。</td></tr>
+    <tr><td>UNK-P2-14</td><td><span class="pass">解消済み</span> DBNの外部symbol/IDを内部<code>instrument_id</code>へ結ぶ固定Catalogが旧証跡に無かった。</td><td>DBNヘッダーのmappingを固定Catalogへ保存し、外部IDを内部IDへ結び付けた。spreadは採用対象外として別の停止条件へ送る。</td></tr>
+    <tr><td>UNK-P2-15</td><td>DBN parent応答に含まれるspreadを本線の先物データへ混ぜない選別条件が未確定。</td><td>spreadを含む入力は全件fail-closedで停止する。definitionでfutureだけを確定する手順または承認済みの対象範囲を決めてから再実行する。</td></tr>
     <tr><td>H2-5</td><td>WSL隔離入力とdecoder依存導入の承認を12章で定義する。2026-08-09に承認済みである。</td><td>P2-12-02の依存導入と固定契約試験は実施できる。実DBN結合試験とWSL検証はP2-12-03の保護入力事前検査を通過した時だけ開始する。</td></tr>
   </tbody></table>
 

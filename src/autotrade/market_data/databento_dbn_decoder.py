@@ -18,7 +18,7 @@ class DatabentoDbnDecoder:
     def decode(self, payload: bytes, source: DbnReplayInput) -> tuple[DecodedOhlcvRecord, ...]:
         if _payload_sha256(payload) != source.payload_sha256:
             raise DbnDecodeError("RAW_CHECKSUM_MISMATCH")
-        if not payload.startswith(b"DBN") or len(payload) < 4:
+        if not _looks_like_dbn(payload) or len(payload) < 4:
             raise DbnDecodeError("DECODE_OR_SCHEMA_ERROR")
         if len(payload) < 6:
             raise DbnDecodeError("DECODE_RECORD_INVALID")
@@ -30,7 +30,7 @@ class DatabentoDbnDecoder:
             schema = str(getattr(metadata, "schema", ""))
             if schema not in {"ohlcv-1m", "Schema.OHLCV_1M", "33"}:
                 raise DbnDecodeError("DECODE_OR_SCHEMA_ERROR")
-            records = tuple(_convert_record(record, index, source) for index, record in enumerate(store))
+            records = tuple(_convert_record(record, index, source, metadata) for index, record in enumerate(store))
         except DbnDecodeError:
             raise
         except Exception as exc:
@@ -40,11 +40,11 @@ class DatabentoDbnDecoder:
         return records
 
 
-def _convert_record(record: Any, ordinal: int, source: DbnReplayInput) -> DecodedOhlcvRecord:
+def _convert_record(record: Any, ordinal: int, source: DbnReplayInput, metadata: Any) -> DecodedOhlcvRecord:
     try:
         event_time = _ns_to_utc(int(record.ts_event))
         return DecodedOhlcvRecord(
-            source_symbol=source.source_symbol,
+            source_symbol=_source_symbol(metadata, int(record.instrument_id), source.source_symbol),
             vendor_instrument_id=int(record.instrument_id),
             publisher_id=int(record.publisher_id),
             event_time_utc=event_time,
@@ -57,6 +57,24 @@ def _convert_record(record: Any, ordinal: int, source: DbnReplayInput) -> Decode
         )
     except (AttributeError, TypeError, ValueError, OverflowError) as exc:
         raise DbnDecodeError("DECODE_RECORD_INVALID") from exc
+
+
+def _source_symbol(metadata: Any, vendor_instrument_id: int, fallback: str) -> str:
+    """Resolve DBN's numeric ID to the raw symbol recorded in its metadata."""
+    mappings = getattr(metadata, "mappings", {})
+    if isinstance(mappings, dict):
+        for raw_symbol, intervals in mappings.items():
+            if not isinstance(raw_symbol, str) or not isinstance(intervals, list):
+                continue
+            for interval in intervals:
+                if isinstance(interval, dict) and str(interval.get("symbol")) == str(vendor_instrument_id):
+                    return raw_symbol
+    return fallback
+
+
+def _looks_like_dbn(payload: bytes) -> bool:
+    """Accept raw DBN and the zstd-compressed DBN returned by the API."""
+    return payload.startswith(b"DBN") or payload.startswith(b"\x28\xb5\x2f\xfd")
 
 
 def _payload_sha256(payload: bytes) -> str:

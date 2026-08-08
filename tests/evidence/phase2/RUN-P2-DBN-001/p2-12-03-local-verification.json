@@ -1,0 +1,23 @@
+{
+  "run_id": "RUN-P2-DBN-001",
+  "step_id": "P2-12-03",
+  "state": "BLOCKED_ON_DATA_SELECTION",
+  "local_checks": {
+    "market_data_pytest": {"status": "PASS", "passed": 92},
+    "market_data_and_wsl_contract_pytest": {"status": "PASS", "passed": 102},
+    "ruff_format": "PASS",
+    "ruff_check": "PASS",
+    "mypy": "PASS"
+  },
+  "normalization": {
+    "status": "FAIL_CLOSED",
+    "resolved_records": 3,
+    "pending_records": 1,
+    "blocker": "CATALOG_MAPPING_UNRESOLVED",
+    "pending_reason": "spread_not_allowed_for_main_future_series"
+  },
+  "data_gate": "UNKNOWN",
+  "signal_generation": "STOPPED",
+  "phase3_handoff": "PROHIBITED",
+  "notes": "受信UTCと外部番号Catalogは確定した。spreadを本線へ入れない選別条件が決まるまで、MarketEventとReplayは0件とする。"
+}

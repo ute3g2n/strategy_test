@@ -163,7 +163,7 @@
       },
       "baseline_ref": "HEAD",
       "scope_mode": "target_only",
-      "unknowns": ["UNK-P2-13", "UNK-P2-14"],
+      "unknowns": ["UNK-P2-15"],
       "network_isolation_required": true,
       "checks": [
         {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "tests/market_data", "scripts/quality_gate", "scripts/wsl_quality_gate"]},

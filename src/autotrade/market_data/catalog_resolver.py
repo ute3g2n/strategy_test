@@ -24,6 +24,7 @@ class ResolveInstrumentRequest:
     stype: str
     symbol: str
     observed_at: datetime
+    vendor_instrument_id: int | None = None
 
 
 @dataclass(frozen=True)
@@ -49,6 +50,7 @@ class _Mapping:
     instrument_id: str
     instrument_status: str
     tick_size: str | None
+    vendor_instrument_id: int | None
 
 
 class CatalogAudit(Protocol):
@@ -98,6 +100,7 @@ class CatalogResolver:
             and mapping.dataset_id == request.dataset_id
             and mapping.stype == request.stype
             and mapping.symbol == request.symbol
+            and (request.vendor_instrument_id is None or mapping.vendor_instrument_id == request.vendor_instrument_id)
             and mapping.valid_from <= request.observed_at
             and (mapping.valid_to is None or request.observed_at < mapping.valid_to)
         )
@@ -139,6 +142,11 @@ def _mapping_from_fixture(raw: object) -> _Mapping:
     tick_size = raw.get("tick_size")
     if tick_size is not None and (not isinstance(tick_size, str) or not _is_positive_decimal(tick_size)):
         raise ValueError("invalid fixed catalog mapping")
+    vendor_instrument_id = raw.get("vendor_instrument_id")
+    if vendor_instrument_id is not None and (
+        isinstance(vendor_instrument_id, bool) or not isinstance(vendor_instrument_id, int) or vendor_instrument_id <= 0
+    ):
+        raise ValueError("invalid fixed catalog mapping")
     valid_from = _utc_datetime(values["valid_from"])
     valid_to = _utc_datetime(raw_valid_to) if raw_valid_to is not None else None
     if valid_to is not None and valid_from >= valid_to:
@@ -154,6 +162,7 @@ def _mapping_from_fixture(raw: object) -> _Mapping:
         instrument_id=values["instrument_id"],
         instrument_status=values["instrument_status"],
         tick_size=tick_size,
+        vendor_instrument_id=vendor_instrument_id,
     )
 
 

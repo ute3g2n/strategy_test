@@ -1,0 +1,61 @@
+{
+  "catalog_version": "dbn-catalog-mcl-20260615-v1",
+  "mappings": [
+    {
+      "mapping_id": "dbn-mclq6-20260615",
+      "vendor": "databento",
+      "dataset_id": "GLBX.MDP3",
+      "stype": "raw_symbol",
+      "symbol": "MCLQ6",
+      "vendor_instrument_id": 42026511,
+      "valid_from": "2026-06-15T00:00:00+00:00",
+      "valid_to": "2026-06-16T00:00:00+00:00",
+      "instrument_id": "instrument-mclq6",
+      "instrument_status": "active",
+      "instrument_class": "future",
+      "tick_size": "0.01"
+    },
+    {
+      "mapping_id": "dbn-mclu6-20260615",
+      "vendor": "databento",
+      "dataset_id": "GLBX.MDP3",
+      "stype": "raw_symbol",
+      "symbol": "MCLU6",
+      "vendor_instrument_id": 42025624,
+      "valid_from": "2026-06-15T00:00:00+00:00",
+      "valid_to": "2026-06-16T00:00:00+00:00",
+      "instrument_id": "instrument-mclu6",
+      "instrument_status": "active",
+      "instrument_class": "future",
+      "tick_size": "0.01"
+    },
+    {
+      "mapping_id": "dbn-mcln6-mclq6-20260615",
+      "vendor": "databento",
+      "dataset_id": "GLBX.MDP3",
+      "stype": "raw_symbol",
+      "symbol": "MCLN6-MCLQ6",
+      "vendor_instrument_id": 42460441,
+      "valid_from": "2026-06-15T00:00:00+00:00",
+      "valid_to": "2026-06-16T00:00:00+00:00",
+      "instrument_id": "instrument-mcln6-mclq6",
+      "instrument_status": "pending",
+      "instrument_class": "spread",
+      "tick_size": "0.01"
+    },
+    {
+      "mapping_id": "dbn-mcln6-20260615",
+      "vendor": "databento",
+      "dataset_id": "GLBX.MDP3",
+      "stype": "raw_symbol",
+      "symbol": "MCLN6",
+      "vendor_instrument_id": 42026750,
+      "valid_from": "2026-06-15T00:00:00+00:00",
+      "valid_to": "2026-06-16T00:00:00+00:00",
+      "instrument_id": "instrument-mcln6",
+      "instrument_status": "active",
+      "instrument_class": "future",
+      "tick_size": "0.01"
+    }
+  ]
+}

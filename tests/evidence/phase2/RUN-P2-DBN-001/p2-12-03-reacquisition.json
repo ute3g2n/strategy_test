@@ -1,0 +1,23 @@
+{
+  "run_id": "RUN-P2-DBN-001",
+  "step_id": "P2-12-03",
+  "purpose": "resolve_UNK-P2-13_same_scope_one_request",
+  "request": {
+    "dataset": "GLBX.MDP3",
+    "schema": "ohlcv-1m",
+    "stype_in": "parent",
+    "stype_out": "instrument_id",
+    "symbols": [
+      "MCL.FUT"
+    ],
+    "start_utc": "2026-06-15T12:00:00Z",
+    "end_utc": "2026-06-15T12:01:00Z",
+    "request_count": 1
+  },
+  "request_started_at_utc": "2026-08-08T21:28:52.756657Z",
+  "received_at_utc": "2026-08-08T21:28:59.064530Z",
+  "raw_path": "tests/evidence/phase2/RUN-P2-DBN-001/raw/mcl-fut-20260615T1200Z-1201Z-reacquired.dbn",
+  "size_bytes": 1915,
+  "sha256": "sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d",
+  "secret_persisted": false
+}

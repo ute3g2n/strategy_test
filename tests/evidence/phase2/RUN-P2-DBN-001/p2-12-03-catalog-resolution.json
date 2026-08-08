@@ -1,0 +1,18 @@
+{
+  "run_id": "RUN-P2-DBN-001",
+  "step_id": "P2-12-03",
+  "state": "PARTIAL_RESOLUTION_FAIL_CLOSED",
+  "payload_sha256": "sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d",
+  "catalog_version": "dbn-catalog-mcl-20260615-v1",
+  "catalog_sha256": "sha256:ec4ac3d1fa7cf5f6d8f44bbafddbe13473e6f035b07934c566eef041d4efeb4f",
+  "mappings": [
+    {"record_ordinal": 0, "vendor_instrument_id": 42026750, "source_symbol": "MCLN6", "status": "resolved", "instrument_id": "instrument-mcln6"},
+    {"record_ordinal": 1, "vendor_instrument_id": 42460441, "source_symbol": "MCLN6-MCLQ6", "status": "unknown", "instrument_id": null, "reason": "REQUIRED_ATTRIBUTE_UNKNOWN", "instrument_class": "spread"},
+    {"record_ordinal": 2, "vendor_instrument_id": 42026511, "source_symbol": "MCLQ6", "status": "resolved", "instrument_id": "instrument-mclq6"},
+    {"record_ordinal": 3, "vendor_instrument_id": 42025624, "source_symbol": "MCLU6", "status": "resolved", "instrument_id": "instrument-mclu6"}
+  ],
+  "normalization_blocker": "CATALOG_MAPPING_UNRESOLVED",
+  "raw_received_at_utc": "2026-08-08T21:28:59.064530Z",
+  "fail_closed": true,
+  "notes": "DBNヘッダーの対応表を固定Catalogへ保存した。先物3件は解決したが、spread 1件は採用対象外として保留し、4件全体の正規化は0件で停止した。"
+}

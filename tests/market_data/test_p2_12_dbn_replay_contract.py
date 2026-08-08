@@ -97,6 +97,14 @@ def test_p2_12_records_the_approved_real_input_identity_without_opening_it() -> 
     assert RAW_DBN_SHA256 == "8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e"
 
 
+def test_decoder_uses_dbn_metadata_to_resolve_external_instrument_id() -> None:
+    decoder = _decoder()
+    metadata = SimpleNamespace(mappings={"MCLQ6": [{"symbol": "42026511"}]})
+
+    assert decoder._source_symbol(metadata, 42026511, "MCL.FUT") == "MCLQ6"
+    assert decoder._source_symbol(metadata, 99999999, "MCL.FUT") == "MCL.FUT"
+
+
 def test_decoder_contract_rejects_checksum_mismatch_before_decoding() -> None:
     contracts = _contracts()
     decoder = _decoder()

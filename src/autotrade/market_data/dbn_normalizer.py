@@ -45,6 +45,7 @@ class DbnNormalizer:
                     stype=source.stype,
                     symbol=record.source_symbol,
                     observed_at=record.event_time_utc,
+                    vendor_instrument_id=record.vendor_instrument_id,
                 )
             )
             if (
@@ -103,7 +104,6 @@ def _require_record(
 ) -> None:
     if (
         not record.source_symbol
-        or record.source_symbol != source.source_symbol
         or not _is_utc(record.event_time_utc)
         or record.event_time_utc.second != 0
         or record.event_time_utc.microsecond != 0
