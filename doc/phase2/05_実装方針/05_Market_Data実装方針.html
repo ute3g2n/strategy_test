@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2-D09 Market Data実装方針</title>
+  <style>
+    body { font-family: system-ui, sans-serif; line-height: 1.7; max-width: 1100px; margin: 0 auto; padding: 2rem; color: #20242a; }
+    h1, h2 { color: #173b59; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0 2rem; }
+    th, td { border: 1px solid #cbd5e1; padding: .55rem; vertical-align: top; }
+    th { background: #eef4f8; text-align: left; }
+    code, pre { background: #f5f7f9; }
+    code { padding: .1rem .25rem; }
+    pre { padding: 1rem; overflow-x: auto; }
+    .note { background: #fff8df; border-left: 4px solid #d49b00; padding: .8rem 1rem; }
+    .stop { color: #8a1c1c; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <p><a href="../../index.html">ドキュメント一覧へ戻る</a></p>
+  <h1>P2-D09 Market Data実装方針</h1>
+  <p><strong>Phase / Step:</strong> Phase 2 / P2-07<br>
+     <strong>文書状態:</strong> v0.1 / P2-07最小実装反映<br>
+     <strong>実装Run:</strong> <code>RUN-P2-DQR-001</code></p>
+
+  <div class="note"><strong>範囲:</strong> 固定fixtureだけを使うローカル実装である。Databento、Broker、Live、Secret、外部ネットワーク、実データはこの実装へ接続しない。P2-05のCatalog Resolverは変更せず、Raw / Normalized / Quality / Manifestの境界を追加した。</div>
+
+  <h2>1. 実装済み範囲</h2>
+  <table>
+    <thead><tr><th>部品</th><th>ファイル</th><th>実装内容</th><th>停止条件</th></tr></thead>
+    <tbody>
+      <tr><td>共通型</td><td><code>store_contracts.py</code></td><td>RawWriteRequest、NormalizedBar、QualityReport、DataVersionManifest、MarketEventを型として定義。</td><td>時刻・品質・版の必須情報がない入力は後続へ渡さない。</td></tr>
+      <tr><td>Raw Store</td><td><code>raw_store.py</code></td><td>内容確認値付きで固定payloadを保存し、同一内容だけ再利用する。完成物を上書きしない。</td><td>checksum不一致、UTCでない受信時刻、Secretらしいmetadataは拒否。</td></tr>
+      <tr><td>Quality</td><td><code>quality.py</code></td><td>重複、重複競合、時刻逆行、価格・出来高異常、注入された品質異常を決定的に判定。</td><td>停止品質印が一つでもあればpublishable=false、Signal生成停止。</td></tr>
+      <tr><td>Manifest</td><td><code>manifest.py</code></td><td>Raw hash、変換規則版、Catalog版、品質報告hashから時刻非依存のdata_versionを生成。</td><td>必須構成要素が欠けたManifestは作成しない。</td></tr>
+      <tr><td>Normalized Store</td><td><code>normalized_store.py</code></td><td>品質合格済みのNormalizedBarとManifestを一つのJSON snapshotへ原子的に保存し、Replay時に整合性を再確認。</td><td>品質不合格、同一data_versionの異内容、Manifest整合性不一致は拒否。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. 処理境界</h2>
+  <pre class="mermaid">flowchart LR
+    Raw[固定Raw payload] --> RawStore[LocalRawStore]
+    RawStore -->|raw_object_id / sha256| Quality[QualityChecker]
+    Quality -->|QualityReport| Manifest[ManifestBuilder]
+    Manifest -->|DataVersionManifest| Normalized[LocalNormalizedStore]
+    Normalized -->|検証済みsnapshot| Replay[Replay入力]
+    Quality -.停止品質印.-> Stop[Signal生成停止]
+    Catalog[CatalogResolverの固定snapshot] -.catalog_version.-> Manifest</pre>
+  <p>各矢印は、次の部品へ渡す識別子または証跡を表す。Raw payloadそのものをCatalogやSignalへ渡さず、Manifestが参照する版と品質報告を経由する。</p>
+
+  <h2>3. 品質・Replay契約</h2>
+  <table>
+    <thead><tr><th>観点</th><th>固定した規則</th><th>証拠</th></tr></thead>
+    <tbody>
+      <tr><td>欠損・異常</td><td><code>MISSING_DATA</code>、<code>DUPLICATE_CONFLICT</code>、<code>OUT_OF_ORDER</code>、<code>PRICE_INVALID</code>、<code>VOLUME_INVALID</code>、<code>CHECKSUM_MISMATCH</code>、<code>DEGRADED</code>は版を発行せずSignalを止める。</td><td><a href="../../../tests/market_data/test_data_quality_replay_contract.py">契約テスト</a></td></tr>
+      <tr><td>同一入力再現</td><td>Raw hash、変換規則版、Catalog版、品質報告hashが同じならdata_versionは同じ。generated_atや現在時刻を使わない。</td><td><code>ManifestBuilder.build</code>、<a href="../../../tests/evidence/phase2/RUN-P2-DQR-001/run-manifest.json">Run Manifest</a></td></tr>
+      <tr><td>不変性</td><td>Raw完成物とNormalized data_versionを上書きしない。同じ版への異内容保存は停止する。</td><td><a href="../../../tests/market_data/test_raw_normalized_store_contract.py">Storeテスト</a></td></tr>
+      <tr><td>外部入力</td><td>実装はfixture-only。外部SDK、通信、API key、Broker接続を持たない。</td><td><a href="../../../tests/evidence/phase2/RUN-P2-DQR-001/reviews/trading-safety-review.md">安全レビュー</a></td></tr>
+      <tr><td>未来情報</td><td>未来足で過去公開済みSignalを変更しない契約をP2-06 fixtureへ固定。実Replay比較はP2-09で完了させる。</td><td><a href="../../../tests/evidence/phase2/RUN-P2-DQR-001/reviews/python-review.md">Pythonレビュー</a></td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. 実行結果と残課題</h2>
+  <ul>
+    <li>formatter、lint、mypy: PASS</li>
+    <li>pytest: 25 passed</li>
+    <li>coverage: 83.49%（fail_under 80%を満たす）</li>
+    <li>固定fixture: <code>sha256:a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79</code></li>
+    <li class="stop">WSL隔離4 Gateの最終証跡は、trusted scope登録後のRUN-P2-DQR-001実行で確定する。P2-09のReplay実測と同じく、明示的なRun承認がない状態をPass扱いしない。</li>
+  </ul>
+
+  <h2>5. 関連成果物</h2>
+  <ul>
+    <li><a href="../03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html">P2-D05 Market Data Adapter詳細設計</a></li>
+    <li><a href="../03_市場データ詳細設計/06_Raw_Normalized_Store詳細設計書.html">P2-D06 Raw / Normalized Store詳細設計</a></li>
+    <li><a href="../03_市場データ詳細設計/07_Instrument_Catalog詳細設計書.html">P2-D07 Instrument Catalog詳細設計</a></li>
+    <li><a href="../04_ロール連続足/04_Roll_Rule_Continuous_Signal設計書.html">P2-D08 Roll / Continuous Signal設計</a></li>
+    <li><a href="../../../plan/Phase2_実行計画書_v0.1_2026-08-04.md">Phase 2実行計画書</a></li>
+  </ul>
+</body>
+</html>
