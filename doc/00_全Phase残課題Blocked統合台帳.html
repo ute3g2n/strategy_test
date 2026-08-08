@@ -403,9 +403,9 @@ firewall=true</pre></li>
     <h2>P2-12-03 最終状態（2026-08-09）</h2>
     <p><strong>UNK-P2-15 は解消済み、P2-12-03 はPASS。</strong> ユーザー承認の方針 <code>main-future-active-only-v1</code>（有効な先物だけを本線へ採用）で、実DBN 4件からNormalizedBar 3件、MarketEvent 3件を作成し、spread 1件はRaw・監査記録だけに残した。Replayバー系列は一致し、入力hashは実行前後で一致した。実行IDは <code>37da7396f4e84be3b82dfd0aae69a217</code>、data_versionは <code>dv_780568eab89680cfc758</code>、品質報告hashは <code>sha256:30422966a36a6becc273e0a78f86fc6183851e41dec66317c5e6f0bfaa906d43</code>。固定4 Gateも4件すべてPASS。</p>
     <p><small>やさしい説明: 本物の市場データ4個を読み、売買に使ってよい3個だけを通しました。組み合わせ商品1個は、あとで確認できるよう記録だけ残しました。最初と最後でデータが変わっておらず、もう一度読んでも同じ結果になることまで確認できています。</small></p>
-    <p><strong>Phase 3の状態:</strong> H2-3とH2-4の承認済みにより、Phase 3へ移行できる状態になった。ただし、Phase 3の実作業は別の実行指示を受けてから開始し、残っている運用課題（BLK-P2-004〜007など）は台帳で継続管理する。</p>
+    <p><strong>Phase 3の状態:</strong> H2-3とH2-4の承認済み、BLK-P2-004の品質方針確定、BLK-P2-005のプロジェクト内制限廃止、BLK-P2-006の保存先確定、BLK-P2-007の遅延基準採用により、Phase 3への移行を止めるPhase 2課題はない。Phase 3の実作業は別の実行指示を受けてから開始する。</p>
     <p><small>やさしい説明: 検査に合格し、出発のサインももらいました。出発はできますが、次の作業を始める合図は別に受け取ってから動きます。</small></p>
-    <p><strong>その他の残課題:</strong> P2-09由来の<code>BLK-P2-004 / UNK-P2-05</code>（degraded品質を捨てる・注意付きで使う・取り直すの運用方針）、<code>BLK-P2-005</code>（費用・利用権限の最終記録）、<code>BLK-P2-006</code>（大容量データの保存先）、<code>BLK-P2-007</code>（遅延の合否基準）、およびPhase 1・AI基盤の継続課題は残っている。P2-12-03のReplay自体を止める技術故障ではないが、Phase 3の運用範囲を決める前に、該当するものはH2-3/H2-4の確認対象として判断する。</p>
+    <p><strong>Phase 3以降へ持ち越す課題:</strong> Phase 1・AI基盤の継続課題、および実測後に遅延値を見直す可能性は残る。ただし、Phase 3移行を止める未承認Gateではない。</p>
     <p><small>やさしい説明: 車は動きましたが、ガソリン代、長い荷物の置き場所、何秒遅れたら危険か、という別の約束がまだ残っています。今すぐ車を直す話ではありませんが、本番で使う前に決めておく必要があります。</small></p>
     <p>関連証跡: <a href="../tests/evidence/phase2/RUN-P2-DBN-001/automation/run-test-summary.json">自動実行サマリー</a>、<a href="../tests/evidence/phase2/RUN-P2-DBN-001/wsl-verification-capture.json">WSL捕捉証跡</a>、<a href="../tests/evidence/phase2/RUN-P2-DBN-001/run-manifest.json">Run Manifest</a>、<a href="./phase2/09_実DBN変換/09_実DBN_Replay隔離検証結果.html">P2-D17</a>。</p>
   </section>
@@ -470,7 +470,7 @@ firewall=true</pre></li>
     <p><strong>外部の目安:</strong> 金融情報サービス業界のFISDベストプラクティスは、提供者側のend-to-end遅延を99.98%の取引時間で200ms以内とする目標を推奨し、latencyの月次監視・最大値・原因分析も求めている。<a href="https://fisd.net/wp-content/uploads/2021/12/Service-Level-Communications-Working-Group-Best-Practices-Document-7.0FINAL1.pdf">FISD Best Practice Recommendations（10.6.1〜10.6.3）</a></p>
     <p>Cboeは、取引所からの距離だけでも1〜20msの遅延が生じ得ること、イベントが集中すると単純な平均値では「古い価格を見ている時間」を測れないことを説明している。<a href="https://www.cboe.com/insights/posts/mission-possible/">Cboe: Mission Possible</a> SECの説明も、latencyについて一律の最大値を定めず、最先端の単一市場接続では1ms未満、遠隔市場ではそれ以上になり得るとしている。<a href="https://www.sec.gov/rules-regulations/staff-guidance/trading-markets-frequently-asked-questions-2">SEC Staff Guidance</a></p>
     <p>Databentoは、<code>ts_event</code>（マッチングエンジン側）、<code>ts_recv</code>（受信側）、<code>ts_in_delta</code>（送信時点との差）を使って、matching engine latencyとfeed latencyを別々に測る方法を示している。<a href="https://databento.com/docs/examples/algo-trading/latency">Databento: Measuring matching engine and feed latency</a> 同社の数値（中央値6.1μs、接続形態別の90パーセンタイル）は提供者の能力値であり、このプロジェクトの保証値ではない。<a href="https://databento.com/live">Databento Real-Time Market Data</a></p>
-    <p><strong>本プロジェクトへの暫定提案（まだ承認前）:</strong> 1分足の売買システムでは、(a) bar_close_timeから受信まで2秒以内を正常、2秒超〜5秒を警告、5秒超をSignal停止、(b) 市場が開いていて次の1分足が15秒以上来なければSignal停止、(c) Provider/transport側は別指標としてp99.98が200ms以内を目標にし、アプリ側の5秒判定と混ぜない、の二層に分ける。これはFISDの200msをそのまま1分足の停止値にしたものではなく、上記の外部目安と本プロジェクトの1分足用途からの<strong>推奨推論</strong>である。実測後に最終承認する。</p>
+    <p><strong>本プロジェクトへの採用値:</strong> ユーザー決定により、1分足の売買システムでは、(a) bar_close_timeから受信まで2秒以内を正常、2秒超〜5秒を警告、5秒超をSignal停止、(b) 市場が開いていて次の1分足が15秒以上来なければSignal停止、(c) Provider/transport側は別指標としてp99.98が200ms以内を目標にし、アプリ側の5秒判定と混ぜない、の二層を採用する。これはFISDの200msをそのまま1分足の停止値にしたものではなく、外部目安と本プロジェクトの1分足用途から導いた推奨推論である。実測後の見直しは可能だが、未承認の残課題としては扱わない。</p>
     <p><small>やさしい説明: 高速道路の通過時間と、家に荷物が届くまでの時間は別々に測ります。このシステムでは、1分足が締まってから5秒を超えたら、古い情報で売買しない案を提案しています。ただし、実際の測定をしてから最後に決めます。</small></p>
     <p><strong>調査日:</strong> 2026-08-09。URLと確認日をこの台帳に固定し、基準値を「法律で決まった唯一の値」とは扱わない。</p>
   </section>
