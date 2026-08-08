@@ -145,10 +145,10 @@
       "target_paths": ["src/autotrade/market_data", "tests/market_data", "scripts/quality_gate", "scripts/wsl_quality_gate"],
       "excluded_paths": [".env", "third_party/everything-claude-code", "research", "tests/fixtures/market_data"],
       "dbn_input": {
-        "name": "p2-08-fixed-dbn",
-        "version": "dbn-ohlcv-1m-p2-08",
+        "name": "p2-12-03-reacquired-dbn",
+        "version": "dbn-ohlcv-1m-p2-12-03-reacquired",
         "protected_path": "/var/lib/autotrade/replay/RUN-P2-DBN-001/input.dbn",
-        "checksum": "sha256:8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e",
+        "checksum": "sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d",
         "expected_protection": "root:autotrade-replay:440"
       },
       "dbn_requirements": "scripts/wsl_quality_gate/requirements-dbn.txt",
