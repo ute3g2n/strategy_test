@@ -1,18 +1,71 @@
 ﻿{
-    "execution_id":  "64d2bc11b10941358216dbf2be23e876",
+    "execution_id":  "8e1696e4893c4c0dafe739072a5cefe1",
     "source_repository_path":  "/home/oue/strategy_test",
     "source_kind":  "wsl_verification",
-    "verification_raw":  "{\n  \"state\": \"BLOCKED\",\n  \"reason\": \"change_hash が実際のローカル差分と一致しません\",\n  \"gates\": [],\n  \"generated_at\": \"2026-08-08T09:18:12.384007+00:00\",\n  \"exit_code\": 1,\n  \"tool_versions\": {\n    \"python\": \"Python 3.12.13\",\n    \"ruff\": \"ruff 0.16.1\",\n    \"mypy\": \"mypy 2.3.0 (compiled: yes)\",\n    \"pytest\": \"pytest 9.1.1\",\n    \"pytest_cov\": \"7.1.0\"\n  },\n  \"scope\": \"target_only\",\n  \"fixture_sha256\": \"sha256:a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79\",\n  \"target_only_change_sha256\": \"sha256:a38aa35132d158adfc656c327149743590ab09f25f15d3430c89f982b7aa501c\",\n  \"host_wrapper_execution_id\": \"64d2bc11b10941358216dbf2be23e876\",\n  \"restore_pending\": true\n}\n",
+    "verification_raw":  "{\n  \"state\": \"HUMAN_GATE_REQUIRED\",\n  \"reason\": \"Human Gate はこの書込み可能 worktree 外の承認チャネルで実施します\",\n  \"gates\": [\n    {\n      \"gate\": \"formatter\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"format\",\n        \"--check\",\n        \"src/autotrade/market_data\",\n        \"tests/market_data\",\n        \"scripts/market_data\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 114\n    },\n    {\n      \"gate\": \"lint\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"check\",\n        \"src/autotrade/market_data\",\n        \"tests/market_data\",\n        \"scripts/market_data\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 64\n    },\n    {\n      \"gate\": \"type\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"mypy\",\n        \"src/autotrade/market_data\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 264\n    },\n    {\n      \"gate\": \"test\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"scripts.quality_gate.local_p2_pytest\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 265\n    }\n  ],\n  \"generated_at\": \"2026-08-08T09:19:03.984603+00:00\",\n  \"exit_code\": 1,\n  \"tool_versions\": {\n    \"python\": \"Python 3.12.13\",\n    \"ruff\": \"ruff 0.16.1\",\n    \"mypy\": \"mypy 2.3.0 (compiled: yes)\",\n    \"pytest\": \"pytest 9.1.1\",\n    \"pytest_cov\": \"7.1.0\"\n  },\n  \"scope\": \"target_only\",\n  \"fixture_sha256\": \"sha256:a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79\",\n  \"target_only_change_sha256\": \"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n  \"host_wrapper_execution_id\": \"8e1696e4893c4c0dafe739072a5cefe1\",\n  \"restore_pending\": true\n}\n",
     "retrieval_exit_code":  0,
-    "captured_at":  "2026-08-08T09:18:12.6822555Z",
+    "captured_at":  "2026-08-08T09:19:04.2816271Z",
     "state":  "CAPTURED",
     "verification":  {
-                         "state":  "BLOCKED",
-                         "reason":  "change_hash が実際のローカル差分と一致しません",
+                         "state":  "HUMAN_GATE_REQUIRED",
+                         "reason":  "Human Gate はこの書込み可能 worktree 外の承認チャネルで実施します",
                          "gates":  [
-
+                                       {
+                                           "gate":  "formatter",
+                                           "status":  "PASS",
+                                           "command":  [
+                                                           ".venv/bin/python",
+                                                           "-m",
+                                                           "ruff",
+                                                           "format",
+                                                           "--check",
+                                                           "src/autotrade/market_data",
+                                                           "tests/market_data",
+                                                           "scripts/market_data"
+                                                       ],
+                                           "exit_code":  0,
+                                           "duration_ms":  114
+                                       },
+                                       {
+                                           "gate":  "lint",
+                                           "status":  "PASS",
+                                           "command":  [
+                                                           ".venv/bin/python",
+                                                           "-m",
+                                                           "ruff",
+                                                           "check",
+                                                           "src/autotrade/market_data",
+                                                           "tests/market_data",
+                                                           "scripts/market_data"
+                                                       ],
+                                           "exit_code":  0,
+                                           "duration_ms":  64
+                                       },
+                                       {
+                                           "gate":  "type",
+                                           "status":  "PASS",
+                                           "command":  [
+                                                           ".venv/bin/python",
+                                                           "-m",
+                                                           "mypy",
+                                                           "src/autotrade/market_data"
+                                                       ],
+                                           "exit_code":  0,
+                                           "duration_ms":  264
+                                       },
+                                       {
+                                           "gate":  "test",
+                                           "status":  "PASS",
+                                           "command":  [
+                                                           ".venv/bin/python",
+                                                           "-m",
+                                                           "scripts.quality_gate.local_p2_pytest"
+                                                       ],
+                                           "exit_code":  0,
+                                           "duration_ms":  265
+                                       }
                                    ],
-                         "generated_at":  "2026-08-08T09:18:12.384007+00:00",
+                         "generated_at":  "2026-08-08T09:19:03.984603+00:00",
                          "exit_code":  1,
                          "tool_versions":  {
                                                "python":  "Python 3.12.13",
@@ -23,8 +76,8 @@
                                            },
                          "scope":  "target_only",
                          "fixture_sha256":  "sha256:a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79",
-                         "target_only_change_sha256":  "sha256:a38aa35132d158adfc656c327149743590ab09f25f15d3430c89f982b7aa501c",
-                         "host_wrapper_execution_id":  "64d2bc11b10941358216dbf2be23e876",
+                         "target_only_change_sha256":  "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                         "host_wrapper_execution_id":  "8e1696e4893c4c0dafe739072a5cefe1",
                          "restore_pending":  true
                      },
     "source_path":  "/home/oue/strategy_test/tests/evidence/phase2/RUN-P2-DP-001/verification.json",
@@ -34,10 +87,10 @@
                            "kernel":  "6.6.87.2-microsoft-standard-WSL2",
                            "distro":  "Ubuntu-24.04",
                            "networking_mode":  "none",
-                           "host_wrapper_execution_id":  "64d2bc11b10941358216dbf2be23e876",
+                           "host_wrapper_execution_id":  "8e1696e4893c4c0dafe739072a5cefe1",
                            "ip_addr_summary":  "1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\n    inet 127.0.0.1/8 scope host lo\n       valid_lft forever preferred_lft forever\n    inet6 ::1/128 scope host \n       valid_lft forever preferred_lft forever",
                            "ip_route_summary":  "",
-                           "confirmed_at":  "2026-08-08T09:18:12Z",
+                           "confirmed_at":  "2026-08-08T09:19:03Z",
                            "scope":  [
                                          "src/autotrade/market_data",
                                          "tests/market_data",

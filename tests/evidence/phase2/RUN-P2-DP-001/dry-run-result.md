@@ -20,3 +20,7 @@ Run ID: `RUN-P2-DP-001`
 
 - `H2-2`: 外部取得を許可するか、対象dataset・symbol・期間・費用上限・Secret投入方法を人間が承認する必要がある。
 - `UNK-P2-07`: P2-07で固定したStore境界を実Databento応答へ接続する検証は未実施。
+
+## WSL隔離確認
+
+WSL `networking_mode=none`、host-isolation `CONFIRMED`、formatter/lint/type/testの固定4 Gate `PASS` を確認した。汎用RunnerはHuman Gate未宣言を `HUMAN_GATE_REQUIRED` と記録するが、H2-2未承認のまま外部I/Oを開始しないため、P2-08のfixture-only完了条件を損なわない。証拠は `wsl-verification-capture.json` と `automation/run-test-summary.json` に保存した。
