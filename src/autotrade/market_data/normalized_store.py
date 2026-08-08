@@ -62,7 +62,10 @@ class LocalNormalizedStore:
             raise ValueError("MANIFEST_INTEGRITY")
         if manifest.quality_report_sha256 != report.quality_report_sha256:
             raise ValueError("MANIFEST_INTEGRITY")
-        if QualityChecker.report_hash(report.flags, report.deduplicated_count, report.publishable) != report.quality_report_sha256:
+        if (
+            QualityChecker.report_hash(report.flags, report.deduplicated_count, report.publishable)
+            != report.quality_report_sha256
+        ):
             raise ValueError("MANIFEST_INTEGRITY")
         rebuilt_manifest = ManifestBuilder.build(
             raw_sha256s=manifest.raw_sha256s,

@@ -81,9 +81,9 @@ class QualityChecker:
             "publishable": publishable,
             "signal_generation_allowed": publishable,
         }
-        return "sha256:" + sha256(
-            json.dumps(quality_material, sort_keys=True, separators=(",", ":")).encode()
-        ).hexdigest()
+        return (
+            "sha256:" + sha256(json.dumps(quality_material, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        )
 
 
 def _valid_prices(bar: NormalizedBar) -> bool:
