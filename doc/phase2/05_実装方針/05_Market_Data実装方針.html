@@ -67,7 +67,7 @@
     <li>pytest: 26 passed</li>
     <li>coverage: 82.68%（fail_under 80%を満たす）</li>
     <li>固定fixture: <code>sha256:a30055c3dfc71834801d298f57c4f758e602cf6fcec057762c15a0c8c27f1b79</code></li>
-    <li class="stop">Windows側の26テストと静的検査はGREEN。WSL隔離4 Gateは旧クローン未同期でBLOCKEDのため、P2-09のReplay実測と同じく、明示的なRun承認がない状態をPass扱いしない。</li>
+    <li class="stop">Windows側の26テストと静的検査、およびWSL隔離4 GateはGREEN。最終Run状態はHuman Gate未承認のためHUMAN_GATE_REQUIREDで、明示的なRun承認がない状態をPass扱いしない。</li>
   </ul>
 
   <h2>5. 関連成果物</h2>
