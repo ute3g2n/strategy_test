@@ -18,6 +18,7 @@ Data Quality / Replayの固定fixture検証はPASSした。固定fixtureから�
 | 条件付き銘柄混入 | PASS | `MZC/MZS/MZW` と本線 `MCL/M6A` が非交差 |
 | Databento DBN checksum | PASS | P2-08 raw SHA256 `8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e` |
 | DBN→NormalizedBar→MarketEvent | UNKNOWN | decoder・変換境界が未実装 |
+| WSL固定4 Gate | PASS | `networking_mode=none`、formatter/lint/type/test は全てPASS。Run状態はH2-3外部承認未実施のため `HUMAN_GATE_REQUIRED` |
 | Phase 3 handoff | NOT_READY | Data Gate UNKNOWNのため停止 |
 
 ## 再開条件

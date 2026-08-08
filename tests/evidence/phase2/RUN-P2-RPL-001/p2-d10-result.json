@@ -14,6 +14,7 @@
     "conditional_universe_isolation": {"status": "PASS", "detail": "MZC/MZS/MZWとMCL/M6Aの集合が非交差"},
     "databento_dbn_checksum": {"status": "PASS", "detail": "P2-08取得DBN 22,760 bytesのchecksumを確認"},
     "databento_dbn_to_normalized_store": {"status": "UNKNOWN", "detail": "DBN decoderおよび実データをNormalizedBar/MarketEventへ変換する本番境界が未実装"},
+    "wsl_fixed_four_gates": {"status": "PASS", "detail": "networking_mode=none、formatter/lint/type/test は全てPASS。H2-3外部承認未実施のためRun状態はHUMAN_GATE_REQUIRED"},
     "phase3_handoff": {"status": "NOT_READY", "detail": "fixture data_versionは再現可能だが、Databento実データのMarketEvent handoffはP2-09時点で許可しない"}
   },
   "data_gate": {

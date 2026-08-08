@@ -7,5 +7,6 @@
 - Data Quality matrix: PASS（異常はfail-closed）
 - Replay: PASS（fixture限定でManifest・MarketEvent系列を再現）
 - 条件付き銘柄分離: PASS
+- WSL固定4 Gate: PASS（`networking_mode=none`、formatter/lint/type/test）。Run状態はH2-3外部承認未実施のため `HUMAN_GATE_REQUIRED`
 - 実DBN→NormalizedBar / MarketEvent: UNKNOWN（decoder・変換境界未実装）
 - Data Gate: UNKNOWN、Signal生成・Phase 3 handoff停止、H2-3へ送付
