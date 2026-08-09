@@ -3,7 +3,7 @@
 作成日: 2026-08-09  
 対象: タートルズ・トレンドフォロー自動売買システム  
 対象Phase: Phase 3 Strategy / Backtest基盤  
-状態: v0.5 / H3-0、H3-1、H3-1R、H3-2承認済み。H3-1R改訂により、v2は履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する。P3-06のStrategy実装・固定4 GateはPASS（2026-08-09）
+状態: v0.6 / H3-0、H3-1、H3-1R、H3-2承認済み。H3-1R改訂により、v2は履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する。P3-06のStrategy実装・固定4 GateはPASS（2026-08-09）。P3-07は固定4 GateがPASSしたが、実Replay・保存・証跡・Engine境界のレビュー差戻しにより未完了であり、本書のP3-07Rで修復する。
 
 参照:
 
@@ -146,14 +146,14 @@ Phase 3ではBroker接続、IBKR Paper発注、Broker再同期、実資金注文
 
 | ID | PoC合格条件 | 設計を固定するまで | 実装・単体検証を終えるまで | LEAN PoCとして実証するまで | Phase 4へ送る部分 |
 |---|---|---|---|---|---|
-| P3-AC-01 | 1分足から15分・30分・1時間・4時間・日足を決定的に作れる | P3-04、P3-05、P3-05R | P3-07 | P3-09、P3-10（原則LEAN、縮退時はNautilusTrader） | 取引所別の実運用Calendar確認 |
-| P3-AC-02 | 未完成の上位時間足をStrategyへ渡さず、未来を見ない | P3-03〜P3-05、P3-05R | P3-06、P3-07 | P3-09、P3-10 | なし（Phase 3完了必須） |
-| P3-AC-03 | セッション境界・夏冬時間・同時closeの順序が正しい | P3-04、P3-05、P3-05R | P3-07、P3-08 | P3-09、P3-10 | 実取引所の正式Calendarと運用変更追随 |
-| P3-AC-04 | 同じManifestから同じSignal / Intentを再現できる | P3-04、P3-05、P3-05R | P3-07 | P3-09、P3-10 | なし（Phase 3完了必須） |
-| P3-AC-05 | 取引エンジン固有型をCoreへ漏らさないAdapter境界 | P3-03、P3-04 | P3-06、P3-07 | P3-09、P3-11 | Broker Adapterとの接続 |
-| P3-AC-06 | 固定ローカル入力だけで、外部通信なしに再実行できる | P3-04、P3-05 | P3-07、P3-08A | P3-09、P3-10 | Paper環境での別途隔離確認 |
-| P3-AC-07 | 3〜5市場を現実的な時間で処理できる | P3-04、P3-05 | P3-07で計測口を実装 | P3-09、P3-10 | 20〜40市場のPaper負荷・連続運用はPhase 4 |
-| P3-AC-08 | Python戦略のGolden、snapshot復元、Look-ahead防止が成立する | P3-05、H3-1、P3-05R、H3-1R | P3-06、P3-07 | P3-09、P3-10 | なし（Phase 3完了必須） |
+| P3-AC-01 | 1分足から15分・30分・1時間・4時間・日足を決定的に作れる | P3-04、P3-05、P3-05R | P3-07R | P3-09、P3-10（原則LEAN、縮退時はNautilusTrader） | 取引所別の実運用Calendar確認 |
+| P3-AC-02 | 未完成の上位時間足をStrategyへ渡さず、未来を見ない | P3-03〜P3-05、P3-05R | P3-06、P3-07R | P3-09、P3-10 | なし（Phase 3完了必須） |
+| P3-AC-03 | セッション境界・夏冬時間・同時closeの順序が正しい | P3-04、P3-05、P3-05R | P3-07R、P3-08 | P3-09、P3-10 | 実取引所の正式Calendarと運用変更追随 |
+| P3-AC-04 | 同じManifestから同じSignal / Intentを再現できる | P3-04、P3-05、P3-05R | P3-07R | P3-09、P3-10 | なし（Phase 3完了必須） |
+| P3-AC-05 | 取引エンジン固有型をCoreへ漏らさないAdapter境界 | P3-03、P3-04 | P3-06、P3-07R | P3-09、P3-11 | Broker Adapterとの接続 |
+| P3-AC-06 | 固定ローカル入力だけで、外部通信なしに再実行できる | P3-04、P3-05 | P3-07R、P3-08A | P3-09、P3-10 | Paper環境での別途隔離確認 |
+| P3-AC-07 | 3〜5市場を現実的な時間で処理できる | P3-04、P3-05 | P3-07Rで計測口と証跡拒否を実装 | P3-09、P3-10 | 20〜40市場のPaper負荷・連続運用はPhase 4 |
+| P3-AC-08 | Python戦略のGolden、snapshot復元、Look-ahead防止が成立する | P3-05、H3-1、P3-05R、H3-1R | P3-06、P3-07R | P3-09、P3-10 | なし（Phase 3完了必須） |
 
 やさしい説明: P3-03〜P3-05で「何を正解にするか」を先に決めます。P3-06〜P3-08で自作部分を作り、P3-08AでLEANの版と中身を固定します。P3-09でLEANに同じ問題を解かせ、P3-10で全部の答えが矛盾しないか確認します。20〜40市場を何日も動かす試験と実際の取引所につなぐ試験は、Paper取引を扱うPhase 4の仕事です。
 
@@ -282,8 +282,9 @@ H3-2は外部データや外部依存を使う許可であり、Secret投入、B
 | G6 | P3-05R | 不可 | H3-1。30分足の設計・RED固定を行う。 |
 | G7 | H3-1R | 不可 | P3-05R。30分足の改訂fixture/hashを再承認する。 |
 | G8 | P3-06 | 不可 | H3-1、H3-1R、P3-05、P3-05R |
-| G9 | P3-07 | 不可 | P3-06、P3-D07 |
-| G10 | P3-08 | 不可 | P3-07 |
+| G9 | P3-07 | レビュー差戻し | 固定4 GateはPASSだが、P3-D08、BLK-P3-008/009、A150/A160/A40のCritical / Highが残る。 |
+| G9R | P3-07R-01〜05 | 不可 | P3-07差戻し、P3-D05/P3-D06/P3-D08、H3-1/H3-1R/H3-2承認済み。 |
+| G10 | P3-08 | 不可 | P3-07R-05でP3-07を受入可へ戻す。 |
 | G11 | P3-08A | 不可 | H3-2、P3-02、P3-04、P3-05R、P3-08 |
 | G12 | P3-09 | 不可 | P3-08A、RUN-P3-STR-001、RUN-P3-BT-001、RUN-P3-BIAS-001 |
 | G13 | P3-10 | 不可 | P3-03〜P3-09。長期データ不足時は利益・頑健性だけUNKNOWNとし、P3-AC-01〜08のPhase 3範囲は省略しない。 |
@@ -794,6 +795,212 @@ Phase Runbook:
 - P3-AC-01〜08のうちCore/Strategy実装で担当する全テストがGREENで、LEAN実機だけがP3-09の未検証項目として明示される。
 ```
 
+### P3-07R Backtest Core再実装・再現性修復
+
+P3-07Rは、P3-07の履歴を改変せず、レビュー差戻しを修復するための追加実装計画である。目的は「個別の真偽値を返すテスト用関数」を増やすことではない。Phase 2の`MarketEvent`から、決定的なReplay、Strategy一回呼出し、仮想約定、Snapshot、改ざん検知つきResult公開までを**実際に一本接続**し、同じ入力から同じ監査可能な結果だけを公開することである。
+
+#### P3-07Rの固定境界
+
+- H3-1、H3-1R、H3-2の承認済み内容、既存v1/v2/v3 Golden fixtureのbytes、期待出力、M30の「実M1連続30本」規則を変更しない。修復のために期待値をテスト内で上書き、`skip`/`xfail`化、常時PASSの分岐、自己申告のboolを追加してはならない。
+- Broker、Secret、実注文、外部engine SDK、外部ネットワーク、可変現在時刻は対象外である。P3-07RのEngineAdapterは、外部SDKをimportしない共通DTOと`FakeEngineAdapter`までに限る。LEANの取得・固定・実行はP3-08A以降である。
+- 大容量の正式Run出力だけを`E:\strategy_test_data\phase3\backtests\runs\`に原子的に公開する。Gitには小型fixture、Manifestの要約/hash、テスト、実行証跡だけを置く。ユーザー決定どおり、バックアップ、暗号化、保存期限、容量上限、専用ACLは追加の合格条件にしない。
+- P3-07Rの各工程は、前工程のREDまたはレビュー指摘を消さずに証跡化してからGREENへ進む。設計と凍結済み期待値に矛盾が出た場合だけは、安全に停止し、P3-07をPASSとせずに差分を報告する。
+
+| 修復対象 | P3-07Rでの閉じ方 | 主な完了証跡 |
+|---|---|---|
+| BLK-P3-008: 実ReplayからResult公開まで未接続 | 型付き`BacktestRunner`を唯一の正本経路にし、Replay→Calendar/集約→Strategy→次bar約定→Snapshot→Commitを実行する。 | 順序違い、重複、改ざん、中断復旧、二回Replayの統合テストとresult hash。 |
+| Manifest / fixtureの改ざん検知不足 | strict canonical JSON、全必須hash、親Manifestの固定子集合、独立した期待値oracleを用いる。 | 欠落、未知field、NaN/Infinity、子fixture差替え、hash差替えがSTOPPEDとなるテスト。 |
+| ResultStoreの任意root、symlink、偽造marker | 固定Eドライブroot、run ID、regular path、staging、hash再計算、commit marker、no-overwriteを実装する。 | path traversal / reparse / marker偽造 / 部分commit / 二重publishの拒否テスト。 |
+| BLK-P3-009: Offline / Engine / 性能が自己申告 | 実入力と実出力から証跡を作るPreflight/Postflight、共通Engine DTO、Fake Adapter parity、性能測定器を実装する。 | 通信・Secret・依存・hash・端末情報の欠落をPASSにできないテストとmachine-readable evidence。 |
+
+#### P3-07R-01 実行契約の補強と敵対的RED固定
+
+```text
+ステップID: P3-07R-01
+ロール: Backtest実行契約・敵対的テスト固定者
+使用オーケストレータ完全名: AutoTradeProject_ImplementationDesign_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A82_ImplementationDetailDesigner_v0_1, AutoTrade_A91_ImplementationDetailReviewer_v0_1, AutoTrade_A110_PythonTestEngineer_v0_1, AutoTrade_A130_VerificationEngineer_v0_1, AutoTrade_A150_PythonCodeReviewer_v0_1, AutoTrade_A160_TradingSecurityReviewer_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1
+使用モデル: gpt-5.6-terra
+使用Skill完全名: autotrade_skill_implementation_detail_design_v0_1, autotrade_skill_implementation_detail_review_v0_1, autotrade_skill_python_test_quality_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_golden_test_v0_1, autotrade_skill_python_code_review_v0_1, autotrade_skill_trading_engine_poc_v0_1
+
+Phase Runbook:
+- phase_id: Phase 3
+- step_id: P3-07R-01
+- run_id: RUN-P3-BT-REPAIR-001
+- output_root: doc/phase3/04_Backtest詳細設計/, tests/backtest/, tests/fixtures/phase3/, tests/evidence/phase3/RUN-P3-BT-REPAIR-001/
+- detail_boundary: P3-D05を置換せず、P3-07差戻しを閉じる実行契約・型・失敗コード・REDケースを補足する。外部engine、Broker、実データ取得は対象外。
+- human_gate_policy: 新しい設計判断は作らない。H3-1/H3-1R/H3-2の承認済み値を読むだけであり、既存fixture/expectedの変更は禁止する。
+- acceptance_conditions: P3-AC-01, P3-AC-02, P3-AC-03, P3-AC-04, P3-AC-05, P3-AC-06, P3-AC-08。P3-AC-07は「偽造できない測定口」の契約だけを扱う。
+
+入力:
+- P3-D04、P3-D05、P3-D06、P3-D08、P3-06実装とP3-07のA150/A160/A40レビュー証跡
+- src/autotrade/market_data/store_contracts.py のMarketEvent / DataVersionManifest正本
+- H3-1/H3-1R承認済みfixtureとRUN-P3-BT-001の既存証跡
+
+タスク:
+1. P3-D05にP3-07R補足節を追加し、以下をフィールド名、Python型、必須/nullable、正規化、失敗コード、冪等性まで固定する。`ReplayInput`、`ReplayOrderKey`、`DataGateDecision`、`ExperimentManifest`、`BacktestRunRequest`、`BacktestRunResult`、`BacktestSnapshot`、`ResultRow`、`CommitMarker`、`EngineIdentity`、`EngineRunRequest`、`EngineRunResult`、`EngineAdapter` Protocol、`OfflineEvidence`、`PerformanceEvidence`。
+2. 唯一の正本経路を `BacktestRunner.run(request) -> BacktestRunResult` と固定する。公開APIが「caller suppliedのPASS bool」だけで合格を返すことを禁止し、既存のdict predicateは削除するか、実DTOを呼び出す薄い互換入口に限定する。
+3. 実行順を擬似コードで固定する。strict Manifest検証 → P2 MarketEvent/Data Gate検証 → Replay正規化/重複処理 → 各1分Eventで既存protective stopとeligible pendingだけを処理 → Calendar/Timeframe集約 → 同一close cohortを全更新 → Strategy一回 → 新Directiveを次bar用pendingへ追加 → Snapshot/Result append → marker commit → atomic publish、の順以外を許可しない。
+4. 親fixture Manifestは、P3-07Rで読む全子fixtureの「完全な相対path集合、sha256、schema version」を列挙する。テストは親Manifestから期待値を読むだけにせず、テストコード側の固定期待hash/不変条件とも突き合わせる。絶対path、UNC、`..`、symlink/junction/reparse、重複子、未列挙子、hash形式不正を拒否する。
+5. 次の通常REDを、既存のBT-001〜042とH3 fixtureのbytesを変えずに追加する。欠落/未知Manifest値、非有限Decimal/float、未知Data Gate flag、品質停止、未来Event、BAR_1M以外、event_id欠落、同じinstrument・同じ1分区間の別payload、同じevent_id再送/競合、M30のM1 30本以外、future Calendar/Roll、同bar新規Fill、遅い別市場barへのFill、Snapshot改ざん/欠落、偽造commit marker、path escape/reparse、engine identity未固定、offline/performance証跡欠落、Secret形状のResultRow。
+6. `pytest`は実装前に通常REDであることを記録する。失敗理由は未実装APIまたは既存stubのfail-openに限り、fixture/期待値/テストを都合よく弱めない。A91がCritical/High 0となるまで、本実装へ進めない。
+
+レビュー:
+- A150/A160/A40は、REDが実処理を要求し、自己申告・常時PASS・fixture自己参照では通らないことを独立確認する。
+- A91は、補足節だけでA120が追加判断なく実装できることを確認する。
+
+完了条件:
+- P3-D05補足、独立oracle、RED証跡、P3-AC→テスト→証跡対応表が揃う。
+- 既存承認fixture/hashを変更せず、全新規安全テストが「現在のP3-07実装ではRED」である。
+- A91/A150/A160/A40のCritical/Highが0件で、P3-07R-02にのみ引き渡す。
+```
+
+#### P3-07R-02 型付きReplay・Strategy接続・保守的仮想約定の実装
+
+```text
+ステップID: P3-07R-02
+ロール: 決定的Backtest Core実装者
+使用オーケストレータ完全名: AutoTradeProject_ImplementationQuality_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A110_PythonTestEngineer_v0_1, AutoTrade_A120_PythonImplementer_v0_1, AutoTrade_A130_VerificationEngineer_v0_1, AutoTrade_A140_DebugEngineer_v0_1, AutoTrade_A150_PythonCodeReviewer_v0_1, AutoTrade_A160_TradingSecurityReviewer_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1
+使用モデル: gpt-5.6-terra
+使用Skill完全名: autotrade_skill_python_implementation_v0_1, autotrade_skill_python_test_quality_v0_1, autotrade_skill_debug_recovery_v0_1, autotrade_skill_python_code_review_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_turtle_strategy_rules_v0_1
+
+Phase Runbook:
+- phase_id: Phase 3
+- step_id: P3-07R-02
+- run_id: RUN-P3-BT-REPAIR-002
+- output_root: src/autotrade/backtest/, tests/backtest/, tests/evidence/phase3/RUN-P3-BT-REPAIR-002/
+- detail_boundary: P3-07R-01で固定したCore実行経路、Replay、Calendar/時間足接続、Strategy一回呼出し、次barだけの最小仮想約定。Cost/Slippage/Roll/Gapの数値モデルはP3-08のまま分離する。
+- human_gate_policy: H3-1/H3-1Rの固定値を実装するだけであり、再承認を要求しない。
+
+入力:
+- P3-07R-01の受入済み補足・RED・親fixture Manifest
+- P2の型付きMarketEvent/DataVersionManifest、P3-06のStrategy Core、P3-D05のCalendar/ClosedBarBatch/ConfirmedExecutionView契約
+
+タスク:
+1. public entryを型付き・不変DTOだけにする。入力Mapping/JSONは境界で厳格復元し、未知field、欠落field、非UTC/naive時刻、float、非有限Decimal、未承認timeframeを固定BacktestFailureへ正規化して、Signal/Directive/Fill/Resultを0件にする。
+2. Replay順序を `(bar_close_time_utc, instrument_id, event_id)` とし、同一event_idかつcanonical payload同一は一回だけ採用、同一event_idで内容違い、または同一instrument・同一BAR_1M区間で内容違いは`DUPLICATE_1M_CONFLICT`でsticky停止する。P2のdata_version、quality decision、Catalog/Calendar/Manifest bindingのどれかが欠けても開始しない。
+3. P3-D05のTimeframeAggregatorとCalendarを実行経路へ接続する。M30は実M1 30本、session anchor、source ID、OHLCV、品質、Calendar版を再計算して一致した場合だけ作る。15分・30分・1時間・4時間・日足の端数、DST、休日、短縮日、休場、欠損、重複、逆行は`PARTIAL_BAR_REJECTED`等で停止する。
+4. 同一close cohortは固定順 `M1_TRIGGER → M15 → M30 → H1 → H4 → D1` で全Viewを更新してから、P3-06 Strategyを一回だけ呼ぶ。到着順の全permutationで、Signal、TargetPosition、State hash、Batch hashが一致することを実行テストにする。
+5. `ScheduledDirective` / `SimulatorState`を実装する。新規Entry/Add/Channel Exitはdecisionより後の、同一tradable instrumentの最初のeligible 1分barだけで評価する。既存保有のprotective stopだけは設計どおり現barで評価できる。別市場、未到達、同bar、過去bar、時刻形式不正、Replay終端のpendingを明確に`PENDING`/`UNFILLED`/`NO_ELIGIBLE_BAR`へし、二重Fillを許可しない。
+6. `TARGET_POSITION`出力はP3-06契約を保持する。Entry/Addは正のstrategy unit hint、Exit/2N Stopは`FLAT`と0 hintであり、Broker quantity、Margin、実注文、外部engine IDを混ぜない。
+7. 全REDをGREEN化し、既存P3-06/P3-07テストを含む対象scopeを通す。A140は失敗時に最小修正を行うが、仕様・fixture・期待値を変更して合格扱いにしない。
+
+レビュー:
+- A150は実ReplayがStrategy、Fill、状態へ接続されていることをコード実行で確認する。
+- A160は未来情報、品質抜け、同bar Fill、M30偽装、重複/順序を入力改ざんで監査する。
+
+完了条件:
+- P3-AC-01/02/03/08のCore範囲が実入力の統合テストでGREEN。
+- 「入力boolを返すだけ」のReplay/Simulator APIが正本経路から除去され、全失敗は構造化STOPPEDかつ出力0件になる。
+- A150/A160のCritical/Highが0件でP3-07R-03へ進む。
+```
+
+#### P3-07R-03 Manifest・Snapshot・EドライブResult公開と復旧の実装
+
+```text
+ステップID: P3-07R-03
+ロール: 実験証跡・原子的公開・復旧実装者
+使用オーケストレータ完全名: AutoTradeProject_ImplementationQuality_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A110_PythonTestEngineer_v0_1, AutoTrade_A120_PythonImplementer_v0_1, AutoTrade_A130_VerificationEngineer_v0_1, AutoTrade_A140_DebugEngineer_v0_1, AutoTrade_A150_PythonCodeReviewer_v0_1, AutoTrade_A160_TradingSecurityReviewer_v0_1
+使用モデル: gpt-5.6-terra
+使用Skill完全名: autotrade_skill_python_implementation_v0_1, autotrade_skill_python_test_quality_v0_1, autotrade_skill_debug_recovery_v0_1, autotrade_skill_python_code_review_v0_1, autotrade_skill_ops_security_v0_1, autotrade_skill_traceability_v0_1
+
+Phase Runbook:
+- phase_id: Phase 3
+- step_id: P3-07R-03
+- run_id: RUN-P3-BT-REPAIR-003
+- output_root: src/autotrade/backtest/, E:\strategy_test_data\phase3\backtests\runs\, tests/evidence/phase3/RUN-P3-BT-REPAIR-003/
+- detail_boundary: canonical Manifest、Snapshot、append-only Result、commit/recovery、Eドライブpath境界。バックアップ・暗号化・保存期限・容量制限はユーザー決定どおり実装しない。
+- human_gate_policy: 保存方針は承認済み。AIはEドライブ外への正式結果公開、UNC/WSLコピー、既存Run上書きを行わない。
+
+タスク:
+1. strict canonical JSONを一箇所に実装する。UTF-8、sorted key、Decimal正規文字列、UTC RFC3339 `Z`、Enum code、固定collection順だけを許可し、float、NaN、Infinity、set、任意object、unknown fieldを拒否する。SHA-256はcanonical bytesだけから再計算する。
+2. ExperimentManifestはraw/normalized/MarketEvent列、data/catalog/calendar/timeframe/ordering/config/code、quality、split、cost profile、adapter/engine、fixture、input/output hashを全て必須にする。P3-07ではEngineIdentityを全field `ENGINE_NOT_USED` の固定値にする。read/restore/publishのたびにManifestと全hashを再構築照合し、欠落・差替え・未知schemaは`MANIFEST_INTEGRITY_VIOLATION`で公開しない。
+3. ResultStoreは固定root `E:\strategy_test_data\phase3\backtests\runs\` のregular directoryだけを受ける。run IDをallow-list正規表現で検証し、相対/絶対混在、UNC、`..`、symlink/junction/reparse、root自身、存在済みrun、root外pathを拒否する。テストは一時rootを明示注入して同じ規則を実測する。
+4. `staging/<run_id>`へ immutable Manifest → canonical result rows → Snapshot → commit marker の順に書く。各write後にhashとflushを確認し、markerにはmanifest/result/snapshot/last committed event/offset/hashを束縛する。marker内容を再読込・再hashしてから一回だけatomic renameし、公開済みRunの上書き、二度目publish、外部から置換したstaging、偽造markerを拒否する。
+5. SnapshotにはManifest、Replay/aggregator/strategy/simulator state、pending directives、consumed fingerprints、execution/campaign watermarks、result offset、input/output hashを束縛する。中断注入後はcommit済みeventだけを再生し、同じSignal/Fill/ResultRowを二度作らない。missing/tampered/newer schema/context mismatchは復旧せずSTOPPEDとする。
+6. ResultRowは許可fieldだけを持ち、Secretらしいkey/value、engine/broker固有ID、非canonical数値を拒否またはredact reason付きSTOPPEDにする。ResultStoreはCoreの外側のpublish adapterとし、Strategy/Replay/Engine DTOからfilesystem objectを漏らさない。
+7. path/reparse差替え、marker差替え、部分書込み、同一run再実行、Snapshot改ざん、同一event再配送、途中停電相当のfailure injectionをGREENにする。実験結果が公開されない失敗も監査証跡へ一意に残す。
+
+レビュー:
+- A150はcanonical hash、commit順、復旧水位、ResultRow schemaをレビューする。
+- A160はpath traversal、Windows reparse point、TOCTOU、marker偽造、Secret混入、任意rootを実証的に監査する。
+
+完了条件:
+- BLK-P3-008の「実Replay→Snapshot→ResultStore→復旧」が実行テストで一体化される。
+- hash、path、marker、Snapshotの一つでも不一致ならResultは公開されず、Signal/Fillの追加生成は0件。
+- A150/A160のCritical/Highが0件でP3-07R-04へ進む。
+```
+
+#### P3-07R-04 Engine境界・Offline・性能証跡の実装
+
+```text
+ステップID: P3-07R-04
+ロール: Engine Adapter境界・ローカル実行証跡実装者
+使用オーケストレータ完全名: AutoTradeProject_ImplementationQuality_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A110_PythonTestEngineer_v0_1, AutoTrade_A120_PythonImplementer_v0_1, AutoTrade_A130_VerificationEngineer_v0_1, AutoTrade_A140_DebugEngineer_v0_1, AutoTrade_A150_PythonCodeReviewer_v0_1, AutoTrade_A160_TradingSecurityReviewer_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1
+使用モデル: gpt-5.6-terra
+使用Skill完全名: autotrade_skill_python_implementation_v0_1, autotrade_skill_python_test_quality_v0_1, autotrade_skill_debug_recovery_v0_1, autotrade_skill_python_code_review_v0_1, autotrade_skill_execution_model_v0_1, autotrade_skill_trading_engine_poc_v0_1, autotrade_skill_ops_security_v0_1
+
+Phase Runbook:
+- phase_id: Phase 3
+- step_id: P3-07R-04
+- run_id: RUN-P3-BT-REPAIR-004
+- output_root: src/autotrade/backtest/, scripts/quality_gate/, tests/quality_gate/, tests/backtest/, tests/evidence/phase3/RUN-P3-BT-REPAIR-004/
+- detail_boundary: SDKなしのEngineAdapter共通契約、Core referenceとのFake Adapter parity、外部通信なしの実行証跡、性能測定口。LEAN/Nautilusの取得・import・実行はしない。
+- human_gate_policy: H3-2は既に承認済みだが、このStepは外部engine依存を導入しない。EngineIdentityの実digestはP3-08Aまで捏造しない。
+
+タスク:
+1. `EngineIdentity`、`EngineAdapter` Protocol、`EngineRunRequest`、`EngineRunResult`、`EngineFailure`を実装する。engine/adapter/runtime/artifact digestの全fieldを必須にし、P3-07は`ENGINE_NOT_USED`だけを許可する。tag単独、空、unknown、型違い、SDK型/ID/例外の公開型・Snapshot・Manifest漏出はSTOPPEDにする。
+2. `FakeEngineAdapter`は同じ凍結Replay/Manifest/Strategy Configを受け、Core referenceが一度だけ作った順序付きSignal/Directive/virtual fill/state/result hashと比較する。差異は`ENGINE_PARITY_MISMATCH`で結果を採用しない。Fake Adapter自身がStrategyを二度実行することを禁止する。
+3. OfflinePreflight/Postflightを実測値から作る。許可input root、実際に読んだinput hash、実際に書いたresult hash、許可依存hash、禁止import走査、Secret key/value scan、外向き通信遮断/試行0、Broker/Cloud URL 0をmachine-readable evidenceへ記録する。欠落、型違い、未知値、観測不能は`OFFLINE_PREFLIGHT_UNPROVEN`または`OFFLINE_POLICY_VIOLATION`で停止し、caller boolだけでPASSにしない。
+4. P3用品質Gate入口は登録済みtarget pathsだけを実行し、対象scopeのnetwork guardを必ず有効にする。直接pytestによる最終証跡代用、外部path、実DBN、Secret、engine SDKを拒否する。既存P2入口・証跡を変更しない。
+5. PerformanceEvidenceは決定的5市場×2暦年synthetic inputのgenerator/schema/seed/hash、派生bar hash、Manifest、CPU/RAM/OS/ストレージ、monotonic elapsed、peak RSS測定器/版/単位、二回の実結果hashを記録する。計測なし/不正値/形だけの`sha256:`/limit超過/二回不一致はPASSにしない。P3-07では「計測口と証跡の正しさ」だけをGREENとし、30分/8GiBの正式性能判定はP3-09であると記録する。
+6. Fake Adapter成功、SDK漏出、identity不一致、parity差、通信試行、禁止依存、Secret/URL、外部path、測定値/host/hash欠落の全ケースをGREENにする。
+
+レビュー:
+- A40は共通DTO、Core一回実行、identity、Fake parity、P3-08A/P3-09への境界を確認する。
+- A160はOffline/Secret/SDK/import/path/evidenceの自己申告抜けを監査する。
+- A150はProtocolの型、例外正規化、Evidence hashの決定性を確認する。
+
+完了条件:
+- P3-AC-05/06のCore範囲が、SDKなしの実DTO・Fake parity・機械証跡でGREEN。
+- P3-AC-07は測定口の偽造拒否までGREENであり、未実行の正式閾値をPASSと主張しない。
+- A40/A150/A160のCritical/Highが0件でP3-07R-05へ進む。
+```
+
+#### P3-07R-05 RUN-P3-BT-001再実行・最終受入
+
+```text
+ステップID: P3-07R-05
+ロール: Backtest再現性の最終検証・証跡統合者
+使用オーケストレータ完全名: AutoTradeProject_ImplementationQuality_Orchestrator_v0_1
+担当サブエージェント完全名: AutoTrade_A110_PythonTestEngineer_v0_1, AutoTrade_A120_PythonImplementer_v0_1, AutoTrade_A130_VerificationEngineer_v0_1, AutoTrade_A140_DebugEngineer_v0_1, AutoTrade_A150_PythonCodeReviewer_v0_1, AutoTrade_A160_TradingSecurityReviewer_v0_1, AutoTrade_A40_ExecutionEnginePocArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1
+使用モデル: gpt-5.6-terra
+使用Skill完全名: autotrade_skill_python_test_quality_v0_1, autotrade_skill_debug_recovery_v0_1, autotrade_skill_python_code_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1
+
+Phase Runbook:
+- phase_id: Phase 3
+- step_id: P3-07R-05
+- run_id: RUN-P3-BT-001
+- output_root: tests/evidence/phase3/RUN-P3-BT-001/, doc/phase3/06_実装検証/07_Backtest再現性検証結果.html, doc/00_全Phase残課題Blocked統合台帳.html
+- detail_boundary: P3-07の同じRun IDを、P3-07R-01〜04で固定したscope/fixture/hash/APIで再実行して受入可否を更新する。P3-08、P3-08A、P3-09、Broker、Paper、Liveを開始しない。
+- human_gate_policy: 新しい設計承認は不要。既存H3-1/H3-1R/H3-2を再確認する。実行入口が別途人のRun承認を要求した場合だけは、その状態を偽造せず停止して正確なRun IDと確認対象をユーザーへ提示する。
+
+タスク:
+1. `trusted_scopes.json`、P3 local test wrapper、親fixture Manifest、target paths、fixture hash、Evidence schemaを最終実装と完全一致させる。対象外worktree差分、P2 scope、WSL、外部pathを最終合否へ混ぜない。
+2. `RUN-P3-BT-001`で、formatter、lint、type、P3許可pytestの固定4 Gateを実行する。直接pytestの結果だけを最終証跡にせず、preflight/postflight、fixture integrity、input/output hash、二回Replay、failure injection、ResultStore復旧、Fake Adapter parity、performance evidence状態を同じRunへ保存する。
+3. A150、A160、A40に最終コードと実行証跡を独立レビューさせる。前回の全Critical/Highに対し「どのテスト・どの実装・どの証跡で閉じたか」をP3-D08の表に一対一で記録する。未解消Critical/High、skip/xfail、期待値改変、自己申告PASS、外部I/O、Result公開不整合が一件でもあれば`REVIEW_RETURNED`のままにする。
+4. 全条件を満たした場合だけP3-D08をP3-07受入可へ更新し、BLK-P3-008を解決済みにする。BLK-P3-009は「P3-07 Coreの自己申告問題は解消、実LEAN依存の固定・実行はP3-08A/P3-09待ち」と範囲を縮小する。総合台帳の最新状態、件数、Human Gate、Phase表示、履歴、P3-08前提を全件検索して同期する。
+5. 最終判定は「P3-07 PASS（Core範囲）」と「P3-09で初めて判定するLEAN実機・30分/8GiB正式性能」を明確に分ける。未実施の外部engine/実取引所Calendar/Paper/LiveをPASSと書かない。
+
+完了条件:
+- 固定4 Gate、対象Core統合テスト、二回Replay、改ざん/中断復旧、Fake Adapter parityが全てPASS。
+- A150/A160/A40の最終Critical/Highが0件で、P3-D08・総合台帳・実行計画の現在状態が一致する。
+- P3-07が受入可へ戻り、P3-08のみ開始可能になる。P3-08A/P3-09/Phase 4は依然として後続Gateのままである。
+```
+
 ### P3-08 Cost / Roll / Gap / Holdout契約実装
 
 ```text
@@ -811,7 +1018,7 @@ Phase Runbook:
 - log_root: plan/phase3/ログ/
 - run_id: RUN-P3-BIAS-001
 - detail_boundary: 約定、費用、Gap、Roll、期間分割とBias防止。利益採用判断はしない。
-- human_gate_policy: H3-1承認済みfixtureを使う。長期実データはH3-2承認範囲だけ使用する。
+- human_gate_policy: P3-07R-05でP3-07が受入可へ戻った後だけ、H3-1/H3-1R承認済みfixtureを使う。長期実データはH3-2承認範囲だけ使用する。
 - acceptance_conditions: P3-AC-01, P3-AC-02, P3-AC-03, P3-AC-04, P3-AC-08
 
 発火制御:

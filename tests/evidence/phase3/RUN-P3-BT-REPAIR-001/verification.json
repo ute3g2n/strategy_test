@@ -1,0 +1,21 @@
+{
+  "run_id": "RUN-P3-BT-REPAIR-001",
+  "verification_status": "RED_FIXED",
+  "code_revision": "e2fe3231354875eaf94e9f6858c89fd320738e1b",
+  "design_sha256": "sha256:073d030c2924b2738fa96911a6c5350ed99602cb869adde9b618d662faab8ad5",
+  "test_sha256": "sha256:c753ad2c973c4f18b0961f265fc0529e54684a8d8292ec55b9617aa15f92cb44",
+  "parent_manifest_sha256": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+  "fixture_child_hashes_match": true,
+  "fixture_bytes_changed": false,
+  "typed_runner_implemented": false,
+  "result_published": false,
+  "external_engine_executed": false,
+  "external_network_used": false,
+  "review_status": {
+    "A91": {"critical": 0, "high": 0, "status": "PASS_FOR_HANDOFF"},
+    "A150": {"critical": 0, "high": 0, "status": "PASS_FOR_HANDOFF"},
+    "A160": {"critical": 0, "high": 0, "status": "PASS_FOR_HANDOFF"},
+    "A40": {"critical": 0, "high": 0, "status": "PASS_FOR_HANDOFF"}
+  },
+  "scope_note": "RED固定のみ。P3-07R-02の実装前であり、P3-ACのGREEN判定ではない。"
+}

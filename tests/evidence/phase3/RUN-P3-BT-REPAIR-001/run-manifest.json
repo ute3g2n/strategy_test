@@ -1,0 +1,47 @@
+{
+  "run_id": "RUN-P3-BT-REPAIR-001",
+  "phase_id": "phase3",
+  "step_id": "P3-07R-01",
+  "status": "RED_FIXED",
+  "execution_date": "2026-08-09",
+  "code_revision": "e2fe3231354875eaf94e9f6858c89fd320738e1b",
+  "scope_mode": "target_only",
+  "target_paths": [
+    "doc/phase3/04_Backtest詳細設計/04_Backtest_Experiment実装詳細設計書.html",
+    "tests/backtest/test_backtest_repair_red_contract.py",
+    "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json"
+  ],
+  "excluded": [
+    "src/autotrade/backtest implementation",
+    "Broker",
+    "Secret",
+    "external engine SDK",
+    "external network",
+    "E:/strategy_test_data/phase3/backtests/runs"
+  ],
+  "command": ".venv/Scripts/python.exe -m pytest -q tests/backtest/test_backtest_repair_red_contract.py",
+  "pytest_exit_code": 1,
+  "pytest_summary": {
+    "collected": 34,
+    "failed": 33,
+    "passed": 1,
+    "skipped": 0,
+    "xfail": 0,
+    "xpass": 0
+  },
+  "quality_checks": {
+    "ruff_format_check": "PASS",
+    "ruff_check": "PASS",
+    "fixture_integrity": "PASS",
+    "implementation_gate": "NOT_STARTED"
+  },
+  "design_sha256": "sha256:073d030c2924b2738fa96911a6c5350ed99602cb869adde9b618d662faab8ad5",
+  "red_test_sha256": "sha256:c753ad2c973c4f18b0961f265fc0529e54684a8d8292ec55b9617aa15f92cb44",
+  "parent_manifest_sha256": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+  "network": {
+    "external_connection_attempted": false,
+    "offline_preflight_for_engine": "NOT_APPLICABLE",
+    "reason": "P3-07R-01 is design and pre-implementation RED only"
+  },
+  "fixture_mutation": false
+}

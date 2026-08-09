@@ -1,0 +1,20 @@
+{
+  "run_id": "RUN-P3-BT-REPAIR-001",
+  "step_id": "P3-07R-01",
+  "status": "RED_FIXED",
+  "requirements": {
+    "P3-AC-01": {"red_cases": ["P3R-RED-001", "P3R-RED-003", "P3R-RED-007", "P3R-RED-008", "P3R-RED-009"], "status": "RED_FIXED"},
+    "P3-AC-02": {"red_cases": ["P3R-RED-006", "P3R-RED-007", "P3R-RED-010", "P3R-RED-019"], "status": "RED_FIXED"},
+    "P3-AC-03": {"red_cases": ["P3R-RED-009", "P3R-RED-010"], "status": "RED_FIXED"},
+    "P3-AC-04": {"red_cases": ["P3R-RED-003", "P3R-RED-004", "P3R-RED-008", "P3R-RED-011", "P3R-RED-019"], "status": "RED_FIXED"},
+    "P3-AC-05": {"red_cases": ["P3R-RED-001", "P3R-RED-002", "P3R-RED-013", "P3R-RED-014", "P3R-RED-020"], "status": "RED_FIXED"},
+    "P3-AC-06": {"red_cases": ["P3R-RED-004", "P3R-RED-005", "P3R-RED-012", "P3R-RED-015", "P3R-RED-016", "P3R-RED-019"], "status": "RED_FIXED"},
+    "P3-AC-07": {"red_cases": ["P3R-RED-017", "P3R-RED-018"], "status": "MEASUREMENT_CONTRACT_RED_FIXED"},
+    "P3-AC-08": {"red_cases": ["P3R-RED-001", "P3R-RED-003", "P3R-RED-007", "P3R-RED-011"], "status": "RED_FIXED"}
+  },
+  "design": "doc/phase3/04_Backtest詳細設計/04_Backtest_Experiment実装詳細設計書.html#p3-07r-01-supplement",
+  "tests": "tests/backtest/test_backtest_repair_red_contract.py",
+  "evidence": "tests/evidence/phase3/RUN-P3-BT-REPAIR-001/red-test-result.json",
+  "handoff": "P3-07R-02 only",
+  "not_claimed": ["P3-07 GREEN", "LEAN execution", "30-minute/8-GiB formal performance PASS", "Broker/Paper/Live"]
+}

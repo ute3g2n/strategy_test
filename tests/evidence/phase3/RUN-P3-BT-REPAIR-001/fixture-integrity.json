@@ -1,0 +1,24 @@
+{
+  "run_id": "RUN-P3-BT-REPAIR-001",
+  "parent_manifest": {
+    "path": "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json",
+    "sha256": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+    "schema_version": "p3-backtest-fixture-manifest-v1",
+    "child_count": 10,
+    "child_set_match": true
+  },
+  "children": [
+    {"path": "tests/fixtures/phase3/run_p3_gold_fixture_manifest.json", "sha256": "sha256:19eff1a99d407570e73fac74d3e0e00bbaf72c3c4278e6f046dcc6723adcc314", "match": true},
+    {"path": "tests/fixtures/phase3/run_p3_m30_fixture_manifest_v3.json", "sha256": "sha256:8674ac9f2b932acc4a6bca5a3d2037b9202cc7f61df71f7e5249c758f51bd79d", "match": true},
+    {"path": "tests/fixtures/phase3/backtest_contract_cases_v1.json", "sha256": "sha256:55861db761a9d2272f235486e6ada5c4354ec2a155ba949b5f7fafc6d5df7299", "match": true},
+    {"path": "tests/fixtures/phase3/m30_backtest_contract_cases_v2.json", "sha256": "sha256:a3fda8506aeba088405bcb3436aaa14957f990427f2e3dd9c0f1c8188fba63db", "match": true},
+    {"path": "tests/fixtures/phase3/m30_backtest_v2.json", "sha256": "sha256:7282ea7bda1c6701cffc2e8e1949b2b38e036b107b99d2857b1508afe51f6e08", "match": true},
+    {"path": "tests/fixtures/phase3/calendar_us_futures_v1.json", "sha256": "sha256:986e87fec5abd90fdbf81f485737d099131b54fb1cd1326bd7399d22aa05bdc6", "match": true},
+    {"path": "tests/fixtures/phase3/backtest_replay_v1.json", "sha256": "sha256:af8419125afbb22ba0754664aba989b95b2817072d83eef0f87f8268bd9c408d", "match": true},
+    {"path": "tests/fixtures/phase3/bias_manifest_v1.json", "sha256": "sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24", "match": true},
+    {"path": "tests/fixtures/phase3/performance_synthetic_v1.json", "sha256": "sha256:1000e99f8d3b75a464e5fbdc79111a58f3ed926e84b795c2df28e53c9b1aa731", "match": true},
+    {"path": "tests/fixtures/phase3/run_p3_strategy_fixture_manifest_v3.json", "sha256": "sha256:4a410f7ac15837ebb9d899daecd56f0c6e45c3795d7f8db067daef80359531e0", "match": true}
+  ],
+  "fixture_bytes_changed": false,
+  "independent_oracle": "tests/backtest/test_backtest_repair_red_contract.py::test_parent_manifest_matches_independent_child_oracle"
+}

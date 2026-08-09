@@ -20,7 +20,7 @@
   <h1>P3-D05 Backtest / Experiment 実装詳細設計書</h1>
   <p class="lead">この設計書は、過去の確定済み市場イベントを同じ順番で再生し、Turtle戦略の出力を仮想的に約定・費用・ロールへつなぐための設計です。実注文、Broker、Secret、外部通信、取引エンジンSDKの導入は扱いません。危ない入力、途中の書込み、未来を見た判断は、結果を公開せず停止します。</p>
   <div class="meta">
-    <strong>成果物ID:</strong> P3-D05 / <strong>Phase・Step:</strong> Phase 3 / P3-04 / <strong>版:</strong> v0.5（専門レビュー完了）<br>
+    <strong>成果物ID:</strong> P3-D05 / <strong>Phase・Step:</strong> Phase 3 / P3-04 + P3-07R-01 / <strong>版:</strong> v0.6（P3-07R-01補足・RED固定）<br>
     <strong>作成日:</strong> 2026-08-09 / <strong>後続:</strong> P3-05でRED試験を固定し、H3-1承認後のP3-06でStrategy実装へ進む。<br>
     <strong>正本範囲:</strong> Common Backtest Core、Experiment Manifest、Timeframe Aggregator、仮想約定Port、結果・Snapshot・証跡。LEANの実導入はP3-08A以降。
   </div>
@@ -560,8 +560,123 @@ consume_pending_directives_once(tradable_bar, simulator):
   <script src="../../assets/mermaid-init.js"></script>
   <section class="note" id="p3-06-current-status">
     <h2>現在状態の上書き（2026-08-09）</h2>
-    <p>H3-1R改訂は承認済みである。v2は履歴証跡、v3は実行時の安全正本であり、M30は実M1を連続30本確認できなければ停止する。P3-06のStrategy実装はPASSした。Backtest/Timeframe Aggregator本体、BT-001〜042のGREEN化はP3-07の作業として未実装である。</p>
+    <p>H3-1R改訂は承認済みである。v2は履歴証跡、v3は実行時の安全正本であり、M30は実M1を連続30本確認できなければ停止する。P3-06のStrategy実装はPASSした。P3-07のレビュー差戻しを受け、P3-07R-01でP3-D05の補足契約と敵対的REDを固定した。型付き実Replayの実装、ResultStore復旧、Engine/Offline証跡のGREEN化はP3-07R-02以降であり、現在は受入前である。</p>
     <p><small>やさしい説明: 戦略の部品は完成しましたが、1分足から時間足を作り直して公平に試験するBacktestの部品は次の作業です。</small></p>
+  </section>
+
+  <section class="risk" id="p3-07r-01-supplement">
+    <h2>23. P3-07R-01 実行契約補足・敵対的RED固定（2026-08-09）</h2>
+    <p class="lead">この節は、P3-07の履歴を置き換えず、レビュー差戻しをP3-07R-02以降で実装できる粒度へ補足するものです。H3-1、H3-1R、H3-2で承認済みの値、既存BT-001〜042、v1/v2/v3 fixtureのbytes・期待値・hashは変更しません。ここでの合格は「実装済み」ではなく、実装前のREDが正しい契約を要求していることです。</p>
+    <p><strong>対象外:</strong> Broker、Secret、実注文、外部engine SDK、外部ネットワーク、実データ取得、可変現在時刻、利益率による採用判定。P3-07では<code>EngineIdentity</code>を全項目<code>ENGINE_NOT_USED</code>で固定し、実LEAN/NautilusのdigestはP3-08A以降で扱います。</p>
+    <p><strong>Human Gate:</strong> 新しい設計判断は作りません。既存承認を読むだけです。既存fixtureや期待値と本補足の矛盾が見つかった場合は、実装へ進まず<code>REVIEW_RETURNED</code>で停止します。</p>
+
+    <h3>23.1 P3-07R-01で固定するモジュールと受渡し</h3>
+    <p>この図は、P3-07R-02以降で実装する唯一の正本経路と、比較専用のEngine枝を示します。矢印の名前は、部品間で渡す主な型または保存物です。秘密値と外部SDK型は図・表へ渡しません。</p>
+    <pre class="mermaid">flowchart LR
+  A["P2 MarketEvent / DataVersion"] -->|ReplayInput| B["BacktestRunner"]
+  B -->|ReplayOrderKey列| C["ReplayOrder"]
+  C -->|確定1分Event| D["Calendar / Aggregator"]
+  D -->|ClosedBarBatch| E["Strategy Core"]
+  E -->|ScheduledDirective| F["Simulator"]
+  F -->|ResultRow / Snapshot| G["ResultStore"]
+  G -->|CommitMarker| H["Atomic Publish"]
+  B -.->|EngineRunRequest| I["Fake EngineAdapter"]
+  I -.->|EngineRunResult| B</pre>
+    <p>図の各矢印で何を渡し、どこで止めるかを次の表で確認できます。</p>
+    <table><thead><tr><th>送る部品</th><th>受け取る部品</th><th>渡すデータ・依頼</th><th>受け取り側の用途と停止条件</th></tr></thead><tbody>
+      <tr><td>P2 Market Data</td><td><code>BacktestRunner</code></td><td><code>ReplayInput</code>、<code>MarketEvent</code>、<code>DataVersionManifest</code>、<code>DataGateDecision</code></td><td>実行開始前にdata/catalog/quality/Calendar/Manifest bindingを検証する。欠落、未知flag、品質停止、未固定版なら全出力0件で停止する。</td></tr>
+      <tr><td><code>BacktestRunner</code></td><td><code>ReplayOrder</code></td><td><code>ReplayOrderKey</code>とcanonical payload</td><td>到着順を捨て、固定キーで並べる。同じevent_idの同一payloadだけno-opとし、同一銘柄・同一1分の別payloadは<code>DUPLICATE_1M_CONFLICT</code>で停止する。</td></tr>
+      <tr><td><code>Calendar / Aggregator</code></td><td><code>Strategy Core</code></td><td>確定した<code>ClosedBarBatch</code>、Calendar/Catalog/qualityの版とhash</td><td>全View更新後に一つのDecisionPointを渡す。未完成bar、未来Calendar、欠損、端数、cohort不足ならBatchを渡さない。</td></tr>
+      <tr><td><code>Strategy Core</code></td><td><code>Simulator</code></td><td><code>ScheduledDirective</code>、strategy unit hint、semantic fingerprint</td><td>新規Directiveは次のeligible 1分barだけで評価する。Broker quantity、margin、engine IDは受け取らない。</td></tr>
+      <tr><td><code>Simulator</code></td><td><code>ResultStore</code></td><td><code>ResultRow</code>、<code>BacktestSnapshot</code>、hash</td><td>append順とsnapshot bindingを検証し、異常時はSignal/Fill/Resultの追加公開を0件にする。</td></tr>
+      <tr><td><code>BacktestRunner</code></td><td><code>EngineAdapter</code></td><td><code>EngineRunRequest</code>、Core reference hash</td><td>Fake Adapter parityだけを比較する。identity未固定、SDK型漏出、Core二重実行、比較差異は採用せず停止する。</td></tr>
+    </tbody></table>
+
+    <h3>23.2 型付きDTO、必須性、正規化、失敗、冪等性</h3>
+    <p>この表は、実装者が「似た辞書」を作らず、同じ失敗を同じコードへ変換できるようにするためのものです。括弧内はPython型と必須性で、nullableは値がないことを許す場合だけ明記します。全DTOはfrozen dataclassで、未知fieldを拒否します。</p>
+    <table><thead><tr><th>型</th><th>フィールド（Python型・必須/nullable）</th><th>正規化と失敗コード</th><th>冪等性・副作用</th></tr></thead><tbody>
+      <tr><td><code>ReplayInput</code></td><td><code>events: tuple[MarketEvent,...]</code>必須、<code>data_version_manifest: DataVersionManifest</code>必須、<code>data_gate: DataGateDecision</code>必須、<code>replay_cutoff_utc: datetime</code>必須、<code>manifest_sha256: str</code>必須。</td><td>EventはUTC・<code>BAR_1M</code>・確定bar・同一bindingに正規化する。欠落や型違いは<code>REPLAY_INPUT_INVALID</code>、品質停止は<code>DATA_GATE_BLOCKED</code>、cutoff後は<code>FUTURE_EVENT_REJECTED</code>。</td><td>同じcanonical Event列とbindingは同じ入力fingerprintになる。入力を変更せず、外部I/Oを行わない。</td></tr>
+      <tr><td><code>ReplayOrderKey</code></td><td><code>bar_close_time_utc: datetime</code>、<code>event_time_utc: datetime</code>、<code>instrument_id: str</code>、<code>event_id: str</code>、すべて必須・nullable不可。</td><td>UTCへ変換し、順序を<code>(bar_close_time_utc, event_time_utc, instrument_id, event_id)</code>で固定する。時刻・ID不正は<code>REPLAY_INPUT_INVALID</code>。</td><td>同じkeyと同じpayloadは一回だけ採用する。同じevent_idの差分payload、同一銘柄・同一1分の差分payloadは<code>DUPLICATE_1M_CONFLICT</code>でsticky停止する。</td></tr>
+      <tr><td><code>DataGateDecision</code></td><td><code>data_version: str</code>、<code>quality_report_sha256: str</code>、<code>policy_version: str</code>、<code>blocking_flags: tuple[str,...]</code>、<code>warning_flags: tuple[str,...]</code>、<code>signal_allowed: bool</code>、すべて必須。</td><td>許可flag集合をP2契約から再計算し、callerのboolをそのまま信用しない。未知flag・report hash不一致・停止flagは<code>DATA_GATE_BLOCKED</code>、警告はResultへ伝播する。</td><td>同じReportとflag集合は同じdecisionになる。判定だけでEventやResultを生成しない。</td></tr>
+      <tr><td><code>ExperimentManifest</code></td><td><code>run_id: str</code>、<code>schema_version: str</code>、raw/normalized/MarketEventの<code>sha256: str</code>各必須、<code>data_version</code>、<code>catalog_version/hash</code>、<code>calendar_version/hash</code>、<code>timeframe_rule_version</code>、<code>ordering_rule_version</code>、strategy config/code revision、quality policy/report、split、cost profile、adapter version/hash、<code>engine_identity: EngineIdentity</code>、親fixtureの完全な子集合、input/output hash、<code>manifest_sha256: str</code>必須。実行前の<code>output_sha256: str | None</code>だけnullable。</td><td>canonical UTF-8 JSONのsorted key、固定配列順、Decimal文字列、UTC <code>Z</code>だけを許可する。未知/欠落/hash形式不正/子差替えは<code>MANIFEST_INTEGRITY_VIOLATION</code>。</td><td>manifest payloadは生成後変更不可。read/restore/publishごとに全hashを再計算し、同一payload以外は同じrunへ再利用しない。</td></tr>
+      <tr><td><code>BacktestRunRequest</code></td><td><code>run_id: str</code>、<code>replay: ReplayInput</code>、<code>manifest: ExperimentManifest</code>、<code>strategy_config_sha256: str</code>、<code>engine_identity: EngineIdentity</code>、<code>request_fingerprint: str</code>必須。</td><td>DTO同士のrun/hash/bindingを再照合する。不一致は<code>RUN_BINDING_INVALID</code>、caller suppliedのPASS boolやMapping直渡しは<code>TYPED_RUN_REQUIRED</code>。</td><td>同一request fingerprintの再実行は同一結果か安全なno-op。同じrun_idへの別requestは副作用なしで停止する。</td></tr>
+      <tr><td><code>BacktestRunResult</code></td><td><code>status: Literal["COMMITTED","STOPPED"]</code>、<code>failure: BacktestFailure | None</code>、<code>rows: tuple[ResultRow,...]</code>、<code>result_sha256: str | None</code>、<code>snapshot: BacktestSnapshot | None</code>、<code>commit_marker: CommitMarker | None</code>、<code>audit_sha256: str</code>必須。</td><td>STOPPED時はrows=空、publishableなhash/markerを持たない。異常は固定failure codeへ正規化し、例外やboolでfail-openしない。</td><td>COMMITTED結果は同じmanifestで上書き不可。STOPPEDの監査証跡だけを一意に残す。</td></tr>
+      <tr><td><code>BacktestSnapshot</code></td><td><code>schema_version</code>、manifest/input sequence/last batch/strategy/aggregator/simulatorの各sha256必須、<code>last_committed_event_id: str | None</code>、<code>pending_fingerprints: tuple[str,...]</code>、<code>consumed_fingerprints: tuple[str,...]</code>、<code>result_offset: int</code>、<code>commit_marker_sha256: str</code>必須。</td><td>全stateとwatermarkをcanonical化し、manifest・Calendar・timeframe・fixture bindingと照合する。欠落、改ざん、部分commit、新schemaは<code>RECOVERY_RECONCILIATION_FAILED</code>。</td><td>commit済みEventの次からのみ再開し、同じfingerprintのSignal/Fill/Rowを二度生成しない。</td></tr>
+      <tr><td><code>ResultRow</code></td><td><code>sequence_no: int</code>、<code>row_id/event_id/instrument_id/row_kind: str</code>、<code>decision_time_utc: datetime</code>、Signal/Directive/Fill/Stateの共通DTO、<code>manifest_sha256</code>、<code>content_sha256</code>必須。Secret、Broker/engine固有IDはfieldに持たない。</td><td>DecimalとUTCをcanonical化し、許可field以外、float、NaN/Infinity、Secretらしいkey/valueを<code>RESULT_SCHEMA_INVALID</code>。</td><td>sequence_noとcontent hashでappend-only。既存row_idの内容差替え、二重appendは停止する。</td></tr>
+      <tr><td><code>CommitMarker</code></td><td><code>schema_version</code>、<code>run_id</code>、manifest/result/snapshot/commitの各sha256、<code>last_committed_event_id: str | None</code>、<code>result_offset: int</code>必須。</td><td>最後に一回だけ作成し、書込み後に再読込・再hashする。偽造、欠落、offset不一致は<code>COMMIT_MARKER_INVALID</code>。</td><td>同じstagingへの二重commitと公開済みrunの上書きを拒否する。</td></tr>
+      <tr><td><code>EngineIdentity</code></td><td><code>engine_kind/version</code>、distribution source、artifact sha256またはOCI digest、adapter name/version/artifact sha256、runtime kind/version、execution mode、すべて必須・nullable不可。</td><td>P3-07は全項目を<code>ENGINE_NOT_USED</code>固定値にする。tagだけ、空、unknown、digest形式不正は<code>ENGINE_IDENTITY_UNPINNED</code>。</td><td>同一identityの再検証は読み取りだけ。SDK型・ID・例外をCore/Manifest/Snapshotへ漏らさない。</td></tr>
+      <tr><td><code>EngineRunRequest</code></td><td><code>manifest: ExperimentManifest</code>、<code>input_sha256</code>、<code>core_reference_sha256</code>、<code>strategy_config_sha256</code>、<code>engine_identity: EngineIdentity</code>、<code>run_id</code>必須。</td><td>共通DTOだけに正規化し、SDK objectを受け付けない。identityまたはCore reference欠落は<code>ENGINE_IDENTITY_UNPINNED</code>。</td><td>Fake AdapterはStrategyを再呼出しせず、Coreの一回実行結果を比較するだけ。</td></tr>
+      <tr><td><code>EngineRunResult</code></td><td><code>status</code>、ordered signal/directive/fill/state/resultの各hash、engine trace digest、failure、adapter identity、parity status必須。</td><td>外部型を共通DTOへ変換し、差異は<code>ENGINE_PARITY_MISMATCH</code>、外部固有失敗は固定<code>EngineFailure</code>へ正規化する。</td><td>同一requestなら同じcanonical結果。比較不一致の結果は採用・公開しない。</td></tr>
+      <tr><td><code>EngineAdapter</code> Protocol</td><td><code>validate_identity(identity, manifest) -&gt; Result</code>、<code>run(request) -&gt; EngineRunResult</code>、<code>normalize_failure(raw_code) -&gt; BacktestFailure</code>を必須。</td><td>Protocolの公開型は共通DTOだけ。SDK import、vendor ID/exceptionの漏出、Strategy二重実行は<code>ENGINE_SDK_LEAK</code>または<code>ENGINE_PARITY_MISMATCH</code>。</td><td>Fake AdapterはCore referenceを一度比較し、結果を自分の期待値で作らない。</td></tr>
+      <tr><td><code>OfflineEvidence</code></td><td>schema、allowed input root、実読込input hash、実書込output hash、許可依存hash、禁止import scan、Secret scan、outbound attempts、Broker/Cloud URL count、observation id必須。</td><td>観測不能、欠落、caller boolのみ、依存未固定は<code>OFFLINE_PREFLIGHT_UNPROVEN</code>。実通信・Secret/URL・許可外pathは<code>OFFLINE_POLICY_VIOLATION</code>。</td><td>同じexecution idのpre/postだけを組にする。証跡の上書きや後付けは拒否する。</td></tr>
+      <tr><td><code>PerformanceEvidence</code></td><td>generator/schema/version/seed、input/derived bar/manifest hash、host CPU/RAM/OS/Python/storage、measurement tool/version、monotonic elapsed、peak RSS、二回のresult hash、observation id必須。</td><td>hashは完全な<code>sha256:</code>形式、値は非負整数、測定不能・欠落・二回不一致は<code>PERFORMANCE_EVIDENCE_UNPROVEN</code>または<code>PERFORMANCE_EVIDENCE_INVALID</code>。正式30分/8GiB判定はP3-09。</td><td>同一fixture・seed・host条件を二回比較し、計測口だけで未実行をPASSにしない。</td></tr>
+    </tbody></table>
+
+    <h3>23.3 唯一の正本経路と処理順</h3>
+    <p>公開入口は<code>BacktestRunner.run(request: BacktestRunRequest) -&gt; BacktestRunResult</code>だけです。既存のdict predicateは削除するか、このDTOへ厳格に変換する薄い互換入口に限り、入力された<code>PASS</code>や<code>True</code>だけで成功を返してはいけません。</p>
+    <pre>def run(request: BacktestRunRequest) -&gt; BacktestRunResult:
+    strict_validate_manifest(request.manifest)
+    validate_p2_market_events_and_data_gate(request.replay)
+    ordered = normalize_replay(request.replay)
+    for event in ordered:
+        consume_existing_protective_stop(event)
+        consume_only_eligible_pending_directives(event)
+        transition = calendar_and_timeframe_aggregate(event)
+        update_all_views_in_fixed_order(transition)
+        if transition.decision_point is not None:
+            strategy_result = call_strategy_exactly_once(transition.closed_bar_batch)
+            schedule_new_directives_for_next_bar(strategy_result)
+        append_result_row_and_snapshot()
+        append_commit_marker_last()
+    atomically_publish_after_recomputing_all_hashes()
+    return BacktestRunResult(status="COMMITTED", ...)</pre>
+    <p>順序は、strict Manifest検証 → P2 MarketEvent/Data Gate検証 → Replay正規化・重複処理 → 各1分Eventで既存protective stopとeligible pendingだけを処理 → Calendar/時間足集約 → 同一close cohortを全更新 → Strategy一回 → 新Directiveを次bar用pendingへ追加 → Snapshot/Result append → marker commit → atomic publishです。どこか一つでも失敗したら、以後のSignal、Directive、Fill、Resultを追加せず、構造化STOPPEDへ遷移します。</p>
+
+    <h3>23.4 親Manifestと独立oracle</h3>
+    <p><code>tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json</code>は、P3-07R-01で読む全子fixtureの完全な相対path集合、sha256、schema versionを列挙する正本です。テストはManifestをそのまま期待値にせず、<code>tests/backtest/test_backtest_repair_red_contract.py</code>内の固定oracleとも照合します。相対path以外、絶対path、UNC、<code>..</code>、symlink/junction/reparse、重複子、未列挙子、64桁hexでないhash、親Manifestのunknown fieldは停止します。既存親Manifestと子fixtureのbytesは変更しません。</p>
+    <table><thead><tr><th>oracleで固定するもの</th><th>照合方法</th><th>差分時の判定</th></tr></thead><tbody>
+      <tr><td>子fixtureのpath集合</td><td>相対pathの正規化後、完全集合として固定値と比較する。</td><td><code>MANIFEST_INTEGRITY_VIOLATION</code>。期待値をManifestから再読込して合格扱いにしない。</td></tr>
+      <tr><td>子fixtureのsha256</td><td>実bytesをSHA-256し、テストコード内の固定hexと比較する。</td><td>差替え・破損・未列挙はSTOPPED。新fixtureは新Run・再承認へ送る。</td></tr>
+      <tr><td>v1/v2/v3変更禁止</td><td>既存BT-001〜042のfixture path/hashと、H3-1/H3-1R承認記録を読み取り照合する。</td><td>設計とfixtureの矛盾はGREEN化せず、P3-07を受入不可のまま報告する。</td></tr>
+    </tbody></table>
+
+    <h3>23.5 敵対的REDケースとAC対応</h3>
+    <p>次の表は、実装前に失敗していなければならない安全テストの全Logical caseです。失敗理由は未実装APIまたは既存stubのfail-openに限り、fixture・期待値を弱めること、skip/xfail、常時PASS分岐は禁止します。</p>
+    <table><thead><tr><th>RED ID</th><th>敵対入力・操作</th><th>期待する停止または契約</th><th>AC</th></tr></thead><tbody>
+      <tr><td>P3R-RED-001</td><td>14個のDTOをcontractsから取得し、frozen fieldを検査する。</td><td>型が存在し、未知fieldを拒否する。現状は未実装APIでRED。</td><td>01/02/04/05/06/08</td></tr>
+      <tr><td>P3R-RED-002</td><td>EngineAdapterのProtocolと3メソッドを検査する。</td><td>共通DTOだけのProtocol。SDKなし。</td><td>05/06</td></tr>
+      <tr><td>P3R-RED-003</td><td><code>BacktestRunner.run</code>の型付き単一入口を検査する。</td><td>boolではなく<code>BacktestRunResult</code>を返す。</td><td>01〜08</td></tr>
+      <tr><td>P3R-RED-004</td><td>Manifestの欠落、未知field、hash形式不正を検査する。</td><td><code>MANIFEST_INTEGRITY_VIOLATION</code>、結果0件。</td><td>04/06</td></tr>
+      <tr><td>P3R-RED-005</td><td>finite float、NaN/Infinity、set、任意objectをcanonical化する。</td><td>正規化せず構造化停止する。</td><td>04/05/06</td></tr>
+      <tr><td>P3R-RED-006</td><td>data_version、quality report、未知Data Gate flagを欠落させる。</td><td><code>DATA_GATE_BLOCKED</code>、Strategy未呼出し。</td><td>02/06</td></tr>
+      <tr><td>P3R-RED-007</td><td>固定cutoffより後の未来Eventを入力する。</td><td><code>FUTURE_EVENT_REJECTED</code>、出力0件。</td><td>02/04</td></tr>
+      <tr><td>P3R-RED-008</td><td>同一銘柄・同一1分・別event_idでpayloadを変える。</td><td><code>DUPLICATE_1M_CONFLICT</code>でsticky停止。</td><td>01/02/04</td></tr>
+      <tr><td>P3R-RED-009</td><td>M30集約へ<code>calendar_rejections</code>というcaller predicateだけを渡す。</td><td>実Calendarの再計算なしにACCEPTEDを返さない。</td><td>01/03</td></tr>
+      <tr><td>P3R-RED-010</td><td>新規Directiveを同bar、別市場、未到達barへ向ける。</td><td>Fillせず<code>PENDING</code>/<code>NO_ELIGIBLE_BAR</code>、二重Fillなし。</td><td>02/03/04</td></tr>
+      <tr><td>P3R-RED-011</td><td>Snapshotをevent offsetだけで復元し、bindingを欠落させる。</td><td><code>RECOVERY_RECONCILIATION_FAILED</code>、追加出力0件。</td><td>04/08</td></tr>
+      <tr><td>P3R-RED-012</td><td>root外・run_idなし・reparse/path escapeをResultStoreへ渡す。</td><td><code>RESULT_NOT_PUBLISHED</code>、stagingも公開しない。</td><td>04/06</td></tr>
+      <tr><td>P3R-RED-013</td><td><code>ENGINE_NOT_USED</code>のtagだけ、digestなしでidentityを検査する。</td><td><code>ENGINE_IDENTITY_UNPINNED</code>。</td><td>05/06</td></tr>
+      <tr><td>P3R-RED-014</td><td>Fake AdapterへSDK import数だけを渡す。</td><td>typed request/Core referenceなしは停止する。</td><td>05</td></tr>
+      <tr><td>P3R-RED-015</td><td>outbound_attempt=falseというcaller boolだけを渡す。</td><td><code>OFFLINE_PREFLIGHT_UNPROVEN</code>。</td><td>06</td></tr>
+      <tr><td>P3R-RED-016</td><td>network attempts=0と二回実行フラグだけを渡す。</td><td>input/output/依存/Secret scanなしはPASS禁止。</td><td>06</td></tr>
+      <tr><td>P3R-RED-017</td><td><code>sha256:fake</code>の性能hashを渡す。</td><td><code>PERFORMANCE_EVIDENCE_INVALID</code>。</td><td>07</td></tr>
+      <tr><td>P3R-RED-018</td><td>端末・実測値なしで性能limitだけを渡す。</td><td><code>PERFORMANCE_EVIDENCE_UNPROVEN</code>、P3-07では正式閾値PASSなし。</td><td>07</td></tr>
+      <tr><td>P3R-RED-019</td><td><code>same_manifest_twice=True</code>だけでlegacy replay predicateを呼ぶ。</td><td><code>TYPED_RUN_REQUIRED</code>、boolだけで結果を公開しない。</td><td>04/06</td></tr>
+      <tr><td>P3R-RED-020</td><td>ResultRowへSecret/Broker/engine固有IDを混ぜる。</td><td><code>RESULT_SCHEMA_INVALID</code>またはredact理由付きSTOPPED。</td><td>05/06</td></tr>
+    </tbody></table>
+    <p><strong>独立oracle:</strong> P3R-ORACLE-001は親Manifestの子集合・sha256をテストコード側の固定値で比較する正常確認であり、RED件数には含めません。P3R-RED-001は14 DTOのparametrizeにより14 pytest caseへ展開されます。</p>
+
+    <h3>23.6 RED実行証跡・レビュー・引渡し</h3>
+    <p>実行証跡は<code>tests/evidence/phase3/RUN-P3-BT-REPAIR-001/</code>に保存します。RED実行は新規テストファイルだけを対象にし、既存BT-001〜042の意味を変更しません。次のレビューは、テストが実処理を要求し、自己申告・fixture自己参照・常時PASSで通らないことを確認します。</p>
+    <table><thead><tr><th>確認者</th><th>確認内容</th><th>P3-07R-01判定</th></tr></thead><tbody>
+      <tr><td>A91 / ImplementationDetailReviewer</td><td>DTO全項目、処理順、停止、冪等性、Manifest/保存、REDからP3-07R-02へ渡す判断材料を確認する。</td><td>Critical 0 / High 0。補足だけで実装判断ができる。</td></tr>
+      <tr><td>A150 / PythonCodeReviewer</td><td>REDが実処理を要求し、current stubのbool・truthiness・hash形だけのPASSを検出することを確認する。</td><td>Critical 0 / High 0。新規テストはskip/xfailなし。</td></tr>
+      <tr><td>A160 / TradingSecurityReviewer</td><td>Secret、外部通信、path、reparse、vendor ID、offline/performance自己申告の抜け道を確認する。</td><td>Critical 0 / High 0。外部I/Oは未実施。</td></tr>
+      <tr><td>A40 / ExecutionEnginePocArchitect</td><td>EngineAdapterは比較枝だけで、Core/Strategyを二度実行せず、P3-08A/P3-09と境界を保つことを確認する。</td><td>Critical 0 / High 0。実engineは未導入。</td></tr>
+    </tbody></table>
+    <div class="warn"><strong>実行結果:</strong> 新規REDテストは34 pytest case中33 failed、1 passed（P3R-ORACLE-001のみ）となることを確認した。これはP3-07実装の未実装APIとfail-openを固定した結果であり、品質GateのGREENやP3-07受入可を意味しない。</div>
+    <p><strong>実行証跡:</strong> <a href="../../../tests/backtest/test_backtest_repair_red_contract.py">敵対的REDテスト</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-001/red-test-result.json">RED結果JSON</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-001/acceptance-traceability.json">AC追跡JSON</a> / <a href="../../../plan/phase3/ログ/P3-07R-01_実行ログ_2026-08-09.md">実行ログ</a></p>
+    <p><strong>次工程への引渡し:</strong> P3-07R-02は、この補足設計、固定oracle、RED証跡、親Manifestをそのまま入力にして型付きReplay・Strategy一回呼出し・保守的次bar約定を実装する。P3-07R-01では本体実装、fixture改変、Result公開、外部engine実行を行わない。</p>
   </section>
 </main>
 </body>
