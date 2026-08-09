@@ -77,6 +77,7 @@ EOF
 export PYTHONPATH="$repository_path/src"
 export QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED=1
 export QUALITY_GATE_HOST_ISOLATION_EVIDENCE="$evidence_root/host-isolation.json"
+export MYPY_CACHE_DIR="/tmp/codex-strategy-test-mypy-cache"
 set +e
 "$python_bin" -m scripts.quality_gate.run_quality_gate --manifest "$manifest" --project-root "$repository_path"
 gate_exit=$?

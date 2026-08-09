@@ -699,6 +699,7 @@ def _minimal_environment(project_root: Path) -> dict[str, str]:
         "USERPROFILE",
         "HOMEDRIVE",
         "HOMEPATH",
+        "MYPY_CACHE_DIR",
     )
     environment = {key: value for key in keys if (value := os.environ.get(key))}
     environment["PYTHONPATH"] = str(project_root)

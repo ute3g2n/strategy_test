@@ -7,7 +7,7 @@
   "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
   "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
   "data_version": "p3-backtest-fixture-manifest-v1",
-  "change_hash": "sha256:d4c6955380540b7ebf711cefaaef5eedc3a80b3f21ed4f5c17ac072458eb98ae",
+  "change_hash": "sha256:2f356637899b5a0cc6f147a79be9a691056597378ed6ce5737aca528e3ba3e5a",
   "baseline_ref": "ce108a54e4ec2186c1f9cfb2c7a802a7a47df1c2",
   "human_gate_policy": "H3-1とH3-1Rの承認済みfixtureだけを使い、外部engine導入はP3-08A以降とする。",
   "agents": ["AutoTrade_A110_PythonTestEngineer_v0_1", "AutoTrade_A120_PythonImplementer_v0_1", "AutoTrade_A130_VerificationEngineer_v0_1", "AutoTrade_A140_DebugEngineer_v0_1", "AutoTrade_A150_PythonCodeReviewer_v0_1", "AutoTrade_A160_TradingSecurityReviewer_v0_1", "AutoTrade_A40_ExecutionEnginePocArchitect_v0_1"],
@@ -22,7 +22,7 @@
   "checks": [
     {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
     {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
-    {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "--cache-dir", "/tmp/codex-strategy-test-mypy-cache", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate"]},
+    {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate"]},
     {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p3_pytest"]}
   ]
 }

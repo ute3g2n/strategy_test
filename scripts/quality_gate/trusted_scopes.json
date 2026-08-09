@@ -289,7 +289,7 @@
       "checks": [
         {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
         {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
-        {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "--cache-dir", "/tmp/codex-strategy-test-mypy-cache", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate"]},
+        {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate"]},
         {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p3_pytest"]}
       ]
     },
