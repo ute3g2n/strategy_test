@@ -1,0 +1,13 @@
+{
+  "run_id": "RUN-P3-M30-001",
+  "state": "GREEN",
+  "parent_manifest_sha256": "sha256:224d6c54fe0fdbf039bc5819140e9d12aa23e27e55ece5de22a5f4800b2b985b",
+  "child_hashes": {
+    "tests/fixtures/strategy/m30_strategy_v2.json": "sha256:116799b5fe7b0c6b96c2eae0a5e3988473a28b865f7da44e0982a1927b7379b1",
+    "tests/fixtures/phase3/m30_backtest_v2.json": "sha256:7282ea7bda1c6701cffc2e8e1949b2b38e036b107b99d2857b1508afe51f6e08",
+    "tests/fixtures/phase3/m30_backtest_contract_cases_v2.json": "sha256:a3fda8506aeba088405bcb3436aaa14957f990427f2e3dd9c0f1c8188fba63db"
+  },
+  "verification": "tests/strategy/test_m30_fixture_contract.py",
+  "direct_aggregation_contract": "M30 is built from exactly 30 consecutive closed BAR_1M records; M15 is forbidden as an input.",
+  "fixture_status": "PROPOSED_FOR_H3_1R"
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "p3-strategy-fixture-manifest-v2",
+  "purpose": "RUN-P3-STR-001 approved Strategy inputs; v1 and M30 v2 are both immutable",
+  "manifests": {
+    "v1": {
+      "path": "tests/fixtures/phase3/run_p3_gold_fixture_manifest.json",
+      "sha256": "sha256:19eff1a99d407570e73fac74d3e0e00bbaf72c3c4278e6f046dcc6723adcc314"
+    },
+    "m30_v2": {
+      "path": "tests/fixtures/phase3/run_p3_m30_fixture_manifest_v2.json",
+      "sha256": "sha256:224d6c54fe0fdbf039bc5819140e9d12aa23e27e55ece5de22a5f4800b2b985b"
+    }
+  },
+  "timeframe_order": ["M1", "M15", "M30", "H1", "H4", "D1"],
+  "m30_rule": "direct_m1_30_consecutive_closed_bars_v1",
+  "approval": "H3-1 and H3-1R approved"
+}

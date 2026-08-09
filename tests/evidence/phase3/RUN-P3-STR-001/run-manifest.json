@@ -1,0 +1,24 @@
+{
+  "schema_version": "phase3-strategy-run-manifest-v1",
+  "run_id": "RUN-P3-STR-001",
+  "phase_id": "phase3",
+  "step_id": "P3-06",
+  "design_ids": ["P3-D04", "P3-D06", "P3-D07"],
+  "scope_mode": "target_only",
+  "fixture_parent": {
+    "path": "tests/fixtures/phase3/run_p3_strategy_fixture_manifest_v3.json",
+    "sha256": "sha256:4a410f7ac15837ebb9d899daecd56f0c6e45c3795d7f8db067daef80359531e0"
+  },
+  "fixture_bindings": {
+    "v1_immutable": "sha256:19eff1a99d407570e73fac74d3e0e00bbaf72c3c4278e6f046dcc6723adcc314",
+    "m30_v2_archive": "sha256:224d6c54fe0fdbf039bc5819140e9d12aa23e27e55ece5de22a5f4800b2b985b",
+    "m30_v3_executable_safety": "sha256:8674ac9f2b932acc4a6bca5a3d2037b9202cc7f61df71f7e5249c758f51bd79d",
+    "m30_v3_child": "sha256:e49f79df0a2c01df2fc73fe81ae6f7ded1747d7b9b8571061e937fc116b4a3e5"
+  },
+  "human_gate": "H3-1R改訂承認済み。実M1を連続30本必須とし、不足M30は停止する。",
+  "network_isolation_required": true,
+  "external_connection": "未使用",
+  "broker": "未使用",
+  "secret": "未使用",
+  "result": "PASS"
+}

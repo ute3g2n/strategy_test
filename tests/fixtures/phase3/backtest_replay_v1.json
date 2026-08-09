@@ -1,0 +1,17 @@
+{
+  "schema_version": "p3-backtest-replay-v1",
+  "replay_order_rule_version": "replay-order-v1",
+  "fill_profile": {
+    "profile_id": "ConservativeOHLCv1",
+    "decimal_quantum": "0.01",
+    "rounding_mode": "ROUND_DOWN_FOR_SELL_ROUND_UP_FOR_BUY"
+  },
+  "cases": [
+    {"id": "next_bar_entry", "decision_time_utc": "2026-01-05T15:00:00Z", "min_eligible_bar_open_utc": "2026-01-05T15:01:00Z", "expected_same_bar_fill": false},
+    {"id": "long_stop_gap", "open": "98.00", "stop_trigger": "100.00", "expected_fill": "98.00"},
+    {"id": "short_stop_gap", "open": "102.00", "stop_trigger": "100.00", "expected_fill": "102.00"},
+    {"id": "intrabar_ambiguous", "expected_reason": "INTRABAR_PATH_AMBIGUOUS"},
+    {"id": "future_roll", "published_at_utc": "2026-01-06T00:00:00Z", "decision_time_utc": "2026-01-05T23:59:00Z", "expected_reason": "FUTURE_CALENDAR_OR_ROLL"},
+    {"id": "replay_twice", "expected_ordered_result_match": true}
+  ]
+}

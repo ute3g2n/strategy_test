@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P3-D06 Golden / Biasテスト設計・RED固定書（P3-05R・30分足）</title>
+  <style>
+    body{font-family:"Yu Gothic UI",Meiryo,sans-serif;line-height:1.7;margin:0;color:#17212b;background:#f7f9fc}main{max-width:1200px;margin:auto;padding:28px;background:#fff}h1,h2,h3{color:#123b61}table{border-collapse:collapse;width:100%;margin:12px 0 24px}th,td{border:1px solid #c8d4df;padding:9px;vertical-align:top}th{background:#e9f2fa}.ok{color:#126b36;font-weight:bold}.red{color:#a62727;font-weight:bold}.wait{color:#8a5600;font-weight:bold}.note{background:#fff6dc;border-left:5px solid #d99a00;padding:12px}.easy{background:#eef8ef;padding:9px}.mono{font-family:Consolas,monospace;word-break:break-all}code{background:#eef2f5;padding:1px 4px}small{color:#40515e}</style>
+</head>
+<body><main>
+<p><a href="../../index.html">正式成果物一覧へ戻る</a> / <a href="../03_Strategy詳細設計/03_Strategy_Turtle実装詳細設計書.html">P3-D04</a> / <a href="../04_Backtest詳細設計/04_Backtest_Experiment実装詳細設計書.html">P3-D05</a></p>
+<h1>P3-D06 Golden / Biasテスト設計・RED固定書</h1>
+<p><strong>対象:</strong> P3-05 / RUN-P3-GOLD-001（v1・H3-1承認済み）および P3-05R / RUN-P3-M30-001（v2・H3-1R承認済み） / v0.2 / 2026-08-09</p>
+<p>この文書は、StrategyとBacktestを作る<strong>前</strong>に、固定入力・期待出力・拒否条件を先に決めた記録です。まだStrategy/Backtest本体はありません。したがって未実装APIを要求するテストがRED（失敗）なのは異常ではなく、次の実装で消してよい失敗を意図的に残したものです。</p>
+
+<h2>1. 結論と範囲</h2>
+<table><tr><th>区分</th><th>件数・状態</th><th>意味</th></tr><tr><td>既存契約を確認するGREEN</td><td class="ok">10件</td><td>親Manifestから7子fixtureまでのhash連鎖、fixtureの形式、既存MarketEventのUTC契約を確認する。P2の実装済み範囲を、Phase 3実装済みと読み替えない。</td></tr><tr><td>Strategy Golden / 入力境界</td><td class="red">41件 RED</td><td>GT-TUR-001〜035と未完成・未来・Calendar不一致・重複・時刻逆行・同時closeを、P3-06の純粋Strategy実装待ちとして固定する。</td></tr><tr><td>Backtest / Bias / Engine境界</td><td class="red">37件 RED</td><td>BT-001〜037をP3-07以降のBacktest実装待ちとして固定する。実engine、Broker、秘密情報、外部通信は使わない。</td></tr></table>
+<div class="easy"><strong>中学生でも分かる説明:</strong> 先に「問題」と「正解」を箱に入れて封をします。後から作ったプログラムの都合で答えを書き換えられないようにするためです。赤い失敗は「まだ部品を作っていない」という札であり、成功のふりをしません。</div>
+
+<h2>2. 固定fixtureとhash</h2>
+<p>親Manifest <code>tests/fixtures/phase3/run_p3_gold_fixture_manifest.json</code> のhashは <span class="mono">sha256:19eff1a99d407570e73fac74d3e0e00bbaf72c3c4278e6f046dcc6723adcc314</span> である。親Manifestは下表の全子fixture hashを保持し、テストは実ファイルを再hashして照合する。</p>
+<table><tr><th>fixture</th><th>固定するもの</th><th>SHA-256</th></tr><tr><td>turtle_golden_v1.json</td><td>GT-TUR-001〜035、Decimal文字列、Signal/Directive/Stateの期待値</td><td class="mono">571ac25dbd5f2786cde2aa5cb25f66232bdb4a4ab5e3fc3c6ff5f3e09e37a1f4</td></tr><tr><td>multi_timeframe_v1.json</td><td>1分→15分/1時間/4時間/日足、同時close、未完成・未来・重複・逆行拒否</td><td class="mono">17af6ef83ce770b275499967a28590726a3085bde0400ab7ef5498b8eb47abde</td></tr><tr><td>calendar_us_futures_v1.json</td><td>通常日、夏冬時間、休日、短縮日、日次休場</td><td class="mono">986e87fec5abd90fdbf81f485737d099131b54fb1cd1326bd7399d22aa05bdc6</td></tr><tr><td>backtest_replay_v1.json</td><td>次bar約定、Gap/Stop、コスト、Roll、再Replay</td><td class="mono">af8419125afbb22ba0754664aba989b95b2817072d83eef0f87f8268bd9c408d</td></tr><tr><td>backtest_contract_cases_v1.json</td><td>BT-001〜037ごとの入力、個別操作、期待理由・hash・公開拒否</td><td class="mono">55861db761a9d2272f235486e6ada5c4354ec2a155ba949b5f7fafc6d5df7299</td></tr><tr><td>bias_manifest_v1.json</td><td>look-ahead、未来Roll、holdout、壁時計、Manifest改ざん</td><td class="mono">1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24</td></tr><tr><td>performance_synthetic_v1.json</td><td>5市場×2024/2025、派生時間足、30分・8GiB、端末証跡schema</td><td class="mono">1000e99f8d3b75a464e5fbdc79111a58f3ed926e84b795c2df28e53c9b1aa731</td></tr></table>
+<h3>2.1 P3-05Rで新設したv2 fixture（H3-1R承認済み）</h3>
+<table><tr><th>fixture</th><th>固定するもの</th><th>SHA-256</th></tr><tr><td>run_p3_m30_fixture_manifest_v2.json</td><td>RUN-P3-M30-001の親Manifest。下の3つの子fixtureと版を束縛する。</td><td class="mono">224d6c54fe0fdbf039bc5819140e9d12aa23e27e55ece5de22a5f4800b2b985b</td></tr><tr><td>m30_strategy_v2.json</td><td>GT-TUR-036〜040。実在するv1 fixture/hashとの互換、M30設定、同時close、M1直集計の証跡、Calendar停止、snapshot文脈拒否。</td><td class="mono">116799b5fe7b0c6b96c2eae0a5e3988473a28b865f7da44e0982a1927b7379b1</td></tr><tr><td>m30_backtest_v2.json</td><td>session anchorから連続30本の確定M1を直接集計するOHLCV、source ID/hash、夏冬時間・短縮日・休日の境界。</td><td class="mono">7282ea7bda1c6701cffc2e8e1949b2b38e036b107b99d2857b1508afe51f6e08</td></tr><tr><td>m30_backtest_contract_cases_v2.json</td><td>BT-038〜042。実在するv1 fixture/hashとの互換、直接集計、Calendar停止、同時close、復旧。</td><td class="mono">a3fda8506aeba088405bcb3436aaa14957f990427f2e3dd9c0f1c8188fba63db</td></tr></table>
+<p class="easy"><strong>中学生でも分かる説明:</strong> 親Manifestは「この3冊が今回の問題集です」と示す表紙です。表紙と中の本の指紋を全部記録するので、後から1ページだけ差し替えても見つけられます。</p>
+
+<h2>3. H3-1・H3-1Rの承認状態</h2>
+<p class="ok">H3-1は2026-08-09に承認済みです。v1の<code>TargetPosition</code>、Decimal、Calendar、同時close順、<code>M15_CLOSE_CONFIRMED_V1</code>、性能fixtureは固定済みです。</p>
+<p class="ok">H3-1Rは2026-08-09に承認済みです。承認済みv1/v2 fixtureを変えずに、P3-06/P3-07でM30を含む本実装・GREEN化を開始します。</p>
+<ol><li>v2親Manifestと3つの子fixture hash、GT-TUR-036〜040、BT-038〜042の期待値。</li><li>30分足を、連続30本の確定1分足から直接作り、15分足を入力に使わない規則。</li><li>Decimal精度、tick、丸め、Calendar/session anchor。</li><li>同時close順（M1→M15→M30→H1→H4→D1）と、全View更新後にStrategyを一回だけ呼ぶ規則。</li><li>夏冬時間、休日、短縮日、日次停止、端数・欠損・重複・逆行を停止する答え。</li><li>変更時は、理由・差分・影響テスト・新hashを記録し、H3-1Rで再承認を受ける規則。</li></ol>
+<div class="easy"><strong>中学生でも分かる説明:</strong> H3-1で最初の問題集の答えは固定済みです。今回は30分足という新しい問題を足すため、古い答えを書き換えず、v2の新しい問題集だけをH3-1Rで確認します。こうすると、前に合格した問題が後から変わりません。</div>
+
+<h2>4. Strategy GoldenとBiasの固定範囲</h2>
+<table><tr><th>テストID</th><th>固定する内容</th><th>期待する状態</th></tr><tr><td>GT-TUR-001〜003</td><td>True Range、Nのwarmup、現在足を含めないDonchian、tick境界</td><td>固定Decimal結果。入力不足はSignal 0。</td></tr><tr><td>GT-TUR-004〜010</td><td>System 1/2、勝ちbreakout、55本failsafe、1分/15分近似、0.5N追加、2N stop、戦略内の上限</td><td>期待Directive/理由/状態hash。未確定値は実装しない。</td></tr><tr><td>GT-TUR-011〜017</td><td>snapshot復元、未来bar、未完成bar、同時close、Calendar・Catalog・data version不一致</td><td>復元一致、または安全停止して出力0。</td></tr><tr><td>GT-TUR-018〜035</td><td>engine型漏出禁止、外部I/O禁止、再送、重複競合、状態水位、複数0.5N、10/20本Exit、仮想Campaign、sticky停止</td><td>同じ内容の再送はno-op、内容違い・未来・競合は停止。</td></tr></table>
+
+<h2>5. Backtestの固定範囲</h2>
+<table><tr><th>テストID</th><th>固定する内容</th><th>期待する状態</th></tr><tr><td>BT-001〜006</td><td>Replay順、同時close一回判断、次bar約定、5市場の保留Directive</td><td>入力順に関係なく同じ結果。同bar新規約定は拒否。</td></tr><tr><td>BT-007〜011</td><td>Calendar/DST/端数bar、Aggregator snapshot/restore</td><td>未完成barは停止。完成済みだけを渡す。</td></tr><tr><td>BT-012〜018</td><td>保守的Gap/Stop/Limit、slippage/cost、Roll</td><td>有利な推測はしない。不明な足内順序は停止または不約定。</td></tr><tr><td>BT-019〜026</td><td>Data Gate、Manifest、holdout、改ざん、Replay、復旧</td><td>hashまたは公開時刻が合わなければ結果を公開しない。</td></tr><tr><td>BT-027〜028</td><td>5市場×2暦年の決定的性能fixture</td><td>二回のhash一致、30分・8GiBを測れるschema。P3-05では未計測。</td></tr><tr><td>BT-029〜032,036〜037</td><td>完全オフライン、engine identity、SDK漏出なし、Fake Adapter成功</td><td>SDKなしの共通DTO成功は許可。外部通信・未固定依存・外部pathは停止。</td></tr><tr><td>BT-033〜035</td><td>cohort、公開時刻、総合Replay</td><td>未来Calendar/Rollを見ない。順序付き出力hashが一致。</td></tr></table>
+
+<h2>6. P3-AC追跡表</h2>
+<table><tr><th>合格条件</th><th>テスト</th><th>fixture / 証跡</th><th>GREEN化担当</th></tr><tr><td>P3-AC-01</td><td>BT-001〜003,005,007,033,035</td><td>multi_timeframe / calendar / acceptance-traceability.json</td><td>P3-07</td></tr><tr><td>P3-AC-02</td><td>BT-004,006,008,014,018,020,023〜025 + GT-012〜017,023,028,035</td><td>bias / golden / red-test-result.json</td><td>P3-06, P3-07</td></tr><tr><td>P3-AC-03</td><td>BT-005,007,009,033 + GT-013,015,016,027</td><td>calendar / multi_timeframe</td><td>P3-07, P3-08</td></tr><tr><td>P3-AC-04</td><td>BT-001,010〜019,021,026,034,035 + GT-011,022,025,029</td><td>backtest_replay / bias</td><td>P3-07</td></tr><tr><td>P3-AC-05</td><td>BT-030〜032,036 + GT-018</td><td>bias / engine boundary evidence</td><td>P3-06, P3-07</td></tr><tr><td>P3-AC-06</td><td>BT-022,026,029,037 + GT-024</td><td>preflight.json / offline evidence</td><td>P3-07, P3-08A</td></tr><tr><td>P3-AC-07</td><td>BT-027〜028</td><td>performance fixture / performance evidence</td><td>P3-07</td></tr><tr><td>P3-AC-08</td><td>GT-TUR-001〜035 + BT-005,006,026</td><td>golden fixture / RED-GREEN evidence</td><td>P3-06, P3-07</td></tr></table>
+
+<h3>6.1 P3-05Rの追加RED試験</h3>
+<table><tr><th>ID</th><th>問題内容</th><th>修正方針・GREEN化する実装</th></tr><tr><td>GT-TUR-036</td><td>実在するv1 fixture/hashを使い、M30を無効にした既存v1が変わらず、有効な<code>INDICATOR</code>、<code>REGIME</code>、<code>TRIGGER</code>の各設定でだけM30のState/Watermarkが増えること。<br><br><strong>中学生でも分かる説明:</strong> 「前と同じ」と書いた紙ではなく、本当に前の問題集を使って比べます。30分足を使わない設定なら、今までの15分・1時間の答えが勝手に変わってはいけません。</td><td>P3-06でM30設定を明示し、無効時はM30を期待集合・hash材料から除外する。</td></tr><tr><td>GT-TUR-037</td><td>M15/M30/H1/H4/D1が同時に閉じても、一度だけ判断すること。<br><br><strong>中学生でも分かる説明:</strong> 同じ時刻に通知が何枚来ても、同じ売買の考えを何回も出しません。</td><td>P3-06で正規順をM1→M15→M30→H1→H4→D1に固定し、全View更新後に一回だけStrategyを呼ぶ。</td></tr><tr><td>GT-TUR-038</td><td>M30が連続30本のM1から直接作られ、OHLCV・source ID/hashが一致し、M15を材料にしないこと。<br><br><strong>中学生でも分かる説明:</strong> 30分の表は1分の記録30枚から作り、15分の表を2枚貼り合わせてごまかしません。</td><td>P3-06/P3-07でsource_event_idsとhashを検証し、29本・31本・非連続・M15入力を拒否する。</td></tr><tr><td>GT-TUR-039</td><td>DST、休日、短縮日、端数、欠損、重複、逆行ではM30を渡さず停止すること。</td><td>P3-06/P3-07でCalendarとM30入力検証を結合し、理由を消さずSignal 0にする。</td></tr><tr><td>GT-TUR-040</td><td>M30のsnapshot/Manifest文脈が違えば復元・判断を拒否すること。</td><td>P3-06でM30 watermarkと版をsnapshotに束縛する。</td></tr><tr><td>BT-038〜042</td><td>直接集計、Calendar停止、同時close、復旧、実在するv1 fixture/hashとの互換性をBacktest側で確認する。</td><td>P3-07で<code>aggregate_m30</code>、cohort、復旧、v1互換性検証を実装する。H3-1R承認前は通常REDのまま残す。</td></tr></table>
+<p class="easy"><strong>中学生でも分かる説明:</strong> Strategyの問題とBacktestの問題は、同じ30分足を別の角度から確かめます。一方だけ合格しても、もう一方が違う答えなら完成ではありません。</p>
+
+<h2>7. Run、品質ゲート、証跡</h2>
+<p><code>scripts/quality_gate/trusted_scopes.json</code> に <code>RUN-P3-GOLD-001</code> を新規登録した。対象はP3-05のテスト・fixture・品質gateだけで、既存RunのManifestは流用しない。固定4 Gateはformatter、lint、type、固定P3 pytest wrapperである。H3-1は2026-08-09に承認済みで、承認記録を証跡へ保存した。</p>
+<p class="note"><strong>重要:</strong> REDを固定する段階なので、固定pytest Gateが失敗するのは予定どおりです。これは品質Gateの合格を主張するものではありません。formatter/lint/typeは合格を確認し、REDは <code>red-test-result.json</code> に「未実装境界」として記録する。30分足を足すP3-05Rではv2 fixtureとH3-1Rを追加し、その再承認後にP3-06/P3-07で対象REDだけをGREENへ変える。</p>
+<ul><li>証跡先: <code>tests/evidence/phase3/RUN-P3-GOLD-001/</code></li><li>必須: run-manifest、fixture-integrity、preflight、red-test-result、local-quality-gates、acceptance-traceability、Pythonレビュー、取引安全レビュー。</li><li>禁止: 外部接続、Broker、Secret、実engine、実データ取得、現在時刻を期待値に入れること。</li></ul>
+
+<h2>8. 未実装境界と次の作業</h2>
+<p>Strategyの純粋計算・状態・snapshotはP3-06、時間足集約・仮想約定・Manifest・ResultStoreはP3-07で実装する。P3-05では利益、採用判断、実engineの優劣は判定しない。</p>
+<p class="ok">H3-1とH3-1Rは承認済みです。承認済みv1/v2 fixture/hashを変えずに、30分足を含むP3-06/P3-07を開始できます。</p>
+
+<h2>9. レビュー履歴</h2>
+<table><tr><th>担当</th><th>判定</th><th>確認内容</th></tr><tr><td>A30</td><td>反映済み</td><td>GT-TUR-001〜035を全固定対象に拡張し、H3-1の承認材料とP3-AC対応を追記。</td></tr><tr><td>A130</td><td>反映済み</td><td>新規trusted scope、固定P3 pytest wrapper、親Manifestで子fixture hashを束縛する方針を反映。</td></tr><tr><td>A150</td><td>再レビュー完了</td><td>テストの「期待答えをそのまま渡す」抜け道、Backtestの総当たり呼出し、skip/xfailを確認した。個別API呼出し・子fixture対応・収集時を含むskip拒否へ直し、Critical 0 / High 0。</td></tr><tr><td>A160</td><td>再レビュー完了</td><td>fixtureに答えを混ぜる抜け道、H3-1前の実装開始、外部接続を確認した。H3-1承認済みの記録後も、実OS隔離の成功は主張しない。30分足の追加分はP3-05R/H3-1Rで再確認するため、Critical 0 / High 0。</td></tr><tr><td>P3-05R 最終レビュー（A90 / A91 / A150 / A160）</td><td>受入可（Critical 0 / High 0 / Medium 0）</td><td>GT-TUR-036〜040、BT-038〜042、v1互換、direct M1→M30、Calendar境界、Snapshot、普通のRED、H3-1R前の実装禁止を再確認した。<br><br><strong>やさしい説明:</strong> 30分足の追加で、昔の15分以上の設定を壊さず、30枚の1分記録をそろえた場合だけ次へ進むことを、テストと設計書の両方で確認した。</td></tr></table>
+  <section class="note" id="p3-06-current-status">
+    <h2>現在状態の上書き（2026-08-09）</h2>
+    <p>H3-1R改訂は承認済みである。v2は不変の履歴として保存し、v3では実M1を連続30本必須、不足M30を停止する。P3-06によりStrategy側のGolden・入力境界・M30 v3・Snapshot・同時close・TargetPositionの固定テストはGREEN化した。Backtest/Bias/Engine境界のREDはP3-07以降の未実装範囲として残る。</p>
+    <p><small>やさしい説明: 戦略プログラム用の問題は答え合わせできました。まだ作っていないBacktest用の問題は、次の作業まで赤いまま残します。</small></p>
+  </section>
+</main></body></html>

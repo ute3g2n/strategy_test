@@ -1,0 +1,58 @@
+{
+  "schema_version": "p3-m30-backtest-fixture-v2",
+  "fixture_hash_scope": "utf-8-json-bytes-without-generated-at",
+  "fixture_status": "PROPOSED_FOR_H3_1R",
+  "binding": {
+    "calendar_version": "us-futures-fixture-v1",
+    "timeframe_rule_version": "timeframe-calendar-anchor-m30-direct-m1-v2",
+    "ordering_rule_version": "m1-m15-m30-h1-h4-d1-v2",
+    "source_rule": "M30 is directly aggregated from exactly 30 consecutive closed BAR_1M records; M15 output is never an input."
+  },
+  "session_anchor": {"session_open_utc": "2026-01-05T23:00:00Z", "m30_open_utc": "2026-01-05T23:00:00Z", "m30_close_utc": "2026-01-05T23:30:00Z"},
+  "source_event_ids": ["evt-m1-000", "evt-m1-001", "evt-m1-002", "evt-m1-003", "evt-m1-004", "evt-m1-005", "evt-m1-006", "evt-m1-007", "evt-m1-008", "evt-m1-009", "evt-m1-010", "evt-m1-011", "evt-m1-012", "evt-m1-013", "evt-m1-014", "evt-m1-015", "evt-m1-016", "evt-m1-017", "evt-m1-018", "evt-m1-019", "evt-m1-020", "evt-m1-021", "evt-m1-022", "evt-m1-023", "evt-m1-024", "evt-m1-025", "evt-m1-026", "evt-m1-027", "evt-m1-028", "evt-m1-029"],
+  "source_event_ids_sha256": "sha256:f3a02f9b1ed01ceabeefa8ecc479fa5ccebf34afef34acc6494d3fe21669207e",
+  "direct_m1_bars": [
+    {"open_time_utc": "2026-01-05T23:00:00Z", "close_time_utc": "2026-01-05T23:01:00Z", "is_closed": true, "open": "100.00", "high": "100.30", "low": "99.80", "close": "100.10", "volume": "1"},
+    {"open_time_utc": "2026-01-05T23:01:00Z", "close_time_utc": "2026-01-05T23:02:00Z", "is_closed": true, "open": "100.10", "high": "100.40", "low": "99.90", "close": "100.20", "volume": "2"},
+    {"open_time_utc": "2026-01-05T23:02:00Z", "close_time_utc": "2026-01-05T23:03:00Z", "is_closed": true, "open": "100.20", "high": "100.50", "low": "100.00", "close": "100.30", "volume": "3"},
+    {"open_time_utc": "2026-01-05T23:03:00Z", "close_time_utc": "2026-01-05T23:04:00Z", "is_closed": true, "open": "100.30", "high": "100.60", "low": "100.10", "close": "100.40", "volume": "4"},
+    {"open_time_utc": "2026-01-05T23:04:00Z", "close_time_utc": "2026-01-05T23:05:00Z", "is_closed": true, "open": "100.40", "high": "100.70", "low": "100.20", "close": "100.50", "volume": "5"},
+    {"open_time_utc": "2026-01-05T23:05:00Z", "close_time_utc": "2026-01-05T23:06:00Z", "is_closed": true, "open": "100.50", "high": "100.80", "low": "100.30", "close": "100.60", "volume": "6"},
+    {"open_time_utc": "2026-01-05T23:06:00Z", "close_time_utc": "2026-01-05T23:07:00Z", "is_closed": true, "open": "100.60", "high": "100.90", "low": "100.40", "close": "100.70", "volume": "7"},
+    {"open_time_utc": "2026-01-05T23:07:00Z", "close_time_utc": "2026-01-05T23:08:00Z", "is_closed": true, "open": "100.70", "high": "101.00", "low": "100.50", "close": "100.80", "volume": "8"},
+    {"open_time_utc": "2026-01-05T23:08:00Z", "close_time_utc": "2026-01-05T23:09:00Z", "is_closed": true, "open": "100.80", "high": "101.10", "low": "100.60", "close": "100.90", "volume": "9"},
+    {"open_time_utc": "2026-01-05T23:09:00Z", "close_time_utc": "2026-01-05T23:10:00Z", "is_closed": true, "open": "100.90", "high": "101.20", "low": "100.70", "close": "101.00", "volume": "10"},
+    {"open_time_utc": "2026-01-05T23:10:00Z", "close_time_utc": "2026-01-05T23:11:00Z", "is_closed": true, "open": "101.00", "high": "101.30", "low": "100.80", "close": "101.10", "volume": "11"},
+    {"open_time_utc": "2026-01-05T23:11:00Z", "close_time_utc": "2026-01-05T23:12:00Z", "is_closed": true, "open": "101.10", "high": "101.40", "low": "100.90", "close": "101.20", "volume": "12"},
+    {"open_time_utc": "2026-01-05T23:12:00Z", "close_time_utc": "2026-01-05T23:13:00Z", "is_closed": true, "open": "101.20", "high": "101.50", "low": "101.00", "close": "101.30", "volume": "13"},
+    {"open_time_utc": "2026-01-05T23:13:00Z", "close_time_utc": "2026-01-05T23:14:00Z", "is_closed": true, "open": "101.30", "high": "101.60", "low": "101.10", "close": "101.40", "volume": "14"},
+    {"open_time_utc": "2026-01-05T23:14:00Z", "close_time_utc": "2026-01-05T23:15:00Z", "is_closed": true, "open": "101.40", "high": "101.70", "low": "101.20", "close": "101.50", "volume": "15"},
+    {"open_time_utc": "2026-01-05T23:15:00Z", "close_time_utc": "2026-01-05T23:16:00Z", "is_closed": true, "open": "101.50", "high": "101.80", "low": "101.30", "close": "101.60", "volume": "16"},
+    {"open_time_utc": "2026-01-05T23:16:00Z", "close_time_utc": "2026-01-05T23:17:00Z", "is_closed": true, "open": "101.60", "high": "101.90", "low": "101.40", "close": "101.70", "volume": "17"},
+    {"open_time_utc": "2026-01-05T23:17:00Z", "close_time_utc": "2026-01-05T23:18:00Z", "is_closed": true, "open": "101.70", "high": "102.00", "low": "101.50", "close": "101.80", "volume": "18"},
+    {"open_time_utc": "2026-01-05T23:18:00Z", "close_time_utc": "2026-01-05T23:19:00Z", "is_closed": true, "open": "101.80", "high": "102.10", "low": "101.60", "close": "101.90", "volume": "19"},
+    {"open_time_utc": "2026-01-05T23:19:00Z", "close_time_utc": "2026-01-05T23:20:00Z", "is_closed": true, "open": "101.90", "high": "102.20", "low": "101.70", "close": "102.00", "volume": "20"},
+    {"open_time_utc": "2026-01-05T23:20:00Z", "close_time_utc": "2026-01-05T23:21:00Z", "is_closed": true, "open": "102.00", "high": "102.30", "low": "101.80", "close": "102.10", "volume": "21"},
+    {"open_time_utc": "2026-01-05T23:21:00Z", "close_time_utc": "2026-01-05T23:22:00Z", "is_closed": true, "open": "102.10", "high": "102.40", "low": "101.90", "close": "102.20", "volume": "22"},
+    {"open_time_utc": "2026-01-05T23:22:00Z", "close_time_utc": "2026-01-05T23:23:00Z", "is_closed": true, "open": "102.20", "high": "102.50", "low": "102.00", "close": "102.30", "volume": "23"},
+    {"open_time_utc": "2026-01-05T23:23:00Z", "close_time_utc": "2026-01-05T23:24:00Z", "is_closed": true, "open": "102.30", "high": "102.60", "low": "102.10", "close": "102.40", "volume": "24"},
+    {"open_time_utc": "2026-01-05T23:24:00Z", "close_time_utc": "2026-01-05T23:25:00Z", "is_closed": true, "open": "102.40", "high": "102.70", "low": "102.20", "close": "102.50", "volume": "25"},
+    {"open_time_utc": "2026-01-05T23:25:00Z", "close_time_utc": "2026-01-05T23:26:00Z", "is_closed": true, "open": "102.50", "high": "102.80", "low": "102.30", "close": "102.60", "volume": "26"},
+    {"open_time_utc": "2026-01-05T23:26:00Z", "close_time_utc": "2026-01-05T23:27:00Z", "is_closed": true, "open": "102.60", "high": "102.90", "low": "102.40", "close": "102.70", "volume": "27"},
+    {"open_time_utc": "2026-01-05T23:27:00Z", "close_time_utc": "2026-01-05T23:28:00Z", "is_closed": true, "open": "102.70", "high": "103.00", "low": "102.50", "close": "102.80", "volume": "28"},
+    {"open_time_utc": "2026-01-05T23:28:00Z", "close_time_utc": "2026-01-05T23:29:00Z", "is_closed": true, "open": "102.80", "high": "103.10", "low": "102.60", "close": "102.90", "volume": "29"},
+    {"open_time_utc": "2026-01-05T23:29:00Z", "close_time_utc": "2026-01-05T23:30:00Z", "is_closed": true, "open": "102.90", "high": "103.20", "low": "102.70", "close": "103.00", "volume": "30"}
+  ],
+  "expected_normal_m30": {"timeframe": "M30", "open_time_utc": "2026-01-05T23:00:00Z", "close_time_utc": "2026-01-05T23:30:00Z", "is_closed": true, "source_bar_kind": "BAR_1M", "source_bar_count": 30, "open": "100.00", "high": "103.20", "low": "99.80", "close": "103.00", "volume": "465"},
+  "calendar_edge_cases": {
+    "dst_start": {"session_open_utc": "2026-03-08T22:00:00Z", "m30_open_utc": "2026-03-08T22:00:00Z", "expected": "SESSION_ANCHOR_ACCEPTED"},
+    "short_day_remainder": {"session_open_utc": "2026-11-26T23:00:00Z", "session_close_utc": "2026-11-27T18:45:00Z", "partial_minutes": 15, "expected": {"status": "STOPPED", "reason": "PARTIAL_BAR_REJECTED"}},
+    "holiday": {"business_date": "2026-12-25", "closed": true, "expected": {"status": "STOPPED", "reason": "CALENDAR_BOUNDARY_INVALID"}}
+  },
+  "rejection_cases": {
+    "missing_m1": {"received_count": 29, "expected_count": 30, "expected": {"status": "STOPPED", "reason": "PARTIAL_BAR_REJECTED"}},
+    "duplicate_m1": {"received_count": 30, "duplicate_open_time_utc": "2026-01-05T23:10:00Z", "expected": {"status": "STOPPED", "reason": "DUPLICATE_1M_CONFLICT"}},
+    "out_of_order_m1": {"received_count": 30, "reversed_pair": ["2026-01-05T23:11:00Z", "2026-01-05T23:10:00Z"], "expected": {"status": "STOPPED", "reason": "OUT_OF_ORDER"}},
+    "outside_anchor_range": {"first_open_time_utc": "2026-01-05T23:01:00Z", "expected": {"status": "STOPPED", "reason": "CALENDAR_BOUNDARY_INVALID"}}
+  }
+}

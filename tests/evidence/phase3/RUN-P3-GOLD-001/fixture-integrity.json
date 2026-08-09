@@ -1,0 +1,7 @@
+{
+  "run_id": "RUN-P3-GOLD-001",
+  "parent_manifest_sha256": "sha256:19eff1a99d407570e73fac74d3e0e00bbaf72c3c4278e6f046dcc6723adcc314",
+  "child_hashes_verified": true,
+  "children": 7,
+  "verification": "tests/strategy/test_strategy_fixture_contract.py and tests/backtest/test_backtest_fixture_contract.py"
+}

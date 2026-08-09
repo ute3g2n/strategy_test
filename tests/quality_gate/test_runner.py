@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
-from scripts.quality_gate import local_p2_pytest, run_quality_gate
+from scripts.quality_gate import local_p2_pytest, local_p3_pytest, run_quality_gate
 from scripts.quality_gate.runner import (
     ChangeRecord,
     CommandResult,
@@ -124,6 +124,29 @@ def successful_executor() -> FakeExecutor:
         (".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/market_data", "tests/market_data"),
         (".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/market_data"),
         (".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p2_pytest"),
+        (
+            ".venv/Scripts/python.exe",
+            "-m",
+            "ruff",
+            "format",
+            "--check",
+            "scripts/quality_gate",
+            "tests/quality_gate",
+            "tests/strategy",
+            "tests/backtest",
+        ),
+        (
+            ".venv/Scripts/python.exe",
+            "-m",
+            "ruff",
+            "check",
+            "scripts/quality_gate",
+            "tests/quality_gate",
+            "tests/strategy",
+            "tests/backtest",
+        ),
+        (".venv/Scripts/python.exe", "-m", "mypy", "scripts/quality_gate"),
+        (".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_pytest"),
     }
     return FakeExecutor(
         results={command: CommandResult(exit_code=0, duration_ms=1) for command in commands},
@@ -565,3 +588,149 @@ def test_p2_pytest_wrapper_has_a_fixed_market_data_target(monkeypatch: pytest.Mo
     monkeypatch.setitem(sys.modules, "pytest", FakePytest)
 
     assert local_p2_pytest.main() == 0
+
+
+def test_p3_pytest_wrapper_has_only_fixed_strategy_and_backtest_targets(monkeypatch: pytest.MonkeyPatch) -> None:
+    class FakePytest:
+        @staticmethod
+        def main(args: list[str], plugins: list[object]) -> int:
+            assert args == ["tests/strategy", "tests/backtest", "--runxfail", "-q"]
+            assert len(plugins) == 1
+            return 0
+
+    monkeypatch.setitem(sys.modules, "pytest", FakePytest)
+
+    assert local_p3_pytest.main() == 0
+
+
+def test_p3_wrapper_marks_collection_or_execution_skip_as_invalid() -> None:
+    class SkippedReport:
+        outcome = "skipped"
+
+    plugin = local_p3_pytest._NoSkipPlugin()
+    plugin.pytest_collectreport(SkippedReport())
+    plugin.pytest_runtest_logreport(SkippedReport())
+
+    assert plugin.skipped is True
+
+
+def test_p3_strategy_wrapper_has_only_the_fixed_strategy_target(monkeypatch: pytest.MonkeyPatch) -> None:
+    from scripts.quality_gate import local_p3_strategy_pytest
+
+    class FakePytest:
+        @staticmethod
+        def main(args: list[str], plugins: list[object]) -> int:
+            assert args == ["tests/strategy", "--runxfail", "-q"]
+            assert len(plugins) == 1
+            return 0
+
+    monkeypatch.setitem(sys.modules, "pytest", FakePytest)
+
+    assert local_p3_strategy_pytest.main() == 0
+
+
+def test_p3_fixed_test_template_is_allowed_only_inside_declared_targets(tmp_path: Path) -> None:
+    executor = successful_executor()
+    registry_path = tmp_path / "scripts" / "quality_gate" / "trusted_scopes.json"
+    registry_path.parent.mkdir(parents=True)
+    shutil.copy(PROJECT_ROOT / "scripts" / "quality_gate" / "trusted_scopes.json", registry_path)
+    fixture_path = tmp_path / "tests" / "fixtures" / "phase3" / "run_p3_gold_fixture_manifest.json"
+    fixture_path.parent.mkdir(parents=True)
+    shutil.copy(PROJECT_ROOT / "tests" / "fixtures" / "phase3" / "run_p3_gold_fixture_manifest.json", fixture_path)
+    p3_checks = [
+        {
+            "gate": "formatter",
+            "command": [
+                ".venv/Scripts/python.exe",
+                "-m",
+                "ruff",
+                "format",
+                "--check",
+                "scripts/quality_gate",
+                "tests/quality_gate",
+                "tests/strategy",
+                "tests/backtest",
+            ],
+        },
+        {
+            "gate": "lint",
+            "command": [
+                ".venv/Scripts/python.exe",
+                "-m",
+                "ruff",
+                "check",
+                "scripts/quality_gate",
+                "tests/quality_gate",
+                "tests/strategy",
+                "tests/backtest",
+            ],
+        },
+        {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "scripts/quality_gate"]},
+        {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_pytest"]},
+    ]
+    p3_manifest = manifest(
+        tmp_path,
+        run_id="RUN-P3-GOLD-001",
+        phase_id="phase3",
+        step_id="P3-05",
+        requirements=["P3-AC-01", "P3-AC-02", "P3-AC-03", "P3-AC-04", "P3-AC-05", "P3-AC-06", "P3-AC-07", "P3-AC-08"],
+        design="P3-D04-P3-D05-P3-D06",
+        component_lifecycle_orchestrator="AutoTradeComponentLifecycle_Orchestrator_v0_1",
+        input_fixture={
+            "name": "run_p3_gold_fixture_manifest.json",
+            "version": "p3-gold-fixture-manifest-v1",
+            "checksum": "sha256:19eff1a99d407570e73fac74d3e0e00bbaf72c3c4278e6f046dcc6723adcc314",
+        },
+        change_hash="sha256:" + ("a" * 64),
+        target_paths=[
+            "scripts/quality_gate",
+            "tests/quality_gate",
+            "tests/strategy",
+            "tests/backtest",
+            "tests/fixtures/strategy",
+            "tests/fixtures/phase3",
+        ],
+        excluded_paths=[".env", "third_party/everything-claude-code", "research", "E:/strategy_test_data"],
+        scope_mode="target_only",
+        unknowns=[],
+        checks=p3_checks,
+    )
+
+    result = runner(tmp_path, executor).run(p3_manifest, dry_run=True)
+
+    assert result.state == "DRY_RUN"
+    assert len(result.gates) == 4
+
+
+def test_p3_m30_scope_is_h3_1r_gated_and_pins_its_v2_parent_fixture() -> None:
+    registry = json.loads(
+        (PROJECT_ROOT / "scripts" / "quality_gate" / "trusted_scopes.json").read_text(encoding="utf-8")
+    )
+    scope = registry["scopes"]["RUN-P3-M30-001"]
+
+    assert scope["phase_id"] == "phase3"
+    assert scope["step_id"] == "P3-05R"
+    assert scope["fixture"] == {
+        "path": "tests/fixtures/phase3/run_p3_m30_fixture_manifest_v2.json",
+        "name": "run_p3_m30_fixture_manifest_v2.json",
+        "version": "p3-m30-fixture-manifest-v2",
+        "checksum": "sha256:224d6c54fe0fdbf039bc5819140e9d12aa23e27e55ece5de22a5f4800b2b985b",
+    }
+    assert scope["unknowns"] == []
+    assert scope["network_isolation_required"] is True
+    assert [check["gate"] for check in scope["checks"]] == ["formatter", "lint", "type", "test"]
+
+
+def test_p3_strategy_scope_pins_the_approved_v1_v2_archive_and_v3_safety_manifest() -> None:
+    registry = json.loads(
+        (PROJECT_ROOT / "scripts" / "quality_gate" / "trusted_scopes.json").read_text(encoding="utf-8")
+    )
+    scope = registry["scopes"]["RUN-P3-STR-001"]
+
+    assert scope["phase_id"] == "phase3"
+    assert scope["step_id"] == "P3-06"
+    assert scope["fixture"]["path"] == "tests/fixtures/phase3/run_p3_strategy_fixture_manifest_v3.json"
+    assert scope["fixture"]["checksum"] == "sha256:4a410f7ac15837ebb9d899daecd56f0c6e45c3795d7f8db067daef80359531e0"
+    assert scope["unknowns"] == []
+    assert "src/autotrade/strategy" in scope["target_paths"]
+    assert [check["gate"] for check in scope["checks"]] == ["formatter", "lint", "type", "test"]

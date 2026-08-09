@@ -1,0 +1,12 @@
+{
+  "run_id": "RUN-P3-M30-001",
+  "command": ".venv/Scripts/python.exe -m pytest tests/strategy/test_turtle_m30_red_contract.py tests/backtest/test_backtest_m30_red_contract.py -q",
+  "result": "EXPECTED_RED",
+  "green": 0,
+  "red": 10,
+  "red_is_not_a_quality_gate_pass": true,
+  "strategy_red": {"ids": ["GT-TUR-036", "GT-TUR-037", "GT-TUR-038", "GT-TUR-039", "GT-TUR-040"], "implementation_step": "P3-06", "missing_modules": ["autotrade.strategy.service", "autotrade.strategy.snapshot"]},
+  "backtest_red": {"ids": ["BT-038", "BT-039", "BT-040", "BT-041", "BT-042"], "implementation_step": "P3-07", "missing_modules": ["autotrade.backtest.timeframe_aggregator"]},
+  "prohibited_shortcuts": ["pytest skip", "pytest xfail", "pytest importorskip", "M15をM30入力に使うこと", "fixture answer passed to operation", "external I/O", "Broker", "Secret", "real engine"],
+  "next_condition": "H3-1Rでv2 fixtureを承認後、P3-06/P3-07で通常REDをGREENにする。"
+}

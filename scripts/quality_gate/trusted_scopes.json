@@ -172,6 +172,126 @@
         {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p2_pytest"]}
       ]
     },
+    "RUN-P3-GOLD-001": {
+      "phase_id": "phase3",
+      "step_id": "P3-05",
+      "design": "P3-D04-P3-D05-P3-D06",
+      "requirements": ["P3-AC-01", "P3-AC-02", "P3-AC-03", "P3-AC-04", "P3-AC-05", "P3-AC-06", "P3-AC-07", "P3-AC-08"],
+      "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+      "target_paths": ["scripts/quality_gate", "tests/quality_gate", "tests/strategy", "tests/backtest", "tests/fixtures/strategy", "tests/fixtures/phase3"],
+      "excluded_paths": [".env", "third_party/everything-claude-code", "research", "E:/strategy_test_data"],
+      "fixture": {
+        "path": "tests/fixtures/phase3/run_p3_gold_fixture_manifest.json",
+        "name": "run_p3_gold_fixture_manifest.json",
+        "version": "p3-gold-fixture-manifest-v1",
+        "checksum": "sha256:19eff1a99d407570e73fac74d3e0e00bbaf72c3c4278e6f046dcc6723adcc314"
+      },
+      "baseline_ref": "HEAD",
+      "scope_mode": "target_only",
+      "unknowns": [],
+      "network_isolation_required": true,
+      "checks": [
+        {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "scripts/quality_gate", "tests/quality_gate", "tests/strategy", "tests/backtest"]},
+        {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "scripts/quality_gate", "tests/quality_gate", "tests/strategy", "tests/backtest"]},
+        {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "scripts/quality_gate"]},
+        {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_pytest"]}
+      ]
+    },
+    "RUN-P3-M30-001": {
+      "phase_id": "phase3",
+      "step_id": "P3-05R",
+      "design": "P3-D02-P3-D04-P3-D05-P3-D06",
+      "requirements": ["P3-AC-01", "P3-AC-02", "P3-AC-03", "P3-AC-04", "P3-AC-08"],
+      "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+      "target_paths": ["scripts/quality_gate", "tests/quality_gate", "tests/strategy", "tests/backtest", "tests/fixtures/strategy", "tests/fixtures/phase3"],
+      "excluded_paths": [".env", "third_party/everything-claude-code", "research", "E:/strategy_test_data"],
+      "fixture": {
+        "path": "tests/fixtures/phase3/run_p3_m30_fixture_manifest_v2.json",
+        "name": "run_p3_m30_fixture_manifest_v2.json",
+        "version": "p3-m30-fixture-manifest-v2",
+        "checksum": "sha256:224d6c54fe0fdbf039bc5819140e9d12aa23e27e55ece5de22a5f4800b2b985b"
+      },
+      "baseline_ref": "HEAD",
+      "scope_mode": "target_only",
+      "unknowns": [],
+      "network_isolation_required": true,
+      "checks": [
+        {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "scripts/quality_gate", "tests/quality_gate", "tests/strategy", "tests/backtest"]},
+        {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "scripts/quality_gate", "tests/quality_gate", "tests/strategy", "tests/backtest"]},
+        {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "scripts/quality_gate"]},
+        {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_pytest"]}
+      ]
+    },
+    "RUN-P3-STR-001": {
+      "phase_id": "phase3",
+      "step_id": "P3-06",
+      "design": "P3-D04-P3-D06-P3-D07",
+      "requirements": ["P3-AC-02", "P3-AC-05", "P3-AC-08"],
+      "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+      "target_paths": [
+        "src/autotrade/strategy",
+        "scripts/quality_gate",
+        "tests/quality_gate",
+        "tests/strategy",
+        "tests/fixtures/strategy",
+        "tests/fixtures/phase3"
+      ],
+      "excluded_paths": [".env", "third_party/everything-claude-code", "research", "E:/strategy_test_data"],
+      "fixture": {
+        "path": "tests/fixtures/phase3/run_p3_strategy_fixture_manifest_v3.json",
+        "name": "run_p3_strategy_fixture_manifest_v3.json",
+        "version": "p3-strategy-fixture-manifest-v3",
+        "checksum": "sha256:4a410f7ac15837ebb9d899daecd56f0c6e45c3795d7f8db067daef80359531e0"
+      },
+      "baseline_ref": "HEAD",
+      "scope_mode": "target_only",
+      "unknowns": [],
+      "network_isolation_required": true,
+      "checks": [
+        {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/strategy", "scripts/quality_gate", "tests/quality_gate", "tests/strategy"]},
+        {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/strategy", "scripts/quality_gate", "tests/quality_gate", "tests/strategy"]},
+        {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/strategy", "scripts/quality_gate"]},
+        {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_strategy_pytest"]}
+      ]
+    },
+    "RUN-P3-BT-001": {
+      "phase_id": "phase3",
+      "step_id": "P3-07",
+      "design": "P3-D05-P3-D06-P3-D08",
+      "requirements": ["P3-AC-01", "P3-AC-02", "P3-AC-03", "P3-AC-04", "P3-AC-05", "P3-AC-06", "P3-AC-07", "P3-AC-08"],
+      "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+      "target_paths": [
+        "src/autotrade/backtest",
+        "src/autotrade/strategy",
+        "scripts/quality_gate",
+        "tests/quality_gate",
+        "tests/backtest",
+        "tests/strategy",
+        "tests/fixtures/phase3",
+        "tests/fixtures/strategy"
+      ],
+      "excluded_paths": [".env", "third_party/everything-claude-code", "research", "E:/strategy_test_data"],
+      "fixture": {
+        "path": "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json",
+        "name": "run_p3_backtest_fixture_manifest_v1.json",
+        "version": "p3-backtest-fixture-manifest-v1",
+        "checksum": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4"
+      },
+      "baseline_ref": "HEAD",
+      "scope_mode": "target_only",
+      "unknowns": [],
+      "network_isolation_required": true,
+      "checks": [
+        {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
+        {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
+        {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate"]},
+        {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_pytest"]}
+      ]
+    },
     "RUN-P2-RPL-001": {
       "phase_id": "phase2",
       "step_id": "P2-09",

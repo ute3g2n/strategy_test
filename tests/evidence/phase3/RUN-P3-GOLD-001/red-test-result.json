@@ -1,0 +1,11 @@
+{
+  "run_id": "RUN-P3-GOLD-001",
+  "command": ".venv/Scripts/python.exe -m scripts.quality_gate.local_p3_pytest",
+  "result": "EXPECTED_RED",
+  "green": 10,
+  "red": 78,
+  "red_is_not_a_quality_gate_pass": true,
+  "strategy_red": {"count": 41, "implementation_step": "P3-06", "missing_modules": ["autotrade.strategy.indicators", "autotrade.strategy.turtle_rules", "autotrade.strategy.service", "autotrade.strategy.snapshot", "autotrade.strategy.contracts"]},
+  "backtest_red": {"count": 37, "implementation_step": "P3-07", "missing_modules": ["autotrade.backtest.replay_order", "autotrade.backtest.timeframe_aggregator", "autotrade.backtest.calendar_port", "autotrade.backtest.snapshot", "autotrade.backtest.fill_model", "autotrade.backtest.cost_model", "autotrade.backtest.roll_model", "autotrade.backtest.experiment_manifest", "autotrade.backtest.experiment_plan", "autotrade.backtest.result_store", "autotrade.backtest.engine_adapter", "autotrade.backtest.simulator"]},
+  "prohibited_shortcuts": ["pytest skip", "pytest xfail", "pytest importorskip", "fixture answer passed to operation", "external I/O", "Broker", "Secret", "real engine"]
+}

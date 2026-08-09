@@ -1,0 +1,9 @@
+{
+  "run_id": "RUN-P3-BT-001",
+  "parent_manifest": "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json",
+  "parent_sha256": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+  "children_verified": true,
+  "child_count": 10,
+  "status": "PASS",
+  "note": "子fixtureのhashを親Manifestへ束縛して確認した。実データやSecretは含めない。"
+}

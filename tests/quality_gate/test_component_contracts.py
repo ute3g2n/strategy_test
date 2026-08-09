@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[2]
 ECC_COMMIT = "623f2c020f052319657674e4e6c29ab5d0ad566b"
 AGENTS = {

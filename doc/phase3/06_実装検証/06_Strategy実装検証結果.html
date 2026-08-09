@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>P3-D07 Strategy実装・検証結果</title>
+  <style>
+    body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.75;max-width:1120px;margin:28px auto;padding:0 22px;color:#1f2937} h1,h2{color:#123b63}.ok{color:#166534;font-weight:700}.warn{color:#9a3412;font-weight:700}.mono{font-family:ui-monospace,Consolas,monospace;word-break:break-all}table{border-collapse:collapse;width:100%;margin:14px 0}th,td{border:1px solid #cbd5e1;padding:9px;vertical-align:top}th{background:#eaf2fb}.easy{background:#fff8db;border-left:5px solid #eab308;padding:12px;margin:12px 0}.note{background:#eef7ff;border-left:5px solid #2563eb;padding:12px;margin:12px 0}code{font-family:ui-monospace,Consolas,monospace}
+  </style>
+</head>
+<body><main>
+  <p><a href="../../index.html">正式成果物一覧へ戻る</a> / <a href="../03_Strategy詳細設計/03_Strategy_Turtle実装詳細設計書.html">P3-D04</a> / <a href="../05_テスト設計/05_Golden_Biasテスト設計書.html">P3-D06</a></p>
+  <h1>P3-D07 Strategy実装・検証結果</h1>
+  <p><strong>対象:</strong> P3-06 / RUN-P3-STR-001 / 2026-08-09 / <span class="ok">受入可</span></p>
+
+  <h2>1. 結論</h2>
+  <p>Strategy Coreを <code>src/autotrade/strategy/</code> に実装し、固定4 Gate、品質Gate登録テスト、独立コードレビューを完了した。P3-06の対象範囲ではCritical 0、High 0、Medium 0である。Strategyテストは116件、品質Gate登録テストは39件が成功した。</p>
+  <div class="easy"><strong>中学生でも分かる説明:</strong> 売買の考え方を決めるプログラム本体を作り、危ないデータを通さない試験もしました。難しい問題を見つけるたびに直し、最後はすべての確認問題に合格しました。</div>
+
+  <h2>2. H3-1R改訂の反映</h2>
+  <table><thead><tr><th>項目</th><th>確定した内容</th><th>証跡</th></tr></thead><tbody>
+    <tr><td>人による承認</td><td>「v3では実M1を連続30本必須とし、不足するM30は停止する」を承認済み。</td><td><a href="../../../tests/evidence/phase3/RUN-P3-STR-001/human-gate-h3-1r-revision.md">承認記録</a></td></tr>
+    <tr><td>v2</td><td>v2のbytes・hash・<code>GT-TUR-038</code>の過去期待値は履歴として不変に保存する。実行時の安全判断には使わない。</td><td class="mono">sha256:224d6c54fe0fdbf039bc5819140e9d12aa23e27e55ece5de22a5f4800b2b985b</td></tr>
+    <tr><td>v3</td><td>実M1の実体30本、連続UTC、確定、Calendar一致、OHLCV一致を持つM30だけを受理する。</td><td class="mono">strategy parent: sha256:4a410f7ac15837ebb9d899daecd56f0c6e45c3795d7f8db067daef80359531e0</td></tr>
+  </tbody></table>
+  <div class="easy"><strong>中学生でも分かる説明:</strong> 古い問題集は消しません。ただし、新しい答え合わせでは「1分足30枚を実際に見せられる30分足」だけを使います。材料が足りなければ、買う・売るの合図は出さずに止まります。</div>
+
+  <h2>3. 実装した範囲</h2>
+  <table><thead><tr><th>領域</th><th>実装内容</th><th>安全上の決まり</th></tr></thead><tbody>
+    <tr><td>Turtle規則</td><td>TR/N、Donchian、System 1、System 1の安全側55本版、System 2、Stop→Exit→Add→Entryの優先順位。</td><td>現在足より前に確定した履歴だけでChannelを作る。System 1の勝ちを理由にSystem 2へ勝手に切り替えない。</td></tr>
+    <tr><td>時間足と同時close</td><td>M1→M15→M30→H1→H4→D1の固定順。全Viewを更新後、一つの判断点で一回だけ評価する。</td><td>120通りの到着順でもSignal、TargetPosition、State hashが同じであることを確認した。</td></tr>
+    <tr><td>M30</td><td>実M1を30本直接検証し、M15二本の連結を使わない。</td><td>29本、重複、逆行、未来、M15由来、NaN、Infinity、非数値は停止し、出力は0件。</td></tr>
+    <tr><td>状態・復元</td><td>Campaign水位・fingerprint、時間足別履歴、水位、Snapshot文脈を保持する。</td><td>古いCampaign通知、同水位で内容が違う通知、版/hash不一致は停止する。同一通知でも次の市場バーは捨てない。</td></tr>
+    <tr><td>出力</td><td>Entry/Addは正のstrategy unit hintを持つTargetPosition、Exit/2N Stopは<code>FLAT / 0</code>のTargetPositionを返す。</td><td>実注文数量、Broker、Risk最終判定は扱わない。</td></tr>
+  </tbody></table>
+
+  <h2>4. 品質Gate結果</h2>
+  <table><thead><tr><th>確認</th><th>結果</th><th>内容</th></tr></thead><tbody>
+    <tr><td>formatter</td><td class="ok">PASS</td><td>対象24ファイルが整形済み。</td></tr>
+    <tr><td>lint</td><td class="ok">PASS</td><td>ruff checkで指摘0件。</td></tr>
+    <tr><td>型検査</td><td class="ok">PASS</td><td>mypyは13 source filesで問題0件。</td></tr>
+    <tr><td>固定Strategyテスト</td><td class="ok">PASS</td><td><code>local_p3_strategy_pytest</code>: 116 passed。</td></tr>
+    <tr><td>品質Gate登録テスト</td><td class="ok">PASS</td><td><code>tests/quality_gate/test_runner.py</code>: 39 passed。</td></tr>
+    <tr><td>差分確認</td><td class="ok">PASS</td><td><code>git diff --check</code>の出力なし。</td></tr>
+  </tbody></table>
+
+  <h2>5. 独立レビュー</h2>
+  <p><strong>最終判定:</strong> Critical 0 / High 0 / Medium 0 / <span class="ok">APPROVE</span>。</p>
+  <p>レビューで見つかったM30材料不足、M30の暗黙有効化、Campaign巻き戻し、同時closeの到着順依存、異常Decimalの例外漏れ、決済時のFLAT出力不足を、各々の回帰テストを先に追加して解消した。</p>
+  <div class="easy"><strong>中学生でも分かる説明:</strong> 最初から全部正しかったわけではありません。たとえば「同じ通知が来たら次の成績表まで捨てる」問題が見つかりました。問題をテストとして残し、直した後も二度と戻らないようにしています。</div>
+  <p><a href="../../../tests/evidence/phase3/RUN-P3-STR-001/reviews/python-code-review.md">Python / 取引安全レビュー記録</a> / <a href="../../../tests/evidence/phase3/RUN-P3-STR-001/reviews/turtle-strategy-review.md">Turtle / 時系列安全レビュー記録</a></p>
+
+  <h2>6. P3-ACとの対応</h2>
+  <table><thead><tr><th>条件</th><th>P3-06で確認した範囲</th><th>後続</th></tr></thead><tbody>
+    <tr><td>P3-AC-02</td><td>確定済み入力、未来・重複・逆行・品質異常の停止、Turtle状態遷移。</td><td>P3-07でBacktest Replay全体へ接続する。</td></tr>
+    <tr><td>P3-AC-05</td><td>Strategy公開型からengine SDK、Broker、外部I/Oを排除。</td><td>P3-08A/P3-09でengine Adapterの実機PoCを確認する。</td></tr>
+    <tr><td>P3-AC-08</td><td>Golden、M30 v3、Snapshot文脈、Look-ahead防止、同時close順不変。</td><td>P3-07で集約・再生側の同じ契約を確認する。</td></tr>
+  </tbody></table>
+
+  <h2>7. 次の作業</h2>
+  <p>P3-07で、Strategyへ渡す前段のTimeframe Aggregator、決定的Replay、Calendar、Manifest、Backtestの最小仮想約定を実装する。P3-06はBroker、Secret、実注文、実engine、利益の採用判断を実装していない。</p>
+  <div class="note"><strong>現在の残課題:</strong> 実Cost/Roll/Gap、正式Calendar、実engine固定、Riskの実注文数量、Paper接続は後続Stepの範囲であり、P3-06の合格をそれらの合格と読み替えない。</div>
+</main></body></html>

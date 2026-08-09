@@ -1,0 +1,13 @@
+{
+  "run_id": "RUN-P3-BT-001",
+  "phase_id": "phase3",
+  "step_id": "P3-07",
+  "network": "not_used_by_core",
+  "secret": "not_used",
+  "broker": "not_used",
+  "engine": "ENGINE_NOT_USED",
+  "input_mode": "fixed_local_fixture",
+  "result_root": "E:/strategy_test_data/phase3/backtests/runs/RUN-P3-BT-001",
+  "status": "PASS",
+  "note": "実engine・外部通信・Secret・Brokerは使用していない。"
+}

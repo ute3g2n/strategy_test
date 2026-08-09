@@ -28,7 +28,7 @@
     <p><strong>成果物ID:</strong> P3-D02<br>
     <strong>文書セットID:</strong> P3-REQ-DOCSET<br>
     <strong>作成日:</strong> 2026-08-09<br>
-    <strong>状態:</strong> v0.2 / P3-01作成、H3-0承認済み（2026-08-09）<br>
+    <strong>状態:</strong> v0.4 / P3-05Rで30分足の設計・v2固定fixture・RED試験を追加済み。H3-0・H3-1・H3-1R・H3-2は承認済み（2026-08-09）、P3-06を開始<br>
     <strong>現在状態の正本:</strong> <a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></p>
   </section>
 
@@ -40,16 +40,16 @@
   <table>
     <thead><tr><th>要件ID</th><th>要件の意味</th><th>設計判断</th><th>成果物</th><th>テスト・証跡</th><th>現在状態</th></tr></thead>
     <tbody>
-      <tr><td><code>REQ-Q01</code></td><td>原典版と現代版を同じ基盤で比較する。</td><td>DEC-P3-01, DEC-P3-04</td><td>P3-D04, P3-D05</td><td>GT-TUR-001〜012、RUN-P3-INT-001</td><td>設計対象</td></tr>
-      <tr><td><code>REQ-Q09</code></td><td>N、True Range、Donchian、Unit関連をGolden testで確認する。</td><td>DEC-P3-02, DEC-P3-03</td><td>P3-D04, P3-D06, P3-D07</td><td>GT-TUR-001〜006</td><td>設計対象</td></tr>
-      <tr><td><code>REQ-Q12</code></td><td>System 1の勝ちブレイクフィルターを比較する。</td><td>DEC-P3-01, DEC-P3-02</td><td>P3-D04, P3-D06</td><td>GT-TUR-004</td><td>設計対象</td></tr>
-      <tr><td><code>REQ-Q13</code></td><td>原典intradayと現代版終値確認を比較する。</td><td>DEC-P3-03, DEC-P3-08</td><td>P3-D04, P3-D09</td><td>未来バー拒否、partition固定</td><td>Unknownを含む</td></tr>
-      <tr><td><code>REQ-Q14</code></td><td>ピラミッディング方式を比較する。</td><td>DEC-P3-01, DEC-P3-05</td><td>P3-D04, P3-D05</td><td>GT-TUR-006、Entry/Add/Stop</td><td>設計対象</td></tr>
-      <tr><td><code>REQ-Q15</code></td><td>2N Stop、Whipsaw、ボラ急上昇時縮小を比較する。</td><td>DEC-P3-02, DEC-P3-06</td><td>P3-D04, P3-D09</td><td>GT-TUR-007〜009、頑健性検証</td><td>実測値は未確定</td></tr>
-      <tr><td><code>REQ-POL04</code></td><td>Strategyを差し替え可能にし、基盤・Risk・OMSと分離する。</td><td>DEC-P3-01, DEC-P3-05</td><td>P3-D04, P3-D07</td><td>境界テスト、A150/A160レビュー</td><td>設計対象</td></tr>
-      <tr><td><code>REQ-Q02</code></td><td>Backtestと運用モードで同じ戦略意味論を使う。</td><td>DEC-P3-01, DEC-P3-04</td><td>P3-D04, P3-D05</td><td>Replay/restore、共通Event契約</td><td>Phase 4接続は未実装</td></tr>
-      <tr><td><code>REQ-Q07</code></td><td>同じ入力と設定で再現可能にする。</td><td>DEC-P3-04</td><td>P3-D05, P3-D08</td><td>Manifest一致、再Replay一致</td><td>検証対象</td></tr>
-      <tr><td><code>REQ-OD02</code></td><td>取引エンジンを証拠で比較・決定する。</td><td>DEC-P3-09</td><td>P3-D03, P3-D10, P3-D14</td><td>RUN-P3-POC-001</td><td>H3-2で決定範囲を確認</td></tr>
+      <tr><td><code>REQ-Q01</code></td><td>原典版と現代版を同じ基盤で比較する。</td><td>DEC-P3-01, DEC-P3-04</td><td>P3-D04, P3-D05</td><td>GT-TUR-004〜007、026、031〜034、RUN-P3-INT-001</td><td>設計対象</td></tr>
+      <tr><td><code>REQ-Q09</code></td><td>N、True Range、Donchian、Unit関連をGolden testで確認する。</td><td>DEC-P3-02, DEC-P3-03, DEC-P3-13</td><td>P3-D04, P3-D06, P3-D07</td><td>GT-TUR-001〜003、008〜010、019、027</td><td>設計対象</td></tr>
+      <tr><td><code>REQ-Q12</code></td><td>System 1の勝ちブレイクフィルターを比較する。</td><td>DEC-P3-01, DEC-P3-02</td><td>P3-D04, P3-D06</td><td>GT-TUR-004、026、033、034</td><td>設計対象</td></tr>
+      <tr><td><code>REQ-Q13</code></td><td>原典intradayと現代版終値確認を比較する。</td><td>DEC-P3-03, DEC-P3-08, DEC-P3-14</td><td>P3-D04, P3-D06, P3-D07, P3-D09</td><td>GT-TUR-006、007、012〜016、036〜040、UNK-P3-09</td><td>H3-1とH3-1R改訂は解決済み。v2は履歴として保持し、M30はv3の実M1連続30本規則を正本とする。</td></tr>
+      <tr><td><code>REQ-Q14</code></td><td>ピラミッディング方式を比較する。</td><td>DEC-P3-01, DEC-P3-05</td><td>P3-D04, P3-D05</td><td>GT-TUR-008、010、020、030</td><td>設計対象</td></tr>
+      <tr><td><code>REQ-Q15</code></td><td>2N Stop、Whipsaw、ボラ急上昇時縮小を比較する。</td><td>DEC-P3-02, DEC-P3-06</td><td>P3-D04, P3-D09</td><td>GT-TUR-009、020、021、031、032、034、頑健性検証</td><td>実測値は未確定</td></tr>
+      <tr><td><code>REQ-POL04</code></td><td>Strategyを差し替え可能にし、基盤・Risk・OMSと分離する。</td><td>DEC-P3-01, DEC-P3-05</td><td>P3-D04, P3-D07</td><td>GT-TUR-017、018、023〜025、028、035、A150/A160レビュー</td><td>設計対象</td></tr>
+      <tr><td><code>REQ-Q02</code></td><td>Backtestと運用モードで同じ戦略意味論を使う。</td><td>DEC-P3-01, DEC-P3-04</td><td>P3-D04, P3-D05</td><td>GT-TUR-011、015、022、024、025、029、035</td><td>Phase 4接続は未実装</td></tr>
+      <tr><td><code>REQ-Q07</code></td><td>同じ入力と設定で再現可能にする。</td><td>DEC-P3-04, DEC-P3-14</td><td>P3-D05, P3-D06, P3-D08</td><td>Manifest一致、再Replay一致、BT-038〜042</td><td>30分足を含むv2の再現性はP3-05RでRED固定、H3-1R後にGREEN化する</td></tr>
+      <tr><td><code>REQ-OD02</code></td><td>取引エンジンを証拠で比較・決定する。</td><td>DEC-P3-09</td><td>P3-D03, P3-D10, P3-D14</td><td>RUN-P3-POC-001</td><td>H3-2承認済み。Phase 3は候補選定、最終決定はPhase 4証拠後</td></tr>
       <tr><td><code>REQ-OD03</code></td><td>Roll / Continuousを版管理された入力として扱う。</td><td>DEC-P3-03, DEC-P3-05</td><td>P3-D05, P3-D09</td><td>未来roll拒否、Roll PnL</td><td>設計対象</td></tr>
       <tr><td><code>REQ-Q25-Q27</code></td><td>安全停止、Heartbeat、再起動復旧、監査を含める。</td><td>DEC-P3-04, DEC-P3-10</td><td>P3-D05, P3-D08, P3-D12</td><td>restore、Health、Manifest監査</td><td>Phase 3範囲で検証</td></tr>
     </tbody>
@@ -65,15 +65,27 @@
       <tr><td><code>DEC-P3-04</code> Manifest再現性</td><td>P3-D05, P3-D08, P3-D10</td><td>UNK-P3-03</td><td>H3-2</td><td>自作runnerで契約を確認する。</td></tr>
       <tr><td><code>DEC-P3-05</code> Cost/Roll/Gap分離</td><td>P3-D05, P3-D09</td><td>UNK-P3-05</td><td>P3-08/P3-10</td><td>保守的な仮値を明示する。</td></tr>
       <tr><td><code>DEC-P3-06</code> 長期評価のUnknown化</td><td>P3-D01, P3-D09, P3-D14</td><td>UNK-P3-01</td><td>H3-2/P3-10</td><td>利益・頑健性を合格にしない。</td></tr>
+      <tr><td><code>DEC-P3-11</code> 1分正本から決定的に複数時間足を作る</td><td>P3-D04, P3-D05, P3-D08</td><td>UNK-P3-07, UNK-P3-09</td><td>H3-1/P3-04</td><td>Strategyは時間足を推測せず、確定済みBatchだけを読む。</td></tr>
+      <tr><td><code>DEC-P3-12</code> Calendarと同時close順を固定する</td><td>P3-D04, P3-D05</td><td>UNK-P3-07</td><td>H3-1</td><td>UTC単純分割で上位足を作らず、固定fixtureだけで検証する。</td></tr>
+      <tr><td><code>DEC-P3-13</code> 判断用Channelと次回状態を分離する</td><td>P3-D04, P3-D06</td><td>UNK-P3-02</td><td>H3-1</td><td>現在足をChannelへ先に混ぜる実装をREDテストで拒否する。</td></tr>
+      <tr><td><code>DEC-P3-14</code> 30分足は1分正本から直接作る</td><td>P3-D04, P3-D05, P3-D06</td><td>H3-1R</td><td>P3-05R / H3-1R</td><td>1分足を30本集めて30分足を直接確定する。15分足を二つ貼り合わせて作らず、M1→M15→M30→H1→H4→D1の同時close順を固定する。</td></tr>
     </tbody>
   </table>
+
+  <h3>3.1 解決済み事項と追加承認</h3>
+  <p>H3-1で既存v1の出力方式、Decimal、時間足、Calendar、同時close順、性能fixtureを承認済みとした。P3-05Rの30分足はv1を書き換えずv2として追加し、H3-1Rで改めて承認を受ける。</p>
+  <table><thead><tr><th>ID</th><th>内容</th><th>決定時期</th><th>未決時</th></tr></thead><tbody>
+    <tr><td><code>UNK-P3-09</code></td><td>原典の日中突破を確定1分足または確定15分足のどちらで近似するか。どちらも原典そのものとは呼ばず、variant名を分ける。</td><td>H3-1</td><td>解決済み。<code>M15_CLOSE_CONFIRMED_V1</code>を採用し、既存v1 fixtureへ固定した。</td></tr>
+      <tr><td><code>H3-1R</code></td><td>30分足を追加したv2 fixtureのhash、M1→M15→M30→H1→H4→D1順、Calendar/session境界、GT-TUR-036〜040とBT-038〜042の期待値を再承認する。</td><td>承認済み（2026-08-09）</td><td>承認済みv1/v2 fixtureを変えず、P3-06/P3-07のGREEN化を開始する。</td></tr>
+  </tbody></table>
+  <p class="easy"><strong>やさしい説明:</strong> 30分足は、15分足を二つつなげて作るのではなく、1分の記録を30個集めて一度で作ります。だから、元の15分足のテスト結果を後から書き換えず、新しい「v2の問題集」として答えを固定してから作り始めます。</p>
 
   <h2>4. Phase 4へ送る項目</h2>
   <ul>
     <li><code>P3-DEFER-01</code>: Broker Paper接続、部分約定、再同期。</li>
     <li><code>P3-DEFER-02</code>: Live用Risk最終値、証拠金、実注文数量。</li>
     <li><code>P3-DEFER-03</code>: Shadow/Paper運用日数、監視、クラウド。</li>
-    <li><code>UNK-P3-04</code>: OD-02の全体最終決定をPhase 4証拠まで条件付きにするか。</li>
+    <li><code>RES-P3-OD02-BOUNDARY</code>: H3-2で、Phase 3はローカルPoC候補選定まで、OD-02最終決定はPhase 4のPaper証拠後と解決済み。</li>
   </ul>
 
   <section class="unknown">
@@ -82,15 +94,17 @@
 
   <h2>5. Human Gate</h2>
   <section class="gate">
-    <p><strong>H3-0:</strong> P3-D01/P3-D02を読み、Phase 3の対象、非対象、Unknown、成果物、Phase 4境界を承認する。ユーザーの「H3-0を承認します」を2026-08-09に受領した。H3-2承認までは外部依存導入・長期データ取得・実engine PoCを開始しない。</p>
-    <p><strong>H3-1:</strong> P3-D06のGolden fixtureと期待値を実装前に凍結する。</p>
-    <p><strong>H3-2:</strong> 外部engine依存、長期データ、OD-02の決定範囲を承認する。</p>
-    <p class="easy"><strong>やさしい説明:</strong> H3-0は作る範囲の許可です。これは承認済みです。H3-1はテストの答え、H3-2は外部の道具と長期データを使う許可なので、まだ別に確認します。</p>
+    <p><strong>H3-0:</strong> P3-D01/P3-D02を読み、Phase 3の対象、非対象、Unknown、成果物、Phase 4境界を承認する。ユーザーの「H3-0を承認します」を2026-08-09に受領した。</p>
+    <p><strong>H3-1:</strong> 承認済み（2026-08-09）。P3-D06 v1のGolden fixtureと期待値に加え、Decimal、時間足、Calendar、同時close、<code>TargetPosition</code>、原典日中突破の<code>M15_CLOSE_CONFIRMED_V1</code>、性能fixtureを実装前に凍結した。</p>
+    <p><strong>H3-1R:</strong> 承認済み（2026-08-09）。RUN-P3-M30-001のv2 fixture/hashと、M1から直接作るM30規則が承認された。承認済みv1/v2 fixtureを変えずにP3-06/P3-07で本実装・GREEN化を行う。</p>
+    <p><strong>H3-2:</strong> 承認済み（2026-08-09）。LEANを主PoC候補、NautilusTraderを代替候補として、固定版・hash・公式配布元を証跡化したローカルPoCを許可する。OD-02の最終決定はPhase 4のPaper証拠後とする。</p>
+    <p class="easy"><strong>やさしい説明:</strong> H3-0は作る範囲の許可、H3-1は最初のテストの答えを固定する許可です。H3-1Rは、30分足という新しい問題を足すため、その新しい答えだけを確認する許可です。H3-2ではLEANを使った安全な練習試験を始めてよいと決まりました。本物の売買はまだ許可していません。</p>
   </section>
 
   <h2>6. 関連文書・レビュー履歴</h2>
   <ul>
     <li><a href="./01_Phase3スコープ定義.html">P3-D01 Phase 3スコープ定義</a></li>
+    <li><a href="../03_Strategy詳細設計/03_Strategy_Turtle実装詳細設計書.html">P3-D04 Strategy / Turtle実装詳細設計書</a></li>
     <li><a href="../../../plan/Phase3_実行計画書_v0.1_2026-08-09.md">Phase 3実行計画書</a></li>
     <li><a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></li>
     <li><a href="../../phase1/05_戦略設計/05_Turtle_Golden_test設計書.html">D09 Turtle Golden test設計書</a></li>

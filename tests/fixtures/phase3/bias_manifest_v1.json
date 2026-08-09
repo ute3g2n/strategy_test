@@ -1,0 +1,24 @@
+{
+  "schema_version": "p3-bias-manifest-v1",
+  "reject_cases": [
+    "PARTIAL_BAR_REJECTED",
+    "DUPLICATE_1M_CONFLICT",
+    "STR_TIME_REGRESSION",
+    "FUTURE_CALENDAR_OR_ROLL",
+    "HOLDOUT_EARLY_ACCESS",
+    "WALL_CLOCK_DEPENDENCY",
+    "EXPERIMENT_PLAN_MUTATED",
+    "MANIFEST_INTEGRITY_VIOLATION",
+    "ENGINE_IDENTITY_UNPINNED",
+    "OFFLINE_POLICY_VIOLATION"
+  ],
+  "manifest_mutations": [
+    "timeframe_rule_version",
+    "calendar_sha256",
+    "ordering_rule_version",
+    "engine_identity_sha256",
+    "adapter_artifact_sha256",
+    "strategy_code_revision"
+  ],
+  "change_rule": "Expectations are immutable until H3-1 approval and an explicit reapproval record."
+}

@@ -1,0 +1,26 @@
+{
+  "run_id": "RUN-P3-M30-001",
+  "phase_id": "phase3",
+  "step_id": "P3-05R",
+  "design": "P3-D02-P3-D04-P3-D05-P3-D06",
+  "requirements": ["P3-AC-01", "P3-AC-02", "P3-AC-03", "P3-AC-04", "P3-AC-08"],
+  "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+  "agents": ["AutoTrade_A20_ArchitectureDomainArchitect_v0_1", "AutoTrade_A30_StrategyQaArchitect_v0_1", "AutoTrade_A82_ImplementationDetailDesigner_v0_1", "AutoTrade_A90_DesignReviewer_v0_1", "AutoTrade_A91_ImplementationDetailReviewer_v0_1", "AutoTrade_A110_PythonTestEngineer_v0_1", "AutoTrade_A130_VerificationEngineer_v0_1", "AutoTrade_A150_PythonCodeReviewer_v0_1", "AutoTrade_A160_TradingSecurityReviewer_v0_1"],
+  "skills": ["autotrade_skill_domain_modeling_v0_1", "autotrade_skill_implementation_detail_design_v0_1", "autotrade_skill_implementation_detail_review_v0_1", "autotrade_skill_golden_test_v0_1", "autotrade_skill_test_strategy_v0_1", "autotrade_skill_python_test_quality_v0_1", "autotrade_skill_python_code_review_v0_1"],
+  "data_version": "p3-m30-fixture-set-v2-proposed",
+  "change_hash": "sha256:302ffa5226ede869be1f3856c29aafd6907ff0c71482a6d2c2cd06372a715407",
+  "baseline_ref": "HEAD",
+  "evidence_root": "tests/evidence/phase3/RUN-P3-M30-001",
+  "target_paths": ["scripts/quality_gate", "tests/quality_gate", "tests/strategy", "tests/backtest", "tests/fixtures/strategy", "tests/fixtures/phase3"],
+  "excluded_paths": [".env", "third_party/everything-claude-code", "research", "E:/strategy_test_data"],
+  "scope_mode": "target_only",
+  "input_fixture": {"path": "tests/fixtures/phase3/run_p3_m30_fixture_manifest_v2.json", "name": "run_p3_m30_fixture_manifest_v2.json", "version": "p3-m30-fixture-manifest-v2", "checksum": "sha256:224d6c54fe0fdbf039bc5819140e9d12aa23e27e55ece5de22a5f4800b2b985b"},
+  "human_gate_policy": "H3-1は承認済み。30分足を追加したv2 fixtureはH3-1R承認待ちであり、承認前にM30のP3-06/P3-07本実装やGREEN化を開始しない。外部接続、Broker、Secret、実engineは使わない。",
+  "unknowns": ["H3-1R_PENDING"],
+  "checks": [
+    {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "scripts/quality_gate", "tests/quality_gate", "tests/strategy", "tests/backtest"]},
+    {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "scripts/quality_gate", "tests/quality_gate", "tests/strategy", "tests/backtest"]},
+    {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "scripts/quality_gate"]},
+    {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_pytest"]}
+  ]
+}

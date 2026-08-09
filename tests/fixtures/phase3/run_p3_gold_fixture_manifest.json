@@ -1,0 +1,14 @@
+{
+  "schema_version": "p3-golden-fixture-manifest-v1",
+  "fixture_set": "RUN-P3-GOLD-001",
+  "change_rule": "H3-1 approval is required for any child hash, expected value, precision, rounding, or approximation-rule change.",
+  "children": [
+    {"path": "tests/fixtures/strategy/turtle_golden_v1.json", "sha256": "571ac25dbd5f2786cde2aa5cb25f66232bdb4a4ab5e3fc3c6ff5f3e09e37a1f4"},
+    {"path": "tests/fixtures/strategy/multi_timeframe_v1.json", "sha256": "17af6ef83ce770b275499967a28590726a3085bde0400ab7ef5498b8eb47abde"},
+    {"path": "tests/fixtures/phase3/calendar_us_futures_v1.json", "sha256": "986e87fec5abd90fdbf81f485737d099131b54fb1cd1326bd7399d22aa05bdc6"},
+    {"path": "tests/fixtures/phase3/backtest_replay_v1.json", "sha256": "af8419125afbb22ba0754664aba989b95b2817072d83eef0f87f8268bd9c408d"},
+    {"path": "tests/fixtures/phase3/backtest_contract_cases_v1.json", "sha256": "55861db761a9d2272f235486e6ada5c4354ec2a155ba949b5f7fafc6d5df7299"},
+    {"path": "tests/fixtures/phase3/bias_manifest_v1.json", "sha256": "1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24"},
+    {"path": "tests/fixtures/phase3/performance_synthetic_v1.json", "sha256": "1000e99f8d3b75a464e5fbdc79111a58f3ed926e84b795c2df28e53c9b1aa731"}
+  ]
+}

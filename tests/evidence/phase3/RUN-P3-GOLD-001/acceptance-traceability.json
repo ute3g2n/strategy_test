@@ -1,0 +1,14 @@
+{
+  "run_id": "RUN-P3-GOLD-001",
+  "all_phase3_acceptance_conditions_assigned": true,
+  "assignments": {
+    "P3-AC-01": {"tests": "BT-001..003,BT-005,BT-007,BT-033,BT-035", "implementation": "P3-07"},
+    "P3-AC-02": {"tests": "BT-004,BT-006,BT-008,BT-014,BT-018,BT-020,BT-023..025,GT-TUR-012..017,GT-TUR-023,GT-TUR-028,GT-TUR-035", "implementation": "P3-06/P3-07"},
+    "P3-AC-03": {"tests": "BT-005,BT-007,BT-009,BT-033,GT-TUR-013,GT-TUR-015,GT-TUR-016,GT-TUR-027", "implementation": "P3-07/P3-08"},
+    "P3-AC-04": {"tests": "BT-001,BT-010..019,BT-021,BT-026,BT-034,BT-035,GT-TUR-011,GT-TUR-022,GT-TUR-025,GT-TUR-029", "implementation": "P3-07"},
+    "P3-AC-05": {"tests": "BT-030..032,BT-036,GT-TUR-018", "implementation": "P3-06/P3-07"},
+    "P3-AC-06": {"tests": "BT-022,BT-026,BT-029,BT-037,GT-TUR-024", "implementation": "P3-07/P3-08A"},
+    "P3-AC-07": {"tests": "BT-027..028", "implementation": "P3-07"},
+    "P3-AC-08": {"tests": "GT-TUR-001..035,BT-005,BT-006,BT-026", "implementation": "P3-06/P3-07"}
+  }
+}

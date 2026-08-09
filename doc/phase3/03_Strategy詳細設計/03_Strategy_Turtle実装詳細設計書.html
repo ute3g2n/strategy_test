@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P3-D04 Strategy / Turtle実装詳細設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.72; margin: 32px auto; max-width: 1320px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; } h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    a { color: #0f5db8; } table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14px; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; } th { background: #eef2f7; }
+    code { font-family: Consolas, "Courier New", monospace; background: #f1f5f9; padding: 1px 4px; }
+    pre { overflow-x: auto; padding: 14px; background: #0f172a; color: #e5e7eb; }
+    .meta,.note,.gate,.unknown,.review,.easy,.stop { padding: 12px 14px; margin: 16px 0; border-left: 4px solid #2563eb; background: #eff6ff; }
+    .gate { border-left-color: #7c3aed; background: #f5f3ff; } .unknown { border-left-color: #b45309; background: #fff7ed; }
+    .review { border-left-color: #15803d; background: #f0fdf4; } .easy { border-left-color: #0891b2; background: #ecfeff; }
+    .stop { border-left-color: #b91c1c; background: #fef2f2; }
+  </style>
+</head>
+<body><main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>P3-D04 Strategy / Turtle実装詳細設計書</h1>
+  <section class="meta"><p><strong>成果物ID:</strong> P3-D04<br>
+  <strong>文書セットID:</strong> P3-STR-DOCSET<br>
+  <strong>対象フェーズ / 手順:</strong> Phase 3 / P3-03<br>
+  <strong>作成日:</strong> 2026-08-09<br>
+  <strong>文書状態:</strong> v0.4 / A91・A90最終レビュー Critical 0・High 0・P3-04へ引渡し可<br>
+  <strong>使用オーケストレータ:</strong> <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code><br>
+  <strong>担当:</strong> <code>AutoTrade_A30_StrategyQaArchitect_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code>, <code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code><br>
+  <strong>使用Skill:</strong> <code>autotrade_skill_implementation_detail_design_v0_1</code>, <code>autotrade_skill_implementation_detail_review_v0_1</code>, <code>autotrade_skill_strategy_interface_v0_1</code>, <code>autotrade_skill_turtle_strategy_rules_v0_1</code>, <code>autotrade_skill_golden_test_v0_1</code>, <code>autotrade_skill_domain_modeling_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_revision_integration_v0_1</code></p></section>
+
+  <section class="easy"><strong>中学生向けの要約:</strong> この部品は、完成した値動きの表だけを読み、「買いを考える」「売りを考える」「何もしない」という希望を作ります。実際に注文してよいか、何枚注文するか、いくらで約定したかは別の安全装置が決めます。複数の時計が同時に鳴ったときは、全部の新しい情報をそろえてから一回だけ答えを出すので、同じ合図を何度も出しません。</section>
+
+  <h2>0. 詳細設計カバレッジ</h2>
+  <p>この表は、実装に必要な項目を本書のどこで扱うかを示す。</p>
+  <table><thead><tr><th>設計要素</th><th>本書で示す章</th><th>補完先または対象外の理由</th></tr></thead><tbody>
+    <tr><td>DD-01〜DD-04</td><td>1〜4章、7〜10章、15〜16章で責務、ファイル、依存、公開型、出力順を定義する。</td><td>時間足の生成器と取引エンジン接続はP3-04のBacktest詳細設計で補完する。</td></tr>
+    <tr><td>DD-05〜DD-07</td><td>5〜6章、11〜13章、17〜18章で状態、復元、例外、正常・失敗順序を定義する。</td><td>Strategyはデータベースやファイルへ直接保存しない。Snapshotの正規形だけを作り、物理保存は呼出元へ任せる。</td></tr>
+    <tr><td>DD-08〜DD-10</td><td>10〜14章、19〜20章で監査、Health、版束縛、設定、Human Gateを定義する。</td><td>秘密情報、外部接続、Broker操作は責務外であり、静的検査で依存がないことを確認する。</td></tr>
+    <tr><td>DD-11〜DD-12</td><td>6章、14章、19章、21〜22章で要件・テスト・レビュー・関連成果物を追跡する。</td><td>H3-1で確定する期待値は未確定のまま明示し、成功扱いしない。</td></tr>
+  </tbody></table>
+
+  <h2>1. ドメインの概要: Strategy / Turtleは何をするものか</h2>
+  <p>Strategyは、確定済みの15分足、1時間足、4時間足、日足と、Catalog・約定・保有状態の限定された読取表示を受け取る。True Range、N、Donchian Channel、System 1/2、追加、停止、退出を決定的に計算し、<code>SignalEvent</code>と、設定で一つだけ選んだ売買希望（<code>TargetPosition</code>または<code>OrderIntent</code>）を返す。</p>
+  <p>Strategyは時間足を作らず、未来の情報を補わず、Riskの最終判定、OMS、Broker、約定、手数料、損益を担当しない。入力の完成、時刻、版、同時確定の集合が証明できない場合は状態を一部更新せず、出力ゼロで停止する。</p>
+  <table><thead><tr><th>利用者</th><th>期待すること</th><th>返すもの</th></tr></thead><tbody>
+    <tr><td>Backtest調停部</td><td>同じ入力と設定なら、取引エンジンに関係なく同じ戦略判断を再現できることを期待する。</td><td>更新後状態、Signal、選択済みDirective、Health、Snapshot用の正規データを返す。</td></tr>
+    <tr><td>Risk / OMS</td><td>戦略の希望と根拠だけを受け取り、安全判定と注文作成を独立して行えることを期待する。</td><td>発注済みではない選択済みDirectiveを返し、Broker注文IDや最終数量は返さない。</td></tr>
+  </tbody></table>
+  <table><thead><tr><th>機能ID</th><th>機能</th><th>誰にでも分かる説明</th><th>失敗時の動き</th></tr></thead><tbody>
+    <tr><td>STR-F01</td><td>確定足の取込み</td><td>時刻ごとに完成した複数の値動き表を全部そろえて読み込む。</td><td>一枚でも未完成、未来、版違いなら全体を取り込まず止める。</td></tr>
+    <tr><td>STR-F02</td><td>Turtle判断</td><td>過去の決められた本数だけを使い、突破、追加、停止、退出の条件を調べる。</td><td>準備期間不足なら異常にせず「まだ判断しない」と記録する。</td></tr>
+    <tr><td>STR-F03</td><td>復元</td><td>中断前の計算途中と処理位置を保存し、再開後も同じ答えを出す。</td><td>保存内容、版、hashが違えば使わず停止する。</td></tr>
+  </tbody></table>
+
+  <h2>2. ファイル構成</h2>
+  <p>次はP3-06で実装する予定の構成である。現時点では設計対象であり、実装済みとは記載しない。P3-07はBacktest Coreとの結合先である。</p>
+  <pre>src/autotrade/strategy/
+├── __init__.py              公開契約だけを再公開する
+├── contracts.py             engine非依存の入力・出力・状態型
+├── config.py                StrategyConfigと時間足Bindingを検証する
+├── ports.py                 StrategyPluginのProtocolを定義する
+├── indicators.py            True Range、N、Donchianを純粋計算する
+├── turtle_rules.py          System 1/2、Entry/Add/Stop/Exitを判定する
+├── state.py                 時間足別指標状態とCampaign状態を持つ
+├── service.py               一括更新後に一回だけ判断する
+├── snapshot.py              正規JSON、hash、restoreを扱う（I/Oなし）
+├── health.py                Health状態と理由を作る
+└── errors.py                固定エラーとreason codeを定義する
+tests/strategy/
+├── test_indicators.py       GT-TUR-001〜003を検証する
+├── test_turtle_rules.py     GT-TUR-004〜010、020、021、026、030〜034を検証する
+├── test_strategy_service.py GT-TUR-012〜019、023〜028、030、035と未来拒否/Init/M1/停止を検証する
+├── test_snapshot.py         GT-TUR-011、022、029とCampaign watermark復元を検証する
+└── test_engine_boundary.py  engine固有型と外部I/Oの漏出を検査する
+tests/fixtures/strategy/
+├── turtle_golden_v1.json    H3-1でhashを凍結する固定入力と期待値
+└── multi_timeframe_v1.json  同時close、Calendar、未来拒否を固定する</pre>
+  <table><thead><tr><th>分類</th><th>置くもの</th><th>置いてはいけないもの</th></tr></thead><tbody>
+    <tr><td><code>strategy/</code></td><td>純粋計算、engine非依存型、不変状態、正規化Snapshotを置く。</td><td>LEAN、QuantConnect、NautilusTrader、Broker SDK、ファイル、DB、環境変数、壁時計を置かない。</td></tr>
+    <tr><td><code>tests/fixtures/strategy/</code></td><td>H3-1で承認する固定入力、期待出力、schema版、SHA-256を置く。</td><td>試験結果を見た後に理由なく書き換える期待値を置かない。</td></tr>
+  </tbody></table>
+
+  <h2>3. モジュール構造図</h2>
+  <p>この図は、Phase 2の1分MarketEventから確定時間足を作る部品と、Strategy Coreの境界を示す。</p>
+  <pre class="mermaid">flowchart LR
+    M["Phase 2 MarketEvent"] -->|"確定1分足"| C["時間足調停部\nP3-04責務"]
+    C -->|"ClosedBarBatch"| S["StrategyService"]
+    V["Catalog / 約定の限定View"] -->|"読取専用表示"| S
+    S -->|"指標更新依頼"| I["Indicators"]
+    I -->|"判断Viewと次状態"| S
+    S -->|"判断用指標View"| R["TurtleRules"]
+    R -->|"判断候補"| S
+    S -->|"Signalと選択済みDirective"| D["Risk / OMS側"]
+    S -->|"正規状態"| P["SnapshotCodec"]
+    E["LEAN等のAdapter"] -->|"共通入力だけ"| C</pre>
+  <p>次の表は、図の矢印で渡す情報と、受取側が停止する条件を説明する。</p>
+  <table><thead><tr><th>送る部品</th><th>受け取る部品</th><th>渡すデータ・依頼</th><th>用途と停止条件</th></tr></thead><tbody>
+    <tr><td>Phase 2 MarketEvent</td><td>時間足調停部</td><td>確定1分足、内部instrument ID、data_version、品質警告を渡す。</td><td>時間足生成の材料に使う。P3-D04は不足する時間足名・開始時刻・Calendarを承認済み規則から付与し、Strategy自身には推測させない。</td></tr>
+    <tr><td>時間足調停部</td><td>StrategyService</td><td>同一決定時刻の確定足をまとめた<code>ClosedBarBatch</code>を渡す。</td><td>全時間足表示を更新する。未完成、集合不足、未来、時刻逆行、版不一致なら出力ゼロで停止する。</td></tr>
+    <tr><td>Catalog / Execution / Portfolio投影部</td><td>StrategyService</td><td>取引対象ID、tick、確認済みUnit・Fill、未完了Intentを読取専用で渡す。</td><td>追加・停止の基準に使う。Brokerの未照合値や未来時点の表示なら使用しない。</td></tr>
+    <tr><td>StrategyService</td><td>Indicators</td><td>確定バー、更新前の時間足別状態、Configの本数を渡す。</td><td>TR/NとChannelの更新候補を作る。現在足をChannelの参照窓へ先に加えてはならない。</td></tr>
+    <tr><td>Indicators</td><td>StrategyService</td><td><code>DecisionIndicatorView</code>と<code>NextIndicatorState</code>を対で返す。</td><td>今回判断用と次回保存用を混ぜない。計算不能ならServiceがBatch全体をSTOPPEDにする。</td></tr>
+    <tr><td>StrategyService</td><td>TurtleRules</td><td>判断用指標View、確認済みFill、Portfolio制約、Campaignを渡す。</td><td>固定優先順位で一回だけ判断する。warmup不足や曖昧なOHLCでは新規リスクを出さない。</td></tr>
+    <tr><td>TurtleRules</td><td>StrategyService</td><td>Signal候補、Directive候補、抑制reason、次の戦略仮説状態を渡す。</td><td>意味内容hashを作り、同一判断の重複を除く。最終注文数量へ変換しない。</td></tr>
+    <tr><td>StrategyService</td><td>Risk / OMS側</td><td>根拠付きSignalと希望する戦略Unit数を渡す。</td><td>下流が最終数量と注文可否を決める。Strategy出力を発注承認として扱ってはならない。</td></tr>
+    <tr><td>StrategyService</td><td>SnapshotCodec</td><td>全指標状態、仮説状態、版、水位、出力済み意味IDを渡す。</td><td>正規JSONとhashを作る。ファイル保存、壁時計、engine objectは受け取らない。</td></tr>
+    <tr><td>engine Adapter</td><td>時間足調停部</td><td>候補engineの入力をプロジェクト共通のMarketEvent列へ戻して渡す。</td><td>engine型・ID・例外をAdapter外へ出さない。変換不能なら共通入力を作らず停止する。</td></tr>
+  </tbody></table>
+
+  <h2>4. モジュール仕様と入出力パラメータ</h2>
+  <p>この表は、予定ファイルの責務と副作用の境界を示す。</p>
+  <table><thead><tr><th>実装単位</th><th>機能説明</th><th>入力</th><th>出力</th><th>副作用・禁止事項</th></tr></thead><tbody>
+    <tr><td><code>service.process</code></td><td>Batch全体を検証し、全時間足を更新後に一回だけ規則を評価する。</td><td><code>ClosedBarBatch</code>、限定View、旧状態、Config。</td><td><code>StrategyResult</code>。</td><td>I/Oなし。拒否時は指標・Campaign・水位を変更せず、statusとstop_reasonだけをSTOPPED状態へ更新する。</td></tr>
+    <tr><td><code>indicators.update</code></td><td>現在バーをChannel計算から除外し、TR、N、Entry/Exit Channelを更新する。</td><td>確定バーと時間足別状態。</td><td>新しい不変状態と計算値。</td><td><code>float</code>、未来足、外部時刻を使わない。</td></tr>
+    <tr><td><code>turtle_rules.evaluate</code></td><td>Stop、Exit、Add、Entryの順に候補を一つへ絞る。</td><td>判断用指標View、現在の<code>TriggerPriceView</code>、確認済みFill投影、Portfolio制約、Config。</td><td>Signal候補、Directive候補、抑制理由。</td><td>約定価格やRisk合格を決めない。</td></tr>
+    <tr><td><code>snapshot.encode/restore</code></td><td>状態を正規JSONとhashへ変換し、完全一致の文脈だけ復元する。</td><td>状態、ManifestBinding、schema版。</td><td>Snapshotまたは復元状態。</td><td>ファイル書込みを行わず、壁時計の作成時刻を含めない。</td></tr>
+  </tbody></table>
+  <h3>4.1 <code>ClosedBar</code> / <code>ClosedBarBatch</code></h3>
+  <p>この表は、Strategyが受け取れる確定時間足の必須項目を示す。</p>
+  <table><thead><tr><th>項目</th><th>型</th><th>必須</th><th>説明と検証</th></tr></thead><tbody>
+    <tr><td><code>timeframe</code></td><td><code>M1_TRIGGER | M15 | M30 | H1 | H4 | D1</code></td><td>必須</td><td>Configで許可した時間足だけを受け取る。M30はsession anchorから直接集約された確定1分足30本だけを許可する。M1_TRIGGERはH3-1で1分近似を選んだ場合の発火専用で、未選択時は禁止する。</td></tr>
+    <tr><td><code>bar_open_time_utc / bar_close_time_utc</code></td><td>UTCの<code>datetime</code></td><td>必須</td><td>区間は開始を含み終了を含まない。開始は終了より前で、終了は判断時刻以下でなければならない。</td></tr>
+    <tr><td><code>is_closed</code></td><td><code>Literal[True]</code></td><td>必須</td><td>未完成足を表現できる外部値は復元境界で拒否し、Strategyへ渡さない。</td></tr>
+    <tr><td><code>open/high/low/close</code></td><td><code>Decimal</code></td><td>必須</td><td>文字列から直接変換し、有限値かつOHLC関係が計算可能であることを検証する。</td></tr>
+    <tr><td><code>data/catalog/calendar_version</code></td><td><code>str</code></td><td>必須</td><td>Batch、Config、Snapshotの版と完全一致しない場合は停止する。</td></tr>
+    <tr><td><code>batch_id / expected_timeframes / batch_complete</code></td><td>固定ID、集合、<code>bool</code></td><td>必須</td><td>同時closeで必要な全足がそろったことを証明する。集合不足は判断しない。</td></tr>
+  </tbody></table>
+  <h3>4.2 限定View</h3>
+  <p>この表は、Strategyが外部正本から読んでよい最小情報を示す。</p>
+  <table><thead><tr><th>型</th><th>必須項目</th><th>用途</th><th>禁止事項</th></tr></thead><tbody>
+    <tr><td><code>TradableInstrumentView</code></td><td>signal series、内部取引対象ID、tick、roll/adjustment/catalog版、公開・有効時刻。</td><td>Signal系列と実取引対象を分け、価格Hintをtickへ合わせる。</td><td>未来公開のroll、外部vendor ID、連続価格を約定正本に使わない。</td></tr>
+    <tr><td><code>ConfirmedExecutionView</code></td><td>確認済みUnit、最終Entry/Add Fill価格、Fill ID、未完了Intent ID、as-of時刻、状態版。</td><td>0.5N追加と2N Stopの基準を確認済み事実に限定する。</td><td>注文希望をFill扱いせず、口座・注文正本をStrategy内へ複製しない。</td></tr>
+    <tr><td><code>PortfolioConstraintView</code></td><td>as-of時刻、市場別・方向別・相関グループ別・総量のStrategy Unit、未完了Intent Unit、view版、source hash。</td><td>Strategy内の追加抑制とRisk向けHintを計算する。</td><td>証拠金、現金、最終注文数量、Risk合格を持たず、最終可否を決めない。</td></tr>
+  </tbody></table>
+  <h3>4.3 出力型</h3>
+  <p>この表は、判断結果に必ず含める情報を示す。</p>
+  <table><thead><tr><th>型</th><th>主な項目</th><th>意味と取扱い</th></tr></thead><tbody>
+    <tr><td><code>SignalEvent</code></td><td>signal ID、意味内容hash、run/decision/strategy/series/instrument ID、種類、方向、rule/reason、決定時刻、根拠価格、版、警告。</td><td>何を見て何を考えたかを示す。注文ではなく、engine IDを含めない。</td></tr>
+    <tr><td><code>TargetPosition</code></td><td>target ID、意味内容hash、希望方向、希望Strategy Unit、価格Hint、停止Hint、根拠、版。</td><td>H3-1でこの方式を選んだ場合の正本出力。最終注文数量、注文種別、TIF、Broker IDを含めない。</td></tr>
+    <tr><td><code>OrderIntent</code></td><td>intent ID、意味内容hash、ENTER/ADD/REDUCE/EXIT、方向、Strategy Unit差分、価格/停止Hint、根拠、版。</td><td>Configが<code>ORDER_INTENT</code>を選ぶ場合だけ返す。注文種別、TIF、Broker数量、client order IDは含めない。</td></tr>
+    <tr><td><code>StrategyResult</code></td><td>状態、Signal列、Directive列、Health、処理済みbatch ID、status、reason。</td><td>一つのBatchに対し判断は一回。入力拒否は例外にせず、業務計算状態を部分更新しない<code>stopped_state</code>と出力ゼロを返す。</td></tr>
+  </tbody></table>
+
+  <h2>5. モジュール間の処理フロー</h2>
+  <h3>5.1 正常時</h3>
+  <p>同時closeの全足を先に更新し、その後に一度だけ規則を評価する。</p>
+  <pre class="mermaid">sequenceDiagram
+    participant C as 時間足調停部
+    participant S as StrategyService
+    participant I as Indicators
+    participant R as TurtleRules
+    participant D as 下流
+    C->>S: 完全なClosedBarBatch
+    S->>S: 全入力と全版を先に検証
+    S->>I: M1_TRIGGER採用時を先頭に、M15・M30・H1・H4・D1順で全表示を更新
+    I-->>S: 更新後の不変な指標集合
+    S->>S: ruleごとに現在BatchからTriggerPriceViewを作る
+    S->>R: Channel ViewとTrigger Priceで一回だけ判断を依頼
+    R-->>S: Signal候補と選択方式に対応するDirective候補
+    S-->>D: 根拠と警告を含む結果</pre>
+  <h3>5.2 失敗時</h3>
+  <p>入力全体が使えると確認できる前に状態を変更しない。</p>
+  <pre class="mermaid">flowchart TD
+    A([Batch受領]) --> B{"完成・時刻・版・集合は正しいか"}
+    B -- いいえ --> Z["出力ゼロ・計算状態維持\nSTOPPED札と理由を保存"] --> X([終了])
+    B -- はい --> C["全時間足の更新候補を作る"]
+    C --> D{"計算不能または重複矛盾か"}
+    D -- はい --> Z
+    D -- いいえ --> E["更新候補を確定"] --> F["規則を一回だけ評価"] --> X</pre>
+
+  <h2>6. 全テスト仕様</h2>
+  <p>この表はP3-D04の全テストを示す。承認済みv1は履歴として保持し、M30 v2はH3-1R前にschema・停止条件だけをRED固定する。期待数値とfixture hashは未承認のまま成功扱いしない。</p>
+  <table><thead><tr><th>ID</th><th>概要</th><th>条件</th><th>操作</th><th>期待結果</th><th>合否基準</th></tr></thead><tbody>
+    <tr><td>GT-TUR-001</td><td>通常・上Gap・下GapのTrue Rangeを確認する。</td><td>前終値と3種類の確定足をDecimalで用意する。</td><td>各足を順に計算する。</td><td>3候補の最大値を使い、当日終値を前終値にしない。</td><td>H3-1で凍結したDecimal期待値と完全一致する。</td></tr>
+    <tr><td>GT-TUR-002</td><td>Nの準備期間と再帰更新を確認する。</td><td>21本以上の価格足、20個のTR、欠損系列を用意する。</td><td>順番にNを更新する。</td><td>20個のTRがそろうまで判断せず、その後は固定式で更新し、欠損を未来で補わない。</td><td>準備状態、N、Healthが期待値と一致する。</td></tr>
+    <tr><td>GT-TUR-003</td><td>現在足を除外したDonchian境界を確認する。</td><td>同値、1 tick未満、ちょうど1 tick超過を用意する。</td><td>Entry/Exit Channelを計算する。</td><td>直前の確定足だけを参照し、現在足を窓へ混ぜない。</td><td>Channelと突破有無が完全一致する。</td></tr>
+    <tr><td>GT-TUR-004</td><td>System 1の勝ちブレイクフィルターを確認する。</td><td>前回WIN/LOSS/UNKNOWN、実取引の確定Campaign outcome、新旧・同値矛盾watermark、同じwatermarkで同一／異なるfingerprint、同Batch新突破、見送り仮想取引、反対方向を用意する。</td><td>確認済みCampaign結果を先に一度だけ取り込み、その後20本突破と仮想状態を進める。</td><td>増加Outcomeを一度適用、同じwatermarkかつ同じfingerprintはno-op、同じwatermarkでfingerprint違い・逆行は停止し、勝ち後の対象突破だけ抑制する。</td><td>Signal、Outcome、消費済みcampaign ID/watermark/fingerprint、仮想状態、reasonが一致する。</td></tr>
+    <tr><td>GT-TUR-005</td><td>System 2の55本突破を確認する。</td><td>55本準備完了と境界足を用意する。</td><td>System 2を評価する。</td><td>System 1の勝ち状態を参照せず、全ての有効な55本突破を候補にする。</td><td>方向、rule、価格Hintが一致する。</td></tr>
+    <tr><td>GT-TUR-006</td><td>日中突破の近似方式を確認する。</td><td>高値だけが突破し終値が戻る確定足を用意する。</td><td>H3-1で選んだtrigger variantを評価する。</td><td>選んだ時間足の確定後だけSignalを出し、原典完全再現とは扱わない。</td><td>variant名、発火時刻、Signal有無が固定期待値と一致する。</td></tr>
+    <tr><td>GT-TUR-007</td><td>終値確認Entryを確認する。</td><td>高値のみ超過と終値超過を分けて用意する。</td><td>終値確認variantを評価する。</td><td>終値超過だけでEntry候補を出す。</td><td>足確定前の出力がゼロで、確定後の出力が一致する。</td></tr>
+    <tr><td>GT-TUR-008</td><td>0.5N追加を確認する。</td><td>Entry Fillだけの初回追加、Add Fill後の2回目追加、Entry約定前、0.49N、0.5N、0.51N、未完了Intentを用意する。</td><td>Add規則を評価する。</td><td>初回はEntry Fill、以後は最新Add Fillを基準にし、0.5N以上だけ一つの候補を出す。Entry約定前や未完了Intent中は追加しない。</td><td>Directiveと抑制理由が一致する。</td></tr>
+    <tr><td>GT-TUR-009</td><td>2N Stopを確認する。</td><td>確認済みFillから1.99N、2N、Gap超過を用意する。</td><td>Stop規則を評価する。</td><td>2N以上で退出希望を出すが、約定価格は確定しない。</td><td>方向、停止Hint、reasonが一致する。</td></tr>
+    <tr><td>GT-TUR-010</td><td>Unit上限とRisk境界を確認する。</td><td>市場4、方向6、相関10、総量12付近の限定Viewを用意する。</td><td>追加候補を評価する。</td><td>Strategy上限では抑制またはHintを出すが、Risk承認とは記録しない。</td><td>最終注文数量やRisk合格が出力にない。</td></tr>
+    <tr><td>GT-TUR-011</td><td>Snapshot復元の一致を確認する。</td><td>追加途中、仮想突破、消費済みcampaign ID/watermark/fingerprint、未完了Intentを含む状態を用意する。</td><td>中断なし経路と復元経路へ同じ次Batchと同じCampaign outcomeを渡す。</td><td>State hash、Signal、選択済みDirectiveの意味内容hashが一致し、同じOutcomeを二度適用しない。</td><td>重複と欠落が一件もない。</td></tr>
+    <tr><td>GT-TUR-012</td><td>未来情報を拒否する。</td><td>未来足、未来roll、holdout結果、可変現在時刻を混ぜる。</td><td>Strategyへ渡そうとする。</td><td>入力を拒否し、状態を変えず、出力ゼロとする。</td><td>禁止情報を除くまで成功しない。</td></tr>
+    <tr><td>GT-TUR-013</td><td>複数時間足の同時closeで一回だけ判断する。</td><td>M1採用時のM1のみ、M1+M15、M1+M15+M30+H1+H4+D1、およびM1/M30非採用時の同時close Batchを用意する。</td><td>期待集合を再計算して全足を一括処理する。</td><td>M1→M15→M30→H1→H4→D1の正規順で全表示更新後に一回だけ規則を評価する。</td><td>Signal/DirectiveはConfig方式で最大一組、判断回数が一回である。</td></tr>
+    <tr><td>GT-TUR-014</td><td>未完成の上位足を拒否する。</td><td>15分足は完成、1時間足は未完成の入力を用意する。</td><td>Batchを復元・検証する。</td><td>未完成足をViewへ載せず、不完全集合なら判断しない。</td><td><code>STR_INPUT_NOT_CLOSED</code>または集合不足で出力ゼロとなる。</td></tr>
+    <tr><td>GT-TUR-015</td><td>Batch内の配列順に依存しないことを確認する。</td><td>M1_TRIGGER/M30を含む同じ足を異なる順で並べた2入力と、M1/M30非採用Configを用意する。</td><td>両方を別の同一初期状態へ渡す。</td><td>M1_TRIGGER,M15,M30,H1,H4,D1順へ正規化され、非採用時のM1/M30は拒否される。</td><td>採用時のcontent/意味/State hashが一致し、非採用時は固定reasonとなる。</td></tr>
+    <tr><td>GT-TUR-016</td><td>Calendarとsession境界の版違いを拒否する。</td><td>異なるCalendar版または閉場外の足を用意する。</td><td>入力検証する。</td><td>版やsessionを推測せず停止する。</td><td><code>STR_CALENDAR_VERSION_MISMATCH</code>で出力ゼロとなる。</td></tr>
+    <tr><td>GT-TUR-017</td><td>初期化とConfig矛盾を拒否する。</td><td>空run_id、許可外時間足、filter誤設定、参照先がenabled外のConfigを用意する。</td><td>初期化する。</td><td>実行前にSTOPPED初期Resultを返し、暗黙run IDや設定補完をしない。</td><td><code>STR_CONFIG_INVALID</code>となる。</td></tr>
+    <tr><td>GT-TUR-018</td><td>engine固有型の漏出を検査する。</td><td>公開型、入れ子の型注釈、dataclass field、Snapshot JSON Schema、fixtureを走査する。</td><td>型注釈を再帰走査し、許可module/field一覧との一致、<code>Any</code>/<code>object</code>不使用、未知JSON field拒否、禁止SDK型の別名・wrapper不在を検査する。</td><td>LEAN、QuantConnect、NautilusTraderの型・ID・例外を直接・間接に保持しない。</td><td>許可リスト外の型、field、moduleが一件でもあれば失敗する。</td></tr>
+    <tr><td>GT-TUR-019</td><td>Decimalとtick境界を確認する。</td><td>文字列小数、float、非有限値、tick境界を用意する。</td><td>入力と価格Hintを作る。</td><td>floatと計算不能値を拒否し、承認済み丸め規則だけを使う。</td><td>H3-1期待値または明示拒否と一致する。</td></tr>
+    <tr><td>GT-TUR-020</td><td>同じOHLC内のStop/Exit/Add競合を確認する。</td><td>複数水準へ同時に触れる足を用意する。</td><td>保有中の規則を評価する。</td><td>Stop、Channel Exit、Addの順に一候補へ絞り、曖昧な両方向突破は新規Entryしない。</td><td>新規リスクを増やす候補が併記されない。</td></tr>
+    <tr><td>GT-TUR-021</td><td>ロングとショートの対称性を確認する。</td><td>上下を反転した同形系列を用意する。</td><td>両方向を評価する。</td><td>符号以外の規則差が生じない。</td><td>対応するSignalと選択済みDirectiveが対称になる。</td></tr>
+    <tr><td>GT-TUR-022</td><td>Snapshotの文脈違いを拒否する。</td><td>Config、data、Catalog、Calendar、code版を一つずつ変え、Campaign消費watermarkを変えずfingerprintだけ改変するケースも用意する。</td><td>復元する。</td><td>完全一致しないSnapshotを使わず、Campaign結果の差替えも許さない。</td><td>各ケースが<code>STR_SNAPSHOT_CONTEXT_MISMATCH</code>または<code>STR_DUPLICATE_CONFLICT</code>となる。</td></tr>
+    <tr><td>GT-TUR-023</td><td>品質警告の伝播と停止を確認する。</td><td>許可済み警告と、欠損・重複・時刻異常を分ける。</td><td>Batchを処理する。</td><td>警告は出力へ伝播し、停止対象は出力ゼロにする。</td><td>警告と停止の区分がPhase 2方針と一致する。</td></tr>
+    <tr><td>GT-TUR-024</td><td>現在時刻と外部I/Oへの非依存を確認する。</td><td>clock、file、network、envの利用を監視する。</td><td>全公開APIを実行する。</td><td>引数以外の外部値へ触れない。</td><td>禁止呼出しがゼロである。</td></tr>
+    <tr><td>GT-TUR-025</td><td>ID生成とrun分離の決定性を確認する。</td><td>同じ入力を同一run、別run ID、別engine Adapterから用意する。</td><td>初期化と処理を二回ずつ行う。</td><td>同一runは同じState/ID、別runのrun-scoped IDは区別され、run/engineを除く意味内容hashは一致する。</td><td>暗黙run生成がなく、順序付き意味内容系列が完全一致する。</td></tr>
+    <tr><td>GT-TUR-026</td><td>System 1見送り時の55本Failsafeを確認する。</td><td>20本突破を見送り、その後55本突破する系列を用意する。</td><td>仮想状態とSystem 2を進める。</td><td>System 1の状態でSystem 2を抑制しない。</td><td>55本突破の候補が期待どおり出る。</td></tr>
+    <tr><td>GT-TUR-027</td><td>同時close時の指標更新順を確認する。</td><td>M1_TRIGGER、4時間足、日足の値が判断を変えるBatchを用意する。</td><td>正規順で全更新し、rule_idごとにChannel ViewとTriggerPriceViewを結んでから評価する。</td><td>到着順に関係なく全更新後のViewと現在trigger価格だけを読む。</td><td>途中Viewによる余分なSignalがゼロで、content hashが固定値と一致する。</td></tr>
+    <tr><td>GT-TUR-028</td><td>拒否時に業務計算状態を部分更新しないことを確認する。</td><td>最後の一足だけ不正なBatchを用意する。</td><td>処理する。</td><td>指標・Campaign・入力水位は旧値を維持し、status=STOPPED、stop_reason、state_revisionだけを更新する。</td><td>停止関連field以外のcanonical payloadが同じで、停止後State hashだけが新しい固定値となる。</td></tr>
+    <tr><td>GT-TUR-029</td><td>復元直後の再配送を確認する。</td><td>最後に処理したBatchと消費済みCampaign outcomeを復元後に再送する。</td><td>同じwatermark・同じfingerprintと、同じwatermark・異なるfingerprintを別々に送る。</td><td>同一内容はno-op、同一水位で内容違いはsticky STOPPEDとなる。</td><td>重複出力ゼロ、矛盾時は固定reasonとなり、停止状態がSnapshotへ残る。</td></tr>
+    <tr><td>GT-TUR-030</td><td>一足で複数の追加水準を飛び越えた場合を確認する。</td><td>一つの確定足が複数の0.5N水準を超える。</td><td>Add規則を評価する。</td><td>確認済みFillが増える前は一つの未完了追加だけを出す。</td><td>複数追加やUnit先取りが発生しない。</td></tr>
+    <tr><td>GT-TUR-031</td><td>System 1の10本Exitを長短両方向で確認する。</td><td>ロングが直前10本安値へ、ショートが直前10本高値へ到達する境界を用意する。</td><td>現在足を窓へ入れる前のExit Channelで評価する。</td><td>System 1専用rule IDのEXITが出て、未到達では出ない。</td><td>長短の境界、時刻、reasonが固定期待値と一致する。</td></tr>
+    <tr><td>GT-TUR-032</td><td>System 2の20本Exitを長短両方向で確認する。</td><td>ロングが直前20本安値へ、ショートが直前20本高値へ到達する境界を用意する。</td><td>System 2状態を評価する。</td><td>System 1の10本Exitと混同せず、System 2専用rule IDを出す。</td><td>20本境界とrule IDが完全一致する。</td></tr>
+    <tr><td>GT-TUR-033</td><td>System 1 FailsafeとSystem 2 Entryを識別する。</td><td>同じ55本系列を、System 1用strategy_idとSystem 2用strategy_idの別Configへ渡す。</td><td>二つのStrategy instanceを独立評価する。</td><td>System 1は<code>SYS1_FAILSAFE_ENTRY</code>、System 2は<code>SYS2_ENTRY</code>を出し、一つのinstance内で両方を重ねない。</td><td>strategy_id、rule_id、各一件のDirectiveが固定期待値と一致する。</td></tr>
+    <tr><td>GT-TUR-034</td><td>見送り仮想取引のWIN/LOSS確定を確認する。</td><td>仮想Entry後に仮想2N Stopへ先に触れる系列と、足ごとに動く「現在足を除く直前10本Exit」で利益確定する系列を用意する。</td><td>各Batchで10本ExitをDecisionIndicatorViewから再計算して仮想状態を進め、開始時のExit価格を固定保存する誤実装も比較する。</td><td>前者をLOSS、後者をWINとし、同一足で先後不明ならUNKNOWNのまま停止理由を記録する。</td><td>固定Exitや後付け損益を使わず、動くExit系列と状態遷移が一致する。</td></tr>
+    <tr><td>GT-TUR-035</td><td>stickyな安全停止と明示再開を確認する。</td><td>一度未来足でSTOPPEDになった状態と、その後の正常Batchを用意する。</td><td>同じrunへ正常Batchを再送し、別に新runを初期化する。</td><td>同じrunは自動再開せず出力ゼロ、新runだけが処理を開始できる。</td><td>停止理由が消えず、承認なしの自動復旧がない。</td></tr>
+    <tr><td>GT-TUR-036</td><td>M30のConfig明示と無効時互換性を確認する。</td><td>同一のv1入力をM30無効Configと、M30がindicator/regime/triggerの各有効Configへ渡す。</td><td>無効ConfigはM30なし、有効Configは正しいM30を含む完全Batchとして処理する。</td><td>無効時の従来時間足の意味内容hashはv1と一致し、有効時だけM30 Watermark/Stateが現れる。</td><td>暗黙有効化、暗黙用途、M30の空watermarkがゼロ件である。</td></tr>
+    <tr><td>GT-TUR-037</td><td>M30を含む同時closeの一回判断を確認する。</td><td>M15+M30、M30+H1、M30+H1+H4+D1を同じclose時刻に持つfixtureを用意する。</td><td>各Batchを到着順を変えて処理する。</td><td>M1→M15→M30→H1→H4→D1で全Viewを更新後、DecisionPoint一回だけを記録する。</td><td>順序付きSignal/Directive/State hashと判断回数がすべて一致する。</td></tr>
+    <tr><td>GT-TUR-038</td><td>M30の直接集約証跡とOHLCVを検証する。</td><td>source_event_idsが連続30本のM1、open/high/low/close/volumeが異なるfixtureを用意する。</td><td>Aggregatorから受けたM30 ClosedBarを検証する。</td><td>最初のopen、全高値のmax、全安値のmin、最後のclose、volume合計、半開区間、source hashが一致する。</td><td>M15二本由来のID/値、29/31本、非連続時刻を一件でも許さない。</td></tr>
+    <tr><td>GT-TUR-039</td><td>M30のCalendar端数と欠損を停止する。</td><td>DST切替、休日、短縮日、日次停止、session終端の1〜29分端数、欠損/重複/逆行1分を用意する。</td><td>有効M30 ConfigでBatchを受け取ろうとする。</td><td>完成30本だけが通り、端数・不正入力は理由を保ってStrategy出力ゼロとなる。</td><td><code>PARTIAL_BAR_REJECTED</code>等の固定理由、業務状態非部分更新、STOPPED永続が一致する。</td></tr>
+    <tr><td>GT-TUR-040</td><td>M30 Snapshot/Manifest文脈結合を確認する。</td><td>M30 Watermark、timeframe rule、Calendar/Catalog/Data/Config/fixture hashを各一件だけ改変したSnapshot/Batchを用意する。</td><td>restore後の再配送と文脈違い復元を行う。</td><td>同一内容はno-op、いずれかの版/hash/水位差は復元・判断を拒否する。</td><td><code>STR_SNAPSHOT_CONTEXT_MISMATCH</code>または競合停止でSignal/Directive 0件。</td></tr>
+  </tbody></table>
+
+  <h2>7. 目的と境界（詳細契約）</h2>
+  <p>この表は、Strategyの責務と非責務を固定する。</p>
+  <table><thead><tr><th>対象</th><th>責務</th><th>非対象</th></tr></thead><tbody>
+    <tr><td>戦略計算</td><td>確定足と限定Viewから指標、状態、Signal、希望Unitを決定する。</td><td>時間足集約、Calendar生成、Fill生成、手数料、損益、Risk最終判定、OMS、Broker。</td></tr>
+    <tr><td>状態</td><td>計算途中、仮想突破、入力水位、出力済み意味IDを不変状態として保持する。</td><td>口座、注文、Position、Brokerの正本を複製しない。</td></tr>
+  </tbody></table>
+
+  <h2>8. 公開する受取口の契約</h2>
+  <p>この表は、呼出元が利用できる仕事を示す。</p>
+  <table><thead><tr><th>固定名</th><th>受け取る内容</th><th>返す内容</th><th>変更と停止条件</th></tr></thead><tbody>
+    <tr><td><code>initialize</code></td><td>空でないrun_id、Config、ManifestBindingを受け取る。</td><td>StrategyInitResultを返す。</td><td>run_idを現在時刻や乱数で作らず、Config矛盾や未確定必須値があればSTOPPED初期Stateを返す。以後のBatch/Snapshotは同じrun_id必須。</td></tr>
+    <tr><td><code>process_closed_batch</code></td><td>Batch、TradableInstrumentView、ConfirmedExecutionView、PortfolioConstraintView、旧状態を受け取る。</td><td>StrategyResultを返す。</td><td>全検証後だけ業務計算状態を進める。拒否時はSTOPPED札だけを状態へ保存する。</td></tr>
+    <tr><td><code>snapshot / restore</code></td><td>状態またはSnapshotとManifestBindingを受け取る。</td><td>正規Snapshotまたは復元状態を返す。</td><td>hash・schema・版の完全一致だけを許可する。</td></tr>
+    <tr><td><code>health</code></td><td>状態と期待水位を受け取る。</td><td>StrategyHealthを返す。</td><td>壁時計は読まず、渡された論理時刻だけを使う。</td></tr>
+  </tbody></table>
+
+  <h2>9. 共通データ契約</h2>
+  <p>この表は、主要なデータの箱が証明する内容を示す。</p>
+  <table><thead><tr><th>固定名</th><th>必須項目</th><th>証明すること</th></tr></thead><tbody>
+    <tr><td><code>StrategyConfig</code></td><td>variant、enabled/trigger/indicator時間足、Entry/Exit/N本数、0.5N、2N、上限、Config版/hash。</td><td>原典版と現代版を混ぜず、銘柄別後付け最適化を行わないこと。</td></tr>
+    <tr><td><code>StrategyState</code></td><td>schema/revision、最終判断、時間足別IndicatorState、Campaign、出力水位。</td><td>次の判断に必要な全状態が明示され、隠れたメモリ状態がないこと。</td></tr>
+    <tr><td><code>StrategySnapshot</code></td><td>状態全文、全版、全水位、正規payload hash。</td><td>同じ文脈だけを復元し、重複・欠落を防げること。</td></tr>
+  </tbody></table>
+  <h3>9.1 入力DTOの全フィールド</h3>
+  <p>次の表は、入力に入れてよい全フィールドを許可リストとして固定する。全項目は必須で、nullableと明記したもの以外は<code>None</code>を禁止し、暗黙の既定値を持たない。</p>
+  <table><thead><tr><th>型</th><th>フィールド: Python型</th><th>検証・正規化</th></tr></thead><tbody>
+    <tr><td><code>ClosedBar</code></td><td><code>bar_id: str</code>、<code>source_event_ids: tuple[str,...]</code>、<code>signal_series_id: str</code>、<code>source_instrument_id: str</code>、<code>timeframe: Timeframe</code>、<code>bar_open_time_utc: datetime</code>、<code>bar_close_time_utc: datetime</code>、<code>business_date: date</code>、<code>open/high/low/close: Decimal</code>、<code>volume: int</code>、<code>is_closed: Literal[True]</code>、<code>data_version/catalog_version/calendar_version: str</code>、<code>source_events_sha256: str</code>、<code>quality_flags: tuple[str,...]</code></td><td>IDと版は空禁止。UTC、開始&lt;終了、volumeはboolでない非負整数、価格はfinite、low≦open/close≦high。source ID順と警告順は正規化する。</td></tr>
+    <tr><td><code>ClosedBarBatch</code></td><td><code>batch_id: str</code>、<code>run_id: str</code>、<code>decision_point_id: str</code>、<code>decision_time_utc: datetime</code>、<code>signal_series_id: str</code>、<code>bars: tuple[ClosedBar,...]</code>、<code>expected_timeframes: tuple[Timeframe,...]</code>、<code>batch_complete: Literal[True]</code>、<code>ordering_rule_version/timeframe_rule_version/data_version/catalog_version/calendar_version: str</code>、<code>content_sha256: str</code></td><td>barsは非空かつ同じseries/close/版。期待集合と実集合をConfig/Calendarから再計算して一致させ、<code>M1_TRIGGER,M15,M30,H1,H4,D1</code>順に正規化する。M1/M30非採用時は各足を禁止する。decision時刻は全bar close以上。</td></tr>
+    <tr><td><code>ManifestBinding</code></td><td><code>strategy_version: str</code>、<code>strategy_code_revision: str</code>、<code>config_sha256: str</code>、<code>data_version: str</code>、<code>catalog_version: str</code>、<code>calendar_version: str</code>、<code>timeframe_rule_version: str</code>、<code>ordering_rule_version: str</code>、<code>fixture_sha256: str</code></td><td>すべて空禁止。engine profile、run mode、SDK ID、Broker IDはフィールドとして追加禁止。fixture hashはH3-1後の値だけを使用する。</td></tr>
+    <tr><td><code>TradableInstrumentView</code></td><td><code>signal_series_id/tradable_instrument_id: str</code>、<code>tick_size: Decimal</code>、<code>roll_rule_version/adjustment_version/catalog_version: str</code>、<code>effective_from_utc/published_at_utc/as_of_utc: datetime</code>、<code>source_sha256: str</code></td><td>tickは正。公開・有効・as-ofはいずれもdecision時刻以下。外部vendor IDを内部IDへ流用しない。</td></tr>
+    <tr><td><code>ConfirmedExecutionView</code></td><td><code>confirmed_units: int</code>、<code>direction: Direction | None</code>、<code>last_entry_fill_price/last_add_fill_price: Decimal | None</code>、<code>last_fill_event_id: str | None</code>、<code>open_intent_ids: tuple[str,...]</code>、<code>execution_watermark: int</code>、<code>last_closed_campaign_id: str | None</code>、<code>last_closed_campaign_outcome: WIN | LOSS | None</code>、<code>last_closed_campaign_watermark: int | None</code>、<code>last_closed_campaign_source_sha256/last_closed_campaign_fingerprint: str | None</code>、<code>as_of_utc: datetime</code>、<code>view_version/source_sha256: str</code></td><td>campaign fingerprintはCampaign専用のID、watermark、Outcome、<code>last_closed_campaign_source_sha256</code>だけから作る。Execution View全体の<code>source_sha256</code>や無関係なFill/Intent更新は材料に含めない。watermarkは単調増加し、as-ofはdecision以下。0 Unitなら方向とFill値はnullable、保有中はEntry Fill必須。同一fingerprintはno-op、同水位でfingerprint違いは停止する。</td></tr>
+    <tr><td><code>PortfolioConstraintView</code></td><td><code>units_by_instrument: tuple[UnitCount,...]</code>、<code>units_by_direction: tuple[UnitCount,...]</code>、<code>units_by_correlation_group: tuple[UnitCount,...]</code>、<code>total_strategy_units: int</code>、<code>open_intent_units: int</code>、<code>as_of_utc: datetime</code>、<code>view_version/source_sha256: str</code></td><td>各Unitは非負で、as-ofはdecision以下。StrategyはConfig上限に対する抑制/Hintだけを作り、Risk合格を返さない。</td></tr>
+  </tbody></table>
+  <h3>9.2 Config、状態、Snapshotの全フィールド</h3>
+  <p>次の表は、隠れ状態と後付け設定を防ぐための完全な状態契約を示す。</p>
+  <table><thead><tr><th>型</th><th>フィールド: Python型</th><th>検証・禁止事項</th></tr></thead><tbody>
+    <tr><td><code>TurtleRuleConfig</code></td><td><code>rule_id: SYS1_ENTRY | SYS1_FAILSAFE_ENTRY | SYS2_ENTRY</code>、<code>entry_lookback_bars: int</code>、<code>exit_lookback_bars: int</code>、<code>indicator_timeframe/trigger_timeframe: Timeframe</code>、<code>winning_breakout_filter: bool</code>。</td><td>System 1 configはSYS1_ENTRY=20/10/filter=trueとSYS1_FAILSAFE=55/10/filter=falseを必須、System 2 configはSYS2_ENTRY=55/20/filter=falseだけを必須とする。値違いはSTR_CONFIG_INVALID。一つのStrategy instanceにSystem 1とSystem 2を同時登録せず、比較は別strategy_idで行う。</td></tr>
+    <tr><td><code>StrategyConfig</code></td><td><code>strategy_id/family/variant/version/config_sha256: str</code>、<code>primary_system: SYSTEM_1 | SYSTEM_2</code>、<code>rule_configs: tuple[TurtleRuleConfig,...]</code>、<code>enabled_timeframes/decision_trigger_timeframes: tuple[Timeframe,...]</code>、<code>m30_enabled: bool</code>、<code>m30_usage: DISABLED | INDICATOR | REGIME | TRIGGER</code>、<code>volatility_timeframe: Timeframe</code>、<code>regime_timeframe: Timeframe | None</code>、<code>n_lookback_bars: int</code>、<code>add_unit_n_interval/stop_n_multiple: Decimal</code>、<code>max_units_market/direction/correlation/total: int</code>、<code>output_contract: TARGET_POSITION | ORDER_INTENT</code>、<code>decimal_policy_version: str</code></td><td><code>m30_enabled=false</code>ならM30はenabled/trigger/rule/indicatorの全集合から除外し、<code>m30_usage=DISABLED</code>だけを許可する。trueならM30用途を一つ明示し、関連ruleの時間足はenabled内に置く。各本数と倍数は正、上限は矛盾なし。原典以外の時間足・本数は別variant。全項目必須で銘柄別暗黙上書きを禁止する。</td></tr>
+    <tr><td><code>IndicatorState</code></td><td><code>signal_series_id: str</code>、<code>timeframe: Timeframe</code>、<code>bars_seen: int</code>、<code>warmup_complete: bool</code>、<code>prev_close/n_value: Decimal | None</code>、<code>tr_window: tuple[Decimal,...]</code>、<code>prior_highs/prior_lows: tuple[Decimal,...]</code>、<code>last_bar_id: str | None</code>、<code>last_bar_close_utc: datetime | None</code></td><td>価格履歴は全ruleの最大Entry/Exit本数まで保持する。warmupは<code>bars_seen &gt;= max(n_lookback+1, max_entry+1, max_exit+1)</code>。原典System 1/2は55本Channelのため最低56本で完全warmupする。</td></tr>
+    <tr><td><code>CampaignState</code></td><td><code>direction: Direction | None</code>、<code>desired_strategy_units: int</code>、<code>entry_n: Decimal | None</code>、<code>previous_breakout_outcome: UNKNOWN | WIN | LOSS</code>、<code>virtual_breakout_active: bool</code>、<code>virtual_direction: Direction | None</code>、<code>virtual_entry_price/virtual_n/virtual_stop: Decimal | None</code>、<code>virtual_started_at_utc: datetime | None</code>、<code>failsafe_waiting: bool</code>、<code>last_consumed_execution_watermark: int</code>、<code>last_consumed_campaign_watermark: int</code>、<code>last_consumed_campaign_id/last_consumed_campaign_fingerprint: str | None</code>、<code>emitted_semantic_fingerprints: tuple[str,...]</code></td><td>仮想Exit価格は保存せず、各Batchの現在足除外10本Exit Channelを使う。Campaign outcomeは同一fingerprintならno-op、増加時一度適用、逆行または同水位fingerprint違いは停止する。</td></tr>
+    <tr><td><code>StrategyState</code></td><td><code>schema_version: str</code>、<code>state_revision: int</code>、<code>status: READY | WARMING_UP | WARNING | STOPPED</code>、<code>strategy_id/config_sha256/run_id: str</code>、<code>binding: ManifestBinding</code>、<code>last_batch_id/last_batch_sha256: str | None</code>、<code>last_decision_time_utc: datetime | None</code>、<code>indicator_states: tuple[IndicatorState,...]</code>、<code>campaign: CampaignState</code>、<code>stop_reason: str | None</code></td><td>STOPPEDは同じrunで解除不可。明示的な新run初期化または承認済みtrusted Snapshotからの再開だけを許す。</td></tr>
+    <tr><td><code>StrategySnapshot</code></td><td><code>snapshot_schema_version/snapshot_id/payload_sha256: str</code>、<code>binding: ManifestBinding</code>、<code>run_id/strategy_id/config_sha256: str</code>、<code>logical_time_utc: datetime</code>、<code>last_batch_id/last_batch_sha256: str | None</code>、<code>per_timeframe_watermarks: tuple[Watermark,...]</code>、<code>last_execution_watermark: int</code>、<code>last_campaign_watermark: int</code>、<code>last_campaign_id/last_campaign_fingerprint: str | None</code>、<code>last_emitted_fingerprints: tuple[str,...]</code>、<code>state: StrategyState</code></td><td>Campaign水位/ID/fingerprintはstate内値と完全一致必須。壁時計作成時刻、Secret、engine/Broker objectを禁止。未知schemaは明示migrator承認まで停止する。</td></tr>
+  </tbody></table>
+  <h3>9.3 出力DTOの全フィールド</h3>
+  <p>次の表は、Strategyから外へ出せるフィールドの許可リストである。</p>
+  <table><thead><tr><th>型</th><th>フィールド: Python型</th><th>検証・禁止事項</th></tr></thead><tbody>
+    <tr><td><code>SignalEvent</code></td><td><code>signal_id/semantic_fingerprint/run_id/decision_point_id/strategy_id/signal_series_id/tradable_instrument_id: str</code>、<code>signal_type: ENTER | ADD | STOP | EXIT</code>、<code>direction: LONG | SHORT | FLAT</code>、<code>decided_at_utc/source_bar_close_time_utc: datetime</code>、<code>timeframe: Timeframe</code>、<code>rule_id/reason_code/rationale_ref: str</code>、<code>signal_price/breakout_level/stop_level_hint: Decimal | None</code>、<code>binding: ManifestBinding</code>、<code>quality_flags: tuple[str,...]</code></td><td>run IDを除くcanonical payloadから意味内容hashを作る。engine/Broker ID、最終数量、約定価格は追加禁止。</td></tr>
+    <tr><td><code>TargetPosition</code></td><td><code>target_id/semantic_fingerprint/run_id/strategy_id/decision_point_id/signal_series_id/tradable_instrument_id: str</code>、<code>target_direction: LONG | SHORT | FLAT</code>、<code>target_strategy_units: int</code>、<code>unit_size_hint: Decimal | None</code>、<code>reference_price/stop_level_hint: Decimal | None</code>、<code>decided_at_utc/bar_close_time_utc: datetime</code>、<code>business_date: date</code>、<code>rule_id/reason_code/rationale_ref: str</code>、<code>binding: ManifestBinding</code>、<code>quality_flags: tuple[str,...]</code></td><td>Strategy Unitは非負。unit sizeはPhase 4/5までnullable Hintであり、実注文数量ではない。</td></tr>
+    <tr><td><code>OrderIntent</code></td><td><code>intent_id/semantic_fingerprint/run_id/strategy_id/decision_point_id/signal_series_id/tradable_instrument_id: str</code>、<code>intent_kind: ENTER | ADD | REDUCE | EXIT</code>、<code>direction: LONG | SHORT | FLAT</code>、<code>strategy_unit_delta: int</code>、<code>reference_price/stop_level_hint: Decimal | None</code>、<code>decided_at_utc/bar_close_time_utc: datetime</code>、<code>rule_id/reason_code/rationale_ref: str</code>、<code>binding: ManifestBinding</code>、<code>quality_flags: tuple[str,...]</code></td><td>Configで選択した一方式だけを出し、TargetPositionと同時発行しない。order type、TIF、client/Broker order IDを禁止する。</td></tr>
+    <tr><td><code>StrategyResult</code></td><td><code>status: READY | WARMING_UP | WARNING | STOPPED</code>、<code>state: StrategyState</code>、<code>signals: tuple[SignalEvent,...]</code>、<code>directives: tuple[TargetPosition | OrderIntent,...]</code>、<code>health: StrategyHealth</code>、<code>processed_batch_id: str | None</code>、<code>reason_code: str | None</code></td><td>STOPPED時は指標・Campaign・水位を維持し、status/stop_reason/revisionだけを更新したstopped_state、出力空、reason必須。プログラム型契約違反だけは<code>StrategyProgrammingError</code>でRunを異常終了する。</td></tr>
+  </tbody></table>
+  <h3>9.4 補助DTO、Enum、schemaの許可リスト</h3>
+  <p>次の表は、大きなDTOの中へ入る小さな型を完全定義し、別名や汎用型に隠したengine型の混入を防ぐ。</p>
+  <table><thead><tr><th>型</th><th>全フィールドまたは許可値</th><th>検証</th></tr></thead><tbody>
+    <tr><td><code>Timeframe</code></td><td><code>M1_TRIGGER</code>、<code>M15</code>、<code>M30</code>、<code>H1</code>、<code>H4</code>、<code>D1</code>。</td><td>正規順はM1_TRIGGER、M15、M30、H1、H4、D1。M30はConfigで明示した場合だけ許可し、M15二本を結合して生成してはならない。M1_TRIGGERはH3-1で採用したConfigだけ許可し、engine固有Resolution型を拒否する。</td></tr>
+    <tr><td><code>Direction</code></td><td><code>LONG</code>、<code>SHORT</code>、<code>FLAT</code>。</td><td>数値、bool、engineのPositionSideを拒否する。</td></tr>
+    <tr><td><code>StrategyStatus</code></td><td><code>READY</code>、<code>WARMING_UP</code>、<code>WARNING</code>、<code>STOPPED</code>。</td><td>STOPPEDから同じrun内の別状態への変更を拒否する。</td></tr>
+    <tr><td><code>UnitCount</code></td><td><code>dimension_kind: INSTRUMENT | DIRECTION | CORRELATION_GROUP | TOTAL</code>、<code>dimension_id: str</code>、<code>strategy_units: int</code>。</td><td>IDは空禁止、Unitはboolでない非負整数。同じkind/idの重複を拒否する。</td></tr>
+    <tr><td><code>Watermark</code></td><td><code>signal_series_id: str</code>、<code>timeframe: Timeframe</code>、<code>last_bar_id: str</code>、<code>last_bar_close_time_utc: datetime</code>、<code>bars_seen: int</code>、<code>content_sha256: str</code>。</td><td>UTC、bars_seen非負、前Snapshotからの時刻・件数逆行を拒否する。</td></tr>
+    <tr><td><code>HealthDetail</code></td><td><code>key: str</code>、<code>value: str</code>。</td><td>key順へ正規化し、Secret、payload本文、SDK例外名を入れない。</td></tr>
+    <tr><td><code>StrategyHealth</code></td><td><code>status: StrategyStatus</code>、<code>severity: INFO | WARNING | ERROR</code>、<code>reason_code: str | None</code>、<code>logical_time_utc: datetime</code>、<code>last_batch_id: str | None</code>、<code>details: tuple[HealthDetail,...]</code>。</td><td>STOPPEDならERRORとreason必須。論理時刻だけを使い、現在時刻を読まない。</td></tr>
+    <tr><td><code>RuleChannel</code></td><td><code>rule_id: str</code>、<code>entry_upper/entry_lower: Decimal | None</code>、<code>exit_upper/exit_lower: Decimal | None</code>、<code>entry_ready/exit_ready: bool</code>。</td><td>値は現在足追加前の履歴だけから作る。ready=falseのChannel値はNoneでなければならない。</td></tr>
+    <tr><td><code>DecisionIndicatorView</code></td><td><code>signal_series_id: str</code>、<code>timeframe: Timeframe</code>、<code>source_bar_id: str</code>、<code>rule_channels: tuple[RuleChannel,...]</code>、<code>n_after: Decimal | None</code>、<code>n_ready: bool</code>、<code>view_sha256: str</code>。</td><td>今回の判断専用で保存先Stateとして使わない。rule_id順へ正規化し、現在足のhigh/lowをChannel材料へ含めない。</td></tr>
+    <tr><td><code>NextIndicatorState</code></td><td><code>state: IndicatorState</code>、<code>source_bar_id: str</code>、<code>state_sha256: str</code>。</td><td>現在足を取り込んだ次回用だけに使い、今回のChannel判断へ渡すことを型検査とGT-TUR-003/027で禁止する。</td></tr>
+    <tr><td><code>TriggerPriceView</code></td><td><code>rule_id: str</code>、<code>signal_series_id: str</code>、<code>timeframe: Timeframe</code>、<code>bar_id: str</code>、<code>bar_close_time_utc: datetime</code>、<code>high/low/close: Decimal</code>、<code>view_sha256: str</code>。</td><td>Serviceが現在Batchからruleのtrigger_timeframeに一致する確定barを一つ選ぶ。indicator timeframeのRuleChannelと同じdecision時点・series・版に束縛する。trigger barがないruleはそのdecisionで評価しない。</td></tr>
+    <tr><td><code>StrategyInitResult</code></td><td><code>status: StrategyStatus</code>、<code>state: StrategyState</code>、<code>health: StrategyHealth</code>、<code>reason_code: str | None</code>。</td><td>Config拒否時は全窓が空のSTOPPED初期Stateとreasonを返す。旧Stateは存在しない。</td></tr>
+    <tr><td><code>StrategyRestoreResult</code></td><td><code>status: READY | WARNING | STOPPED</code>、<code>state: StrategyState | None</code>、<code>health: StrategyHealth</code>、<code>reason_code: str | None</code>。</td><td>復元成功時だけstate必須。hash/schema/文脈不一致ではstate=None、STOPPED、reason必須とし、不正Snapshot由来の状態を返さない。</td></tr>
+  </tbody></table>
+  <p><strong>型とJSONの閉じた許可リスト:</strong> 公開型のmoduleは<code>autotrade.strategy.contracts</code>、Python標準の<code>datetime/date/decimal/enum/typing</code>、本表の型だけを許可する。型注釈を入れ子まで再帰走査し、<code>Any</code>、裸の<code>object</code>、未登録Protocol、SDK型、別名wrapperを禁止する。Snapshot JSON Schemaは各objectで<code>additionalProperties: false</code>とし、未登録fieldを拒否する。正規schemaそのもののSHA-256をManifestBindingのfixture証跡へ記録する。</p>
+
+  <h2>10. 出力イベントと順序</h2>
+  <p>この表は、一つの判断で出せる結果と優先順位を示す。</p>
+  <table><thead><tr><th>出来事</th><th>作る条件</th><th>受け取る先</th><th>成功条件</th></tr></thead><tbody>
+    <tr><td><code>SignalEvent</code></td><td>warmup完了後、固定規則により候補が一意になったときだけ作る。</td><td>監査、Risk、OMS側の調停部が受け取る。</td><td>同一判断ではStop、Channel Exit、Add、Entryの保守的な優先順を用い、曖昧なら出さない。</td></tr>
+    <tr><td><code>TargetPosition</code></td><td>Signalに対応する希望Unitが決まったときだけ作る。</td><td>Riskが受け取り、最終数量と可否を決める。</td><td>注文ではなく、Risk合格・Broker ID・約定価格を含めない。</td></tr>
+    <tr><td><code>OrderIntent</code></td><td>ConfigがORDER_INTENTを選び、ENTER/ADD/REDUCE/EXITのUnit差分が一意になったときだけ作る。</td><td>Risk / OMS側の調停部が受け取り、注文化前に最終安全判定を行う。</td><td>同じ判断でTargetPositionと同時発行せず、優先順位はEXIT/REDUCE、ADD、ENTERの順とし、意味内容hashの重複を出さない。</td></tr>
+  </tbody></table>
+
+  <h2>11. エラー分類と安全側へ止める規則</h2>
+  <p>この表は、問題が起きたときに何を止めるかを示す。</p>
+  <table><thead><tr><th>固定名</th><th>状況</th><th>処理</th><th>利用可否</th></tr></thead><tbody>
+    <tr><td><code>STR_INPUT_NOT_CLOSED</code></td><td>未完成足が入力された。</td><td>Batch全体を拒否し、計算状態を維持したstopped_stateを返す。</td><td>SignalとDirectiveは0件。</td></tr>
+    <tr><td><code>STR_FUTURE_BAR</code></td><td>足、roll、Viewの公開時刻が判断時刻より未来である。</td><td>未来情報を捨てて続行せず、入力全体を拒否する。</td><td>出力不可。</td></tr>
+    <tr><td><code>STR_DECISION_COHORT_INCOMPLETE</code></td><td>同時closeで必要な時間足が不足している。</td><td>集合が完成するまで判断しない。</td><td>出力不可。</td></tr>
+    <tr><td><code>STR_DUPLICATE_CONFLICT</code></td><td>同じIDなのに内容が違う。</td><td>指標・Campaign・水位は変えず、status/reason/revisionを更新したstopped_stateへ移る。</td><td>再送を成功扱いせず、同じrunで自動再開しない。</td></tr>
+    <tr><td><code>STR_WARMUP_INCOMPLETE</code></td><td>必要本数がまだそろっていない。</td><td>正常な抑制として水位だけを進める。</td><td>計算成功だが売買出力は0件。</td></tr>
+    <tr><td><code>AMBIGUOUS_DUAL_BREAKOUT</code></td><td>同一OHLCから上下一方の先後を決められない。</td><td>新規Entryを出さず、曖昧さを記録する。</td><td>利益に都合のよい順を仮定しない。</td></tr>
+    <tr><td><code>STR_SNAPSHOT_CONTEXT_MISMATCH</code></td><td>Snapshotの版・hash・水位が現在のManifestと違う。</td><td>復元せず停止する。</td><td>新しい判断を開始しない。</td></tr>
+    <tr><td><code>STR_TIME_REGRESSION</code></td><td>bar、decision、Execution水位の時刻または番号が前回より戻る。</td><td>入力全体を拒否しSTOPPEDを固定する。</td><td>同じrunでは自動再開しない。</td></tr>
+    <tr><td><code>STR_TIMEFRAME_NOT_ALLOWED</code></td><td>Configにない時間足が届く。</td><td>推測変換せずBatchを拒否する。</td><td>出力不可。</td></tr>
+    <tr><td><code>STR_DATA_VERSION_MISMATCH / STR_CATALOG_VERSION_MISMATCH / STR_CALENDAR_VERSION_MISMATCH</code></td><td>Batch、View、Bindingの版が一致しない。</td><td>一つでも不一致なら計算状態を進めずstopped_stateへ移る。</td><td>版を混ぜた計算は禁止。</td></tr>
+    <tr><td><code>STR_CONFIG_INVALID</code></td><td>本数、倍数、時間足Binding、出力方式が矛盾する。</td><td>initialize時に業務拒否結果を返し、新状態を利用可能にしない。</td><td>暗黙デフォルトで補わない。</td></tr>
+    <tr><td><code>STR_SNAPSHOT_HASH_MISMATCH / STR_SNAPSHOT_SCHEMA_UNSUPPORTED</code></td><td>保存内容のhashが違う、または未知schemaである。</td><td>復元せず固定理由を返す。</td><td>自動migrationは禁止。</td></tr>
+    <tr><td><code>STR_NUMERIC_INVALID</code></td><td>float、NaN、無限値、OHLC関係破綻など計算不能値がある。</td><td>Phase 2で警告扱いでもStrategy計算には使わず停止する。</td><td>警告許容より数値型安全を優先する。</td></tr>
+    <tr><td><code>AMBIGUOUS_VIRTUAL_TRADE_PATH</code></td><td>同じOHLC内で仮想Stopと利益Exitの先後を判定できない。</td><td>WIN/LOSSを決めずUNKNOWNを維持し、実Signalを抑制する。</td><td>都合のよい順序を仮定しない。</td></tr>
+  </tbody></table>
+  <p><strong>停止方式の統一:</strong> <code>process_closed_batch</code>の入力品質・業務規則・版拒否は<code>StrategyResult</code>、初期化拒否は<code>StrategyInitResult</code>、復元拒否はstate=Noneの<code>StrategyRestoreResult</code>で返す。処理中の<code>stopped_state</code>は指標・Campaign・水位を旧値のまま保ち、status、stop_reason、state_revisionだけを更新する。STOPPEDは同じrunでは解除しない。Python型注釈に反する呼出し、内部不変条件破壊、到達不能分岐だけを<code>StrategyProgrammingError</code>として例外送出し、呼出元はRun全体を異常終了する。</p>
+
+  <h2>12. 利用可否の状態</h2>
+  <p>この表は、後続が判断結果をどう扱うかを示す。</p>
+  <table><thead><tr><th>状態</th><th>意味</th><th>後続の扱い</th></tr></thead><tbody>
+    <tr><td><code>READY</code></td><td>必要本数、Batch、版、限定Viewがそろっている。</td><td>規則評価を行える。</td></tr>
+    <tr><td><code>WARMING_UP</code></td><td>入力は正しいが必要本数が不足している。</td><td>状態更新のみ許し、Signalを出さない。</td></tr>
+    <tr><td><code>WARNING</code></td><td>Phase 2で許容された品質警告がある。</td><td>計算可能なら続行し、警告を全出力へ伝える。</td></tr>
+    <tr><td><code>STOPPED</code></td><td>未来、欠損、矛盾、版違い、計算不能がある。</td><td>業務計算状態を部分更新せず、Signalと選択済みDirectiveを出さない。</td></tr>
+  </tbody></table>
+
+  <h2>13. 実行方法との接続</h2>
+  <p>この表は、実行モードが変わってもStrategyの意味を変えない契約を示す。</p>
+  <table><thead><tr><th>実行方法</th><th>入力</th><th>Strategyの動き</th><th>許される変更</th></tr></thead><tbody>
+    <tr><td>Backtest</td><td>保存済みデータから作った確定BatchとSimulatorの確認済み投影。</td><td>同じ公開APIを使い、壁時計やengine Fill型を読まない。</td><td>副作用なし。</td></tr>
+    <tr><td>Shadow / Paper / Live候補</td><td>各Adapterが同じ共通型へ変換した確定Batchと確認済み投影。</td><td>Backtestと同じ意味論で動く。</td><td>外部副作用はStrategy外だけに許す。</td></tr>
+  </tbody></table>
+
+  <h2>14. 追跡と未確定事項</h2>
+  <p>この表は、要件・判断・未確定事項と、未決時に何を止めるかを示す。</p>
+  <table><thead><tr><th>ID</th><th>本書での反映</th><th>未確定事項と扱い</th></tr></thead><tbody>
+    <tr><td><code>REQ-Q01 / Q12 / Q13</code></td><td>System 1/2、勝ちブレイク、原典日中近似と終値確認を別variant・rule ID・fixtureで比較する。</td><td>比較variantと発火時間足はH3-1まで固定せず、結果を見て追加しない。</td></tr>
+    <tr><td><code>REQ-Q09 / Q14 / Q15 / Q18</code></td><td>TR/N/Donchian、0.5N、2N、4/6/10/12 Unit Hintを式・型・試験へ対応させた。</td><td>Live用Unit金額とRisk最終値はUNK-P3-06として後続へ送る。</td></tr>
+    <tr><td><code>REQ-POL04</code></td><td>engine非依存公開型、外部I/O禁止、Risk/OMS/Broker非責務を固定した。</td><td>P3-09の実engine Adapter試験まで最終Passにしない。</td></tr>
+    <tr><td><code>DEC-P3-13</code></td><td>今回判断用<code>DecisionIndicatorView</code>と次回用<code>NextIndicatorState</code>を分離し、現在足のChannel混入を禁止する。</td><td>P3-05で先読み検出テストをRED固定する。</td></tr>
+    <tr><td><code>UNK-P1-STR-01</code></td><td><code>TargetPosition</code>と<code>OrderIntent</code>の両契約を定義し、Configで一方式だけを選ぶ。</td><td>H3-1の<code>UNK-P3-08</code>でP3 Turtle v1の方式を凍結する。同時発行は禁止。</td></tr>
+    <tr><td><code>P3-AC-02</code></td><td>確定足型、完全Batch、未来拒否、全更新後一回判断を定義した。</td><td>P3-05で固定fixture化し、P3-06でGREENになるまでPhase 3完了にしない。</td></tr>
+    <tr><td><code>P3-AC-05</code></td><td>engine非依存型と禁止importテストを定義した。</td><td>LEAN等の実接続はP3-08A/P3-09で確認する。</td></tr>
+    <tr><td><code>P3-AC-08</code></td><td>Golden、Snapshot、Look-aheadの全テストを定義した。</td><td>H3-1で期待値を凍結するまでPassにしない。</td></tr>
+    <tr><td><code>UNK-P3-02</code></td><td>fixture形式、Decimal精度、丸め、許容差を型契約へ分離した。</td><td>H3-1まで未解決。凍結前はStrategy本実装を開始しない。</td></tr>
+    <tr><td><code>UNK-P3-06</code></td><td>Strategy Unitと最終注文数量を分離した。</td><td>Phase 4/5まで未解決。Hintだけを返す。</td></tr>
+    <tr><td><code>UNK-P3-08</code></td><td>原典版と現代版をvariantで分け、後付け最適化を禁止した。</td><td>H3-1まで未解決。固定候補以外を比較結果後に追加しない。</td></tr>
+    <tr><td><code>UNK-P3-09</code></td><td>原典の日中突破を1分確定足または15分確定足で近似する選択を明示した。</td><td>H3-1でfixtureと一緒に承認する。未決時はGT-TUR-006と原典版実装を開始しない。</td></tr>
+  </tbody></table>
+
+  <h2>15. 実装依存方向と公開境界</h2>
+  <p>Strategy Coreは共通契約へだけ依存し、候補エンジンは外側のAdapterから接続する。</p>
+  <pre class="mermaid">flowchart LR
+    K["strategy.contracts"] -->|"公開DTO"| P["strategy.ports"]
+    P -->|"Strategy依頼"| S["strategy.service"]
+    S -->|"確定バーと旧状態"| I["strategy.indicators"]
+    S -->|"判断用指標View"| R["strategy.turtle_rules"]
+    S -->|"正規状態"| N["strategy.snapshot"]
+    A["engine_adapters"] -->|"共通DTO"| P
+    M["market_data契約"] -->|"P3-04で変換"| K</pre>
+  <table><thead><tr><th>モジュール</th><th>外へ見せるもの</th><th>参照してよいもの</th><th>担当しないこと</th></tr></thead><tbody>
+    <tr><td><code>strategy.contracts</code></td><td>共通DTO、Enum、理由コード。</td><td>Python標準型とPhase 2の内部ID意味だけ。</td><td>engine SDK型や外部IDを公開しない。</td></tr>
+    <tr><td><code>strategy.service</code></td><td>StrategyPlugin実装。</td><td>contracts、config、indicators、rules、snapshot。</td><td>MarketEvent集約、I/O、Risk、OMS、Brokerを参照しない。</td></tr>
+  </tbody></table>
+
+  <h2>16. 型付き公開契約</h2>
+  <p>次は実装者が作る主要な形である。値の全フィールドは4章と9章を正本とする。</p>
+  <pre>class StrategyPlugin(Protocol):
+    def initialize(self, run_id: str, config: StrategyConfig, binding: ManifestBinding) -> StrategyInitResult: ...
+    def process_closed_batch(
+        self, batch: ClosedBarBatch, instrument: TradableInstrumentView,
+        execution: ConfirmedExecutionView, constraints: PortfolioConstraintView,
+        state: StrategyState
+    ) -> StrategyResult: ...
+    def snapshot(self, state: StrategyState, binding: ManifestBinding) -> StrategySnapshot: ...
+    def restore(self, snapshot: StrategySnapshot, binding: ManifestBinding) -> StrategyRestoreResult: ...
+    def health(self, state: StrategyState, logical_time_utc: datetime) -> StrategyHealth: ...</pre>
+  <p>この表は、公開関数の戻り値、エラー、再実行時の動きを示す。</p>
+  <table><thead><tr><th>関数</th><th>返すもの</th><th>エラー</th><th>再実行と副作用</th></tr></thead><tbody>
+    <tr><td><code>initialize</code></td><td><code>StrategyInitResult</code>を返す。</td><td>空run_idまたは業務上のConfig不正は空のSTOPPED初期State付き結果、Python型契約違反だけ例外とする。</td><td>同じrun_id/config/bindingは同じState hashとなり、外部副作用はない。run_idを自動生成しない。</td></tr>
+    <tr><td><code>process_closed_batch</code></td><td>新状態と0件以上のSignal/Directiveを返す。</td><td>業務上の拒否はSTOPPED結果、内部不変条件破壊だけ<code>StrategyProgrammingError</code>とする。</td><td>同一Batch再送はno-op。同一ID内容違いはsticky STOPPED。外部副作用なし。</td></tr>
+    <tr><td><code>snapshot</code></td><td>正規payloadとhashを持つSnapshotを返す。</td><td>STOPPED状態も理由付きで保存でき、型契約違反だけ例外とする。</td><td>同じ状態は同じhashとなり、ファイルへ書かない。</td></tr>
+    <tr><td><code>restore</code></td><td><code>StrategyRestoreResult</code>を返す。</td><td>hash/schema/文脈不一致はstate=NoneのSTOPPED結果で利用拒否する。</td><td>同じSnapshotは同じState hashとなり、未知schemaを自動移行しない。</td></tr>
+    <tr><td><code>health</code></td><td>論理時刻時点のStrategyHealthを返す。</td><td>状態不変条件破壊だけ例外とする。</td><td>状態を変更せず壁時計を読まない。</td></tr>
+  </tbody></table>
+
+  <h2>17. 正常系・失敗系の詳細フロー</h2>
+  <p>成功、準備中、拒否、重複再送を一つの流れで示す。</p>
+  <pre class="mermaid">sequenceDiagram
+    participant O as 呼出元
+    participant S as Strategy
+    alt 完全な新規Batch
+      O->>S: Batchと限定View
+      S->>S: 全検証・全指標更新・一回判断
+      S-->>O: 新状態、Signal、選択済みDirective
+    else warmup不足
+      S-->>O: 水位更新とSignalゼロ
+    else 同一Batch再送
+      S-->>O: 状態変更なし・出力ゼロ
+    else 不正または矛盾
+      S-->>O: 計算状態維持・STOPPED状態・出力ゼロ
+    end</pre>
+
+  <h2>18. 誤実装しやすい規則の擬似コード</h2>
+  <p>ここでは、同じ入力なら誰が実装しても同じ値と状態になるよう、式、比較記号、更新前後を固定する。<code>DecisionIndicatorView</code>は現在足追加前のChannelを持ち、<code>NextIndicatorState</code>は現在足を取り込んだ次回用状態を持つ。規則評価が後者のChannelを読むことを禁止する。</p>
+  <h3>18.1 指標計算規則</h3>
+  <p>次の表は、指標の入力、式、判断用の値、次状態を固定する。</p>
+  <table><thead><tr><th>規則</th><th>計算と比較</th><th>判断に使う時点</th><th>次状態</th></tr></thead><tbody>
+    <tr><td>True Range</td><td><code>TR = max(high-low, abs(high-prev_close), abs(low-prev_close))</code>。最初の価格足は前終値がないためTRを作らない。</td><td>すべてDecimalで計算し、float変換しない。</td><td>現在closeを次回の<code>prev_close</code>へ保存する。</td></tr>
+    <tr><td>最初のN</td><td>20個のTRがそろった時点で<code>N = sum(TR[0:20]) / Decimal(20)</code>。したがって最低21本の価格足を要する。</td><td>21本目の確定足処理後から<code>n_after</code>を判断に使用できる。</td><td>直近20個のTRとNを保存する。</td></tr>
+    <tr><td>その後のN</td><td><code>N_after = (Decimal(19) * N_before + current_TR) / Decimal(20)</code>。</td><td>閉じた足だけを使う本設計では、そのBatchの判断に<code>N_after</code>を使う。Entryが確認済みFillになった時点のNを<code>entry_n</code>として固定する。</td><td>NとTR窓を次回用へ保存する。</td></tr>
+    <tr><td>Entry Channel</td><td><code>upper=max(prior_highs[-entry_lookback:])</code>、<code>lower=min(prior_lows[-entry_lookback:])</code>。</td><td>現在足を追加する前の窓を<code>DecisionIndicatorView</code>へ固定する。</td><td>判断候補を作った後で現在high/lowを次回窓へ追加する。</td></tr>
+    <tr><td>Exit Channel</td><td><code>exit_high=max(prior_highs[-exit_lookback:])</code>、<code>exit_low=min(prior_lows[-exit_lookback:])</code>。</td><td>Entryと同様、現在足を除外した値だけを使う。</td><td>評価後に現在足を次回窓へ追加する。</td></tr>
+  </tbody></table>
+  <h3>18.1.1 variant別warmup</h3>
+  <p>次の表は、原典variantで各判断を開始できる最小本数を固定する。Nは20個のTRを得るため21本、Channelは現在足を除くためlookback+1本を要する。</p>
+  <table><thead><tr><th>Strategy instance</th><th>判定</th><th>最小価格足</th><th>不足時に許すこと</th></tr></thead><tbody>
+    <tr><td>System 1</td><td>Nと20本Entry</td><td>21本</td><td>TR/N/20本Channelの状態更新だけを許し、完全Strategy判断はまだ行わない。</td></tr>
+    <tr><td>System 1</td><td>10本Exit</td><td>11本に加えて確認済み保有Viewが必要</td><td>既存保有の安全Exit評価だけを許せるが、N未準備の新規Entry/Addは出さない。</td></tr>
+    <tr><td>System 1</td><td>55本Failsafeを含む完全warmup</td><td>56本</td><td>56本未満は<code>WARMING_UP</code>とし、原典System 1の完全合格判定に数えない。</td></tr>
+    <tr><td>System 2</td><td>55本Entry・20本Exit・N</td><td>56本</td><td>56本未満は状態更新だけで、System 2の新規Entryを出さない。</td></tr>
+    <tr><td>現代版</td><td>Configに登録した全rule</td><td><code>max(n+1, max_entry+1, max_exit+1)</code></td><td>一部ruleだけ準備できても、Configが部分評価を明示しない限り新規Directiveを出さない。</td></tr>
+  </tbody></table>
+  <h3>18.2 原典System 1/2と比較variant</h3>
+  <p>次の表は、長短の比較記号、Exit、追加、Stop、勝ちブレイクを固定する。価格HintはH3-1で承認するDecimal/tick規則で正規化する。</p>
+  <table><thead><tr><th>規則</th><th>ロング</th><th>ショート</th><th>状態・reason</th></tr></thead><tbody>
+    <tr><td>System 1 Entry</td><td>直前20本上限に対し、日中近似variantは<code>trigger_high &gt;= upper + tick</code>、終値確認variantは<code>close &gt;= upper + tick</code>。</td><td>直前20本下限に対し、日中近似variantは<code>trigger_low &lt;= lower - tick</code>、終値確認variantは<code>close &lt;= lower - tick</code>。</td><td><code>SYS1_ENTRY</code>。前回仮想/確認済みOutcomeがWINなら抑制し、仮想Campaignを開始する。</td></tr>
+    <tr><td>System 2 Entry</td><td>直前55本上限に対しSystem 1と同じtick境界を使う。</td><td>直前55本下限に対し対称な境界を使う。</td><td><code>SYS2_ENTRY</code>。勝ちブレイクフィルターを適用しない。</td></tr>
+    <tr><td>System 1 Exit</td><td>確認済みロング保有中に<code>trigger_low &lt;= prior_10_exit_low</code>。</td><td>確認済みショート保有中に<code>trigger_high &gt;= prior_10_exit_high</code>。</td><td><code>SYS1_CHANNEL_EXIT</code>。約定価格は決めない。</td></tr>
+    <tr><td>System 2 Exit</td><td>確認済みロング保有中に<code>trigger_low &lt;= prior_20_exit_low</code>。</td><td>確認済みショート保有中に<code>trigger_high &gt;= prior_20_exit_high</code>。</td><td><code>SYS2_CHANNEL_EXIT</code>。System 1とrule IDを混ぜない。</td></tr>
+    <tr><td>0.5N Add</td><td><code>unit_fill = last_add_fill if present else last_entry_fill</code>、<code>trigger_high &gt;= unit_fill + Decimal('0.5') * entry_n</code>。</td><td><code>unit_fill = last_add_fill if present else last_entry_fill</code>、<code>trigger_low &lt;= unit_fill - Decimal('0.5') * entry_n</code>。</td><td><code>PYRAMID_ADD</code>。Entry約定前、未完了Add Intent中、または新しいFill watermarkがない場合は抑制する。</td></tr>
+    <tr><td>2N Stop</td><td><code>unit_fill = last_add_fill if present else last_entry_fill</code>、<code>trigger_low &lt;= unit_fill - Decimal('2') * entry_n</code>。</td><td><code>unit_fill = last_add_fill if present else last_entry_fill</code>、<code>trigger_high &gt;= unit_fill + Decimal('2') * entry_n</code>。</td><td><code>COMMON_2N_STOP_LATEST_FILL</code>。原典v1は最新確認済みUnit Fill基準の共通Stopとし、平均/初回/Unit別は別variant。</td></tr>
+    <tr><td>同一足競合</td><td colspan="2">保有中は<code>Stop → Channel Exit → Add</code>。非保有はFailsafe/System 2を識別後にEntryを一つへ絞る。上下一方の先後不明はEntryを出さない。</td><td><code>AMBIGUOUS_DUAL_BREAKOUT</code>。新規リスクを増やさない結果を優先する。</td></tr>
+  </tbody></table>
+  <h3>18.3 勝ちブレイク仮想状態</h3>
+  <p>System 1で見送った突破も、次のフィルター判断に必要なため、未来結果を後付けせず足ごとに仮想追跡する。</p>
+  <table><thead><tr><th>旧状態と入力</th><th>処理</th><th>次状態</th><th>出力</th></tr></thead><tbody>
+    <tr><td>前回Outcome=WINで新しいSystem 1突破</td><td>実Directiveを抑制し、方向、突破価格、<code>entry_n</code>、仮想2N Stopを保存する。10本Exit価格は保存しない。</td><td><code>virtual_breakout_active=true</code>。</td><td>Signalと選択済みDirectiveは0件、抑制reasonをHealthへ記録する。</td></tr>
+    <tr><td>仮想Campaignで2N Stopだけに先に到達</td><td>その足までの確定情報だけで仮想損失を確定する。</td><td><code>previous_breakout_outcome=LOSS</code>、active=false。</td><td>実注文は出さない。</td></tr>
+    <tr><td>仮想Campaignで10本Exitだけに先に到達</td><td>各Batchで現在足を除外したSYS1の直前10本Exit Channelを<code>DecisionIndicatorView</code>から取り、現在TriggerPriceViewとの到達を評価する。Exit Hintと仮想Entry価格を比較し、利益ならWIN、損失または同値ならLOSSとする。</td><td>未到達ならactiveのまま次Batchへ進み、固定Exit価格は保存しない。到達時はOutcomeを確定しactive=false。</td><td>実注文は出さない。</td></tr>
+    <tr><td>同じOHLCで仮想Stopと利益Exitの両方に触れる</td><td>先後を推測しない。</td><td>Outcome=UNKNOWNを維持し、StrategyをSTOPPEDにする。</td><td><code>AMBIGUOUS_VIRTUAL_TRADE_PATH</code>、出力0件。</td></tr>
+    <tr><td>実際に約定したSystem 1 Campaignが終了</td><td>Execution正本が確定した<code>last_closed_campaign_outcome</code>を、新しいcampaign watermarkとCampaign専用source hashから作ったfingerprintと一緒に一度だけ取り込む。StrategyがFill価格から損益を作り直さない。</td><td><code>previous_breakout_outcome</code>をWINまたはLOSSへ更新し、消費済みcampaign ID/watermark/fingerprintを保存する。同足先後不明で正本Outcomeが確定していなければUNKNOWNのまま停止する。</td><td>新規Directiveは出さず、状態更新の監査reasonだけを残す。</td></tr>
+    <tr><td>55本Failsafe / System 2突破</td><td>一つのStrategy instanceは<code>primary_system</code>を一つだけ持つ。System 1 instanceはFailsafeを評価し、System 2 instanceはSystem 2 Entryを評価する。</td><td>別strategy_idの状態として独立保存する。</td><td>それぞれ<code>SYS1_FAILSAFE_ENTRY</code>または<code>SYS2_ENTRY</code>を一件だけ出す。</td></tr>
+  </tbody></table>
+  <p><strong>Campaign outcomeの処理順:</strong> 各Batch判断では、まず<code>ConfirmedExecutionView</code>のcampaign watermarkとfingerprintを確認する。同水位・同fingerprintはno-op、逆行または同水位でfingerprint違いはSTOPPED、増加時はOutcomeを一度だけStateへ適用して消費済みID/watermark/fingerprintを保存する。その後に同じBatchの新しい突破を評価する。これにより、直前Campaignの勝敗を次のSystem 1フィルターへ因果的に反映し、復元後の二重適用を防ぐ。</p>
+  <h3>18.4 Batch処理の原子的擬似コード</h3>
+  <p>次の擬似コードは、今回判断用の値と次回状態を混ぜず、拒否時の部分更新を防ぐ。</p>
+  <pre>rejection = validate_all(batch, instrument, execution, constraints, state, config)
+if rejection:
+    stopped_state = state.keep_calculation_state().with_status(STOPPED, rejection).bump_revision()
+    return stopped_result(state=stopped_state, reason=rejection)  # 同じrunではsticky
+
+if batch.batch_id == state.last_batch_id:
+    if batch.content_sha256 == state.last_batch_sha256:
+        return no_op(state)
+    stopped_state = make_stopped_state(state, STR_DUPLICATE_CONFLICT)  # status/reason/revisionだけ更新
+    return stopped_result(state=stopped_state, reason=STR_DUPLICATE_CONFLICT)
+
+# Campaign結果は指標更新や新しい突破判定より先に、一度だけ取り込む。
+campaign_update = consume_campaign_outcome_once(state.campaign, execution)
+if campaign_update.is_conflict_or_regression:
+    stopped_state = make_stopped_state(state, STR_DUPLICATE_CONFLICT)
+    return stopped_result(state=stopped_state, reason=STR_DUPLICATE_CONFLICT)
+state_after_outcome = state.with_campaign(campaign_update.next_campaign)
+
+decision_views = []
+next_states = []
+for bar in canonical_sort(batch.bars):
+    old_indicator = state_after_outcome.indicator_for(bar.series, bar.timeframe)
+    decision_view = channels_from_prior_window(old_indicator)  # 現在barは未追加
+    next_indicator = update_tr_n_and_append_current_bar(old_indicator, bar)
+    decision_views.append(decision_view.with_n(next_indicator.n_value))
+    next_states.append(next_indicator)
+
+candidate_state = state_after_outcome.with_indicators(next_states)
+if not all_required_warm(candidate_state, config):
+    return warming_up_result(candidate_state)
+
+trigger_views = build_trigger_views_from_current_batch(batch, config.rule_configs)
+# rule_idでindicator_timeframeのChannelとtrigger_timeframeの現在価格を一意に結ぶ。
+# trigger barがないruleはこのdecisionでは評価しない。未来barや版違いはvalidate_allでSTOPPED。
+decision = evaluate_once(
+    decision_views, trigger_views, candidate_state.campaign, execution, constraints, config
+)
+candidate_state = apply_strategy_hypothesis_only(candidate_state, decision)
+return commit_once(candidate_state, decision)  # TargetかIntentの一方式だけ</pre>
+
+  <h2>19. 設定、監査、テスト、実行記録</h2>
+  <p>この表は、実装・検証時に版と証拠をどう束縛するかを示す。</p>
+  <table><thead><tr><th>区分</th><th>契約</th></tr></thead><tbody>
+    <tr><td>設定</td><td>時間足、lookback本数、variant、倍数、上限をConfig hashへ含める。内部精度と丸め規則はStrategy版へ固定し、H3-1で期待値を承認する。</td></tr>
+    <tr><td>Snapshot</td><td>UTF-8、key順固定、Decimalは指数表記なし、UTCはZ、Enumは固定code、配列順固定としてhashを作る。</td></tr>
+    <tr><td>監査</td><td>run-scoped IDと、run/engine IDを除いた意味内容hashを両方残す。警告、抑制、停止理由を省略しない。</td></tr>
+    <tr><td>テスト</td><td>承認済みv1のGT-TUR-001〜035は履歴として保持する。P3-05RでGT-TUR-036〜040をv2 REDとして固定し、H3-1R承認後にだけP3-06でM30範囲をGREEN化する。P3-07はBacktest Coreとの結合を確認する。</td></tr>
+    <tr><td>物理保存</td><td>Strategyは直接保存しない。Snapshot Storeの原子的保存、追記監査、ManifestはP3-04のBacktest詳細設計で扱う。</td></tr>
+  </tbody></table>
+
+  <h3>19.1 P3-05R: M30の詳細契約</h3>
+  <p>M30はStrategy内で再集約しません。BacktestのTimeframe Aggregatorが、固定Calendarのsession anchorから数えた連続30本の確定1分足を直接集約して渡す唯一の<code>ClosedBar(timeframe=M30)</code>です。区間は<code>[bar_open_time_utc, bar_close_time_utc)</code>で、M15を二本つないだ値、推測値、端数の値を受け取りません。</p>
+  <table><thead><tr><th>論点</th><th>Strategyの固定契約</th><th>異常時</th></tr></thead><tbody>
+    <tr><td>Configと互換性</td><td><code>m30_enabled=false</code>の既存ConfigはM30を期待集合・watermark・warmup・rule入力・出力hashから除外する。同じv1入力、同じConfig、同じbindingなら、従来のM15/H1/H4/D1のBatch、Signal、Directive、State hashの意味を変えない。</td><td>無効ConfigへM30が混入、または有効ConfigでM30用途が未指定なら<code>STR_CONFIG_INVALID</code>または<code>STR_TIMEFRAME_NOT_ENABLED</code>。出力0、sticky STOPPED。</td></tr>
+    <tr><td>判断点</td><td>同一closeではM1→M15→M30→H1→H4→D1の全Viewを正規順に更新してから、<code>decision_point_id</code>ごとに<em>一回だけ</em>評価する。M30をtrigger/indicator/regimeに選んだruleは、その確定M30が同じ完全Batchにある場合だけ評価する。</td><td>順序違反、M30を含む期待集合不一致、同一DecisionPointの二回目は<code>STR_COHORT_INCOMPLETE</code>または<code>STR_DUPLICATE_CONFLICT</code>で停止する。</td></tr>
+    <tr><td>watermarkとSnapshot</td><td><code>per_timeframe_watermarks</code>にM30を有効時だけ一意に保存する。M30 bar ID、close時刻、bars_seen、content hash、<code>timeframe_rule_version</code>、Calendar/Catalog/Data/Config/fixture hashを<code>ManifestBinding</code>と完全一致させる。Snapshot復元後の同一M30 Batchはno-op、同じ水位で内容違いは競合停止とする。</td><td>版・hash・M30水位・enabled集合の差替えは<code>STR_SNAPSHOT_CONTEXT_MISMATCH</code>。自動migration、M30水位の補完、旧Snapshotへの暗黙追加は禁止する。</td></tr>
+    <tr><td>停止理由の伝播</td><td>AggregatorがDST、休日、短縮日、日次停止、session終端端数、欠損、重複、逆行、範囲外を理由にM30を発行しない場合、その理由をBatch/Health/Auditへ保ったままStrategyへ渡す。Strategyは部分M30を作らない。</td><td><code>PARTIAL_BAR_REJECTED</code>、<code>CALENDAR_BOUNDARY_INVALID</code>、<code>DUPLICATE_1M_CONFLICT</code>、<code>TIME_ORDER_INVALID</code>はSignal/Directive 0件、業務計算状態を部分更新せずSTOPPED。</td></tr>
+  </tbody></table>
+  <div class="easy"><strong>やさしい説明:</strong> 30分足は「15分の表を二枚貼る」ものではありません。取引の一日の始まりから1分の記録を30枚そろえて一枚にする表です。足りない一枚があれば答えを作らず止め、30分足を使わない設定なら今までの時計の動きは変えません。</div>
+
+  <section class="gate"><h2>20. 人間承認の対象</h2>
+    <p><strong>H3-0:</strong> 承認済み。Strategy / Backtest / Golden / engine PoCの範囲で進める。</p>
+    <p><strong>H3-1:</strong> 承認済みのv1 fixture/hashの履歴として保持する。M30追加分は<strong>H3-1R</strong>で、v2 fixture/hash、M30の直接集約、DST/休日/短縮日/端数停止、M1→M15→M30→H1→H4→D1、一回判断、Config無効時互換性を再承認する。H3-1R未承認ならM30を含むP3-06/P3-07本実装を開始しない。</p>
+    <p><strong>UNK-P3-06:</strong> 実際の注文枚数はPhase 4/5で承認する。本書のStrategy Unitを注文可否や最終数量として使わない。</p>
+    <div class="easy"><strong>やさしい説明:</strong> H3-1では、テスト問題と正解、数字の丸め方、「日中に突破した」を1分ごとに見るか15分ごとに見るかを、プログラム完成前に封印します。後から成績に合わせて答えを変えないための承認です。</div>
+  </section>
+
+  <section class="review"><h2>21. レビュー履歴</h2>
+    <p>この表は、初回の専門指摘、反映、再レビュー結果を残す。</p>
+    <table><thead><tr><th>日付</th><th>確認者</th><th>問題内容</th><th>修正方針と反映</th></tr></thead><tbody>
+      <tr><td>2026-08-09</td><td><code>AutoTrade_A30_StrategyQaArchitect_v0_1</code></td><td>Phase 2 MarketEventには時間足・開始時刻・完成印・Calendar版がなく、原典の日中突破と15分確定判断も同一ではない。<br><small>やさしい説明: 材料に必要な名札が足りず、15分後に見る方法を「原典と全く同じ」と呼ぶと誤解します。</small></td><td>破壊的変更をせずClosedBarBatchを追加し、日中発火の近似方式をUNK-P3-09/H3-1へ登録した。確認済みFill、競合優先順、仮想突破状態、35件の試験も追加した。<br><small>やさしい説明: 必要な名札付きの箱を新しく作り、どの時計で見るかはテスト前に人が決めます。</small></td></tr>
+      <tr><td>2026-08-09</td><td><code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code></td><td>同時closeを逐次処理すると重複判断が生じ、Snapshotへ版と水位がなければ復元後に重複・欠落が起きる。<br><small>やさしい説明: 時計が同時に鳴るたび別々に答えると、同じ注文希望を何回も出すおそれがあります。</small></td><td>全View更新後一回判断、完全Snapshot、意味内容hash、engine内向き依存を固定した。<br><small>やさしい説明: 全部の時計を確認してから一回答え、再開地点も正確に保存します。</small></td></tr>
+      <tr><td>2026-08-09</td><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code> 初回</td><td>Turtle式、全DTO、現在足除外、停止方式、Exit試験、Snapshot、Step番号、追跡にCritical 1 / High 10を指摘した。<br><small>やさしい説明: 設計図に名前はありましたが、途中式と箱の中身が足りず、人によって違う物を作れる状態でした。</small></td><td>式・比較記号・状態遷移、全フィールド、判断Viewと次状態の分離、STOPPED統一、GT-TUR-031〜035、正本同期を反映した。<br><small>やさしい説明: 誰が作っても同じ答えになるよう、途中式、箱の中身、止め方、出口の試験まで書き足しました。</small></td></tr>
+      <tr><td>2026-08-09</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code> 初回</td><td>横断Unit View、停止のsticky性、engine漏出防止、約定水位、UNK-P3-09正本登録にHigh 5を指摘した。<br><small>やさしい説明: 全体数を数える表、停止後のルール、約定のお知らせを何時まで使うかが不足していました。</small></td><td>PortfolioConstraintView、sticky STOPPED、DTO許可リスト、Execution watermark、計画・P3-D02・総合台帳同期を反映した。<br><small>やさしい説明: 必要な読取表を追加し、止まったら勝手に再開せず、使う約定の締切も固定しました。</small></td></tr>
+      <tr><td>2026-08-09</td><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code> 最終</td><td>最終再レビューでCritical 0、High 0を確認した。途中で残ったCampaign結果の二重適用、動く10本Exit、Campaign専用hash、正式フィールド名の不一致も解消済みである。<br><small>やさしい説明: 再開後に同じ勝敗を二度数えず、毎日動く退出線を正しく使い、同じ欄は同じ名前で呼べる設計になりました。</small></td><td>Critical 0 / High 0 / Medium 0で受入可とし、P3-04 Stepへ引き渡す。P3-06の本実装はP3-05とH3-1の完了後まで開始しない。<br><small>やさしい説明: 次の設計作業へ進めますが、テスト問題と正解を承認する前に戦略プログラム本体は作りません。</small></td></tr>
+      <tr><td>2026-08-09</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code> 最終</td><td>責務境界、停止状態、公開型、約定水位、Unknownの正本同期についてCritical 0、High 0を確認した。<br><small>やさしい説明: 戦略がRiskや注文係の仕事を奪わず、危険時の赤札も次回へ残ることを確認しました。</small></td><td>P3-D04を横断設計として受入可とした。<br><small>やさしい説明: 部品同士の仕事分担も、次の設計へ渡せる状態です。</small></td></tr>
+      <tr><td>2026-08-09</td><td><code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code> P3-05R</td><td>M30をM15連結で扱うと、欠損・DST・端数・復元時に同じ30分足か判定できず、一回判断も崩れる。<br><small>やさしい説明: 15分の表を二枚くっつけると、途中で足りない紙があっても気づきにくくなります。</small></td><td>19.1で直接1分集約、半開区間、Config、Batch順、Snapshot/Manifest binding、無効時互換性、停止理由を固定した。A91/A90/A150/A160の最終再レビューはCritical 0 / High 0 / Medium 0で受入可。H3-1R承認前に実装は始めない。<br><small>やさしい説明: 30分の表は最初から30枚の1分記録で作り、確認が終わるまで実装は始めません。</small></td></tr>
+    </tbody></table>
+  </section>
+
+  <h2>22. 関連成果物</h2>
+  <ul>
+    <li><a href="../01_要件追跡/01_Phase3スコープ定義.html">P3-D01 Phase 3スコープ定義</a></li>
+    <li><a href="../01_要件追跡/01_Phase3要件追跡マトリクス.html">P3-D02 Phase 3要件追跡マトリクス</a></li>
+    <li><a href="../02_エンジン調査/02_取引エンジン公式仕様確認結果.html">P3-D03 取引エンジン公式仕様確認結果</a></li>
+    <li><a href="../../phase1/05_戦略設計/05_Strategy_Plugin_Interface設計書.html">D08 Strategy Plugin Interface</a></li>
+    <li><a href="../../phase1/05_戦略設計/05_Turtle_Golden_test設計書.html">D09 Turtle Golden test</a></li>
+    <li><a href="../../phase1/07_実行モデル/07_共通実行モデル設計書.html">D11 共通実行モデル</a></li>
+    <li><a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題・承認事項の総合台帳</a></li>
+  </ul>
+  <section class="note" id="p3-06-current-status">
+    <h2>現在状態の上書き（2026-08-09）</h2>
+    <p>H3-1R改訂は承認済みである。v2は履歴として保存し、P3-06ではv3の「実M1を連続30本必須・不足M30は停止」を正本としてStrategy Coreを実装した。RUN-P3-STR-001は固定4 Gate PASS、Strategyテスト116件PASS、独立レビューCritical/High/Medium 0で受入可となった。詳細は<a href="../06_実装検証/06_Strategy実装検証結果.html">P3-D07</a>を正本とする。</p>
+    <p><small>やさしい説明: この設計書に残る「承認前」「実装前」は当時の履歴です。今は安全な新しいM30問題集でプログラムを作り、テストにも合格しています。</small></p>
+  </section>
+</main>
+<script src="../../assets/mermaid.min.js"></script>
+<script src="../../assets/mermaid-init.js"></script>
+</body></html>

@@ -1,0 +1,28 @@
+{
+  "schema_version": "p3-multitimeframe-fixture-v1",
+  "fixture_hash_scope": "utf-8-json-bytes-without-generated-at",
+  "fixture_status": "PROPOSED_FOR_H3_1",
+  "calendar": {
+    "calendar_version": "calendar-p3-fixture-v1",
+    "timezone": "America/Chicago",
+    "session_anchor_local": "17:00:00",
+    "special_days": {
+      "2026-03-08": "DST_START",
+      "2026-11-01": "DST_END",
+      "2026-07-03": "SHORT_DAY",
+      "2026-12-25": "HOLIDAY",
+      "2026-12-26": "DAILY_HALT"
+    }
+  },
+  "simultaneous_close": {
+    "input": {"decision_time_utc": "2026-03-10T20:00:00Z", "input_order": ["D1", "H4", "M15", "H1"]},
+    "expected": {"normalized_order": ["M15", "H1", "H4", "D1"], "strategy_calls": 1, "duplicate_signals": 0}
+  },
+  "rejection_cases": {
+    "unclosed": {"input": {"timeframe": "H1", "is_closed": false}, "expected": {"accepted": false, "reason": "STR_INPUT_NOT_CLOSED"}},
+    "future": {"input": {"bar_close_time_utc": "2026-03-10T20:15:00Z", "decision_time_utc": "2026-03-10T20:00:00Z"}, "expected": {"accepted": false, "reason": "STR_FUTURE_INPUT"}},
+    "calendar_mismatch": {"input": {"calendar_version": "calendar-other"}, "expected": {"accepted": false, "reason": "STR_CALENDAR_VERSION_MISMATCH"}},
+    "duplicate": {"input": {"source_event_id": "evt-duplicated"}, "expected": {"accepted": false, "reason": "DUPLICATE_1M_CONFLICT"}},
+    "out_of_order": {"input": {"source_event_id": "evt-reversed"}, "expected": {"accepted": false, "reason": "OUT_OF_ORDER"}}
+  }
+}

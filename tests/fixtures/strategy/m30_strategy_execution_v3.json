@@ -1,0 +1,50 @@
+{
+  "schema_version": "p3-m30-strategy-execution-fixture-v3",
+  "fixture_hash_scope": "utf-8-json-bytes-without-generated-at",
+  "fixture_status": "APPROVED_H3_1R_REVISION",
+  "binding": {
+    "data_version": "dv_p3_m30_fixture_001",
+    "catalog_version": "catalog-p3-fixture-v1",
+    "calendar_version": "us-futures-fixture-v1",
+    "timeframe_rule_version": "timeframe-calendar-anchor-m30-direct-m1-v3",
+    "ordering_rule_version": "m1-m15-m30-h1-h4-d1-v3",
+    "code_revision": "p3-06-m30-execution-contract-v3"
+  },
+  "cases": {
+    "GT-TUR-038-V3-COMPACT-V2": {
+      "purpose": "compact v2 IDs are not an executable M30 source",
+      "input": {
+        "timeframe": "M30",
+        "open_time_utc": "2026-01-05T23:00:00Z",
+        "close_time_utc": "2026-01-05T23:30:00Z",
+        "source_bar_kind": "BAR_1M",
+        "source_event_count": 30,
+        "source_event_ids": ["evt-m1-000", "evt-m1-001", "evt-m1-002", "evt-m1-003", "evt-m1-004", "evt-m1-005", "evt-m1-006", "evt-m1-007", "evt-m1-008", "evt-m1-009", "evt-m1-010", "evt-m1-011", "evt-m1-012", "evt-m1-013", "evt-m1-014", "evt-m1-015", "evt-m1-016", "evt-m1-017", "evt-m1-018", "evt-m1-019", "evt-m1-020", "evt-m1-021", "evt-m1-022", "evt-m1-023", "evt-m1-024", "evt-m1-025", "evt-m1-026", "evt-m1-027", "evt-m1-028", "evt-m1-029"],
+        "is_closed": true,
+        "calendar_version": "us-futures-fixture-v1",
+        "ohlcv": {"open": "100.00", "high": "103.20", "low": "99.80", "close": "103.00", "volume": "465"}
+      },
+      "expected": {"status": "STOPPED", "reason": "M30_SOURCE_REQUIRED_FIELD_MISSING", "signal_count": 0}
+    },
+    "GT-TUR-038-V3-ACTUAL-M1": {
+      "purpose": "only thirty consecutive physical M1 bars are accepted",
+      "input": {
+        "timeframe": "M30",
+        "open_time_utc": "2026-01-05T23:00:00Z",
+        "close_time_utc": "2026-01-05T23:30:00Z",
+        "source_bar_kind": "BAR_1M",
+        "is_closed": true,
+        "calendar_version": "us-futures-fixture-v1",
+        "source_m1_bar_recipe": {
+          "count": 30,
+          "first_open_time_utc": "2026-01-05T23:00:00Z",
+          "interval_minutes": 1,
+          "source_event_id_format": "evt-m1-{index:03d}",
+          "ohlcv": {"open": "100.00", "high": "101.00", "low": "99.00", "close": "100.00", "volume": "1"}
+        },
+        "ohlcv": {"open": "100.00", "high": "101.00", "low": "99.00", "close": "100.00", "volume": "30"}
+      },
+      "expected": {"status": "ACCEPTED", "signal_count": 0}
+    }
+  }
+}

@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P3-D05 Backtest / Experiment 実装詳細設計書</title>
+  <style>
+    :root { color-scheme: light; --ink:#172033; --muted:#536174; --line:#cbd5e1; --blue:#0f4c81; --pale:#eff6ff; --warn:#fff7ed; --risk:#fff1f2; --ok:#ecfdf5; }
+    body { margin:0; color:var(--ink); font-family:"Yu Gothic UI","Meiryo",sans-serif; line-height:1.72; background:#f8fafc; }
+    main { max-width:1240px; margin:auto; padding:28px; background:white; }
+    h1,h2,h3 { line-height:1.35; color:#123b62; } h1 { border-bottom:4px solid #0f4c81; padding-bottom:12px; } h2 { margin-top:42px; border-left:7px solid #0f4c81; padding-left:12px; } h3 { margin-top:28px; }
+    p.lead { font-size:1.08rem; background:var(--pale); padding:14px 18px; border-radius:8px; } .meta,.note { background:#f1f5f9; padding:14px 18px; border-radius:8px; } .warn { background:var(--warn); padding:12px 16px; border-left:5px solid #ea580c; } .risk { background:var(--risk); padding:12px 16px; border-left:5px solid #e11d48; } .ok { background:var(--ok); padding:12px 16px; border-left:5px solid #059669; }
+    table { border-collapse:collapse; width:100%; margin:15px 0 24px; font-size:.92rem; } th,td { border:1px solid var(--line); padding:9px; vertical-align:top; } th { background:#e2e8f0; } code,pre { font-family:Consolas,"Cascadia Code",monospace; } code { background:#eef2ff; padding:1px 4px; border-radius:3px; } pre { white-space:pre-wrap; background:#0f172a; color:#e2e8f0; padding:16px; border-radius:8px; overflow:auto; }
+    a { color:#075985; } nav ul { columns:2; } .small { color:var(--muted); font-size:.9rem; } .status { font-weight:bold; } .tag { display:inline-block; border-radius:999px; padding:2px 8px; background:#dbeafe; font-size:.82rem; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">総合インデックス</a> / <a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a> / <a href="../03_Strategy詳細設計/03_Strategy_Turtle実装詳細設計書.html">P3-D04 Strategy詳細設計</a></p>
+  <h1>P3-D05 Backtest / Experiment 実装詳細設計書</h1>
+  <p class="lead">この設計書は、過去の確定済み市場イベントを同じ順番で再生し、Turtle戦略の出力を仮想的に約定・費用・ロールへつなぐための設計です。実注文、Broker、Secret、外部通信、取引エンジンSDKの導入は扱いません。危ない入力、途中の書込み、未来を見た判断は、結果を公開せず停止します。</p>
+  <div class="meta">
+    <strong>成果物ID:</strong> P3-D05 / <strong>Phase・Step:</strong> Phase 3 / P3-04 / <strong>版:</strong> v0.5（専門レビュー完了）<br>
+    <strong>作成日:</strong> 2026-08-09 / <strong>後続:</strong> P3-05でRED試験を固定し、H3-1承認後のP3-06でStrategy実装へ進む。<br>
+    <strong>正本範囲:</strong> Common Backtest Core、Experiment Manifest、Timeframe Aggregator、仮想約定Port、結果・Snapshot・証跡。LEANの実導入はP3-08A以降。
+  </div>
+
+  <h2>0. 読み方、前提、合否</h2>
+  <p>本文中の「停止」は、Signal、Directive、仮想約定、採用可能な結果を新たに出さないことです。停止した実験の途中ファイルは正式な結果ではありません。すべての時刻はUTCのタイムゾーン付き値、価格は<code>Decimal</code>、同一内容の表現は正規JSONで固定します。</p>
+  <table><thead><tr><th>確認軸</th><th>この設計で固定すること</th><th>合否の見方</th></tr></thead><tbody>
+    <tr><td>DD-01〜03</td><td>責務、ファイル、完全なDTO・Port・禁止依存</td><td>実装者が値や責務を推測しない</td></tr>
+    <tr><td>DD-04〜06</td><td>入力順、時間足、約定、状態遷移、Snapshot復旧</td><td>同じ入力なら同じ結果。異常は停止</td></tr>
+    <tr><td>DD-07〜09</td><td>Manifest、品質再検査、時刻・未来情報の拒否</td><td>貼替え・未来混入・品質停止を公開しない</td></tr>
+    <tr><td>DD-10〜12</td><td>監査、性能、未確定事項、レビュー・変更履歴</td><td>証跡で再確認でき、UnknownをPassにしない</td></tr>
+  </tbody></table>
+
+  <h3>0.1 RED試験の実行契約・受入基準追跡</h3>
+  <p>上表は観点の一覧、下表は実行できる試験仕様です。fixtureは<code>tests/fixtures/backtest/</code>、試験は<code>tests/backtest/</code>、実行証跡は<code>tests/evidence/phase3/RUN-P3-BT-001/</code>に置きます。P3-05では全行を先にREDまたは既存GREENで明記し、P3-06以降にGREEN化します。</p>
+  <table><thead><tr><th>ID / AC</th><th>fixture・試験</th><th>条件</th><th>操作</th><th>期待結果</th><th>証跡・合否</th></tr></thead><tbody>
+    <tr><td>BT-001 / AC-01,04</td><td>order_permuted.json<br>test_replay_order.py</td><td>同一Event列を二順序</td><td>二回normalize/replay</td><td>順序、Batch、Directive、state、result hash一致</td><td>replay-order.json。完全一致でPass。</td></tr>
+    <tr><td>BT-002 / AC-01</td><td>duplicate_same.json<br>test_replay_order.py</td><td>同一event_id・同一bytes</td><td>再送する</td><td>一回だけ受理、no-op</td><td>watermark.json。重複処理0でPass。</td></tr>
+    <tr><td>BT-003 / AC-01</td><td>duplicate_conflict.json<br>test_replay_order.py</td><td>同一銘柄・同分で差分</td><td>normalizeする</td><td>DUPLICATE_1M_CONFLICT、出力0</td><td>failure.json。停止でPass。</td></tr>
+    <tr><td>BT-004 / AC-02</td><td>invalid_time.json<br>test_replay_order.py</td><td>naive、close不一致、future</td><td>入力する</td><td>DATA_GATE_BLOCKED、Strategy未呼出し</td><td>audit.jsonl。0 callでPass。</td></tr>
+    <tr><td>BT-005 / AC-01,03</td><td>same_close.json<br>test_timeframe_aggregator.py</td><td>M15/M30/H1/H4/D1同時close</td><td>Aggregatorへ順に投入</td><td>M1→M15→M30→H1→H4→D1の全更新後のBatch一件、Strategy一回</td><td>batch.json。call=1でPass。</td></tr>
+    <tr><td>BT-006 / AC-02</td><td>same_bar_directive.json<br>test_simulator.py</td><td>当該barで新規Directive、別銘柄/未到達時刻のpending</td><td>同bar Fillと次の各市場barを試行</td><td>新規Fill拒否。該当銘柄・到達後だけ一回Fillし、他pendingは待機。</td><td>eligibility.json。same-bar fill=0、別銘柄停止0、消費一回でPass。</td></tr>
+    <tr><td>BT-007 / AC-03</td><td>calendar_dst_holiday.json<br>test_timeframe_aggregator.py</td><td>DST、休日、短縮日</td><td>派生足を作る</td><td>Calendar anchorの境界だけ</td><td>calendar-evidence.json。期待open/closeでPass。</td></tr>
+    <tr><td>BT-008 / AC-02</td><td>missing_minutes.json<br>test_timeframe_aggregator.py</td><td>各上位足に1分欠損</td><td>閉境界まで再生</td><td>PARTIAL_BAR_REJECTED</td><td>failure.json。完成bar=0でPass。</td></tr>
+    <tr><td>BT-009 / AC-03</td><td>session_remainder.json<br>test_timeframe_aggregator.py</td><td>session端数</td><td>閉場まで再生</td><td>停止と理由監査</td><td>audit.jsonl。黙った破棄0でPass。</td></tr>
+    <tr><td>BT-010 / AC-04</td><td>recovery_interrupt.json<br>test_experiment_recovery.py</td><td>各commit段階で障害</td><td>resumeする</td><td>commit済み部分だけ再開</td><td>recovery.json。二重行0でPass。</td></tr>
+    <tr><td>BT-011 / AC-04</td><td>recovery_tamper.json<br>test_experiment_recovery.py</td><td>snapshot/hash/offset差替え</td><td>resumeする</td><td>RECOVERY_RECONCILIATION_FAILED</td><td>failure.json。公開0でPass。</td></tr>
+    <tr><td>BT-012 / AC-04</td><td>gap_stop.json<br>test_fill_model.py</td><td>long/short保護stopのGap、下落/同値足</td><td>Fill評価</td><td>min/maxと不利側費用。下落/同値足を正常受理</td><td>fill-golden.json。一致でPass。</td></tr>
+    <tr><td>BT-013 / AC-04</td><td>gap_entry.json<br>test_fill_model.py</td><td>上/下抜け新規Entry</td><td>後続barで評価</td><td>max/min基準、同bar拒否</td><td>fill-golden.json。一致でPass。</td></tr>
+    <tr><td>BT-014 / AC-02,04</td><td>intrabar_ambiguous.json<br>test_fill_model.py</td><td>EntryとStopの先後不明</td><td>Fill評価</td><td>INTRABAR_PATH_AMBIGUOUS</td><td>failure.json。約定0でPass。</td></tr>
+    <tr><td>BT-015 / AC-04</td><td>unfillable.json<br>test_fill_model.py</td><td>ゼロ出来高・制限・価格不整合（下落/同値足は除外しない）</td><td>Fill評価</td><td>異常だけ未約定、保有不変</td><td>fill.json。理由一致でPass。</td></tr>
+    <tr><td>BT-016 / AC-04</td><td>bad_cost_profile.json<br>test_fill_model.py</td><td>有利側符号/丸め未固定</td><td>Manifest/FIll検証</td><td>profile拒否</td><td>failure.json。Fill=0でPass。</td></tr>
+    <tr><td>BT-017 / AC-04</td><td>roll_prices.json<br>test_roll_model.py</td><td>連続Signalと実銘柄価格</td><td>Roll評価</td><td>Signal/Fill分離、内訳記録</td><td>roll.json。hash一致でPass。</td></tr>
+    <tr><td>BT-018 / AC-02</td><td>future_roll.json<br>test_roll_model.py</td><td>future/未知Catalog/同bar stop</td><td>Roll評価</td><td>FUTURE_CALENDAR_OR_ROLL</td><td>failure.json。公開0でPass。</td></tr>
+    <tr><td>BT-019 / AC-04</td><td>manifest_mutations.json<br>test_experiment_manifest.py</td><td>主要hashを各一件変更</td><td>rebuild/validate</td><td>Manifest integrity停止</td><td>manifest.json。拒否でPass。</td></tr>
+    <tr><td>BT-020 / AC-02</td><td>quality_matrix.json<br>test_data_gate.py</td><td>3停止flag、3警告、Report改ざん</td><td>Gateを通す</td><td>停止は0、警告は伝播、改ざん拒否</td><td>gate.json。全flag一致でPass。</td></tr>
+    <tr><td>BT-021 / AC-04</td><td>same_run_id.json<br>test_result_store.py</td><td>同run_idで二回publish</td><td>publishする</td><td>上書き拒否</td><td>run-result.json。不変でPass。</td></tr>
+    <tr><td>BT-022 / AC-06</td><td>bad_paths.json<br>test_result_store.py</td><td>root外、UNC、link、repo内</td><td>staging作成</td><td>RESULT_NOT_PUBLISHED</td><td>path-evidence.json。作成0でPass。</td></tr>
+    <tr><td>BT-023 / AC-02</td><td>split_boundaries.json<br>test_experiment_plan.py</td><td>境界/重複/逆転</td><td>Plan検証</td><td>半開区間一意、異常拒否</td><td>plan.json。所属一致でPass。</td></tr>
+    <tr><td>BT-024 / AC-02</td><td>holdout_early.json<br>test_experiment_plan.py</td><td>選択前holdout参照</td><td>アクセス試行</td><td>拒否</td><td>audit.jsonl。read=0でPass。</td></tr>
+    <tr><td>BT-025 / AC-02</td><td>walk_forward_mutation.json<br>test_experiment_plan.py</td><td>実行後にwindow変更</td><td>validate</td><td>EXPERIMENT_PLAN_MUTATED</td><td>failure.json。公開0でPass。</td></tr>
+    <tr><td>BT-026 / AC-04,06</td><td>replay_golden.json<br>test_backtest_golden.py</td><td>同Manifest二回</td><td>完全run二回</td><td>順序付き結果hash一致</td><td>run-a/b.json。完全一致でPass。</td></tr>
+    <tr><td>BT-027 / AC-07</td><td>performance_v1.json<br>test_performance_contract.py</td><td>5市場×2暦年</td><td>同host二回計測</td><td>30分/8GiB内、hash一致</td><td>performance.json。全条件でPass。</td></tr>
+    <tr><td>BT-028 / AC-07</td><td>performance_missing.json<br>test_performance_contract.py</td><td>端末/測定値欠落</td><td>証跡検証</td><td>NOT_EXECUTED/FAIL</td><td>performance.json。Pass禁止。</td></tr>
+    <tr><td>BT-029 / AC-06</td><td>offline_violations.json<br>test_offline_policy.py</td><td>network/Secret/Broker/依存変更</td><td>pre/post検証</td><td>offline停止</td><td>offline-evidence.json。違反記録でPass。</td></tr>
+    <tr><td>BT-030 / AC-05</td><td>engine_leak.json<br>test_engine_contract.py</td><td>SDK型/ID/例外の混入</td><td>型/JSON走査</td><td>境界試験FAIL</td><td>static-scan.json。漏出0でPass。</td></tr>
+    <tr><td>BT-031 / AC-05</td><td>engine_identity.json<br>test_engine_contract.py</td><td>tagだけ/不明digest/adapter差</td><td>identity検証</td><td>ENGINE_IDENTITY_UNPINNED</td><td>failure.json。拒否でPass。</td></tr>
+    <tr><td>BT-032 / AC-05</td><td>engine_parity.json<br>test_engine_contract.py</td><td>比較列の一項目差</td><td>normalize/compare</td><td>ENGINE_PARITY_MISMATCH</td><td>parity.json。採用0でPass。</td></tr>
+    <tr><td>BT-033 / AC-03</td><td>m1_cohort.json<br>test_timeframe_aggregator.py</td><td>M1採用/非採用同時close</td><td>Batch生成</td><td>集合・順序・hash一意</td><td>batch.json。期待値一致でPass。</td></tr>
+    <tr><td>BT-034 / AC-04</td><td>partial_publish.json<br>test_result_store.py</td><td>tmp/marker欠落</td><td>公開済みRunを列挙</td><td>正式Runとして非表示</td><td>run-list.json。発見0でPass。</td></tr>
+    <tr><td>BT-035 / AC-01〜07</td><td>full_golden_v1.json<br>test_backtest_golden.py</td><td>全Portを通す固定列</td><td>全再生</td><td>全hash・証跡一致</td><td>golden.json。全ACの統合Pass。</td></tr>
+    <tr><td>BT-036 / AC-05</td><td>fake_engine_success.json<br>test_engine_contract.py</td><td>SDKなしの固定Fake Adapter、共通DTOだけ</td><td>identity検証とrun</td><td>正常EngineRunResult、SDK漏出0、core期待hash一致</td><td>engine-contract.json。成功・静的走査0でPass。</td></tr>
+    <tr><td>BT-037 / AC-06</td><td>offline_replay_v1.json<br>test_offline_policy.py</td><td>固定ローカル入力、通信遮断、同一Manifest</td><td>完全offlineで二回再生</td><td>通信0、依存変更0、結果hash一致</td><td>offline-evidence-a/b.json。両方一致でPass。</td></tr>
+    <tr><td>BT-038 / AC-01,03</td><td>m30_direct_ohlcv_v2.json<br>test_timeframe_aggregator.py</td><td>session anchorから連続30本の確定1分足</td><td>M30を集約する</td><td>[open,close)、open=最初、high=max、low=min、close=最後、volume=合計。M15入力は読まない。</td><td>m30-bar.json。source IDs/hashとOHLCV一致でPass。</td></tr>
+    <tr><td>BT-039 / AC-02,03</td><td>m30_calendar_partial_v2.json<br>test_timeframe_aggregator.py</td><td>DST、休日、短縮日、日次停止、1〜29分端数、欠損/重複/逆行</td><td>session終端まで再生</td><td>完成30本だけ。端数・欠損等は<code>PARTIAL_BAR_REJECTED</code>等で停止し、M30/Batchを作らない。</td><td>failure.json/audit.jsonl。黙った破棄0でPass。</td></tr>
+    <tr><td>BT-040 / AC-01,03</td><td>m30_same_close_v2.json<br>test_timeframe_aggregator.py</td><td>M15+M30、M30+H1、M30+H1+H4+D1の同時close</td><td>到着順を変えてBatch生成</td><td>正規順で全Viewを更新後、DecisionPoint一回、Strategy一回。</td><td>batch/decision.json。順序・call=1・hash一致でPass。</td></tr>
+    <tr><td>BT-041 / AC-04</td><td>m30_snapshot_manifest_v2.json<br>test_experiment_recovery.py</td><td>M30 partial/watermark、timeframe rule、Calendar/Catalog/Data/Config/fixture hashを各一件改変</td><td>snapshot restore/resume</td><td>同一内容はno-op。不一致は<code>RECOVERY_RECONCILIATION_FAILED</code>で公開0。</td><td>recovery.json。二重M30/Batch/commit 0でPass。</td></tr>
+    <tr><td>BT-042 / AC-01,02</td><td>m30_disabled_compat_v2.json<br>test_backtest_golden.py</td><td>M30無効Configと既存v1互換入力</td><td>完全replayを二回</td><td>M30を生成・期待・hash材料から除外し、従来のM15/H1/H4/D1結果hashを変えない。</td><td>compatibility.json。v1意味内容hash一致でPass。</td></tr>
+  </tbody></table>
+  <div class="warn"><strong>利用者向けの短い説明:</strong> これは「昔の試験問題を、問題を出た順に一問ずつ解き直す箱」です。途中で新しい問題や答えを混ぜると公平な成績にならないため、材料の指紋と順番を先に決め、違えば止めます。</div>
+
+  <h2>1. スコープと非スコープ</h2>
+  <table><thead><tr><th>含む</th><th>含まない</th><th>境界</th></tr></thead><tbody>
+    <tr><td>凍結MarketEventの再生、1分から15分・1時間・4時間・日足への集約、P3-D04 Strategy一回呼出し、仮想約定・費用・スリッページ・ロール、結果と復旧</td><td>Broker接続、実注文、口座・証拠金の正本、実データ取得、外部取引エンジンのインストール、利益での戦略採否</td><td>StrategyはP3-D04の純粋Core。BacktestはStrategyのDirectiveを消費するだけで、戦略の式を持たない。</td></tr>
+    <tr><td>LEAN/Nautilusを将来差し替える共通Adapter契約</td><td>LEAN/Nautilus SDK型、Docker pull、NuGet/pip取得、エンジンを正本とする運用</td><td>P3-04では<code>ENGINE_NOT_USED</code>固定。実PoCはP3-08A以降。</td></tr>
+  </tbody></table>
+
+  <h3>1.1 実装契約の先取り：API、状態、不変条件</h3>
+  <p>次の署名はP3-05のRED試験とP3-06以降の実装で変えない公開契約です。<code>Result[... ]</code>は成功または固定<code>BacktestFailure</code>を値として返し、通常のデータ異常を例外で握り潰しません。I/Oを行うのは<code>ResultStore</code>だけです。</p>
+  <pre>class ReplayOrder(Protocol):
+    def normalize(self, events: tuple[MarketEvent, ...], gate: DataGateDecision,
+                  binding: AggregatorBinding) -> Result[tuple[MarketEvent, ...]]: ...
+
+class TimeframeAggregator(Protocol):
+    def accept(self, event: MarketEvent, state: AggregatorState,
+               calendar: CalendarSnapshot, gate: DataGateDecision,
+               binding: AggregatorBinding) -> Result[AggregationTransition]: ...
+    def snapshot(self, state: AggregatorState, binding: AggregatorBinding) -> AggregatorSnapshot: ...
+    def restore(self, snapshot: AggregatorSnapshot, binding: AggregatorBinding) -> Result[AggregatorState]: ...
+
+class FillModel(Protocol):
+    def evaluate(self, directive: Directive, bar: TradableBar,
+                 profile: FillProfile) -> Result[FillDecision]: ...
+
+class CalendarPort(Protocol):
+    def session_for(self, instant_utc: datetime, calendar: CalendarSnapshot,
+                    binding: AggregatorBinding) -> Result[SessionBoundary]: ...
+class SlippageModel(Protocol):
+    def apply(self, side: Direction, base_price: Decimal,
+              profile: FillProfile) -> Result[SlippageDecision]: ...
+class CostModel(Protocol):
+    def apply(self, fill: FillDecision, slippage: SlippageDecision,
+              profile: FillProfile) -> Result[CostBreakdown]: ...
+class RollPnLModel(Protocol):
+    def evaluate(self, binding: RollBinding, old_price: Decimal, new_price: Decimal,
+                 decision_time_utc: datetime) -> Result[RollBreakdown]: ...
+class EngineAdapter(Protocol):
+    def validate_identity(self, identity: EngineIdentity,
+                          manifest: ExperimentManifest) -> Result[AdapterValidation]: ...
+    def run(self, request: EngineRunRequest) -> Result[EngineRunResult]: ...
+    def normalize_failure(self, raw_code: str) -> BacktestFailure: ...
+
+class BacktestRunner(Protocol):
+    def run(self, request: BacktestRunRequest) -> Result[BacktestRunResult]: ...
+    def resume(self, request: BacktestResumeRequest) -> Result[BacktestRunResult]: ...
+
+class ResultStore(Protocol):
+    def create_staging(self, manifest: ExperimentManifest) -> Result[RunStaging]: ...
+    def append_then_commit(self, staging: RunStaging, commit: CommitInput) -> Result[CommitMarker]: ...
+    def publish(self, staging: RunStaging, marker: CommitMarker) -> Result[PublishedRun]: ...</pre>
+  <table><thead><tr><th>API</th><th>入力</th><th>成功出力・副作用</th><th>失敗・冪等性</th></tr></thead><tbody>
+    <tr><td><code>ReplayOrder.normalize</code></td><td>凍結Event列、DataGateDecision</td><td>ReplayOrderKey昇順のEvent列。副作用なし。</td><td>Gate否決、UTC/1分/品質/data_version異常は失敗。同一入力は同じ出力。</td></tr>
+    <tr><td><code>TimeframeAggregator.accept</code></td><td>一件の正規Event、旧AggregatorState、CalendarSnapshot、Gate</td><td>新state、0又は1件の完全ClosedBarBatch、AuditEvent列。副作用なし。</td><td>失敗時は旧stateと出力0。再送は同内容ならno-op、競合なら停止。</td></tr>
+    <tr><td><code>FillModel.evaluate</code></td><td>Directive、次に利用可能なTradableBar、固定FillProfile</td><td>FILLED/UNFILLED/STOPPEDのFillDecision。副作用なし。</td><td>同bar新規約定、順序不明、丸め未固定は停止。</td></tr>
+    <tr><td><code>BacktestRunner.run/resume</code></td><td>Manifest、Plan、正規Event列、Strategy Port、初期/復旧Snapshot</td><td>順序付きResult hash、最終Snapshot、監査列。Store以外は副作用なし。</td><td>hash・文脈・commit不一致は公開0。resumeはcommit済みEventを再処理しない。</td></tr>
+    <tr><td><code>ResultStore</code></td><td>Manifestとcommit対象のcanonical bytes</td><td>E: staging作成、追記、commit marker、原子的publish。</td><td>既存run_id上書き不可。同じcommit idは同一bytesのみno-op、差分は停止。</td></tr>
+  </tbody></table>
+  <table><thead><tr><th>状態</th><th>必須フィールド</th><th>不変条件</th></tr></thead><tbody>
+    <tr><td><code>DataGateDecision</code></td><td><code>policy_id, policy_version, quality_report_sha256, signal_allowed, blocking_flags, propagated_warning_flags</code></td><td>flagはソート済み。<code>signal_allowed=false</code>ならAggregator/Strategy/Fillより前に停止。許容警告はResult/Snapshotから削除不可。</td></tr>
+    <tr><td><code>CalendarSnapshot</code></td><td><code>schema_version, calendar_version, content_sha256, market_id, session_rules, published_at_utc</code></td><td><code>published_at_utc &lt;= decision_time</code>だけ利用可。未知schema・future公開時刻は停止。</td></tr>
+    <tr><td><code>RollBinding</code></td><td><code>roll_rule_version, content_sha256, signal_series_id, old/new_tradable_instrument_id, effective_from_utc, effective_to_utc, published_at_utc</code></td><td>decision時刻より未来の公開・有効化情報は利用不可。連続調整価格をFillへ渡さない。</td></tr>
+    <tr><td><code>AggregatorState</code></td><td><code>schema_version, binding_sha256, last_order_key, active_partials, emitted_batch_ids, last_batch_sha256</code></td><td>partialはsession/timeframeごと。watermark逆行、同一key差分、binding差分を拒否。partialから完成barを推測しない。</td></tr>
+    <tr><td><code>AggregatorBinding</code></td><td><code>data_version, catalog_version, calendar_version, calendar_sha256, timeframe_rule_version, ordering_rule_version, gate_sha256</code></td><td>Snapshot/Batch/Manifestの同名値は完全一致。</td></tr>
+  </tbody></table>
+  <table><thead><tr><th>補助DTO</th><th>全フィールド</th><th>検証</th></tr></thead><tbody>
+    <tr><td><code>AggregationTransition</code></td><td><code>state: AggregatorState, batch: ClosedBarBatch | None, audit_events: tuple[AuditEvent,...]</code></td><td>batchなしはpartial受付又はno-opだけ。失敗時はResult.failureでありtransitionを返さない。</td></tr>
+    <tr><td><code>TradableBar</code></td><td><code>instrument_id, bar_open_time_utc, bar_close_time_utc, open/high/low/close: Decimal, volume:int, source_sha256</code></td><td>UTC、<code>bar_open_time_utc&lt;bar_close_time_utc</code>、finite、low≦open/close≦high。上昇・下落・同値足を許可し、連続調整値は禁止。</td></tr>
+    <tr><td><code>FillDecision</code></td><td><code>status: FILLED|UNFILLED|STOPPED, directive_fingerprint, eligible_bar_id, price: Decimal|None, quantity_hint, cost_breakdown, reason_code, source_sha256</code></td><td>FILLEDだけprice非null。STOPPEDはprice/quantityなし。Directiveのdecisionより前のbarは禁止。</td></tr>
+    <tr><td><code>BacktestRunRequest</code></td><td><code>manifest, plan, events, calendar, roll_bindings, data_gate, initial_strategy_snapshot, initial_aggregator_snapshot, execution_view, strategy_port, fill/cost/slippage/roll ports, result_store</code></td><td>全binding hash一致、Engine SDK型/Secret/clockなし。eventsはnormalize前の凍結列のみ。</td></tr>
+    <tr><td><code>BacktestRunResult</code></td><td><code>status, run_id, manifest_sha256, input_sequence_sha256, result_sha256, final_snapshot_sha256, published_path|None, warnings, failure|None</code></td><td>SUCCESSだけpublished_path非null。停止/失敗はResult非公開、warningsはData Gateから減らせない。</td></tr>
+    <tr><td><code>EngineRunRequest</code></td><td><code>run_id, manifest_sha256, ordered_event_sha256, calendar_sha256, timeframe_rule_version, strategy_config_sha256, core_expected_sha256, identity</code></td><td>外部SDK型・IDを含めない。P3-04は生成禁止、P3-08A以降に使用。</td></tr>
+    <tr><td><code>EngineRunResult</code></td><td><code>status, identity_sha256, ordered_signal_sha256, ordered_directive_sha256, virtual_fill_sha256, state_sha256, trace_sha256, failure|None</code></td><td>engine固有IDはadapter内診断だけ。共通結果のhash材料に入れない。</td></tr>
+    <tr><td><code>ConfirmedExecutionView</code></td><td><code>confirmed_units:int, direction:Direction|None, last_entry_fill_price/last_add_fill_price:Decimal|None, last_fill_event_id:str|None, open_intent_ids:tuple[str,...], execution_watermark:int, last_closed_campaign_id:str|None, last_closed_campaign_outcome:WIN|LOSS|None, last_closed_campaign_watermark:int|None, last_closed_campaign_source_sha256/last_closed_campaign_fingerprint:str|None, as_of_utc:datetime, view_version/source_sha256:str</code></td><td>P3-D04完全契約。0 Unitなら方向/FIll価格nullable、保有中はEntry Fill必須。as-ofはdecision以下、水位は単調。同一campaign fingerprintはno-op、同水位でfingerprint違いは停止。fingerprintはcampaign専用source hashだけを材料にする。</td></tr>
+    <tr><td><code>AuditEvent</code></td><td><code>audit_id, run_id, sequence_no, logical_time_utc, severity, code, message_ja, manifest_sha256, subject_hashes</code></td><td>時刻はlogical timeのみ。Secret、生DBN、Broker/SDK object、可変wall clockを禁止。</td></tr>
+    <tr><td><code>FillProfile</code></td><td><code>profile_id, version, decimal_quantum, rounding_mode, price_limit_rule, gap_rule, intrabar_rule, cost_model_sha256, slippage_model_sha256</code></td><td>基準価格→tick丸め→不利側slippage→不利側costの順。未固定・有利側符号・未知profileは拒否。</td></tr>
+    <tr><td><code>SlippageDecision</code></td><td><code>base_price, adjusted_price, signed_slippage, model_sha256, reason_code</code></td><td>long買い/short買戻しは上方向、long売り/short売りは下方向だけ。不利側以外は拒否。</td></tr>
+    <tr><td><code>CostBreakdown</code></td><td><code>commission, fees, total_cost, currency, model_sha256</code></td><td>費用は非負、totalは正規合計。通貨不一致・未知丸めは拒否。</td></tr>
+    <tr><td><code>RollBreakdown</code></td><td><code>old_instrument_id, new_instrument_id, effective_time_utc, old_price, new_price, adjustment, roll_cost, pnl_effect, binding_sha256</code></td><td>RollBindingと時刻/銘柄/hash一致。future/連続価格/未解決は拒否。</td></tr>
+    <tr><td><code>ScheduledDirective</code></td><td><code>directive, directive_fingerprint, instrument_id, decision_batch_id, decision_time_utc, min_eligible_bar_open_utc, status: PENDING|FILLED|UNFILLED|STOPPED</code></td><td>Directiveの意味hashは一意。新規Directiveは次の同一tradable instrument barでだけ一回消費。</td></tr>
+    <tr><td><code>SimulatorState</code></td><td><code>schema_version, manifest_sha256, pending_directives, consumed_fingerprints, last_tradable_bar_key, last_execution_watermark, execution_projection: ConfirmedExecutionView</code></td><td>pendingは<code>(min_eligible_bar_open_utc,instrument_id,directive_fingerprint)</code>昇順。Snapshotにcanonical payload/hashで保存。projectionは上記P3-D04契約と完全一致。</td></tr>
+    <tr><td><code>PartialBarState</code></td><td><code>session_id, signal_series_id, timeframe, bar_open_time_utc, bar_close_time_utc, expected_minute_opens, received_minute_opens, open/high/low/close, volume, source_event_ids, source_events_sha256, calendar_sha256, state</code></td><td>expected/receivedは正規昇順。receivedがexpectedの真部分集合だけ。欠損時は完成へ変換しない。</td></tr>
+    <tr><td><code>AggregatorSnapshot</code></td><td><code>snapshot_schema_version, payload_sha256, binding, last_order_key, active_partials, emitted_batch_ids, last_batch_sha256</code></td><td>canonical JSON/hash。restore時にbinding、partial hash、watermark、batch hashを全照合。未知schemaは停止。</td></tr>
+    <tr><td><code>CommitInput / CommitMarker</code></td><td><code>commit_id, result_rows, result_offset, last_event_id, last_batch_sha256, strategy_snapshot_sha256, aggregator_snapshot_sha256, simulator_state_sha256, audit_tail_sha256, manifest_sha256</code></td><td>commit_id既出は同じbytesだけno-op。差分はRECOVERY_RECONCILIATION_FAILED。</td></tr>
+    <tr><td><code>RunStaging / BacktestFailure</code></td><td><code>RunStaging(run_id,tmp_path,manifest_sha256)</code>、<code>BacktestFailure(code,message_ja,subject_hashes)</code></td><td>tmp_pathは許可root直下のみ。FailureはSecret/実データ本文を持たない。</td></tr>
+    <tr><td><code>ResultRow</code></td><td><code>schema_version, row_id, run_id, sequence_no, logical_time_utc, row_kind, batch_id|None, directive_fingerprint|None, fill_event_id|None, payload_sha256, warning_flags, manifest_sha256</code></td><td><code>row_id=(run_id,sequence_no)</code>。sequenceは連続、warningはData Gateから減らせない。未知field・同id差分は停止。</td></tr>
+  </tbody></table>
+
+  <h3>1.2 Data Gate、未来情報、約定可能時刻</h3>
+  <p><code>DataGateDecision</code>はP2の<code>quality-warning-except-missing-duplicate-time-v1</code>を明示的に引き継ぎます。欠損・重複・時刻ずれ・checksum/ID不整合・未知flagは<code>signal_allowed=false</code>、degraded・価格異常・出来高異常は警告付きでtrueです。警告を許容しても、警告の名前・Report hash・policy版はResultに残します。</p>
+  <p>新規Entry/Add/Channel Exit Directiveには<code>decision_batch_id, decision_time_utc, min_eligible_bar_open_utc, semantic_fingerprint</code>を必須にします。<code>min_eligible_bar_open_utc</code>は判断に使ったbarのcloseより後であり、最初に条件を満たす後続の<code>TradableBar.open</code>でのみ評価します。既に前回までに確認済みの保有に付いたprotective stopだけは、保有成立後の現在barで評価できます。これにより、今日の高値・安値を見終えてから今日の始値で新規注文したことにしません。</p>
+
+  <h2>2. モジュールとファイル構成</h2>
+  <p>書込みと外部I/Oを一箇所に閉じ、Coreの各モジュールは引数と戻り値だけで動きます。<code>strategy</code>からこの層、またはEngine SDKへ逆向きに依存してはいけません。</p>
+  <pre>src/autotrade/backtest/
+  contracts.py                 # DTO、Enum、Port Protocol
+  replay_order.py              # ReplayOrderKey、重複・順序検証
+  timeframe_aggregator.py      # 1分足から確定ClosedBarBatchを作る
+  calendar_port.py             # CalendarSnapshotを読むPort
+  experiment_manifest.py       # canonical JSON、hash、再構築検証
+  experiment_plan.py           # train/validation/holdout、walk-forward固定
+  fill_model.py                # ConservativeOHLCv1
+  cost_model.py                # Cost / Slippage Port
+  roll_model.py                # Roll PnL Port
+  simulator.py                 # Strategy一回呼出し、Port順序、commit
+  snapshot.py                  # 再開用Snapshotの検証
+  result_store.py              # E: staging → atomic publish
+  engine_adapter.py            # 将来Engine共通契約だけ
+tests/backtest/
+  test_replay_order.py  test_timeframe_aggregator.py  test_fill_model.py
+  test_experiment_manifest.py  test_experiment_recovery.py  test_engine_contract.py
+  test_backtest_golden.py  test_performance_contract.py</pre>
+
+  <h2>3. 構造と受渡し</h2>
+  <p>この図はデータが一方向に進むことを示します。矢印のラベルは渡す値です。Engine Adapterは比較用の枝であり、Strategyをもう一度動かす正本ではありません。</p>
+  <pre class="mermaid">flowchart LR
+  A["P2 凍結MarketEvent / Manifest"] -->|"検証済みEvent列"| B["ReplayOrder"]
+  B -->|"順序付き1分足"| C["TimeframeAggregator / Calendar"]
+  C -->|"完全なClosedBarBatch"| D["P3-D04 Strategy Core"]
+  D -->|"Directive 0..n"| E["Simulator"]
+  E -->|"保守的な仮想約定"| F["Fill / Cost / Roll Ports"]
+  F -->|"確定ExecutionView（次回だけ）"| E
+  E -->|"Result rows + Snapshot"| G["E: ResultStore"]
+  E -. "比較用の同一凍結入力" .-> H["EngineAdapter contract-only"]
+  H -->|"正規化した比較結果"| E</pre>
+  <table><thead><tr><th>渡し元 → 渡し先</th><th>渡す正本</th><th>禁止するもの</th></tr></thead><tbody>
+    <tr><td>P2 → ReplayOrder</td><td><code>tuple[MarketEvent,...]</code>、<code>DataVersionManifest</code>、QualityReport hash</td><td>受信時刻での順序、品質停止済み入力、未検証のdata_version</td></tr>
+    <tr><td>Aggregator → Strategy</td><td><code>ClosedBarBatch</code>、Catalog/Calendar/Portfolio/Executionの読取専用View</td><td>未完成足、未来bar、部分Batch、Engine型、wall clock</td></tr>
+    <tr><td>Strategy → Simulator</td><td><code>Directive</code>（TargetPositionまたはOrderIntent）、semantic fingerprint</td><td>Broker注文、実数量の正本、同一close内の約定結果</td></tr>
+    <tr><td>Simulator → ResultStore</td><td>Manifest hash、順序付き結果hash、commit marker、警告</td><td>run_id上書き、repo内の大容量結果、未確定staging</td></tr>
+  </tbody></table>
+
+  <h2>4. 公開DTOとPort契約</h2>
+  <p>型を省略すると、後から別の意味の値を混ぜられます。以下で公開する型はすべて不変、未知JSON field拒否、UTCの<code>Z</code>表記、Decimalの正規文字列を採用します。</p>
+  <table><thead><tr><th>型</th><th>必須フィールドと検証</th><th>責務</th></tr></thead><tbody>
+    <tr><td><code>ReplayOrderKey</code></td><td><code>bar_close_time_utc, event_time_utc, instrument_id, event_id</code>。全てUTC・非空。正規昇順はこの4値の順。</td><td>到着順でなく内容でEvent列を固定する。同一event_idは同じcanonical payloadだけ再送可。</td></tr>
+    <tr><td><code>ClosedBar</code></td><td><code>bar_id, source_event_ids, signal_series_id, source_instrument_id, timeframe, bar_open_time_utc, bar_close_time_utc, business_date, open/high/low/close: Decimal, volume:int, is_closed: Literal[True], data_version, catalog_version, calendar_version, source_events_sha256, quality_flags</code>。UTC、開始&lt;終了、<code>low≦open/close≦high</code>、volume非負。</td><td>P3-D04の同名DTOと完全に同じ契約。連続Signal用価格と実約定価格を混ぜない。</td></tr>
+    <tr><td><code>ClosedBarBatch</code></td><td><code>batch_id, run_id, decision_point_id, decision_time_utc, signal_series_id, bars, expected_timeframes, batch_complete: Literal[True], ordering_rule_version, timeframe_rule_version, data_version, catalog_version, calendar_version, content_sha256</code>。barsは<code>M1_TRIGGER, M15, M30, H1, H4, D1</code>順（Configで無効なM1/M30は除外）。</td><td>P3-D04の同名DTOと完全に同じ契約。更新集合と期待集合をConfig/Calendarから再計算して一致させ、StrategyをDecisionPointごとに一回だけ呼ぶ。</td></tr>
+    <tr><td><code>ExperimentPlan</code></td><td><code>plan_id, plan_sha256, train/validation/holdout: [start,end), walk_forward_windows, candidate_config_ids</code>。全区間はUTC・非重複・開始&lt;終了。</td><td>実行前に分割と候補を固定する。holdoutは最後に一回だけ読取可。</td></tr>
+    <tr><td><code>ExperimentManifest</code></td><td>下表の全hash、<code>run_id</code>、<code>manifest_sha256</code>。生成後に変更不可。</td><td>「どの材料・設定・規則で出した結果か」を一つの指紋で束縛する。</td></tr>
+    <tr><td><code>ConfirmedExecutionView</code></td><td><code>confirmed_units, direction, last_entry_fill_price, last_add_fill_price, last_fill_event_id, open_intent_ids, execution_watermark, last_closed_campaign_id/outcome/watermark/source_sha256/fingerprint, as_of_utc, view_version, source_sha256</code>。詳細なnullable/水位規則は1.1の補助DTO表のP3-D04完全契約に従う。</td><td>P3-D04と同じ正本。次回のStrategy入力のみで、現在barの新規Directiveの約定を同じ判断に戻さない。</td></tr>
+    <tr><td><code>BacktestSnapshot</code></td><td><code>manifest_sha256, input_sequence_sha256, last_committed_event_id, last_batch_sha256, strategy_snapshot_sha256, aggregator_snapshot_sha256, simulator_state_sha256, result_offset, commit_marker_sha256</code>。</td><td>復旧時に「どこまで正式に終えたか」を検証する。AggregatorSnapshotはM30 active partial/source hash/watermarkを含み、Manifestのtimeframe/Calendar/Catalog/Data/Config/fixture hashと完全一致しなければ停止。</td></tr>
+    <tr><td><code>EngineIdentity</code></td><td><code>engine_kind/version, distribution_source, artifact_sha256_or_oci_digest, adapter_name/version/artifact_sha256, runtime_kind/version, execution_mode</code>。P3-04は全て<code>ENGINE_NOT_USED</code>とnull禁止の固定値。</td><td>将来のLEAN/Nautilus比較で可変tagや不明な実体を拒否する。</td></tr>
+  </tbody></table>
+  <table><thead><tr><th>Port</th><th>入力 → 出力</th><th>停止条件</th></tr></thead><tbody>
+    <tr><td><code>CalendarPort</code></td><td><code>CalendarSnapshot + instant → SessionBoundary</code></td><td>calendar hash/version不一致、休日・短縮日・DST定義なし</td></tr>
+    <tr><td><code>FillModel</code></td><td><code>Directive + tradable OHLCV + FillProfile → FillDecision</code></td><td>同一足の順序不明、価格不整合、ゼロ出来高、値幅制限</td></tr>
+    <tr><td><code>CostModel / SlippageModel</code></td><td><code>FillDecision + manifest固定パラメータ → CostBreakdown</code></td><td>値が未固定、符号が有利側、未知モデル</td></tr>
+    <tr><td><code>RollPnLModel</code></td><td><code>roll binding + old/new tradable prices → RollBreakdown</code></td><td>future roll、Catalog未解決、連続調整価格を実約定に利用</td></tr>
+    <tr><td><code>EngineAdapter</code></td><td><code>EngineRunRequest → EngineRunResult</code>。外部型を正規DTOへ変換。</td><td>identity未固定、SDK型漏出、入力変換/出力正規化/Parity不一致</td></tr>
+  </tbody></table>
+
+  <h2>5. 処理フロー</h2>
+  <pre class="mermaid">sequenceDiagram
+  participant R as ReplayOrder
+  participant A as Aggregator
+  participant S as Strategy
+  participant B as Simulator
+  participant P as Fill/Cost/Roll
+  participant O as ResultStore
+  R->>A: 次の検証済み1分Event
+  A->>A: 全派生足を更新・完全性確認
+  A->>S: 完全な同一close Batchを一回だけ渡す
+  S-->>B: Directive 0..n / Strategy Snapshot
+  B->>O: Directive行を追記（未commit）
+  B->>P: 保守的な仮想約定を評価
+  P-->>B: confirmed execution（次判断以降だけ使用）
+  B->>O: state/snapshot → commit marker の順に確定</pre>
+  <pre class="mermaid">flowchart TD
+  X["入力/Manifest/品質/Offline証跡を検証"] -->|不一致| Z["RESULT_NOT_PUBLISHED・Signal 0"]
+  X -->|一致| Y["順序付き再生"]
+  Y -->|未完成/欠損/時刻異常| Z
+  Y -->|完全Batch| Q["Strategyを一回実行"]
+  Q -->|Directive| W["保守的Fill/Cost/Roll"]
+  W -->|曖昧/未固定| Z
+  W -->|確定| V["append → snapshot → commit"]
+  V -->|hash一致| U["E:へ原子的に公開"]</pre>
+  <p><strong>原子的遷移:</strong> 1分Eventを受理したら、派生足の更新、Batch発行、watermark前進は一つの遷移です。途中で失敗したらどれも正式に進めません。復旧は最後のcommit markerの次のEventからのみ再開します。</p>
+
+  <h3>5.1 決定的アルゴリズム</h3>
+  <pre>normalize(events, gate, binding):
+  require gate.signal_allowed
+  for event in events:
+    require BAR_1M, UTC, close == event_time + 1 minute
+    require event.data_version == binding.data_version
+  sort by (bar_close_time, event_time, instrument_id, event_id)
+  same event_id and same canonical payload -> keep one
+  same instrument + same one-minute interval and different payload -> DUPLICATE_1M_CONFLICT
+  return ordered events
+
+accept(event, old_state, calendar, gate, binding):
+  require gate.signal_allowed and calendar.published_at_utc <= event.bar_close_time
+  require event key > old_state.last_order_key, except exact replay no-op
+  candidate = copy(old_state) and add the one-minute event to each eligible session bucket
+  if any required minute is missing at a closing boundary: PARTIAL_BAR_REJECTED
+  close every complete M1/M15/M30/H1/H4/D1 bar in canonical timeframe order
+  if the expected cohort at this close is not exact: COHORT_INCOMPLETE
+  batch = canonical ClosedBarBatch(all closed bars)
+  return new_state(last_order_key=key, last_batch_sha256=batch.hash), batch
+
+run_one_event(event, simulator_state):
+  first evaluate prior confirmed protective stops and pending directives
+  only against this event's matching tradable bar, in pending canonical order
+  mark each consumed fingerprint exactly once; no later eligible bar -> NO_ELIGIBLE_BAR / UNFILLED
+  then pass event to Aggregator; no new Directive can use this event for Fill
+
+run_one_batch(batch, prior_execution_view):
+  require batch complete and all Calendar/Roll published_at <= batch.decision_time
+  update every Strategy timeframe view; call Strategy exactly once
+  write Directive rows as uncommitted audit rows
+  append new Entry/Add/Channel Exit as ScheduledDirective in canonical pending order
+  append Strategy output, then Snapshot/SimulatorState, then one commit marker
+
+resume(snapshot, files):
+  reject unknown schema, binding/hash/offset/watermark mismatch, partial commit
+  start from the event strictly after last_committed_event_id
+  never append a duplicate batch, directive, fill, or commit id</pre>
+  <p class="note"><strong>中学生向けの説明:</strong> まずカードを同じ順に並べます。次に、必要な材料が全部そろった時間足だけを一組にして一回考えます。売買の結果はその後に記録し、次の考えにだけ渡します。途中で止まったら、完成の印がある場所まで戻ります。</p>
+
+  <h2>6. 時間足・Calendar・入力順序の詳細</h2>
+  <table><thead><tr><th>規則</th><th>固定内容</th><th>異常時</th></tr></thead><tbody>
+    <tr><td>1分入力</td><td><code>event_kind=BAR_1M</code>、UTC、<code>bar_close_time=event_time+1分</code>、OHLCV、quality、data_versionを検証する。並びは<code>ReplayOrderKey</code>で正規化する。</td><td>同一銘柄・同一1分区間でpayloadが異なる場合は<code>DUPLICATE_1M_CONFLICT</code>停止。</td></tr>
+    <tr><td>Session anchor</td><td>15m/M30/H1/H4/D1はUTC剰余で切らない。凍結<code>CalendarSnapshot</code>の市場session開始、休日、短縮日、DST、日次停止だけから境界を決める。M30はanchorからの30分窓ごとに連続30本の確定M1だけを直接集約し、M15を入力にしない。</td><td>Calendar未解決・future calendar・session外入力は<code>CALENDAR_BOUNDARY_INVALID</code>停止。</td></tr>
+    <tr><td>端数・欠損</td><td>Phase 3正本は<code>PARTIAL_BAR_REJECTED</code>。必要な1分が一つでも欠けた足、閉場端数、途中停止後に不足した足を完成足へ補完しない。</td><td>対象seriesを停止し、ClosedBarBatchを作らない。黙って破棄もしない。</td></tr>
+    <tr><td>同時close</td><td><code>M1_TRIGGER → M15 → M30 → H1 → H4 → D1</code>の正規順で全Viewを更新後、Batch一件につきStrategy一回。M1/M30はConfigで無効なら期待集合から除外する。</td><td>期待timeframe不足、二重Batch、future barは<code>COHORT_INCOMPLETE</code>停止。</td></tr>
+  </tbody></table>
+  <div class="risk"><strong>Look-ahead禁止:</strong> <code>received_at_utc</code>、PCの現在時刻、後から届いたCalendar/roll情報、同一bar内でまだ確定していないExecutionを判断材料にしません。利用可能なのは<code>bar_close_time &lt;= decision_time</code>かつ公開時刻もdecision以下の情報だけです。</div>
+
+  <h2>7. 仮想約定・費用・Gap・Roll</h2>
+  <p>標準Profileは<code>ConservativeOHLCv1</code>です。OHLCだけでは足の中の順番が分からないとき、都合のよい順番を想像しません。</p>
+  <table><thead><tr><th>場面</th><th>固定する価格・結果</th><th>理由</th></tr></thead><tbody>
+    <tr><td>Longのstop退出</td><td><code>min(bar.open, stop_trigger)</code>。slippage/costはさらに不利側へ。</td><td>窓開けでstopより低く始まった場合も、希望価格で売れたことにしない。</td></tr>
+    <tr><td>Shortのstop退出</td><td><code>max(bar.open, stop_trigger)</code>。slippage/costはさらに不利側へ。</td><td>窓開けでstopより高く始まった場合も、希望価格で買い戻せたことにしない。</td></tr>
+    <tr><td>上抜けEntry / Add</td><td><code>max(bar.open, trigger)</code>を基準に、不利側コストを加える。</td><td>開始時点で既に突破していたとき、低い突破価格を使わない。</td></tr>
+    <tr><td>下抜けEntry / Add</td><td><code>min(bar.open, trigger)</code>を基準に、不利側コストを加える。</td><td>開始時点で既に下へ飛んだとき、有利な高値を使わない。</td></tr>
+    <tr><td>同一bar内のEntry/Add/Exit/Stop順が不明</td><td><code>INTRABAR_PATH_AMBIGUOUS</code>で未約定・実験停止。</td><td>1本の足だけでは先後を知れないのに、勝ちやすい順を選ぶのを防ぐ。</td></tr>
+    <tr><td>値幅制限、ゼロ出来高、価格不整合</td><td>未約定、理由を監査、保有は既存状態のまま。</td><td>取引できない値段で約定したことにしない。</td></tr>
+    <tr><td>Roll</td><td>Signal seriesは連続価格でよいが、Fill/Roll PnLはCatalog解決済みtradable instrumentと非調整価格だけを使う。</td><td>グラフ上の連続価格を、実在しない約定価格にしない。</td></tr>
+  </tbody></table>
+  <table><thead><tr><th>FillProfileの必須値</th><th>固定方法</th><th>拒否条件</th></tr></thead><tbody>
+    <tr><td><code>profile_id/version, decimal_quantum, rounding_mode, price_limit_rule, gap_rule, intrabar_rule, cost_model_hash, slippage_model_hash</code></td><td>Manifest内のcanonical JSON/hashで固定。価格計算→tick/Decimal丸め→不利側slippage→不利側costの順。</td><td>quantum/丸め未承認、未知profile、負の費用、有利側丸め、Directive別の値幅規則欠落。</td></tr>
+  </tbody></table>
+
+  <h2>8. Experiment Manifest、分割、結果の公開</h2>
+  <p>ManifestはUTF-8、key昇順、UTC Z、Decimal正規文字列、配列の固定順で一度だけ作り、<code>manifest_sha256</code>を計算します。既存run_idへ上書きはできません。</p>
+  <table><thead><tr><th>束縛する材料</th><th>必須値</th><th>異常時</th></tr></thead><tbody>
+    <tr><td>データ</td><td>data_version、raw/normalized/MarketEvent系列hash、fixture/DBN hash、QualityReport hash、品質方針版、Catalog version/hash</td><td><code>MANIFEST_INTEGRITY_VIOLATION</code>で非公開</td></tr>
+    <tr><td>規則</td><td>Calendar version/hash、timeframe rule/order version、Strategy config hash/code revision、roll/cost/slippage/gap/fill profile hash</td><td>未知・欠落・貼替えは非公開</td></tr>
+    <tr><td>実験</td><td>ExperimentPlan hash、train/validation/holdout、walk-forward window、性能fixture generator/schema/hash、run_id</td><td>実行後の変更は<code>EXPERIMENT_PLAN_MUTATED</code></td></tr>
+    <tr><td>Engine</td><td>P3-04は<code>ENGINE_NOT_USED</code>を明示。P3-08A以降はadapter・runtime・OCI digest/wheel hashを必須化しtag単独を禁止。</td><td><code>ENGINE_IDENTITY_UNPINNED</code></td></tr>
+  </tbody></table>
+  <p>Holdoutは訓練・検証の設定選択コードから参照できず、最後のread-only評価一回だけです。Walk-forwardの全window、候補config、繰上げ規則を実行前に列挙します。区間はすべて半開<code>[start, end)</code>で重なりません。</p>
+
+  <h2>9. Eドライブ保存、復旧、オフライン証跡</h2>
+  <table><thead><tr><th>項目</th><th>固定内容</th></tr></thead><tbody>
+    <tr><td>大容量保存先</td><td><code>E:\strategy_test_data\phase3\backtest\{inputs,derived,runs\&lt;run_id&gt;,performance,tmp,evidence}</code>。GitにはManifest要約/hashと小型証跡だけを置く。</td></tr>
+    <tr><td>パス検証</td><td>許可root外、相対path、UNC、symlink、junction、reparse point、repo内実データを拒否する。入力は許可root内の通常ファイルとhash一致だけ。</td></tr>
+    <tr><td>公開手順</td><td><code>tmp\&lt;run_id&gt;</code>へstaging → 全hash照合 → 新規run directoryへatomic rename。失敗したtmpは結果として読まない。</td></tr>
+    <tr><td>復旧手順</td><td>結果行追記 → Strategy/Simulator state → Snapshot → audit commit markerの一方向。再開時にManifest、入力列、watermark、offset、全hashを再計算する。</td></tr>
+    <tr><td>ユーザー決定の運用</td><td>バックアップ、保存期限、容量上限、退避、専用権限、暗号化は要求しない。消失・削除は復元不能であることをRun Resultへ明記する。</td></tr>
+    <tr><td>Offline証跡</td><td>実行前後に許可path/hash、外向き通信0、依存allowlist/hash、Secret scan 0、Broker/Cloud URL・Engine SDK型のCore公開API 0をJSON記録。未証明は<code>OFFLINE_PREFLIGHT_UNPROVEN</code>で開始・公開停止。</td></tr>
+  </tbody></table>
+  <h3>9.1 RunディレクトリとJSON schema</h3>
+  <pre>E:\strategy_test_data\phase3\backtest\runs\&lt;run_id&gt;\
+  experiment-manifest.json       # schema=experiment-manifest/v1、immutable
+  input-sequence.jsonl           # ordered Event参照、content_sha256
+  audit.jsonl                    # canonical AuditEvent、append only
+  result.jsonl                   # canonical ResultRow、append only
+  snapshot.json                  # schema=backtest-snapshot/v1、最後のcommitと束縛
+  commit-marker.json             # schema=backtest-commit/v1、正式行の境界
+  offline-evidence.json          # pre/post、network/secret/dependency/path
+  performance-evidence.json      # 該当Runだけ。測定不能でも明示
+  run-result.json                # manifest/result/snapshot hash、公開状態
+  README-ja.txt                  # バックアップなし・消失時は復元不能の注意
+E:\strategy_test_data\phase3\backtest\tmp\&lt;run_id&gt;\
+  # 上記と同じ構成。commit前・hash不一致・失敗時は正式結果として扱わない。</pre>
+  <table><thead><tr><th>ファイル</th><th>主キー・必須束縛</th><th>更新規則</th></tr></thead><tbody>
+    <tr><td>experiment-manifest.json</td><td><code>schema_version, run_id, manifest_sha256, data_version, input_sequence_sha256, catalog/calendar/order/config/fill/plan/engine/code hashes, enabled_timeframes, m30_aggregation_rule_version, m30_aggregation_config_sha256</code></td><td>create-only。run_id/manifest hash変更は新Run。M30有効/無効または直接集約規則の変更は新Manifest。</td></tr>
+    <tr><td>result.jsonl</td><td><code>row_id=(run_id, sequence_no)</code>、batch/directive/fill/result canonical hash、warning flags、manifest hash</td><td>sequence_no連続、重複idは同じbytesだけno-op。途中行はcommit markerより後なら非公開。</td></tr>
+    <tr><td>snapshot.json</td><td>BacktestSnapshot、AggregatorSnapshot（PartialBarStateを含む）、SimulatorState（ScheduledDirectiveを含む）、各payload/hash、対応するcommit_id</td><td>commit前に新規bytesをfsync相当で書く。restoreはManifest/binding/watermark/partial/pending hashを照合し、未知schema・migrationなしは拒否。</td></tr>
+    <tr><td>commit-marker.json</td><td><code>commit_id, result_offset, last_event_id, last_batch_sha256, snapshot_sha256, audit_tail_sha256, manifest_sha256</code></td><td>result→snapshot→markerの最後に一度だけ作成。marker以後が正本。</td></tr>
+    <tr><td>audit.jsonl</td><td><code>audit_id, run_id, sequence_no, logical_time_utc, severity, code, message_ja, manifest_sha256, subject_hashes</code></td><td>preflight→batch→directive→fill→snapshot→publish又はfailure順。Secret、生raw、Broker/SDK objectを入れない。</td></tr>
+  </tbody></table>
+  <h3>9.2 ExperimentManifestの正規payload</h3>
+  <pre>{
+  "schema_version":"experiment-manifest/v2",
+  "run_id":"RUN-P3-BT-...",
+  "data_version":"...", "input_sequence_sha256":"sha256:...",
+  "raw_object_sha256s":["sha256:..."], "normalized_content_sha256":"sha256:...",
+  "market_event_sequence_sha256":"sha256:...", "quality_policy_id":"...",
+  "quality_report_sha256":"sha256:...", "catalog_version":"...", "catalog_sha256":"sha256:...",
+  "calendar_version":"...", "calendar_sha256":"sha256:...", "availability_rule_version":"...",
+  "timeframe_rule_version":"...", "ordering_rule_version":"...",
+  "enabled_timeframes":["M15","M30","H1","H4","D1"],
+  "m30_aggregation_rule_version":"...", "m30_aggregation_config_sha256":"sha256:...",
+  "strategy_config_sha256":"sha256:...", "strategy_code_revision":"...",
+  "fill_profile_sha256":"sha256:...", "cost_model_sha256":"sha256:...",
+  "slippage_model_sha256":"sha256:...", "roll_model_sha256":"sha256:...",
+  "experiment_plan_sha256":"sha256:...", "performance_fixture_sha256":"sha256:...",
+  "engine_identity":{
+    "engine_kind":"ENGINE_NOT_USED", "engine_version":"ENGINE_NOT_USED",
+    "distribution_source":"ENGINE_NOT_USED", "artifact_sha256_or_oci_digest":"ENGINE_NOT_USED",
+    "adapter_name":"ENGINE_NOT_USED", "adapter_version":"ENGINE_NOT_USED",
+    "adapter_artifact_sha256":"ENGINE_NOT_USED", "runtime_kind":"ENGINE_NOT_USED",
+    "runtime_version":"ENGINE_NOT_USED", "execution_mode":"ENGINE_NOT_USED",
+    "identity_sha256":"sha256:..."
+  },
+  "manifest_sha256":"sha256:..."
+}</pre>
+  <p>トップレベルの<code>manifest_sha256</code>だけを除いたcanonical JSONをhash対象にします。<code>run_id</code>は結果保存の識別子でありhash対象に含めます。M30を扱う新Runは<code>experiment-manifest/v2</code>を使い、<code>enabled_timeframes</code>は正規順で保存する。v2でM30無効ならM30関連fieldは固定の<code>DISABLED</code>値を使う。承認済みv1 Manifestへfieldを後付けせず、v1互換Runの既存hashを変えない。未知field、null、空文字、hash形式不正は拒否します。</p>
+
+  <h2>10. 失敗コードと安全停止</h2>
+  <table><thead><tr><th>コード</th><th>停止範囲</th><th>利用者にも分かる説明</th></tr></thead><tbody>
+    <tr><td>DATA_GATE_BLOCKED</td><td>入力から結果公開まで</td><td>材料の欠損・重複・時刻ずれなどを見つけたため、計算を続けません。</td></tr>
+    <tr><td>DUPLICATE_1M_CONFLICT / COHORT_INCOMPLETE</td><td>該当seriesのBatch以降</td><td>同じ分のカードが食い違う、または必要な時間足がそろっていません。</td></tr>
+    <tr><td>PARTIAL_BAR_REJECTED / CALENDAR_BOUNDARY_INVALID</td><td>該当session・series</td><td>必要な分数がそろわない、または営業時間の区切りが分かりません。</td></tr>
+    <tr><td>INTRABAR_PATH_AMBIGUOUS</td><td>実験全体</td><td>一本の足だけでは売買の先後を決められず、有利な想像をしないため止めます。</td></tr>
+    <tr><td>MANIFEST_INTEGRITY_VIOLATION / EXPERIMENT_PLAN_MUTATED</td><td>結果公開</td><td>材料や計画の指紋が途中で変わったため、その成績は正式にしません。</td></tr>
+    <tr><td>RECOVERY_RECONCILIATION_FAILED</td><td>復旧・結果公開</td><td>再開地点が確かめられず、同じ売買を二度数える危険があります。</td></tr>
+    <tr><td>ENGINE_IDENTITY_UNPINNED / ENGINE_PARITY_MISMATCH</td><td>Engine比較結果の採用</td><td>外部道具の中身が固定されていない、または基準結果と違います。</td></tr>
+  </tbody></table>
+
+  <h2>11. 実行モードとEngine Adapter境界</h2>
+  <p><code>core_reference</code>は唯一の基準で、ProjectのStrategyを一度だけ実行します。将来の<code>engine_poc</code>は、同じ凍結入力と設定をEngineInputAdapterへ渡し、結果だけを<code>EngineRunResult</code>へ正規化して比較します。Engineは戦略、Risk、Broker、結果正本になりません。</p>
+  <table><thead><tr><th>入力</th><th>出力</th><th>比較</th></tr></thead><tbody>
+    <tr><td><code>EngineRunRequest</code>: 凍結MarketEvent列、DataVersionManifest、ExperimentManifest、Calendar/timeframe規則、Strategy config hash、core期待hash、固定run_id</td><td><code>EngineRunResult</code>: status、順序付きsignal/directive/virtual fill/state hash、engine trace digest、failure</td><td>run_idとengine固有IDを除くcanonical payload/semantic fingerprintが一致しなければ<code>ENGINE_PARITY_MISMATCH</code>。結果を採用しない。</td></tr>
+  </tbody></table>
+
+  <h2>12. 性能試験契約（P3-AC-07）</h2>
+  <p>性能試験は利益を評価する試験ではありません。固定generatorで<strong>5市場 × 2暦年のsynthetic 1分足</strong>を作り、15分/M30/H1/H4/D1を派生し、Strategyと結果hashまで再生します。同じ端末で初回・再実行の二回を測り、いずれも30分以内・peak RSS 8GiB以内・結果hash一致がPassです。</p>
+  <table><thead><tr><th>証跡</th><th>必須値</th></tr></thead><tbody>
+    <tr><td>入力</td><td>generator/schema/version/hash、各市場・派生足の件数/hash、Manifest hash</td></tr>
+    <tr><td>端末</td><td>CPU、RAM、OS、Python、ストレージ、測定器名/version、warm/cold条件、単調時計の開始/終了</td></tr>
+    <tr><td>結果</td><td>elapsed、peak RSS、Strategy/result hash、初回/再実行一致、測定不能ならFAILまたはNOT_EXECUTED</td></tr>
+  </tbody></table>
+
+  <h2>13. 全テスト仕様</h2>
+  <p>全試験仕様の正本は<strong>0.1の六列表（承認済みv1: BT-001〜037、P3-05R v2: BT-038〜042）</strong>です。重複していた旧要約表は削除しました。v2はH3-1RまでRED固定であり、利益の良し悪しをPassにしません。</p>
+
+  <h2>14. 未確定事項とHuman Gate</h2>
+  <table><thead><tr><th>ID</th><th>現時点の扱い</th><th>いつ・誰が判断するか</th></tr></thead><tbody>
+    <tr><td>UNK-P3-01</td><td>資金・最終数量はBacktest Coreの正本にしない。Strategy unit/hintと仮想約定を分離。</td><td>Phase 4のRisk/Account設計。</td></tr>
+    <tr><td>UNK-P3-03</td><td>費用・スリッページ実値はManifest固定値でのみ使う。未固定なら停止。</td><td>Phase 4/5で市場別モデルを承認。</td></tr>
+    <tr><td>UNK-P3-05</td><td>ロール損益は内訳を残すが、将来の採用基準には使わない。</td><td>Phase 4で会計・Riskと整合。</td></tr>
+    <tr><td>UNK-P3-07</td><td>性能試験はsynthetic固定入力のみ。実データでの性能主張をしない。</td><td>P3-08A以降のEngine PoC時。</td></tr>
+    <tr><td>H3-1R</td><td>H3-1のv1承認は履歴。M30 v2の直接集約、OHLCV、Calendar端数停止、順序、一回判断、Config無効時互換性、fixture/hashは未承認。</td><td>人が日本語でv2を承認するまで、M30を含むP3-06/P3-07実装・GREEN化へ進まない。</td></tr>
+  </tbody></table>
+
+  <h2>15. 専門レビュー記録（初回）</h2>
+  <p>以下は設計作成時の専門家確認です。問題内容と修正方針の下に、専門用語を避けた説明を併記します。最終版ではA91/A90の再レビューでCritical/High 0を確認してから状態を更新します。</p>
+  <table><thead><tr><th>指摘</th><th>問題内容</th><th>修正方針</th><th>状態</th></tr></thead><tbody>
+    <tr><td>A30-01<br>High</td><td>1分Eventの入力順、再送、競合、途中失敗時の水位が未定義だと、同じデータで別の15分足やSignalになり得る。<br><br><strong>やさしい説明:</strong> 同じ時刻のカードを毎回違う順に箱へ入れると、答えが変わることがあります。</td><td>ReplayOrderKey、同一内容再送のno-op、競合停止、派生足・Batch・watermarkの原子的遷移を6章とBT-001〜006へ固定する。<br><br><strong>やさしい説明:</strong> カードの並べ方と、途中で失敗したら全部元に戻す決まりを先に書きます。</td><td>反映済み。再レビュー対象。</td></tr>
+    <tr><td>A30-02<br>High</td><td>欠損・端数・session境界を曖昧にすると、未完成の上位足へ未来や架空の値を混ぜられる。<br><br><strong>やさしい説明:</strong> 15分必要なのに14分しかない表を、完成した15分表にしてはいけません。</td><td>Calendar anchorと<code>PARTIAL_BAR_REJECTED</code>を唯一の方針にし、DST・休日・短縮日・端数をBT-007〜009へ固定する。<br><br><strong>やさしい説明:</strong> 足りない材料は、想像で補わず止めます。</td><td>反映済み。再レビュー対象。</td></tr>
+    <tr><td>A30-03/04<br>High</td><td>同じbarの約定を同じ判断へ戻すこと、またはGap/Stopの有利な価格選びは、未来を見た成績を作る。<br><br><strong>やさしい説明:</strong> 終わった試合の途中経過を先に知って作戦を決めたら不公平です。</td><td>Strategy一回→仮想約定→次回ExecutionViewの順を5章に固定し、ConservativeOHLCv1と順序不明停止を7章・BT-012〜016へ固定する。<br><br><strong>やさしい説明:</strong> 分からない順番は、勝ちやすい想像をせず止めます。</td><td>反映済み。再レビュー対象。</td></tr>
+    <tr><td>A70-01〜04<br>High</td><td>材料・結果・復旧位置・E:出力の指紋を固定しないと、後から入替えたり途中結果を正式扱いできる。<br><br><strong>やさしい説明:</strong> 実験ノートに材料の指紋がなければ、別の材料でも同じ実験に見せられます。</td><td>Manifest、staging→atomic publish、commit marker、復旧照合、許可path、実行前後のOffline証跡を8〜10章とBT-019〜022/034へ固定する。<br><br><strong>やさしい説明:</strong> 材料、途中経過、完成品にそれぞれ同じ番号札を付けます。</td><td>反映済み。再レビュー対象。</td></tr>
+    <tr><td>A40-01〜05<br>High</td><td>CoreとEngineが別々にStrategyを動かす、またはEngine実体を固定しないと、比較結果の意味が失われる。<br><br><strong>やさしい説明:</strong> 別々の解き方で答えを比べても、道具の差か解き方の差か分かりません。</td><td>Coreを唯一の基準とし、Engineは将来比較枝だけにする。Identity、Offline、Parity、性能証跡を11〜13章とBT-027〜032へ固定する。<br><br><strong>やさしい説明:</strong> 同じ問題・同じ答え合わせの規則で、道具だけを比べます。</td><td>反映済み。再レビュー対象。</td></tr>
+  </tbody></table>
+
+  <h3>15.1 初回レビュー反映（A82 / A91 / A90）</h3>
+  <table><thead><tr><th>指摘</th><th>問題内容</th><th>修正方針</th><th>反映章・試験</th></tr></thead><tbody>
+    <tr><td>A82-01 / A91-H01<br>High</td><td>P3-D04のClosedBar/Batchと異なる型、またはAPI名だけでは、実装者が二つの説明書を別の部品として作ってしまう。<br><br><strong>やさしい説明:</strong> 同じ名前の箱なのに中身の一覧が違うと、どちらを使えばよいか分かりません。</td><td>P3-D04の全フィールド・検証を4章へ完全転記し、4.1でReplayOrder、Aggregator、Runner、Storeの引数・戻り値・副作用・失敗を固定する。<br><br><strong>やさしい説明:</strong> 同じ箱は同じ中身の一覧にそろえ、部品の使い方も一行ずつ決めます。</td><td>4、4.1、BT-001〜006</td></tr>
+    <tr><td>A82-02 / A91-H02,H03<br>High</td><td>Aggregator、Manifest、Snapshot、Resultの状態・保存物・復旧順が文章だけでは、途中で止まった実験を安全に再開できない。<br><br><strong>やさしい説明:</strong> 完成品と途中品の置き場所・順番がなければ、再開時に同じ作業を二度してしまいます。</td><td>4.1、5.1、9.1、9.2でstate/API/疑似コード/物理ファイル/commit markerを固定する。<br><br><strong>やさしい説明:</strong> どの箱に何を入れ、どの順に完成印を付けるか決めます。</td><td>4.1、5.1、9.1〜9.2、BT-010〜011/019/021/034</td></tr>
+    <tr><td>A90-01<br>High</td><td>Strategyが見た同じbarで新規DirectiveをFillすると、終値まで知った後で始値注文したような未来情報になる。<br><br><strong>やさしい説明:</strong> 今日の答えを見てから、今日の最初に答えを書いたことにしてはいけません。</td><td>4.2と5.1で新規Entry/Add/Channel Exitを次の利用可能barからに限定し、既存保有のprotective stopだけを別扱いにする。<br><br><strong>やさしい説明:</strong> 新しい注文は次の問題から、前から持っている安全装置だけは今の問題でも働かせます。</td><td>4.2、5.1、BT-006/012〜014</td></tr>
+    <tr><td>A90-02,03<br>High</td><td>品質停止と許容警告、またCalendar/Rollの公開時刻を型で持たないと、危ない材料や未来の予定表を通せる。<br><br><strong>やさしい説明:</strong> 使用禁止の荷物と注意付きの荷物、来週の予定表を同じように扱ってはいけません。</td><td>DataGateDecision、CalendarSnapshot、RollBindingに判定値・hash・公開時刻を置き、判断時刻以下だけを許可する。<br><br><strong>やさしい説明:</strong> 注意の種類と、いつ配られた予定表かを名札で確認します。</td><td>4.1〜4.2、BT-007/018〜020</td></tr>
+    <tr><td>A82-04 / A91-H04,H05<br>High</td><td>ACとの対応、fixture、操作、証跡、Pass条件が一表にそろわないと、試験が足りなくても完了に見える。<br><br><strong>やさしい説明:</strong> 宿題の題名だけでは、何を使ってどう答え合わせするか分かりません。</td><td>0.1でv1のBT-001〜037とP3-05R v2のBT-038〜042をfixture・操作・期待・証跡まで固定し、AC番号をPhase 3計画の定義へ訂正する。<br><br><strong>やさしい説明:</strong> 材料、手順、正解、提出先を一行ずつそろえます。</td><td>0.1、BT-001〜042</td></tr>
+    <tr><td>A82-05 / A91-H06 / A90-M04〜06<br>High</td><td>索引・相互リンク・Mermaid読込が欠けると、正式な設計書や図へたどり着けない。<br><br><strong>やさしい説明:</strong> 目次や地図のページ番号が違うと、必要な説明を読めません。</td><td>現存するD02/D03へリンクを訂正し、Mermaid scriptを追加し、最終反映時にdoc/indexと実行ログを更新する。<br><br><strong>やさしい説明:</strong> 目次と図を正しく開けるようにします。</td><td>17、末尾script、doc/index、実行ログ</td></tr>
+  </tbody></table>
+  <h3>15.2 DD-01〜12の充足表</h3>
+  <table><thead><tr><th>DD</th><th>根拠章</th><th>状態</th></tr></thead><tbody>
+    <tr><td>DD-01</td><td>1〜3: Scope、責務、依存方向</td><td>設計済み</td></tr>
+    <tr><td>DD-02</td><td>2: module tree、公開境界</td><td>設計済み</td></tr>
+    <tr><td>DD-03</td><td>4〜4.2: DTO、Protocol、API、禁止依存</td><td>設計済み</td></tr>
+    <tr><td>DD-04</td><td>5〜7: 正常/異常フロー、時系列、Fill</td><td>設計済み</td></tr>
+    <tr><td>DD-05</td><td>9〜9.2: E: layout、schema、commit、復旧</td><td>設計済み</td></tr>
+    <tr><td>DD-06</td><td>4.2、6〜8: Gate、Calendar、Roll、Plan</td><td>設計済み</td></tr>
+    <tr><td>DD-07</td><td>5.1: 決定的擬似コード</td><td>設計済み</td></tr>
+    <tr><td>DD-08</td><td>8、9、12: Manifest、監査、性能・運用設定</td><td>設計済み</td></tr>
+    <tr><td>DD-09</td><td>0.1、13: 37試験、fixture、証跡、Pass/Fail</td><td>設計済み（P3-05でRED固定）</td></tr>
+    <tr><td>DD-10</td><td>8〜9.2: hash、canonical JSON、audit</td><td>設計済み</td></tr>
+    <tr><td>DD-11</td><td>14: Unknown/Human Gate/Phase境界</td><td>設計済み</td></tr>
+    <tr><td>DD-12</td><td>15〜16、21: 初回レビュー、改訂、最終再レビュー履歴</td><td>設計済み（Critical/High 0を確認）</td></tr>
+  </tbody></table>
+
+  <h2>16. 変更履歴と後続への引渡し</h2>
+  <table><thead><tr><th>版</th><th>日付</th><th>内容</th></tr></thead><tbody>
+    <tr><td>v0.1</td><td>2026-08-09</td><td>P3-04初版。Backtest/Experimentの実装境界、失敗停止、35件のRED試験を定義。</td></tr>
+    <tr><td>v0.2</td><td>2026-08-09</td><td>A82/A91/A90初回レビューを反映。P3-D04 DTO整合、公開API、Data Gate、次bar約定、Calendar/Roll可用時刻、物理保存/復旧、AC追跡、Mermaid導線を追加。</td></tr>
+    <tr><td>v0.3</td><td>2026-08-09</td><td>再レビューを反映。Partial/Scheduled/Cost/Slippage/Roll/Commit DTO、完全offline/Fake Adapter成功試験（BT-036/037）、次barの保留注文・復旧を追加。</td></tr>
+    <tr><td>v0.4</td><td>2026-08-09</td><td>P3-D04 ConfirmedExecutionView完全接続、ResultRow、AF-D16の18〜22章、最終疑似コード、設定/監査/承認/最終レビュー章を追加。</td></tr>
+    <tr><td>v0.5</td><td>2026-08-09</td><td>最終再レビューを反映。複数市場のpendingは該当銘柄・到達時刻だけを一回消費し、それ以外を待機する規則と、BT-006の確認を追加。A91/A90/A82のCritical/High 0を確認。</td></tr>
+    <tr><td>v0.6 (P3-05R)</td><td>2026-08-09</td><td>M30をsession anchorからの確定1分足30本で直接集約する契約、半開区間/OHLCV、Calendar端数停止、M1→M15→M30→H1→H4→D1、DecisionPoint一回、v2 Manifest/Snapshot binding、BT-038〜042、H3-1R待ちを追加。実装コードは含めない。</td></tr>
+  </tbody></table>
+  <p><strong>P3-05Rへの引渡し:</strong> 承認済みv1のBT-001〜037は保持し、M30のBT-038〜042をv2 REDとして追加する。P3-D04のGT-TUR-036〜040と共通fixture/UTC/正規JSON規則を使う。M30を含むP3-06/P3-07はH3-1R承認前に開始しない。</p>
+
+  <h2>17. 関連成果物</h2>
+  <ul>
+    <li><a href="../01_要件追跡/01_Phase3スコープ定義.html">P3-D01 Phase 3スコープ定義</a></li>
+    <li><a href="../01_要件追跡/01_Phase3要件追跡マトリクス.html">P3-D02 要件トレーサビリティ・受入基準</a></li>
+    <li><a href="../02_エンジン調査/02_取引エンジン公式仕様確認結果.html">P3-D03 取引エンジン公式仕様確認結果</a></li>
+    <li><a href="../03_Strategy詳細設計/03_Strategy_Turtle実装詳細設計書.html">P3-D04 Strategy / Turtle実装詳細設計</a></li>
+    <li><a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></li>
+  </ul>
+  <p class="small">根拠: P3-04実行計画、P3-D01〜D04、Phase 1共通実行モデル・Event/Replay・Golden test成果物、Phase 2 DataVersion/Quality/Replay成果物。外部仕様の新規取得は行っていない。</p>
+  <h2>18. 誤実装しやすい規則の最終疑似コード</h2>
+  <pre>for event in ReplayOrder.normalize(events, data_gate, binding):
+  # eventの時刻より前に既に確認されていた事実だけを先に処理する
+  tradable_bar = make_tradable_bar(event)  # open time = event.event_time_utc
+  simulator = consume_confirmed_protective_stops(tradable_bar, simulator)
+  simulator = consume_pending_directives_once(tradable_bar, simulator)
+  # 新しく出たDirectiveは、このeventで約定させない
+  transition = aggregator.accept(event, aggregator_state, calendar, data_gate, binding)
+  aggregator_state = transition.state
+  if transition.batch is None: continue
+  execution = simulator.execution_projection
+  result = strategy.process_closed_batch(transition.batch, instrument, execution, constraints, strategy_state)
+  new_pending = schedule_only(result.directives, min_eligible_after=event.bar_close_time)
+  append ResultRow for transition/result/new_pending
+  append Snapshot(aggregator, simulator + new_pending, strategy)
+  append CommitMarker last
+
+consume_pending_directives_once(tradable_bar, simulator):
+  eligible = [p for p in simulator.pending_directives
+              if p.instrument_id == tradable_bar.instrument_id
+              and tradable_bar.bar_open_time_utc >= p.min_eligible_bar_open_utc]
+  for pending in canonical_order(eligible):
+    fill = Fill → Slippage → Cost → Roll in fixed profile order
+    record FILLED/UNFILLED/STOPPED; add fingerprint to consumed set
+  keep every different-instrument or not-yet-eligible pending unchanged
+  if pending reaches replay end without eligible bar: record NO_ELIGIBLE_BAR / UNFILLED</pre>
+  <p class="note">この順番なら、新しい注文は必ず次の足まで待ちます。また、再開したときも「もう処理した注文の指紋」を見て二回約定させません。</p>
+
+  <h2>19. 設定、監査、テスト、実行記録</h2>
+  <table><thead><tr><th>分類</th><th>正本</th><th>変更時の扱い</th></tr></thead><tbody>
+    <tr><td>設定</td><td>Calendar、timeframe/order、FillProfile、Cost/Slippage/Roll、Strategy、ExperimentPlan、EngineIdentityの各hash</td><td>一つでも変われば新Manifest/new run_id。既存結果を上書きしない。</td></tr>
+    <tr><td>監査</td><td>AuditEventのpreflight→event→batch→directive→fill→snapshot→commit→publish/failure順</td><td>hash、順番、logical timeが不一致なら公開しない。Secret/実データ本文を記録しない。</td></tr>
+    <tr><td>試験</td><td>BT-001〜042、fixture、期待hash、RED/GREEN、実行証跡</td><td>期待値変更はH3-1後でも理由・差分・影響・再承認を残す。M30 v2はH3-1R前にGREEN/実装開始しない。</td></tr>
+    <tr><td>実行記録</td><td><code>plan/phase3/ログ/P3-04_実行ログ_2026-08-09.md</code>と<code>tests/evidence/phase3/</code></td><td>設計レビューと実行結果を混同しない。P3-04は実装Runをまだ行わない。</td></tr>
+  </tbody></table>
+
+  <h3>19.1 P3-05R: M30直接集約・復旧・証跡の詳細契約</h3>
+  <p>M30は<code>TimeframeAggregationConfig(enabled_timeframes, m30_enabled, timeframe_rule_version, ordering_rule_version)</code>で明示的に有効化します。<code>m30_enabled=false</code>ではM30 bucket、partial、watermark、Batch期待集合、Manifest hash材料を作らず、既存v1の15分/H1/H4/D1の集約規則・出力hashを変更しません。有効時にもM30はM15から導出せず、Calendarが返すsession anchorを基準にした30分の半開区間ごとに、同じsignal series・版の確定1分足30本を直接使います。</p>
+  <pre class="mermaid">flowchart LR
+    A["凍結 CalendarSnapshot\nsession anchor"] --> B["[open, close) のM30候補"]
+    C["連続した確定M1 30本"] --> D{"同一session・連続・30本・同一版"}
+    B --> D
+    D -->|はい| E["M30: first open / max high / min low / last close / sum volume"]
+    E --> F["M1 → M15 → M30 → H1 → H4 → D1"]
+    F --> G["完全ClosedBarBatch\nDecisionPoint一回"]
+    D -->|いいえ| H["PARTIAL_BAR_REJECTED 等\nBatchなし・停止"]</pre>
+  <table><thead><tr><th>対象</th><th>保存・hash・順序の固定内容</th><th>拒否と結果</th></tr></thead><tbody>
+    <tr><td>M30区間とOHLCV</td><td><code>[open,close)</code>はanchorから30分。30本の<code>bar_open_time_utc</code>は1分ずつ連続し、各<code>bar_close_time_utc</code>は次のopen、全source_event_idsはcanonical順。open=最初、high=max、low=min、close=最後、volume=sum。M15値/ID/丸めは一切参照しない。</td><td>29/31本、欠損、重複、逆行、別series/別版、範囲外、未確定を<code>PARTIAL_BAR_REJECTED</code>、<code>DUPLICATE_1M_CONFLICT</code>、<code>TIME_ORDER_INVALID</code>として停止。M30もBatchも発行しない。</td></tr>
+    <tr><td>Calendar</td><td>CalendarSnapshotのversion/hash、published_at、session anchor、DST、休日、短縮日、日次停止を入力bindingに固定する。休日・停止日にbucketを始めず、短縮日・session終端で30分に満たない残りは完成足にしない。</td><td>未知/未来公開Calendar、session定義なし、Calendar hash差替えは<code>CALENDAR_BOUNDARY_INVALID</code>。端数を黙って捨てずAuditに残し、結果を公開しない。</td></tr>
+    <tr><td>PartialBarState / AggregatorSnapshot</td><td>M30 partialは<code>timeframe, session_id, window_open_utc, window_close_utc, source_event_ids, source_events_sha256, count, first_open, high, low, last_close, volume, data/catalog/calendar_version</code>をcanonical JSONで保存する。Snapshotには有効timeframe集合、M30 emitted watermark、last batch hash、binding、payload hashを置く。</td><td>restore時にcount=30以外をcompletedにしない。partial/source/hash/watermark/bindingの不一致、未知schema、M30有効状態と無効Configの組合せは<code>RECOVERY_RECONCILIATION_FAILED</code>で停止し、自動補完/migrationしない。</td></tr>
+    <tr><td>Batch / DecisionPoint</td><td>同じcloseではM1→M15→M30→H1→H4→D1でClosedBarViewを確定し、Config/Calendarから再計算したexpected_timeframesと実集合が完全一致してから一つの<code>decision_point_id</code>と一つのBatchを作る。Strategy呼出しはBatchごとに一回。</td><td>不足、順序違反、二重Batch、future bar、同DecisionPointの再発行は<code>COHORT_INCOMPLETE</code>または競合停止。Signal/Directive/Result公開は0。</td></tr>
+    <tr><td>Manifest / Result / Snapshot結合</td><td>ExperimentManifestとResultRow、BacktestSnapshot、AggregatorSnapshot、StrategySnapshotは、<code>timeframe_rule_version</code>、<code>ordering_rule_version</code>、enabled timeframes、M30直接集約規則版、Calendar/Catalog/Data/Config/fixture hashes、M30 source/bar/partial/watermark hashesを相互に束縛する。変更は新Manifest/new run_idだけ。</td><td>一つでも欠落・差替え・再構築不一致なら<code>MANIFEST_INTEGRITY_VIOLATION</code>または<code>RECOVERY_RECONCILIATION_FAILED</code>。既存runの上書き、M30なしSnapshotへの暗黙追加、結果公開は禁止。</td></tr>
+  </tbody></table>
+  <div class="easy"><strong>やさしい説明:</strong> 30分の箱は、取引時間の始まりから1分のカードを30枚そろえて作ります。休みの日や早く閉まる日の余りは、30分の箱に見せかけません。途中で止めたときも、箱の中のカードと箱の番号を保存して、別のカードへすり替えられないようにします。</div>
+
+  <h2>20. 人間承認の対象</h2>
+  <p>H3-1のv1承認は履歴として保持する。P3-05RのM30 v2は<strong>H3-1R承認待ち</strong>であり、直接1分集約、OHLCV、DST/休日/短縮日/端数停止、M1→M15→M30→H1→H4→D1、一回DecisionPoint、Config無効時互換性、v2 fixture/hashを人が日本語で確認する。H3-1R前はM30を含むP3-06/P3-07実装・GREEN化を開始しない。</p>
+
+  <h2>21. 最終レビュー履歴</h2>
+  <table><thead><tr><th>担当</th><th>最終判定</th><th>確認した範囲</th></tr></thead><tbody>
+    <tr><td>AutoTrade_A91_ImplementationDetailReviewer_v0_1</td><td>受入可（Critical 0 / High 0 / Medium 2）</td><td>型/API、物理保存・復旧、擬似コード、テスト、DD充足、Mermaid。</td></tr>
+    <tr><td>AutoTrade_A90_DesignReviewer_v0_1</td><td>受入可（Critical 0 / High 0 / Medium 1）</td><td>Look-ahead、Data Gate、Calendar/Roll可用時刻、複数市場pending、Engine/Offline境界。</td></tr>
+    <tr><td>AutoTrade_A82_ImplementationDetailDesigner_v0_1</td><td>受入可（Critical 0 / High 0 / Medium 2）</td><td>P3-D04 DTO接続、標準章立て、相互リンク、テスト追跡。</td></tr>
+    <tr><td>AutoTrade_A82_ImplementationDetailDesigner_v0_1（P3-05R）</td><td>再レビュー完了・受入可（Critical 0 / High 0 / Medium 0）</td><td>19.1、BT-038〜042、M30 direct aggregation、Partial/Snapshot/Manifest binding、Config無効時互換性を追加し、A91/A90/A150/A160が最終確認した。H3-1Rの承認前にM30実装を始めない。</td></tr>
+  </tbody></table>
+
+  <h2>22. 関連成果物（最終導線）</h2>
+  <ul>
+    <li><a href="../01_要件追跡/01_Phase3スコープ定義.html">P3-D01 Phase 3スコープ定義</a> と <a href="../01_要件追跡/01_Phase3要件追跡マトリクス.html">P3-D02 要件追跡マトリクス</a></li>
+    <li><a href="../02_エンジン調査/02_取引エンジン公式仕様確認結果.html">P3-D03 取引エンジン公式仕様確認結果</a></li>
+    <li><a href="../03_Strategy詳細設計/03_Strategy_Turtle実装詳細設計書.html">P3-D04 Strategy / Turtle実装詳細設計</a></li>
+    <li><a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></li>
+  </ul>
+  <script src="../../assets/mermaid.min.js"></script>
+  <script src="../../assets/mermaid-init.js"></script>
+  <section class="note" id="p3-06-current-status">
+    <h2>現在状態の上書き（2026-08-09）</h2>
+    <p>H3-1R改訂は承認済みである。v2は履歴証跡、v3は実行時の安全正本であり、M30は実M1を連続30本確認できなければ停止する。P3-06のStrategy実装はPASSした。Backtest/Timeframe Aggregator本体、BT-001〜042のGREEN化はP3-07の作業として未実装である。</p>
+    <p><small>やさしい説明: 戦略の部品は完成しましたが、1分足から時間足を作り直して公平に試験するBacktestの部品は次の作業です。</small></p>
+  </section>
+</main>
+</body>
+</html>

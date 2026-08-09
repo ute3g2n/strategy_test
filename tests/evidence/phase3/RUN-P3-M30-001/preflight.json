@@ -1,0 +1,12 @@
+{
+  "run_id": "RUN-P3-M30-001",
+  "state": "LOCAL_CONTRACT_ONLY",
+  "external_network": "unused",
+  "broker": "unused",
+  "secret": "unused",
+  "real_engine": "unused",
+  "current_time_as_strategy_input": "unused",
+  "large_data_root": "E:/strategy_test_data/phase3 is excluded from this fixture-only target scope",
+  "human_gate": "H3-1R_PENDING",
+  "result_publication": "not applicable; no backtest result was generated"
+}

@@ -113,14 +113,42 @@ class GitChangeInspector:
         return tuple(changes)
 
     def has_new_test_skip(self, project_root: Path, baseline_ref: str, paths: tuple[str, ...] | None = None) -> bool:
-        pathspecs = list(paths) if paths else ["tests"]
+        # Skip/xfail is a test mutation only.  Do not scan quality-gate
+        # implementation files themselves, which legitimately contain the
+        # forbidden-token list used by this checker.
+        pathspecs = [
+            path for path in (list(paths) if paths else ["tests"]) if _within(_normal_path(path, "path"), "tests")
+        ]
+        if not pathspecs:
+            return False
         completed = _git(project_root, ["diff", "--unified=0", baseline_ref, "--", *pathspecs])
         if completed.returncode:
             raise OSError("git diff failed")
-        forbidden = ("pytest.mark.skip", "pytest.skip(", "@unittest.skip")
-        return any(
-            line.startswith("+") and any(token in line for token in forbidden) for line in completed.stdout.splitlines()
+        forbidden = (
+            "pytest.mark.skip",
+            "pytest.skip(",
+            "@unittest.skip",
+            "pytest.mark.xfail",
+            "pytest.xfail(",
+            "pytest.importorskip(",
         )
+        if any(
+            line.startswith("+") and any(token in line for token in forbidden) for line in completed.stdout.splitlines()
+        ):
+            return True
+        untracked = _git_paths(project_root, pathspecs)
+        if untracked is None:
+            raise OSError("git ls-files failed")
+        for relative_path in untracked:
+            if not relative_path.endswith(".py"):
+                continue
+            try:
+                source = (project_root / relative_path).read_text(encoding="utf-8")
+            except OSError as error:
+                raise OSError("untracked test file could not be inspected") from error
+            if any(token in source for token in forbidden):
+                return True
+        return False
 
     def change_hash(self, project_root: Path, baseline_ref: str, paths: tuple[str, ...] | None = None) -> str:
         pathspecs = list(paths) if paths else [".", f":(exclude){HASH_EXCLUDED_PATH}/**"]
@@ -546,10 +574,16 @@ def _validate_gate_command(
         valid = _is_project_python(command[0]) and python_module in {
             "scripts.quality_gate.local_pytest",
             "scripts.quality_gate.local_p2_pytest",
+            "scripts.quality_gate.local_p3_pytest",
+            "scripts.quality_gate.local_p3_strategy_pytest",
         }
         paths = (
             ("tests/market_data",)
             if python_module == "scripts.quality_gate.local_p2_pytest"
+            else ("tests/strategy", "tests/backtest")
+            if python_module == "scripts.quality_gate.local_p3_pytest"
+            else ("tests/strategy",)
+            if python_module == "scripts.quality_gate.local_p3_strategy_pytest"
             else ("tests/quality_gate",)
         )
     if not valid or not paths:

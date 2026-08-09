@@ -12,7 +12,7 @@ def _deny_network(*args: object, **kwargs: object) -> None:
 
 
 socket.create_connection = _deny_network  # type: ignore[assignment]
-socket.socket.connect = _deny_network  # type: ignore[assignment]
+socket.socket.connect = _deny_network  # type: ignore[method-assign]
 os.environ["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = "1"
 
 

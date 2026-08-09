@@ -1,0 +1,23 @@
+{
+  "schema_version": "phase3-strategy-verification-v1",
+  "run_id": "RUN-P3-STR-001",
+  "state": "PASS",
+  "gates": [
+    {"name": "formatter", "result": "PASS", "detail": "24 files already formatted"},
+    {"name": "lint", "result": "PASS", "detail": "ruff check passed"},
+    {"name": "type", "result": "PASS", "detail": "mypy: 13 source files, no issues"},
+    {"name": "test", "result": "PASS", "detail": "local_p3_strategy_pytest: 116 passed"}
+  ],
+  "additional_checks": [
+    {"name": "quality_gate_contract", "result": "PASS", "detail": "tests/quality_gate/test_runner.py: 39 passed"},
+    {"name": "diff_check", "result": "PASS", "detail": "git diff --check produced no output"}
+  ],
+  "strategy_tests": 116,
+  "review": {"critical": 0, "high": 0, "medium": 0, "verdict": "APPROVE"},
+  "safety_results": [
+    "M30は実M1が連続30本そろわない場合に停止する",
+    "NaN、Infinity、非数値のOHLCVは例外にせず停止する",
+    "未来、重複、時刻逆行、Snapshot文脈不一致は出力0件で停止する",
+    "時計、ネットワーク、Broker、外部取引engine、外部I/OはStrategy Coreで使用しない"
+  ]
+}

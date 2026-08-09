@@ -1,0 +1,32 @@
+{
+  "schema_version": "p3-m30-backtest-contract-cases-v2",
+  "fixture_hash_scope": "utf-8-json-bytes-without-generated-at",
+  "fixture_status": "PROPOSED_FOR_H3_1R",
+  "cases": {
+    "BT-038": {
+      "operation": "aggregate_m30",
+      "input": {"fixture_ref": "m30_backtest_v2.json#direct_m1_bars", "source_bar_kind": "BAR_1M", "source_bar_count": 30, "forbidden_intermediate_timeframes": ["M15"], "session_anchor_utc": "2026-01-05T23:00:00Z"},
+      "expected": {"timeframe": "M30", "open_time_utc": "2026-01-05T23:00:00Z", "close_time_utc": "2026-01-05T23:30:00Z", "is_closed": true, "source_bar_kind": "BAR_1M", "source_bar_count": 30, "source_event_ids_sha256": "sha256:f3a02f9b1ed01ceabeefa8ecc479fa5ccebf34afef34acc6494d3fe21669207e", "open": "100.00", "high": "103.20", "low": "99.80", "close": "103.00", "volume": "465"}
+    },
+    "BT-039": {
+      "operation": "aggregate_m30",
+      "input": {"calendar_rejections": {"dst": {"session_anchor_utc": "2026-03-08T22:00:00Z", "received_count": 30}, "holiday": {"business_date": "2026-12-25", "calendar_closed": true, "received_count": 30}, "short_day_partial": {"session_close_utc": "2026-11-27T18:45:00Z", "received_count": 15}, "missing": {"received_count": 29}, "duplicate": {"received_count": 30, "duplicate_open_time_utc": "2026-01-05T23:10:00Z"}, "out_of_order": {"received_count": 30, "reversed_pair": ["2026-01-05T23:11:00Z", "2026-01-05T23:10:00Z"]}}},
+      "expected": {"dst": {"status": "ACCEPTED"}, "holiday": {"status": "STOPPED", "reason": "CALENDAR_BOUNDARY_INVALID"}, "short_day_partial": {"status": "STOPPED", "reason": "PARTIAL_BAR_REJECTED"}, "missing": {"status": "STOPPED", "reason": "PARTIAL_BAR_REJECTED"}, "duplicate": {"status": "STOPPED", "reason": "DUPLICATE_1M_CONFLICT"}, "out_of_order": {"status": "STOPPED", "reason": "OUT_OF_ORDER"}}
+    },
+    "BT-040": {
+      "operation": "build_m30_cohort",
+      "input": {"cohorts": {"m15_m30": {"input_order": ["M30", "M15"], "closed_views": ["M30", "M15"]}, "m30_h1": {"input_order": ["H1", "M30"], "closed_views": ["H1", "M30"]}, "m30_h1_h4_d1": {"input_order": ["D1", "H4", "H1", "M30"], "closed_views": ["D1", "H4", "H1", "M30"]}}},
+      "expected": {"m15_m30": {"normalized_order": ["M15", "M30"], "decision_points": 1}, "m30_h1": {"normalized_order": ["M30", "H1"], "decision_points": 1}, "m30_h1_h4_d1": {"normalized_order": ["M30", "H1", "H4", "D1"], "decision_points": 1}}
+    },
+    "BT-041": {
+      "operation": "restore_m30_snapshot",
+      "input": {"snapshot": {"m30_watermark": "2026-01-05T23:30:00Z", "timeframe_rule_version": "timeframe-calendar-anchor-m30-direct-m1-v2", "calendar_version": "us-futures-fixture-v1", "catalog_version": "catalog-p3-fixture-v1", "data_version": "dv_p3_m30_fixture_001", "config_hash": "sha256:config-v2", "fixture_manifest_id": "p3-m30-fixture-manifest-v2"}, "mutations": ["m30_watermark", "timeframe_rule_version", "calendar_version", "catalog_version", "data_version", "config_hash", "fixture_manifest_id"]},
+      "expected": {"same_content": {"status": "NO_OP"}, "any_mutation": {"status": "STOPPED", "reason": "RECOVERY_RECONCILIATION_FAILED", "published_result_count": 0}}
+    },
+    "BT-042": {
+      "operation": "assert_m30_disabled_compatibility",
+      "input": {"v1_fixture_path": "tests/fixtures/strategy/turtle_golden_v1.json", "v1_fixture_sha256": "sha256:571ac25dbd5f2786cde2aa5cb25f66232bdb4a4ab5e3fc3c6ff5f3e09e37a1f4", "v1_config": {"m30_enabled": false, "enabled_timeframes": ["M15", "H1", "H4", "D1"]}, "v1_semantic_hash": "sha256:31c704a6b5b99eafaaf397c65a023b7fc52634593c6cd21244173f5ec3c9c41f", "replay_count": 2, "v2_available": true},
+      "expected": {"m30_generated": false, "m30_in_manifest": false, "m30_in_watermarks": false, "m30_in_expected_timeframes": false, "semantic_hashes": ["sha256:31c704a6b5b99eafaaf397c65a023b7fc52634593c6cd21244173f5ec3c9c41f", "sha256:31c704a6b5b99eafaaf397c65a023b7fc52634593c6cd21244173f5ec3c9c41f"], "status": "COMPATIBLE"}
+    }
+  }
+}

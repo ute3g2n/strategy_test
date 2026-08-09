@@ -1,0 +1,14 @@
+{
+  "schema_version": "p3-calendar-v1",
+  "calendar_version": "us-futures-fixture-v1",
+  "timezone": "America/Chicago",
+  "cases": [
+    {"id": "normal", "session_open_utc": "2026-01-05T23:00:00Z", "session_close_utc": "2026-01-06T22:00:00Z", "expected_h4_anchor_utc": "2026-01-05T23:00:00Z"},
+    {"id": "dst_start", "session_open_utc": "2026-03-08T22:00:00Z", "session_close_utc": "2026-03-09T21:00:00Z", "expected_h4_anchor_utc": "2026-03-08T22:00:00Z"},
+    {"id": "dst_end", "session_open_utc": "2026-11-01T23:00:00Z", "session_close_utc": "2026-11-02T22:00:00Z", "expected_h4_anchor_utc": "2026-11-01T23:00:00Z"},
+    {"id": "holiday", "closed": true, "business_date": "2026-12-25"},
+    {"id": "short_day", "session_open_utc": "2026-11-26T23:00:00Z", "session_close_utc": "2026-11-27T18:45:00Z"},
+    {"id": "daily_halt", "halt_start_utc": "2026-01-06T22:00:00Z", "halt_end_utc": "2026-01-06T23:00:00Z"}
+  ],
+  "change_rule": "H3-1 approval is required for any hash or expectation change."
+}

@@ -1,0 +1,94 @@
+{
+  "schema_version": "p3-m30-strategy-fixture-v2",
+  "fixture_hash_scope": "utf-8-json-bytes-without-generated-at",
+  "fixture_status": "PROPOSED_FOR_H3_1R",
+  "binding": {
+    "data_version": "dv_p3_m30_fixture_001",
+    "catalog_version": "catalog-p3-fixture-v1",
+    "calendar_version": "us-futures-fixture-v1",
+    "timeframe_rule_version": "timeframe-calendar-anchor-m30-direct-m1-v2",
+    "ordering_rule_version": "m1-m15-m30-h1-h4-d1-v2",
+    "code_revision": "p3-m30-golden-fixture-v2"
+  },
+  "calendar": {
+    "timezone": "America/Chicago",
+    "session_anchor_local": "17:00:00",
+    "session_anchor_utc": "2026-01-05T23:00:00Z"
+  },
+  "cases": {
+    "GT-TUR-036": {
+      "area": "m30_configuration_and_v1_compatibility",
+      "input": {
+        "v1_fixture_path": "tests/fixtures/strategy/turtle_golden_v1.json",
+        "v1_fixture_sha256": "sha256:571ac25dbd5f2786cde2aa5cb25f66232bdb4a4ab5e3fc3c6ff5f3e09e37a1f4",
+        "v1_config": {"enabled_timeframes": ["M15", "H1", "H4", "D1"], "m30_enabled": false},
+        "m30_configs": [{"enabled_timeframes": ["M15", "M30", "H1", "H4", "D1"], "m30_enabled": true, "m30_usage": "INDICATOR"}, {"enabled_timeframes": ["M15", "M30", "H1", "H4", "D1"], "m30_enabled": true, "m30_usage": "REGIME"}, {"enabled_timeframes": ["M15", "M30", "H1", "H4", "D1"], "m30_enabled": true, "m30_usage": "TRIGGER"}],
+        "invalid_config": {"enabled_timeframes": ["M15", "M30", "H1"], "m30_enabled": false, "m30_usage": "INDICATOR"},
+        "v1_semantic_hash": "sha256:31c704a6b5b99eafaaf397c65a023b7fc52634593c6cd21244173f5ec3c9c41f"
+      },
+      "expected": {
+        "v1": {"accepted": true, "m30_in_expected_timeframes": false, "m30_watermark": null, "semantic_hash": "sha256:31c704a6b5b99eafaaf397c65a023b7fc52634593c6cd21244173f5ec3c9c41f"},
+        "m30": {"accepted": true, "accepted_usages": ["INDICATOR", "REGIME", "TRIGGER"], "m30_in_expected_timeframes": true},
+        "invalid": {"accepted": false, "reason": "STR_CONFIG_INVALID"}
+      }
+    },
+    "GT-TUR-037": {
+      "area": "m30_simultaneous_close_single_decision",
+      "input": {
+        "cohorts": {
+          "m15_m30": {"decision_time_utc": "2026-01-05T23:30:00Z", "input_order": ["M30", "M15"], "closed_views": ["M30", "M15"]},
+          "m30_h1": {"decision_time_utc": "2026-01-06T00:00:00Z", "input_order": ["H1", "M30"], "closed_views": ["H1", "M30"]},
+          "m30_h1_h4_d1": {"decision_time_utc": "2026-01-06T22:00:00Z", "input_order": ["D1", "H4", "H1", "M30"], "closed_views": ["D1", "H4", "H1", "M30"]}
+        }
+      },
+      "expected": {
+        "m15_m30": {"normalized_order": ["M15", "M30"], "strategy_calls": 1, "duplicate_signals": 0},
+        "m30_h1": {"normalized_order": ["M30", "H1"], "strategy_calls": 1, "duplicate_signals": 0},
+        "m30_h1_h4_d1": {"normalized_order": ["M30", "H1", "H4", "D1"], "strategy_calls": 1, "duplicate_signals": 0}
+      }
+    },
+    "GT-TUR-038": {
+      "area": "m30_direct_m1_provenance_and_ohlcv",
+      "input": {
+        "timeframe": "M30",
+        "open_time_utc": "2026-01-05T23:00:00Z",
+        "close_time_utc": "2026-01-05T23:30:00Z",
+        "source_bar_kind": "BAR_1M",
+        "source_event_count": 30,
+        "source_event_ids": ["evt-m1-000", "evt-m1-001", "evt-m1-002", "evt-m1-003", "evt-m1-004", "evt-m1-005", "evt-m1-006", "evt-m1-007", "evt-m1-008", "evt-m1-009", "evt-m1-010", "evt-m1-011", "evt-m1-012", "evt-m1-013", "evt-m1-014", "evt-m1-015", "evt-m1-016", "evt-m1-017", "evt-m1-018", "evt-m1-019", "evt-m1-020", "evt-m1-021", "evt-m1-022", "evt-m1-023", "evt-m1-024", "evt-m1-025", "evt-m1-026", "evt-m1-027", "evt-m1-028", "evt-m1-029"],
+        "forbidden_intermediate_timeframes": ["M15"],
+        "ohlcv": {"open": "100.00", "high": "103.20", "low": "99.80", "close": "103.00", "volume": "465"}
+      },
+      "expected": {"accepted": true, "interval": "[2026-01-05T23:00:00Z,2026-01-05T23:30:00Z)", "source_event_count": 30, "m15_used": false, "source_event_ids_sha256": "sha256:f3a02f9b1ed01ceabeefa8ecc479fa5ccebf34afef34acc6494d3fe21669207e", "ohlcv": {"open": "100.00", "high": "103.20", "low": "99.80", "close": "103.00", "volume": "465"}}
+    },
+    "GT-TUR-039": {
+      "area": "m30_calendar_partial_and_invalid_input_rejection",
+      "input": {
+        "calendar_cases": {
+          "dst": {"session_anchor_utc": "2026-03-08T22:00:00Z", "received_count": 30},
+          "holiday": {"business_date": "2026-12-25", "calendar_closed": true, "received_count": 30},
+          "short_day_partial": {"session_close_utc": "2026-11-27T18:45:00Z", "received_count": 15},
+          "missing": {"received_count": 29},
+          "duplicate": {"received_count": 30, "duplicate_open_time_utc": "2026-01-05T23:10:00Z"},
+          "out_of_order": {"received_count": 30, "reversed_pair": ["2026-01-05T23:11:00Z", "2026-01-05T23:10:00Z"]}
+        }
+      },
+      "expected": {
+        "dst": {"accepted": true},
+        "holiday": {"accepted": false, "reason": "CALENDAR_BOUNDARY_INVALID", "signal_count": 0},
+        "short_day_partial": {"accepted": false, "reason": "PARTIAL_BAR_REJECTED", "signal_count": 0},
+        "missing": {"accepted": false, "reason": "PARTIAL_BAR_REJECTED", "signal_count": 0},
+        "duplicate": {"accepted": false, "reason": "DUPLICATE_1M_CONFLICT", "signal_count": 0},
+        "out_of_order": {"accepted": false, "reason": "OUT_OF_ORDER", "signal_count": 0}
+      }
+    },
+    "GT-TUR-040": {
+      "area": "m30_snapshot_manifest_context_binding",
+      "input": {
+        "snapshot": {"timeframe_rule_version": "timeframe-calendar-anchor-m30-direct-m1-v2", "calendar_version": "us-futures-fixture-v1", "m30_enabled": true, "m30_watermark": "2026-01-05T23:30:00Z", "fixture_manifest_id": "p3-m30-fixture-manifest-v2"},
+        "restore_context": {"timeframe_rule_version": "timeframe-calendar-anchor-v1", "calendar_version": "us-futures-fixture-v1", "m30_enabled": false}
+      },
+      "expected": {"restored": false, "status": "STOPPED", "reason": "STR_SNAPSHOT_CONTEXT_MISMATCH", "signal_count": 0}
+    }
+  }
+}

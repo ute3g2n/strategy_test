@@ -32,7 +32,7 @@
     <p><strong>成果物ID:</strong> P3-D03<br>
     <strong>ステップ:</strong> P3-02<br>
     <strong>作成日:</strong> 2026-08-09<br>
-    <strong>状態:</strong> v0.1 / 公式仕様調査完了、H3-2承認待ち<br>
+    <strong>状態:</strong> v0.2 / 公式仕様調査完了、H3-2承認済み（2026-08-09）<br>
     <strong>使用オーケストレータ:</strong> <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code><br>
     <strong>担当AI部品:</strong> <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A70_OpsSecurityArchitect_v0_1</code>, <code>AutoTrade_A10_RequirementsCurator_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code><br>
     <strong>使用Skill:</strong> <code>autotrade_skill_trading_engine_poc_v0_1</code>, <code>autotrade_skill_poc_evaluation_v0_1</code>, <code>autotrade_skill_official_research_v0_1</code>, <code>autotrade_skill_execution_model_v0_1</code>, <code>autotrade_skill_ops_security_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code>, <code>autotrade_skill_red_team_review_v0_1</code></p>
@@ -105,7 +105,7 @@
 
   <h2>6. 再現性・オフライン実行の前提</h2>
   <table>
-    <thead><tr><th>項目</th><th>設計</th><th>H3-2前の状態</th><th>失敗時</th></tr></thead>
+    <thead><tr><th>項目</th><th>設計</th><th>P3-02完了時の状態</th><th>失敗時</th></tr></thead>
     <tbody>
       <tr><td>大容量保存先</td><td><code>E:\strategy_test_data\phase3\engine_poc\</code>配下に<code>packages\</code>、<code>images\</code>、<code>catalog\</code>、<code>runs\</code>を切る。Gitには入れない。</td><td>ディレクトリ設計のみ。作成・ダウンロードはしていない。</td><td>保存先が違う場合はPoCを開始しない。</td></tr>
       <tr><td>Nautilus wheel</td><td>候補<code>1.231.0</code>、Python 3.12、OS別wheel filename、SHA-256、取得元、ライセンス文書をManifestへ記録する。</td><td>公式hashを確認済み。採用版としては未承認。</td><td>hash・Python ABI・OSが一致しなければインストールせず停止。</td></tr>
@@ -142,7 +142,7 @@
       <tr><td>拡張性・ライセンス</td><td>10</td><td>6点以上、配布条件を説明できる</td><td>LGPL/Apache表示、Adapter拡張</td><td>法務最終判断はH3-2後。ここでは採点を確定しない。</td></tr>
     </tbody>
   </table>
-  <div class="warn"><strong>採用判断:</strong> P3-02ではNautilusTraderをPython側の第一候補、LEANをDocker/C#系の比較候補としてPoC設計へ進める。ただし、これは最終採用ではない。固定版、依存hash、ライセンス確認、POC結果、人によるH3-2承認が揃うまでOD-02は未決定とする。<br><span class="easy"><strong>やさしい説明:</strong> いまは「第一候補」と「比べる候補」を決めただけです。テスト結果を見る前に、勝ったことにしてはいけません。</span></div>
+  <div class="warn"><strong>採用判断:</strong> ユーザーは2026-08-09にH3-2を承認し、Phase 3ではLEANを主PoC候補、NautilusTraderを比較・代替候補とした。これは最終採用ではない。P3-08Aで固定版、依存hash、ライセンス、ローカル・オフライン実行方法を証跡化し、P3-09でPoC合格条件を満たした候補だけをPhase 3の候補選定へ進める。OD-02の最終決定はPhase 4のPaper証拠後に行う。<br><span class="easy"><strong>やさしい説明:</strong> まずLEANを使って練習試験をします。ただし、本番で使うと決めたわけではありません。テストに通らなければNautilusTraderへ切り替えて比べます。</span></div>
 
   <h2>9. H3-2で承認してもらう内容</h2>
   <section class="gate">
@@ -153,14 +153,15 @@
       <li>長期データを取得・保存するか。取得する場合は<code>E:\strategy_test_data\phase3\datasets\</code>配下だけを使うこと。</li>
       <li>OD-02を「Phase 3のローカルPoC候補決定」までにするか、「Phase 4 Paper証拠後の最終決定」まで保留するか。</li>
     </ol>
-    <p class="easy"><strong>やさしい説明:</strong> H3-2は、道具を実際に入れてよいか、どの版を使うか、長いデータを置いてよいかを決める承認です。この承認がない間は、道具の導入や外部データ取得はしません。</p>
+    <p><strong>承認結果（2026-08-09）:</strong> H3-2は承認済み。LEANを主PoC候補、NautilusTraderを代替候補とする。P3-08Aで固定版・hash・ライセンス・公式配布元・ローカル実行方法をRun Manifestへ固定し、P3-09ではその固定物だけを使う。長期データを使う場合は <code>E:\strategy_test_data\phase3\datasets\</code> に限定する。Broker、Secret、実注文、Live運用は承認範囲外とする。</p>
+    <p class="easy"><strong>やさしい説明:</strong> 道具を入れて練習試験を始めてよい、という許可を受けました。ただし、版番号と中身の確認印を先に記録し、本物の売買にはまだ使いません。</p>
   </section>
 
   <h2>10. Unknownと停止条件</h2>
   <table>
     <thead><tr><th>ID</th><th>未確定内容</th><th>P3-02で分かったこと</th><th>未解決のまま許される作業</th><th>停止条件</th></tr></thead>
     <tbody>
-      <tr><td>UNK-P3-03</td><td>固定版、依存hash、ライセンス、ローカル実行方式</td><td>候補版と公式要件を確認したが、採用版と導入物の完全hashは未承認。</td><td>公式読取、synthetic契約、Adapter詳細設計。</td><td>H3-2前の依存導入、Docker pull、NuGet restore、外部取得。</td></tr>
+      <tr><td>UNK-P3-03</td><td>固定版、依存hash、ライセンス、ローカル実行方式</td><td>候補版と公式要件を確認済み。H3-2でLEAN主PoC候補の利用は承認済みだが、実際に導入するimage/packageの完全hashはP3-08Aで固定する。</td><td>公式読取、synthetic契約、Adapter詳細設計。</td><td>完全hashを記録しない依存導入、Docker pull、NuGet restore、外部取得。</td></tr>
       <tr><td>UNK-P3-04</td><td>OD-02の最終決定時期</td><td>Phase 3でローカル候補を比較できるが、Paper再同期の証拠はPhase 4。</td><td>候補比較とローカルPoC。</td><td>Phase 3の短期PoCだけで本番engine最終決定・Paper移行を宣言すること。</td></tr>
       <tr><td>UNK-P3-01</td><td>55日Channel、Holdout、Walk-forwardに足る履歴期間</td><td>公式エンジン仕様では解消しない。長期データの有無は未確認。</td><td>固定fixtureとsynthetic Replay。</td><td>短いデータで利益・頑健性を合格扱いすること。</td></tr>
     </tbody>
@@ -183,6 +184,6 @@
     <li><a href="../../../plan/Phase3_実行計画書_v0.1_2026-08-09.md">Phase 3実行計画書</a></li>
     <li><a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></li>
   </ul>
-  <p>H3-2承認後に、P3-03/P3-04の詳細設計と、承認された範囲のP3-09/P3-10 PoCへ進む。H3-2前は公式仕様の読取とsynthetic契約検証だけを許可する。</p>
+  <p>H3-2は承認済みである。P3-03/P3-04の詳細設計へ進み、P3-08Aで固定版・hash・ライセンス・実行方式を記録し、P3-09ではその範囲だけでLEAN PoCを行う。Broker、Secret、実注文、Live運用は引き続き許可しない。</p>
 </body>
 </html>

@@ -1,0 +1,11 @@
+{
+  "schema_version": "p3-performance-v1",
+  "generator_version": "synthetic-1m-v1",
+  "seed": 20260809,
+  "markets": ["MKT-A", "MKT-B", "MKT-C", "MKT-D", "MKT-E"],
+  "calendar_years": [2024, 2025],
+  "derived_timeframes": ["15m", "1h", "4h", "1d"],
+  "limits": {"elapsed_minutes": 30, "peak_rss_gib": 8},
+  "evidence_schema": ["cpu", "ram_bytes", "os", "python", "elapsed_ms", "peak_rss_bytes", "input_sha256", "result_sha256"],
+  "status_before_h3_1": "NOT_EXECUTED"
+}

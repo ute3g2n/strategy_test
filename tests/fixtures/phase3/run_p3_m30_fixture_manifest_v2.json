@@ -1,0 +1,24 @@
+{
+  "schema_version": "p3-fixture-manifest-v2",
+  "run_id": "RUN-P3-M30-001",
+  "fixture_status": "PROPOSED_FOR_H3_1R",
+  "timeframe_rule_version": "timeframe-calendar-anchor-m30-direct-m1-v2",
+  "ordering_rule_version": "m1-m15-m30-h1-h4-d1-v2",
+  "children": [
+    {
+      "path": "tests/fixtures/strategy/m30_strategy_v2.json",
+      "schema_version": "p3-m30-strategy-fixture-v2",
+      "sha256": "116799b5fe7b0c6b96c2eae0a5e3988473a28b865f7da44e0982a1927b7379b1"
+    },
+    {
+      "path": "tests/fixtures/phase3/m30_backtest_v2.json",
+      "schema_version": "p3-m30-backtest-fixture-v2",
+      "sha256": "7282ea7bda1c6701cffc2e8e1949b2b38e036b107b99d2857b1508afe51f6e08"
+    },
+    {
+      "path": "tests/fixtures/phase3/m30_backtest_contract_cases_v2.json",
+      "schema_version": "p3-m30-backtest-contract-cases-v2",
+      "sha256": "a3fda8506aeba088405bcb3436aaa14957f990427f2e3dd9c0f1c8188fba63db"
+    }
+  ]
+}
