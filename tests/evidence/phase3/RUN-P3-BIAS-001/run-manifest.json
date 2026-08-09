@@ -7,7 +7,7 @@
   "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
   "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
   "data_version": "p3-bias-manifest-v1",
-  "change_hash": "sha256:113f2c09e79b7f26dcd4db2b8f4e8cd5d5e42f802e2746e91366ab64af1bac56",
+  "change_hash": "sha256:36943756a2fd56ee8edd70ae1c38c05653a5dabeef5a18139e5c3b1b9e5702ff",
   "baseline_ref": "a6c2ddbd6163abbf9792b3bbe8def57babadb03d",
   "human_gate_policy": "P3-07 Core受入可を前提にH3-1/H3-1R承認済みfixtureだけを使う。UNK-P3-01/05/07は解消済みとせず、長期データ・実測cost・正式Calendarの主張をしない。",
   "agents": ["AutoTrade_A110_PythonTestEngineer_v0_1", "AutoTrade_A120_PythonImplementer_v0_1", "AutoTrade_A130_VerificationEngineer_v0_1", "AutoTrade_A140_DebugEngineer_v0_1", "AutoTrade_A150_PythonCodeReviewer_v0_1", "AutoTrade_A160_TradingSecurityReviewer_v0_1", "AutoTrade_A40_ExecutionEnginePocArchitect_v0_1"],
@@ -20,9 +20,9 @@
   "unknowns": [],
   "scope_mode": "target_only",
   "checks": [
-    {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
-    {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
-    {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/backtest", "scripts/quality_gate"]},
-    {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_pytest"]}
+    {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
+    {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
+    {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/backtest", "scripts/quality_gate"]},
+    {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p3_pytest"]}
   ]
 }

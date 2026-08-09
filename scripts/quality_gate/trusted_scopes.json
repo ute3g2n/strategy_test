@@ -372,10 +372,10 @@
       "unknowns": [],
       "network_isolation_required": true,
       "checks": [
-        {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
-        {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
-        {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/backtest", "scripts/quality_gate"]},
-        {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_pytest"]}
+        {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
+        {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
+        {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/backtest", "scripts/quality_gate"]},
+        {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p3_pytest"]}
       ]
     }
   }
