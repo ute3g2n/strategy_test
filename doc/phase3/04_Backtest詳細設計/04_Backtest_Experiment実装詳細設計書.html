@@ -560,8 +560,8 @@ consume_pending_directives_once(tradable_bar, simulator):
   <script src="../../assets/mermaid-init.js"></script>
   <section class="note" id="p3-06-current-status">
     <h2>現在状態の上書き（2026-08-09）</h2>
-    <p>H3-1R改訂は承認済みである。v2は履歴証跡、v3は実行時の安全正本であり、M30は実M1を連続30本確認できなければ停止する。P3-06のStrategy実装はPASSした。P3-07のレビュー差戻しを受け、P3-07R-01でP3-D05の補足契約と敵対的REDを固定した。型付き実Replayの実装、ResultStore復旧、Engine/Offline証跡のGREEN化はP3-07R-02以降であり、現在は受入前である。</p>
-    <p><small>やさしい説明: 戦略の部品は完成しましたが、1分足から時間足を作り直して公平に試験するBacktestの部品は次の作業です。</small></p>
+    <p>H3-1R改訂は承認済みである。v2は履歴証跡、v3は実行時の安全正本であり、M30は実M1を連続30本確認できなければ停止する。P3-06のStrategy実装はPASSした。P3-07R-01〜05で型付き実Replay、ResultStore復旧、Engine/Offline証跡、WSL隔離下の固定4 Gate、Human Gateを完了し、P3-07 Core範囲を受入可とした。実engine・正式性能はP3-08A/P3-09以降で扱う。</p>
+    <p><small>やさしい説明: 戦略と、1分足から時間足を作り直して公平に試験するBacktestのCore部品は確認済みです。実際の取引エンジンをつなぐ作業は後続です。</small></p>
   </section>
 
   <section class="risk" id="p3-07r-01-supplement">

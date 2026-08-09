@@ -4,7 +4,7 @@
 
 - Critical: 0
 - High: 0
-- Medium: 1 — 固定4 GateはWSL隔離下でPASSしたが、Human Gateの明示承認が未記録のため最終受入は保留。自己申告で解除していない。
+- Medium: 1 — 固定4 GateはWSL隔離下でPASSし、ユーザーのHuman Gate承認も記録済み。実engine・外部Broker・Paper/Liveは後続Phaseの範囲として未実施。
 
 ## 確認事項
 

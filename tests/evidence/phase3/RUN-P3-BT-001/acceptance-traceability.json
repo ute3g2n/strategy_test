@@ -11,6 +11,6 @@
     "P3-AC-08": {"tests": "tests/backtest", "status": "GATE_PASS"}
   },
   "review": {"critical": 0, "high": 0, "medium": 1, "status": "PASS"},
-  "final_status": "HUMAN_GATE_REQUIRED",
-  "reason": "WSL隔離下で登録Runnerのformatter、lint、type、testが全てPASSし、fixture前後hashも一致した。Human Gateの明示承認が未実施のため、P3-07全体の受入と次Phase移行は保留する。"
+  "final_status": "PASS",
+  "reason": "ユーザーがRUN-P3-BT-001を明示承認した。WSL隔離下で登録Runnerのformatter、lint、type、testが全てPASSし、fixture前後hashも一致したため、P3-07 Core範囲を受入可へ更新する。"
 }

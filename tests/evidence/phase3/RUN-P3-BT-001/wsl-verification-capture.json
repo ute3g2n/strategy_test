@@ -1,14 +1,14 @@
 ﻿{
-    "execution_id":  "afa73ed3e833492bb2d4a640297eea46",
+    "execution_id":  "fcdd6c999f74409093bffcefc7e1944d",
     "source_repository_path":  "/home/oue/strategy_test",
     "source_kind":  "wsl_verification",
-    "verification_raw":  "{\n  \"state\": \"HUMAN_GATE_REQUIRED\",\n  \"reason\": \"Human Gate はこの書込み可能 worktree 外の承認チャネルで実施します\",\n  \"gates\": [\n    {\n      \"gate\": \"formatter\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"format\",\n        \"--check\",\n        \"src/autotrade/backtest\",\n        \"src/autotrade/strategy\",\n        \"scripts/quality_gate\",\n        \"tests/quality_gate\",\n        \"tests/backtest\",\n        \"tests/strategy\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 264\n    },\n    {\n      \"gate\": \"lint\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"check\",\n        \"src/autotrade/backtest\",\n        \"src/autotrade/strategy\",\n        \"scripts/quality_gate\",\n        \"tests/quality_gate\",\n        \"tests/backtest\",\n        \"tests/strategy\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 214\n    },\n    {\n      \"gate\": \"type\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"mypy\",\n        \"src/autotrade/backtest\",\n        \"src/autotrade/strategy\",\n        \"scripts/quality_gate\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 4075\n    },\n    {\n      \"gate\": \"test\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"scripts.quality_gate.local_p3_pytest\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 1066\n    }\n  ],\n  \"generated_at\": \"2026-08-09T21:17:48.989352+00:00\",\n  \"exit_code\": 1,\n  \"scope\": \"target_only\",\n  \"input_sha256\": \"sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4\",\n  \"post_input_sha256\": \"sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4\",\n  \"target_only_change_sha256\": \"sha256:2f356637899b5a0cc6f147a79be9a691056597378ed6ce5737aca528e3ba3e5a\",\n  \"host_wrapper_execution_id\": \"afa73ed3e833492bb2d4a640297eea46\",\n  \"restore_pending\": true,\n  \"execution_user\": \"oue\",\n  \"execution_uid\": 1000\n}\n",
+    "verification_raw":  "{\n  \"state\": \"PASS\",\n  \"reason\": \"ユーザーが明示的に承認しました\",\n  \"gates\": [\n    {\n      \"gate\": \"formatter\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"format\",\n        \"--check\",\n        \"src/autotrade/backtest\",\n        \"src/autotrade/strategy\",\n        \"scripts/quality_gate\",\n        \"tests/quality_gate\",\n        \"tests/backtest\",\n        \"tests/strategy\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 264\n    },\n    {\n      \"gate\": \"lint\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"check\",\n        \"src/autotrade/backtest\",\n        \"src/autotrade/strategy\",\n        \"scripts/quality_gate\",\n        \"tests/quality_gate\",\n        \"tests/backtest\",\n        \"tests/strategy\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 214\n    },\n    {\n      \"gate\": \"type\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"mypy\",\n        \"src/autotrade/backtest\",\n        \"src/autotrade/strategy\",\n        \"scripts/quality_gate\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 3924\n    },\n    {\n      \"gate\": \"test\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"scripts.quality_gate.local_p3_pytest\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 1016\n    }\n  ],\n  \"generated_at\": \"2026-08-09T21:38:54.924916+00:00\",\n  \"exit_code\": 0,\n  \"scope\": \"target_only\",\n  \"input_sha256\": \"sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4\",\n  \"post_input_sha256\": \"sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4\",\n  \"target_only_change_sha256\": \"sha256:2f356637899b5a0cc6f147a79be9a691056597378ed6ce5737aca528e3ba3e5a\",\n  \"host_wrapper_execution_id\": \"fcdd6c999f74409093bffcefc7e1944d\",\n  \"restore_pending\": true,\n  \"execution_user\": \"oue\",\n  \"execution_uid\": 1000\n}\n",
     "retrieval_exit_code":  0,
-    "captured_at":  "2026-08-09T21:17:49.4525876Z",
+    "captured_at":  "2026-08-09T21:38:55.3889123Z",
     "state":  "CAPTURED",
     "verification":  {
-                         "state":  "HUMAN_GATE_REQUIRED",
-                         "reason":  "Human Gate はこの書込み可能 worktree 外の承認チャネルで実施します",
+                         "state":  "PASS",
+                         "reason":  "ユーザーが明示的に承認しました",
                          "gates":  [
                                        {
                                            "gate":  "formatter",
@@ -59,7 +59,7 @@
                                                            "scripts/quality_gate"
                                                        ],
                                            "exit_code":  0,
-                                           "duration_ms":  4075
+                                           "duration_ms":  3924
                                        },
                                        {
                                            "gate":  "test",
@@ -70,16 +70,16 @@
                                                            "scripts.quality_gate.local_p3_pytest"
                                                        ],
                                            "exit_code":  0,
-                                           "duration_ms":  1066
+                                           "duration_ms":  1016
                                        }
                                    ],
-                         "generated_at":  "2026-08-09T21:17:48.989352+00:00",
-                         "exit_code":  1,
+                         "generated_at":  "2026-08-09T21:38:54.924916+00:00",
+                         "exit_code":  0,
                          "scope":  "target_only",
                          "input_sha256":  "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
                          "post_input_sha256":  "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
                          "target_only_change_sha256":  "sha256:2f356637899b5a0cc6f147a79be9a691056597378ed6ce5737aca528e3ba3e5a",
-                         "host_wrapper_execution_id":  "afa73ed3e833492bb2d4a640297eea46",
+                         "host_wrapper_execution_id":  "fcdd6c999f74409093bffcefc7e1944d",
                          "restore_pending":  true,
                          "execution_user":  "oue",
                          "execution_uid":  1000
@@ -91,10 +91,10 @@
                            "kernel":  "6.6.87.2-microsoft-standard-WSL2",
                            "distro":  "Ubuntu-24.04",
                            "networking_mode":  "none",
-                           "host_wrapper_execution_id":  "afa73ed3e833492bb2d4a640297eea46",
+                           "host_wrapper_execution_id":  "fcdd6c999f74409093bffcefc7e1944d",
                            "ip_addr_summary":  "1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\n    inet 127.0.0.1/8 scope host lo\n       valid_lft forever preferred_lft forever\n    inet6 ::1/128 scope host \n       valid_lft forever preferred_lft forever",
                            "ip_route_summary":  "",
-                           "confirmed_at":  "2026-08-09T21:17:43Z",
+                           "confirmed_at":  "2026-08-09T21:38:49Z",
                            "scope":  [
                                          "src/autotrade/backtest",
                                          "src/autotrade/strategy",

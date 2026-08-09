@@ -15,7 +15,7 @@
   <section class="ok-note" id="p3-07r-03-current-status-20260809">
     <h2>P3-07R-03 現在状態（2026-08-09）</h2>
     <p><strong>Manifest/Snapshot/ResultStore接続:</strong> <span class="ok">PASS</span>。型付きBacktestRunnerの結果を、一時root上でcanonical Manifest、ResultRow/audit、Snapshot、commit markerへ順序どおり保存し、atomic publish、marker/hash再検証、改ざん・partial・path/reparse・重複再送の停止、committed event後からの復旧を確認した。</p>
-    <p><strong>P3-07全体:</strong> <span class="ng">未受入</span>。BLK-P3-008は解消済み。R-05のfixture・target・hash・レビュー・P3用WSL入口を確認し、WSL隔離下の登録Runnerで固定4 Gateを全てPASSした。ただしHuman Gateの明示承認が未実施のため、最終受入、実engine PoC、Paper、Live、Phase 4 Risk/OMS引渡しは開始しない。</p>
+    <p><strong>P3-07全体:</strong> <span class="ok">受入可（Core範囲）</span>。BLK-P3-008は解消済み。R-05のfixture・target・hash・レビュー・P3用WSL入口を確認し、WSL隔離下の登録Runnerで固定4 Gateを全てPASSした。ユーザーのHuman Gate承認も記録済みである。実engine PoC、Paper、Live、Phase 4 Risk/OMS引渡しは後続Phaseの範囲として開始しない。</p>
     <p><strong>証跡:</strong> <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-003/run-manifest.json">RUN-P3-BT-REPAIR-003 run-manifest</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-003/verification.json">verification</a> / <a href="../../../plan/phase3/ログ/P3-07R-03_実行ログ_2026-08-09.md">実行ログ</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-004/verification.json">RUN-P3-BT-REPAIR-004 verification</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-001/verification.json">R-05 verification</a></p>
   </section>
   <section class="ok-note" id="p3-07r-04-current-status-20260809">
@@ -25,7 +25,7 @@
     <p><strong>性能の境界:</strong> 測定口と証跡形式はPASS。30分/8GiBの正式閾値判定はP3-09であり、このStepではPASSと主張しない。</p>
     <p><strong>証跡:</strong> <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-004/run-manifest.json">Run Manifest</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-004/verification.json">verification</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-004/reviews/A40-engine-boundary-review.md">A40</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-004/reviews/A150-python-code-review.md">A150</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-004/reviews/A160-trading-security-review.md">A160</a></p>
   </section>
-  <p><strong>対象:</strong> P3-07R-05 / RUN-P3-BT-001 / 2026-08-10 / <span class="ng">Human Gate承認待ち</span></p>
+  <p><strong>対象:</strong> P3-07R-05 / RUN-P3-BT-001 / 2026-08-10 / <span class="ok">PASS</span></p>
 
   <h2>1. この成果物の目的</h2>
   <p>固定fixtureから時間足を作り、同じ入力を繰り返したときに同じ順序・同じ結果になるかを検証した。対象は<code>src/autotrade/backtest/</code>、P3-06で受入済みのStrategy、P3-07固定fixture、品質Gateである。</p>
@@ -58,8 +58,8 @@
   </tbody></table>
 
   <h2>5. レビュー判定</h2>
-  <p><strong>A150:</strong> Critical 0 / High 0。<br><strong>A160:</strong> Critical 0 / High 0。WSLのoutbound isolationを確認し、登録Runnerの固定4 GateをPASSした。Human Gateの明示承認は未記録。<br><strong>A40:</strong> Critical 0 / High 0。SDKなしEngine境界、Fake parity、P3-09への境界を確認済み。</p>
-  <div class="easy"><strong>中学生でも分かる説明:</strong> コード、テスト、レビュー、通信を止めた場所での通し試験は合格です。最後に、このRunを人が承認した記録が必要なので、受入判定はそこで止めています。</div>
+  <p><strong>A150:</strong> Critical 0 / High 0。<br><strong>A160:</strong> Critical 0 / High 0。WSLのoutbound isolation、登録Runnerの固定4 Gate、Human Gate承認を確認した。<br><strong>A40:</strong> Critical 0 / High 0。SDKなしEngine境界、Fake parity、P3-09への境界を確認済み。</p>
+  <div class="easy"><strong>中学生でも分かる説明:</strong> コード、テスト、レビュー、通信を止めた場所での通し試験、人の承認がすべてそろったので、P3-07のCore範囲を受入可にしました。</div>
 
   <h2>6. 残課題と次の作業</h2>
   <table><thead><tr><th>残課題</th><th>修正方針</th><th>やさしい説明</th></tr></thead><tbody>
@@ -68,7 +68,7 @@
     <tr><td>保存・復旧の安全性</td><td>markerを再計算し、symlink・任意root・上書き・途中書込みを拒否する。</td><td>偽の完成印を貼った箱を、完成品として受け取らない。</td></tr>
     <tr><td>約定・費用・性能の実測</td><td>UTC、Decimal、side別丸め、次bar、測定値・入力hash・結果hashを実データで結び、未測定はPASSにしない。</td><td>速さや値段を「測ったことにする」のではなく、実際に測った数字だけを使う。</td></tr>
   </tbody></table>
-  <p class="ng"><strong>Phase 3移行判断:</strong> P3-07 CoreとR-05固定4 Gateは受入条件を満たす証跡済みだが、RUN-P3-BT-001はHuman Gate未承認のため、P3-08開始可能とはまだ判定しない。実engine PoC、Paper、Live、Phase 4のRisk/OMS引渡しは開始しない。</p>
+  <p class="ng"><strong>Phase 3移行判断:</strong> P3-07 CoreとR-05固定4 Gateは受入条件を満たし、Human Gateも承認済みである。P3-08のみ開始可能とし、実engine PoC、Paper、Live、Phase 4のRisk/OMS引渡しは後続Gate完了まで開始しない。</p>
 
   <h2>7. 関連証跡</h2>
   <p><a href="../../../tests/evidence/phase3/RUN-P3-BT-001/verification.json">Runner verification</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-001/red-test-result.md">試験結果</a> / <a href="../../../plan/phase3/ログ/P3-07R-05_実行ログ_2026-08-10.md">R-05実行ログ</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-001/reviews/python-review-a150.md">A150レビュー</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-001/reviews/security-review-a160.md">A160レビュー</a></p>

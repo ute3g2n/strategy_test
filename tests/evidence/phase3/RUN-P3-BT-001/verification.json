@@ -1,6 +1,6 @@
 {
-  "state": "HUMAN_GATE_REQUIRED",
-  "reason": "WSL隔離下で固定4 Gateは全てPASSしたが、Human Gateの明示承認が未実施のためPASSは確定しない",
+  "state": "PASS",
+  "reason": "ユーザーが明示的に承認しました",
   "gates": [
     {"gate": "formatter", "status": "PASS", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"], "exit_code": 0},
     {"gate": "lint", "status": "PASS", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"], "exit_code": 0},
@@ -15,13 +15,13 @@
   "input_sha256": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
   "post_input_sha256": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
   "target_only_change_sha256": "sha256:2f356637899b5a0cc6f147a79be9a691056597378ed6ce5737aca528e3ba3e5a",
-  "host_wrapper_execution_id": "afa73ed3e833492bb2d4a640297eea46",
+  "host_wrapper_execution_id": "fcdd6c999f74409093bffcefc7e1944d",
   "host_isolation": {"state": "CONFIRMED", "networking_mode": "none", "kernel": "6.6.87.2-microsoft-standard-WSL2", "distro": "Ubuntu-24.04"},
   "review_gate": {"critical": 0, "high": 0, "status": "PASS"},
   "external_io": {"broker": "NOT_USED", "engine": "ENGINE_NOT_USED", "secret": "NOT_USED", "network": "BLOCKED_BY_ISOLATION", "fixture_mutation": "NONE"},
-  "final_status": "HUMAN_GATE_REQUIRED",
+  "final_status": "PASS",
   "restore_pending": true,
   "execution_user": "oue",
   "execution_uid": 1000,
-  "generated_at": "2026-08-09T21:17:48.989352+00:00"
+  "generated_at": "2026-08-09T21:38:54.924916+00:00"
 }
