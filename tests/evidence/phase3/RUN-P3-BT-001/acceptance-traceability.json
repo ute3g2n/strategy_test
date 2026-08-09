@@ -10,7 +10,7 @@
     "P3-AC-07": {"tests": "tests/backtest", "status": "GATE_PASS"},
     "P3-AC-08": {"tests": "tests/backtest", "status": "GATE_PASS"}
   },
-  "review": {"critical": 0, "high": 0, "medium": 1, "status": "PASS_PENDING_REGISTERED_ISOLATED_RERUN"},
-  "final_status": "PENDING_REGISTERED_ISOLATED_REEXECUTION",
-  "reason": "R-05のコード・fixture・固定4 Gate・レビュー条件は整った。登録Runnerはhost outbound isolation未確認でfail-closed停止しており、WSL隔離実行の再採取が必要。"
+  "review": {"critical": 0, "high": 0, "medium": 1, "status": "PASS"},
+  "final_status": "HUMAN_GATE_REQUIRED",
+  "reason": "WSL隔離下で登録Runnerのformatter、lint、type、testが全てPASSし、fixture前後hashも一致した。Human Gateの明示承認が未実施のため、P3-07全体の受入と次Phase移行は保留する。"
 }

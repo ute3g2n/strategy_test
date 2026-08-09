@@ -1,0 +1,5 @@
+﻿{
+    "execution_id":  "afa73ed3e833492bb2d4a640297eea46",
+    "reason":  "WSL runner returned non-zero; inspect verification.json",
+    "state":  "FAILED"
+}

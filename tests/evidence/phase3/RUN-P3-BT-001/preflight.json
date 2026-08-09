@@ -1,18 +1,5 @@
-{
-  "run_id": "RUN-P3-BT-001",
-  "phase_id": "phase3",
-  "step_id": "P3-07R-05",
-  "network": "not_used_by_core",
-  "secret": "not_used",
-  "broker": "not_used",
-  "engine": "ENGINE_NOT_USED",
-  "input_mode": "fixed_local_fixture",
-  "result_root": "E:/strategy_test_data/phase3/backtests/runs/RUN-P3-BT-001",
-  "status": "DRY_RUN_PASS_WITH_REGISTERED_GATE_PENDING",
-  "registered_entrypoint": "scripts/wsl_quality_gate/run_test.ps1 -RunId RUN-P3-BT-001",
-  "registered_entrypoint_phase": "phase3",
-  "registered_entrypoint_dry_run": "PASS; run_isolated_p2.ps1 selected run_isolated_p3.sh without changing .wslconfig",
-  "registered_runner_state": "BLOCKED",
-  "registered_runner_reason": "host の outbound isolation が確認できないため実行を停止しました",
-  "note": "実engine・外部通信・Secret・Brokerは使用していない。Windows側ではhost isolationを自己申告せず、登録WSL入口で再実行する。"
+﻿{
+    "execution_id":  "0832f732a7ee478793855bb875fe7b63",
+    "reason":  "Target WSL distribution is already Running. Stop Codex and WSL, then rerun with -AllowRunningDistro when launching from a \\\\wsl.localhost path.",
+    "state":  "BLOCKED"
 }

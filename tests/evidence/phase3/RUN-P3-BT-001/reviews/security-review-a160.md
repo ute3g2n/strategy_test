@@ -4,7 +4,7 @@
 
 - Critical: 0
 - High: 0
-- Medium: 1 — 登録Runnerはhost outbound isolationを観測できないため、固定Gate開始前にBLOCKED。自己申告で解除していない。
+- Medium: 1 — 固定4 GateはWSL隔離下でPASSしたが、Human Gateの明示承認が未記録のため最終受入は保留。自己申告で解除していない。
 
 ## 確認事項
 

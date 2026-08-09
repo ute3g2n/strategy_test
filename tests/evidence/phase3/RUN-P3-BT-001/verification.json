@@ -1,34 +1,27 @@
 {
-  "state": "BLOCKED",
-  "reason": "host の outbound isolation が確認できないため実行を停止しました",
-  "gates": [],
+  "state": "HUMAN_GATE_REQUIRED",
+  "reason": "WSL隔離下で固定4 Gateは全てPASSしたが、Human Gateの明示承認が未実施のためPASSは確定しない",
+  "gates": [
+    {"gate": "formatter", "status": "PASS", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"], "exit_code": 0},
+    {"gate": "lint", "status": "PASS", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"], "exit_code": 0},
+    {"gate": "type", "status": "PASS", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate"], "exit_code": 0},
+    {"gate": "test", "status": "PASS", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p3_pytest"], "exit_code": 0}
+  ],
   "run_id": "RUN-P3-BT-001",
   "step_id": "P3-07R-05",
-  "change_hash": "sha256:9ef8cdd54d6579f557085c2b240380810167d8602e3cd2aed30b8954b88c06b7",
+  "change_hash": "sha256:2f356637899b5a0cc6f147a79be9a691056597378ed6ce5737aca528e3ba3e5a",
   "fixture_sha256": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
-  "registered_runner": {
-    "state": "BLOCKED",
-    "reason": "host outbound isolation was not confirmed; fixed four gates were not started",
-    "exit_code": 1
-  },
-  "supplemental_local_checks": {
-    "formatter": "PASS",
-    "lint": "PASS",
-    "type": "PASS; mypy 32 files, no issues",
-    "fixed_p3_wrapper": "PASS; 258 passed, skip/xfail 0",
-    "full_tests_prior_to_attempt": "PASS; 406 passed"
-  },
-  "wsl_actual_run": "NOT_STARTED_SAFE_STOP",
-  "wsl_precondition": {
-    "repository": "/home/oue/strategy_test",
-    "branch": "main",
-    "head": "59a59f8abffdbc939a05917eede82d462700dd1b",
-    "expected_windows_head": "ce108a54e4ec2186c1f9cfb2c7a802a7a47df1c2",
-    "worktree": "DIRTY",
-    "reason": "WSL clone has uncommitted phase2 evidence and is behind the Windows source; no pull or run was performed"
-  },
-  "review_gate": {"critical": 0, "high": 0, "status": "PASS_PENDING_REGISTERED_ISOLATED_RERUN"},
-  "external_io": {"broker": "NOT_USED", "engine": "ENGINE_NOT_USED", "secret": "NOT_USED", "network": "NOT_STARTED_BY_REGISTERED_RUNNER", "fixture_mutation": "NONE"},
-  "final_status": "PENDING_REGISTERED_ISOLATED_REEXECUTION",
-  "generated_at": "2026-08-09T20:46:12.510235+00:00"
+  "scope": "target_only",
+  "input_sha256": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+  "post_input_sha256": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+  "target_only_change_sha256": "sha256:2f356637899b5a0cc6f147a79be9a691056597378ed6ce5737aca528e3ba3e5a",
+  "host_wrapper_execution_id": "afa73ed3e833492bb2d4a640297eea46",
+  "host_isolation": {"state": "CONFIRMED", "networking_mode": "none", "kernel": "6.6.87.2-microsoft-standard-WSL2", "distro": "Ubuntu-24.04"},
+  "review_gate": {"critical": 0, "high": 0, "status": "PASS"},
+  "external_io": {"broker": "NOT_USED", "engine": "ENGINE_NOT_USED", "secret": "NOT_USED", "network": "BLOCKED_BY_ISOLATION", "fixture_mutation": "NONE"},
+  "final_status": "HUMAN_GATE_REQUIRED",
+  "restore_pending": true,
+  "execution_user": "oue",
+  "execution_uid": 1000,
+  "generated_at": "2026-08-09T21:17:48.989352+00:00"
 }

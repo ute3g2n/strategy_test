@@ -6,14 +6,14 @@
 - 固定P3 wrapper: 258 passed、skip/xfail 0件
 - 全tests: 406 passed
 - A150/A40/A160: Critical 0、High 0
-- 品質Runner登録実行: `BLOCKED`
-- 理由: host outbound isolation未確認。登録Runnerは固定Gate開始前に停止した。
+- 品質Runner登録実行: `HUMAN_GATE_REQUIRED`
+- 理由: WSL隔離下でhost outbound isolationを確認し、登録Runnerの固定4 Gateは全てPASSした。Human Gateの明示承認が未実施のためPASSは確定していない。
 
 ## 中学生でも分かる説明
 
-テストの問題集とレビューには合格しました。残っているのは、隔離された実行場所で同じ固定Gateを動かし、外へ通信できないことを機械的に確認する作業です。Windows側のRunnerは、隔離を自己申告せず停止しています。
+テストの問題集とレビューに加え、隔離された実行場所での固定4 Gateも合格しました。残っているのは、人がこのRunの結果を承認するHuman Gateです。
 
-そのため、コード修正済み・レビュー済みでも、登録Runnerの最終証跡が採取されるまでP3-07完了とは扱いません。
+そのため、コード修正済み・固定4 Gate済みでも、Human Gateの承認が記録されるまでP3-07完了とは扱いません。
 
 ## 完了扱いにしない範囲
 

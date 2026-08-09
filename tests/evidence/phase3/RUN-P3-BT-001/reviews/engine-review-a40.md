@@ -4,7 +4,7 @@
 
 - Critical: 0
 - High: 0
-- Medium: 1 — 登録隔離実行はhost outbound isolation未確認のため未開始。実engine、LEAN、Nautilus、Brokerの導入・実行は行っていない。
+- Medium: 1 — 登録隔離実行の固定4 GateはPASSしたが、Human Gate未承認のため受入は未確定。実engine、LEAN、Nautilus、Brokerの導入・実行は行っていない。
 
 ## 確認事項
 
