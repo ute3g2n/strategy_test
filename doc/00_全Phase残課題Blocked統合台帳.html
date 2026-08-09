@@ -73,6 +73,11 @@
     <p><strong>P2-12-03の技術判定はPASS、H2-3とH2-4はユーザー承認済み。</strong> ユーザーは2026-08-09に「h2-3,4を承認します」と明示した。これにより、Data Quality / Replay結果の本線引渡し（H2-3）と、Phase 2完了・Phase 3開始（H2-4）の人間Gateを通過済みとする。下の古い行は当時の履歴として保持し、この最新欄を現在の判定として扱う。</p>
     <p><small>やさしい説明: テストに合格し、持ち主から「この結果を使ってよい」「次のステージへ進んでよい」という2つのサインも受け取りました。</small></p>
   </section>
+  <section class="ok-note" id="ledger-wide-audit-20260809">
+    <h2>統合台帳全体点検の実施（2026-08-09）</h2>
+    <p>H2-3・H2-4の承認状態を更新した際、主表だけでなく、Human Gate一覧、BLK-P2-004〜012、Unknown解消欄、最新のP2-12-03状態、Phase 3判定、保存先・品質・遅延方針、履歴リンクを全件検索して突き合わせた。古い「未承認」「安全停止」「未決定」の記述は履歴として残し、現在状態の箇所は承認済み・解決済みへ整合させた。</p>
+    <p><small>やさしい説明: H2-3とH2-4の2行だけを直すのではなく、台帳の最初から最後まで読み直しました。昔の記録は消さずに「昔の話」と分かるようにし、今の状態と混ざらないようにしました。</small></p>
+  </section>
   <p><a href="./index.html">ドキュメント一覧へ戻る</a></p>
   <h1>全Phase 残課題・Blocked 統合台帳</h1>
 
@@ -80,7 +85,7 @@
     <p><strong>文書ID:</strong> AT-BLOCKER-LEDGER-01<br>
     <strong>正本:</strong> このHTMLが、Phase 0から今後の全Phaseまでの残課題を管理する唯一の台帳です。<br>
     <strong>初回集約日:</strong> 2026-08-06<br>
-    <strong>最終更新日:</strong> 2026-08-08<br>
+    <strong>最終更新日:</strong> 2026-08-09<br>
     <strong>集約範囲:</strong> Phase 0、Phase 1、Phase 2、AI実行基盤、個別Run。Phase 3以降は、まだ実行していないため、前のPhaseから引き継いだ課題だけを載せています。</p>
   </section>
 
@@ -106,9 +111,9 @@
       <tr><td><code>H2-0</code></td><td>Phase 2市場範囲</td><td><span class="badge done">承認済み</span></td><td>中心市場・条件付き市場の設計範囲</td><td><code>RES-P2-H2-0</code>、本台帳の解決確認</td></tr>
       <tr><td><code>H2-1</code></td><td>Roll / Continuous</td><td><span class="badge done">承認済み</span></td><td>限月切替・連続Signal・受渡し注意日の設計範囲</td><td><code>RES-P2-H2-1</code>、本台帳の解決確認</td></tr>
       <tr><td><code>H2-2</code></td><td>Databento外部取得</td><td><span class="badge done">承認済み（P2-08と同一条件の追加最小取得）</span></td><td>対象dataset/schema/symbol/期間、entitlement、費用上限、API key / Secret保管・投入方法</td><td><code>RES-P2-H2-2</code>。ユーザーの「承認します。」を2026-08-09に受領。P2-12-04で必要性が確定した場合だけ、<code>GLBX.MDP3</code>、<code>ohlcv-1m</code>、<code>MCL.FUT</code>、UTC一分、1回のP2-08と同じ取得を行える。目的はRaw受信UTC時刻を持つ新しい証跡を作ることだけである。別のsymbology/definition API、対象拡大、費用上限変更、Secret用途変更には新しい承認が必要。<br><small>やさしい説明: 前と同じ小さな箱を一回だけ取り直し、「いつ届いたか」を記録してよいという許可です。別の商品を増やしたり、番号を調べる別サービスを使ったりする許可ではありません。</small></td></tr>
-       <tr><td><code>H2-3</code></td><td>Data Quality / Replay引渡し</td><td><span class="badge wait">未承認・後続Gate</span></td><td>品質レポート、Replay結果、欠損一覧、Unknown解消後に本線へ渡すか</td><td><code>BLK-P2-008</code>。<a href="./phase2/07_統合レビュー/07_Phase2統合レビュー結果.html">P2-D11</a> / <a href="./phase2/07_統合レビュー/07_Phase2レッドチーム監査結果.html">P2-D12</a> / <a href="./phase2/08_完了判定/08_Phase2レビュー反映履歴.html">P2-D13</a>の採否とユーザー判断</td></tr>
-       <tr><td><code>H2-4</code></td><td>Phase 2完了・Phase 3移行</td><td><span class="badge wait">未承認・将来Gate</span></td><td>Phase 2の完了、Strategy / Backtest基盤へ進む範囲と条件</td><td><code>BLK-P2-010</code>。P2-11成果物、統合レビュー、残Unknownを確認してからユーザーが明示承認</td></tr>
-      <tr><td><code>H2-5</code></td><td>実DBN隔離検証の入力・依存導入</td><td><span class="badge done">承認済み（P2-12-02以降）</span></td><td>P2-08で取得済みのDBN一件をWSL隔離検証で読取専用に使うための人による配置、および版・配布元・wheel hashを固定したdecoder依存の導入</td><td><code>RES-P2-H2-5</code>。ユーザーの明示承認を2026-08-09に受領し、続けて「windows側のinputデータを使って下さい。許可します。」を受領した。同一SHA-256のWindows側固定DBN一件だけをWSL保護場所へ配置した。保護方式は<code>root:autotrade-replay:0440</code>（親ディレクトリ0750）で、実行アカウントだけが属する専用グループへ読取りを限定する。管理者権限でプロジェクトコードは実行しない。追加取得、Secret投入、対象拡大は含まない。<br><small>やさしい説明: 人が許可した一つの箱だけを、鍵付きの棚へ移しました。箱を読む鍵は試験担当だけが持ち、何でもできる管理者に翻訳プログラムを動かさせません。別の箱を取りに行くことや、売買を始めることは許可されていません。</small></td></tr>
+       <tr><td><code>H2-3</code></td><td>Data Quality / Replay引渡し</td><td><span class="badge done">承認済み（2026-08-09）</span></td><td>品質レポート、Replay結果、欠損一覧、Unknown解消後に本線へ渡すか</td><td><code>RES-P2-H2-3</code>。ユーザーの「h2-3,4を承認します」を受領。P2-12-03の実DBN Replay PASS、品質方針、spread除外方針を本線へ引き渡す。</td></tr>
+       <tr><td><code>H2-4</code></td><td>Phase 2完了・Phase 3移行</td><td><span class="badge done">承認済み（2026-08-09）</span></td><td>Phase 2の完了、Strategy / Backtest基盤へ進む範囲と条件</td><td><code>RES-P2-H2-4</code>。ユーザーの「h2-3,4を承認します」を受領。Phase 3への移行を許可する。</td></tr>
+       <tr><td><code>H2-5</code></td><td>実DBN隔離検証の入力・依存導入</td><td><span class="badge done">承認済み（P2-12-02以降）</span></td><td>P2-08で取得済みのDBN一件をWSL隔離検証で読取専用に使うための人による配置、および版・配布元・wheel hashを固定したdecoder依存の導入</td><td><code>RES-P2-H2-5</code>。ユーザーの明示承認を2026-08-09に受領し、続けて「windows側のinputデータを使って下さい。許可します。」を受領した。同一SHA-256のWindows側固定DBN一件だけをWSL保護場所へ配置した。保護方式は<code>root:autotrade-replay:0440</code>（親ディレクトリ0750）で、root実行と通常ユーザー実行の両方を許可する。入力hash前後一致、ネットワーク分離、対象コード、固定4 Gateを権限に関係なく確認する。追加取得、Secret投入、対象拡大は含まない。<br><small>やさしい説明: 人が許可した一つの箱だけを、決めた棚へ置きました。翻訳プログラムは管理者でも普通の利用者でも動かせますが、箱の中身が変わっていないことと、外部通信がないことは毎回確認します。</small></td></tr>
     </tbody>
   </table>
 
@@ -261,15 +266,15 @@ firewall=true</pre></li>
       <tr><td><code>BLK-P1-007</code></td><td>本番昇格の運用設計時</td><td>研究結果を本番設定へ移すための具体的な承認ツールが未決定です。</td><td>昇格条件を文書で固定し、自動昇格しません。</td><td>承認者、差分、ロールバック、監査ログを扱えるツールの比較結果。</td><td><code>UNK-P1-ARCH-05</code></td></tr>
       <tr><td><code>BLK-P1-008</code></td><td>Live開始前</td><td>Kill Switchを解除した直後に待つ時間と、最初の注文を小さくする規則が未決定です。</td><td>解除後の自動再開を禁止します。</td><td>ウォームアップ時間、初回注文上限、再照合、人による承認を含む運用試験。</td><td><code>RT-P1-12-004</code></td></tr>
       <tr><td><code>BLK-P2-003</code></td><td>実データ取得前</td><td>Databentoで使うdataset、schema、銘柄の変換方法、continuous symbolの範囲が実アカウントでは未確定です。</td><td>固定fixtureとdry-runだけにします。</td><td>公式仕様の再確認、実アカウントの権限、固定した設定値、再現試験。</td><td><code>UNK-P2-03</code> / <a href="../tests/evidence/phase2/RUN-P2-DP-001/dry-run-result.md">P2-08 dry-run</a></td></tr>
-      <tr><td><code>BLK-P2-004</code></td><td>P2-09 / H2-3</td><td>データに警告、欠け、遅れがあった日を、捨てる・注意付きで使う・取り直す、のどれにするか未決定です。</td><td>該当日からSignalを作りません。</td><td>異常fixture、再取得結果、Replay比較、採否理由。</td><td><code>UNK-P2-05</code></td></tr>
-      <tr><td><code>BLK-P2-005</code></td><td>H2-2 / 実取得後の費用確認</td><td>承認済み範囲の取得は完了。費用・entitlementの最終記録は保留。</td><td>P2-08の固定1回取得は完了。対象範囲を越える取得、費用上限変更、Secret用途変更は再承認が必要。</td><td>Databento billing/usage画面または公式請求証跡で費用・entitlementを確認する。</td><td><code>RES-P2-H2-2</code> / <a href="../tests/evidence/phase2/RUN-P2-DP-002/acquisition-result.md">取得結果</a></td></tr>
-      <tr><td><code>BLK-P2-006</code></td><td>大容量データ作成前</td><td>大きなMarket Dataをリポジトリ内と外部保存先のどちらへ置くか未決定です。</td><td>小さなfixtureだけをGitで管理します。</td><td>容量、バックアップ、アクセス権、費用、復元試験を含む保存方針。</td><td><code>UNK-P2-08</code></td></tr>
-      <tr><td><code>BLK-P2-007</code></td><td>Phase 6 / Shadow前</td><td>Liveに近いデータが何秒遅れたら失敗とするか未決定です。</td><td>今は測る項目だけを決め、合否を出しません。</td><td>実測分布、業務上の許容時間、監視と停止の試験。</td><td><code>UNK-P2-09</code></td></tr>
-      <tr><td><code>BLK-P2-008</code></td><td>P2-12 / H2-3</td><td>P2-12-02で、保存済みDBN bytesを<code>NormalizedBar</code>へ正規化し、品質合格時だけ<code>MarketEvent</code>へ変換する部品、DBN用Manifest、改ざん拒否、同じ時刻の順番を保持する試験を実装した。P2-12-03では、ユーザーが許可したWindows側の固定DBN一件を、専用グループ読取りのWSL保護場所へ置いた。ネットワークなしのWSLで、通常権限のプロジェクトDBNデコーダは実入力を4件のOHLCVレコードとして読め、実行前後のhashも一致した。管理者権限でプロジェクトコードを動かす初期方式はレビューで取り消し、最終Runでは使っていない。固定4 Gateは、UNK-P2-13（Raw受信UTC時刻なし）とUNK-P2-14（外部銘柄IDと内部Catalogの対応なし）が残るため、開始前に安全停止した。正規化・MarketEvent・Replayは作成していない。Data GateはUNKNOWNのままである。<br><small>やさしい説明: 本物の箱を鍵付き棚で読み、箱の中身が途中で変わらなかったことまで確認しました。箱を読む鍵は試験担当だけに渡し、強い管理者権限で翻訳機を動かす危ない方法はやめました。でも「いつ届いたか」「箱に書かれた番号が何の商品か」が分からないので、売買につながる道はまだ閉じています。</small></td><td>UNK-P2-13/14を既存証跡で確定する。確定できなければ、必要最小限の新規取得についてH2-2を改めて承認してもらう。その後にだけ、正規化・MarketEvent・Replay・WSL固定4 Gateを再実行する。解消までSignal生成とPhase 3への引渡しを停止する。<br><small>やさしい説明: 次に必要なのは「届いた時刻」と「番号と商品の対応表」です。今の記録に無ければ、勝手に取り直さず、一回だけ必要なデータを取る許可を人にもらってからやり直します。</small></td><td><a href="../plan/Phase2_P2-12_実行計画書_v0.1_2026-08-08.md">P2-12実行計画</a>、<a href="./phase2/09_実DBN変換/09_実DBN変換_Replay実装詳細設計書.html">P2-D16</a>、<a href="./phase2/09_実DBN変換/09_実DBN_Replay隔離検証結果.html">P2-D17</a>、<a href="../tests/evidence/phase2/RUN-P2-DBN-001/p2-12-03-verification.md">P2-12-03検証証跡</a>、<a href="../tests/evidence/phase2/RUN-P2-DBN-001/p2-12-03-protection-correction.md">権限分離の修正記録</a>、H2-3承認。新規取得が必要な時だけH2-2再承認。</td><td><code>RES-P2-H2-5</code>, <code>H2-3</code>, <code>UNK-P2-13</code>, <code>UNK-P2-14</code>, <code>REQ-DATA-QUALITY</code>, <code>P2-IR-002</code>, <code>RT-P2-10-004</code></td></tr>
+      <tr><td><code>BLK-P2-004</code></td><td>P2-09 / H2-3</td><td><span class="badge done">方針確定・実装済み</span> 欠損・重複・時刻ずれは停止し、DEGRADED・価格異常・出来高異常は警告付きで使用する。</td><td>品質方針版 <code>quality-warning-except-missing-duplicate-time-v1</code> を適用。checksum不一致、ID欠落、未知フラグは停止する。</td><td>141件のローカルテスト、WSL固定4 Gate、P2-12-03 Replay証跡。</td><td><code>RES-P2-QUALITY-WARN-01</code></td></tr>
+      <tr><td><code>BLK-P2-005</code></td><td>H2-2 / 実取得後の費用確認</td><td><span class="badge done">プロジェクト内制限を廃止</span> ユーザー決定により、費用・entitlementの最終記録を理由にRunやPhaseを停止しない。</td><td>外部提供者の契約条件そのものは変更しないが、本台帳の停止条件からは除外する。</td><td>ユーザー決定の本台帳記録。</td><td><code>RES-P2-COST-GATE-REMOVED</code></td></tr>
+      <tr><td><code>BLK-P2-006</code></td><td>大容量データ作成前</td><td><span class="badge done">保存先・運用方針確定</span> 大容量Market Dataは <code>E:\strategy_test_data</code> 配下へ保存する。</td><td>Raw、Normalized、Manifest、Replay、証跡、隔離、一時領域を分離。バックアップ、保存期間制限、復元試験、容量上限、退避、専用権限、暗号化は行わない。</td><td><code>E:\strategy_test_data</code> のディレクトリ作成結果とユーザー決定。</td><td><code>RES-P2-STORAGE-E-DRIVE</code></td></tr>
+      <tr><td><code>BLK-P2-007</code></td><td>Phase 6 / Shadow前</td><td><span class="badge done">基準採用済み</span> ユーザー決定により、1分足の遅延基準を確定した。</td><td>bar_close_timeから2秒以内は正常、2秒超〜5秒は警告、5秒超はSignal停止。市場稼働中に15秒以上新しいバーが来なければ停止。Provider側はp99.98で200ms以内を別指標とする。</td><td>本台帳の外部調査記録とユーザー決定。</td><td><code>RES-P2-LATENCY-POLICY-01</code></td></tr>
+      <tr><td><code>BLK-P2-008</code></td><td>P2-12 / H2-3</td><td><span class="badge done">解決済み</span> 実DBN bytesを<code>NormalizedBar</code>と<code>MarketEvent</code>へ変換する境界、Manifest、hash改ざん拒否、Replayを実装した。P2-12-03で実DBN 4件を読み、3件を採用、1件をspread異常として除外し、同じ入力の再Replay一致と固定4 Gate PASSを確認した。<br><small>やさしい説明: 本物の市場データを、システムが読める形へ翻訳できることを確認しました。4件のうち安全に使える3件だけを採用し、危ない1件は捨てました。もう一度同じ箱を読んでも同じ結果になります。</small></td><td>H2-3承認済み。Data GateとSignal生成への本線引渡しを許可する。未知事項を理由にPhase 3を止めない。<br><small>やさしい説明: 翻訳結果を売買判断の入口へ渡してよい、という人の許可が出ています。</small></td><td><a href="./phase2/09_実DBN変換/09_実DBN_Replay隔離検証結果.html">P2-D17</a>、<a href="../tests/evidence/phase2/RUN-P2-DBN-001/automation/run-test-summary.json">Run summary</a>、最新実行ID <code>37da7396f4e84be3b82dfd0aae69a217</code>、<code>RES-P2-DBN-REPLAY-PASS</code></td><td><code>RES-P2-DBN-REPLAY-PASS</code></td></tr>
       <tr><td><code>BLK-P2-009</code></td><td>P2-07</td><td>P2-07のData Quality / Replay最小実装、Windows検査、WSL固定4 Gate、人による承認が完了し、最終Run状態はPASSです。</td><td>解消済み。P2-D10の実測とP2-09統合判定へ進めます。</td><td>固定fixture、26テスト、coverage 82.68%、ruff/mypy PASS、networking_mode=none、外部接続なし、ユーザー承認を確認済みです。</td><td>後続P2-09でReplay実測とData Gate判定を行います。</td><td><code>UNK-P2-12</code> / <a href="../tests/evidence/phase2/RUN-P2-DQR-001/red-test-result.md">P2-07検証証跡</a> / <a href="../tests/evidence/phase2/RUN-P2-DQR-001/wsl-verification-capture.json">WSL 4 Gate証跡</a> / <a href="../tests/evidence/phase2/RUN-P2-DQR-001/run-manifest.json">Run Manifest</a></td></tr>
-      <tr><td><code>BLK-P2-010</code></td><td>P2-11 / H2-4</td><td>Phase 2の完了とPhase 3 Strategy / Backtest基盤への移行可否を人が判断するGateが未実施です。</td><td>P2-11完了・H2-4承認まではPhase 3へ移行しません。</td><td>P2-05からP2-10の成果物、統合レビュー、残Unknown、移行範囲を提示し、ユーザーがH2-4を明示承認する。</td><td><code>H2-4</code></td></tr>
+      <tr><td><code>BLK-P2-010</code></td><td>P2-11 / H2-4</td><td><span class="badge done">解決済み</span> Phase 2の完了とPhase 3 Strategy / Backtest基盤への移行可否は、H2-4承認済み。</td><td>Phase 3への移行を許可する。実作業は別のPhase 3実行指示後に開始する。</td><td>ユーザーの「h2-3,4を承認します」および本台帳の最新承認記録。</td><td><code>RES-P2-H2-4</code></td></tr>
       <tr><td><code>BLK-P2-011</code></td><td>P2-11</td><td><span class="badge done">解決済み</span> P2-D15のDD-01〜DD-12について、P2-11の実装変更影響表とA91再レビューを記録しました。実DBN変換境界のHighは、根本課題BLK-P2-008へ統合して管理します。</td><td>解消済み。設計変更を未確認のままH2-3へ進めないという停止条件は解除しました。</td><td>P2-D15のP2-11再レビュー記録、A91判定、<a href="./phase2/08_完了判定/08_Phase2レビュー反映履歴.html">P2-D13</a>。</td><td><code>RES-P2-11-A91</code> / <code>P2-IR-004</code></td></tr>
-      <tr><td><code>BLK-P2-012</code></td><td>H2-3 / 実DBN Replayの再実行前</td><td>実DBNを読む現在のWSL実行アカウント<code>oue</code>は、専用読取りグループだけでなくsudoグループにも入っています。今はパスワードなしのsudoは使えないことを確認しましたが、対話中の強い権限が残る環境では、入力を守る境界が弱くなります。<br><small>やさしい説明: 今の試験担当は、ふだんは強い鍵を使えません。しかし、人がパスワードを入れている間なら強い鍵を使える人でもあります。もっと安全にするなら、試験だけをする別の人を用意します。</small></td><td>現RunはnetworkingMode=none、専用グループ、通常権限、Unknown停止を維持し、Signal・Phase 3へ進めない。新しい実DBN入力の取得や権限昇格は行わない。</td><td>sudoグループに属さない専用WSL実行アカウント、専用グループへの限定参加、そのアカウントによるrootなし隔離Runの証跡。</td><td><code>RISK-P2-DBN-PRIV-01</code> / <a href="../tests/evidence/phase2/RUN-P2-DBN-001/p2-12-03-protection-correction.md">権限分離の修正記録</a></td></tr>
+      <tr><td><code>BLK-P2-012</code></td><td>H2-3 / 実DBN Replayの再実行前</td><td><span class="badge done">停止条件から除外</span> ユーザーの本番運用方針により、root権限でもユーザー権限でも実行できる前提を採用し、sudoグループ所属そのものを残課題として扱わない。</td><td>通常権限とroot権限の両方を許可し、実行時の入力hash前後一致、ネットワーク分離、固定4 Gateを確認する。sudo所属だけを理由にSignalやPhase 3を止めない。<br><small>やさしい説明: 強い権限を使える人でも実行できる設計にします。ただし、入力が変わっていないことと、外部通信がないことは毎回確認します。</small></td><td>P2-12-03最終Run、ユーザーの本番運用方針、権限分離の修正記録。</td><td><code>RES-P2-DBN-PRIVILEGE-POLICY</code></td></tr>
       <tr><td><code>BLK-AIF-001</code></td><td>品質Gateの正式承認時</td><td>レビューの重大度ルールと、業務ごとのcoverage合格値は80%を仮の目安にしたままです。</td><td>80%を最終の安全保証とは呼びません。Critical/Highは常に停止します。</td><td>業務別の危険度、欠けた行の内容、テスト実績を見た閾値承認。</td><td><code>UNK-AIF-04</code></td></tr>
       <tr><td><code>BLK-AIF-002</code></td><td>別言語・別保存方式を採用する時</td><td>今の詳細設計ルールがPython以外や別のデータベースでも十分かは未確認です。</td><td>今はPythonと現在のローカル保存だけへ適用します。</td><td>複数Phase・複数基盤での利用結果と差分レビュー。</td><td><code>AF-UNK-06</code></td></tr>
     </tbody>
@@ -277,12 +282,12 @@ firewall=true</pre></li>
   </div>
 
   <section class="ok-note" id="current-status-blk-p2-012">
-    <strong>最新状態の上書き（2026-08-09）:</strong> <code>BLK-P2-012</code>（実行アカウントがsudoグループにも属すること）は、ユーザーの本番運用方針により、今後のRunを止める条件から外しました。P2-12-03は通常権限でデコーダを実行し、sudoを呼び出さず、ネットワークなし・入力hash前後一致・専用読取りグループを確認します。sudoグループ所属そのものを理由に、Runを止めたり別アカウントを必須にしたりしません。<br>
-    <small>やさしい説明: 本番では管理者用アカウントを使う方針なので、「sudoグループにいる」というだけで試験を止めません。ただし、試験中にsudoで強い操作をしないことと、データを読む権限を確認することは続けます。</small>
+    <strong>最新状態の上書き（2026-08-09）:</strong> <code>BLK-P2-012</code>（実行アカウントがsudoグループにも属すること）は、ユーザーの本番運用方針により、今後のRunを止める条件から外しました。P2-12-03はroot権限でも通常権限でも実行でき、どちらの場合もネットワークなし・入力hash前後一致・専用読取りグループ・固定4 Gateを確認します。sudoグループ所属そのものを理由に、Runを止めたり別アカウントを必須にしたりしません。<br>
+    <small>やさしい説明: 本番では管理者用アカウントも普通の利用者も使える方針です。どちらで動かしても、入力が変わっていないことと外部通信がないことを確認します。</small>
   </section>
   <section class="note" id="current-status-p2-12-data">
-    <strong>P2-12-03の最新データ状態（2026-08-09）:</strong> <code>UNK-P2-13</code>（Raw受信UTC時刻）は、承認済みの同一条件1回取得で解消しました（受信UTC <code>2026-08-08T21:28:59.064530Z</code>、SHA-256 <code>sha256:0483e011f5d406053591d1ac9869cde349634e9e612794eb7e0189657ea1ef2d</code>）。<code>UNK-P2-14</code>（外部銘柄番号と内部Catalogの対応）は、DBNヘッダーの対応表を固定Catalogへ保存し、4件中3件を解決しました。ただし1件はspread（複数契約を組み合わせた商品）で、採用対象外として保留したため、全件正規化・MarketEvent・Replayはまだ作成していません。新しい停止理由は<code>UNK-P2-15</code>（spreadを本線へ入れない選別条件）です。<br>
-    <small>やさしい説明: 「いつ届いたか」と「番号が何の商品か」は分かるようになりました。でも4件のうち1件は、単独の商品ではなく組み合わせ商品でした。これを売買用データに混ぜてよいかを決めるまで、全体を止めています。</small>
+    <strong>P2-12-03の最新データ状態（2026-08-09）:</strong> <code>UNK-P2-13</code>（Raw受信UTC時刻）と<code>UNK-P2-14</code>（外部銘柄番号と内部Catalogの対応）は、承認済みの同一条件1回取得と固定Catalogで解消しました。<code>UNK-P2-15</code>（spreadを本線へ入れない選別条件）も、ユーザー承認の <code>main-future-active-only-v1</code> として解消しました。実DBN 4件のうち通常先物3件をNormalizedBar・MarketEventへ採用し、spread 1件はRawと除外記録だけに残しています。<br>
+    <small>やさしい説明: 「いつ届いたか」と「番号が何の商品か」が分かり、組み合わせ商品を売買判断へ混ぜないルールも決まりました。4件のうち安全に使う3件だけが、次の処理へ進みます。</small>
   </section>
 
   <h2>4. 解決済みの主な課題</h2>
@@ -384,6 +389,7 @@ firewall=true</pre></li>
       <tr><td>2026-08-09</td><td>v2.3</td><td>P2-12-03のレビューで、管理者権限のままリポジトリのdecoderを動かす問題を検出し、初期試行を受入根拠から除外した。入力を専用グループ読取り<code>root:autotrade-replay:0440</code>へ変更し、通常権限のdecoderで再実行した。ネットワークなし、hash前後一致、4レコード読取り、UNK-P2-13/14による固定4 Gate開始前BLOCKEDを確認した。</td></tr>
       <tr><td>2026-08-09</td><td>v2.4</td><td>最終WSL実行IDと古いWindows probeを区別し、P2-D16を実行済みBLOCKEDへ更新した。WSL実行アカウントがsudoグループに属する残存リスクを新規<code>BLK-P2-012</code>として登録した。パスワードなしのsudoは使えず、Signal停止・Phase 3禁止は維持する。</td></tr>
       <tr><td>2026-08-09</td><td>v2.5</td><td>ユーザーの「承認します。」を、P2-12-04で必要性が確定した場合に限るP2-08同一条件の最小DBN再取得としてH2-2へ記録した。別のsymbology/definition API、対象拡大、費用上限変更は未承認として維持する。</td></tr>
+      <tr><td>2026-08-09</td><td>v2.6</td><td>H2-3・H2-4の承認を主表へ反映し、BLK-P2-008、BLK-P2-012、UNK-P2-15、BLK-P2-004〜007の現在状態を全体点検で整合させた。過去の未承認・安全停止の記述は履歴として保持し、現在状態と区別した。残課題更新時に台帳全体を点検するルールをAGENTS.mdとAI部品規則へ追加した。</td></tr>
     </tbody>
   </table>
 
@@ -414,17 +420,17 @@ firewall=true</pre></li>
     <p>ここでは、P2-12-03のReplayを止める問題ではないものの、Phase 3以降の運用を決めるために残っている課題を、何が問題で、何を決めれば終わるのかが分かるように整理する。</p>
 
     <h3>BLK-P2-004 / UNK-P2-05：品質が悪い日の扱い</h3>
-    <p><strong>何が未決定か:</strong> 市場データに欠け、重複、時刻のずれ、異常な価格、異常な出来高などが見つかったとき、その日のデータを「全部捨てる」「警告を付けて研究だけで使う」「取り直す」のどれにするかが、運用ルールとして最後まで決まっていない。</p>
+     <p><strong>現在の決定:</strong> 欠損・重複・時刻ずれはSignal生成を停止し、DEGRADED・価格異常・出来高異常は警告を残して使用する。checksum不一致、ID欠落、未知の品質フラグは出所や整合性が壊れているため停止する。</p>
     <p><strong>なぜ重要か:</strong> 少しだけ悪いデータを許すと、間違った価格から売買シグナルが出る可能性がある。逆に全部捨てると、使えるデータまで失って検証範囲が狭くなる。用途ごとに許可範囲を分けないと、同じ異常を人によって違う扱いにしてしまう。</p>
     <p><strong>現在の安全側の動き:</strong> 異常データからSignalを作らない。P2-12-03の主線は、<code>future</code> かつ <code>active</code> のデータだけを採用し、spreadは本線から除外して監査記録に残す。</p>
-    <p><strong>解消に必要なこと:</strong> 異常の種類ごとに、研究用・Replay用・Paper用・Live用の扱い、停止条件、取り直し条件、承認者を表にして承認すること。これが決まるまで、Phase 3で「警告付きデータを使った利益評価」を正式な合格根拠にしてはいけない。</p>
-    <p><small>やさしい説明: 食品に「少し傷がある」ものが混ざったとき、給食に出すのか、先生が見るだけにするのか、捨てるのかを先に決める問題です。決めないまま使うと、人によって安全基準が変わります。</small></p>
+     <p><strong>現在の対応:</strong> <code>quality-warning-except-missing-duplicate-time-v1</code> を実装し、テストとP2-12-03 Replayで確認済み。用途ごとの詳細な再取得・研究・Live基準は、Phase 3以降の運用課題として別管理する。</p>
+     <p><small>やさしい説明: 「データが抜けた、二重になった、時刻が逆になった」は止めます。「価格や出来高が少し変」は注意書きを付けて使います。この基本ルールはもう決まっており、細かな本番運用の相談だけが後に残っています。</small></p>
 
     <h3>BLK-P2-005：費用と利用権限の最終記録</h3>
-    <p><strong>何が残っているか:</strong> H2-2で許可された最小範囲の取得は済んでいるが、実際にいくら使ったか、契約上どのデータを使う権利があるかを示す最終的な請求・利用量の証跡が、まだ正式記録として閉じていない。</p>
+     <p><strong>現在の決定:</strong> ユーザー決定により、費用・entitlementの最終記録を理由にRunやPhaseを停止するプロジェクト内制限を廃止した。</p>
     <p><strong>なぜ重要か:</strong> 取得範囲を広げると、料金や契約条件が変わる可能性がある。技術的に読めても、契約上使えないデータを本番へ流すことはできない。</p>
-    <p><strong>解消に必要なこと:</strong> 取得日、dataset、schema、symbol、期間、利用量、請求額、利用権限を、公式請求画面または公式利用量記録で確認し、証跡へ固定すること。対象範囲を広げる場合は、別途H2-2を再承認する。</p>
-    <p><small>やさしい説明: 借りた道具を使い終わったあと、「いくら借りたか」「その使い方が許されていたか」をレシートと規則で確認する作業です。</small></p>
+     <p><strong>現在の対応:</strong> 外部提供者の契約条件そのものを変更したわけではないが、本プロジェクトの停止条件からは除外した。別の取得範囲を追加する場合の承認は、H2-2として個別に扱う。</p>
+     <p><small>やさしい説明: このプロジェクトの中で「費用の確認が終わるまで先へ進めない」という門は外しました。外部サービスの契約ルールまで消えたわけではありません。</small></p>
 
     <h3>BLK-P2-006：大容量データの保存先・保全</h3>
     <p><strong>保存先:</strong> 大容量データはGitリポジトリへ入れず、<code>E:\strategy_test_data</code> 配下へ保存する。今回、次のディレクトリを作成済みである。</p>
@@ -438,14 +444,14 @@ firewall=true</pre></li>
       <li><code>E:\strategy_test_data\evidence</code>：人が確認する証跡。<code>E:\strategy_test_data\tmp</code>：処理中だけ使い、完了後に残さない一時場所。</li>
     </ul>
     <p><strong>現在の解消範囲:</strong> 「リポジトリ内か外部保存先か」という保存場所の決定は解消した。既存データは空であり、今回の作業ではデータを移動・コピーしていない。</p>
-    <p><strong>まだ決めること:</strong> 容量上限、バックアップ、復元試験、保存期間、アクセス権、暗号化、障害時の別ディスクへの退避。現時点のACLはWindowsの既存設定を使用しているため、本番運用前に専用アクセス権へ絞るかを確認する。</p>
-    <p><small>やさしい説明: 大きな荷物を教室の机に置かず、倉庫の棚を「元の荷物」「整理済み」「確認記録」「壊れていた荷物」に分けました。置き場所は決まりましたが、倉庫の鍵、予備の倉庫、何年置くかはまだ決める必要があります。</small></p>
+     <p><strong>現在の決定:</strong> ユーザー決定により、バックアップ、保存期間の制限、復元試験、容量上限、障害時の退避、専用アクセス権、暗号化は行わない。これは未対応ではなく、意図的に採用しない運用方針である。</p>
+     <p><small>やさしい説明: 大きな荷物の棚は決まりました。予備の棚、期限、復元練習、追加の鍵、暗号化はしないと決めています。そのため、壊れたり消えたりしたときに戻せない危険は受け入れています。</small></p>
 
     <h3>BLK-P2-007 / UNK-P2-09：データ遅延の合否基準</h3>
-    <p><strong>何が未決定か:</strong> 市場で発生した時刻とシステムが受け取った時刻の差が、何秒・何分になったら「遅すぎて使用禁止」とするかが決まっていない。</p>
+     <p><strong>現在の決定:</strong> 1分足では、bar_close_timeから受信まで2秒以内を正常、2秒超〜5秒を警告、5秒超をSignal停止とする。市場が開いていて次の1分足が15秒以上来なければSignalを停止する。Provider/transport側のp99.98 200ms以内は別指標とする。</p>
     <p><strong>なぜ重要か:</strong> 遅い価格で判断すると、すでに相場が動いたあとに古い情報でSignalを出す危険がある。許容時間は銘柄、時間足、Paper、Shadow、Liveで変わるため、一つの数字を勝手に置けない。</p>
-    <p><strong>解消に必要なこと:</strong> event_time_utc、received_at_utc、処理完了時刻を記録し、実測分布を集める。そのうえで、通常値、警告値、Signal停止値を用途別に決め、遅延時の監視・通知・Replay再現試験を追加する。これはLiveに近いPhaseで確定する。</p>
-    <p><small>やさしい説明: 電車の時刻表と実際の到着時刻が何分ずれたら「もう乗らない」と決める問題です。列車の種類や目的によって、待てる時間が違います。</small></p>
+     <p><strong>現在の対応:</strong> 受信時刻を記録し、上記の基準を品質・運用方針として採用した。実測後に数値を見直すことはできるが、現時点の未承認Blockedではない。</p>
+     <p><small>やさしい説明: 1分足が終わってから2秒以内なら普通、5秒を超えたら古い情報として売買を止めます。15秒たっても次の足が来ない場合も止めます。</small></p>
 
     <h3>Phase 1・AI基盤の継続課題</h3>
     <p>Phase 1のPoC、Risk、Shadow、Paper/Live移行条件、通知方法、AI基盤の品質基準などは、統合台帳の各<code>BLK-P1-*</code>・<code>BLK-AIF-*</code>行で継続管理している。これらは今回の実DBN Replayを壊す課題ではないが、実際の自動売買を開始する前には、担当Phase、承認者、証跡、停止条件をそれぞれ閉じる必要がある。</p>
@@ -471,7 +477,7 @@ firewall=true</pre></li>
     <p>Cboeは、取引所からの距離だけでも1〜20msの遅延が生じ得ること、イベントが集中すると単純な平均値では「古い価格を見ている時間」を測れないことを説明している。<a href="https://www.cboe.com/insights/posts/mission-possible/">Cboe: Mission Possible</a> SECの説明も、latencyについて一律の最大値を定めず、最先端の単一市場接続では1ms未満、遠隔市場ではそれ以上になり得るとしている。<a href="https://www.sec.gov/rules-regulations/staff-guidance/trading-markets-frequently-asked-questions-2">SEC Staff Guidance</a></p>
     <p>Databentoは、<code>ts_event</code>（マッチングエンジン側）、<code>ts_recv</code>（受信側）、<code>ts_in_delta</code>（送信時点との差）を使って、matching engine latencyとfeed latencyを別々に測る方法を示している。<a href="https://databento.com/docs/examples/algo-trading/latency">Databento: Measuring matching engine and feed latency</a> 同社の数値（中央値6.1μs、接続形態別の90パーセンタイル）は提供者の能力値であり、このプロジェクトの保証値ではない。<a href="https://databento.com/live">Databento Real-Time Market Data</a></p>
     <p><strong>本プロジェクトへの採用値:</strong> ユーザー決定により、1分足の売買システムでは、(a) bar_close_timeから受信まで2秒以内を正常、2秒超〜5秒を警告、5秒超をSignal停止、(b) 市場が開いていて次の1分足が15秒以上来なければSignal停止、(c) Provider/transport側は別指標としてp99.98が200ms以内を目標にし、アプリ側の5秒判定と混ぜない、の二層を採用する。これはFISDの200msをそのまま1分足の停止値にしたものではなく、外部目安と本プロジェクトの1分足用途から導いた推奨推論である。実測後の見直しは可能だが、未承認の残課題としては扱わない。</p>
-    <p><small>やさしい説明: 高速道路の通過時間と、家に荷物が届くまでの時間は別々に測ります。このシステムでは、1分足が締まってから5秒を超えたら、古い情報で売買しない案を提案しています。ただし、実際の測定をしてから最後に決めます。</small></p>
+     <p><small>やさしい説明: 高速道路の通過時間と、家に荷物が届くまでの時間は別々に測ります。このシステムでは、1分足が締まってから5秒を超えたら、古い情報で売買しないと決めています。</small></p>
     <p><strong>調査日:</strong> 2026-08-09。URLと確認日をこの台帳に固定し、基準値を「法律で決まった唯一の値」とは扱わない。</p>
   </section>
 </main>
