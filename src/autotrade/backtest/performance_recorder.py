@@ -141,8 +141,11 @@ def _peak_rss_bytes() -> tuple[int, str, str] | None:
 
             counters = _Counters()
             counters.cb = ctypes.sizeof(_Counters)
-            process_api = ctypes.WinDLL("kernel32")
-            memory_api = ctypes.WinDLL("psapi")
+            win_dll = getattr(ctypes, "WinDLL", None)
+            if not callable(win_dll):
+                return None
+            process_api = win_dll("kernel32")
+            memory_api = win_dll("psapi")
             get_process = process_api.GetCurrentProcess
             get_process.restype = wintypes.HANDLE
             get_memory = memory_api.GetProcessMemoryInfo
@@ -240,7 +243,10 @@ def _host_ram_bytes() -> int:
 
             status = _MemoryStatus()
             status.length = ctypes.sizeof(_MemoryStatus)
-            if ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(status)):
+            windll = getattr(ctypes, "windll", None)
+            kernel32 = getattr(windll, "kernel32", None)
+            global_memory_status_ex = getattr(kernel32, "GlobalMemoryStatusEx", None)
+            if callable(global_memory_status_ex) and global_memory_status_ex(ctypes.byref(status)):
                 return int(status.total)
         except (AttributeError, OSError, TypeError):
             return 0
