@@ -344,6 +344,39 @@
         {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/market_data"]},
         {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p2_pytest"]}
       ]
+    },
+    "RUN-P3-BIAS-001": {
+      "phase_id": "phase3",
+      "step_id": "P3-08",
+      "design": "P3-D05-P3-D06-P3-D09",
+      "requirements": ["P3-AC-01", "P3-AC-02", "P3-AC-03", "P3-AC-04", "P3-AC-08"],
+      "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+      "target_paths": [
+        "src/autotrade/backtest",
+        "scripts/quality_gate",
+        "tests/quality_gate",
+        "tests/backtest",
+        "tests/strategy",
+        "tests/fixtures/phase3"
+      ],
+      "excluded_paths": [".env", "third_party/everything-claude-code", "research", "E:/strategy_test_data"],
+      "fixture": {
+        "path": "tests/fixtures/phase3/bias_manifest_v1.json",
+        "name": "bias_manifest_v1.json",
+        "version": "p3-bias-manifest-v1",
+        "checksum": "sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24"
+      },
+      "baseline_ref": "a6c2ddbd6163abbf9792b3bbe8def57babadb03d",
+      "scope_mode": "target_only",
+      "unknowns": ["UNK-P3-01", "UNK-P3-05", "UNK-P3-07"],
+      "network_isolation_required": true,
+      "checks": [
+        {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
+        {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
+        {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/backtest", "scripts/quality_gate"]},
+        {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_pytest"]}
+      ]
     }
   }
 }

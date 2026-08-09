@@ -1,0 +1,28 @@
+{
+  "run_id": "RUN-P3-BIAS-001",
+  "phase_id": "phase3",
+  "step_id": "P3-08",
+  "design": "P3-D05-P3-D06-P3-D09",
+  "requirements": ["P3-AC-01", "P3-AC-02", "P3-AC-03", "P3-AC-04", "P3-AC-08"],
+  "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+  "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+  "data_version": "p3-bias-manifest-v1",
+  "change_hash": "sha256:b06886f8cebb5a73e6473024e8f06a631db66a7a4b1056855364b1075f7ee8b7",
+  "baseline_ref": "a6c2ddbd6163abbf9792b3bbe8def57babadb03d",
+  "human_gate_policy": "P3-07 Core受入可を前提にH3-1/H3-1R承認済みfixtureだけを使う。UNK-P3-01/05/07は解消済みとせず、長期データ・実測cost・正式Calendarの主張をしない。",
+  "agents": ["AutoTrade_A110_PythonTestEngineer_v0_1", "AutoTrade_A120_PythonImplementer_v0_1", "AutoTrade_A130_VerificationEngineer_v0_1", "AutoTrade_A140_DebugEngineer_v0_1", "AutoTrade_A150_PythonCodeReviewer_v0_1", "AutoTrade_A160_TradingSecurityReviewer_v0_1", "AutoTrade_A40_ExecutionEnginePocArchitect_v0_1"],
+  "skills": ["autotrade_skill_python_implementation_v0_1", "autotrade_skill_python_test_quality_v0_1", "autotrade_skill_debug_recovery_v0_1", "autotrade_skill_python_code_review_v0_1", "autotrade_skill_execution_model_v0_1", "autotrade_skill_test_strategy_v0_1", "autotrade_skill_golden_test_v0_1"],
+  "target_paths": ["src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy", "tests/fixtures/phase3"],
+  "excluded_paths": [".env", "third_party/everything-claude-code", "research", "E:/strategy_test_data"],
+  "evidence_root": "tests/evidence/phase3/RUN-P3-BIAS-001",
+  "input_fixture": {"name": "bias_manifest_v1.json", "version": "p3-bias-manifest-v1", "checksum": "sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24"},
+  "review": {"critical": 0, "high": 0},
+  "unknowns": ["UNK-P3-01", "UNK-P3-05", "UNK-P3-07"],
+  "scope_mode": "target_only",
+  "checks": [
+    {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
+    {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
+    {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/backtest", "scripts/quality_gate"]},
+    {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_pytest"]}
+  ]
+}
