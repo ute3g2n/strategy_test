@@ -112,7 +112,7 @@
     <strong>正本:</strong> このHTMLが、Phase 0から今後の全Phaseまでの残課題を管理する唯一の台帳です。<br>
     <strong>初回集約日:</strong> 2026-08-06<br>
     <strong>最終更新日:</strong> 2026-08-09<br>
-    <strong>集約範囲:</strong> Phase 0、Phase 1、Phase 2、Phase 3計画・P3-01〜P3-07、AI実行基盤、個別Run。P3-05Rで30分足の設計・v2固定fixture・通常REDを完了し、H3-0/H3-1/H3-1R/H3-2は承認済みです。H3-1R改訂により、v2を履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する方針を採用した。P3-06のStrategy実装・固定4 Gate・独立レビューはPASSである。P3-07はレビュー差戻しのため未完了であり、P3-07R（Replay・保存・証跡・Engine境界の再実装計画）を次に実行する。外部依存導入と実engine PoCはまだ未着手です。</p>
+    <strong>集約範囲:</strong> Phase 0、Phase 1、Phase 2、Phase 3計画・P3-01〜P3-07、AI実行基盤、個別Run。P3-05Rで30分足の設計・v2固定fixture・通常REDを完了し、H3-0/H3-1/H3-1R/H3-2は承認済みです。H3-1R改訂により、v2を履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する方針を採用した。P3-06のStrategy実装・固定4 Gate・独立レビューはPASSである。P3-07R-03で実ReplayからResultStore公開・復旧までをPASSし、BLK-P3-008を解消した。P3-07全体はP3-07R-04のEngine/Offline/Performance証跡待ちで、外部依存導入と実engine PoCはまだ未着手です。</p>
   </section>
 
   <div class="important">
@@ -122,10 +122,10 @@
 
   <h2>1. まず、いまの状態</h2>
   <div class="cards">
-    <div class="card stop"><strong>2件</strong>いま、P3-07の受入を止めている根本課題</div>
+    <div class="card stop"><strong>1件</strong>いま、P3-07の受入を止めている根本課題</div>
     <div class="card wait"><strong>24件</strong>期限までは安全に保留できる根本課題</div>
     <div class="card done"><strong>15組</strong>解決済みとして確認できた主な課題</div>
-    <div class="card phase"><strong>0–7R</strong>Phase 3計画・P3-01〜P3-06完了。H3-1/H3-1R/H3-2承認済み、P3-07は差戻し、次はP3-07R Backtest再実装</div>
+    <div class="card phase"><strong>0–7R</strong>Phase 3計画・P3-01〜P3-06完了。P3-07R-01〜03完了、BLK-P3-008解消、次はP3-07R-04</div>
   </div>
   <p class="small">件数は、同じ原因を別の文書が違う名前で書いている場合に一つへまとめた「根本課題」の数です。たとえば、同じロール規則の問題を Phase 1 と Phase 2 が別IDで書いていても、一件として数えます。</p>
 
@@ -460,7 +460,7 @@ firewall=true</pre></li>
     <h2>P2-12-03 最終状態（2026-08-09）</h2>
     <p><strong>UNK-P2-15 は解消済み、P2-12-03 はPASS。</strong> ユーザー承認の方針 <code>main-future-active-only-v1</code>（有効な先物だけを本線へ採用）で、実DBN 4件からNormalizedBar 3件、MarketEvent 3件を作成し、spread 1件はRaw・監査記録だけに残した。Replayバー系列は一致し、入力hashは実行前後で一致した。実行IDは <code>37da7396f4e84be3b82dfd0aae69a217</code>、data_versionは <code>dv_780568eab89680cfc758</code>、品質報告hashは <code>sha256:30422966a36a6becc273e0a78f86fc6183851e41dec66317c5e6f0bfaa906d43</code>。固定4 Gateも4件すべてPASS。</p>
     <p><small>やさしい説明: 本物の市場データ4個を読み、売買に使ってよい3個だけを通しました。組み合わせ商品1個は、あとで確認できるよう記録だけ残しました。最初と最後でデータが変わっておらず、もう一度読んでも同じ結果になることまで確認できています。</small></p>
-  <p><strong>Phase 3の状態:</strong> H2-3、H2-4、H3-0、H3-1、H3-1R、H3-2は承認済み。P3-01〜P3-06は完了し、P3-07は固定4 Gate（formatter/lint/type/test）がPASSしたが、A150/A160レビューでCritical 1 / High 9 / Medium 5相当の実Replay・保存・証跡課題が残りレビュー差戻しである。P3-D08とBLK-P3-008/009を正本として、P3-07Rで修復してからP3-07を再判定する。実engine導入はP3-08Aで固定版・完全hash・公式配布元・オフライン実行方法を証跡化してからP3-09で行う。H3-3、H3-4は後続Gateであり、Phase 4へはまだ移行しない。</p>
+  <p><strong>Phase 3の状態:</strong> H2-3、H2-4、H3-0、H3-1、H3-1R、H3-2は承認済み。P3-01〜P3-06は完了し、P3-07R-03でManifest/Snapshot/ResultStoreの実Replay接続・atomic publish・改ざん検知・復旧をPASSした。BLK-P3-008は解消済み、BLK-P3-009はP3-07R-04待ちである。P3-07全体の受入可、実engine導入、Paper、Live、Phase 4 Risk/OMS引渡しはまだ開始しない。</p>
     <p><small>やさしい説明: LEANを練習試験に使う許可は受け取りました。これから設計と答えを先に固定し、P3-08Aで道具の型番を確認してから、P3-09で実際に試します。</small></p>
     <p><strong>Phase 3以降へ持ち越す課題:</strong> Phase 1・AI基盤の継続課題、および実測後に遅延値を見直す可能性は残る。ただし、Phase 3移行を止める未承認Gateではない。</p>
     <p><small>やさしい説明: 車は動きましたが、ガソリン代、長い荷物の置き場所、何秒遅れたら危険か、という別の約束がまだ残っています。今すぐ車を直す話ではありませんが、本番で使う前に決めておく必要があります。</small></p>
@@ -468,16 +468,16 @@ firewall=true</pre></li>
   </section>
   <section class="note" id="current-status-p3-07-20260809">
     <h2>P3-07 Backtest実装・検証の現状（2026-08-09）</h2>
-    <p><strong>状態:</strong> <span class="badge stop">レビュー差戻し</span>。固定4 Gateは4件すべてPASS、Backtest/Strategy合同テストは196件PASS。ただしA150/A40/A160レビューで統合Critical 2 / High 14相当 / Medium 6相当、実Replay・Engine境界・保存・証跡課題が残ったため、P3-07を完了扱いにしない。</p>
-    <p><strong>根本課題:</strong> Replay、Strategy、仮想約定、Snapshot、ResultStoreが一つの実行経路として接続され、改ざん・重複・途中停止から安全に再開できることを、まだ証跡で証明できていない。</p>
-    <p><strong>やさしい説明:</strong> 部品ごとのテストには合格しましたが、材料を並べる係、計算する係、保存する係を一本のベルトコンベアで最後まで動かす試験が不足しています。紙に「安全」と書くだけでなく、実際に書き換えや停電を起こして止まることを確かめる必要があります。</p>
+    <p><strong>状態:</strong> <span class="badge stop">P3-07R-04待ち</span>。P3-07R-03のBacktest/Strategy合同テストは248件PASS、全testsは395件PASS、A150/A160のCritical/Highは0件である。ResultStoreの実Replay接続・保存・改ざん検知・復旧はPASSしたが、Engine/Offline/Performance証跡が残るためP3-07全体は完了扱いにしない。</p>
+    <p><strong>根本課題:</strong> 実Replay→Snapshot→ResultStoreの一体接続、Manifest実値照合、偽造commit marker、symlink/reparse、任意保存先、重複再送、途中停止復旧はP3-07R-03で証跡化し、BLK-P3-008を解消した。</p>
+    <p><strong>やさしい説明:</strong> 材料から計算、保存、途中で止めた後の再開までを一本のベルトコンベアで動かし、箱の入れ替えや同じカードの再送を止められることを確認しました。道具の型番、通信なし、性能の実測は次の宿題です。</p>
     <table class="wide"><thead><tr><th>ID</th><th>問題内容</th><th>修正方針</th><th>現在の判定</th></tr></thead><tbody>
-      <tr><td><code>BLK-P3-008</code></td><td>実Replay→Simulator→Snapshot→ResultStoreの一体接続、Manifest実値照合、偽造commit marker・symlink・任意保存先の拒否が未証明。<br><small>やさしい説明: 部品単体は動いても、途中で箱を入れ替えた時に最後まで気づけるか未確認です。</small></td><td>P3-07R-01〜03で、実イベントを1本のBacktestRunnerで処理し、結果hash・watermark・commit markerを再計算する。改ざん・重複・途中停止・再開を実行テストにする。<br><small>やさしい説明: 材料から完成品までを一つの流れで動かし、途中で入れ替えたら赤信号になるようにします。</small></td><td><span class="badge stop">P3-07R-01〜03待ち</span><br>A150/A160/A40の最終Critical/High 0が必要</td></tr>
+      <tr><td><code>BLK-P3-008</code></td><td>実Replay→Simulator→Snapshot→ResultStoreの一体接続、Manifest実値照合、偽造commit marker・symlink・任意保存先の拒否。<br><small>やさしい説明: 部品単体ではなく、最後まで箱を入れ替えに気づけるかを確認する課題です。</small></td><td>P3-07R-01〜03で、実イベントをBacktestRunnerからResultStoreへ通し、結果hash・watermark・commit marker、改ざん・重複・途中停止・再開を実行テストにした。</td><td><span class="badge done">解消済み（2026-08-09）</span><br><a href="../tests/evidence/phase3/RUN-P3-BT-REPAIR-003/verification.json">RUN-P3-BT-REPAIR-003</a></td></tr>
       <tr><td><code>BLK-P3-009</code></td><td>Performance、Offline、Engine境界の一部が呼出元の自己申告で、実測・通信0・依存hashを独立に証明していない。<br><small>やさしい説明: 「測りました」「外へ通信していません」と言うだけで合格にできる入口があります。</small></td><td>P3-07R-04で、許可root、依存hash、入力前後hash、実測値、通信試行数を機械的に取得し、欠落や不一致はPASSにしない。P3-08Aでは実LEAN依存の固定・オフライン準備を追加で証跡化する。</td><td><span class="badge stop">P3-07R-04待ち</span><br>実engine導入はP3-08Aまで禁止</td></tr>
     </tbody></table>
     <p><strong>再開計画:</strong> <a href="../plan/Phase3_実行計画書_v0.1_2026-08-09.md">Phase 3実行計画書</a>のP3-07R-01〜05を、契約/RED固定、型付きReplay接続、ResultStore/復旧、Engine/Offline/Performance証跡、RUN-P3-BT-001最終再実行の順に行う。各Stepは前のレビューCritical/High 0を次の開始条件にする。</p>
     <p><strong>Human Gate:</strong> 新しい設計承認は追加しない。H3-1、H3-1R、H3-2は承認済みのまま。P3-07Rの残課題解消・A150/A160/A40再レビューでCritical/High 0を確認するまで、実engine PoC、Paper、Live、Phase 4 Risk/OMS引渡しは開始しない。</p>
-    <p><strong>証跡:</strong> <a href="../tests/evidence/phase3/RUN-P3-BT-001/verification.json">RUN-P3-BT-001 verification</a> / <a href="./phase3/06_実装検証/07_Backtest再現性検証結果.html">P3-D08</a></p>
+    <p><strong>証跡:</strong> <a href="../tests/evidence/phase3/RUN-P3-BT-REPAIR-003/verification.json">RUN-P3-BT-REPAIR-003 verification</a> / <a href="../tests/evidence/phase3/RUN-P3-BT-001/verification.json">RUN-P3-BT-001 history</a> / <a href="./phase3/06_実装検証/07_Backtest再現性検証結果.html">P3-D08</a></p>
   </section>
 
   <section class="note" id="remaining-issues-detail-20260809">
@@ -524,7 +524,7 @@ firewall=true</pre></li>
   </section>
   <section class="note" id="history-p3-07-20260809">
     <h2>最新更新履歴 v4.0（2026-08-09）</h2>
-    <p>P3-07のレビュー差戻しを解消するP3-07RをPhase 3実行計画へ追加した。P3-07R-01〜05は、実行契約と敵対的RED固定、型付きReplay/Strategy/次bar約定、Eドライブへの原子的Result公開と復旧、Engine/Offline/Performanceの機械証跡、<code>RUN-P3-BT-001</code>の再実行・最終レビューの順に進める。BLK-P3-008/009は未解消のままP3-07Rの開始条件へ結び直し、P3-07、P3-08A、P3-09、Phase 4を完了扱いにしていない。H3-1/H3-1R/H3-2の承認状態は変更しない。台帳全体のHuman Gate、Phase表示、主課題、件数、履歴、関連証跡を点検した。</p>
+    <p>P3-07R-03を実行し、Manifest/Snapshot/ResultStoreの実Replay接続、atomic publish、marker・path・recoveryの敵対的試験をPASSした。BLK-P3-008を解消済みへ更新し、BLK-P3-009はP3-07R-04のEngine/Offline/Performance証跡待ちとして保持する。P3-07、P3-08A、P3-09、Phase 4は完了扱いにしていない。H3-1/H3-1R/H3-2の承認状態は変更しない。台帳全体のHuman Gate、Phase表示、主課題、件数、履歴、関連証跡を点検した。</p>
     <p><small>やさしい説明: 部品のテストは通りましたが、全部をつないだ本番前の通し試験がまだです。安全確認が終わるまで、次のPhaseへは進みません。</small></p>
   </section>
   <section class="ok-note" id="policy-decisions-20260809">

@@ -1,0 +1,55 @@
+{
+  "schema_version": "p3-backtest-repair-verification-v1",
+  "run_id": "RUN-P3-BT-REPAIR-003",
+  "target_scope": "P3-07R-03 Manifest/Snapshot/ResultStore publication and recovery",
+  "acceptance": {
+    "manifest_integrity": {
+      "status": "PASS",
+      "evidence": "tests/backtest/test_backtest_repair_persistence.py::test_manifest_hash_is_recomputed_and_unknown_field_stops"
+    },
+    "canonical_json": {
+      "status": "PASS",
+      "evidence": "tests/backtest/test_backtest_repair_persistence.py::test_canonical_json_rejects_float_nonfinite_set_and_object"
+    },
+    "safe_result_path": {
+      "status": "PASS",
+      "evidence": "tests/backtest/test_backtest_repair_persistence.py::test_result_store_rejects_relative_unc_traversal_and_root_path; temporary symlink-root guard check"
+    },
+    "atomic_publication": {
+      "status": "PASS",
+      "evidence": "tests/backtest/test_backtest_repair_persistence.py::test_staging_writes_manifest_result_snapshot_marker_and_publishes_atomically"
+    },
+    "commit_and_tamper_detection": {
+      "status": "PASS",
+      "evidence": "tests/backtest/test_backtest_repair_persistence.py::test_same_run_cannot_be_overwritten_and_tampering_stops_recovery; ::test_partial_commit_is_not_publishable"
+    },
+    "snapshot_recovery_no_duplicate": {
+      "status": "PASS",
+      "evidence": "read/recover published run with duplicate committed event; replay begins after the last committed occurrence and emits only the newer event"
+    },
+    "result_row_allowlist": {
+      "status": "PASS",
+      "evidence": "tests/backtest/test_backtest_repair_persistence.py::test_result_row_rejects_secret_vendor_and_noncanonical_values"
+    },
+    "replay_snapshot_resultstore_integration": {
+      "status": "PASS",
+      "evidence": "tests/backtest/test_backtest_repair_persistence.py::test_typed_runner_result_can_be_published_and_recovered"
+    }
+  },
+  "quality_gate": {
+    "ruff": "PASS",
+    "compileall": "PASS",
+    "phase_scope": "248 passed",
+    "full_scope": "395 passed",
+    "skip_count": 0,
+    "xfail_count": 0
+  },
+  "review_gate": {
+    "A150_critical": 0,
+    "A150_high": 0,
+    "A160_critical": 0,
+    "A160_high": 0
+  },
+  "fixture_changes": [],
+  "result_publication": "PASS in temporary test root; fixed production root contract verified without external write"
+}

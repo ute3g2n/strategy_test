@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
 from ._common import sha256
+from .contracts import BacktestSnapshot, canonical_hash, canonical_json
 
 
 def snapshot_aggregator(value: dict[str, Any]) -> dict[str, Any]:
@@ -36,3 +38,98 @@ def replay_after_restore(value: dict[str, Any]) -> dict[str, Any]:
     if value.get("same_event_redelivered") is False:
         return {"duplicate_output_count": 0}
     return {"status": "STOPPED", "reason": "RECOVERY_RECONCILIATION_FAILED"}
+
+
+def snapshot_payload(value: BacktestSnapshot | Mapping[str, Any]) -> dict[str, Any]:
+    """Create the explicit state-binding envelope used by ResultStore."""
+
+    if isinstance(value, BacktestSnapshot):
+        payload = {
+            "schema_version": value.schema_version,
+            "manifest_sha256": value.manifest_sha256,
+            "input_sequence_sha256": value.input_sequence_sha256,
+            "last_committed_event_id": value.last_committed_event_id,
+            "last_batch_sha256": value.last_batch_sha256,
+            "strategy_snapshot_sha256": value.strategy_snapshot_sha256,
+            "aggregator_snapshot_sha256": value.aggregator_snapshot_sha256,
+            "simulator_state_sha256": value.simulator_state_sha256,
+            "pending_fingerprints": list(value.pending_fingerprints),
+            "consumed_fingerprints": list(value.consumed_fingerprints),
+            "result_offset": value.result_offset,
+            "commit_marker_sha256": value.commit_marker_sha256,
+        }
+    elif isinstance(value, Mapping):
+        payload = dict(value)
+    else:
+        raise ValueError("typed snapshot or mapping is required")
+    if set(payload) - {
+        "schema_version",
+        "run_id",
+        "manifest_sha256",
+        "input_sequence_sha256",
+        "replay_sha256",
+        "last_committed_event_id",
+        "last_event_id",
+        "last_batch_sha256",
+        "strategy_snapshot_sha256",
+        "aggregator_snapshot_sha256",
+        "simulator_state_sha256",
+        "pending_fingerprints",
+        "consumed_fingerprints",
+        "execution_watermarks",
+        "result_offset",
+        "result_sha256",
+        "commit_marker_sha256",
+        "state_payload_sha256",
+        "state_payload",
+    }:
+        raise ValueError("unknown snapshot field")
+    required_fields = {
+        "schema_version",
+        "manifest_sha256",
+        "input_sequence_sha256",
+        "last_committed_event_id",
+        "last_batch_sha256",
+        "strategy_snapshot_sha256",
+        "aggregator_snapshot_sha256",
+        "simulator_state_sha256",
+        "pending_fingerprints",
+        "consumed_fingerprints",
+        "result_offset",
+        "commit_marker_sha256",
+    }
+    if not isinstance(value, BacktestSnapshot) and not required_fields.issubset(payload):
+        raise ValueError("snapshot binding is incomplete")
+    if not isinstance(payload.get("manifest_sha256"), str) or not payload["manifest_sha256"].startswith("sha256:"):
+        raise ValueError("snapshot manifest binding is required")
+    if not isinstance(payload.get("result_offset"), int) or payload["result_offset"] < 0:
+        raise ValueError("snapshot result offset is invalid")
+    payload.setdefault("state_payload", {})
+    expected_state_hash = canonical_hash(payload["state_payload"])
+    if payload.get("state_payload_sha256", expected_state_hash) != expected_state_hash:
+        raise ValueError("snapshot state payload hash mismatch")
+    payload["state_payload_sha256"] = expected_state_hash
+    canonical_json(payload)
+    return payload
+
+
+def validate_snapshot(
+    value: BacktestSnapshot | Mapping[str, Any],
+    *,
+    manifest_sha256: str,
+    result_offset: int | None = None,
+    snapshot_sha256: str | None = None,
+) -> dict[str, Any]:
+    """Revalidate every restore binding before any event is replayed."""
+
+    try:
+        payload = snapshot_payload(value)
+        if payload["manifest_sha256"] != manifest_sha256:
+            raise ValueError("manifest binding mismatch")
+        if result_offset is not None and payload["result_offset"] != result_offset:
+            raise ValueError("result offset mismatch")
+        if snapshot_sha256 is not None and canonical_hash(payload) != snapshot_sha256:
+            raise ValueError("snapshot hash mismatch")
+    except (TypeError, ValueError):
+        return {"status": "STOPPED", "reason": "RECOVERY_RECONCILIATION_FAILED"}
+    return {"status": "PASS", "snapshot": payload}

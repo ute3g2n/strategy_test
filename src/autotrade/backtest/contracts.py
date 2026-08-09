@@ -152,6 +152,19 @@ class CommitMarker:
 
 
 @dataclass(frozen=True)
+class CommitInput:
+    """Canonical data written by ResultStore before the commit marker."""
+
+    commit_id: str
+    result_rows: tuple[Any, ...] | list[Any]
+    snapshot: Any
+    last_event_id: str | None = None
+    last_batch_sha256: str = ""
+    audit_tail_sha256: str = ""
+    audit_rows: tuple[Mapping[str, Any], ...] | list[Mapping[str, Any]] = ()
+
+
+@dataclass(frozen=True)
 class EngineRunRequest:
     manifest: ExperimentManifest
     input_sha256: str

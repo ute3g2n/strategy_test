@@ -12,6 +12,12 @@
 <body><main>
   <p><a href="../../index.html">総合インデックス</a> / <a href="../05_テスト設計/06_Golden_Biasテスト設計書.html">P3-D06</a></p>
   <h1>P3-D08 Backtest再現性検証結果</h1>
+  <section class="ok-note" id="p3-07r-03-current-status-20260809">
+    <h2>P3-07R-03 現在状態（2026-08-09）</h2>
+    <p><strong>Manifest/Snapshot/ResultStore接続:</strong> <span class="ok">PASS</span>。型付きBacktestRunnerの結果を、一時root上でcanonical Manifest、ResultRow/audit、Snapshot、commit markerへ順序どおり保存し、atomic publish、marker/hash再検証、改ざん・partial・path/reparse・重複再送の停止、committed event後からの復旧を確認した。</p>
+    <p><strong>P3-07全体:</strong> <span class="ng">未受入</span>。BLK-P3-008は解消済みだが、Engine/Offline/Performance証跡はP3-07R-04待ちであり、実engine PoC、Paper、Live、Phase 4 Risk/OMS引渡しは開始しない。</p>
+    <p><strong>証跡:</strong> <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-003/run-manifest.json">RUN-P3-BT-REPAIR-003 run-manifest</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-003/verification.json">verification</a> / <a href="../../../plan/phase3/ログ/P3-07R-03_実行ログ_2026-08-09.md">実行ログ</a></p>
+  </section>
   <p><strong>対象:</strong> P3-07 / RUN-P3-BT-001 / 2026-08-09 / <span class="ng">受入不可（レビュー差戻し）</span></p>
 
   <h2>1. この成果物の目的</h2>

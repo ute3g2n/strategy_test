@@ -585,6 +585,37 @@ class BacktestRunner:
             state_sha256=state_hash,
         )
 
+    def resume(self, request: BacktestRunRequest, snapshot: BacktestSnapshot) -> BacktestRunResult:
+        """Replay only events strictly after a verified committed watermark."""
+
+        if not isinstance(request, BacktestRunRequest) or not isinstance(snapshot, BacktestSnapshot):
+            return _failure("RECOVERY_RECONCILIATION_FAILED", "typed request and snapshot are required")
+        if snapshot.manifest_sha256 != request.manifest.manifest_sha256 or snapshot.result_offset < 0:
+            return _failure("RECOVERY_RECONCILIATION_FAILED", "snapshot manifest or offset binding differs")
+        if snapshot.last_committed_event_id is None:
+            return self.run(request)
+        if request.initial_strategy_state is None and snapshot.result_offset > 0:
+            return _failure("RECOVERY_RECONCILIATION_FAILED", "restored strategy state is required")
+        if (
+            (snapshot.pending_fingerprints or snapshot.consumed_fingerprints)
+            and not request.initial_simulator_state.pending_directives
+            and not request.initial_simulator_state.consumed_fingerprints
+        ):
+            return _failure("RECOVERY_RECONCILIATION_FAILED", "restored simulator state is required")
+        normalized = normalize_replay({"events": [_event_mapping(event) for event in request.replay.events]})
+        if normalized.get("status") != "PASS":
+            return _failure(str(normalized.get("reason", "REPLAY_INPUT_INVALID")))
+        ordered_ids = [event["event_id"] for event in normalized["events"]]
+        try:
+            watermark_index = max(
+                index for index, event_id in enumerate(ordered_ids) if event_id == snapshot.last_committed_event_id
+            )
+        except ValueError:
+            return _failure("RECOVERY_RECONCILIATION_FAILED", "committed event is absent from replay")
+        event_by_id = {event.event_id: event for event in request.replay.events}
+        resumed_events = tuple(event_by_id[event_id] for event_id in ordered_ids[watermark_index + 1 :])
+        return self.run(replace(request, replay=replace(request.replay, events=resumed_events)))
+
     @staticmethod
     def _consume_pending(
         event: MarketEvent,
