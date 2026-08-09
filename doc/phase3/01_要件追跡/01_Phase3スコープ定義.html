@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P3-D01 Phase 3スコープ定義</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px auto; max-width: 1220px; color: #1f2937; }
+    h1, h2, h3 { color: #111827; line-height: 1.35; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin-top: 32px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 10px; vertical-align: top; }
+    th { background: #f3f4f6; }
+    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+    .meta, .decision, .unknown, .gate, .handoff { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .unknown { border-left-color: #d97706; background: #fffbeb; }
+    .gate { border-left-color: #7c3aed; background: #f5f3ff; }
+    .handoff { border-left-color: #059669; background: #ecfdf5; }
+    .easy { color: #374151; background: #f9fafb; padding: 8px 10px; }
+    a { color: #1d4ed8; }
+  </style>
+</head>
+<body>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>P3-D01 Phase 3スコープ定義</h1>
+  <section class="meta">
+    <p><strong>成果物ID:</strong> P3-D01<br>
+    <strong>文書セットID:</strong> P3-REQ-DOCSET<br>
+    <strong>作成日:</strong> 2026-08-09<br>
+    <strong>状態:</strong> v0.1 / P3-01作成、H3-0承認待ち<br>
+    <strong>使用オーケストレータ完全名:</strong> <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code><br>
+    <strong>担当サブエージェント完全名:</strong> <code>AutoTrade_A10_RequirementsCurator_v0_1</code>, <code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>, <code>AutoTrade_A30_StrategyQaArchitect_v0_1</code>, <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code><br>
+    <strong>使用Skill完全名:</strong> <code>autotrade_skill_source_reader_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_strategy_interface_v0_1</code>, <code>autotrade_skill_turtle_strategy_rules_v0_1</code>, <code>autotrade_skill_execution_model_v0_1</code>, <code>autotrade_skill_orchestration_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_doc_set_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code></p>
+  </section>
+
+  <h2>1. この文書の目的</h2>
+  <p>Phase 3で何を作るか、何を作らないか、どの順番で承認するかを固定する。現在の正本は <a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a>であり、本書はPhase 3の要件と成果物を追跡するための設計文書である。</p>
+  <p class="easy"><strong>やさしい説明:</strong> Phase 3で作る物の範囲を先に線で囲みます。線の外の作業を、Phase 3の合格にこっそり混ぜません。</p>
+
+  <h2>2. 入力</h2>
+  <ul>
+    <li><code>doc/requirements/01_自動トレードシステム要件定義書.html</code></li>
+    <li><code>doc/phase1/05_戦略設計/05_Strategy_Plugin_Interface設計書.html</code></li>
+    <li><code>doc/phase1/05_戦略設計/05_Turtle_Golden_test設計書.html</code></li>
+    <li><code>doc/phase1/07_実行モデル/07_共通実行モデル設計書.html</code></li>
+    <li><code>doc/phase1/07_実行モデル/07_取引エンジンPoC評価設計書.html</code></li>
+    <li><code>doc/phase1/10_テスト品質/10_テスト戦略品質Gate設計書.html</code></li>
+    <li><code>doc/phase1/11_ロードマップ/11_詳細設計バックログ.html</code></li>
+    <li><code>doc/phase2/09_実DBN変換/09_実DBN_Replay隔離検証結果.html</code></li>
+    <li>総合台帳のH2-3/H2-4承認済み記録とP2-12-03最終PASS証跡</li>
+  </ul>
+
+  <h2>3. Phase 3の対象と非対象</h2>
+  <table>
+    <thead><tr><th>区分</th><th>内容</th><th>確認方法</th></tr></thead>
+    <tbody>
+      <tr><td>対象</td><td>Strategy Plugin、Turtle原典System 1/2、比較候補、Backtest Core、Experiment Manifest、Cost/Roll/Gap、Golden、Replay、Look-ahead/Bias、Holdout/Walk-forward、ローカル取引エンジンPoC。</td><td>P3-D04〜P3-D10、固定fixture、Run証跡。</td></tr>
+      <tr><td>非対象</td><td>Broker接続、IBKR Paper発注、OMS、Open Order/Fill/Position再同期、実注文、Live、Secret、クラウド運用、Live用Risk最終値。</td><td>Phase 4以降へ引継ぎ、Phase 3完了条件へ混ぜない。</td></tr>
+      <tr><td>参照のみ</td><td>Phase 1専用AI部品、P10研究用ハーネス、Phase 2の過去の未承認表示。</td><td>現在の判断は汎用AI部品、総合台帳、P2-12-03最終証跡を使う。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. 開始条件</h2>
+  <table>
+    <thead><tr><th>条件</th><th>現在状態</th><th>根拠</th></tr></thead>
+    <tbody>
+      <tr><td>Phase 2からの移行</td><td>H2-3/H2-4承認済み</td><td>総合台帳、ユーザー明示承認。</td></tr>
+      <tr><td>MarketEvent入力</td><td>実DBN 4件から通常先物3件を作成済み</td><td>P2-12-03、data_version <code>dv_780568eab89680cfc758</code>。</td></tr>
+      <tr><td>品質方針</td><td>欠損・重複・時刻ずれは停止、他の一部異常は警告付き使用</td><td><code>quality-warning-except-missing-duplicate-time-v1</code>。</td></tr>
+      <tr><td>長期評価データ</td><td>不足</td><td>現行P2-12入力は4件、研究用CSVは主に1か月。利益・頑健性評価はUnknownとして扱う。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. 固定する設計判断</h2>
+  <table>
+    <thead><tr><th>判断ID</th><th>判断</th><th>根拠</th></tr></thead>
+    <tbody>
+      <tr><td>DEC-P3-01</td><td>StrategyはMarketEventと限定Viewを読み、SignalEvent/OrderIntent/TargetPositionまでを返す。</td><td>D08、共通責務境界。</td></tr>
+      <tr><td>DEC-P3-02</td><td>Golden testは利益ではなく、ルール計算、状態遷移、時刻、出力の再現性を判定する。</td><td>D09、D18。</td></tr>
+      <tr><td>DEC-P3-03</td><td>未確定バー、未来のroll、holdout結果、可変現在時刻をStrategyへ渡さない。</td><td>Look-ahead防止、D09、D18。</td></tr>
+      <tr><td>DEC-P3-04</td><td>data_version、Catalog、Strategy Config、Experiment Manifest、code revision、engine版を結果へ束縛する。</td><td>D11、P2-D17、Phase 3計画。</td></tr>
+      <tr><td>DEC-P3-05</td><td>約定、費用、Gap、RollはStrategy外のBacktest実行モデルで扱う。</td><td>D08、D11、D12。</td></tr>
+      <tr><td>DEC-P3-06</td><td>長期データ不足時は契約検証だけをPassとし、利益・頑健性をPassにしない。</td><td>UNK-P3-01、総合台帳。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>6. 成果物と後続への引継ぎ</h2>
+  <table>
+    <thead><tr><th>成果物</th><th>内容</th><th>次の利用先</th></tr></thead>
+    <tbody>
+      <tr><td>P3-D02</td><td>要件・設計判断・Unknown・成果物・テストの対応</td><td>P3-02〜P3-12</td></tr>
+      <tr><td>P3-D03〜P3-D06</td><td>エンジン調査、Strategy詳細設計、Backtest詳細設計、Golden/Bias RED</td><td>H3-0/H3-1/H3-2後の実装</td></tr>
+      <tr><td>P3-D07〜P3-D10</td><td>Strategy、Backtest、頑健性、取引エンジンPoCの実証</td><td>統合レビュー、Phase 4候補</td></tr>
+      <tr><td>P3-DEFER-01</td><td>Broker Paper接続、再同期、実注文</td><td>Phase 4</td></tr>
+      <tr><td>P3-DEFER-02</td><td>Live用1N、証拠金、実数量、Risk最終値</td><td>Phase 4/5</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. Human Gate</h2>
+  <section class="gate">
+    <p><strong>H3-0:</strong> 本書とP3-D02を確認し、対象・非対象・Unknown・Phase 4境界を承認する。未承認時は公式仕様の読取調査だけを許可し、詳細設計・実装へ進めない。</p>
+    <p class="easy"><strong>やさしい説明:</strong> Phase 3で作る物の範囲を確認して、「この範囲で進めてよい」と許可する場所です。</p>
+  </section>
+
+  <h2>8. Unknown</h2>
+  <table>
+    <thead><tr><th>ID</th><th>内容</th><th>決定時期</th><th>未決時の扱い</th></tr></thead>
+    <tbody>
+      <tr><td>UNK-P3-01</td><td>長期Channel、Holdout、Walk-forwardに足る履歴期間。</td><td>H3-2 / P3-10</td><td>利益・頑健性を合格にしない。</td></tr>
+      <tr><td>UNK-P3-02</td><td>Golden fixture形式、Decimal精度、丸め、許容差。</td><td>H3-1</td><td>期待値を凍結するまで実装を開始しない。</td></tr>
+      <tr><td>UNK-P3-03</td><td>NautilusTrader/LEANの固定版、依存hash、ライセンス、実行方式。</td><td>H3-2</td><td>外部依存を導入せずsynthetic契約検証へ縮退する。</td></tr>
+      <tr><td>UNK-P3-04</td><td>OD-02の最終決定時期とPhase 4 Paper証拠の要否。</td><td>H3-2</td><td>Phase 3候補選定とプロジェクト最終決定を区別する。</td></tr>
+      <tr><td>UNK-P3-05〜08</td><td>実cost/Gap、Live Risk値、Calendar、比較パラメータ・分割。</td><td>P3-05〜P3-11</td><td>固定仮値で契約だけ検証し、実運用適合を主張しない。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>9. レビュー履歴</h2>
+  <table>
+    <thead><tr><th>日付</th><th>レビュアー完全名</th><th>観点</th><th>結果</th></tr></thead>
+    <tbody>
+      <tr><td>2026-08-09</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>Phase境界、Unknown、Human Gate、成果物追跡。</td><td>P3-01実行時点の計画入力として反映。P3-D02以降で再レビューする。</td></tr>
+      <tr><td>2026-08-09</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>日本語可読性、リンク、doc/index.html導線。</td><td>本書とP3-D02を同じ文書セットとして登録する。</td></tr>
+    </tbody>
+  </table>
+
+  <section class="handoff">
+    <p>H3-0承認後はP3-02の公式仕様調査とP3-03/P3-04の詳細設計へ進む。UnknownをPass扱いせず、状態変更は総合台帳全体へ反映する。</p>
+  </section>
+</body>
+</html>

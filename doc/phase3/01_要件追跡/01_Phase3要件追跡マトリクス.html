@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P3-D02 Phase 3要件追跡マトリクス</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px auto; max-width: 1280px; color: #1f2937; }
+    h1, h2 { color: #111827; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin-top: 32px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 10px; vertical-align: top; }
+    th { background: #f3f4f6; }
+    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+    .meta, .unknown, .gate { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .unknown { border-left-color: #d97706; background: #fffbeb; }
+    .gate { border-left-color: #7c3aed; background: #f5f3ff; }
+    .easy { color: #374151; background: #f9fafb; padding: 8px 10px; }
+    a { color: #1d4ed8; }
+  </style>
+</head>
+<body>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a> / <a href="./01_Phase3スコープ定義.html">P3-D01</a></p>
+  <h1>P3-D02 Phase 3要件追跡マトリクス</h1>
+  <section class="meta">
+    <p><strong>成果物ID:</strong> P3-D02<br>
+    <strong>文書セットID:</strong> P3-REQ-DOCSET<br>
+    <strong>作成日:</strong> 2026-08-09<br>
+    <strong>状態:</strong> v0.1 / P3-01作成、H3-0承認待ち<br>
+    <strong>現在状態の正本:</strong> <a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></p>
+  </section>
+
+  <h2>1. この表の目的</h2>
+  <p>要件、設計判断、実装、テスト、証跡をIDでつなぎ、どの要件がどの成果物で確認されるかを追跡する。</p>
+  <p class="easy"><strong>やさしい説明:</strong> 「この機能は、どの約束を守るために作ったのか」「どのテストで確かめたのか」を、番号でたどれるようにする表です。</p>
+
+  <h2>2. 要件から成果物への対応</h2>
+  <table>
+    <thead><tr><th>要件ID</th><th>要件の意味</th><th>設計判断</th><th>成果物</th><th>テスト・証跡</th><th>現在状態</th></tr></thead>
+    <tbody>
+      <tr><td><code>REQ-Q01</code></td><td>原典版と現代版を同じ基盤で比較する。</td><td>DEC-P3-01, DEC-P3-04</td><td>P3-D04, P3-D05</td><td>GT-TUR-001〜012、RUN-P3-INT-001</td><td>設計対象</td></tr>
+      <tr><td><code>REQ-Q09</code></td><td>N、True Range、Donchian、Unit関連をGolden testで確認する。</td><td>DEC-P3-02, DEC-P3-03</td><td>P3-D04, P3-D06, P3-D07</td><td>GT-TUR-001〜006</td><td>設計対象</td></tr>
+      <tr><td><code>REQ-Q12</code></td><td>System 1の勝ちブレイクフィルターを比較する。</td><td>DEC-P3-01, DEC-P3-02</td><td>P3-D04, P3-D06</td><td>GT-TUR-004</td><td>設計対象</td></tr>
+      <tr><td><code>REQ-Q13</code></td><td>原典intradayと現代版終値確認を比較する。</td><td>DEC-P3-03, DEC-P3-08</td><td>P3-D04, P3-D09</td><td>未来バー拒否、partition固定</td><td>Unknownを含む</td></tr>
+      <tr><td><code>REQ-Q14</code></td><td>ピラミッディング方式を比較する。</td><td>DEC-P3-01, DEC-P3-05</td><td>P3-D04, P3-D05</td><td>GT-TUR-006、Entry/Add/Stop</td><td>設計対象</td></tr>
+      <tr><td><code>REQ-Q15</code></td><td>2N Stop、Whipsaw、ボラ急上昇時縮小を比較する。</td><td>DEC-P3-02, DEC-P3-06</td><td>P3-D04, P3-D09</td><td>GT-TUR-007〜009、頑健性検証</td><td>実測値は未確定</td></tr>
+      <tr><td><code>REQ-POL04</code></td><td>Strategyを差し替え可能にし、基盤・Risk・OMSと分離する。</td><td>DEC-P3-01, DEC-P3-05</td><td>P3-D04, P3-D07</td><td>境界テスト、A150/A160レビュー</td><td>設計対象</td></tr>
+      <tr><td><code>REQ-Q02</code></td><td>Backtestと運用モードで同じ戦略意味論を使う。</td><td>DEC-P3-01, DEC-P3-04</td><td>P3-D04, P3-D05</td><td>Replay/restore、共通Event契約</td><td>Phase 4接続は未実装</td></tr>
+      <tr><td><code>REQ-Q07</code></td><td>同じ入力と設定で再現可能にする。</td><td>DEC-P3-04</td><td>P3-D05, P3-D08</td><td>Manifest一致、再Replay一致</td><td>検証対象</td></tr>
+      <tr><td><code>REQ-OD02</code></td><td>取引エンジンを証拠で比較・決定する。</td><td>DEC-P3-09</td><td>P3-D03, P3-D10, P3-D14</td><td>RUN-P3-POC-001</td><td>H3-2で決定範囲を確認</td></tr>
+      <tr><td><code>REQ-OD03</code></td><td>Roll / Continuousを版管理された入力として扱う。</td><td>DEC-P3-03, DEC-P3-05</td><td>P3-D05, P3-D09</td><td>未来roll拒否、Roll PnL</td><td>設計対象</td></tr>
+      <tr><td><code>REQ-Q25-Q27</code></td><td>安全停止、Heartbeat、再起動復旧、監査を含める。</td><td>DEC-P3-04, DEC-P3-10</td><td>P3-D05, P3-D08, P3-D12</td><td>restore、Health、Manifest監査</td><td>Phase 3範囲で検証</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. 設計判断・成果物・Unknown対応</h2>
+  <table>
+    <thead><tr><th>判断ID</th><th>対応成果物</th><th>関連Unknown</th><th>決定時期</th><th>未決時の縮退</th></tr></thead>
+    <tbody>
+      <tr><td><code>DEC-P3-01</code> Strategy非責務</td><td>P3-D04, P3-D07</td><td>UNK-P3-06</td><td>H3-0 / P3-03</td><td>注文数量を返さずHintにする。</td></tr>
+      <tr><td><code>DEC-P3-02</code> Goldenは利益判定でない</td><td>P3-D06, P3-D07</td><td>UNK-P3-02, UNK-P3-08</td><td>H3-1</td><td>REDを残し実装を止める。</td></tr>
+      <tr><td><code>DEC-P3-03</code> 未来情報禁止</td><td>P3-D04, P3-D05, P3-D09</td><td>UNK-P3-07</td><td>P3-04/P3-08</td><td>固定Calendarだけで契約試験を行う。</td></tr>
+      <tr><td><code>DEC-P3-04</code> Manifest再現性</td><td>P3-D05, P3-D08, P3-D10</td><td>UNK-P3-03</td><td>H3-2</td><td>自作runnerで契約を確認する。</td></tr>
+      <tr><td><code>DEC-P3-05</code> Cost/Roll/Gap分離</td><td>P3-D05, P3-D09</td><td>UNK-P3-05</td><td>P3-08/P3-10</td><td>保守的な仮値を明示する。</td></tr>
+      <tr><td><code>DEC-P3-06</code> 長期評価のUnknown化</td><td>P3-D01, P3-D09, P3-D14</td><td>UNK-P3-01</td><td>H3-2/P3-10</td><td>利益・頑健性を合格にしない。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. Phase 4へ送る項目</h2>
+  <ul>
+    <li><code>P3-DEFER-01</code>: Broker Paper接続、部分約定、再同期。</li>
+    <li><code>P3-DEFER-02</code>: Live用Risk最終値、証拠金、実注文数量。</li>
+    <li><code>P3-DEFER-03</code>: Shadow/Paper運用日数、監視、クラウド。</li>
+    <li><code>UNK-P3-04</code>: OD-02の全体最終決定をPhase 4証拠まで条件付きにするか。</li>
+  </ul>
+
+  <section class="unknown">
+    <p><strong>Unknownの扱い:</strong> 本表で「設計対象」「検証対象」と書いたものは、Pass済みという意味ではない。未確定のまま期限を迎えた場合は、総合台帳に停止または縮退結果を記録する。</p>
+  </section>
+
+  <h2>5. Human Gate</h2>
+  <section class="gate">
+    <p><strong>H3-0:</strong> P3-D01/P3-D02を読み、Phase 3の対象、非対象、Unknown、成果物、Phase 4境界を承認する。</p>
+    <p><strong>H3-1:</strong> P3-D06のGolden fixtureと期待値を実装前に凍結する。</p>
+    <p><strong>H3-2:</strong> 外部engine依存、長期データ、OD-02の決定範囲を承認する。</p>
+    <p class="easy"><strong>やさしい説明:</strong> H3-0は作る範囲、H3-1はテストの答え、H3-2は外部の道具と長期データを使う許可です。順番に確認します。</p>
+  </section>
+
+  <h2>6. 関連文書・レビュー履歴</h2>
+  <ul>
+    <li><a href="./01_Phase3スコープ定義.html">P3-D01 Phase 3スコープ定義</a></li>
+    <li><a href="../../../plan/Phase3_実行計画書_v0.1_2026-08-09.md">Phase 3実行計画書</a></li>
+    <li><a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></li>
+    <li><a href="../../phase1/05_戦略設計/05_Turtle_Golden_test設計書.html">D09 Turtle Golden test設計書</a></li>
+    <li><a href="../../phase1/07_実行モデル/07_取引エンジンPoC評価設計書.html">D12 取引エンジンPoC評価設計書</a></li>
+  </ul>
+  <table>
+    <thead><tr><th>日付</th><th>レビュアー</th><th>観点</th><th>結果</th></tr></thead>
+    <tbody>
+      <tr><td>2026-08-09</td><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>要件漏れ、ID重複、Unknown、Phase境界。</td><td>P3-01の計画レビュー観点を反映。P3-D03以降で詳細レビューを継続する。</td></tr>
+      <tr><td>2026-08-09</td><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>リンク、保存先、文書セットの導線。</td><td>P3-D01との相互リンクとdoc/index.html登録対象を確定。</td></tr>
+    </tbody>
+  </table>
+</body>
+</html>

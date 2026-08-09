@@ -80,8 +80,8 @@
   </section>
   <section class="note" id="phase3-plan-start-20260809">
     <h2>Phase 3開始状態（2026-08-09）</h2>
-    <p><strong>Phase 3の実行計画を作成済みで、次はP3-01から開始できる。</strong> H2-3/H2-4は承認済みであり、Phase 3計画作成を止める課題はない。H3-0〜H3-4は、各成果物を見てから承認する後続の判断であり、現時点のP3-01を止める条件ではない。</p>
-    <p><small>やさしい説明: Phase 3へ進む許可は出ています。まず設計範囲を整理するP3-01を行い、その結果を見て、次の作業へ進む許可を順番にもらいます。</small></p>
+    <p><strong>Phase 3の実行計画とP3-01成果物を作成済みで、現在はH3-0承認待ち。</strong> H2-3/H2-4は承認済みであり、P3-01のスコープ・要件追跡・Unknown整理まで完了した。H3-0で対象、非対象、Unknown、Phase 4境界を確認した後、P3-02の調査とP3-03/P3-04の詳細設計へ進む。</p>
+    <p><small>やさしい説明: Phase 3で作る範囲を整理する作業は終わりました。次は、その範囲で進めてよいかを人に確認してもらいます。</small></p>
     <p>計画書: <a href="../plan/Phase3_実行計画書_v0.1_2026-08-09.md">Phase 3実行計画書</a></p>
   </section>
   <p><a href="./index.html">ドキュメント一覧へ戻る</a></p>
@@ -105,7 +105,7 @@
     <div class="card stop"><strong>0件</strong>いま、対象Runを止めている根本課題</div>
     <div class="card wait"><strong>25件</strong>期限までは安全に保留できる根本課題</div>
     <div class="card done"><strong>14組</strong>解決済みとして確認できた主な課題</div>
-    <div class="card phase"><strong>0–3</strong>Phase 3は計画作成済み。次はP3-01</div>
+    <div class="card phase"><strong>0–3</strong>Phase 3計画・P3-01完了。H3-0承認待ち</div>
   </div>
   <p class="small">件数は、同じ原因を別の文書が違う名前で書いている場合に一つへまとめた「根本課題」の数です。たとえば、同じロール規則の問題を Phase 1 と Phase 2 が別IDで書いていても、一件として数えます。</p>
 
@@ -120,7 +120,7 @@
        <tr><td><code>H2-3</code></td><td>Data Quality / Replay引渡し</td><td><span class="badge done">承認済み（2026-08-09）</span></td><td>品質レポート、Replay結果、欠損一覧、Unknown解消後に本線へ渡すか</td><td><code>RES-P2-H2-3</code>。ユーザーの「h2-3,4を承認します」を受領。P2-12-03の実DBN Replay PASS、品質方針、spread除外方針を本線へ引き渡す。</td></tr>
        <tr><td><code>H2-4</code></td><td>Phase 2完了・Phase 3移行</td><td><span class="badge done">承認済み（2026-08-09）</span></td><td>Phase 2の完了、Strategy / Backtest基盤へ進む範囲と条件</td><td><code>RES-P2-H2-4</code>。ユーザーの「h2-3,4を承認します」を受領。Phase 3への移行を許可する。</td></tr>
        <tr><td><code>H2-5</code></td><td>実DBN隔離検証の入力・依存導入</td><td><span class="badge done">承認済み（P2-12-02以降）</span></td><td>P2-08で取得済みのDBN一件をWSL隔離検証で読取専用に使うための人による配置、および版・配布元・wheel hashを固定したdecoder依存の導入</td><td><code>RES-P2-H2-5</code>。ユーザーの明示承認を2026-08-09に受領し、続けて「windows側のinputデータを使って下さい。許可します。」を受領した。同一SHA-256のWindows側固定DBN一件だけをWSL保護場所へ配置した。保護方式は<code>root:autotrade-replay:0440</code>（親ディレクトリ0750）で、root実行と通常ユーザー実行の両方を許可する。入力hash前後一致、ネットワーク分離、対象コード、固定4 Gateを権限に関係なく確認する。追加取得、Secret投入、対象拡大は含まない。<br><small>やさしい説明: 人が許可した一つの箱だけを、決めた棚へ置きました。翻訳プログラムは管理者でも普通の利用者でも動かせますが、箱の中身が変わっていないことと、外部通信がないことは毎回確認します。</small></td></tr>
-       <tr><td><code>H3-0</code></td><td>Phase 3スコープ確定</td><td><span class="badge wait">P3-01後に承認</span></td><td>Strategy、Backtest、Golden test、取引エンジンPoCの対象と、Broker・Paper・Liveを含めない境界。</td><td>P3-D01/P3-D02を読み、対象、非対象、Unknown、Phase 4への引継ぎを承認する。未承認時は公式仕様の読取調査だけ可能で、詳細設計・実装へ進まない。</td></tr>
+       <tr><td><code>H3-0</code></td><td>Phase 3スコープ確定</td><td><span class="badge wait">承認待ち（P3-01完了）</span></td><td>Strategy、Backtest、Golden test、取引エンジンPoCの対象と、Broker・Paper・Liveを含めない境界。</td><td><a href="./phase3/01_要件追跡/01_Phase3スコープ定義.html">P3-D01</a> / <a href="./phase3/01_要件追跡/01_Phase3要件追跡マトリクス.html">P3-D02</a>を読み、対象、非対象、Unknown、Phase 4への引継ぎを承認する。未承認時は公式仕様の読取調査だけ可能で、詳細設計・実装へ進まない。</td></tr>
        <tr><td><code>H3-1</code></td><td>Golden fixture凍結</td><td><span class="badge wait">P3-05後に承認</span></td><td>固定fixture、期待Signal/Intent/State、Decimal精度、丸め、hash、Look-ahead/Biasテストを実装前に凍結する。</td><td>P3-D06とRUN-P3-GOLD-001のRED証跡を確認する。<br><small>やさしい説明: テストの答えを先に決め、実装結果を見て答えを書き換えない約束を承認します。</small></td></tr>
        <tr><td><code>H3-2</code></td><td>外部engine依存・長期データ・OD-02範囲</td><td><span class="badge wait">P3-02/P3-05後に承認</span></td><td>固定版NautilusTrader/LEAN系依存の導入、長期履歴データの取得・利用、取引エンジン最終決定をPhase 3とPhase 4のどこまでで行うか。</td><td>公式仕様、固定hash、PoC入力、想定保存先、外部通信範囲を確認する。未承認時はsynthetic契約検証だけ行い、外部導入・長期評価・実engine PoCを行わない。</td></tr>
        <tr><td><code>H3-3</code></td><td>Phase 3レビュー指摘の採否</td><td><span class="badge wait">P3-11後に承認</span></td><td>統合レビューとレッドチーム監査の指摘、修正方針、残Unknownの送り先。</td><td>P3-D11/P3-D12を確認する。Critical/Highは承認だけで無効化せず、修正または明示的な停止が必要。</td></tr>
@@ -337,7 +337,7 @@ firewall=true</pre></li>
       <tr><td>Phase 0</td><td>H4/H5は完了。154件の「証拠不足」は昔の候補全体の記録であり、154件すべてを現在のBlockedには数えません。今も必要な確認だけを <code>BLK-X-001</code> とPhase 2の行へ引き継ぎました。</td><td><code>BLK-X-001</code>, <code>RES-P2-H2-1</code></td></tr>
       <tr><td>Phase 1</td><td>H1-4は完了。基本設計は通過しています。Live、Paper、Risk、運用で後から決める八つの根本課題が残っています。</td><td><code>BLK-P1-001</code>〜<code>008</code></td></tr>
       <tr><td>Phase 2</td><td>fixture限定の設計・パイロット、対象限定scope、WSL2 host隔離確認、ユーザーの明示承認は解決済みです。RUN-P2-IC-001-WSLは4 Gateとレビュー条件を確認し、PASSへ更新済みです。</td><td><code>RES-P2-H2-0</code>, <code>RES-P2-H2-1</code>, <code>RES-RUN-TARGET-ONLY</code>, <code>RES-RUN-HUMAN-APPROVAL</code>, <code>BLK-RUN-003</code>（解決済み）</td></tr>
-      <tr><td>Phase 3以降</td><td>Phase 3実行計画は作成済みで、次はP3-01です。実装・検証Runが未着手というだけではBlockedに数えず、H3-0〜H3-4とBLK-P3-001〜006を各期限で管理します。</td><td>各行の「決める期限」</td></tr>
+      <tr><td>Phase 3以降</td><td>Phase 3実行計画とP3-01は完了し、H3-0承認待ちです。実装・検証Runが未着手というだけではBlockedに数えず、H3-0〜H3-4とBLK-P3-001〜006を各期限で管理します。</td><td>各行の「決める期限」</td></tr>
       <tr><td>AI実行基盤</td><td>Pythonパイロットを回す最小基盤は完成。業務別coverageと、将来の別言語対応だけが保留です。</td><td><code>BLK-AIF-001/002</code></td></tr>
     </tbody>
   </table>
@@ -408,6 +408,7 @@ firewall=true</pre></li>
       <tr><td>2026-08-09</td><td>v2.5</td><td>ユーザーの「承認します。」を、P2-12-04で必要性が確定した場合に限るP2-08同一条件の最小DBN再取得としてH2-2へ記録した。別のsymbology/definition API、対象拡大、費用上限変更は未承認として維持する。</td></tr>
       <tr><td>2026-08-09</td><td>v2.6</td><td>H2-3・H2-4の承認を主表へ反映し、BLK-P2-008、BLK-P2-012、UNK-P2-15、BLK-P2-004〜007の現在状態を全体点検で整合させた。過去の未承認・安全停止の記述は履歴として保持し、現在状態と区別した。残課題更新時に台帳全体を点検するルールをAGENTS.mdとAI部品規則へ追加した。</td></tr>
       <tr><td>2026-08-09</td><td>v2.7</td><td>Phase 3実行計画を登録し、H3-0〜H3-4、BLK-P3-001〜006、UNK-P3-01〜08を追加した。長期評価データ不足、外部engine固定、OD-02決定時期、Golden fixture凍結、実cost/Calendar、Risk最終値を期限付き課題として管理し、P3-01は開始可能とした。台帳全体の件数、Phase表示、最新状態、関連説明を同時点検した。</td></tr>
+      <tr><td>2026-08-09</td><td>v2.8</td><td>P3-01を実行し、P3-D01 Phase 3スコープ定義とP3-D02要件追跡マトリクスを作成した。H3-0を承認待ちへ更新し、P3-02の読取調査は可能、詳細設計・実装はH3-0後とした。台帳全体の現在状態、件数、Human Gate、Phase表示、リンクを再点検した。</td></tr>
     </tbody>
   </table>
 
@@ -427,7 +428,7 @@ firewall=true</pre></li>
     <h2>P2-12-03 最終状態（2026-08-09）</h2>
     <p><strong>UNK-P2-15 は解消済み、P2-12-03 はPASS。</strong> ユーザー承認の方針 <code>main-future-active-only-v1</code>（有効な先物だけを本線へ採用）で、実DBN 4件からNormalizedBar 3件、MarketEvent 3件を作成し、spread 1件はRaw・監査記録だけに残した。Replayバー系列は一致し、入力hashは実行前後で一致した。実行IDは <code>37da7396f4e84be3b82dfd0aae69a217</code>、data_versionは <code>dv_780568eab89680cfc758</code>、品質報告hashは <code>sha256:30422966a36a6becc273e0a78f86fc6183851e41dec66317c5e6f0bfaa906d43</code>。固定4 Gateも4件すべてPASS。</p>
     <p><small>やさしい説明: 本物の市場データ4個を読み、売買に使ってよい3個だけを通しました。組み合わせ商品1個は、あとで確認できるよう記録だけ残しました。最初と最後でデータが変わっておらず、もう一度読んでも同じ結果になることまで確認できています。</small></p>
-    <p><strong>Phase 3の状態:</strong> H2-3とH2-4は承認済みで、Phase 3実行計画も作成済み。次はP3-01のスコープ・要件追跡・Unknown整理を開始できる。H3-0〜H3-4は成果物を確認して順番に承認する後続Gateである。</p>
+    <p><strong>Phase 3の状態:</strong> H2-3とH2-4は承認済みで、Phase 3実行計画とP3-01（P3-D01/P3-D02）も完了した。現在はH3-0承認待ちであり、承認後にP3-02の調査とP3-03/P3-04の詳細設計へ進む。H3-1〜H3-4は成果物を確認して順番に承認する後続Gateである。</p>
     <p><small>やさしい説明: 検査に合格し、出発のサインももらいました。出発はできますが、次の作業を始める合図は別に受け取ってから動きます。</small></p>
     <p><strong>Phase 3以降へ持ち越す課題:</strong> Phase 1・AI基盤の継続課題、および実測後に遅延値を見直す可能性は残る。ただし、Phase 3移行を止める未承認Gateではない。</p>
     <p><small>やさしい説明: 車は動きましたが、ガソリン代、長い荷物の置き場所、何秒遅れたら危険か、という別の約束がまだ残っています。今すぐ車を直す話ではありませんが、本番で使う前に決めておく必要があります。</small></p>
