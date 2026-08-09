@@ -21,7 +21,7 @@ def _require_hash(value: str, *, name: str) -> str:
 
 
 def _require_utc(value: datetime, *, name: str) -> None:
-    if value.tzinfo is None or value.utcoffset() != UTC.utcoffset(value):
+    if not isinstance(value, datetime) or value.tzinfo is None or value.utcoffset() != UTC.utcoffset(value):
         raise ValueError(f"{name} must be UTC")
 
 

@@ -44,7 +44,12 @@ class TradableBar:
         _require_utc(self.bar_close_time_utc)
         if self.bar_open_time_utc >= self.bar_close_time_utc:
             raise ValueError("bar open must be before close")
-        prices = (self.open, self.high, self.low, self.close)
+        if any(not isinstance(value, Decimal) for value in (self.open, self.high, self.low, self.close)):
+            raise ValueError("bar prices must be Decimal")
+        try:
+            prices = tuple(decimal(value) for value in (self.open, self.high, self.low, self.close))
+        except ValueError as error:
+            raise ValueError("bar prices must be finite") from error
         if any(not value.is_finite() for value in prices):
             raise ValueError("bar prices must be finite")
         if self.low > self.open or self.low > self.close or self.high < self.open or self.high < self.close:
@@ -75,6 +80,15 @@ def _stopped(
     return FillDecision("STOPPED", directive_fingerprint, None, None, None, None, reason_code, bar.source_sha256)
 
 
+def _unfilled(
+    *,
+    directive_fingerprint: str,
+    bar: TradableBar,
+    reason_code: str,
+) -> FillDecision:
+    return FillDecision("UNFILLED", directive_fingerprint, bar.bar_id, None, None, None, reason_code, bar.source_sha256)
+
+
 def evaluate_gap_entry(
     *,
     side: str,
@@ -102,8 +116,20 @@ def evaluate_gap_entry(
         )
     trigger_value = decimal(trigger)
     if side in {"BUY", "LONG"}:
+        if bar.high < trigger_value:
+            return _unfilled(
+                directive_fingerprint=directive_fingerprint,
+                bar=bar,
+                reason_code="TRIGGER_NOT_REACHED",
+            )
         price = max(bar.open, trigger_value)
     elif side in {"SELL", "SHORT"}:
+        if bar.low > trigger_value:
+            return _unfilled(
+                directive_fingerprint=directive_fingerprint,
+                bar=bar,
+                reason_code="TRIGGER_NOT_REACHED",
+            )
         price = min(bar.open, trigger_value)
     else:
         return _stopped(directive_fingerprint=directive_fingerprint, bar=bar, reason_code="INVALID_SIDE")
@@ -126,13 +152,32 @@ def evaluate_stop_gap(
     stop_trigger: Decimal,
     directive_fingerprint: str,
     quantity_hint: Decimal | None = None,
+    path_known: bool = True,
 ) -> FillDecision:
     if not directive_fingerprint:
         raise ValueError("directive_fingerprint is required")
+    if not path_known:
+        return _stopped(
+            directive_fingerprint=directive_fingerprint,
+            bar=bar,
+            reason_code="INTRABAR_PATH_AMBIGUOUS",
+        )
     trigger = decimal(stop_trigger)
     if position == "LONG":
+        if bar.low > trigger:
+            return _unfilled(
+                directive_fingerprint=directive_fingerprint,
+                bar=bar,
+                reason_code="STOP_NOT_REACHED",
+            )
         price = min(bar.open, trigger)
     elif position == "SHORT":
+        if bar.high < trigger:
+            return _unfilled(
+                directive_fingerprint=directive_fingerprint,
+                bar=bar,
+                reason_code="STOP_NOT_REACHED",
+            )
         price = max(bar.open, trigger)
     else:
         return _stopped(directive_fingerprint=directive_fingerprint, bar=bar, reason_code="INVALID_SIDE")

@@ -8,7 +8,7 @@ from .contracts import canonical_hash
 
 
 def _require_utc(value: datetime, *, name: str) -> None:
-    if value.tzinfo is None or value.utcoffset() != UTC.utcoffset(value):
+    if not isinstance(value, datetime) or value.tzinfo is None or value.utcoffset() != UTC.utcoffset(value):
         raise ValueError(f"{name} must be UTC")
 
 
@@ -38,7 +38,7 @@ class HoldoutAccessError(RuntimeError):
     """A holdout access attempt that cannot influence candidate selection."""
 
 
-@dataclass
+@dataclass(frozen=True)
 class ExperimentPlan:
     plan_id: str
     train: TimeWindow
@@ -68,7 +68,7 @@ class ExperimentPlan:
             raise HoldoutAccessError("HOLDOUT_EARLY_ACCESS")
         if self._holdout_read_count:
             raise HoldoutAccessError("HOLDOUT_ALREADY_READ")
-        self._holdout_read_count += 1
+        object.__setattr__(self, "_holdout_read_count", self._holdout_read_count + 1)
         return self.holdout
 
     def validate_after_result(self, observed_plan_sha256: str) -> dict[str, str]:
@@ -121,6 +121,12 @@ def create_experiment_plan(
     windows = (train, validation, holdout)
     if any(left.end_utc > right.start_utc for left, right in zip(windows, windows[1:], strict=False)):
         raise ValueError("windows must not overlap")
+    for walk_forward in walk_forward_windows:
+        walk_windows: tuple[TimeWindow, ...] = (walk_forward.train, walk_forward.validation)
+        if walk_forward.holdout is not None:
+            walk_windows += (walk_forward.holdout,)
+        if any(left.end_utc > right.start_utc for left, right in zip(walk_windows, walk_windows[1:], strict=False)):
+            raise ValueError("walk-forward windows must not overlap")
     payload = _plan_payload(
         plan_id=plan_id,
         train=train,

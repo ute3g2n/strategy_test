@@ -128,6 +128,16 @@ def test_stop_gap_and_failure_injection_are_fail_closed() -> None:
     assert short_stop.status == "FILLED"
     assert short_stop.price == Decimal("102.00")
 
+    unfilled = evaluate_gap_entry(
+        side="BUY",
+        bar=_bar(opened_price="99.00", high="99.50", low="98.00", closed="99.25"),
+        trigger=Decimal("100.00"),
+        decision_time_utc=UTC_START,
+        directive_fingerprint="not-triggered",
+    )
+    assert unfilled.status == "UNFILLED"
+    assert unfilled.reason_code == "TRIGGER_NOT_REACHED"
+
     with pytest.raises(ValueError, match="zero volume"):
         evaluate_gap_entry(
             side="BUY",

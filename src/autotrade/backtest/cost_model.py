@@ -44,7 +44,13 @@ class FillProfile:
     def __post_init__(self) -> None:
         if any(not isinstance(value, str) or not value for value in (self.profile_id, self.version)):
             raise ValueError("profile identity is required")
-        if not self.decimal_quantum.is_finite() or self.decimal_quantum <= 0:
+        if not isinstance(self.decimal_quantum, Decimal):
+            raise ValueError("decimal_quantum must be positive")
+        try:
+            quantum = decimal(self.decimal_quantum)
+        except ValueError as error:
+            raise ValueError("decimal_quantum must be positive") from error
+        if not quantum.is_finite() or quantum <= 0:
             raise ValueError("decimal_quantum must be positive")
         if any(
             not isinstance(value, str) or not value

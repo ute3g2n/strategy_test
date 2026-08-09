@@ -3,7 +3,7 @@
 作成日: 2026-08-09  
 対象: タートルズ・トレンドフォロー自動売買システム  
 対象Phase: Phase 3 Strategy / Backtest基盤  
-状態: v0.6 / H3-0、H3-1、H3-1R、H3-2承認済み。H3-1R改訂により、v2は履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する。P3-06のStrategy実装・固定4 GateはPASS（2026-08-09）。P3-07R-01〜05でCore範囲の実Replay・保存・証跡・Engine境界・隔離品質Gate・Human GateをPASSし、P3-07 Coreを受入可へ更新した。実エンジン接続・正式性能検証はP3-08A/P3-09以降で扱う。
+状態: v0.7 / H3-0、H3-1、H3-1R、H3-2承認済み。H3-1R改訂により、v2は履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する。P3-06のStrategy実装・固定4 GateはPASS（2026-08-09）。P3-07R-01〜05でCore範囲を受入可へ更新した。P3-08はCost/Roll/Gap/Holdout契約実装、固定4 Gate、WSL隔離、独立レビューまで完了したが、RUN-P3-BIAS-001のHuman Gateは未承認であり、最終PASSとは扱わない。実エンジン接続・正式性能検証はP3-08A/P3-09以降で扱う。
 
 参照:
 
@@ -284,7 +284,7 @@ H3-2は外部データや外部依存を使う許可であり、Secret投入、B
 | G8 | P3-06 | 不可 | H3-1、H3-1R、P3-05、P3-05R |
 | G9 | P3-07 | 可能（Core範囲） | P3-07R-05、固定4 Gate PASS、WSL隔離、fixture hash一致、Human Gate承認。実エンジン接続・正式性能は後続範囲。 |
 | G9R | P3-07R-01〜05 | 完了 | P3-07差戻し、P3-D05/P3-D06/P3-D08、H3-1/H3-1R/H3-2承認済み。RUN-P3-BT-001を登録入口で再実行し、固定4 GateとHuman Gateを完了。 |
-| G10 | P3-08 | 可能（Core範囲） | P3-07 Coreの受入可を確認。実エンジン依存のP3-08A/P3-09は後続Human Gateを要する。 |
+| G10 | P3-08 | 実装済み・Human Gate待ち | RUN-P3-BIAS-001のWSL隔離、fixture hash、formatter/lint/type/testの固定4 GateはPASS。新RunのHuman Gate承認まではP3-08を最終受入にしない。実エンジン依存のP3-08A/P3-09は開始しない。 |
 | G11 | P3-08A | 不可 | H3-2、P3-02、P3-04、P3-05R、P3-08 |
 | G12 | P3-09 | 不可 | P3-08A、RUN-P3-STR-001、RUN-P3-BT-001、RUN-P3-BIAS-001 |
 | G13 | P3-10 | 不可 | P3-03〜P3-09。長期データ不足時は利益・頑健性だけUNKNOWNとし、P3-AC-01〜08のPhase 3範囲は省略しない。 |
@@ -1056,6 +1056,11 @@ Cost、Slippage、Gap、Roll、Holdout/Walk-forwardの実行契約を実装し�
 - Holdout漏洩テストがGREEN。
 - UNK-P3-01/05/07が未解消なら明示的に残る。
 - P3-AC-01〜04/08の頑健性テストがGREENで、実取引所Calendarの継続追随だけをPhase 4へ分離する。
+
+実行結果（2026-08-10）:
+- `tests/backtest tests/strategy` は265件PASS、skip/xfailは0件。
+- WSL隔離下でformatter、lint、type、testの固定4 Gate、fixture前後hash、networking mode `none` をPASS。
+- `RUN-P3-BIAS-001` は `HUMAN_GATE_REQUIRED`。ユーザーの新Run承認を受けるまで、P3-08A/P3-09を開始しない。
 ```
 
 ### P3-08A LEAN固定依存・オフライン実行環境準備

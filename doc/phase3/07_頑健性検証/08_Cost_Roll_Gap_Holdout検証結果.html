@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P3-D09 Cost / Roll / Gap / Holdout検証結果</title>
+  <style>
+    :root { color-scheme: light; --ink:#172033; --muted:#526075; --line:#cbd5e1; --paper:#fff; --bg:#f4f7fb; --green:#067647; --green-bg:#ecfdf3; --amber:#9a6700; --amber-bg:#fff8db; }
+    * { box-sizing: border-box; }
+    body { margin:0; color:var(--ink); background:var(--bg); font-family:system-ui,-apple-system,"Segoe UI","Noto Sans JP",sans-serif; line-height:1.7; }
+    main { max-width:1100px; margin:0 auto; padding:32px 20px 64px; }
+    section { background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:22px; margin:18px 0; }
+    h1,h2 { line-height:1.3; }
+    h1 { margin-top:0; }
+    table { width:100%; border-collapse:collapse; margin:14px 0; }
+    th,td { border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top; }
+    th { background:#eef2f7; }
+    .ok { color:var(--green); font-weight:700; }
+    .wait { color:var(--amber); font-weight:700; }
+    code { background:#eef2f7; padding:1px 4px; border-radius:4px; }
+    .summary { background:var(--amber-bg); border-left:5px solid var(--amber); padding:12px 16px; }
+    .easy { background:#f8fafc; border-left:5px solid #64748b; padding:12px 16px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>P3-D09 Cost / Roll / Gap / Holdout検証結果</h1>
+  <p><strong>対象Step:</strong> P3-08 / <strong>Run:</strong> <code>RUN-P3-BIAS-001</code> / <strong>実行日:</strong> 2026-08-10</p>
+  <div class="summary"><strong>現在状態:</strong> <span class="wait">機械Gate PASS・Human Gate待ち（H3-5）</span>。固定fixtureを用いた契約実装とWSL隔離検証は完了したが、ユーザーの新Run承認前のため、Runを最終PASSとは扱わない。</div>
+
+  <section>
+    <h2>1. 目的と範囲</h2>
+    <p>Backtestが理想価格、負の費用、未来情報、Rollの二重適用、Holdout漏洩を起こさないための実行契約を固定した。P3-08は自作Backtestの頑健性契約までを対象とし、実取引所の正式Calendar、長期実データ、実測コスト、外部engine、Paper、Liveは対象外である。</p>
+    <div class="easy"><strong>やさしい説明:</strong> 試験問題の答えをよく見せるために、都合のよい値段や未来の答えを使っていないかを確認しました。ただし、本当の市場でどれだけ儲かるかを調べた試験ではありません。</div>
+  </section>
+
+  <section>
+    <h2>2. 実装した契約</h2>
+    <table>
+      <thead><tr><th>領域</th><th>固定した規則</th><th>主な拒否条件</th></tr></thead>
+      <tbody>
+        <tr><td>Cost / Slippage</td><td><code>FillProfile</code>、Decimal量子化、固定profile、非負cost、冪等ledger</td><td>負値、非有限値、profile不一致、二重適用</td></tr>
+        <tr><td>Gap / Stop</td><td>次bar限定、BUY/Longは保守的に高い側、SELL/Shortは低い側、stop gapも保守的価格</td><td>理想価格、未到達trigger、同一bar、intrabar経路不明、zero volume</td></tr>
+        <tr><td>Roll</td><td>公開済みbindingだけを使用し、direction-awareなroll PnLと一回限りの適用を記録</td><td>未来・未公開binding、hash不正、二重適用</td></tr>
+        <tr><td>Holdout / Bias</td><td>UTCのtrain/validation/holdout、walk-forward非重複、plan hash固定、holdout隠蔽・read-once</td><td>候補選択前のholdout読出し、二回読出し、plan mutation、期間重複</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>3. 機械検証</h2>
+    <table>
+      <thead><tr><th>Gate</th><th>結果</th><th>実行入口</th></tr></thead>
+      <tbody>
+        <tr><td>formatter</td><td class="ok">PASS</td><td><code>.venv/bin/python -m ruff format --check ...</code></td></tr>
+        <tr><td>lint</td><td class="ok">PASS</td><td><code>.venv/bin/python -m ruff check ...</code></td></tr>
+        <tr><td>type</td><td class="ok">PASS</td><td><code>.venv/bin/python -m mypy src/autotrade/backtest scripts/quality_gate</code></td></tr>
+        <tr><td>test</td><td class="ok">PASS</td><td><code>.venv/bin/python -m scripts.quality_gate.local_p3_pytest</code> / 265 passed</td></tr>
+      </tbody>
+    </table>
+    <p>WSL2 Ubuntu-24.04の隔離実行で networking mode は <code>none</code>、fixtureの実行前後hashは一致した。target-only change hashは <code>sha256:203ef2fa6c58b384690a97451450995842a568f71ec13e0fe1ad664d3141b9bb</code>、fixture hashは <code>sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24</code> である。</p>
+  </section>
+
+  <section>
+    <h2>4. レビューと追跡</h2>
+    <p>A150、A160、A40の独立レビューはCritical 0 / High 0。Medium相当として、長期データ、実測cost/slippage、正式Calendarが未確定であることを残した。要求追跡はP3-AC-01、02、03、04、08の契約範囲PASSとして記録し、実市場の頑健性合格とは分離した。</p>
+    <p>未解消Unknown: <code>UNK-P3-01</code>（長期データと市場数）、<code>UNK-P3-05</code>（実測cost/slippageとGap約定）、<code>UNK-P3-07</code>（正式Calendar）。</p>
+  </section>
+
+  <section>
+    <h2>5. Human Gateと次のStep</h2>
+    <p><strong>H3-5:</strong> RUN-P3-BIAS-001をP3-08の契約範囲として受入れるかのユーザー承認待ち。承認前は <code>HUMAN_GATE_REQUIRED</code> のままとし、承認を推測してPASSに変更しない。</p>
+    <p>P3-08AではLEAN等の依存版・digest・offline実行条件を固定し、P3-09で初めて実engine PoCを評価する。Paper、Live、Phase 4 Risk/OMS引渡しはさらに後続であり、本Runでは開始しない。</p>
+  </section>
+
+  <section>
+    <h2>6. 関連証跡</h2>
+    <p><a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/run-manifest.json">Run Manifest</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/acceptance-traceability.json">要求追跡</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/wsl-verification-capture.json">WSL検証捕捉</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/red-test-result.md">RED→GREEN結果</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/reviews/python-review-a150.md">A150</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/reviews/security-review-a160.md">A160</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/reviews/engine-review-a40.md">A40</a> / <a href="../../../plan/phase3/ログ/P3-08_実行ログ_2026-08-10.md">実行ログ</a></p>
+    <p><a href="../../../doc/00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a> / <a href="../../../plan/Phase3_実行計画書_v0.1_2026-08-09.md">Phase 3実行計画書</a></p>
+  </section>
+</main>
+</body>
+</html>
