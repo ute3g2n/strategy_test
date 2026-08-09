@@ -369,7 +369,7 @@
       },
       "baseline_ref": "a6c2ddbd6163abbf9792b3bbe8def57babadb03d",
       "scope_mode": "target_only",
-      "unknowns": ["UNK-P3-01", "UNK-P3-05", "UNK-P3-07"],
+      "unknowns": [],
       "network_isolation_required": true,
       "checks": [
         {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
