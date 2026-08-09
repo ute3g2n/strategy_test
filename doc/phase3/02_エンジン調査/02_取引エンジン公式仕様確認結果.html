@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P3-D03 取引エンジン公式仕様・PoC前提確認</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; margin: 40px auto; max-width: 1320px; color: #1f2937; }
+    h1, h2, h3 { color: #111827; line-height: 1.35; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin-top: 32px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 10px; vertical-align: top; }
+    th { background: #f3f4f6; }
+    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+    .meta, .gate, .unknown, .warn, .ok { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 16px 0; }
+    .gate { border-left-color: #7c3aed; background: #f5f3ff; }
+    .unknown, .warn { border-left-color: #d97706; background: #fffbeb; }
+    .ok { border-left-color: #059669; background: #ecfdf5; }
+    .easy { color: #374151; background: #f9fafb; padding: 8px 10px; }
+    .small { color: #4b5563; font-size: 13px; }
+    a { color: #1d4ed8; }
+    pre { background: #111827; color: #f9fafb; padding: 14px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a> / <a href="../01_要件追跡/01_Phase3スコープ定義.html">P3-D01</a> / <a href="../01_要件追跡/01_Phase3要件追跡マトリクス.html">P3-D02</a></p>
+  <h1>P3-D03 取引エンジン公式仕様・PoC前提確認</h1>
+
+  <section class="meta">
+    <p><strong>成果物ID:</strong> P3-D03<br>
+    <strong>ステップ:</strong> P3-02<br>
+    <strong>作成日:</strong> 2026-08-09<br>
+    <strong>状態:</strong> v0.1 / 公式仕様調査完了、H3-2承認待ち<br>
+    <strong>使用オーケストレータ:</strong> <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code><br>
+    <strong>担当AI部品:</strong> <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code>, <code>AutoTrade_A70_OpsSecurityArchitect_v0_1</code>, <code>AutoTrade_A10_RequirementsCurator_v0_1</code>, <code>AutoTrade_A80_DocumentIntegrator_v0_1</code>, <code>AutoTrade_A90_DesignReviewer_v0_1</code><br>
+    <strong>使用Skill:</strong> <code>autotrade_skill_trading_engine_poc_v0_1</code>, <code>autotrade_skill_poc_evaluation_v0_1</code>, <code>autotrade_skill_official_research_v0_1</code>, <code>autotrade_skill_execution_model_v0_1</code>, <code>autotrade_skill_ops_security_v0_1</code>, <code>autotrade_skill_traceability_v0_1</code>, <code>autotrade_skill_html_doc_writer_v0_1</code>, <code>autotrade_skill_design_review_v0_1</code>, <code>autotrade_skill_red_team_review_v0_1</code></p>
+  </section>
+
+  <h2>1. この文書の目的</h2>
+  <p>Phase 3でStrategyとBacktestを試す候補として、NautilusTraderとLEAN系の公式仕様、実行環境、ライセンス、再現性、Adapter境界、PoCの安全な縮退方法を比較する。ここでは候補を最終採用しない。H3-2で固定版・依存導入・長期データ・OD-02の範囲を承認するための材料を作る。</p>
+  <p class="easy"><strong>やさしい説明:</strong> 取引エンジンは、売買の計算を動かす大きな道具です。今回は「どの道具を買うか」を決めず、説明書を読み、家の中だけで安全に試せるかを比べました。道具を実際に入れる許可は、H3-2で別に確認します。</p>
+
+  <h2>2. 入力と現在の前提</h2>
+  <ul>
+    <li><a href="../01_要件追跡/01_Phase3スコープ定義.html">P3-D01 Phase 3スコープ定義</a></li>
+    <li><a href="../01_要件追跡/01_Phase3要件追跡マトリクス.html">P3-D02 Phase 3要件追跡マトリクス</a></li>
+    <li><a href="../../phase1/07_実行モデル/07_共通実行モデル設計書.html">D11 共通実行モデル設計書</a></li>
+    <li><a href="../../phase1/07_実行モデル/07_取引エンジンPoC評価設計書.html">D12 取引エンジンPoC評価設計書</a></li>
+    <li><a href="../../phase2/09_実DBN変換/09_実DBN_Replay隔離検証結果.html">P2-D17 実DBN Replay隔離検証結果</a></li>
+    <li><code>pyproject.toml</code>（Python 3.12.13、ruff/mypy/pytest固定版）</li>
+  </ul>
+  <p>Phase 2で確定した<code>MarketEvent</code>、<code>data_version</code>、Catalog、品質報告、Raw/Normalizedのhashを、エンジン固有型へ直接漏らさずAdapterで接続する。StrategyはSignalやHintまでを担当し、Risk最終判定、OMS、Broker、実注文はこのステップの対象外とする。</p>
+
+  <h2>3. 公式情報の調査結果</h2>
+  <p>下表は、2026-08-09に公式一次情報を確認した結果である。URLと確認日を残し、公式ページに書かれていないことは「未確認」とした。</p>
+  <table>
+    <thead><tr><th>候補</th><th>公式に確認できたこと</th><th>Phase 3での意味</th><th>まだ決めていないこと</th><th>やさしい説明</th></tr></thead>
+    <tbody>
+      <tr><td>NautilusTrader</td><td>公式対応はPython 3.12〜3.14、Ubuntu 22.04以降（x86_64/ARM64）、Windows Server 2022以降（x86_64）。Python仮想環境、PyPIまたは公式package indexのwheelを推奨。LGPL v3.0。</td><td>現在のプロジェクトPython 3.12と合わせやすい。まず低水準<code>BacktestEngine</code>で、MarketEventをAdapter経由で渡すPoCが可能。</td><td>固定するwheel、依存全体のhash、Windows/WSLの実行場所、LGPL表示方法。</td><td>今のPythonと同じ仲間なので試しやすいですが、部品を入れる前に「どの箱を使うか」を番号で固定する必要があります。</td></tr>
+      <tr><td>LEAN / QuantConnect系</td><td>LEANはC#中心のイベント駆動エンジンで、Python/C#アルゴリズムを扱う。公式CLIは<code>lean backtest</code>でDockerの公式<code>quantconnect/lean</code>イメージを使う。ソースはApache License 2.0。リポジトリのビルド説明は.NET 10 SDKを示す。</td><td>Dockerで環境をまとめやすい。ローカルデータだけを使う設定なら外部データ取得なしの比較が可能。ただしCLIの利用条件とDocker巨大容量を確認する必要がある。</td><td>使用するDocker tagの完全digest、CLI利用条件、ローカルデータ形式、Docker daemon権限、NuGet依存hash。</td><td>別の大きな箱に全部入れて動かす方式です。箱は再現しやすい一方、とても大きく、使う許可や置き場所の確認が必要です。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. 確認した公式一次情報</h2>
+  <table>
+    <thead><tr><th>対象</th><th>URL</th><th>確認日</th><th>根拠の要点</th><th>推測を含む部分</th></tr></thead>
+    <tbody>
+      <tr><td>NautilusTraderのインストール</td><td><a href="https://nautilustrader.io/docs/latest/getting_started/installation/">公式Installation</a></td><td>2026-08-09</td><td>Python 3.12〜3.14、対応OS、wheel/source、仮想環境、uvの推奨。</td><td>プロジェクトに採用できるかはPoCとライセンス確認が必要。</td></tr>
+      <tr><td>NautilusTraderのBacktest</td><td><a href="https://nautilustrader.io/docs/latest/getting_started/">公式Getting Started</a></td><td>2026-08-09</td><td>高水準<code>BacktestNode</code>はParquet catalogを使用、低水準<code>BacktestEngine</code>はライブラリ開発向けでLive経路を持たない。1プロセス1 Node。</td><td>既存MarketEventをどの型へ写像するかは本プロジェクトAdapter設計で決める。</td></tr>
+      <tr><td>NautilusTraderの版・wheel</td><td><a href="https://pypi.org/project/nautilus_trader/">公式PyPI</a></td><td>2026-08-09</td><td>確認時点の1.231.0 wheel、CPython 3.12 Windows x86-64 SHA-256 <code>0697f51e9143f9d8d040f75d2e6a45218003cc34f7ea5b0eb2f9cda6935427de</code>、manylinux x86-64 SHA-256 <code>8c438e95c275a13df0c0ddb7012c462708b5e99ff3612e36a1b7bd49ab39c216</code>を確認。</td><td>このhashを採用版として確定するにはH3-2承認が必要。</td></tr>
+      <tr><td>NautilusTraderのライセンス</td><td><a href="https://github.com/nautechsystems/nautilus_trader/blob/master/LICENSE">公式LICENSE</a></td><td>2026-08-09</td><td>GNU LGPL v3.0。</td><td>本プロジェクトの配布方法と表示義務の最終確認は未実施。</td></tr>
+      <tr><td>LEANのREADME・実行方式</td><td><a href="https://github.com/QuantConnect/Lean">公式GitHub README</a></td><td>2026-08-09</td><td>Python/C#、<code>lean backtest</code>、Docker、ソースビルド、.NET 10 SDKの説明。</td><td>ローカルで全機能を使うための商用・組織条件は別途確認が必要。</td></tr>
+      <tr><td>LEANのローカルBacktest</td><td><a href="https://www.lean.io/docs/v2/lean-cli/api-reference/lean-backtest">公式lean backtest</a></td><td>2026-08-09</td><td>Dockerの公式イメージで実行し、結果を指定出力先へ保存。データ供給元をLocalへ指定可能。CLI利用に有料組織メンバー条件が記載されている。</td><td>CLIを使わないソースビルド経路で同じ条件になるかはPoCで確認する。</td></tr>
+      <tr><td>LEANのライセンス</td><td><a href="https://raw.githubusercontent.com/QuantConnect/Lean/master/LICENSE">公式LICENSE</a></td><td>2026-08-09</td><td>Apache License 2.0。</td><td>付属データや別依存のライセンスは含めて確認していない。</td></tr>
+      <tr><td>LEAN Docker tag</td><td><a href="https://hub.docker.com/r/quantconnect/lean/tags">公式Docker Hub tags</a></td><td>2026-08-09</td><td>確認時点の新しいtagとして<code>17991</code>を確認。公式ページはtagごとにプラットフォームdigestを表示する。</td><td>完全digestの取得・固定は依存導入を伴うためH3-2後に行う。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. 最小Adapter境界</h2>
+  <p>候補エンジンの型をCoreへ持ち込まず、次の一方向の境界にする。エンジンを変えても、StrategyとMarket Dataの意味を変えないことが目的である。</p>
+  <pre>MarketEvent列 + DataVersionManifest
+          │
+          ▼
+  EngineInputAdapter（Coreの値を候補エンジンのBar/CustomDataへ変換）
+          │  外部型はここだけ
+          ▼
+  Candidate Backtest Engine（NautilusTrader または LEAN）
+          │
+          ▼
+  EngineOutputAdapter（Signal / OrderIntent / Fill / Healthを内部契約へ戻す）
+          │
+          ▼
+  Experiment Manifest + Replay結果 + 監査証跡</pre>
+  <table>
+    <thead><tr><th>境界</th><th>入力</th><th>出力</th><th>禁止する漏れ</th><th>やさしい説明</th></tr></thead>
+    <tbody>
+      <tr><td>EngineInputAdapter</td><td>MarketEvent、data_version、Catalog版、固定時刻</td><td>候補エンジンのBar/CustomDataとStrategy設定</td><td>SDKのrecord class、Broker ID、Secret、現在時刻</td><td>こちらのデータを、相手の道具が読める形へ翻訳します。相手の内部番号は、こちらの設計に持ち込みません。</td></tr>
+      <tr><td>Strategy境界</td><td>確定済みの時系列イベントだけ</td><td>SignalEvent、OrderIntentまたはTargetPosition</td><td>Risk最終判定、OMS、Broker送信</td><td>Strategyは「こうしたい」という合図までを出し、実際に注文してよいかは別の係に任せます。</td></tr>
+      <tr><td>EngineOutputAdapter</td><td>エンジンの状態・Fill・ログ</td><td>内部の結果、HealthEvent、Manifest参照</td><td>エンジン固有IDを本線IDとして利用</td><td>相手の道具の返事を、プロジェクト共通の言葉へ戻します。</td></tr>
+      <tr><td>Manifest接続</td><td>入力hash、設定、engine版、code revision</td><td>Experiment Manifest、結果hash、再実行情報</td><td>不明な版、可変な現在時刻、後からのfixture変更</td><td>どの材料で実験したかを、後で同じように作れる一覧へ残します。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>6. 再現性・オフライン実行の前提</h2>
+  <table>
+    <thead><tr><th>項目</th><th>設計</th><th>H3-2前の状態</th><th>失敗時</th></tr></thead>
+    <tbody>
+      <tr><td>大容量保存先</td><td><code>E:\strategy_test_data\phase3\engine_poc\</code>配下に<code>packages\</code>、<code>images\</code>、<code>catalog\</code>、<code>runs\</code>を切る。Gitには入れない。</td><td>ディレクトリ設計のみ。作成・ダウンロードはしていない。</td><td>保存先が違う場合はPoCを開始しない。</td></tr>
+      <tr><td>Nautilus wheel</td><td>候補<code>1.231.0</code>、Python 3.12、OS別wheel filename、SHA-256、取得元、ライセンス文書をManifestへ記録する。</td><td>公式hashを確認済み。採用版としては未承認。</td><td>hash・Python ABI・OSが一致しなければインストールせず停止。</td></tr>
+      <tr><td>LEAN image</td><td>候補tag<code>17991</code>を完全digestへ解決し、digest固定の<code>quantconnect/lean@sha256:...</code>だけを使う。</td><td>tag確認のみ。完全digest未固定。</td><td>tagだけでは再現性Passにしない。</td></tr>
+      <tr><td>入力データ</td><td>Phase 2のMarketEvent列、data_version、Catalog hashを固定し、Local-onlyで読む。外部APIやクラウド取得は使わない。</td><td>既存の小型fixtureで契約試験のみ可能。</td><td>入力hash不一致、Unknown、Manifest不一致なら0件結果・停止。</td></tr>
+      <tr><td>依存キャッシュ</td><td>wheel、Docker image metadata、NuGet/uv lock、SBOM、licenseを保存し、実行時に外へ取りに行かない。</td><td>保存場所と記録項目のみ設計。</td><td>オフラインで解決できない場合は依存導入せず、synthetic runnerへ縮退。</td></tr>
+      <tr><td>時刻</td><td>実行時刻を結果に混ぜず、入力のevent_time_utc・固定Run ID・Manifestで束縛する。</td><td>設計済み。</td><td>現在時刻依存が見つかったらReplay Gate不合格。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. PoC範囲の切り分け</h2>
+  <p>Phase 3ではローカルBacktestと決定的Replayだけを確認し、BrokerやPaperの本番に近い証拠は後続Phaseへ送る。POC-04/05は、Phase 3では固定Simulatorを使った契約確認に限定する。</p>
+  <table>
+    <thead><tr><th>ID</th><th>内容</th><th>Phase 3で行うこと</th><th>後続へ送ること</th><th>Pass条件</th></tr></thead>
+    <tbody>
+      <tr><td>POC-01</td><td>1市場20日breakout</td><td>固定MarketEvent、固定Strategy Configで候補ごとの入力境界を確認。</td><td>長期収益・市場横断の結論は送る。</td><td>Signal/Intent列、Manifest、入力hashが一致。</td></tr>
+      <tr><td>POC-02</td><td>1分足Replay</td><td>同一入力を2回読み、順序、欠損Health、結果hashを比較。</td><td>実市場の長期品質・遅延評価は送る。</td><td>同一Manifestで同一系列。未来情報なし。</td></tr>
+      <tr><td>POC-03</td><td>Entry/Add/Stop/Exit</td><td>N、Donchian、0.5N、2N StopのIntent境界を確認。</td><td>実注文可否、Risk最終値は送る。</td><td>StrategyがRisk/OMSを越境しない。</td></tr>
+      <tr><td>POC-04</td><td>部分約定</td><td>固定Simulatorで残数量・状態写像・監査を確認。</td><td>Broker実約定・再同期はPhase 4へ送る。</td><td>部分約定を全約定にしない。</td></tr>
+      <tr><td>POC-05</td><td>再起動復旧</td><td>固定Event StoreとStrategy snapshotで重複Intent防止を確認。</td><td>実BrokerのOpen Order/Position再同期はPhase 4へ送る。</td><td>状態不明時に新規注文を止める。</td></tr>
+      <tr><td>POC-06〜08</td><td>IBKR Paper、Broker再同期、Heartbeat</td><td>Phase 3では契約とHealthEventの型だけを確認。</td><td>Paper接続、通知サービス、運用日数はPhase 4以降。</td><td>外部接続なしでfail-closedを確認。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>8. 比較採点と採用判断の扱い</h2>
+  <table>
+    <thead><tr><th>評価軸</th><th>重み</th><th>合格最低条件</th><th>測る証拠</th><th>候補の現時点評価</th></tr></thead>
+    <tbody>
+      <tr><td>共通Event/Strategy境界</td><td>20</td><td>15点以上、外部型がCoreへ漏れない</td><td>Adapter契約、型検査、越境テスト</td><td>両候補とも公式機能はあるが、プロジェクトAdapterは未実装。</td></tr>
+      <tr><td>Replay再現性</td><td>15</td><td>10点以上、2回の順序付き結果が一致</td><td>Manifest、入力hash、結果hash</td><td>Nautilusは低水準BacktestEngine、LEANはDocker/Local dataで検証候補。</td></tr>
+      <tr><td>注文・約定Simulator</td><td>15</td><td>10点以上、部分約定を保持</td><td>POC-03〜05、固定Failure injection</td><td>Phase 3ではSimulator契約まで。実Brokerは未評価。</td></tr>
+      <tr><td>安全停止・復旧</td><td>15</td><td>12点以上、Unknownで停止</td><td>HealthEvent、再起動、Manifest不一致</td><td>候補機能だけで合格にせず、内部Gateで再確認する。</td></tr>
+      <tr><td>開発・運用性</td><td>10</td><td>6点以上、オフライン再実行</td><td>lock、hash、キャッシュ、実行手順</td><td>LEANはDockerが大きく、Nautilusはwheelと依存固定が必要。</td></tr>
+      <tr><td>拡張性・ライセンス</td><td>10</td><td>6点以上、配布条件を説明できる</td><td>LGPL/Apache表示、Adapter拡張</td><td>法務最終判断はH3-2後。ここでは採点を確定しない。</td></tr>
+    </tbody>
+  </table>
+  <div class="warn"><strong>採用判断:</strong> P3-02ではNautilusTraderをPython側の第一候補、LEANをDocker/C#系の比較候補としてPoC設計へ進める。ただし、これは最終採用ではない。固定版、依存hash、ライセンス確認、POC結果、人によるH3-2承認が揃うまでOD-02は未決定とする。<br><span class="easy"><strong>やさしい説明:</strong> いまは「第一候補」と「比べる候補」を決めただけです。テスト結果を見る前に、勝ったことにしてはいけません。</span></div>
+
+  <h2>9. H3-2で承認してもらう内容</h2>
+  <section class="gate">
+    <ol>
+      <li>NautilusTrader 1.231.0のCPython 3.12 wheel、またはLEAN Docker tag 17991のどちらをPoC固定候補にするか。</li>
+      <li>候補を使う場合の完全hash、配布元、ライセンス文書、SBOM、保存先を固定すること。</li>
+      <li>依存導入を許可する範囲（wheel/package/image/NuGet）と、外部通信を初回準備時だけに限定すること。</li>
+      <li>長期データを取得・保存するか。取得する場合は<code>E:\strategy_test_data\phase3\datasets\</code>配下だけを使うこと。</li>
+      <li>OD-02を「Phase 3のローカルPoC候補決定」までにするか、「Phase 4 Paper証拠後の最終決定」まで保留するか。</li>
+    </ol>
+    <p class="easy"><strong>やさしい説明:</strong> H3-2は、道具を実際に入れてよいか、どの版を使うか、長いデータを置いてよいかを決める承認です。この承認がない間は、道具の導入や外部データ取得はしません。</p>
+  </section>
+
+  <h2>10. Unknownと停止条件</h2>
+  <table>
+    <thead><tr><th>ID</th><th>未確定内容</th><th>P3-02で分かったこと</th><th>未解決のまま許される作業</th><th>停止条件</th></tr></thead>
+    <tbody>
+      <tr><td>UNK-P3-03</td><td>固定版、依存hash、ライセンス、ローカル実行方式</td><td>候補版と公式要件を確認したが、採用版と導入物の完全hashは未承認。</td><td>公式読取、synthetic契約、Adapter詳細設計。</td><td>H3-2前の依存導入、Docker pull、NuGet restore、外部取得。</td></tr>
+      <tr><td>UNK-P3-04</td><td>OD-02の最終決定時期</td><td>Phase 3でローカル候補を比較できるが、Paper再同期の証拠はPhase 4。</td><td>候補比較とローカルPoC。</td><td>Phase 3の短期PoCだけで本番engine最終決定・Paper移行を宣言すること。</td></tr>
+      <tr><td>UNK-P3-01</td><td>55日Channel、Holdout、Walk-forwardに足る履歴期間</td><td>公式エンジン仕様では解消しない。長期データの有無は未確認。</td><td>固定fixtureとsynthetic Replay。</td><td>短いデータで利益・頑健性を合格扱いすること。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>11. レビューと自己点検</h2>
+  <table>
+    <thead><tr><th>観点</th><th>確認結果</th><th>残る注意</th></tr></thead>
+    <tbody>
+      <tr><td>A40: 比較公平性・PoC再現性</td><td>同じMarketEvent、同じStrategy Config、同じManifest項目で候補を比較し、候補固有の入力変換をAdapter内へ閉じる方針を確認。</td><td>実PoC結果はP3-09/P3-10で取得する。</td></tr>
+      <tr><td>A70: 外部依存・権限・ネットワーク・ライセンス</td><td>H3-2前の導入なし、Local-only、Secret/Brokerなし、wheel/image hashとライセンス記録を必須化。</td><td>Docker daemon、NuGet、配布条件の実測はH3-2後。</td></tr>
+      <tr><td>A90: 候補名だけでの採用防止</td><td>第一候補と比較候補を区別し、採用判定・OD-02最終決定を保留。除外条件とUnknownを明記。</td><td>H3-2で承認されるまで候補版は確定しない。</td></tr>
+      <tr><td>レッドチーム</td><td>外部通信、Secret、Broker、現在時刻、可変tag、未固定digest、短期データによる利益主張を停止条件にした。</td><td>大容量Docker imageの保存容量と消失リスクはユーザー決定の保存方針に従う。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>12. 関連成果物と後続</h2>
+  <ul>
+    <li><a href="../../../plan/phase3/ログ/P3-02_実行ログ_2026-08-09.md">P3-02実行ログ</a></li>
+    <li><a href="../../../plan/Phase3_実行計画書_v0.1_2026-08-09.md">Phase 3実行計画書</a></li>
+    <li><a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></li>
+  </ul>
+  <p>H3-2承認後に、P3-03/P3-04の詳細設計と、承認された範囲のP3-09/P3-10 PoCへ進む。H3-2前は公式仕様の読取とsynthetic契約検証だけを許可する。</p>
+</body>
+</html>
