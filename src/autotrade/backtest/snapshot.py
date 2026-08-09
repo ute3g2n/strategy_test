@@ -44,7 +44,7 @@ def snapshot_payload(value: BacktestSnapshot | Mapping[str, Any]) -> dict[str, A
     """Create the explicit state-binding envelope used by ResultStore."""
 
     if isinstance(value, BacktestSnapshot):
-        payload = {
+        payload: dict[str, Any] = {
             "schema_version": value.schema_version,
             "manifest_sha256": value.manifest_sha256,
             "input_sequence_sha256": value.input_sequence_sha256,
@@ -100,12 +100,14 @@ def snapshot_payload(value: BacktestSnapshot | Mapping[str, Any]) -> dict[str, A
     }
     if not isinstance(value, BacktestSnapshot) and not required_fields.issubset(payload):
         raise ValueError("snapshot binding is incomplete")
-    if not isinstance(payload.get("manifest_sha256"), str) or not payload["manifest_sha256"].startswith("sha256:"):
+    manifest_sha256 = payload.get("manifest_sha256")
+    if not isinstance(manifest_sha256, str) or not manifest_sha256.startswith("sha256:"):
         raise ValueError("snapshot manifest binding is required")
-    if not isinstance(payload.get("result_offset"), int) or payload["result_offset"] < 0:
+    result_offset = payload.get("result_offset")
+    if not isinstance(result_offset, int) or result_offset < 0:
         raise ValueError("snapshot result offset is invalid")
-    payload.setdefault("state_payload", {})
-    expected_state_hash = canonical_hash(payload["state_payload"])
+    state_payload = payload.setdefault("state_payload", {})
+    expected_state_hash = canonical_hash(state_payload)
     if payload.get("state_payload_sha256", expected_state_hash) != expected_state_hash:
         raise ValueError("snapshot state payload hash mismatch")
     payload["state_payload_sha256"] = expected_state_hash

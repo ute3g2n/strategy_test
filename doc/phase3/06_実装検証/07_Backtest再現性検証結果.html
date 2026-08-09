@@ -15,10 +15,17 @@
   <section class="ok-note" id="p3-07r-03-current-status-20260809">
     <h2>P3-07R-03 現在状態（2026-08-09）</h2>
     <p><strong>Manifest/Snapshot/ResultStore接続:</strong> <span class="ok">PASS</span>。型付きBacktestRunnerの結果を、一時root上でcanonical Manifest、ResultRow/audit、Snapshot、commit markerへ順序どおり保存し、atomic publish、marker/hash再検証、改ざん・partial・path/reparse・重複再送の停止、committed event後からの復旧を確認した。</p>
-    <p><strong>P3-07全体:</strong> <span class="ng">未受入</span>。BLK-P3-008は解消済みだが、Engine/Offline/Performance証跡はP3-07R-04待ちであり、実engine PoC、Paper、Live、Phase 4 Risk/OMS引渡しは開始しない。</p>
-    <p><strong>証跡:</strong> <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-003/run-manifest.json">RUN-P3-BT-REPAIR-003 run-manifest</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-003/verification.json">verification</a> / <a href="../../../plan/phase3/ログ/P3-07R-03_実行ログ_2026-08-09.md">実行ログ</a></p>
+    <p><strong>P3-07全体:</strong> <span class="ng">未受入</span>。BLK-P3-008は解消済み。R-05のfixture・target・hash・レビュー・P3用WSL入口を確認し、登録Runnerを実行したが、host outbound isolation未確認で固定4 Gate開始前にBLOCKEDとなった。実engine PoC、Paper、Live、Phase 4 Risk/OMS引渡しは開始しない。</p>
+    <p><strong>証跡:</strong> <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-003/run-manifest.json">RUN-P3-BT-REPAIR-003 run-manifest</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-003/verification.json">verification</a> / <a href="../../../plan/phase3/ログ/P3-07R-03_実行ログ_2026-08-09.md">実行ログ</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-004/verification.json">RUN-P3-BT-REPAIR-004 verification</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-001/verification.json">R-05 verification</a></p>
   </section>
-  <p><strong>対象:</strong> P3-07 / RUN-P3-BT-001 / 2026-08-09 / <span class="ng">受入不可（レビュー差戻し）</span></p>
+  <section class="ok-note" id="p3-07r-04-current-status-20260809">
+    <h2>P3-07R-04 現在状態（2026-08-09）</h2>
+    <p><strong>Core範囲:</strong> <span class="ok">GREEN</span>。SDKなしEngineIdentity/Adapter DTO、Fake Adapter parity、実ファイルhashとsocket guardを含むOffline evidence、性能測定口を実装し、hostile caseを停止できることを確認した。</p>
+    <p><strong>登録品質Gate:</strong> <span class="ng">BLOCKED</span>。trusted scopeのdry-runはPASSしたが、実行はhost outbound isolation未確認で停止した。固定wrapperの直接結果は142件PASSだが、最終Gateの代用にはしない。</p>
+    <p><strong>性能の境界:</strong> 測定口と証跡形式はPASS。30分/8GiBの正式閾値判定はP3-09であり、このStepではPASSと主張しない。</p>
+    <p><strong>証跡:</strong> <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-004/run-manifest.json">Run Manifest</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-004/verification.json">verification</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-004/reviews/A40-engine-boundary-review.md">A40</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-004/reviews/A150-python-code-review.md">A150</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-REPAIR-004/reviews/A160-trading-security-review.md">A160</a></p>
+  </section>
+  <p><strong>対象:</strong> P3-07R-05 / RUN-P3-BT-001 / 2026-08-10 / <span class="ng">登録隔離Gate再実行待ち</span></p>
 
   <h2>1. この成果物の目的</h2>
   <p>固定fixtureから時間足を作り、同じ入力を繰り返したときに同じ順序・同じ結果になるかを検証した。対象は<code>src/autotrade/backtest/</code>、P3-06で受入済みのStrategy、P3-07固定fixture、品質Gateである。</p>
@@ -29,7 +36,7 @@
     <tr><td>M1からM15/M30/H1/H4/D1</td><td>契約テストとM30直接M1検証を実装。M30は実M1 30本がない場合停止。</td><td>30分足を作るとき、1分足30枚がそろわなければ通さない。</td></tr>
     <tr><td>Replay順序・同時close</td><td>固定順・重複競合・未来時刻の契約を追加。</td><td>カードを毎回同じ順に並べ、同じカードの中身違いは止める。</td></tr>
     <tr><td>Calendar / Data Gate</td><td>固定Calendar、未知品質フラグ停止、警告伝播の契約を追加。</td><td>休場日や壊れたデータを、別の入口からこっそり使わない。</td></tr>
-    <tr><td>Manifest / ResultStore / Snapshot</td><td>hash、原子的公開、復旧部品を追加。ただし実Replayとの一体接続は未証明。</td><td>保存箱は作ったが、計算機と保存箱を最後までつないだ確認がまだない。</td></tr>
+    <tr><td>Manifest / ResultStore / Snapshot</td><td>実Replay接続、hash、原子的公開、復旧、改ざん・重複・途中停止拒否をR-03で確認済み。</td><td>計算機と保存箱を最後までつなぎ、途中で箱を入れ替えた場合も止められることを確認した。</td></tr>
     <tr><td>EngineAdapter</td><td>SDKなしの共通DTO境界だけ。LEAN本体は未導入。</td><td>今は取引エンジンを選ぶための差込口だけで、本体はまだ使っていない。</td></tr>
   </tbody></table>
 
@@ -47,12 +54,12 @@
     <tr><td>formatter</td><td class="ok">PASS</td><td>品質Runner verification.json</td></tr>
     <tr><td>lint</td><td class="ok">PASS</td><td>品質Runner verification.json</td></tr>
     <tr><td>mypy</td><td class="ok">PASS</td><td>品質Runner verification.json</td></tr>
-    <tr><td>P3固定pytest</td><td class="ok">PASS（196件）</td><td><code>scripts.quality_gate.local_p3_pytest</code></td></tr>
+    <tr><td>P3固定pytest</td><td class="ok">補助PASS（258件）</td><td><code>scripts.quality_gate.local_p3_pytest</code>。登録Runnerはhost isolation未確認で開始前BLOCKED。</td></tr>
   </tbody></table>
 
   <h2>5. レビュー判定</h2>
-  <p><strong>A150:</strong> Critical 1 / High 9 / Medium 5、受入不可。<br><strong>A160:</strong> 直接Broker・外部通信・Secret importは確認なし。ただしManifest、fixture trust root、保存marker、自己申告型Offline/Replay、復旧、Fill/Costの実証不足が残る。<br><strong>A40:</strong> Critical 1 / High 5 / Medium 1。EngineAdapter/共通DTO/実Core基準が実行系に存在せず、P3-AC-05/06を証明できない。</p>
-  <div class="easy"><strong>中学生でも分かる説明:</strong> 学校のテストは合格点でしたが、「答案を本当に本人が解いたか」「途中で答案を入れ替えていないか」「停電後に同じ問題を二度採点しないか」の確認が足りません。だから、この段階では合格印を付けません。</div>
+  <p><strong>A150:</strong> Critical 0 / High 0。<br><strong>A160:</strong> Critical 0 / High 0。host outbound isolation未確認の登録Runnerは自己申告で解除せず停止。<br><strong>A40:</strong> Critical 0 / High 0。SDKなしEngine境界、Fake parity、P3-09への境界を確認済み。</p>
+  <div class="easy"><strong>中学生でも分かる説明:</strong> コード、テスト、レビューは合格です。最後に、外へ通信できない隔離された場所で同じ試験をもう一度実行し、その記録を保存したら受入判定に進めます。</div>
 
   <h2>6. 残課題と次の作業</h2>
   <table><thead><tr><th>残課題</th><th>修正方針</th><th>やさしい説明</th></tr></thead><tbody>
@@ -61,8 +68,8 @@
     <tr><td>保存・復旧の安全性</td><td>markerを再計算し、symlink・任意root・上書き・途中書込みを拒否する。</td><td>偽の完成印を貼った箱を、完成品として受け取らない。</td></tr>
     <tr><td>約定・費用・性能の実測</td><td>UTC、Decimal、side別丸め、次bar、測定値・入力hash・結果hashを実データで結び、未測定はPASSにしない。</td><td>速さや値段を「測ったことにする」のではなく、実際に測った数字だけを使う。</td></tr>
   </tbody></table>
-  <p class="ng"><strong>Phase 3移行判断:</strong> P3-07はレビュー差戻し（統合判定 Critical 2 / High 14相当）。実engine PoC、Paper、Live、Phase 4のRisk/OMS引渡しは開始しない。</p>
+  <p class="ng"><strong>Phase 3移行判断:</strong> P3-07 Coreは受入条件を満たす準備済みだが、RUN-P3-BT-001の登録隔離Gateが未実行のため、P3-08開始可能とはまだ判定しない。実engine PoC、Paper、Live、Phase 4のRisk/OMS引渡しは開始しない。</p>
 
   <h2>7. 関連証跡</h2>
-  <p><a href="../../../tests/evidence/phase3/RUN-P3-BT-001/verification.json">Runner verification</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-001/red-test-result.md">試験結果</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-001/reviews/python-review-a150.md">A150レビュー</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-001/reviews/security-review-a160.md">A160レビュー</a></p>
+  <p><a href="../../../tests/evidence/phase3/RUN-P3-BT-001/verification.json">Runner verification</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-001/red-test-result.md">試験結果</a> / <a href="../../../plan/phase3/ログ/P3-07R-05_実行ログ_2026-08-10.md">R-05実行ログ</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-001/reviews/python-review-a150.md">A150レビュー</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BT-001/reviews/security-review-a160.md">A160レビュー</a></p>
 </main></body></html>

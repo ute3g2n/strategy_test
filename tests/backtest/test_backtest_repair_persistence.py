@@ -147,13 +147,15 @@ def test_staging_writes_manifest_result_snapshot_marker_and_publishes_atomically
     staging = store.create_staging(manifest=manifest)
     assert (staging.tmp_path / "experiment-manifest.json").is_file()
     marker = store.append_then_commit(staging, _commit(manifest))
-    assert sorted(path.name for path in staging.tmp_path.iterdir()) == sorted([
-        "experiment-manifest.json",
-        "result.jsonl",
-        "audit.jsonl",
-        "snapshot.json",
-        "commit-marker.json",
-    ])
+    assert sorted(path.name for path in staging.tmp_path.iterdir()) == sorted(
+        [
+            "experiment-manifest.json",
+            "result.jsonl",
+            "audit.jsonl",
+            "snapshot.json",
+            "commit-marker.json",
+        ]
+    )
     published = store.publish(staging, marker)
     assert published == store.root / manifest["run_id"]
     assert not staging.tmp_path.exists()
@@ -161,9 +163,7 @@ def test_staging_writes_manifest_result_snapshot_marker_and_publishes_atomically
     assert recovered["status"] == "PASS"
     assert len(recovered["rows"]) == 1
     assert recovered["marker"]["result_offset"] == 1
-    recovered_after_redelivery = store.recover_published(
-        manifest["run_id"], ["evt-001", "evt-001", "evt-002"]
-    )
+    recovered_after_redelivery = store.recover_published(manifest["run_id"], ["evt-001", "evt-001", "evt-002"])
     assert recovered_after_redelivery["replay_start_index"] == 2
     assert recovered_after_redelivery["replayed_event_ids"] == ["evt-002"]
 

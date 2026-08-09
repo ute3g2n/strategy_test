@@ -3,14 +3,17 @@ param(
     [Parameter(Mandatory = $true)][string]$Distro,
     [Parameter(Mandatory = $true)][string]$RepositoryPath,
     [string]$RunId = "RUN-P2-IC-001-WSL",
+    [string]$EvidencePhase = "phase2",
     [switch]$DryRun,
     [switch]$AllowRunningDistro,
     [switch]$RunAsRoot
 )
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
+$EvidencePhase = $EvidencePhase.ToLowerInvariant()
+if ($EvidencePhase -notmatch '^phase[0-9]+$') { throw "EvidencePhase must be phaseN" }
 $root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-$evidence = Join-Path $root "tests/evidence/phase2/$RunId"
+$evidence = Join-Path $root "tests/evidence/$EvidencePhase/$RunId"
 $config = Join-Path $env:UserProfile ".wslconfig"
 $backup = Join-Path ([IO.Path]::GetTempPath()) ("autotrade-wslconfig-" + [guid]::NewGuid().ToString("N") + ".bak")
 $hadConfig = Test-Path -LiteralPath $config -PathType Leaf
@@ -80,8 +83,8 @@ function Write-Evidence([hashtable]$Value, [string]$Name) {
 function Write-WslEvidence([hashtable]$Value, [string]$Name) {
     $json = $Value | ConvertTo-Json -Depth 8 -Compress
     $encoded = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($json))
-    $wslPath = "$RepositoryPath/tests/evidence/phase2/$RunId/$Name"
-    $command = "mkdir -p '$RepositoryPath/tests/evidence/phase2/$RunId'; printf '%s' '$encoded' | base64 -d > '$wslPath'"
+    $wslPath = "$RepositoryPath/tests/evidence/$EvidencePhase/$RunId/$Name"
+    $command = "mkdir -p '$RepositoryPath/tests/evidence/$EvidencePhase/$RunId'; printf '%s' '$encoded' | base64 -d > '$wslPath'"
     $arguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && $command")
     Invoke-WslText $arguments | Out-Null
 }
@@ -107,7 +110,8 @@ try {
     $distroLine = ($list -split "`n" | Where-Object { $_ -like "*$Distro*" } | Select-Object -First 1)
     if ([string]::IsNullOrWhiteSpace($distroLine) -or $distroLine -notlike "* 2") { throw "Target distro is not registered as WSL version 2: $Distro" }
     if ($RepositoryPath -match '[\r\n''"]') { throw "RepositoryPath contains unsafe quoting characters" }
-    $dbnScope = $registry.scopes.PSObject.Properties[$RunId].Value.dbn_input
+    $scope = $registry.scopes.PSObject.Properties[$RunId].Value
+    $dbnScope = if ($null -ne $scope.PSObject.Properties["dbn_input"]) { $scope.dbn_input } else { $null }
     if ($null -ne $dbnScope) {
         $protectedPath = [string]$dbnScope.protected_path
         if ([string]::IsNullOrWhiteSpace($protectedPath) -or $protectedPath -notmatch '^/' -or $protectedPath -match '[\r\n''"]') {
@@ -127,7 +131,8 @@ catch {
 }
 
 if ($DryRun) {
-    [ordered]@{ state = "DRY_RUN"; isolation = "networkingMode=none; firewall=true"; shutdown = "wsl --shutdown"; wsl_command = "bash scripts/wsl_quality_gate/run_isolated_p2.sh '$RepositoryPath' '$RunId'"; restore = "restore original .wslconfig bytes and wsl --shutdown" } | ConvertTo-Json
+    $shellScript = if ($EvidencePhase -eq "phase3") { "run_isolated_p3.sh" } else { "run_isolated_p2.sh" }
+    [ordered]@{ state = "DRY_RUN"; isolation = "networkingMode=none; firewall=true"; shutdown = "wsl --shutdown"; wsl_command = "bash scripts/wsl_quality_gate/$shellScript '$RepositoryPath' '$RunId'"; restore = "restore original .wslconfig bytes and wsl --shutdown" } | ConvertTo-Json
     exit 0
 }
 
@@ -166,9 +171,10 @@ try {
     # 入力hash、対象範囲、ネットワーク隔離、固定Gateの検証は従来どおり先に行う。
     $runnerArguments.AddRange([string[]]("-d", $Distro))
     if ($RunAsRoot) { $runnerArguments.AddRange([string[]]("-u", "root")) }
-    $runnerArguments.AddRange([string[]]("--", "bash", "-lc", "cd / && cd '$RepositoryPath' && exec bash scripts/wsl_quality_gate/run_isolated_p2.sh '$RepositoryPath' '$RunId' '$executionId'"))
+    $shellScript = if ($EvidencePhase -eq "phase3") { "run_isolated_p3.sh" } else { "run_isolated_p2.sh" }
+    $runnerArguments.AddRange([string[]]("--", "bash", "-lc", "cd / && cd '$RepositoryPath' && exec bash scripts/wsl_quality_gate/$shellScript '$RepositoryPath' '$RunId' '$executionId'"))
     $runner = Invoke-WslCapture $runnerArguments
-    $verificationPathInWsl = "$RepositoryPath/tests/evidence/phase2/$RunId/verification.json"
+    $verificationPathInWsl = "$RepositoryPath/tests/evidence/$EvidencePhase/$RunId/verification.json"
     $verificationArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && base64 -w0 '$verificationPathInWsl'")
     $verificationCapture = Invoke-WslCapture $verificationArguments
     $verification = $null
@@ -176,7 +182,7 @@ try {
     if ($verificationCapture.ExitCode -eq 0) {
         try { $verification = $verificationRaw | ConvertFrom-Json } catch { $verification = $null }
     }
-    $hostIsolationPathInWsl = "$RepositoryPath/tests/evidence/phase2/$RunId/host-isolation.json"
+    $hostIsolationPathInWsl = "$RepositoryPath/tests/evidence/$EvidencePhase/$RunId/host-isolation.json"
     $hostIsolationArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && cat '$hostIsolationPathInWsl'")
     $hostIsolationCapture = Invoke-WslCapture $hostIsolationArguments
     $hostIsolation = $null

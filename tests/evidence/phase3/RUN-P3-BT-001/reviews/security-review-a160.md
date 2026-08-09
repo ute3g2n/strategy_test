@@ -1,7 +1,14 @@
-# P3-07 A160 Trading Security Review
+# A160 Trading Securityレビュー（P3-07R-05準備）
 
-判定: NOT ACCEPTED（直接のBroker/外部通信/Secret importは未確認。ただし保存・Replay・証跡の重大課題が残る）。`tests/backtest` は現在80 passedだが、テスト件数だけでは下記の実行時安全性を証明しない。
+## Findings first
 
-主な指摘は、Manifestの実値照合不足、fixture期待値が同じfixtureから読み込まれること、ResultStoreのmarker・symlink・任意root対策不足、Replay/Offline/Performanceが呼出元の自己申告に依存すること、Snapshot復旧とFill/Costの実証不足である。直接のBroker・外部通信・Secret SDK importは確認されなかったが、静的に存在しないことだけでは実行時証明にならない。
+- Critical: 0
+- High: 0
+- Medium: 1 — 登録Runnerはhost outbound isolationを観測できないため、固定Gate開始前にBLOCKED。自己申告で解除していない。
 
-やさしい説明: 「安全です」と書いた紙を信じるだけではなく、実際の荷物の指紋と保存箱をもう一度調べる必要があります。
+## 確認事項
+
+- P3用WSL入口はtrusted scopeのphase3とfixture hashを読み、`RUN-P3-BT-001`のEvidenceへ記録する。
+- WSL側でdefault routeと外向きNICを確認し、host-isolation evidenceを作成してからだけ品質Runnerへ進む。
+- fixture前後hashを比較し、変更時はBLOCKEDとする。Broker、Secret、外部engine、外部pathは使用しない。
+- 既存P2 DBN入口の証跡パスは変更せず、P3は`tests/evidence/phase3`へ分離した。

@@ -15,6 +15,7 @@ REGISTRY = ROOT / "scripts/quality_gate/trusted_scopes.json"
 MANIFEST_PATH = ROOT / "tests/evidence/phase2/RUN-P2-IC-001-WSL/run-manifest.json"
 WRAPPER = ROOT / "scripts/wsl_quality_gate/run_isolated_p2.ps1"
 LINUX_RUNNER = ROOT / "scripts/wsl_quality_gate/run_isolated_p2.sh"
+P3_LINUX_RUNNER = ROOT / "scripts/wsl_quality_gate/run_isolated_p3.sh"
 AUTOMATION_WRAPPER = ROOT / "scripts/wsl_quality_gate/run_test.ps1"
 EVIDENCE_SELECTOR = ROOT / "scripts/wsl_quality_gate/select_automation_evidence.ps1"
 
@@ -135,6 +136,21 @@ def test_wsl_runner_has_valid_bash_syntax() -> None:
         check=False,
     )
     assert result.returncode == 0, result.stderr
+
+
+def test_phase3_runner_has_valid_bash_syntax_and_is_fixture_only() -> None:
+    result = subprocess.run(
+        ["bash", "-n", "scripts/wsl_quality_gate/run_isolated_p3.sh"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    text = P3_LINUX_RUNNER.read_text(encoding="utf-8")
+    assert "tests/evidence/phase3/$run_id" in text
+    assert "QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED=1" in text
+    assert "dbn" not in text.lower()
 
 
 def test_automation_wrapper_captures_wrapper_and_evidence_results() -> None:

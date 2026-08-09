@@ -1204,7 +1204,7 @@ Phase Runbook:
 発火制御:
 - 指定部品だけを使用する。
 - trusted scopeとManifestにないコード、入力、コマンドを実行しない。
-- WSL実機Gateが必要ならWindows側を正本としてcommit/pushし、ユーザーが対象WSLクローンで`git pull --ff-only`を完了した後に読取確認と実機Runを行う。AIはWSLクローンへ直接書き込まず、force/reset/UNCコピーを行わない。
+- WSL実機Gateが必要な場合はWindows側を正本とし、ユーザー委譲済みの可逆同期手順を使う。AIは対象WSL cloneのbranch/origin/HEAD/statusを確認し、dirty変更をリポジトリ外アーカイブへ保存して`git stash push --include-untracked`で退避した後、clean確認済みcloneへ`git pull --ff-only`を実行する。reset、clean、force、rebase、checkout、stash drop/pop、UNCコピー、未コミット変更の上書きは行わず、同期後にHEAD、clean状態、trusted scope、fixture hashを再確認してから実機Runを行う。
 
 入力:
 - P3-D04〜P3-D10

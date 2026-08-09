@@ -107,8 +107,11 @@ def _stopped(reason: str, detail: str | None = None) -> dict[str, str]:
 
 
 def _is_hash(value: object) -> bool:
-    return isinstance(value, str) and value.startswith("sha256:") and len(value) == 71 and all(
-        character in "0123456789abcdef" for character in value[7:]
+    return (
+        isinstance(value, str)
+        and value.startswith("sha256:")
+        and len(value) == 71
+        and all(character in "0123456789abcdef" for character in value[7:])
     )
 
 
@@ -205,8 +208,10 @@ def _valid_v2(value: Mapping[str, Any]) -> bool:
     for field in _HASH_FIELDS:
         if not _is_hash(value.get(field)):
             return False
-    if not isinstance(value["raw_object_sha256s"], list) or not value["raw_object_sha256s"] or any(
-        not _is_hash(item) for item in value["raw_object_sha256s"]
+    if (
+        not isinstance(value["raw_object_sha256s"], list)
+        or not value["raw_object_sha256s"]
+        or any(not _is_hash(item) for item in value["raw_object_sha256s"])
     ):
         return False
     if not isinstance(value["enabled_timeframes"], list) or value["enabled_timeframes"] != sorted(

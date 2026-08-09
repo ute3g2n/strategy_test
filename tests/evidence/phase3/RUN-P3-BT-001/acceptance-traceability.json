@@ -10,7 +10,7 @@
     "P3-AC-07": {"tests": "tests/backtest", "status": "GATE_PASS"},
     "P3-AC-08": {"tests": "tests/backtest", "status": "GATE_PASS"}
   },
-  "review": {"critical": 2, "high": 14, "medium": 6, "status": "REVIEW_RETURNED"},
-  "final_status": "NOT_ACCEPTED",
-  "reason": "実ReplayからSimulator、Snapshot、ResultStoreまでの一体接続を、まだ証跡で証明できない。"
+  "review": {"critical": 0, "high": 0, "medium": 1, "status": "PASS_PENDING_REGISTERED_ISOLATED_RERUN"},
+  "final_status": "PENDING_REGISTERED_ISOLATED_REEXECUTION",
+  "reason": "R-05のコード・fixture・固定4 Gate・レビュー条件は整った。登録Runnerはhost outbound isolation未確認でfail-closed停止しており、WSL隔離実行の再採取が必要。"
 }

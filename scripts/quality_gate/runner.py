@@ -575,6 +575,7 @@ def _validate_gate_command(
             "scripts.quality_gate.local_pytest",
             "scripts.quality_gate.local_p2_pytest",
             "scripts.quality_gate.local_p3_pytest",
+            "scripts.quality_gate.local_p3_r04_pytest",
             "scripts.quality_gate.local_p3_strategy_pytest",
         }
         paths = (
@@ -584,6 +585,8 @@ def _validate_gate_command(
             if python_module == "scripts.quality_gate.local_p3_pytest"
             else ("tests/strategy",)
             if python_module == "scripts.quality_gate.local_p3_strategy_pytest"
+            else ("tests/backtest",)
+            if python_module == "scripts.quality_gate.local_p3_r04_pytest"
             else ("tests/quality_gate",)
         )
     if not valid or not paths:

@@ -217,7 +217,7 @@ def _reject_forbidden(value: Any) -> None:
 def _as_mapping(value: Any) -> dict[str, Any]:
     if isinstance(value, Mapping):
         return dict(value)
-    if is_dataclass(value):
+    if is_dataclass(value) and not isinstance(value, type):
         return asdict(value)
     raise TypeError("canonical mapping required")
 
@@ -251,7 +251,8 @@ def _row_mapping(value: Any, *, run_id: str, manifest_sha256: str) -> dict[str, 
     _reject_forbidden(result)
     if result.get("run_id") != run_id or result.get("manifest_sha256") != manifest_sha256:
         raise ValueError("result row binding mismatch")
-    if not isinstance(result.get("sequence_no"), int) or result["sequence_no"] < 0:
+    sequence_no = result.get("sequence_no")
+    if not isinstance(sequence_no, int) or sequence_no < 0:
         raise ValueError("result sequence must be a non-negative integer")
     if not isinstance(result.get("row_id"), str) or not result["row_id"]:
         raise ValueError("result row id is required")
@@ -325,7 +326,8 @@ def _snapshot_mapping(value: Any, *, run_id: str, manifest_sha256: str) -> dict[
     _reject_forbidden(result)
     if result["manifest_sha256"] != manifest_sha256:
         raise ValueError("snapshot binding mismatch")
-    if not isinstance(result.get("result_offset"), int) or result["result_offset"] < 0:
+    result_offset = result.get("result_offset")
+    if not isinstance(result_offset, int) or result_offset < 0:
         raise ValueError("snapshot result offset is invalid")
     canonical_json(result)
     return result
@@ -537,6 +539,13 @@ class AtomicResultStore:
         marker_payload["commit_sha256"] = canonical_hash(
             {key: value for key, value in marker_payload.items() if key != "commit_sha256"}
         )
+        last_event_id = marker_payload["last_event_id"]
+        last_batch_sha256 = marker_payload["last_batch_sha256"]
+        commit_sha256 = marker_payload["commit_sha256"]
+        if last_event_id is not None and not isinstance(last_event_id, str):
+            raise ValueError("commit marker last event id is invalid")
+        if not isinstance(last_batch_sha256, str) or not isinstance(commit_sha256, str):
+            raise ValueError("commit marker hash is invalid")
         marker_bytes = canonical_json(marker_payload)
         _atomic_write(staging.tmp_path / _MARKER_FILE, marker_bytes)
         return CommitMarker(
@@ -545,10 +554,10 @@ class AtomicResultStore:
             result_sha256=result_sha256,
             snapshot_sha256=snapshot_sha256,
             result_offset=len(rows),
-            last_event_id=marker_payload["last_event_id"],
-            last_batch_sha256=marker_payload["last_batch_sha256"],
+            last_event_id=last_event_id,
+            last_batch_sha256=last_batch_sha256,
             audit_tail_sha256=audit_tail,
-            commit_sha256=marker_payload["commit_sha256"],
+            commit_sha256=commit_sha256,
         )
 
     def _verify_staging(self, staging: RunStaging, marker: CommitMarker) -> dict[str, Any]:

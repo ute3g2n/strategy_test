@@ -56,11 +56,11 @@
 
 ### Windows・WSLの作業ツリー規則
 
-  - 通常の編集・実装・文書更新は、Windows側の本リポジトリツリーだけで行う。
-  - AIは `\\wsl.localhost` 経由の直接書込み、`Copy-Item` などによる同時更新、WSL側へのパッチ適用を行わない。Windows側を正本として先に保存する。
-  - ユーザー委譲（2026-08-08）により、実機テスト・隔離実行に必要な場合はAIがnative Windowsの `wsl.exe` から、clean確認済みの対象WSLクローンへ `git pull --ff-only` を自律実行してよい。
-  - 同期対象は事前に絶対パス、branch、origin、clean状態を読み取り確認する。force、reset、checkout、rebase、UNCコピー、未コミット変更の上書きは禁止する。fast-forward不能や想定外状態は停止して報告する。
-  - 同期後はWSLのHEAD、clean状態、trusted scope、fixture hashを再確認し、WSL側の証跡はWindows側へ取得する。WSL側の成果物を編集しない。
+  - 通常の編集・実装・文書更新は、Windows側の本リポジトリツリーだけで行う。Windows側を正本として先に保存する。
+  - AIは `\\wsl.localhost` 経由の直接書込み、UNC経由のパッチ適用、WSL側の通常編集を行わない。ただしユーザー委譲（2026-08-10）により、実機テスト・隔離実行に必要な場合は、WSL側の未コミット変更をリポジトリ外のローカルアーカイブへ記録し、`git stash push --include-untracked`で可逆退避してから同期してよい。
+  - 同期対象は事前に絶対パス、branch、origin、HEAD、clean/ignored状態を読み取り確認する。`.venv`、cache、wheelhouse、既存automationログなど`.gitignore`で許可された生成物は保持し、Secret、鍵、`.env`、認証情報らしい変更、未知のignored項目、想定外パスは停止条件とする。退避アーカイブは `C:\\Users\\ute3g\\AppData\\Local\\Codex\\wsl-archives\\strategy_test\\<UTC timestamp>\\` に置き、status、binary diff、未追跡一覧、hash、stash refを記録する。
+  - 退避後に許可される同期はnative Windowsからの `wsl.exe -d <distro> -- bash -lc "cd <repo> && git pull --ff-only"` だけである。force、reset、clean、checkout、rebase、remote変更、stash drop、stash pop、未コミット変更の上書きは禁止する。fast-forward不能や想定外状態はstashとアーカイブを保持して停止する。
+  - 同期後はWSLのHEAD、branch、origin、clean状態、trusted scope、fixture hashを再確認し、stashは自動復元しない。WSL側の成果物を編集せず、証跡の正本はWindows側へ取得する。
 
 ### Human Gateの承認ルール
 

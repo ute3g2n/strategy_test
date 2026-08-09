@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import Any
 
 from ._common import parse_utc, sha256
+from .contracts import canonical_hash
+from .offline_evidence import validate_offline_evidence
 from .replay_order import normalize_replay
 from .runner import BacktestRunner
 
@@ -64,6 +66,72 @@ def reject_bad_result_path(value: dict[str, Any]) -> dict[str, Any]:
 
 
 def generate_performance_input(value: dict[str, Any]) -> dict[str, Any]:
+    fixture = value.get("fixture") if isinstance(value, dict) else None
+    if isinstance(fixture, dict):
+        markets = fixture.get("markets")
+        years = fixture.get("calendar_years")
+        seed = fixture.get("seed")
+        if (
+            fixture.get("schema_version") != "p3-performance-v1"
+            or fixture.get("generator_version") != "synthetic-1m-v1"
+            or type(seed) is not int
+            or not isinstance(markets, list)
+            or len(markets) != 5
+            or not all(type(market) is str and market for market in markets)
+            or years != [2024, 2025]
+        ):
+            return {"status": "STOPPED", "reason": "PERFORMANCE_INPUT_INVALID"}
+        events: list[dict[str, Any]] = []
+        derived_bar_hashes: list[str] = []
+        for market_index, market in enumerate(markets):
+            market_events: list[dict[str, Any]] = []
+            for year_index, year in enumerate(years):
+                for bar_index in range(2):
+                    sequence = market_index * 100 + year_index * 10 + bar_index
+                    market_events.append(
+                        {
+                            "market": market,
+                            "year": year,
+                            "bar_index": bar_index,
+                            "sequence": sequence,
+                            "open": str(10000 + seed % 97 + sequence),
+                            "high": str(10001 + seed % 97 + sequence),
+                            "low": str(9999 + seed % 97 + sequence),
+                            "close": str(10000 + seed % 97 + sequence),
+                            "volume": str(100 + sequence),
+                        }
+                    )
+            events.extend(market_events)
+            derived_bar_hashes.append(canonical_hash(market_events))
+        input_payload = {
+            "generator_version": fixture["generator_version"],
+            "schema_version": fixture["schema_version"],
+            "seed": seed,
+            "markets": markets,
+            "calendar_years": years,
+            "events": events,
+        }
+        input_sha256 = canonical_hash(input_payload)
+        manifest_sha256 = canonical_hash(
+            {
+                "schema_version": "p3-performance-manifest-v1",
+                "seed": seed,
+                "input_sha256": input_sha256,
+                "derived_bar_sha256s": derived_bar_hashes,
+                "calendar_years": years,
+            }
+        )
+        return {
+            "generator_version": fixture["generator_version"],
+            "schema_version": "p3-performance-input-v1",
+            "seed": seed,
+            "markets": tuple(markets),
+            "calendar_years": tuple(years),
+            "events": tuple(events),
+            "input_sha256": input_sha256,
+            "derived_bar_sha256s": tuple(derived_bar_hashes),
+            "manifest_sha256": manifest_sha256,
+        }
     return {"deterministic": value.get("markets") == 5 and value.get("years") == [2024, 2025]}
 
 
@@ -111,6 +179,10 @@ def run_full_replay(value: dict[str, Any]) -> dict[str, Any]:
 
 
 def verify_offline_replay(value: dict[str, Any]) -> dict[str, Any]:
+    if isinstance(value, dict):
+        evidence = value.get("evidence", value)
+        if isinstance(evidence, dict) and "schema_version" in evidence:
+            return validate_offline_evidence(evidence)
     return {"status": "STOPPED", "reason": "OFFLINE_PREFLIGHT_UNPROVEN"}
 
 

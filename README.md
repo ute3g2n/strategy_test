@@ -122,7 +122,7 @@ Skill、サブエージェント、オーケストレータの作成または変
 
 ### WSL隔離品質ゲート
 
-Windows側の本リポジトリとWSLクローンは別の作業ツリーです。編集はWindows側だけで行い、AIがWSL側へ同時に書き込んだりファイルをコピーしたりしません。WSLを実行する必要があるときは、ユーザーが必要なタイミングにWSL側で `git pull --ff-only` を実行してから開始します。AIは同期を自動開始せず、WSL側の証跡取得は必要最小の読み取りに限定します。
+Windows側の本リポジトリとWSLクローンは別の作業ツリーです。通常の編集はWindows側だけで行います。ユーザーが明示的に委譲した実機Run・隔離品質Gateでは、AIがWSL cloneのbranch/origin/HEAD/statusを確認し、dirtyな変更をリポジトリ外のローカルアーカイブへ保存したうえで`git stash push --include-untracked`により可逆退避し、clean確認後に`git pull --ff-only`を自律実行できます。`reset`、`clean`、force、rebase、checkout、stash drop/pop、未コミット変更の上書きは行いません。同期後はHEAD、clean状態、trusted scope、fixture hashを再確認し、stashは自動復元せず保持します。
 
 `RUN-P2-IC-001-WSL` は、P2-D07の固定fixtureをWSL2 `networkingMode=none` で実行する専用scopeです。Linux用venvは `.venv/bin/python` 固定で、証跡は `tests/evidence/phase2/RUN-P2-IC-001-WSL/` に保存します。BLK-RUN-003は、実機での隔離・4 Gate・完全復元証跡がそろい、ユーザーが「承認します」と明示した時点で解決済みとします。
 

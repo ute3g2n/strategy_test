@@ -148,9 +148,10 @@ def _row(
     payload: dict[str, str],
 ) -> ResultRow:
     payload_items = tuple(sorted(payload.items()))
+    row_id = f"{event.run_id}:{sequence_no}:{kind}"
     content = {
         "sequence_no": sequence_no,
-        "row_id": f"{event.run_id}:{sequence_no}:{kind}",
+        "row_id": row_id,
         "event_id": event.event_id,
         "instrument_id": event.instrument_id,
         "row_kind": kind,
@@ -159,7 +160,7 @@ def _row(
     }
     return ResultRow(
         sequence_no=sequence_no,
-        row_id=content["row_id"],
+        row_id=row_id,
         event_id=event.event_id,
         instrument_id=event.instrument_id,
         row_kind=kind,
@@ -305,7 +306,7 @@ def _typed_event_failure(request: BacktestRunRequest) -> BacktestFailure | None:
 
 
 def _strategy_config_failure(config: object, manifest: object) -> BacktestFailure | None:
-    if not isinstance(config, StrategyConfig):
+    if not isinstance(config, StrategyConfig) or not isinstance(manifest, ExperimentManifest):
         return BacktestFailure("STR_CONFIG_INVALID", "StrategyConfig is required")
     enabled = config.enabled_timeframes
     if (
@@ -328,7 +329,6 @@ def _strategy_config_failure(config: object, manifest: object) -> BacktestFailur
         or any(timeframe not in _ALLOWED_TIMEFRAMES for timeframe in enabled)
         or len(set(enabled)) != len(enabled)
         or (config.m30_enabled and "M30" not in enabled)
-        or not isinstance(getattr(manifest, "strategy_config_sha256", None), str)
         or config_hash != manifest.strategy_config_sha256
     ):
         return BacktestFailure("STR_CONFIG_INVALID", "enabled timeframes or strategy binding is invalid")
@@ -360,6 +360,8 @@ class BacktestRunner:
         config_error = _strategy_config_failure(strategy_config, request.manifest)
         if config_error is not None:
             return _failure(config_error.reason, config_error.detail)
+        if not isinstance(strategy_config, StrategyConfig):
+            return _failure("STR_CONFIG_INVALID", "StrategyConfig is required")
         strategy_state = request.initial_strategy_state
         if strategy_state is None:
             strategy_state = StrategyState(run_id=request.run_id)
@@ -401,7 +403,10 @@ class BacktestRunner:
         signals = 0
         directives = 0
         fills = 0
-        anchor = _utc(request.manifest.session_anchor_utc)
+        session_anchor_utc = request.manifest.session_anchor_utc
+        if session_anchor_utc is None:
+            return _failure("CALENDAR_BOUNDARY_INVALID", "session anchor is required")
+        anchor = _utc(session_anchor_utc)
         calendar_version = request.manifest.calendar_version
 
         for event in ordered_events:

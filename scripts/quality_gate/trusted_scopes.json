@@ -268,6 +268,7 @@
         "src/autotrade/backtest",
         "src/autotrade/strategy",
         "scripts/quality_gate",
+        "scripts/wsl_quality_gate",
         "tests/quality_gate",
         "tests/backtest",
         "tests/strategy",
@@ -281,7 +282,7 @@
         "version": "p3-backtest-fixture-manifest-v1",
         "checksum": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4"
       },
-      "baseline_ref": "HEAD",
+      "baseline_ref": "ce108a54e4ec2186c1f9cfb2c7a802a7a47df1c2",
       "scope_mode": "target_only",
       "unknowns": [],
       "network_isolation_required": true,
@@ -290,6 +291,32 @@
         {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"]},
         {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/backtest", "src/autotrade/strategy", "scripts/quality_gate"]},
         {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_pytest"]}
+      ]
+    },
+    "RUN-P3-BT-REPAIR-004": {
+      "phase_id": "phase3",
+      "step_id": "P3-07R-04",
+      "design": "P3-D05-P3-D06-P3-D08",
+      "requirements": ["P3-AC-05", "P3-AC-06", "P3-AC-07"],
+      "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+      "target_paths": ["src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest"],
+      "excluded_paths": [".env", "third_party/everything-claude-code", "research", "E:/strategy_test_data"],
+      "fixture": {
+        "path": "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json",
+        "name": "run_p3_backtest_fixture_manifest_v1.json",
+        "version": "p3-backtest-fixture-manifest-v1",
+        "checksum": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4"
+      },
+      "baseline_ref": "HEAD",
+      "scope_mode": "target_only",
+      "unknowns": [],
+      "network_isolation_required": true,
+      "checks": [
+        {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest"]},
+        {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest"]},
+        {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "scripts/quality_gate"]},
+        {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_r04_pytest"]}
       ]
     },
     "RUN-P2-RPL-001": {

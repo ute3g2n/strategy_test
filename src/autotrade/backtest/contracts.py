@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from typing import Any, Literal, Protocol
@@ -16,6 +16,25 @@ from autotrade.market_data.store_contracts import DataVersionManifest, MarketEve
 @dataclass(frozen=True)
 class BacktestFailure:
     """A stable fail-closed reason (not an exception carrying data)."""
+
+    reason: str
+    detail: str | None = None
+
+    def as_dict(self) -> dict[str, str]:
+        result = {"reason": self.reason}
+        if self.detail:
+            result["detail"] = self.detail
+        return result
+
+
+@dataclass(frozen=True)
+class EngineFailure:
+    """Public, vendor-neutral engine failure DTO.
+
+    The adapter boundary exposes only a stable reason and optional safe detail.
+    Vendor exception objects, SDK types, credentials, and URLs must never cross
+    this boundary.
+    """
 
     reason: str
     detail: str | None = None
@@ -184,11 +203,12 @@ class EngineRunResult:
     result_sha256: str
     engine_trace_sha256: str
     parity_status: Literal["MATCH", "NOT_COMPARED", "MISMATCH"]
-    failure: BacktestFailure | None = None
+    failure: BacktestFailure | EngineFailure | None = None
+    engine_identity: EngineIdentity = EngineIdentity()
 
 
 class EngineAdapter(Protocol):
-    __is_protocol__ = True
+    __is_protocol__: bool = True
 
     def validate_identity(self, identity: EngineIdentity, manifest: ExperimentManifest) -> BacktestFailure | None: ...
 
@@ -209,6 +229,12 @@ class OfflineEvidence:
     outbound_attempts: int
     broker_cloud_url_count: int
     observation_id: str
+    filesystem_observed: bool = False
+    network_guard_observed: bool = False
+    root_observed: bool = False
+
+    def as_dict(self) -> dict[str, Any]:
+        return {field.name: getattr(self, field.name) for field in fields(self)}
 
 
 @dataclass(frozen=True)
@@ -230,6 +256,14 @@ class PerformanceEvidence:
     first_result_sha256: str
     second_result_sha256: str
     observation_id: str
+    measurement_unit: str = "ms/bytes"
+    storage_kind: str = "LOCAL_TEMP_ONLY"
+    measurement_observed: bool = False
+    host_observed: bool = False
+    formal_threshold_status: Literal["NOT_ASSESSED"] = "NOT_ASSESSED"
+
+    def as_dict(self) -> dict[str, Any]:
+        return {field.name: getattr(self, field.name) for field in fields(self)}
 
 
 @dataclass(frozen=True)

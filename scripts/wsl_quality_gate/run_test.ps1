@@ -11,7 +11,13 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-$evidenceRoot = Join-Path $repositoryRoot "tests/evidence/phase2/$RunId"
+$registryPath = Join-Path $repositoryRoot "scripts/quality_gate/trusted_scopes.json"
+$registry = Get-Content -LiteralPath $registryPath -Raw -Encoding utf8 | ConvertFrom-Json
+$scopeProperty = $registry.scopes.PSObject.Properties[$RunId]
+if ($null -eq $scopeProperty) { throw "RunId is not registered in trusted scopes: $RunId" }
+$evidencePhase = [string]$scopeProperty.Value.phase_id
+if ($evidencePhase -notmatch '^phase[0-9]+$') { throw "trusted scope phase_id is invalid: $evidencePhase" }
+$evidenceRoot = Join-Path $repositoryRoot "tests/evidence/$evidencePhase/$RunId"
 $automationRoot = Join-Path $evidenceRoot "automation"
 $wrapperPath = Join-Path $PSScriptRoot "run_isolated_p2.ps1"
 $evidenceSelectorPath = Join-Path $PSScriptRoot "select_automation_evidence.ps1"
@@ -73,7 +79,8 @@ $wrapperArguments = @(
     "-File", $wrapperPath,
     "-Distro", $Distro,
     "-RepositoryPath", $RepositoryPath,
-    "-RunId", $RunId
+    "-RunId", $RunId,
+    "-EvidencePhase", $evidencePhase
 )
 if ($AllowRunningDistro) { $wrapperArguments += "-AllowRunningDistro" }
 if ($RunAsRoot) { $wrapperArguments += "-RunAsRoot" }
@@ -125,6 +132,7 @@ $state = if ($effectiveWrapperExitCode -eq 0) { if ($evidenceState -eq "PASS") {
 $summary = [ordered]@{
     state = $state
     run_id = $RunId
+    evidence_phase = $evidencePhase
     distro = $Distro
     repository_path = $RepositoryPath
     started_at = $startedAt.ToString("o")

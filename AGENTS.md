@@ -24,11 +24,12 @@
 
 ## Windows・WSLの作業ツリー規則
 
-- 通常の編集・実装・文書更新はWindows側の `C:\\project\\strategy_test` だけに行う。
-- WSLクローンへの通常の編集、UNC経由のコピー、パッチ適用は行わない。Windows側を正本として先に保存する。
-- ユーザーは2026-08-08に、実機Run・隔離品質Gateに必要な場合のWSLクローン同期権限をAIへ委譲した。AIは、対象WSLクローンの作業ツリーがcleanであること、対象ブランチとoriginが期待値であることを読み取り確認したうえで、native Windowsから `wsl.exe -d <distro> -- bash -lc "cd <repo> && git pull --ff-only"` を自律実行してよい。
-- 同期は `git pull --ff-only` に限定し、force、reset、checkout、rebase、UNCコピー、未コミット変更の上書きを行わない。cleanでない、remoteが不明、fast-forwardでない、または対象パスが想定外の場合は停止して報告する。
-- 同期後はWSL側のHEAD、作業ツリー、対象Runのtrusted scope・fixture hashを再確認してから実機Runを行う。WSL側の成果物編集は行わず、証跡の正本はWindows側へ取得する。
+- 通常の編集・実装・文書更新はWindows側の `C:\\project\\strategy_test` だけに行う。Windows側を正本として先に保存する。
+- WSLクローンへの通常の編集、UNC経由のコピー、パッチ適用は行わない。ただし、ユーザーは2026-08-10に、実機Run・隔離品質Gateに必要な場合のWSLクローンについて、未コミット変更を可逆退避して同期する権限をAIへ明示委譲した。
+- 同期前に、対象WSLクローンの絶対パス、branch、origin、HEAD、`git status --porcelain=v1`、ignored項目をnative Windowsから読み取り確認する。`.venv`、cache、wheelhouse、既存automationログなど`.gitignore`で許可された生成物は保持し、対象パスが想定外、branch/originが不一致、または未知のignored項目・Secret・鍵・`.env`・認証情報らしい変更がある場合は停止する。
+- dirtyな場合は、次の可逆手順だけを自律実行してよい。①リポジトリ外の `C:\\Users\\ute3g\\AppData\\Local\\Codex\\wsl-archives\\strategy_test\\<UTC timestamp>\\` にHEAD、branch、origin、status、binary diff、未追跡一覧と変更内容のhashを保存する。②アーカイブの一覧とhashを検証する。③WSL側で `git stash push --include-untracked --message codex-wsl-archive-<UTC timestamp>` を実行し、stash refとclean状態を確認する。許可済みignored生成物は保持し、未知のignored変更は自動処理せず停止する。
+- 退避確認後の同期はnative Windowsから `wsl.exe -d <distro> -- bash -lc "cd <repo> && git pull --ff-only"` だけを実行する。`reset`、`clean`、`checkout`、`rebase`、force、remote変更、stash drop、stash pop、未コミット変更の上書きは行わない。fast-forward不能やpull失敗時はstashとアーカイブを保持して停止する。
+- 同期後はWSL側のHEAD、branch、origin、clean状態、対象Runのtrusted scope、fixture hash、target scopeを再確認する。stashは自動復元せず、復元は別判断として報告する。WSL側の成果物編集は行わず、実行証跡の正本はWindows側へ取得する。
 - `.codex/orchestrators/`
   実行可能なOrchestrator定義。
 - `.codex/agents/`
@@ -36,7 +37,7 @@
 - `.codex/skills/`
   実行可能なSkill定義。
 
-WSL隔離品質ゲートの実行入口は `scripts/wsl_quality_gate/run_test.ps1` だけとする。`run_test.ps1` が内部で `run_isolated_p2.ps1` を呼び出す。native Windowsから実行する場合、対象Runが終了済みであることを確認し、必要なら `-AllowRunningDistro` を付ける。Run ID、固定4 Gate、対象範囲、fixture hashは `scripts/quality_gate/trusted_scopes.json` を正本とし、実行証跡は `tests/evidence/phase2/<RunId>/` に置く。通常WSL NAT、Windows用 `.venv/Scripts/python.exe`、隔離後のpip、markerだけの隔離証明、外部接続を禁止する。ユーザーが対象Runについて「承認します」と明示した場合は、署名なしでHuman Gateを承認済みとして扱う。
+WSL隔離品質ゲートの実行入口は `scripts/wsl_quality_gate/run_test.ps1` だけとする。`run_test.ps1` が内部で `run_isolated_p2.ps1` を呼び出す。native Windowsから実行する場合、対象Runが終了済みであることを確認し、必要なら `-AllowRunningDistro` を付ける。Run ID、固定4 Gate、対象範囲、fixture hashは `scripts/quality_gate/trusted_scopes.json` を正本とし、実行証跡は `tests/evidence/{phase_id}/<RunId>/` に置く。通常WSL NAT、Windows用 `.venv/Scripts/python.exe`、隔離後のpip、markerだけの隔離証明、外部接続を禁止する。ユーザーが対象Runについて「承認します」と明示した場合は、署名なしでHuman Gateを承認済みとして扱う。
 
 ## AI実行基盤の現状
 

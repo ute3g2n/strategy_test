@@ -1,0 +1,28 @@
+{
+  "run_id": "RUN-P3-BT-REPAIR-004",
+  "phase_id": "phase3",
+  "step_id": "P3-07R-04",
+  "design": "P3-D05-P3-D06-P3-D08",
+  "requirements": ["P3-AC-05", "P3-AC-06", "P3-AC-07"],
+  "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+  "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+  "agents": ["AutoTrade_A110_PythonTestEngineer_v0_1", "AutoTrade_A120_PythonImplementer_v0_1", "AutoTrade_A130_VerificationEngineer_v0_1", "AutoTrade_A140_DebugEngineer_v0_1", "AutoTrade_A150_PythonCodeReviewer_v0_1", "AutoTrade_A160_TradingSecurityReviewer_v0_1", "AutoTrade_A40_ExecutionEnginePocArchitect_v0_1"],
+  "skills": ["autotrade_skill_python_implementation_v0_1", "autotrade_skill_python_test_quality_v0_1", "autotrade_skill_debug_recovery_v0_1", "autotrade_skill_python_code_review_v0_1", "autotrade_skill_execution_model_v0_1", "autotrade_skill_trading_engine_poc_v0_1", "autotrade_skill_ops_security_v0_1"],
+  "data_version": "p3-backtest-repair-r04-core-v1",
+  "change_hash": "sha256:cac980d0348d8c56260f0d68243f1c4ffa3dd879d877793f1fefb24cf080646e",
+  "baseline_ref": "HEAD",
+  "evidence_root": "tests/evidence/phase3/RUN-P3-BT-REPAIR-004",
+  "target_paths": ["src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest"],
+  "excluded_paths": [".env", "third_party/everything-claude-code", "research", "E:/strategy_test_data"],
+  "scope_mode": "target_only",
+  "input_fixture": {"path": "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json", "name": "run_p3_backtest_fixture_manifest_v1.json", "version": "p3-backtest-fixture-manifest-v1", "checksum": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4"},
+  "human_gate_policy": "H3-2は既存承認済み。SDKなしのCore/Fake Adapterとローカル固定Gateだけを実行し、LEAN/Nautilus、外部通信、Broker、Secret、実機性能閾値は扱わない。P3-09の30分/8GiB正式判定は未実施のまま記録する。",
+  "review": {"critical": 0, "high": 0},
+  "unknowns": [],
+  "checks": [
+    {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest"]},
+    {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest"]},
+    {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "scripts/quality_gate"]},
+    {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_r04_pytest"]}
+  ]
+}

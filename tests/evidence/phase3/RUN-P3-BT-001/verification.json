@@ -1,69 +1,34 @@
 {
-  "state": "REVIEW_RETURNED",
-  "reason": "Critical または High 指摘が未解決です",
-  "gates": [
-    {
-      "gate": "formatter",
-      "status": "PASS",
-      "command": [
-        ".venv/Scripts/python.exe",
-        "-m",
-        "ruff",
-        "format",
-        "--check",
-        "src/autotrade/backtest",
-        "src/autotrade/strategy",
-        "scripts/quality_gate",
-        "tests/quality_gate",
-        "tests/backtest",
-        "tests/strategy"
-      ],
-      "exit_code": 0,
-      "duration_ms": 499
-    },
-    {
-      "gate": "lint",
-      "status": "PASS",
-      "command": [
-        ".venv/Scripts/python.exe",
-        "-m",
-        "ruff",
-        "check",
-        "src/autotrade/backtest",
-        "src/autotrade/strategy",
-        "scripts/quality_gate",
-        "tests/quality_gate",
-        "tests/backtest",
-        "tests/strategy"
-      ],
-      "exit_code": 0,
-      "duration_ms": 481
-    },
-    {
-      "gate": "type",
-      "status": "PASS",
-      "command": [
-        ".venv/Scripts/python.exe",
-        "-m",
-        "mypy",
-        "src/autotrade/backtest",
-        "src/autotrade/strategy",
-        "scripts/quality_gate"
-      ],
-      "exit_code": 0,
-      "duration_ms": 643
-    },
-    {
-      "gate": "test",
-      "status": "PASS",
-      "command": [
-        ".venv/Scripts/python.exe",
-        "-m",
-        "scripts.quality_gate.local_p3_pytest"
-      ],
-      "exit_code": 0,
-      "duration_ms": 1219
-    }
-  ],
-  "generated_at": "2026-08-09T09:11:22.871269+00:00"
+  "state": "BLOCKED",
+  "reason": "host の outbound isolation が確認できないため実行を停止しました",
+  "gates": [],
+  "run_id": "RUN-P3-BT-001",
+  "step_id": "P3-07R-05",
+  "change_hash": "sha256:9ef8cdd54d6579f557085c2b240380810167d8602e3cd2aed30b8954b88c06b7",
+  "fixture_sha256": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+  "registered_runner": {
+    "state": "BLOCKED",
+    "reason": "host outbound isolation was not confirmed; fixed four gates were not started",
+    "exit_code": 1
+  },
+  "supplemental_local_checks": {
+    "formatter": "PASS",
+    "lint": "PASS",
+    "type": "PASS; mypy 32 files, no issues",
+    "fixed_p3_wrapper": "PASS; 258 passed, skip/xfail 0",
+    "full_tests_prior_to_attempt": "PASS; 406 passed"
+  },
+  "wsl_actual_run": "NOT_STARTED_SAFE_STOP",
+  "wsl_precondition": {
+    "repository": "/home/oue/strategy_test",
+    "branch": "main",
+    "head": "59a59f8abffdbc939a05917eede82d462700dd1b",
+    "expected_windows_head": "ce108a54e4ec2186c1f9cfb2c7a802a7a47df1c2",
+    "worktree": "DIRTY",
+    "reason": "WSL clone has uncommitted phase2 evidence and is behind the Windows source; no pull or run was performed"
+  },
+  "review_gate": {"critical": 0, "high": 0, "status": "PASS_PENDING_REGISTERED_ISOLATED_RERUN"},
+  "external_io": {"broker": "NOT_USED", "engine": "ENGINE_NOT_USED", "secret": "NOT_USED", "network": "NOT_STARTED_BY_REGISTERED_RUNNER", "fixture_mutation": "NONE"},
+  "final_status": "PENDING_REGISTERED_ISOLATED_REEXECUTION",
+  "generated_at": "2026-08-09T20:46:12.510235+00:00"
 }
