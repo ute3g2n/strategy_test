@@ -1,0 +1,27 @@
+{
+  "state": "HUMAN_GATE_REQUIRED",
+  "reason": "Human Gate はこの書込み可能 worktree 外の承認チャネルで実施します",
+  "gates": [
+    {"gate": "formatter", "status": "PASS", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"], "exit_code": 0},
+    {"gate": "lint", "status": "PASS", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"], "exit_code": 0},
+    {"gate": "type", "status": "PASS", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/backtest", "scripts/quality_gate"], "exit_code": 0},
+    {"gate": "test", "status": "PASS", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p3_pytest"], "exit_code": 0}
+  ],
+  "run_id": "RUN-P3-BIAS-001",
+  "step_id": "P3-08",
+  "change_hash": "sha256:203ef2fa6c58b384690a97451450995842a568f71ec13e0fe1ad664d3141b9bb",
+  "fixture_sha256": "sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24",
+  "scope": "target_only",
+  "input_sha256": "sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24",
+  "post_input_sha256": "sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24",
+  "target_only_change_sha256": "sha256:203ef2fa6c58b384690a97451450995842a568f71ec13e0fe1ad664d3141b9bb",
+  "host_wrapper_execution_id": "8b0f20c5be484021a3bd553052234554",
+  "host_isolation": {"state": "CONFIRMED", "networking_mode": "none", "kernel": "6.6.87.2-microsoft-standard-WSL2", "distro": "Ubuntu-24.04"},
+  "review_gate": {"critical": 0, "high": 0, "status": "PASS"},
+  "external_io": {"broker": "NOT_USED", "engine": "ENGINE_NOT_USED", "secret": "NOT_USED", "network": "BLOCKED_BY_ISOLATION", "fixture_mutation": "NONE"},
+  "final_status": "HUMAN_GATE_REQUIRED",
+  "restore_pending": true,
+  "execution_user": "oue",
+  "execution_uid": 1000,
+  "generated_at": "2026-08-09T22:19:00.344736+00:00"
+}
