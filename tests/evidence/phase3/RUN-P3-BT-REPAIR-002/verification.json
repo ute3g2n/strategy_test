@@ -1,0 +1,55 @@
+{
+  "schema_version": "p3-backtest-repair-verification-v1",
+  "run_id": "RUN-P3-BT-REPAIR-002",
+  "target_scope": "P3-07R-02 typed Backtest Core",
+  "acceptance": {
+    "P3-AC-01": {
+      "status": "PASS",
+      "evidence": "tests/backtest/test_backtest_repair_core.py::test_m30_fixture_ohlcv_is_recomputed_from_direct_m1_source"
+    },
+    "P3-AC-02": {
+      "status": "PASS",
+      "evidence": "tests/backtest/test_backtest_repair_core.py::test_raw_replay_boundary_rejects_unknown_fields_and_float_values; ::test_runner_rejects_data_manifest_mismatch_before_strategy"
+    },
+    "P3-AC-03": {
+      "status": "PASS",
+      "evidence": "tests/backtest/test_backtest_repair_core.py::test_same_close_strategy_cohort_is_processed_once_in_fixed_view_order"
+    },
+    "P3-AC-04": {
+      "status": "PASS",
+      "evidence": "tests/backtest/test_backtest_repair_core.py::test_typed_runner_commits_and_replay_permutation_is_identical; ::test_same_close_strategy_cohort_is_processed_once_in_fixed_view_order"
+    },
+    "P3-AC-05": {
+      "status": "PASS",
+      "evidence": "tests/backtest/test_backtest_repair_red_contract.py::test_engine_adapter_is_protocol_with_typed_methods; ::test_result_row_contract_has_no_secret_or_vendor_identity_surface"
+    },
+    "P3-AC-06": {
+      "status": "STATIC_PASS",
+      "evidence": "Backtest Core source scan found no network, Broker, Secret, or external-engine runtime import; full offline preflight remains a later evidence scope."
+    },
+    "P3-AC-07": {
+      "status": "NOT_IN_SCOPE",
+      "evidence": "P3-07R-02 preserves performance evidence rejection; formal 3-5 market measurement is not claimed here."
+    },
+    "P3-AC-08": {
+      "status": "PASS",
+      "evidence": "tests/backtest/test_backtest_repair_core.py::test_target_position_strategy_is_scheduled_then_filled_on_next_bar; ::test_protective_stop_is_allowed_on_the_current_bar"
+    }
+  },
+  "failure_contract": {
+    "status": "PASS",
+    "rule": "Typed input, data, calendar, duplicate, order, configuration, and scheduling failures return STOPPED with zero Signal/Directive/Fill/Result rows.",
+    "evidence": "tests/backtest/test_backtest_repair_red_contract.py"
+  },
+  "full_scope": {
+    "status": "PASS",
+    "command": ".venv/Scripts/python.exe -m pytest tests/backtest tests/strategy -q",
+    "result": "240 passed"
+  },
+  "review_gate": {
+    "A150_critical": 0,
+    "A150_high": 0,
+    "A160_critical": 0,
+    "A160_high": 0
+  }
+}

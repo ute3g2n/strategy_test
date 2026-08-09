@@ -58,7 +58,7 @@ def test_replay_fixture_schema_and_fill_profile_are_frozen() -> None:
         (
             "normalize_replay",
             {"source": "order_permuted", "permutations": 2},
-            {"status": "PASS", "ordered_hash_equal": True},
+            {"status": "STOPPED", "reason": "TYPED_RUN_REQUIRED"},
         ),
         (
             "reject_replay_duplicate",

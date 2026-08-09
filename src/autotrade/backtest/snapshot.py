@@ -8,8 +8,6 @@ from ._common import sha256
 def snapshot_aggregator(value: dict[str, Any]) -> dict[str, Any]:
     if isinstance(value.get("snapshot"), dict) and isinstance(value.get("restored"), dict):
         return {"restore_hash_equal": sha256(value["snapshot"]) == sha256(value["restored"])}
-    if isinstance(value.get("interrupt_after_event"), int):
-        return {"restore_hash_equal": True}
     return {"status": "STOPPED", "reason": "RECOVERY_RECONCILIATION_FAILED"}
 
 

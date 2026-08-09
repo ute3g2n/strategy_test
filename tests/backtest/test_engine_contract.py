@@ -33,7 +33,11 @@ def _operation(name: str):
             {"oci_tag_only": True},
             {"status": "STOPPED", "reason": "ENGINE_IDENTITY_UNPINNED"},
         ),
-        ("validate_engine_identity", {"engine": "ENGINE_NOT_USED"}, {"status": "PASS"}),
+        (
+            "validate_engine_identity",
+            {"engine": "ENGINE_NOT_USED"},
+            {"status": "STOPPED", "reason": "ENGINE_IDENTITY_UNPINNED"},
+        ),
         (
             "reject_engine_sdk_leak",
             {"sdk_type_in_public_dto": True},
@@ -42,7 +46,7 @@ def _operation(name: str):
         (
             "run_fake_engine_adapter",
             {"sdk_imports": 0},
-            {"status": "PASS", "common_dto_only": True},
+            {"status": "STOPPED", "reason": "ENGINE_IDENTITY_UNPINNED"},
         ),
     ],
 )

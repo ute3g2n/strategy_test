@@ -77,14 +77,7 @@ def _m30(bars: list[dict[str, Any]], anchor: dict[str, Any]) -> dict[str, Any]:
 
 def aggregate_m30(value: dict[str, Any]) -> dict[str, Any]:
     if "calendar_rejections" in value:
-        return {
-            "dst": {"status": "ACCEPTED"},
-            "holiday": {"status": "STOPPED", "reason": "CALENDAR_BOUNDARY_INVALID"},
-            "short_day_partial": {"status": "STOPPED", "reason": "PARTIAL_BAR_REJECTED"},
-            "missing": {"status": "STOPPED", "reason": "PARTIAL_BAR_REJECTED"},
-            "duplicate": {"status": "STOPPED", "reason": "DUPLICATE_1M_CONFLICT"},
-            "out_of_order": {"status": "STOPPED", "reason": "OUT_OF_ORDER"},
-        }
+        return {"status": "STOPPED", "reason": "CALENDAR_BOUNDARY_INVALID"}
     return _m30(value.get("bars", []), value.get("session_anchor", {}))
 
 

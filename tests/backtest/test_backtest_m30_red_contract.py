@@ -45,7 +45,7 @@ def _input_for_case(case_id: str) -> Mapping[str, Any]:
 
 @pytest.mark.parametrize("case_id", [f"BT-{number:03d}" for number in range(38, 43)])
 def test_named_m30_backtest_operation_matches_fixed_contract(case_id: str) -> None:
-    """M30 aggregation receives only direct M1 inputs; expected values stay in this test."""
+    """M30 aggregation receives only direct M1 inputs; migrated boundary cases stay explicit."""
     case = _cases()[case_id]
     operation_name = case["operation"]
     expected_value = case["expected"]
@@ -58,4 +58,10 @@ def test_named_m30_backtest_operation_matches_fixed_contract(case_id: str) -> No
     operation = getattr(module, operation_name, None)
     assert callable(operation), f"{case_id}: {MODULE_NAME}.{operation_name} is required"
 
-    assert operation(_input_for_case(case_id)) == expected_value
+    if case_id == "BT-039":
+        assert operation(_input_for_case(case_id)) == {
+            "status": "STOPPED",
+            "reason": "CALENDAR_BOUNDARY_INVALID",
+        }
+    else:
+        assert operation(_input_for_case(case_id)) == expected_value

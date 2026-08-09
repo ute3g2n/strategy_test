@@ -502,7 +502,7 @@ def validate_closed_bar_sequence(
         return {"accepted": False, "reason": "STR_INPUT_INVALID"}
     if len(bars) != len(raw_bars):
         return {"accepted": False, "reason": "STR_INPUT_INVALID"}
-    seen_ids: set[str] = set()
+    seen_ids_by_timeframe: dict[str, set[str]] = {}
     per_timeframe: dict[str, list[ClosedBar]] = {}
     for bar in bars:
         if not bar.is_closed:
@@ -511,6 +511,7 @@ def validate_closed_bar_sequence(
             return {"accepted": False, "reason": "STR_TIMESTAMP_INVALID"}
         if decision_time is not None and bar.close_time_utc > decision_time:
             return {"accepted": False, "reason": "STR_FUTURE_INPUT"}
+        seen_ids = seen_ids_by_timeframe.setdefault(bar.timeframe, set())
         if any(identifier in seen_ids for identifier in bar.source_event_ids):
             return {"accepted": False, "reason": "DUPLICATE_1M_CONFLICT"}
         seen_ids.update(bar.source_event_ids)

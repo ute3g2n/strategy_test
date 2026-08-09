@@ -1,0 +1,66 @@
+{
+  "schema_version": "p3-backtest-repair-run-v1",
+  "phase_id": "Phase 3",
+  "step_id": "P3-07R-02",
+  "run_id": "RUN-P3-BT-REPAIR-002",
+  "status": "PASS",
+  "implementation_scope": [
+    "typed immutable Backtest DTOs and strict canonical mapping boundary",
+    "deterministic replay ordering and duplicate/conflict handling",
+    "P2 DataVersionManifest and quality decision binding",
+    "direct M30 aggregation from thirty consecutive M1 bars",
+    "fixed same-close Strategy cohort and one Strategy call",
+    "ScheduledDirective, SimulatorState, next-bar fills, current-bar protective stop"
+  ],
+  "inputs": [
+    "plan/Phase3_実行計画書_v0.1_2026-08-09.md:P3-07R-02",
+    "tests/evidence/phase3/RUN-P3-BT-REPAIR-001/",
+    "doc/phase3/04_Backtest詳細設計/04_Backtest_Experiment実装詳細設計書.html",
+    "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json",
+    "tests/fixtures/phase3/m30_backtest_v2.json"
+  ],
+  "frozen_fixture_sha256": {
+    "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+    "tests/backtest/test_backtest_repair_red_contract.py": "sha256:c753ad2c973c4f18b0961f265fc0529e54684a8d8292ec55b9617aa15f92cb44"
+  },
+  "fixture_changes": [],
+  "verification_commands": {
+    "lint": ".venv/Scripts/ruff.exe check src/autotrade/backtest src/autotrade/strategy/service.py tests/backtest/test_backtest_repair_core.py tests/backtest/test_backtest_repair_red_contract.py",
+    "target_tests": ".venv/Scripts/python.exe -m pytest tests/backtest/test_backtest_repair_red_contract.py tests/backtest/test_backtest_repair_core.py tests/strategy -q",
+    "compile": ".venv/Scripts/python.exe -m compileall -q src/autotrade/backtest src/autotrade/strategy/service.py"
+  },
+  "verification_results": {
+    "ruff": "PASS",
+    "target_tests": "160 passed; full Backtest and Strategy scope 240 passed",
+    "compileall": "PASS"
+  },
+  "legacy_contract_migration": {
+    "count": 15,
+    "status": "MIGRATED",
+    "reason": "The old tests were migrated to the accepted fail-closed contract. Frozen fixture files were not changed; migrated assertions now verify that bool/dict-only or unobserved evidence cannot certify a typed run.",
+    "migrated_cases": [
+      "tests/backtest/test_backtest_golden.py::test_full_replay_is_ordered_and_idempotent",
+      "tests/backtest/test_backtest_golden.py::test_offline_replay_has_zero_network_attempts_and_equal_results",
+      "tests/backtest/test_backtest_m30_red_contract.py::BT-039",
+      "tests/backtest/test_backtest_red_contract.py::BT-001",
+      "tests/backtest/test_backtest_red_contract.py::BT-010",
+      "tests/backtest/test_backtest_red_contract.py::BT-025",
+      "tests/backtest/test_backtest_red_contract.py::BT-028",
+      "tests/backtest/test_backtest_red_contract.py::BT-031",
+      "tests/backtest/test_backtest_red_contract.py::BT-035",
+      "tests/backtest/test_backtest_red_contract.py::BT-036",
+      "tests/backtest/test_backtest_red_contract.py::BT-037",
+      "tests/backtest/test_engine_contract.py::validate_engine_identity",
+      "tests/backtest/test_engine_contract.py::run_fake_engine_adapter",
+      "tests/backtest/test_performance_contract.py::test_performance_measurement_requires_evidence_and_keeps_limits_as_data",
+      "tests/backtest/test_replay_order.py::normalize_replay"
+    ]
+  },
+  "external_io": {
+    "network": "NOT_USED",
+    "broker": "NOT_USED",
+    "secret": "NOT_USED",
+    "external_engine": "NOT_USED"
+  },
+  "handoff": "P3-07R-03 may add persistent Manifest/Snapshot/ResultStore publication and recovery around this in-memory Core; Cost/Slippage/Roll/Gap remain out of scope."
+}

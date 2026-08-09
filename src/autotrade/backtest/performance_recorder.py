@@ -28,7 +28,10 @@ def record(input_value: Mapping[str, Any]) -> dict[str, Any]:
     if any(not isinstance(input_value[key], int) or input_value[key] < 0 for key in numeric):
         return {"status": "STOPPED", "reason": "PERFORMANCE_EVIDENCE_INVALID"}
     if any(
-        not isinstance(input_value[key], str) or not input_value[key].startswith("sha256:")
+        not isinstance(input_value[key], str)
+        or not input_value[key].startswith("sha256:")
+        or len(input_value[key]) != len("sha256:") + 64
+        or any(character not in "0123456789abcdef" for character in input_value[key][len("sha256:") :])
         for key in ("input_sha256", "result_sha256")
     ):
         return {"status": "STOPPED", "reason": "PERFORMANCE_EVIDENCE_INVALID"}

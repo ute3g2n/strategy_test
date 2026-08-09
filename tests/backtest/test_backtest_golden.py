@@ -1,4 +1,4 @@
-"""P3-07 small integration contracts for deterministic full replay."""
+"""P3-07 compatibility guards after migration to the typed Core entrypoint."""
 
 from __future__ import annotations
 
@@ -17,12 +17,16 @@ def _operation(name: str):
     return operation
 
 
-def test_full_replay_is_ordered_and_idempotent() -> None:
-    assert _operation("run_full_replay")({"same_manifest_twice": True}) == {"ordered_result_hash_equal": True}
+def test_legacy_full_replay_mapping_cannot_certify_a_typed_run() -> None:
+    """The typed permutation proof lives in test_backtest_repair_core.py."""
+    assert _operation("run_full_replay")({"same_manifest_twice": True}) == {
+        "status": "STOPPED",
+        "reason": "TYPED_RUN_REQUIRED",
+    }
 
 
-def test_offline_replay_has_zero_network_attempts_and_equal_results() -> None:
+def test_offline_replay_requires_observed_typed_evidence() -> None:
     assert _operation("verify_offline_replay")({"network_attempts": 0, "same_manifest_twice": True}) == {
-        "status": "PASS",
-        "result_hash_equal": True,
+        "status": "STOPPED",
+        "reason": "OFFLINE_PREFLIGHT_UNPROVEN",
     }

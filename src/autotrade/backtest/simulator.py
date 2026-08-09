@@ -4,12 +4,17 @@ from typing import Any
 
 from ._common import parse_utc, sha256
 from .replay_order import normalize_replay
+from .runner import BacktestRunner
 
 
 def schedule_next_bar(value: dict[str, Any]) -> dict[str, Any]:
     directive = value.get("directive_time")
     bar_open = value.get("bar_open")
     if not isinstance(directive, str) or not isinstance(bar_open, str):
+        return {"filled": False, "reason": "NO_ELIGIBLE_BAR"}
+    if ("directive_instrument_id" in value or "bar_instrument_id" in value) and value.get(
+        "directive_instrument_id"
+    ) != value.get("bar_instrument_id"):
         return {"filled": False, "reason": "NO_ELIGIBLE_BAR"}
     if directive == bar_open and "T" not in directive:
         return {"filled": False, "reason": "SAME_BAR_NOT_ELIGIBLE"}
@@ -45,7 +50,13 @@ def recover_committed_only(value: dict[str, Any]) -> dict[str, Any]:
 
 
 def reject_bad_result_path(value: dict[str, Any]) -> dict[str, Any]:
-    if not isinstance(value, dict) or not isinstance(value.get("path_outside_e_root"), bool):
+    if (
+        not isinstance(value, dict)
+        or not isinstance(value.get("path_outside_e_root"), bool)
+        or not isinstance(value.get("root_observed"), bool)
+        or not isinstance(value.get("run_id"), str)
+        or not value.get("run_id")
+    ):
         return {"status": "STOPPED", "reason": "RESULT_NOT_PUBLISHED"}
     return (
         {"status": "STOPPED", "reason": "RESULT_NOT_PUBLISHED"} if value["path_outside_e_root"] else {"status": "PASS"}
@@ -64,7 +75,7 @@ def measure_performance(value: dict[str, Any]) -> dict[str, Any]:
     measured_elapsed = value.get("elapsed_ms")
     measured_rss = value.get("peak_rss_bytes")
     if measured_elapsed is None or measured_rss is None:
-        return {"evidence_required": True}
+        return {"status": "STOPPED", "reason": "PERFORMANCE_EVIDENCE_UNPROVEN"}
     if (
         not isinstance(measured_elapsed, int)
         or not isinstance(measured_rss, int)
@@ -96,15 +107,13 @@ def run_full_replay(value: dict[str, Any]) -> dict[str, Any]:
             "ordered_result_hash_equal": first.get("ordered_hash") == second.get("ordered_hash"),
             "result_hash": sha256(first["events"]),
         }
-    if value.get("same_manifest_twice") is not True:
-        return {"ordered_result_hash_equal": False}
-    return {"ordered_result_hash_equal": True}
+    return {"status": "STOPPED", "reason": "TYPED_RUN_REQUIRED"}
 
 
 def verify_offline_replay(value: dict[str, Any]) -> dict[str, Any]:
-    ok = value.get("network_attempts") == 0 and value.get("same_manifest_twice") is True
-    return (
-        {"status": "PASS", "result_hash_equal": True}
-        if ok
-        else {"status": "STOPPED", "reason": "OFFLINE_POLICY_VIOLATION"}
-    )
+    return {"status": "STOPPED", "reason": "OFFLINE_PREFLIGHT_UNPROVEN"}
+
+
+__all__ = [
+    "BacktestRunner",
+]

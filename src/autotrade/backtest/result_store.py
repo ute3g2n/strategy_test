@@ -13,10 +13,16 @@ from typing import Any
 
 
 def reject_bad_result_path(input_value: Mapping[str, Any]) -> dict[str, str]:
-    if not isinstance(input_value, Mapping) or not isinstance(input_value.get("path_outside_e_root"), bool):
-        return {"status": "STOPPED"}
-    if input_value.get("path_outside_e_root"):
-        return {"status": "STOPPED"}
+    if (
+        not isinstance(input_value, Mapping)
+        or not isinstance(input_value.get("path_outside_e_root"), bool)
+        or not isinstance(input_value.get("root_observed"), bool)
+        or not isinstance(input_value.get("run_id"), str)
+        or not input_value.get("run_id")
+    ):
+        return {"status": "STOPPED", "reason": "RESULT_NOT_PUBLISHED"}
+    if input_value.get("path_outside_e_root") or not input_value.get("root_observed"):
+        return {"status": "STOPPED", "reason": "RESULT_NOT_PUBLISHED"}
     return {"status": "PASS"}
 
 

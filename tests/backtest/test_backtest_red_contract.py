@@ -55,6 +55,17 @@ _MODULE_BY_CASE = {
     "BT-037": "autotrade.backtest.simulator",
 }
 
+_MIGRATED_EXPECTED = {
+    "BT-001": {"status": "STOPPED", "reason": "TYPED_RUN_REQUIRED"},
+    "BT-010": {"status": "STOPPED", "reason": "RECOVERY_RECONCILIATION_FAILED"},
+    "BT-025": {"status": "STOPPED", "reason": "RESULT_NOT_PUBLISHED"},
+    "BT-028": {"status": "STOPPED", "reason": "PERFORMANCE_EVIDENCE_UNPROVEN"},
+    "BT-031": {"status": "STOPPED", "reason": "ENGINE_IDENTITY_UNPINNED"},
+    "BT-035": {"status": "STOPPED", "reason": "TYPED_RUN_REQUIRED"},
+    "BT-036": {"status": "STOPPED", "reason": "ENGINE_IDENTITY_UNPINNED"},
+    "BT-037": {"status": "STOPPED", "reason": "OFFLINE_PREFLIGHT_UNPROVEN"},
+}
+
 
 def _cases() -> Mapping[str, Mapping[str, Any]]:
     fixture = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
@@ -66,7 +77,7 @@ def _cases() -> Mapping[str, Mapping[str, Any]]:
 
 @pytest.mark.parametrize("case_id", sorted(_MODULE_BY_CASE))
 def test_named_backtest_operation_matches_fixed_contract(case_id: str) -> None:
-    """Exercise one P3-D05 operation with input only and an exact answer."""
+    """Exercise one operation; migrated legacy mappings use the new fail-closed oracle."""
     case = _cases()[case_id]
     module_name = _MODULE_BY_CASE[case_id]
     operation_name = case["operation"]
@@ -81,4 +92,4 @@ def test_named_backtest_operation_matches_fixed_contract(case_id: str) -> None:
     operation = getattr(module, operation_name, None)
     assert callable(operation), f"{case_id}: {module_name}.{operation_name} is required"
 
-    assert operation(input_value) == expected_value
+    assert operation(input_value) == _MIGRATED_EXPECTED.get(case_id, expected_value)

@@ -55,7 +55,7 @@ def test_performance_measurement_requires_evidence_and_keeps_limits_as_data() ->
             "rss_limit_gib": fixture["limits"]["peak_rss_gib"],
         }
     )
-    assert result == {"evidence_required": True}
+    assert result == {"status": "STOPPED", "reason": "PERFORMANCE_EVIDENCE_UNPROVEN"}
     assert fixture["evidence_schema"] == [
         "cpu",
         "ram_bytes",
