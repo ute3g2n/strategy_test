@@ -345,6 +345,78 @@
         {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p2_pytest"]}
       ]
     },
+    "RUN-P3-LEAN-PREP-001": {
+      "phase_id": "phase3",
+      "step_id": "P3-08A",
+      "design": "P3-D03-P3-D05-P3-D09",
+      "requirements": ["P3-AC-05", "P3-AC-06"],
+      "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+      "target_paths": [
+        "scripts/quality_gate/local_p3_lean_prep.py",
+        "tests/engine_prep",
+        "tests/strategy",
+        "tests/backtest",
+        "tests/evidence/phase3/RUN-P3-LEAN-PREP-001"
+      ],
+      "excluded_paths": [".env", "third_party/everything-claude-code", "research", "E:/strategy_test_data", "src/autotrade"],
+      "fixture": {
+        "path": "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/preflight-config.json",
+        "name": "preflight-config.json",
+        "version": "p3-lean-preflight-config-v1",
+        "checksum": "sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d"
+      },
+      "engine": {
+        "image_index_digest": "sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d",
+        "linux_amd64_digest": "sha256:9712dfd8c52d05e7292848cf0b365a02f6d603551bc883d423d2ce0877363263",
+        "image_tar_sha256": "sha256:c79166b1c742b47f7d26fc6a63f2bb907728b933a7616365d7ea51c97c0e7ff8",
+        "license_sha256": "sha256:522cf0a716ce03f67d46f8fceb5bf78c5b84400ec5cd8d14bf9f02cddc1cb6ba"
+      },
+      "baseline_ref": "HEAD",
+      "scope_mode": "target_only",
+      "unknowns": ["P3-09 engine strategy fit and performance are not executed by this prep run"],
+      "network_isolation_required": true,
+      "checks": [
+        {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "scripts/quality_gate/local_p3_lean_prep.py", "tests/engine_prep"]},
+        {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "scripts/quality_gate/local_p3_lean_prep.py", "tests/engine_prep"]},
+        {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "scripts/quality_gate/local_p3_lean_prep.py", "tests/engine_prep"]},
+        {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_lean_prep"]}
+      ],
+      "preflight": {
+        "command": "docker run --rm --network none --read-only --tmpfs /tmp --tmpfs /results -v C:\\project\\strategy_test\\tests\\evidence\\phase3\\RUN-P3-LEAN-PREP-001\\preflight-config.json:/tmp/lean-preflight-config.json:ro quantconnect/lean@sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d --config /tmp/lean-preflight-config.json",
+        "network_mode": "none",
+        "status": "PASS",
+        "output_sha256": "sha256:b2288b9f9b824aa837e5fc2023e85fb21a5eb5e8a7af96012ca37e083ebc865e"
+      }
+    },
+    "RUN-P3-POC-001": {
+      "phase_id": "phase3",
+      "step_id": "P3-09",
+      "design": "P3-D03-P3-D04-P3-D05-P3-D06-P3-D08-P3-D09-P3-D10",
+      "requirements": ["P3-AC-01", "P3-AC-02", "P3-AC-03", "P3-AC-04", "P3-AC-05", "P3-AC-06", "P3-AC-07", "P3-AC-08"],
+      "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+      "target_paths": ["src/autotrade", "scripts/quality_gate", "tests/engine_poc", "tests/strategy", "tests/backtest", "tests/fixtures/phase3", "tests/evidence/phase3/RUN-P3-POC-001"],
+      "excluded_paths": [".env", "third_party/everything-claude-code", "research", "E:/strategy_test_data"],
+      "fixture": {
+        "path": "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/preflight-config.json",
+        "name": "p3-lean-prep-output-boundary",
+        "version": "p3-lean-prep-v1",
+        "checksum": "sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d"
+      },
+      "baseline_ref": "HEAD",
+      "scope_mode": "target_only",
+      "unknowns": ["P3-09 is not started until its own execution request and fixture/expected outputs are finalized"],
+      "network_isolation_required": true,
+      "checks": [
+        {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade", "scripts/quality_gate", "tests/engine_poc", "tests/strategy", "tests/backtest"]},
+        {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade", "scripts/quality_gate", "tests/engine_poc", "tests/strategy", "tests/backtest"]},
+        {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade", "scripts/quality_gate"]},
+        {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_pytest"]}
+      ],
+      "precondition": "RUN-P3-LEAN-PREP-001.final_status == PASS",
+      "execution_allowed": false
+    },
     "RUN-P3-BIAS-001": {
       "phase_id": "phase3",
       "step_id": "P3-08",

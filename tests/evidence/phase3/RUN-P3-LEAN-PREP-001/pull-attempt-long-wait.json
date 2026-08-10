@@ -1,0 +1,14 @@
+{
+  "run_id": "RUN-P3-LEAN-PREP-001",
+  "command": "docker pull --platform linux/amd64 quantconnect/lean@sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d",
+  "source": "official_quantconnect_dockerhub",
+  "started_at": "2026-08-10T00:06:12+00:00",
+  "completed_at": "2026-08-10T00:46:39+00:00",
+  "elapsed_seconds": 2427,
+  "completion": "COMPLETED",
+  "registered_repo_digest": "quantconnect/lean@sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d",
+  "image_id": "sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d",
+  "image_size_bytes": 14047079840,
+  "action": "continued_same_digest_after_user_requested_longer_wait",
+  "note": "Network transfer completed first; Docker layer expansion and image registration completed afterward."
+}

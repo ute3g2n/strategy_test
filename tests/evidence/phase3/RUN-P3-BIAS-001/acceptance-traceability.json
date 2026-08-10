@@ -2,10 +2,10 @@
   "run_id": "RUN-P3-BIAS-001",
   "phase_id": "phase3",
   "step_id": "P3-08",
-  "final_status": "HUMAN_GATE_REQUIRED",
+  "final_status": "PASS",
   "machine_gate_status": "PASS",
-  "human_gate_status": "PENDING",
-  "reason": "WSL隔離、fixture hash、formatter/lint/type/testの固定4 GateはPASS。新RunのHuman Gateは未承認のため、最終PASSへ変更しない。",
+  "human_gate_status": "APPROVED",
+  "reason": "WSL隔離、fixture hash、formatter/lint/type/testの固定4 GateはPASS。ユーザーが2026-08-10にH3-5としてRUN-P3-BIAS-001を明示承認した。",
   "requirements": {
     "P3-AC-01": {"status": "CONTRACT_SCOPE_PASS", "evidence": "tests/backtest/test_p3_08_robustness.py"},
     "P3-AC-02": {"status": "CONTRACT_SCOPE_PASS", "evidence": "tests/backtest/test_p3_08_robustness.py; experiment_plan.py"},
@@ -28,5 +28,5 @@
     "A40": {"critical": 0, "high": 0, "medium": 0}
   },
   "unresolved_unknowns": ["UNK-P3-01", "UNK-P3-05", "UNK-P3-07"],
-  "next_steps": ["RUN-P3-BIAS-001のHuman Gate承認", "P3-08Aでengine依存を固定", "P3-09で実engine PoCを評価"]
+  "next_steps": ["P3-08AでLEAN依存を固定", "P3-09で実engine PoCを評価"]
 }

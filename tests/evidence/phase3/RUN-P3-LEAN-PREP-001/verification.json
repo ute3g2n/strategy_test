@@ -1,0 +1,12 @@
+{
+  "run_id": "RUN-P3-LEAN-PREP-001",
+  "state": "PASS",
+  "final_status": "PASS",
+  "reason": "Official fixed-digest image completed after the user authorized a longer wait; image tar/license hashes and network-none read-only offline preflight were recorded.",
+  "p3_09_started": false,
+  "trusted_scope_registered": false,
+  "pull_evidence": "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/pull-attempt-long-wait.json",
+  "manifest": "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/run-manifest.json",
+  "preflight_output": "E:\\strategy_test_data\\phase3\\engine_poc\\lean\\preflight\\lean-local-network-none-readonly-v2.txt",
+  "preflight_status": "PASS"
+}

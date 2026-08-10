@@ -1,0 +1,9 @@
+{
+  "gate_id": "H3-5",
+  "run_id": "RUN-P3-BIAS-001",
+  "approved_by": "user",
+  "approved_at": "2026-08-09T23:00:44.0486794Z",
+  "approval_text": "RUN-P3-BIAS-001を承認します。",
+  "scope": "P3-08の契約実装、固定4 Gate、WSL隔離、独立レビューの受入",
+  "exclusions": ["長期実データによる頑健性評価", "市場別実測cost/slippage", "正式取引所Calendar", "P3-09実engine PoC", "Broker", "Paper", "Live"]
+}

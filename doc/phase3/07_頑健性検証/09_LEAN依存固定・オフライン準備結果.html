@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P3-D10A LEAN依存固定・オフライン準備結果</title>
+  <style>
+    :root { color-scheme: light; --ink:#172033; --muted:#526074; --line:#d8dee8; --ok:#087443; --warn:#8b4b00; --bg:#f7f9fc; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:system-ui,-apple-system,"Yu Gothic",Meiryo,sans-serif; line-height:1.7; }
+    main { max-width:1100px; margin:0 auto; padding:32px 22px 56px; }
+    h1 { margin:0 0 8px; font-size:2rem; }
+    h2 { margin-top:32px; border-left:5px solid #2867c7; padding-left:12px; }
+    h3 { margin-top:24px; }
+    .meta,.card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px 18px; box-shadow:0 2px 8px #1720330b; }
+    .meta { color:var(--muted); }
+    .status { display:inline-block; padding:3px 10px; border-radius:999px; background:#dff5e9; color:var(--ok); font-weight:700; }
+    .blocked { color:var(--warn); }
+    table { width:100%; border-collapse:collapse; background:#fff; }
+    th,td { border:1px solid var(--line); padding:9px 10px; vertical-align:top; text-align:left; }
+    th { background:#eef3fa; }
+    code { background:#eef1f5; padding:1px 4px; border-radius:4px; overflow-wrap:anywhere; }
+    pre { background:#172033; color:#f3f6fb; padding:14px; border-radius:8px; overflow:auto; font-size:.88rem; }
+    a { color:#165eb8; }
+    .note { color:var(--muted); font-size:.95rem; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>P3-D10A LEAN依存固定・オフライン準備結果</h1>
+  <p class="meta">文書ID: P3-D10A / Run: <code>RUN-P3-LEAN-PREP-001</code> / 実行日: 2026-08-10 / 状態: <span class="status">PASS</span></p>
+
+  <h2>1. この文書の結論</h2>
+  <div class="card">
+    <p><strong>LEANをP3-09で使うための依存準備はPASS。</strong> 公式固定digestのイメージを取得し、Eドライブへ保存し、完全hashとライセンスhashを固定した。さらに、network none・read-only・Local providerでLEANのローカルbacktest起動を確認した。</p>
+    <p class="note">これはLEANの準備が終わったという意味であり、LEANがこのStrategyに最適、本番採用、Broker接続、Paper、Liveが許可されたという意味ではない。P3-09で別途評価する。</p>
+  </div>
+
+  <h2>2. 固定した公式依存</h2>
+  <table>
+    <thead><tr><th>項目</th><th>固定値</th><th>証拠</th></tr></thead>
+    <tbody>
+      <tr><td>配布元</td><td>QuantConnect公式 Docker Hub</td><td><a href="https://hub.docker.com/r/quantconnect/lean">公式イメージ</a></td></tr>
+      <tr><td>tag</td><td><code>17991</code></td><td><a href="https://hub.docker.com/v2/repositories/quantconnect/lean/tags/17991">公式tag API</a></td></tr>
+      <tr><td>image index digest</td><td><code>sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d</code></td><td>Run Manifest</td></tr>
+      <tr><td>Linux amd64 digest</td><td><code>sha256:9712dfd8c52d05e7292848cf0b365a02f6d603551bc883d423d2ce0877363263</code></td><td>公式tag API / Run Manifest</td></tr>
+      <tr><td>source commit</td><td><code>c6cc3b743ed7b65d5e0b9fa2bfc18b7d3ac2aea0</code></td><td><a href="https://github.com/QuantConnect/Lean">公式LEAN source</a></td></tr>
+      <tr><td>ライセンス</td><td>Apache-2.0 / LICENSE 10,737 bytes</td><td><a href="https://raw.githubusercontent.com/QuantConnect/Lean/c6cc3b743ed7b65d5e0b9fa2bfc18b7d3ac2aea0/LICENSE">公式LICENSE</a></td></tr>
+      <tr><td>image tar</td><td><code>E:\strategy_test_data\phase3\engine_poc\lean\image\quantconnect-lean-17991-linux-amd64.tar</code><br>14,047,122,944 bytes<br><code>sha256:c79166b1c742b47f7d26fc6a63f2bb907728b933a7616365d7ea51c97c0e7ff8</code></td><td><a href="../../../tests/evidence/phase3/RUN-P3-LEAN-PREP-001/run-manifest.json">Run Manifest</a></td></tr>
+      <tr><td>LICENSE hash</td><td><code>sha256:522cf0a716ce03f67d46f8fceb5bf78c5b84400ec5cd8d14bf9f02cddc1cb6ba</code></td><td>Run Manifest</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. オフライン起動確認</h2>
+  <pre>docker run --rm --network none --read-only --tmpfs /tmp --tmpfs /results -v C:\project\strategy_test\tests\evidence\phase3\RUN-P3-LEAN-PREP-001\preflight-config.json:/tmp/lean-preflight-config.json:ro quantconnect/lean@sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d --config /tmp/lean-preflight-config.json</pre>
+  <table>
+    <thead><tr><th>確認項目</th><th>結果</th></tr></thead>
+    <tbody>
+      <tr><td>network</td><td><span class="status">none</span></td></tr>
+      <tr><td>root filesystem</td><td><span class="status">read-only</span></td></tr>
+      <tr><td>書込先</td><td><code>/tmp/storage</code>、<code>/results</code>のみ</td></tr>
+      <tr><td>provider / brokerage</td><td>Local data provider / BacktestingBrokerage</td></tr>
+      <tr><td>Cloud / Secret / Broker</td><td>NOT_USED</td></tr>
+      <tr><td>exit code</td><td><span class="status">0</span></td></tr>
+      <tr><td>preflight output</td><td>Eドライブ保存、<code>sha256:b2288b9f9b824aa837e5fc2023e85fb21a5eb5e8a7af96012ca37e083ebc865e</code></td></tr>
+    </tbody>
+  </table>
+  <p class="note">初回のread-only rootのみの起動では、LEAN既定の<code>./storage</code>と<code>log.txt</code>への書込みが必要になり失敗した。これを隠さず、ConsoleLogHandler、tmpfsのobject store、/resultsを明示した設定で再実行し、exit code 0を得た。</p>
+
+  <h2>4. Gateとレビュー</h2>
+  <table>
+    <thead><tr><th>項目</th><th>結果</th><th>証拠</th></tr></thead>
+    <tbody>
+      <tr><td>Manifest契約</td><td>2件 PASS</td><td><a href="../../../tests/evidence/phase3/RUN-P3-LEAN-PREP-001/verification.json">verification.json</a></td></tr>
+      <tr><td>固定4 Gate</td><td>formatter / lint / mypy / 267 tests PASS</td><td><a href="../../../tests/evidence/phase3/RUN-P3-LEAN-PREP-001/red-test-result.md">RED/GREEN記録</a></td></tr>
+      <tr><td>vendor import境界</td><td>Core/StrategyのQuantConnect/LEAN/Nautilus import 0件</td><td><a href="../../../tests/evidence/phase3/RUN-P3-LEAN-PREP-001/reviews/a150-python-code-review.md">A150</a></td></tr>
+      <tr><td>独立レビュー</td><td>Critical 0 / High 0</td><td><a href="../../../tests/evidence/phase3/RUN-P3-LEAN-PREP-001/reviews/a70-ops-security.md">A70</a> / <a href="../../../tests/evidence/phase3/RUN-P3-LEAN-PREP-001/reviews/a160-trading-security.md">A160</a> / <a href="../../../tests/evidence/phase3/RUN-P3-LEAN-PREP-001/reviews/a40-engine-poc.md">A40</a> / <a href="../../../tests/evidence/phase3/RUN-P3-LEAN-PREP-001/reviews/a130-verification.md">A130</a></td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. P3-09との境界</h2>
+  <ul>
+    <li>P3-09は未開始。開始前にこのManifest、digest、tar hash、fixture hash、network noneを再照合する。</li>
+    <li>P3-08Aで判定していないStrategy適合性、複数時間足、Calendar、Adapter parity、性能はPASS扱いしない。</li>
+    <li>Broker、Paper、Live、Secret、Cloudは対象外のまま。</li>
+  </ul>
+
+  <h2>6. 追跡と関連成果物</h2>
+  <ul>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-LEAN-PREP-001/run-manifest.json">RUN-P3-LEAN-PREP-001 Run Manifest</a></li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-LEAN-PREP-001/acceptance-traceability.json">受入追跡</a></li>
+    <li><a href="../../../plan/phase3/ログ/P3-08A_実行ログ_2026-08-10.md">P3-08A実行ログ</a></li>
+    <li><a href="../../../plan/Phase3_実行計画書_v0.1_2026-08-09.md">Phase 3実行計画書</a></li>
+    <li><a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></li>
+  </ul>
+</main>
+</body>
+</html>

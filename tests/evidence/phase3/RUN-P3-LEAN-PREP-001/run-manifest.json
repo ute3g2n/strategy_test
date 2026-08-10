@@ -1,0 +1,62 @@
+{
+  "run_id": "RUN-P3-LEAN-PREP-001",
+  "step_id": "P3-08A",
+  "status": "PASS",
+  "engine": {
+    "name": "QuantConnect LEAN",
+    "tag": "17991",
+    "image_index_digest": "sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d",
+    "linux_amd64_digest": "sha256:9712dfd8c52d05e7292848cf0b365a02f6d603551bc883d423d2ce0877363263",
+    "source_commit": "c6cc3b743ed7b65d5e0b9fa2bfc18b7d3ac2aea0",
+    "license": "Apache-2.0",
+    "distribution_source": "official_quantconnect_dockerhub",
+    "image_id": "sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d",
+    "image_size_bytes": 14047079840,
+    "entrypoint": [
+      "dotnet",
+      "QuantConnect.Lean.Launcher.dll"
+    ],
+    "working_directory": "/Lean/Launcher/bin/Debug",
+    "architecture": "amd64",
+    "os": "linux",
+    "target_framework": "net10.0"
+  },
+  "artifact": {
+    "image_tar_path": "E:\\strategy_test_data\\phase3\\engine_poc\\lean\\image\\quantconnect-lean-17991-linux-amd64.tar",
+    "image_tar_sha256": "sha256:c79166b1c742b47f7d26fc6a63f2bb907728b933a7616365d7ea51c97c0e7ff8",
+    "image_tar_bytes": 14047122944,
+    "license_path": "E:\\strategy_test_data\\phase3\\engine_poc\\lean\\metadata\\LICENSE",
+    "license_sha256": "sha256:522cf0a716ce03f67d46f8fceb5bf78c5b84400ec5cd8d14bf9f02cddc1cb6ba",
+    "license_bytes": 10737
+  },
+  "execution": {
+    "network_mode": "none",
+    "data_provider": "Local",
+    "cloud": "NOT_USED",
+    "broker": "NOT_USED",
+    "secret": "NOT_USED",
+    "automatic_data_download": false,
+    "preflight_command": "docker run --rm --network none --read-only --tmpfs /tmp --tmpfs /results -v C:\\project\\strategy_test\\tests\\evidence\\phase3\\RUN-P3-LEAN-PREP-001\\preflight-config.json:/tmp/lean-preflight-config.json:ro quantconnect/lean@sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d --config /tmp/lean-preflight-config.json",
+    "input_root": "E:\\strategy_test_data\\phase3\\engine_poc\\lean",
+    "write_roots": [
+      "/tmp",
+      "/results"
+    ],
+    "preflight_status": "PASS",
+    "preflight_output": "E:\\strategy_test_data\\phase3\\engine_poc\\lean\\preflight\\lean-local-network-none-readonly-v2.txt",
+    "preflight_output_sha256": "sha256:b2288b9f9b824aa837e5fc2023e85fb21a5eb5e8a7af96012ca37e083ebc865e",
+    "config_path": "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/preflight-config.json"
+  },
+  "scope": {
+    "core_engine_import_boundary": "ENGINE_NOT_USED",
+    "strategy_vendor_imports": [],
+    "p3_09_only_after_prep_pass": true
+  },
+  "acquisition": {
+    "initial_attempt": "2026-08-09T23:03:28+00:00/2026-08-10T00:03:14+00:00",
+    "continued_attempt": "2026-08-10T00:06:12+00:00/2026-08-10T00:46:39+00:00",
+    "continued_pull_evidence": "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/pull-attempt-long-wait.json"
+  },
+  "p3_09_allowed": true,
+  "created_at": "2026-08-10T01:05:27+00:00"
+}

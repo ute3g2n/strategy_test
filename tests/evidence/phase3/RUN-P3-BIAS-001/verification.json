@@ -1,6 +1,6 @@
 {
-  "state": "HUMAN_GATE_REQUIRED",
-  "reason": "Human Gate はこの書込み可能 worktree 外の承認チャネルで実施します",
+  "state": "PASS",
+  "reason": "ユーザーが2026-08-10にRUN-P3-BIAS-001を明示承認しました",
   "gates": [
     {"gate": "formatter", "status": "PASS", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"], "exit_code": 0},
     {"gate": "lint", "status": "PASS", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/backtest", "scripts/quality_gate", "tests/quality_gate", "tests/backtest", "tests/strategy"], "exit_code": 0},
@@ -19,9 +19,10 @@
   "host_isolation": {"state": "CONFIRMED", "networking_mode": "none", "kernel": "6.6.87.2-microsoft-standard-WSL2", "distro": "Ubuntu-24.04"},
   "review_gate": {"critical": 0, "high": 0, "status": "PASS"},
   "external_io": {"broker": "NOT_USED", "engine": "ENGINE_NOT_USED", "secret": "NOT_USED", "network": "BLOCKED_BY_ISOLATION", "fixture_mutation": "NONE"},
-  "final_status": "HUMAN_GATE_REQUIRED",
+  "final_status": "PASS",
   "restore_pending": true,
   "execution_user": "oue",
   "execution_uid": 1000,
-  "generated_at": "2026-08-09T22:19:00.344736+00:00"
+  "human_gate_approval": {"gate_id": "H3-5", "approved_by": "user", "approved_at": "2026-08-09T23:00:44.0486794Z", "approval_text": "RUN-P3-BIAS-001を承認します。"},
+  "generated_at": "2026-08-09T23:00:44.0486794Z"
 }

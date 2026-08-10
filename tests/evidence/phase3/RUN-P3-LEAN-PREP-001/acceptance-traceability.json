@@ -1,0 +1,22 @@
+{
+  "run_id": "RUN-P3-LEAN-PREP-001",
+  "step_id": "P3-08A",
+  "final_status": "PASS",
+  "requirements": ["P3-AC-05", "P3-AC-06"],
+  "design_inputs": ["P3-D03", "P3-D05", "P3-D06", "P3-D08", "P3-D09"],
+  "artifacts": {
+    "manifest": "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/run-manifest.json",
+    "verification": "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/verification.json",
+    "preflight_output": "E:\\strategy_test_data\\phase3\\engine_poc\\lean\\preflight\\lean-local-network-none-readonly-v2.txt",
+    "image_tar": "E:\\strategy_test_data\\phase3\\engine_poc\\lean\\image\\quantconnect-lean-17991-linux-amd64.tar",
+    "license": "E:\\strategy_test_data\\phase3\\engine_poc\\lean\\metadata\\LICENSE"
+  },
+  "traceability": {
+    "P3-AC-05": "Fixed LEAN dependency and vendor import boundary; P3-09 adapter parity remains pending.",
+    "P3-AC-06": "network none/read-only Local preflight PASS; P3-09 full offline replay remains pending.",
+    "UNK-P3-03": "Resolved for LEAN preparation; P3-09 engine fit and Nautilus fallback remain separate unknowns.",
+    "UNK-P3-04": "Unchanged; Phase 4 Paper evidence remains required for final engine decision."
+  },
+  "p3_09_gate": "RUN-P3-LEAN-PREP-001 final_status PASS is satisfied; start only under a separate P3-09 execution request.",
+  "broker_paper_live": "NOT_USED"
+}

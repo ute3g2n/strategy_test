@@ -26,7 +26,7 @@
 <main>
   <h1>P3-D09 Cost / Roll / Gap / Holdout検証結果</h1>
   <p><strong>対象Step:</strong> P3-08 / <strong>Run:</strong> <code>RUN-P3-BIAS-001</code> / <strong>実行日:</strong> 2026-08-10</p>
-  <div class="summary"><strong>現在状態:</strong> <span class="wait">機械Gate PASS・Human Gate待ち（H3-5）</span>。固定fixtureを用いた契約実装とWSL隔離検証は完了したが、ユーザーの新Run承認前のため、Runを最終PASSとは扱わない。</div>
+  <div class="summary"><strong>現在状態:</strong> <span class="ok">機械Gate PASS・H3-5 Human Gate承認済み</span>。ユーザー承認により、P3-08の契約範囲を受入済みとした。長期実データ・実測コスト・正式Calendarの評価は別のUnknownとして残す。</div>
 
   <section>
     <h2>1. 目的と範囲</h2>
@@ -69,13 +69,13 @@
 
   <section>
     <h2>5. Human Gateと次のStep</h2>
-    <p><strong>H3-5:</strong> RUN-P3-BIAS-001をP3-08の契約範囲として受入れるかのユーザー承認待ち。承認前は <code>HUMAN_GATE_REQUIRED</code> のままとし、承認を推測してPASSに変更しない。</p>
-    <p>P3-08AではLEAN等の依存版・digest・offline実行条件を固定し、P3-09で初めて実engine PoCを評価する。Paper、Live、Phase 4 Risk/OMS引渡しはさらに後続であり、本Runでは開始しない。</p>
+    <p><strong>H3-5:</strong> ユーザーが2026-08-10にRUN-P3-BIAS-001を明示承認し、P3-08の契約範囲を受入済みとした。</p>
+    <p>P3-08AではLEANの依存版・digest・offline実行条件を固定し、P3-09で初めて実engine PoCを評価する。Paper、Live、Phase 4 Risk/OMS引渡しはさらに後続であり、本Runでは開始しない。</p>
   </section>
 
   <section>
     <h2>6. 関連証跡</h2>
-    <p><a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/run-manifest.json">Run Manifest</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/acceptance-traceability.json">要求追跡</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/wsl-verification-capture.json">WSL検証捕捉</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/red-test-result.md">RED→GREEN結果</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/reviews/python-review-a150.md">A150</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/reviews/security-review-a160.md">A160</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/reviews/engine-review-a40.md">A40</a> / <a href="../../../plan/phase3/ログ/P3-08_実行ログ_2026-08-10.md">実行ログ</a></p>
+    <p><a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/run-manifest.json">Run Manifest</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/acceptance-traceability.json">要求追跡</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/human-gate-approval.json">H3-5承認</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/wsl-verification-capture.json">WSL検証捕捉</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/red-test-result.md">RED→GREEN結果</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/reviews/python-review-a150.md">A150</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/reviews/security-review-a160.md">A160</a> / <a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/reviews/engine-review-a40.md">A40</a> / <a href="../../../plan/phase3/ログ/P3-08_実行ログ_2026-08-10.md">実行ログ</a></p>
     <p><a href="../../../doc/00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a> / <a href="../../../plan/Phase3_実行計画書_v0.1_2026-08-09.md">Phase 3実行計画書</a></p>
   </section>
 </main>

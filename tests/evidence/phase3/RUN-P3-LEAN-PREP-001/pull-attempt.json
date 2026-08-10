@@ -1,0 +1,15 @@
+{
+  "run_id": "RUN-P3-LEAN-PREP-001",
+  "command": "docker pull --platform linux/amd64 quantconnect/lean@sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d",
+  "source": "official_quantconnect_dockerhub",
+  "started_at": "2026-08-09T23:03:28+00:00",
+  "ended_at": "2026-08-10T00:03:14+00:00",
+  "elapsed_seconds": 3586,
+  "bounded_attempt_minutes": 60,
+  "client_pid": 4048,
+  "completion": "NOT_COMPLETED",
+  "local_image_registration": "NOT_PRESENT",
+  "docker_system_df_images": 0,
+  "action": "client_stopped_without_reset_or_cache_deletion",
+  "reason": "The fixed digest image was not registered as a locally runnable image within the bounded preparation window, so no artifact or preflight was claimed."
+}

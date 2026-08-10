@@ -3,7 +3,7 @@
 作成日: 2026-08-09  
 対象: タートルズ・トレンドフォロー自動売買システム  
 対象Phase: Phase 3 Strategy / Backtest基盤  
-状態: v0.7 / H3-0、H3-1、H3-1R、H3-2承認済み。H3-1R改訂により、v2は履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する。P3-06のStrategy実装・固定4 GateはPASS（2026-08-09）。P3-07R-01〜05でCore範囲を受入可へ更新した。P3-08はCost/Roll/Gap/Holdout契約実装、固定4 Gate、WSL隔離、独立レビューまで完了したが、RUN-P3-BIAS-001のHuman Gateは未承認であり、最終PASSとは扱わない。実エンジン接続・正式性能検証はP3-08A/P3-09以降で扱う。
+状態: v1.0 / H3-0、H3-1、H3-1R、H3-2、H3-5承認済み。H3-1R改訂により、v2は履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する。P3-06のStrategy実装・固定4 GateはPASS（2026-08-09）。P3-07R-01〜05でCore範囲を受入可へ更新し、P3-08のRUN-P3-BIAS-001も機械Gate・WSL隔離・独立レビュー・Human Gateを完了した。P3-08Aはユーザーの追加待機指示後、公式LEAN固定digest、artifact hash、ライセンス、network none/read-onlyのLocal preflight、固定4 Gate、レビューを完了してPASS。P3-09は別途実行要求まで開始しない。Broker、Paper、Liveは対象外のままとする。
 
 参照:
 
@@ -284,8 +284,8 @@ H3-2は外部データや外部依存を使う許可であり、Secret投入、B
 | G8 | P3-06 | 不可 | H3-1、H3-1R、P3-05、P3-05R |
 | G9 | P3-07 | 可能（Core範囲） | P3-07R-05、固定4 Gate PASS、WSL隔離、fixture hash一致、Human Gate承認。実エンジン接続・正式性能は後続範囲。 |
 | G9R | P3-07R-01〜05 | 完了 | P3-07差戻し、P3-D05/P3-D06/P3-D08、H3-1/H3-1R/H3-2承認済み。RUN-P3-BT-001を登録入口で再実行し、固定4 GateとHuman Gateを完了。 |
-| G10 | P3-08 | 実装済み・Human Gate待ち | RUN-P3-BIAS-001のWSL隔離、fixture hash、formatter/lint/type/testの固定4 GateはPASS。新RunのHuman Gate承認まではP3-08を最終受入にしない。実エンジン依存のP3-08A/P3-09は開始しない。 |
-| G11 | P3-08A | 不可 | H3-2、P3-02、P3-04、P3-05R、P3-08 |
+| G10 | P3-08 | 完了・受入済み | RUN-P3-BIAS-001のWSL隔離、fixture hash、formatter/lint/type/testの固定4 Gate、独立レビュー、H3-5 Human Gate承認を確認。P3-08Aを開始し、P3-09はP3-08A完了まで開始しない。 |
+| G11 | P3-08A | 完了・受入済み | H3-2、P3-02、P3-04、P3-05R、P3-08。`RUN-P3-LEAN-PREP-001`の固定digest、artifact hash、LICENSE、network none/read-only Local preflight、固定4 Gate、レビューを確認。P3-09は別Gateで実行する。 |
 | G12 | P3-09 | 不可 | P3-08A、RUN-P3-STR-001、RUN-P3-BT-001、RUN-P3-BIAS-001 |
 | G13 | P3-10 | 不可 | P3-03〜P3-09。長期データ不足時は利益・頑健性だけUNKNOWNとし、P3-AC-01〜08のPhase 3範囲は省略しない。 |
 | G14 | P3-11 | 不可 | P3-01〜P3-10 |
@@ -1060,10 +1060,12 @@ Cost、Slippage、Gap、Roll、Holdout/Walk-forwardの実行契約を実装し�
 実行結果（2026-08-10）:
 - `tests/backtest tests/strategy` は265件PASS、skip/xfailは0件。
 - WSL隔離下でformatter、lint、type、testの固定4 Gate、fixture前後hash、networking mode `none` をPASS。
-- `RUN-P3-BIAS-001` は `HUMAN_GATE_REQUIRED`。ユーザーの新Run承認を受けるまで、P3-08A/P3-09を開始しない。
+- `RUN-P3-BIAS-001` はユーザーのH3-5承認によりPASS。P3-08Aを開始し、P3-09はP3-08A完了まで開始しない。
 ```
 
 ### P3-08A LEAN固定依存・オフライン実行環境準備
+
+実行結果（2026-08-10）: **PASS**。初回約60分ではDocker展開・登録が完了しなかったが、ユーザーの追加待機指示後、同じ公式固定digestで取得を継続し、完成イメージ登録、Eドライブtar保存、全hash、LICENSE、network none/read-only Local preflight、固定4 Gate、独立レビューを完了した。P3-09は別Gateであり、まだ開始しない。証跡: `tests/evidence/phase3/RUN-P3-LEAN-PREP-001/`。
 
 ```text
 ステップID: P3-08A

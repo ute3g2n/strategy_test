@@ -1,0 +1,11 @@
+{
+  "environment": "backtesting",
+  "algorithm-type-name": "BasicTemplateFrameworkAlgorithm",
+  "algorithm-language": "CSharp",
+  "algorithm-location": "QuantConnect.Algorithm.CSharp.dll",
+  "data-folder": "/Lean/Data",
+  "log-handler": "QuantConnect.Logging.ConsoleLogHandler",
+  "object-store-root": "/tmp/storage",
+  "results-destination-folder": "/results",
+  "data-provider": "QuantConnect.Lean.Engine.DataFeeds.DefaultDataProvider"
+}

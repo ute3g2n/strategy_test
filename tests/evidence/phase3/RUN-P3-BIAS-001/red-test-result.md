@@ -17,4 +17,4 @@ P3-08専用テストを先に追加し、Cost/Roll/Gap/Holdout契約の実装が
 
 ## 最終状態
 
-実装と機械検証はPASSだが、`RUN-P3-BIAS-001`のHuman Gateは未承認である。したがってRunの最終状態は `HUMAN_GATE_REQUIRED` とし、実engine、Paper、Liveへ進めない。
+実行直後は機械検証PASS・Human Gate待ちで、Run状態を `HUMAN_GATE_REQUIRED` と記録した。その後、ユーザーがH3-5として明示承認したため、canonical verificationの最終状態を `PASS` へ更新した。実engine、Paper、LiveへはP3-08A以降の別Gateなしに進めない。
