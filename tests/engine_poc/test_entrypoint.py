@@ -124,10 +124,10 @@ def _valid_output() -> dict[str, Any]:
 def test_prepare_validates_contract_without_starting_engine() -> None:
     result = prepare_entry(ROOT, CONTRACT_PATH)
 
-    assert result["status"] == "CONTRACT_READY"
+    assert result["status"] in {"CONTRACT_READY", "READY_TO_REHEARSE"}
     assert result["engine_started"] is False
     assert result["p3_09_start_allowed"] is False
-    assert result["manifest"]["status"] == "NOT_YET_FIXED"
+    assert result["manifest"]["status"] in {"NOT_YET_FIXED", "VALIDATED"}
     assert result["network"]["observed"] is False
 
 

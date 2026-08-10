@@ -228,7 +228,7 @@ def _validate_expected_binding(expected: Mapping[str, Any], repo_root: Path, req
         path = _safe_relative_path(expected.get(path_key), f"expected.{path_key}")
         digest = _require_sha256(expected.get(hash_key), f"expected.{hash_key}")
         if require_files:
-            actual = sha256_file(_repo_file(repo_root, path, f"expected.{path_key}"))
+            actual = sha256_file(_repo_file(repo_root, path.as_posix(), f"expected.{path_key}"))
             if actual != digest:
                 raise ContractError(f"expected artifact hash mismatch: {path.as_posix()}")
 
