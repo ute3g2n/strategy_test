@@ -155,7 +155,10 @@ def test_phase3_runner_has_valid_bash_syntax_and_is_fixture_only() -> None:
         '"$evidence_root/verification.json" "$gate_exit" "$input_hash" "$post_input_hash" '
         '"$host_execution_id" "$manifest"'
     ) in text
-    assert "path, exit_code, input_hash, post_input_hash, host_execution_id, manifest_path = sys.argv[1:]" in text
+    assert (
+        "path, exit_code, input_hash, post_input_hash, host_execution_id, manifest_path, repository_path = sys.argv[1:]"
+        in text
+    )
     assert 'json.loads(Path(manifest_path).read_text(encoding="utf-8"))' in text
 
 

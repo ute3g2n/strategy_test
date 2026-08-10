@@ -94,15 +94,32 @@ if [[ "$post_input_hash" != "$input_hash" || "$post_input_hash" != "$expected_in
   exit 20
 fi
 
-"$python_bin" - "$evidence_root/verification.json" "$gate_exit" "$input_hash" "$post_input_hash" "$host_execution_id" "$manifest" <<'PY'
+"$python_bin" - "$evidence_root/verification.json" "$gate_exit" "$input_hash" "$post_input_hash" "$host_execution_id" "$manifest" "$repository_path" <<'PY'
 import json
+import subprocess
 import sys
 from pathlib import Path
 
-path, exit_code, input_hash, post_input_hash, host_execution_id, manifest_path = sys.argv[1:]
+path, exit_code, input_hash, post_input_hash, host_execution_id, manifest_path, repository_path = sys.argv[1:]
 verification_path = Path(path)
 result = json.loads(verification_path.read_text(encoding="utf-8")) if verification_path.exists() else {"state": "FAILED"}
 manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
+
+
+def command_version(command: list[str]) -> str:
+    completed = subprocess.run(command, check=False, capture_output=True, text=True)
+    output = (completed.stdout or completed.stderr).strip()
+    return output if completed.returncode == 0 and output else "UNKNOWN"
+
+
+python_path = str(Path(repository_path) / ".venv" / "bin" / "python")
+head_result = subprocess.run(
+    ["git", "-C", repository_path, "rev-parse", "HEAD"],
+    check=False,
+    capture_output=True,
+    text=True,
+)
+head = head_result.stdout.strip() if head_result.returncode == 0 else "UNKNOWN"
 result.update(
     {
         "exit_code": int(exit_code),
@@ -114,6 +131,14 @@ result.update(
         "restore_pending": True,
         "execution_user": __import__("getpass").getuser(),
         "execution_uid": __import__("os").getuid(),
+        "head": head,
+        "source_repository_path": repository_path,
+        "tool_versions": {
+            "python": command_version([python_path, "--version"]),
+            "ruff": command_version([python_path, "-m", "ruff", "--version"]),
+            "mypy": command_version([python_path, "-m", "mypy", "--version"]),
+            "pytest": command_version([python_path, "-m", "pytest", "--version"]),
+        },
     }
 )
 verification_path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

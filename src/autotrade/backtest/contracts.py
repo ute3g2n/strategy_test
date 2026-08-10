@@ -116,6 +116,11 @@ class ExperimentManifest:
     manifest_sha256: str = ""
     session_anchor_utc: datetime | None = None
     enabled_timeframes: tuple[str, ...] = ("M1", "M15", "H1", "H4", "D1")
+    calendar_case: str = "normal"
+    calendar_session_open_utc: datetime | None = None
+    calendar_session_close_utc: datetime | None = None
+    calendar_halt_start_utc: datetime | None = None
+    calendar_halt_end_utc: datetime | None = None
 
 
 @dataclass(frozen=True)

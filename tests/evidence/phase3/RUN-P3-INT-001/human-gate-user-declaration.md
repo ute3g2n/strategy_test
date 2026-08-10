@@ -1,5 +1,7 @@
 # RUN-P3-INT-001 Human Gate 承認記録
 
+USER_APPROVAL_DECLARED=1
+
 - Run ID: `RUN-P3-INT-001`
 - 承認日: 2026-08-10
 - 承認者: ユーザー

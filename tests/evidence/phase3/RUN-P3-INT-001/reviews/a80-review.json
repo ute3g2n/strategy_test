@@ -1,10 +1,10 @@
 {
   "critical": 0,
-  "evidence_path": "tests/evidence/phase3/RUN-P3-INT-001/reviews/p3-12-a150-python-review.md",
+  "evidence_path": "tests/evidence/phase3/RUN-P3-INT-001/reviews/p3-12-a80-document-integration.md",
   "evidence_sha256": null,
   "findings": [
     {
-      "detail": "missing substantive review evidence: p3-12-a150-python-review.md",
+      "detail": "missing substantive review evidence: p3-12-a80-document-integration.md",
       "severity": "High"
     },
     {
@@ -12,9 +12,9 @@
       "severity": "High"
     }
   ],
-  "focus": "Python implementation and test quality",
+  "focus": "document integration and traceability",
   "high": 2,
-  "reviewer": "AutoTrade_A150_PythonCodeReviewer_v0_1",
+  "reviewer": "AutoTrade_A80_DocumentIntegrator_v0_1",
   "run_id": "RUN-P3-INT-001",
   "scope": "P3-12 final contract review; no profit adoption",
   "substantive_evidence": false,

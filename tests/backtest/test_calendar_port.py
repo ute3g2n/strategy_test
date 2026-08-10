@@ -44,6 +44,47 @@ def test_calendar_aggregation_accepts_normal_and_dst_anchors(case_id: str) -> No
     assert _operation("aggregate_calendar")({"case": case_id}) == {"status": "PASS"}
 
 
+def test_all_six_calendar_cases_have_behavioral_decisions() -> None:
+    cases = {case["id"]: case for case in _fixture()["cases"]}
+    aggregate = _operation("aggregate_calendar")
+
+    assert aggregate(cases["normal"])["calendar_action"] == "OPEN"
+    assert aggregate(cases["dst_start"])["calendar_action"] == "OPEN"
+    assert aggregate(cases["dst_end"])["calendar_action"] == "OPEN"
+    assert aggregate(cases["holiday"]) == {
+        "status": "STOPPED",
+        "reason": "CALENDAR_BOUNDARY_INVALID",
+        "case": "holiday",
+        "calendar_action": "CLOSED",
+    }
+    assert aggregate(cases["short_day"])["calendar_action"] == "OPEN_RESTRICTED"
+    assert aggregate(cases["daily_halt"])["calendar_action"] == "HALT_WINDOW"
+
+
+def test_calendar_window_rejects_short_day_remainder_and_daily_halt() -> None:
+    cases = {case["id"]: case for case in _fixture()["cases"]}
+    validate = _operation("validate_calendar_window")
+
+    assert (
+        validate(
+            cases["short_day"],
+            "2026-11-27T18:44:00Z",
+            "2026-11-27T18:45:00Z",
+        )["status"]
+        == "PASS"
+    )
+    assert validate(
+        cases["short_day"],
+        "2026-11-27T18:45:00Z",
+        "2026-11-27T18:46:00Z",
+    ) == {"status": "STOPPED", "reason": "CALENDAR_BOUNDARY_INVALID", "case": "short_day"}
+    assert validate(
+        cases["daily_halt"],
+        "2026-01-06T22:15:00Z",
+        "2026-01-06T22:16:00Z",
+    ) == {"status": "STOPPED", "reason": "CALENDAR_HALT_ACTIVE", "case": "daily_halt"}
+
+
 def test_calendar_future_publication_is_fail_closed() -> None:
     result = _operation("reject_future_calendar")({"published_after_decision": True})
     assert result == {"status": "STOPPED", "reason": "FUTURE_CALENDAR_OR_ROLL"}

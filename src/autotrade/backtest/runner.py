@@ -12,6 +12,7 @@ from autotrade.market_data.store_contracts import MarketEvent
 from autotrade.strategy.contracts import StrategyConfig, StrategyState
 from autotrade.strategy.service import process_closed_bars, validate_m30_closed_bars
 
+from .calendar_port import evaluate_calendar_case, validate_calendar_window
 from .contracts import (
     BacktestFailure,
     BacktestRunRequest,
@@ -241,7 +242,27 @@ def _manifest_failure(request: BacktestRunRequest) -> BacktestFailure | None:
         _utc(manifest.session_anchor_utc)
     except ValueError as error:
         return BacktestFailure("CALENDAR_BOUNDARY_INVALID", str(error))
+    calendar_result = evaluate_calendar_case(_calendar_context(manifest, manifest.session_anchor_utc))
+    if calendar_result.get("status") != "PASS":
+        return BacktestFailure(
+            str(calendar_result.get("reason", "CALENDAR_BOUNDARY_INVALID")),
+            f"calendar case {manifest.calendar_case} is not executable",
+        )
     return None
+
+
+def _calendar_context(manifest: ExperimentManifest, anchor: datetime) -> dict[str, Any]:
+    context: dict[str, Any] = {
+        "case": manifest.calendar_case,
+        "session_open_utc": (manifest.calendar_session_open_utc or anchor).isoformat().replace("+00:00", "Z"),
+    }
+    if manifest.calendar_session_close_utc is not None:
+        context["session_close_utc"] = manifest.calendar_session_close_utc.isoformat().replace("+00:00", "Z")
+    if manifest.calendar_halt_start_utc is not None:
+        context["halt_start_utc"] = manifest.calendar_halt_start_utc.isoformat().replace("+00:00", "Z")
+    if manifest.calendar_halt_end_utc is not None:
+        context["halt_end_utc"] = manifest.calendar_halt_end_utc.isoformat().replace("+00:00", "Z")
+    return context
 
 
 def _typed_event_failure(request: BacktestRunRequest) -> BacktestFailure | None:
@@ -408,9 +429,20 @@ class BacktestRunner:
             return _failure("CALENDAR_BOUNDARY_INVALID", "session anchor is required")
         anchor = _utc(session_anchor_utc)
         calendar_version = request.manifest.calendar_version
+        calendar_context = _calendar_context(request.manifest, anchor)
 
         for event in ordered_events:
             try:
+                calendar_result = validate_calendar_window(
+                    calendar_context,
+                    _utc(event.event_time_utc).isoformat().replace("+00:00", "Z"),
+                    _utc(event.bar_close_time).isoformat().replace("+00:00", "Z"),
+                )
+                if calendar_result.get("status") != "PASS":
+                    return _failure(
+                        str(calendar_result.get("reason", "CALENDAR_BOUNDARY_INVALID")),
+                        f"CalendarPort rejected {event.event_id}",
+                    )
                 if _utc(event.event_time_utc) < anchor:
                     return _failure("CALENDAR_BOUNDARY_INVALID", "event precedes session anchor")
                 fills_added, simulator_state, strategy_state, fill_rows = self._consume_pending(

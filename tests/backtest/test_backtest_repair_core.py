@@ -152,6 +152,36 @@ def test_typed_runner_commits_and_replay_permutation_is_identical() -> None:
     assert first.failure is None
 
 
+@pytest.mark.parametrize("calendar_case", ["holiday", "daily_halt"])
+def test_typed_runner_routes_calendar_boundaries_through_calendar_port(calendar_case: str) -> None:
+    request = _request((_event(0),))
+    if calendar_case == "holiday":
+        manifest = replace(request.manifest, calendar_case="holiday")
+    else:
+        manifest = replace(
+            request.manifest,
+            calendar_case="daily_halt",
+            calendar_halt_start_utc=datetime(2026, 1, 5, 23, 0, tzinfo=UTC),
+            calendar_halt_end_utc=datetime(2026, 1, 5, 23, 30, tzinfo=UTC),
+        )
+    result = BacktestRunner().run(replace(request, manifest=manifest))
+    assert result.status == "STOPPED"
+    assert result.failure is not None
+    assert result.failure.reason in {"CALENDAR_BOUNDARY_INVALID", "CALENDAR_HALT_ACTIVE"}
+
+
+def test_typed_runner_rejects_bar_after_a_short_day_close() -> None:
+    request = _request((_event(0),))
+    manifest = replace(
+        request.manifest,
+        calendar_case="short_day",
+        calendar_session_open_utc=datetime(2026, 1, 5, 23, 0, tzinfo=UTC),
+        calendar_session_close_utc=datetime(2026, 1, 5, 23, 0, tzinfo=UTC) + timedelta(minutes=1),
+    )
+    result = BacktestRunner().run(replace(request, manifest=manifest))
+    assert result.status == "COMMITTED"
+
+
 def test_runner_rejects_data_manifest_mismatch_before_strategy() -> None:
     request = _request((_event(0),))
     bad_data_manifest = replace(request.replay.data_version_manifest, data_version="wrong-data-version")

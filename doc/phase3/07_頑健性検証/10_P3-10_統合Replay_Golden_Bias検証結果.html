@@ -14,10 +14,10 @@
   <p><a href="../../index.html">Phase 3成果物一覧</a> / <a href="../08_エンジンPoC/09_取引エンジンPoC評価結果.html">P3-D10</a> / <a href="../../../doc/00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
   <h1>P3-10 統合Replay・Golden・Bias検証結果</h1>
   <p><strong>Run:</strong> <code>RUN-P3-INT-001</code>　<strong>実行日:</strong> 2026-08-10　<strong>Step:</strong> P3-10</p>
-  <p><strong>現在の総合状態:</strong> <span class="ok">契約Gate PASS / Human Gate PASS</span></p>
+  <p><strong>P3-10実行時の総合状態:</strong> <span class="ok">契約Gate PASS / Human Gate PASS</span>。ただし、P3-11の独立再監査で現在の完了判定に関わるHigh指摘が検出されており、Phase 3完了は未確定である。</p>
 
   <h2>1. 結論</h2>
-  <p>Phase 3で必須としたP3-AC-01〜08の契約検証は、全件PASSとなった。追跡表には設計行、テストID、実装path、Run証跡、レビュー結果がそろい、未割当・根拠なしのPASSは0件である。古い<code>RUN-P3-GOLD-001</code>のBLOCKED証跡は履歴として残し、最終PASSの根拠には使っていない。</p>
+  <p>この文書はP3-10 Run時点の契約検証結果を記録し、P3-AC-01〜08を全件PASSとしていた。後続のP3-11独立再監査で、Calendar 6ケースの動作証拠不足と、複数Run証跡の不整合というHigh指摘が検出されたため、現在のP3-AC受入状態とPhase 3完了判定はP3-D11/P3-D12を正本として再評価する。古い<code>RUN-P3-GOLD-001</code>のBLOCKED証跡は履歴として残し、最終PASSの根拠には使っていない。</p>
   <p>WSL隔離ではformatter、lint、type、testの固定4 Gateが全てPASSし、networking modeは<code>none</code>、入力fixtureの実行前後hashも一致した。ユーザーの<code>RUN-P3-INT-001</code>承認声明を固定文言で確認したため、Runの最終状態は<code>PASS</code>となった。</p>
   <div class="easy"><strong>中学生でも分かる説明:</strong> 問題集、答え合わせ、同じ問題をもう一度解くテスト、通信を切った場所での確認、そして持ち主の承認札がそろいました。ただし、短いテストに合格したことだけで、長期間の利益や本番運用が安全だとは決めていません。</div>
 
@@ -27,7 +27,7 @@
     <tbody>
       <tr><td>P3-AC-01</td><td class="ok">PASS</td><td>固定Aggregator契約、時間足系列、P3-09のLEAN/Core parity。</td><td>LEAN parityの実測はM1/M15/M30固定fixture。H1/H4/D1の長時間engine parityはUnknown。</td></tr>
       <tr><td>P3-AC-02</td><td class="ok">PASS</td><td>未完成bar、未来roll、holdout、wall clock参照の拒否とclosed-bar replay。</td><td>実市場の長期頑健性は別判定。</td></tr>
-      <tr><td>P3-AC-03</td><td class="ok">PASS</td><td>通常日、DST開始・終了、休日、短縮日、日次休場、同時closeの固定6ケース。</td><td>実取引所Calendarの継続追随はPhase 4境界。</td></tr>
+      <tr><td>P3-AC-03</td><td class="wait">P3-10契約PASS / P3-11再監査BLOCKED</td><td>通常日、DST開始・終了、休日、短縮日、日次休場、同時closeの固定6ケースをP3-10ではPASSとして記録した。</td><td>P3-11で後半3ケースは動作実行ではなくfixture存在確認に留まることが判明。6ケースの動作実装・Runner接続・再テストまで完了判定に再利用しない。</td></tr>
       <tr><td>P3-AC-04</td><td class="ok">PASS</td><td>同一ManifestでSignal、Intent、State、result hashを再Replayし一致。</td><td>入力・Manifestを変更した場合は同じPASSを再利用しない。</td></tr>
       <tr><td>P3-AC-05</td><td class="ok">PASS</td><td>Core公開型とLeanLocalAdapterの境界、Broker/Live型の漏出拒否。</td><td>Broker接続・実注文は対象外。</td></tr>
       <tr><td>P3-AC-06</td><td class="ok">PASS</td><td>固定ローカル入力、network none、automatic download false、offline evidence。</td><td>Cloud、Secret、外部データ取得は対象外。</td></tr>
@@ -52,7 +52,7 @@
     <li>System 1 / System 2と比較候補は同一入力・同一cost条件で比較し、利益やパラメータ採用は行っていない。</li>
     <li>未来bar、未来roll、holdout可視化、wall clock依存、Manifest改変、snapshot復旧の拒否契約を確認した。</li>
     <li><code>RUN-P3-GOLD-001</code>の古いBLOCKEDは再利用せず、現在の固定品質Suiteを代替根拠として明記した。</li>
-    <li>Critical / HighはA150、A160、A30、A40の全レビューで0件。</li>
+    <li>P3-10時点のA150、A160、A30、A40レビューJSONはCritical / High 0件として保存されているが、P3-11で独立分析・根拠・再現操作の不足（P3-IR-004）を検出したため、P3-10のレビューJSONだけを独立レビュー根拠として再利用しない。</li>
   </ul>
 
   <h2>5. 残るUnknownと、今回決めていないこと</h2>
@@ -65,6 +65,7 @@
     </tbody>
   </table>
   <div class="pending"><strong>重要:</strong> この結果から長期利益、頑健性、Broker接続、Paper、Live、本番採用をPASSとはしない。<code>profitability_decision=NOT_MADE</code>、<code>phase3_completion_status=NOT_COMPLETE_UNKNOWN</code>を維持する。</div>
+  <div class="pending"><strong>P3-11による現在状態:</strong> P3-AC-03はBLOCKED、P3-AC-01/04はCONDITIONAL。P3-12はH3-3未承認とHigh指摘のため停止中であり、P3-D13/P3-D14は未作成である。詳細は<a href="../../09_統合レビュー/10_Phase3統合レビュー結果.html">P3-D11</a>と<a href="../../09_統合レビュー/11_Phase3レッドチーム監査結果.html">P3-D12</a>を参照する。</div>
 
   <h2>6. Human Gate</h2>
   <p><code>RUN-P3-INT-001</code>は、ユーザーの「RUN-P3-INT-001を承認します」を受領し、承認証跡を固定文言で記録したうえで同じ固定入口を再実行した。WSL wrapper exit codeは0、verification stateは<code>PASS</code>である。承認によって<code>UNK-P3-01</code>、<code>UNK-P3-05</code>、<code>UNK-P3-07</code>が自動解消されたわけではなく、長期利益・頑健性・本番運用の承認も含まない。</p>

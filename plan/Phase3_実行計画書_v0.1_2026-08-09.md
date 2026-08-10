@@ -3,7 +3,7 @@
 作成日: 2026-08-09  
 対象: タートルズ・トレンドフォロー自動売買システム  
 対象Phase: Phase 3 Strategy / Backtest基盤  
-状態: v1.0 / H3-0、H3-1、H3-1R、H3-2、H3-5承認済み。H3-1R改訂により、v2は履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する。P3-06のStrategy実装・固定4 GateはPASS（2026-08-09）。P3-07R-01〜05でCore範囲を受入可へ更新し、P3-08のRUN-P3-BIAS-001も機械Gate・WSL隔離・独立レビュー・Human Gateを完了した。P3-08Aはユーザーの追加待機指示後、公式LEAN固定digest、artifact hash、ライセンス、network none/read-onlyのLocal preflight、固定4 Gate、レビューを完了してPASS。P3-08R-01〜05でP3-09専用入口、唯一のexecution Manifest、Core reference、LEAN schema、parity map、隔離品質Gate、独立レビューを完了し、準備RunはREADY_FOR_P3-09。2026-08-10、ユーザーの明示承認を受けてP3-09本Runを実行し、Windows本RunとWSL隔離品質Gate、P3-AC-01〜08をPASSした。P3-09は固定ローカルBacktest PoCの条件付き採用候補であり、実engine、Broker、Paper、Live、Cloud、Secretの本番利用は対象外のままとする。
+状態: v1.0 / H3-0、H3-1、H3-1R、H3-2、H3-5承認済み。H3-1R改訂により、v2は履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する。P3-06のStrategy実装・固定4 GateはPASS（2026-08-09）。P3-07R-01〜05でCore範囲を受入可へ更新し、P3-08のRUN-P3-BIAS-001も機械Gate・WSL隔離・独立レビュー・Human Gateを完了した。P3-08Aはユーザーの追加待機指示後、公式LEAN固定digest、artifact hash、ライセンス、network none/read-onlyのLocal preflight、固定4 Gate、レビューを完了してPASS。P3-08R-01〜05でP3-09専用入口、唯一のexecution Manifest、Core reference、LEAN schema、parity map、隔離品質Gate、独立レビューを完了し、準備RunはREADY_FOR_P3-09。2026-08-10、ユーザーの明示承認を受けてP3-09本Runを実行し、Windows本RunとWSL隔離品質Gate、P3-AC-01〜08をPASSした。P3-09は固定ローカルBacktest PoCの条件付き採用候補であり、実engine、Broker、Paper、Live、Cloud、Secretの本番利用は対象外のままとする。続くP3-11統合レビューではHigh 2件・Medium 2件を検出し、P3-AC-03をBLOCKED、P3-AC-01/04をCONDITIONALとした。P3-D11/P3-D12を作成したがH3-3は未承認のため、P3-12は完了判定前で停止している。
 
 参照:
 
@@ -288,8 +288,8 @@ H3-2は外部データや外部依存を使う許可であり、Secret投入、B
 | G11 | P3-08A | 完了・受入済み | H3-2、P3-02、P3-04、P3-05R、P3-08。`RUN-P3-LEAN-PREP-001`の固定digest、artifact hash、LICENSE、network none/read-only Local preflight、固定4 Gate、レビューを確認。P3-09は別Gateで実行する。 |
 | G12 | P3-09 | 完了・PASS（2026-08-10） | P3-08R-05で確定した専用実行入口、唯一のexecution Manifest、Core reference、LEAN/Core parity期待出力、固定4 Gate、WSL隔離、独立レビューを再照合し、ユーザー明示承認後に`RUN-P3-POC-001`を実行した。固定LEAN digest、network none、read-only入力、P3-AC-01〜08、Windows/WSL品質GateをPASS。P3-D10ではLEANをローカルBacktest PoCの条件付き採用候補とし、H1/H4/D1を含む長時間足、実取引所Calendar、実測cost/slippage、Paper/Liveは後続境界として明示する。 |
 | G13 | P3-10 | 実行済み・契約Gate PASS／Human Gate承認済み | `RUN-P3-INT-001`でP3-AC-01〜08の契約範囲、固定4 Gate、WSL隔離、fixture hashを確認し、ユーザー承認後の再実行でwrapper exit code 0を確認した。長期データ不足時は利益・頑健性だけUNKNOWNとし、P3-AC-01〜08のPhase 3範囲は省略しない。 |
-| G14 | P3-11 | 可能（P3-10受入済み・別実行依頼待ち） | P3-01〜P3-10、H3-6承認済み。P3-11は別の実行依頼として開始し、指摘採否はH3-3で扱う。 |
-| G15 | P3-12 | 不可 | H3-3、P3-11 |
+| G14 | P3-11 | 実行済み・H3-3承認待ち | P3-01〜P3-10、H3-6承認済みを入力として実施。P3-IR-001/002のHigh 2件、P3-IR-003/004のMedium 2件をP3-D11/P3-D12へ統合し、採否・修正条件はH3-3で扱う。 |
+| G15 | P3-12 | 不可（H3-3未承認・High指摘あり） | H3-3承認、P3-IR-001/002の修正または明示停止、再レビュー、P3-11完了。 |
 
 ---
 
@@ -1308,6 +1308,8 @@ Phase 3の統合レビューとレッドチーム監査を実施してくださ�
 - P3-D11/P3-D12がdoc/index.htmlから到達できる。
 - P3-AC-01〜08のPhase 3必須部分にCritical/Highまたは証拠欠落が0件で、Phase 4送りが現在のPASSと混同されていない。
 ```
+
+実行結果（2026-08-10）: **P3-11はH3-3承認待ちで完了、P3-12はBLOCKED**。P3-D11/P3-D12とP3-11レビュー証跡を作成し、High 2件・Medium 2件を確認した。P3-AC-03はBLOCKED、P3-AC-01/04はCONDITIONALであり、P3-D13/P3-D14、Phase 3完了判定、Phase 4引継ぎは作成していない。H3-3で指摘の採否・修正条件・Unknownの送り先が明示承認されるまで、P3-12を再開しない。正式結果: `doc/phase3/09_統合レビュー/10_Phase3統合レビュー結果.html` / `doc/phase3/09_統合レビュー/11_Phase3レッドチーム監査結果.html`。実行ログ: `plan/phase3/ログ/P3-11_実行ログ_2026-08-10.md` / `plan/phase3/ログ/P3-12_実行ログ_2026-08-10.md`。
 
 ### P3-12 レビュー反映・完了判定・Phase 4引継ぎ
 

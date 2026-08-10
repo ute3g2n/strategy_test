@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P3-D11 Phase 3統合レビュー結果</title>
+  <style>
+    body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.7;max-width:1220px;margin:0 auto;padding:2rem;color:#20242a}
+    h1,h2{color:#173b59}h1{border-bottom:3px solid #173b59;padding-bottom:.5rem}
+    table{border-collapse:collapse;width:100%;margin:1rem 0 2rem}th,td{border:1px solid #cbd5e1;padding:.6rem;vertical-align:top}th{background:#eef4f8;text-align:left}
+    code{background:#f5f7f9;padding:.1rem .25rem;word-break:break-all}.high{color:#991b1b;font-weight:700}.medium{color:#92400e;font-weight:700}.wait{color:#9a3412;font-weight:700}.ok{color:#166534;font-weight:700}
+    .hold{background:#fff8df;border-left:4px solid #d49b00;padding:.8rem 1rem}.easy{background:#fff8db;border-left:5px solid #eab308;padding:12px;margin:12px 0}.note{background:#eef7ff;border-left:5px solid #2563eb;padding:12px;margin:12px 0}
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">Phase 3成果物一覧</a> / <a href="../08_エンジンPoC/09_取引エンジンPoC評価結果.html">P3-D10</a> / <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
+  <h1>P3-D11 Phase 3統合レビュー結果</h1>
+  <p><strong>成果物ID:</strong> P3-D11<br>
+     <strong>文書セットID:</strong> P3-REVIEW-DOCSET<br>
+     <strong>Phase / Step:</strong> Phase 3 / P3-11<br>
+     <strong>作成日:</strong> 2026-08-10<br>
+     <strong>状態:</strong> <span class="wait">H3-3承認待ち。P3-12の完了判定は停止。</span><br>
+     <strong>Orchestrator:</strong> <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code></p>
+
+  <div class="hold"><strong>結論:</strong> P3-10の契約Gate PASS、WSL固定4 Gate PASS、長期データ・実測cost・正式Calendar・利益採用をUnknownとして分離する方針は確認できた。一方、P3-AC-03のCalendar動作証拠と、P3-10が参照した複数Runの証跡整合性にHigh指摘がある。H3-3で指摘の採否と停止条件を承認するまで、P3-12のレビュー反映・完了判定・Phase 4引継ぎは実行しない。</div>
+
+  <h2>1. 入力と監査範囲</h2>
+  <ul>
+    <li>P3-D01〜P3-D10、Phase 3実行計画、総合Blocked統合台帳。</li>
+    <li><code>src/autotrade/strategy/</code>、<code>src/autotrade/backtest/</code>、<code>tests/strategy/</code>、<code>tests/backtest/</code>、P3-10のRun証跡。</li>
+    <li>固定テスト: 全体<code>pytest -q</code> 95 passed、P3固定wrapper 265 passed、対象範囲のruff format/lint、mypy 37 source files。</li>
+    <li>追加の確認: Calendar 6ケース、M30 provenance、P3-10 source-run evidenceの状態・実行ID・restore状態。</li>
+    <li>対象外: Broker接続、Paper、Live、Secretの取得、外部通信、長期利益評価。</li>
+  </ul>
+
+  <h2>2. 統合レビュー指摘（Findings first）</h2>
+  <p>重大度、根拠、影響、修正方針を先に示す。指摘はH3-3で採否を判断するが、Critical/Highを承認だけで無効化してはならない。</p>
+  <table>
+    <thead><tr><th>指摘ID</th><th>重要度</th><th>対象 / 根拠</th><th>問題内容</th><th>修正方針・停止条件</th><th>H3-3判断</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>P3-IR-001</code></td><td class="high">High</td>
+        <td><code>src/autotrade/backtest/calendar_port.py:6-9</code><br><code>tests/backtest/test_calendar_port.py:39-61</code><br><code>src/autotrade/backtest/runner.py</code><br><code>tests/evidence/phase3/RUN-P3-POC-001/lean-output/p3-ac-03.json</code></td>
+        <td>Calendar fixtureには<code>normal</code>、<code>dst_start</code>、<code>dst_end</code>、<code>holiday</code>、<code>short_day</code>、<code>daily_halt</code>の6ケースがある。しかし<code>aggregate_calendar</code>を実行しているのは最初の3ケースだけで、後半3ケースはfixture項目の存在・値を確認しているだけである。<code>BacktestRunner</code>は<code>calendar_port</code>を呼び出さず、P3-09のAC-03証跡もCalendar版と同時close回数だけで、6ケース別の判定を含まない。追加確認でも前半3ケースだけがPASS、後半3ケースは<code>CALENDAR_BOUNDARY_INVALID</code>になった。<br><small>やさしい説明: 6種類の時間割を用意したが、実際に動くかを確かめたのは3種類だけです。残り3種類は紙に書いてあるだけなので、休みの日や途中停止を本当に守るか分かりません。</small></td>
+        <td>CalendarSnapshot/Availabilityを型付き契約として実装し、休日・短縮日・日次休場を明示的な期待結果で実行する。<code>BacktestRunner</code>と時間足集約へ接続し、P3-AC-03を再実行する。それまではP3-AC-03をPhase 3完了必須のPASSとして扱わず、P3-12を停止する。<br><small>やさしい説明: 6種類すべてについて、通すのか止めるのかをプログラムで決め、実際に答え合わせします。</small></td>
+        <td>必須修正として採用するか、採用しない場合はP3-12停止を維持する。</td>
+      </tr>
+      <tr>
+        <td><code>P3-IR-002</code></td><td class="high">High</td>
+        <td><code>scripts/quality_gate/p3_integration_runner.py:_source_run_audit</code><br><code>tests/evidence/phase3/RUN-P3-BIAS-001/verification.json</code><br><code>.../wsl-verification-capture.json</code><br><code>.../automation/run-test-summary.json</code><br><code>.../host-runner.json</code></td>
+        <td>RUN-P3-BIAS-001はcanonical <code>verification.json</code>では<code>PASS</code>だが、同じexecution idのWSL捕捉は<code>HUMAN_GATE_REQUIRED</code>、automation summaryは<code>BLOCKED</code>・wrapper exit 20、host-runnerは<code>FAILED</code>である。さらにcanonicalは<code>restore_pending=true</code>だが、<code>restore.json</code>は<code>RESTORED</code>である。P3-10のsource auditはcanonical verificationだけを読み、automation/capture/restore・HEAD・tool版・target hashの相互一致を検査しないため、この矛盾を最終PASSへ持ち込める。<br><small>やさしい説明: 同じ試験について「合格」「承認待ち」「失敗」が同時に残っています。どの紙を信じるかで結果が変わるため、答え合わせの記録として危険です。</small></td>
+        <td>承認前試行を履歴として明示的に分離し、承認後の同一入口を再実行してcapture・summary・canonicalを揃える。source auditへ実行ID、HEAD、target/input hash、tool版、network、restore状態の整合チェックを追加し、一つでも不一致ならPASSを出さない。P3-10 summaryの既存PASSはこの監査で再評価する。<br><small>やさしい説明: 同じ試験の記録を一つの正しい束にまとめ、紙同士が違えば自動で止めます。</small></td>
+        <td>必須修正として採用するか、再実行完了までP3-12停止を維持する。</td>
+      </tr>
+      <tr>
+        <td><code>P3-IR-003</code></td><td class="medium">Medium</td>
+        <td><code>src/autotrade/backtest/timeframe_aggregator.py:_m30</code><br><code>tests/backtest/test_backtest_m30_red_contract.py:38-43</code><br><code>tests/fixtures/phase3/m30_backtest_v2.json</code></td>
+        <td>直接M1→M30の公開関数は、個々のM1に<code>event_id</code>が無い場合に<code>evt-m1-000</code>等を生成し、<code>source_bar_kind</code>も未指定なら<code>BAR_1M</code>を既定値にする。BT-038の入力は個々のsource IDを持たない。実際に1本の価格を変更しても、M30は受理され、<code>source_event_ids_sha256</code>は変更されなかった。外側のtyped runnerは別途IDを付けるが、直接集約境界単体では実データの出所を証明できない。<br><small>やさしい説明: 材料の番号が無くても、あとから仮の番号を付けて通せます。中身の出所と答えを結び付ける名札が弱い状態です。</small></td>
+        <td>個々のM1 source ID、source kind、親fixture/Manifest hashを必須にし、入力ID列と出力hashを束縛するRED/GREENを追加する。typed runnerの保護を直接集約関数の契約にも反映する。</td>
+        <td>採用し、H3-3でP3-12までの修正期限・再テスト範囲を決める。</td>
+      </tr>
+      <tr>
+        <td><code>P3-IR-004</code></td><td class="medium">Medium</td>
+        <td><code>scripts/quality_gate/p3_integration_runner.py:_review_results</code><br><code>tests/quality_gate/test_p3_integration_contract.py:35-46</code><br><code>tests/evidence/phase3/RUN-P3-INT-001/reviews/a150-review.json</code>ほか</td>
+        <td>P3-10のA150/A160/A30/A40レビューJSONは、対象ファイルが存在し、source auditがPASSなら空のFindingで<code>APPROVE</code>を生成する。対応テストもreviewer名・review結果欄が空でないことを確認するだけで、独立した分析・根拠・再現操作を検証しない。P3-11で実施した独立監査の根拠として、これらをそのまま再利用してはならない。<br><small>やさしい説明: 「レビューしました」という名前の紙はありますが、どこをどう調べたかの中身が書かれていません。</small></td>
+        <td>P3-11の実レビュー報告を正式な独立監査証跡として保存し、P3-10の機械的構造チェックと人・役割によるレビューを分離する。review evidenceに対象、操作、根拠、Finding、再レビュー結果を必須化する。</td>
+        <td>採用し、文書・証跡のレビュー履歴を修正する。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>3. P3-AC独立再監査の状態</h2>
+  <table>
+    <thead><tr><th>条件</th><th>独立監査状態</th><th>確認範囲</th><th>残る境界 / 対応</th></tr></thead>
+    <tbody>
+      <tr><td>P3-AC-01</td><td class="wait">CONDITIONAL</td><td>時間足の固定契約とP3-09 M1/M15/M30 parity。</td><td>M30直接集約のsource provenanceはP3-IR-003で再確認する。H1/H4/D1のengine parityはUnknown。</td></tr>
+      <tr><td>P3-AC-02</td><td class="ok">PASS（範囲内）</td><td>未完成bar、未来bar/roll、holdout、wall clock、closed-bar処理。</td><td>長期実市場の頑健性はUNK-P3-01等のまま。</td></tr>
+      <tr><td>P3-AC-03</td><td class="high">BLOCKED</td><td>normal/DSTの3ケースは関数実行、holiday/short_day/daily_haltはfixture存在確認のみ。</td><td>P3-IR-001。6ケースの動作実装・再実行までP3-12不可。</td></tr>
+      <tr><td>P3-AC-04</td><td class="wait">CONDITIONAL</td><td>同一ManifestのReplay hash、snapshot/restore、ordered output。</td><td>P3-IR-002のsource evidence整合とP3-IR-003の入力provenanceを解消して再確認。</td></tr>
+      <tr><td>P3-AC-05</td><td class="ok">PASS（範囲内）</td><td>Strategy/Coreとengine adapterの公開型・SDK漏出拒否。</td><td>Broker/Paper/Live接続は対象外。</td></tr>
+      <tr><td>P3-AC-06</td><td class="ok">PASS（範囲内）</td><td>固定ローカル入力、network none、offline/readonly条件。</td><td>P3-IR-002の証跡束の再整合が必要。</td></tr>
+      <tr><td>P3-AC-07</td><td class="ok">PASS（範囲内）</td><td>5市場×2024/2025 synthetic性能、二回の結果hash、30分/8GiB。</td><td>20〜40市場の連続運用はPhase 4。</td></tr>
+      <tr><td>P3-AC-08</td><td class="ok">PASS（範囲内）</td><td>Golden、snapshot/restore、Look-ahead、Manifest tamper。</td><td>P3-IR-002の証跡整合を再確認。利益採用は行わない。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. 確認できた整合事項</h2>
+  <ul>
+    <li>Strategy Coreは時計、ネットワーク、Broker、engine SDK、Secret、外部I/Oへ依存していない。TargetPositionもStrategy unit hintまでで、Risk最終承認・実数量を持たない。</li>
+    <li>P3対象の固定品質wrapperは265 passed、対象範囲のformatter/lint/typeはPASS。全体pytestも95 passedで、今回のHigh指摘は通常回帰テストの失敗ではなく、契約範囲と証跡の不足である。</li>
+    <li>UNK-P3-01（長期データ）、UNK-P3-05（実測cost/slippage）、UNK-P3-07（正式Calendar追随）は、短期fixtureのPASSへ変換されていない。</li>
+    <li>Broker、Paper、Live、Secret、Cloud、利益採用は今回のレビュー対象外であり、承認範囲にも含めない。</li>
+  </ul>
+
+  <h2>5. H3-3で具体的に承認する事項</h2>
+  <table>
+    <thead><tr><th>対象</th><th>承認内容</th><th>承認しない内容</th></tr></thead>
+    <tbody>
+      <tr><td><code>P3-IR-001</code></td><td>Calendar 6ケースの動作実装、Backtest接続、再テストをP3-12前の必須修正とする。</td><td>fixture項目の存在確認だけをP3-AC-03 PASSへ戻すこと。</td></tr>
+      <tr><td><code>P3-IR-002</code></td><td>RUN-P3-BIAS-001の承認後証跡を再実行・再取得し、source-run整合チェックを追加する。</td><td>canonical verificationだけでcapture/automationの矛盾を無視すること。</td></tr>
+      <tr><td><code>P3-IR-003</code> / <code>P3-IR-004</code></td><td>M30 provenanceを入力hashへ束縛し、P3-11実レビューを独立証拠として登録する。</td><td>Medium指摘をUnknownやユーザー承認だけで消すこと。</td></tr>
+      <tr><td>Unknownの送り先</td><td>UNK-P3-01/05/07を継続し、長期評価・実測cost・正式Calendar追随を後続Gateへ送る。</td><td>今回のP3-11またはH3-3で利益・頑健性・本番運用を承認すること。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>6. レビュー履歴・関連リンク</h2>
+  <table><thead><tr><th>担当</th><th>観点</th><th>結果</th></tr></thead><tbody>
+    <tr><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>要件追跡、責務境界、P3-D01〜D10、Unknown</td><td>High 2 / Medium 2を本書へ統合。H3-3待ち。</td></tr>
+    <tr><td><code>AutoTrade_A150_PythonCodeReviewer_v0_1</code></td><td>Python品質、決定性、証跡revision、外部入力境界</td><td>P3-IR-002/003/004を確認。P3-12前に再レビュー必要。</td></tr>
+    <tr><td><code>AutoTrade_A160_TradingSecurityReviewer_v0_1</code></td><td>Fail-closed、偽造PASS、Secret/Broker到達経路</td><td>P3-IR-001/002を安全上の停止条件として確認。</td></tr>
+    <tr><td><code>AutoTrade_A30_StrategyQaArchitect_v0_1</code> / <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code></td><td>Strategy意味論、時間足、Calendar、PoC parity</td><td>P3-AC-03をBLOCKED、P3-AC-01/04をCONDITIONAL。</td></tr>
+    <tr><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code> / <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code></td><td>文書セット、index導線、台帳、採否表</td><td>P3-D11/P3-D12をセットとして作成。P3-12成果物は未作成。</td></tr>
+  </tbody></table>
+  <ul>
+    <li><a href="./11_Phase3レッドチーム監査結果.html">P3-D12 Phase 3レッドチーム監査結果</a></li>
+    <li><a href="../07_頑健性検証/10_P3-10_統合Replay_Golden_Bias検証結果.html">P3-10統合検証結果</a></li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/reviews/p3-11-a90-design-review.md">P3-11レビュー証跡</a></li>
+    <li><a href="../../../plan/phase3/ログ/P3-11_実行ログ_2026-08-10.md">P3-11実行ログ</a> / <a href="../../../plan/phase3/ログ/P3-12_実行ログ_2026-08-10.md">P3-12停止ログ</a></li>
+    <li><a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題・Blocked統合台帳</a> / <a href="../../../plan/Phase3_実行計画書_v0.1_2026-08-09.md">Phase 3実行計画書</a></li>
+  </ul>
+</main>
+</body>
+</html>

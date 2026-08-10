@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P3-D12 Phase 3レッドチーム監査結果</title>
+  <style>
+    body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.7;max-width:1220px;margin:0 auto;padding:2rem;color:#20242a}
+    h1,h2{color:#173b59}h1{border-bottom:3px solid #173b59;padding-bottom:.5rem}
+    table{border-collapse:collapse;width:100%;margin:1rem 0 2rem}th,td{border:1px solid #cbd5e1;padding:.6rem;vertical-align:top}th{background:#eef4f8;text-align:left}
+    code{background:#f5f7f9;padding:.1rem .25rem;word-break:break-all}.high{color:#991b1b;font-weight:700}.medium{color:#92400e;font-weight:700}.wait{color:#9a3412;font-weight:700}.ok{color:#166534;font-weight:700}
+    .hold{background:#fff8df;border-left:4px solid #d49b00;padding:.8rem 1rem}.easy{background:#fff8db;border-left:5px solid #eab308;padding:12px;margin:12px 0}.note{background:#eef7ff;border-left:5px solid #2563eb;padding:12px;margin:12px 0}
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">Phase 3成果物一覧</a> / <a href="./10_Phase3統合レビュー結果.html">P3-D11</a> / <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
+  <h1>P3-D12 Phase 3レッドチーム監査結果</h1>
+  <p><strong>成果物ID:</strong> P3-D12<br>
+     <strong>文書セットID:</strong> P3-REVIEW-DOCSET<br>
+     <strong>Phase / Step:</strong> Phase 3 / P3-11<br>
+     <strong>作成日:</strong> 2026-08-10<br>
+     <strong>状態:</strong> <span class="wait">H3-3承認待ち。Critical/Highを残したままP3-12へ進めない。</span><br>
+     <strong>監査範囲:</strong> fail-closed、証跡改ざん、Calendar境界、M30 provenance、レビュー証拠、Phase 4への危険な先送り</p>
+
+  <div class="hold"><strong>監査結論:</strong> Strategy CoreのBroker/Secret/外部I/O分離と固定品質Gateは確認できた。しかし「休場・日次休場を本当に止めるか」「承認後の証跡がPASSへ一貫してつながるか」「M30の材料の出所を改ざんできないか」に攻撃経路が残る。これらを承認済みUnknownへ格下げせず、Highは修正または明示停止する。</div>
+
+  <h2>1. 事故シナリオとレッドチーム指摘</h2>
+  <table>
+    <thead><tr><th>指摘ID</th><th>重要度</th><th>攻撃シナリオ / 観測</th><th>安全な期待結果</th><th>実際の境界と対応</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>RT-P3-11-001</code></td><td class="high">High</td>
+        <td>日次休場・休日・短縮日のケースを入力し、<code>BacktestRunner</code>がCalendarPortを呼ばないままイベントを時間足窓へ取り込めるかを確認する。実装には<code>calendar_port</code>参照がなく、単一のsession anchorと分数計算だけがある。<br><small>やさしい説明: 市場が休みの時間に値段の記録を置いても、時間割を見ずに計算へ入れる道が残っています。</small></td>
+        <td>Calendarが閉場・停止・利用不能なら、bar、Signal、Intent、Fillを作らず、理由付きで停止する。</td>
+        <td><code>P3-IR-001</code>と同じ根本原因。Calendar動作契約を実装し、6ケースを実行してからP3-AC-03を再判定する。現時点ではP3-12をBLOCKED。</td>
+      </tr>
+      <tr>
+        <td><code>RT-P3-11-002</code></td><td class="high">High</td>
+        <td>同一Runのcanonical verificationだけを読み、WSL captureやautomation summaryを無視してPASSを作る。RUN-P3-BIAS-001ではcanonical=PASS、capture=HUMAN_GATE_REQUIRED、automation=BLOCKED/exit 20、host=FAILEDという状態を実測した。<br><small>やさしい説明: 不合格の紙を隠して合格の紙だけ見せれば、機械的には通ってしまいます。</small></td>
+        <td>状態、execution ID、HEAD、input/target hash、tool版、network、restoreが全証跡で一致しない限りPASSを出さない。</td>
+        <td><code>P3-IR-002</code>。承認後Runの再取得とsource audit機械Gateを必須化する。人の承認だけで矛盾を消さない。</td>
+      </tr>
+      <tr>
+        <td><code>RT-P3-11-003</code></td><td class="medium">Medium</td>
+        <td>30本のM1の一つを変更し、各barの<code>event_id</code>を削除したまま<code>aggregate_m30</code>へ渡す。実測ではM30は受理され、source event ID hashは変更前と同じだった。<br><small>やさしい説明: 材料の番号を外しても、同じ仮番号を付けて通せるため、どの材料から作ったかを追えません。</small></td>
+        <td>source ID欠落、親Manifest不一致、内容差分はM30を作らずSTOPPEDにする。</td>
+        <td><code>P3-IR-003</code>。M30直接集約の入力契約をtyped runnerと同じ厳しさへ揃え、source ID/hashのRED/GREENを追加する。</td>
+      </tr>
+      <tr>
+        <td><code>RT-P3-11-004</code></td><td class="medium">Medium</td>
+        <td>空のFindingと存在するファイルだけでA150/A160/A30/A40をAPPROVEにする。P3-10の<code>_review_results</code>と対応テストは、独立操作や根拠の内容を検証していない。<br><small>やさしい説明: 点検した人の名前だけを置き、点検内容を書かなくても合格にできます。</small></td>
+        <td>レビュー対象、操作、観測値、重大度、修正条件、再レビュー結果がないレビューは受入根拠にしない。</td>
+        <td><code>P3-IR-004</code>。P3-11の実レビュー報告を正式証跡へ登録し、P3-10の機械チェックと独立レビューを分離する。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>2. 防御が確認できた事項</h2>
+  <ul>
+    <li>Strategy Coreの静的境界テストはBroker、engine SDK、network、clock、Secret、外部I/Oを拒否する。</li>
+    <li>固定品質wrapperはネットワークなしのtarget scopeで実行され、P3対象wrapperは265 passed。今回の指摘は外部通信の発生ではなく、Calendar接続と証跡の意味論に関するもの。</li>
+    <li>Manifest tamper、holdout早期参照、未来roll、snapshot復旧、Gap/Stopの楽観約定拒否は固定fixtureで確認されている。</li>
+    <li>UNK-P3-01/05/07は「利益や本番を承認しない」という境界として維持されており、今回の監査でPassへ変換していない。</li>
+  </ul>
+
+  <h2>3. H3-3での最低判断条件</h2>
+  <ol>
+    <li><code>RT-P3-11-001</code>と<code>RT-P3-11-002</code>をP3-12前の必須対応として採用する、または修正完了まで明示的に停止する。</li>
+    <li><code>RT-P3-11-003</code>はM30 source provenanceの修正・RED/GREEN・Manifest再照合の期限と担当を決める。</li>
+    <li><code>RT-P3-11-004</code>は独立レビュー証跡の最低項目を採用し、空の自動生成APPROVEを正式レビュー根拠から外す。</li>
+    <li>H3-3承認は長期データ、利益、正式取引所Calendarの継続追随、Broker、Paper、Live、Phase 4移行の承認を含まない。</li>
+  </ol>
+
+  <h2>4. レビュー履歴・関連リンク</h2>
+  <table><thead><tr><th>担当</th><th>観点</th><th>結果</th></tr></thead><tbody>
+    <tr><td><code>AutoTrade_A160_TradingSecurityReviewer_v0_1</code></td><td>安全停止、偽造PASS、Secret/Broker境界</td><td>High 2 / Medium 2を停止条件へ反映。</td></tr>
+    <tr><td><code>AutoTrade_A150_PythonCodeReviewer_v0_1</code></td><td>決定性、例外、証跡生成、テスト十分性</td><td>M30 provenanceとreview evidenceの不足を確認。</td></tr>
+    <tr><td><code>AutoTrade_A30_StrategyQaArchitect_v0_1</code> / <code>AutoTrade_A40_ExecutionEnginePocArchitect_v0_1</code></td><td>時間足・Calendar・Strategy/engine意味論</td><td>P3-AC-03をBLOCKED、AC-01/04をCONDITIONAL。</td></tr>
+    <tr><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>要件追跡、Unknown、Phase境界</td><td>H3-3判断対象としてP3-D11へ統合。</td></tr>
+  </tbody></table>
+  <ul>
+    <li><a href="./10_Phase3統合レビュー結果.html">P3-D11 Phase 3統合レビュー結果</a></li>
+    <li><a href="../07_頑健性検証/10_P3-10_統合Replay_Golden_Bias検証結果.html">P3-10統合検証結果</a></li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/reviews/p3-11-a160-red-team-review.md">P3-11 Red Teamレビュー証跡</a></li>
+    <li><a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題・Blocked統合台帳</a> / <a href="../../../plan/Phase3_実行計画書_v0.1_2026-08-09.md">Phase 3実行計画書</a></li>
+  </ul>
+</main>
+</body>
+</html>

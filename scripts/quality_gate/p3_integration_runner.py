@@ -41,6 +41,17 @@ SOURCE_RUN_IDS = (
     "RUN-P3-BIAS-001",
     "RUN-P3-POC-001",
 )
+FINAL_REVIEW_EVIDENCE = {
+    "A130": ("p3-12-a130-verification.md", "final fixed-gate execution and evidence completeness"),
+    "A150": ("p3-12-a150-python-review.md", "Python implementation and test quality"),
+    "A160": ("p3-12-a160-red-team-review.md", "trading safety, fail-closed behavior, and boundary risks"),
+    "A90": ("p3-12-a90-design-review.md", "design, requirement, and review consistency"),
+    "A91": ("p3-12-a91-implementation-detail-review.md", "implementation detail and contract alignment"),
+    "A80": ("p3-12-a80-document-integration.md", "document integration and traceability"),
+    "A81": ("p3-12-a81-design-doc-set-review.md", "formal document set and index reachability"),
+    "A30": ("p3-12-a30-strategy-qa-review.md", "Strategy, Golden, and look-ahead boundary"),
+    "A40": ("p3-12-a40-engine-review.md", "engine parity and vendor-neutral execution boundary"),
+}
 KNOWN_UNKNOWN_DETAILS = (
     {
         "id": "UNK-P3-01",
@@ -206,6 +217,133 @@ def _fixture_integrity(root: Path) -> dict[str, Any]:
     }
 
 
+def _audit_source_run_bundle(root: Path, run_id: str) -> dict[str, Any]:
+    """Cross-check the Windows-captured evidence bundle for one source Run."""
+
+    evidence_root = _path(root, Path("tests/evidence/phase3") / run_id)
+    required_paths = {
+        "manifest": evidence_root / "run-manifest.json",
+        "verification": evidence_root / "verification.json",
+        "capture": evidence_root / "wsl-verification-capture.json",
+        "automation": evidence_root / "automation" / "run-test-summary.json",
+        "host_runner": evidence_root / "host-runner.json",
+        "restore": evidence_root / "restore.json",
+    }
+    errors: list[str] = []
+    values: dict[str, dict[str, Any]] = {}
+    for name, path in required_paths.items():
+        if not path.is_file():
+            errors.append(f"{run_id}: missing evidence bundle file {path.relative_to(root).as_posix()}")
+            continue
+        try:
+            values[name] = _read_json(path)
+        except (OSError, ValueError) as error:
+            errors.append(f"{run_id}: invalid evidence bundle file {name}: {error}")
+
+    def bundle_value(name: str) -> dict[str, Any]:
+        value = values.get(name)
+        return value if isinstance(value, dict) else {}
+
+    manifest = bundle_value("manifest")
+    verification = bundle_value("verification")
+    capture = bundle_value("capture")
+    nested_value = capture.get("verification")
+    nested = nested_value if isinstance(nested_value, dict) else {}
+    automation = bundle_value("automation")
+    host_runner = bundle_value("host_runner")
+    restore = bundle_value("restore")
+
+    execution_id = str(automation.get("expected_execution_id", ""))
+    execution_ids = {
+        "verification": str(verification.get("host_wrapper_execution_id", "")),
+        "capture": str(capture.get("execution_id", "")),
+        "nested_verification": str(nested.get("host_wrapper_execution_id", "")),
+        "automation": execution_id,
+        "host_runner": str(host_runner.get("execution_id", "")),
+        "restore": str(restore.get("execution_id", "")),
+    }
+    if not execution_id:
+        errors.append(f"{run_id}: automation execution ID is missing")
+    for name, observed in execution_ids.items():
+        if observed != execution_id:
+            errors.append(f"{run_id}: execution ID mismatch for {name}")
+
+    if verification.get("state") != "PASS" or verification.get("final_status") != "PASS":
+        errors.append(f"{run_id}: canonical verification is not PASS")
+    if int(verification.get("exit_code", 1)) != 0:
+        errors.append(f"{run_id}: canonical verification exit code is not zero")
+    if capture.get("state") != "CAPTURED" or capture.get("retrieval_exit_code") != 0:
+        errors.append(f"{run_id}: WSL verification capture is not complete")
+    if nested.get("state") != "PASS" or int(nested.get("exit_code", 1)) != 0:
+        errors.append(f"{run_id}: captured nested verification is not PASS")
+    if automation.get("state") != "PASS" or automation.get("wrapper_exit_code") != 0:
+        errors.append(f"{run_id}: automation summary is not PASS")
+    if automation.get("evidence_state") != "PASS":
+        errors.append(f"{run_id}: automation evidence state is not PASS")
+    if host_runner.get("state") != "RUNNER_COMPLETED":
+        errors.append(f"{run_id}: host runner did not complete")
+    if restore.get("state") != "RESTORED" or restore.get("restored") is not True:
+        errors.append(f"{run_id}: host restoration is not confirmed")
+
+    gates = verification.get("gates", [])
+    if (
+        not isinstance(gates, list)
+        or not gates
+        or any(not isinstance(gate, dict) or gate.get("status") != "PASS" for gate in gates)
+    ):
+        errors.append(f"{run_id}: one or more fixed quality gates are not PASS")
+    host_isolation = capture.get("host_isolation")
+    if not isinstance(host_isolation, dict):
+        host_isolation = {}
+    if host_isolation.get("state") != "CONFIRMED" or host_isolation.get("networking_mode") != "none":
+        errors.append(f"{run_id}: WSL host isolation evidence is incomplete")
+
+    fixture_path = _path(root, "tests/fixtures/phase3/bias_manifest_v1.json")
+    expected_input_hash = _sha256_file(fixture_path) if fixture_path.is_file() else ""
+    if not expected_input_hash:
+        errors.append(f"{run_id}: trusted bias fixture is missing")
+    for name, source in (("canonical", verification), ("capture", nested)):
+        if source.get("input_sha256") != expected_input_hash or source.get("post_input_sha256") != expected_input_hash:
+            errors.append(f"{run_id}: {name} input hash is not fixture-bound")
+    if host_isolation.get("input_sha256") != expected_input_hash:
+        errors.append(f"{run_id}: host isolation input hash is not fixture-bound")
+    expected_change_hash = str(manifest.get("change_hash", ""))
+    if verification.get("target_only_change_sha256") != expected_change_hash:
+        errors.append(f"{run_id}: canonical target-only change hash differs from Manifest")
+    if nested.get("target_only_change_sha256") != expected_change_hash:
+        errors.append(f"{run_id}: captured target-only change hash differs from Manifest")
+
+    head = nested.get("head", verification.get("head"))
+    tool_versions = nested.get("tool_versions", verification.get("tool_versions"))
+    if not isinstance(head, str) or len(head) != 40:
+        errors.append(f"{run_id}: WSL HEAD is missing")
+    if not isinstance(tool_versions, dict) or any(
+        not isinstance(tool_versions.get(name), str) or not tool_versions.get(name)
+        for name in ("python", "ruff", "mypy", "pytest")
+    ):
+        errors.append(f"{run_id}: WSL tool versions are missing")
+
+    restore_reconciliation = {
+        "capture_restore_pending": verification.get("restore_pending") is True,
+        "host_restore_state": restore.get("state"),
+        "status": "PASS"
+        if verification.get("restore_pending") is True and restore.get("state") == "RESTORED"
+        else "FAIL",
+    }
+    if restore_reconciliation["status"] != "PASS":
+        errors.append(f"{run_id}: WSL capture and host restore lifecycle do not reconcile")
+
+    return {
+        "status": _status(errors),
+        "errors": errors,
+        "execution_id": execution_id,
+        "head": head,
+        "tool_versions": tool_versions,
+        "restore_reconciliation": restore_reconciliation,
+        "checked_files": [path.relative_to(root).as_posix() for path in required_paths.values()],
+    }
+
+
 def _source_run_audit(root: Path) -> dict[str, Any]:
     errors: list[str] = []
     source_runs: dict[str, dict[str, Any]] = {}
@@ -230,6 +368,12 @@ def _source_run_audit(root: Path) -> dict[str, Any]:
             "used_for_final_pass": observed_status == "PASS",
             "verification_path": verification_path.as_posix(),
         }
+        if run_id == "RUN-P3-BIAS-001":
+            bundle_audit = _audit_source_run_bundle(root, run_id)
+            source_runs[run_id]["bundle_audit"] = bundle_audit
+            source_runs[run_id]["used_for_final_pass"] = observed_status == "PASS" and bundle_audit["status"] == "PASS"
+            if bundle_audit["status"] != "PASS":
+                errors.extend(bundle_audit["errors"])
 
     stale_gold = source_runs["RUN-P3-GOLD-001"]
     stale_gold["used_for_final_pass"] = False
@@ -286,10 +430,146 @@ def _source_run_audit(root: Path) -> dict[str, Any]:
     }
 
 
+def _calendar_behavioral_audit(root: Path) -> dict[str, Any]:
+    """Execute all fixed Calendar fixture cases through the production port."""
+
+    errors: list[str] = []
+    fixture_path = _path(root, "tests/fixtures/phase3/calendar_us_futures_v1.json")
+    if not fixture_path.is_file():
+        return {"status": "FAIL", "errors": ["Calendar fixture is missing"], "case_results": []}
+    try:
+        if str(root / "src") not in sys.path:
+            sys.path.insert(0, str(root / "src"))
+        from autotrade.backtest.calendar_port import aggregate_calendar, validate_calendar_window
+
+        fixture = _read_json(fixture_path)
+        cases = {
+            str(case["id"]): case
+            for case in fixture.get("cases", [])
+            if isinstance(case, dict) and isinstance(case.get("id"), str)
+        }
+        expected_actions = {
+            "normal": "OPEN",
+            "dst_start": "OPEN",
+            "dst_end": "OPEN",
+            "holiday": "CLOSED",
+            "short_day": "OPEN_RESTRICTED",
+            "daily_halt": "HALT_WINDOW",
+        }
+        if set(cases) != set(expected_actions):
+            errors.append("Calendar fixture case set is not the fixed six-case set")
+        case_results: list[dict[str, Any]] = []
+        for case_id, expected_action in expected_actions.items():
+            case = cases.get(case_id)
+            if case is None:
+                continue
+            aggregate = aggregate_calendar(case)
+            case_result: dict[str, Any] = {"case": case_id, "aggregate": aggregate}
+            if aggregate.get("calendar_action") != expected_action:
+                errors.append(f"Calendar aggregate decision mismatch: {case_id}")
+            if case_id == "holiday" and aggregate.get("status") != "STOPPED":
+                errors.append("Calendar holiday must stop")
+            if case_id in {"normal", "dst_start", "dst_end"}:
+                event_time = str(case["session_open_utc"])
+                close_time = "2026-01-05T23:01:00Z"
+                if case_id == "dst_start":
+                    close_time = "2026-03-08T22:01:00Z"
+                elif case_id == "dst_end":
+                    close_time = "2026-11-01T23:01:00Z"
+                case_result["window"] = validate_calendar_window(case, event_time, close_time)
+                if case_result["window"].get("status") != "PASS":
+                    errors.append(f"Calendar open-window decision mismatch: {case_id}")
+            elif case_id == "short_day":
+                inside = validate_calendar_window(case, "2026-11-27T18:44:00Z", "2026-11-27T18:45:00Z")
+                outside = validate_calendar_window(case, "2026-11-27T18:45:00Z", "2026-11-27T18:46:00Z")
+                case_result["window"] = {"inside": inside, "outside": outside}
+                if inside.get("status") != "PASS" or outside.get("reason") != "CALENDAR_BOUNDARY_INVALID":
+                    errors.append("Calendar short-day boundary decision mismatch")
+            elif case_id == "daily_halt":
+                halted = validate_calendar_window(case, "2026-01-06T22:15:00Z", "2026-01-06T22:16:00Z")
+                after = validate_calendar_window(case, "2026-01-06T23:00:00Z", "2026-01-06T23:01:00Z")
+                case_result["window"] = {"halted": halted, "after": after}
+                if halted.get("reason") != "CALENDAR_HALT_ACTIVE" or after.get("status") != "PASS":
+                    errors.append("Calendar daily-halt boundary decision mismatch")
+            case_results.append(case_result)
+    except (ImportError, KeyError, TypeError, ValueError, OSError) as error:
+        return {"status": "FAIL", "errors": [f"Calendar behavioral audit failed: {error}"], "case_results": []}
+    return {
+        "status": _status(errors),
+        "errors": errors,
+        "case_count": len(case_results),
+        "case_results": case_results,
+        "implementation_path": "src/autotrade/backtest/calendar_port.py",
+    }
+
+
+def _m30_provenance_audit(root: Path) -> dict[str, Any]:
+    """Verify that source content and source IDs are both bound to M30 output."""
+
+    errors: list[str] = []
+    data_path = _path(root, "tests/fixtures/phase3/m30_backtest_v2.json")
+    contract_path = _path(root, "tests/fixtures/phase3/m30_backtest_contract_cases_v2.json")
+    if not data_path.is_file() or not contract_path.is_file():
+        return {"status": "FAIL", "errors": ["M30 provenance fixture or contract is missing"]}
+    try:
+        if str(root / "src") not in sys.path:
+            sys.path.insert(0, str(root / "src"))
+        from autotrade.backtest.timeframe_aggregator import aggregate_m30
+
+        data = _read_json(data_path)
+        contract = _read_json(contract_path)
+        case = contract.get("cases", {}).get("BT-038", {})
+        input_contract = case.get("input", {})
+        bars = data.get("direct_m1_bars")
+        anchor = data.get("session_anchor")
+        source_event_ids = data.get("source_event_ids")
+        if not isinstance(bars, list):
+            raise ValueError("direct_m1_bars must be a list")
+        parent_manifest_sha256 = "sha256:" + "a" * 64
+        value = {
+            **input_contract,
+            "bars": bars,
+            "session_anchor": anchor,
+            "source_event_ids": source_event_ids,
+            "parent_manifest_sha256": parent_manifest_sha256,
+        }
+        first = aggregate_m30(value)
+        changed_value = {**value, "bars": [dict(bar) for bar in bars]}
+        changed_value["bars"][0]["high"] = "110.30"
+        second = aggregate_m30(changed_value)
+        if first.get("timeframe") != "M30" or second.get("timeframe") != "M30":
+            errors.append("M30 provenance baseline did not produce an M30 result")
+        if first.get("source_event_ids_sha256") != second.get("source_event_ids_sha256"):
+            errors.append("M30 source ID hash changed with source content mutation")
+        if first.get("source_content_sha256") == second.get("source_content_sha256"):
+            errors.append("M30 source content hash ignored source content mutation")
+        if first.get("source_provenance_sha256") == second.get("source_provenance_sha256"):
+            errors.append("M30 provenance hash ignored source content mutation")
+        missing_ids = {key: item for key, item in value.items() if key != "source_event_ids"}
+        if aggregate_m30(missing_ids) != {"status": "STOPPED", "reason": "M30_SOURCE_ID_INVALID"}:
+            errors.append("M30 missing explicit source IDs was not stopped")
+    except (ImportError, KeyError, TypeError, ValueError, OSError) as error:
+        return {"status": "FAIL", "errors": [f"M30 provenance audit failed: {error}"]}
+    return {
+        "status": _status(errors),
+        "errors": errors,
+        "source_event_ids_hash_stable": not errors,
+        "source_content_hash_changes": not errors,
+        "source_provenance_hash_changes": not errors,
+        "implementation_path": "src/autotrade/backtest/timeframe_aggregator.py",
+    }
+
+
 def _replay_bias_audit(
     root: Path, fixture_integrity: Mapping[str, Any], source_audit: Mapping[str, Any]
 ) -> dict[str, Any]:
     errors: list[str] = []
+    calendar_audit = _calendar_behavioral_audit(root)
+    m30_provenance = _m30_provenance_audit(root)
+    if calendar_audit["status"] != "PASS":
+        errors.extend(calendar_audit["errors"])
+    if m30_provenance["status"] != "PASS":
+        errors.extend(m30_provenance["errors"])
     poc_verification = _read_json(_path(root, "tests/evidence/phase3/RUN-P3-POC-001/verification.json"))
     parity = _read_json(_path(root, "tests/evidence/phase3/RUN-P3-POC-001/parity-results.json"))
     performance = _read_json(_path(root, "tests/evidence/phase3/RUN-P3-POC-001/performance.json"))
@@ -339,6 +619,8 @@ def _replay_bias_audit(
         ],
         "manifest_tamper_mutations": 6,
         "calendar_fixture_cases": 6,
+        "calendar_behavioral_audit": calendar_audit,
+        "m30_provenance_audit": m30_provenance,
         "comparison": {
             "original_systems": ["SYSTEM_1", "SYSTEM_2"],
             "comparison_variant": "M15_CLOSE_CONFIRMED_V1",
@@ -353,49 +635,62 @@ def _replay_bias_audit(
 
 
 def _review_results(root: Path, source_audit: Mapping[str, Any], replay_audit: Mapping[str, Any]) -> dict[str, Any]:
-    code_paths = [
-        "scripts/quality_gate/p3_integration_runner.py",
-        "scripts/quality_gate/local_p3_integration.py",
-        "scripts/quality_gate/runner.py",
-        "tests/quality_gate/test_p3_integration_contract.py",
-    ]
-    missing = [relative for relative in code_paths if not _path(root, relative).is_file()]
-    findings = [{"severity": "High", "detail": f"missing review target: {relative}"} for relative in missing]
-    verdict = (
-        "APPROVE"
-        if not findings and source_audit.get("status") == "PASS" and replay_audit.get("status") == "PASS"
-        else "RETURN"
+    """Load substantive P3-12 review records; never infer approval from file presence."""
+
+    reviewer_names = {
+        "A130": "AutoTrade_A130_VerificationEngineer_v0_1",
+        "A150": "AutoTrade_A150_PythonCodeReviewer_v0_1",
+        "A160": "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+        "A90": "AutoTrade_A90_DesignReviewer_v0_1",
+        "A91": "AutoTrade_A91_ImplementationDetailReviewer_v0_1",
+        "A80": "AutoTrade_A80_DocumentIntegrator_v0_1",
+        "A81": "AutoTrade_A81_DesignDocSetWriter_v0_1",
+        "A30": "AutoTrade_A30_StrategyQaArchitect_v0_1",
+        "A40": "AutoTrade_A40_ExecutionEnginePocArchitect_v0_1",
+    }
+    required_markers = (
+        "status: PASS",
+        "verdict: APPROVE",
+        "critical_findings: 0",
+        "high_findings: 0",
+        "P3-IR-001",
+        "P3-IR-002",
+        "P3-IR-003",
+        "P3-IR-004",
     )
-    common = {
-        "run_id": RUN_ID,
-        "scope": "P3-10 integration contract; no profit adoption",
-        "findings": findings,
-        "critical": 0,
-        "high": len([item for item in findings if item["severity"] == "High"]),
-        "verdict": verdict,
-    }
-    return {
-        "A150": {
-            **common,
-            "reviewer": "AutoTrade_A150_PythonCodeReviewer_v0_1",
-            "focus": "revision and evidence consistency",
-        },
-        "A160": {
-            **common,
-            "reviewer": "AutoTrade_A160_TradingSecurityReviewer_v0_1",
-            "focus": "profit leakage, optimistic fills, hidden Unknowns",
-        },
-        "A30": {
-            **common,
-            "reviewer": "AutoTrade_A30_StrategyQaArchitect_v0_1",
-            "focus": "Strategy Golden, Look-ahead, System 1/2 semantics",
-        },
-        "A40": {
-            **common,
-            "reviewer": "AutoTrade_A40_ExecutionEnginePocArchitect_v0_1",
-            "focus": "Replay and engine parity boundary",
-        },
-    }
+    reviews: dict[str, Any] = {}
+    for reviewer_id, (filename, focus) in FINAL_REVIEW_EVIDENCE.items():
+        evidence_path = _path(root, EVIDENCE_RELATIVE / "reviews" / filename)
+        findings: list[dict[str, str]] = []
+        content = ""
+        if not evidence_path.is_file():
+            findings.append({"severity": "High", "detail": f"missing substantive review evidence: {filename}"})
+        else:
+            try:
+                content = evidence_path.read_text(encoding="utf-8")
+            except OSError as error:
+                findings.append({"severity": "High", "detail": f"review evidence cannot be read: {error}"})
+            for marker in required_markers:
+                if marker not in content:
+                    findings.append({"severity": "High", "detail": f"review evidence marker is missing: {marker}"})
+        if source_audit.get("status") != "PASS":
+            findings.append({"severity": "High", "detail": "source evidence bundle audit is not PASS"})
+        if replay_audit.get("status") != "PASS":
+            findings.append({"severity": "High", "detail": "current replay/calendar/provenance audit is not PASS"})
+        reviews[reviewer_id] = {
+            "run_id": RUN_ID,
+            "reviewer": reviewer_names[reviewer_id],
+            "scope": "P3-12 final contract review; no profit adoption",
+            "focus": focus,
+            "evidence_path": evidence_path.relative_to(root).as_posix(),
+            "evidence_sha256": _sha256_file(evidence_path) if evidence_path.is_file() else None,
+            "findings": findings,
+            "critical": len([item for item in findings if item["severity"] == "Critical"]),
+            "high": len([item for item in findings if item["severity"] == "High"]),
+            "verdict": "APPROVE" if not findings else "RETURN",
+            "substantive_evidence": bool(content),
+        }
+    return reviews
 
 
 def _traceability(root: Path, reviews: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
@@ -481,12 +776,16 @@ def build_p3_10_summary(root: Path) -> dict[str, Any]:
     reviews = _review_results(root, source_audit, replay_audit)
     traceability = _traceability(root, reviews)
     all_reviews_approved = all(review.get("verdict") == "APPROVE" for review in reviews.values())
+    calendar_behavioral_pass = replay_audit.get("calendar_behavioral_audit", {}).get("status") == "PASS"
+    m30_provenance_pass = replay_audit.get("m30_provenance_audit", {}).get("status") == "PASS"
 
     acceptance_basis = {
-        "P3-AC-01": fixture_integrity["status"] == "PASS" and replay_audit["status"] == "PASS",
+        "P3-AC-01": fixture_integrity["status"] == "PASS" and replay_audit["status"] == "PASS" and m30_provenance_pass,
         "P3-AC-02": source_audit["status"] == "PASS" and replay_audit["status"] == "PASS",
-        "P3-AC-03": fixture_integrity["status"] == "PASS" and replay_audit["status"] == "PASS",
-        "P3-AC-04": source_audit["status"] == "PASS" and replay_audit["status"] == "PASS",
+        "P3-AC-03": fixture_integrity["status"] == "PASS"
+        and replay_audit["status"] == "PASS"
+        and calendar_behavioral_pass,
+        "P3-AC-04": source_audit["status"] == "PASS" and replay_audit["status"] == "PASS" and m30_provenance_pass,
         "P3-AC-05": source_audit["status"] == "PASS" and replay_audit["status"] == "PASS",
         "P3-AC-06": source_audit["status"] == "PASS" and replay_audit["status"] == "PASS",
         "P3-AC-07": source_audit["status"] == "PASS" and replay_audit["status"] == "PASS",
@@ -518,11 +817,13 @@ def build_p3_10_summary(root: Path) -> dict[str, Any]:
     final_status = "PASS" if all(item["status"] == "PASS" for item in acceptance.values()) else "FAIL"
     manifest = _manifest_descriptor(root)
     human_gate_path = _path(root, EVIDENCE_RELATIVE / "human-gate-user-declaration.md")
+    human_gate_text = human_gate_path.read_text(encoding="utf-8") if human_gate_path.is_file() else ""
+    human_gate_ok = "USER_APPROVAL_DECLARED=1" in human_gate_text and RUN_ID in human_gate_text
     summary: dict[str, Any] = {
         "schema_version": "p3-acceptance-summary/v1",
         "run_id": RUN_ID,
         "phase_id": "phase3",
-        "step_id": "P3-10",
+        "step_id": "P3-12",
         "final_status": final_status,
         "required_acceptance_status": final_status,
         "phase3_completion_status": "NOT_COMPLETE_UNKNOWN" if KNOWN_UNKNOWN_DETAILS else "COMPLETE",
@@ -542,7 +843,7 @@ def build_p3_10_summary(root: Path) -> dict[str, Any]:
         "acceptance": acceptance,
         "robustness": {"status": "UNKNOWN", "unknowns": list(KNOWN_UNKNOWN_DETAILS)},
         "human_gate": {
-            "status": "PASS" if human_gate_path.is_file() else "REQUIRED",
+            "status": "PASS" if human_gate_ok else "REQUIRED",
             "declaration_path": human_gate_path.as_posix(),
         },
         "quality_gate_status": "PENDING",
@@ -574,7 +875,7 @@ def run_p3_10(root: Path, *, quality_gate_status: str = "PENDING") -> dict[str, 
         {
             "run_id": RUN_ID,
             "phase_id": "phase3",
-            "step_id": "P3-10",
+            "step_id": "P3-12",
             "head": _git_value(root, ["rev-parse", "HEAD"]),
             "branch": _git_value(root, ["branch", "--show-current"]),
             "status_short": _git_value(root, ["status", "--short"]),
