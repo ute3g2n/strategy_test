@@ -1,0 +1,121 @@
+{
+  "schema_version": "p3-08r-05-traceability/v1",
+  "run_id": "RUN-P3-POC-READY-001",
+  "phase_id": "phase3",
+  "step_id": "P3-08R-05",
+  "readiness_state": "READY_FOR_P3-09",
+  "engine_execution_status": "NOT_EXECUTED_P3-09",
+  "expected_values_source": "Core reference only",
+  "lean_measurements_are_not_expected_values": true,
+  "unassigned_requirement_count": 0,
+  "unknown_count": 0,
+  "common_evidence": {
+    "design": "plan/phase3/P3-08R_実行計画書_2026-08-10.md",
+    "entrypoint": "tests/engine_poc/entrypoint.py",
+    "prepare_gate": "scripts/quality_gate/local_p3_poc.py --mode prepare",
+    "execution_manifest": {
+      "path": "tests/evidence/phase3/RUN-P3-POC-READY-001/run-manifest.json",
+      "sha256": "sha256:8ff33516cb843a2b205346a6cb9bbe933a5aa30f7c0bad0edd21538a531446a8"
+    },
+    "core_reference": {
+      "path": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
+      "sha256": "sha256:5f76c389dcc21774540a263fd0f6cf652090cd46f88a609947b8c4087f4a88e7"
+    },
+    "lean_output_schema": {
+      "path": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
+      "sha256": "sha256:197f9e4faef0cbbaf275876fb52bc0d6f6fc3231c83cf1118691a6b994ee192a"
+    },
+    "parity_map": {
+      "path": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/parity-map.json",
+      "sha256": "sha256:f137dbfb10c4e7205390103c40a470ef9c3cf72919c65d820d8df9c494fe0d95"
+    },
+    "quality_gate": "tests/evidence/phase3/RUN-P3-POC-READY-001/p3-08r-04-verification.json",
+    "wsl_evidence": "tests/evidence/phase3/RUN-P3-POC-READY-001/wsl-verification-capture.json",
+    "reviews": [
+      "reviews/a40-final.md",
+      "reviews/a70-final.md",
+      "reviews/a130-final.md",
+      "reviews/a150-final.md",
+      "reviews/a160-final.md"
+    ]
+  },
+  "requirements": [
+    {
+      "id": "P3-AC-01",
+      "scope": "timeframe ordering and deterministic derived bars",
+      "core_reference_key": "p3_ac.P3-AC-01",
+      "parity_status": "PENDING_P3-09",
+      "lean_output_status": "NOT_CREATED_P3-09",
+      "review_status": "READY_FOR_P3-09"
+    },
+    {
+      "id": "P3-AC-02",
+      "scope": "closed-bar strategy bias and signal series",
+      "core_reference_key": "p3_ac.P3-AC-02",
+      "parity_status": "PENDING_P3-09",
+      "lean_output_status": "NOT_CREATED_P3-09",
+      "review_status": "READY_FOR_P3-09"
+    },
+    {
+      "id": "P3-AC-03",
+      "scope": "calendar, session anchor, and close boundary",
+      "core_reference_key": "p3_ac.P3-AC-03",
+      "parity_status": "PENDING_P3-09",
+      "lean_output_status": "NOT_CREATED_P3-09",
+      "review_status": "READY_FOR_P3-09"
+    },
+    {
+      "id": "P3-AC-04",
+      "scope": "manifest-bound ordered MarketEvent, signal, state, and result",
+      "core_reference_key": "p3_ac.P3-AC-04",
+      "parity_status": "PENDING_P3-09",
+      "lean_output_status": "NOT_CREATED_P3-09",
+      "review_status": "READY_FOR_P3-09"
+    },
+    {
+      "id": "P3-AC-05",
+      "scope": "vendor-neutral adapter boundary",
+      "core_reference_key": "p3_ac.P3-AC-05",
+      "parity_status": "PENDING_P3-09",
+      "lean_output_status": "NOT_CREATED_P3-09",
+      "review_status": "READY_FOR_P3-09"
+    },
+    {
+      "id": "P3-AC-06",
+      "scope": "fixed digest/hash and offline boundary",
+      "core_reference_key": "p3_ac.P3-AC-06",
+      "parity_status": "PENDING_P3-09",
+      "lean_output_status": "NOT_CREATED_P3-09",
+      "review_status": "READY_FOR_P3-09"
+    },
+    {
+      "id": "P3-AC-07",
+      "scope": "repeatable result hash and deferred performance measurement",
+      "core_reference_key": "p3_ac.P3-AC-07",
+      "parity_status": "PENDING_P3-09",
+      "lean_output_status": "NOT_CREATED_P3-09",
+      "review_status": "READY_FOR_P3-09"
+    },
+    {
+      "id": "P3-AC-08",
+      "scope": "Golden, snapshot, restore, and look-ahead boundary",
+      "core_reference_key": "p3_ac.P3-AC-08",
+      "parity_status": "PENDING_P3-09",
+      "lean_output_status": "NOT_CREATED_P3-09",
+      "review_status": "READY_FOR_P3-09"
+    }
+  ],
+  "review_counts": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "unknown": 0,
+    "unassigned_pass": 0,
+    "stale_evidence_used": 0
+  },
+  "fire_control": {
+    "p3_09_execution_allowed": false,
+    "engine_started": false,
+    "broker_paper_live_cloud_secret_used": false
+  }
+}

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P3-08R P3-09実行準備結果</title>
+  <style>
+    body { font-family: system-ui, sans-serif; line-height: 1.7; margin: 2rem auto; max-width: 78rem; padding: 0 1rem; color: #1f2937; }
+    h1, h2 { color: #111827; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: .4rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0 2rem; }
+    th, td { border: 1px solid #cbd5e1; padding: .45rem .6rem; vertical-align: top; text-align: left; }
+    th { background: #f1f5f9; }
+    .ready { background: #ecfdf5; border-left: 5px solid #059669; padding: 1rem; }
+    .stop { background: #fff7ed; border-left: 5px solid #c2410c; padding: 1rem; }
+    .muted { color: #475569; }
+    code { background: #f1f5f9; padding: .1rem .25rem; }
+    a { color: #1d4ed8; }
+  </style>
+</head>
+<body>
+  <h1>P3-08R P3-09実行準備結果</h1>
+  <p>文書ID: P3-08R / Phase 3 / 対象Run: <code>RUN-P3-POC-READY-001</code> / 判定日: 2026-08-10</p>
+
+  <div class="ready">
+    <strong>最終判定: READY_FOR_P3-09</strong>
+    <p>P3-09専用入口、唯一のexecution Manifest、Core reference、LEAN output schema、parity map、Windows/WSL固定4 Gate、WSL隔離、Human Gate、独立レビューを固定した。P3-09の実engine自体は起動していない。</p>
+  </div>
+
+  <div class="stop">
+    <strong>重要な境界:</strong> <code>READY_FOR_P3-09</code>は準備完了を意味し、P3-09本Run、Broker、Paper、Live、Cloud、Secretの許可を意味しない。<code>RUN-P3-POC-001.execution_allowed=false</code>は維持する。
+  </div>
+
+  <h2>1. 固定された実行入口</h2>
+  <table>
+    <thead><tr><th>項目</th><th>固定値</th></tr></thead>
+    <tbody>
+      <tr><td>準備入口</td><td><code>scripts/quality_gate/local_p3_poc.py --mode prepare</code></td></tr>
+      <tr><td>専用入口</td><td><code>tests/engine_poc/entrypoint.py</code></td></tr>
+      <tr><td>準備Run</td><td><code>RUN-P3-POC-READY-001</code></td></tr>
+      <tr><td>P3-09本Run</td><td><code>RUN-P3-POC-001</code>（別Gate、未実行）</td></tr>
+      <tr><td>execution Manifest</td><td><code>tests/evidence/phase3/RUN-P3-POC-READY-001/run-manifest.json</code>のみ</td></tr>
+      <tr><td>入力</td><td>承認済みPhase 3 fixture、read-only、automatic data download=false</td></tr>
+      <tr><td>ネットワーク</td><td><code>network_mode=none</code>、WSL host isolation CONFIRMED</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. Manifest・期待出力</h2>
+  <table>
+    <thead><tr><th>成果物</th><th>SHA-256</th><th>意味</th></tr></thead>
+    <tbody>
+      <tr><td><code>run-manifest.json</code></td><td><code>sha256:8ff33516cb843a2b205346a6cb9bbe933a5aa30f7c0bad0edd21538a531446a8</code></td><td>P3-09本Runへ渡す唯一の親Manifest</td></tr>
+      <tr><td><code>expected/core-reference.json</code></td><td><code>sha256:5f76c389dcc21774540a263fd0f6cf652090cd46f88a609947b8c4087f4a88e7</code></td><td>Coreを2回実行して固定した期待値の出所</td></tr>
+      <tr><td><code>expected/lean-output-schema.json</code></td><td><code>sha256:197f9e4faef0cbbaf275876fb52bc0d6f6fc3231c83cf1118691a6b994ee192a</code></td><td>LEAN出力をvendor-neutral DTOへ検証するschema</td></tr>
+      <tr><td><code>expected/parity-map.json</code></td><td><code>sha256:f137dbfb10c4e7205390103c40a470ef9c3cf72919c65d820d8df9c494fe0d95</code></td><td>P3-AC-01〜08の比較規則と停止条件</td></tr>
+    </tbody>
+  </table>
+  <p class="muted">LEANの実測値、実engineの性能値、P3-09のparity合否はまだ存在しない。Core referenceを期待値の唯一の出所とし、未実施項目を先取りしていない。</p>
+
+  <h2>3. P3-AC追跡</h2>
+  <table>
+    <thead><tr><th>要件</th><th>Core reference</th><th>LEAN出力</th><th>準備判定</th></tr></thead>
+    <tbody>
+      <tr><td>P3-AC-01</td><td>timeframe ordering / derived bars</td><td>P3-09で作成</td><td>READY_FOR_P3-09</td></tr>
+      <tr><td>P3-AC-02</td><td>closed-bar bias / signal</td><td>P3-09で作成</td><td>READY_FOR_P3-09</td></tr>
+      <tr><td>P3-AC-03</td><td>Calendar / session / close boundary</td><td>P3-09で作成</td><td>READY_FOR_P3-09</td></tr>
+      <tr><td>P3-AC-04</td><td>ordered MarketEvent / state / result</td><td>P3-09で作成</td><td>READY_FOR_P3-09</td></tr>
+      <tr><td>P3-AC-05</td><td>vendor-neutral Adapter boundary</td><td>P3-09で作成</td><td>READY_FOR_P3-09</td></tr>
+      <tr><td>P3-AC-06</td><td>fixed hash / offline boundary</td><td>P3-09で作成</td><td>READY_FOR_P3-09</td></tr>
+      <tr><td>P3-AC-07</td><td>repeatable hash / deferred performance</td><td>P3-09で作成</td><td>READY_FOR_P3-09</td></tr>
+      <tr><td>P3-AC-08</td><td>Golden / snapshot / restore / look-ahead</td><td>P3-09で作成</td><td>READY_FOR_P3-09</td></tr>
+    </tbody>
+  </table>
+  <p>詳細は<a href="../../../tests/evidence/phase3/RUN-P3-POC-READY-001/p3-08r-05-traceability.json">P3-08R-05最終追跡表</a>を正本とする。</p>
+
+  <h2>4. 品質Gate・隔離証跡</h2>
+  <table>
+    <thead><tr><th>確認</th><th>結果</th><th>証拠</th></tr></thead>
+    <tbody>
+      <tr><td>Windows固定4 Gate</td><td>全PASS</td><td>formatter / lint / mypy / prepare contract</td></tr>
+      <tr><td>WSL固定4 Gate</td><td>全PASS、wrapper exit 0</td><td>execution ID <code>b5f74843426849fb81e39cc6f8cad202</code></td></tr>
+      <tr><td>host outbound isolation</td><td>CONFIRMED</td><td>Ubuntu-24.04 / WSL2 / networking mode none</td></tr>
+      <tr><td>fixture hash</td><td>実行前後一致</td><td><code>sha256:8ff33516cb843a2b205346a6cb9bbe933a5aa30f7c0bad0edd21538a531446a8</code></td></tr>
+      <tr><td>関連テスト</td><td>70 passed</td><td>quality_gate contract / runner / engine_poc</td></tr>
+      <tr><td>prepare入口のrun mode</td><td>停止、exit code 2</td><td><code>engine_started=false</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. 独立レビュー</h2>
+  <p>Findings firstでCritical/High/Medium/Unknownはすべて0。未割当PASSは0、stale証跡の現行判定への使用は0。</p>
+  <ul>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-POC-READY-001/reviews/a40-final.md">A40 Execution Engine PoC</a></li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-POC-READY-001/reviews/a70-final.md">A70 Ops / Security</a></li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-POC-READY-001/reviews/a130-final.md">A130 Verification</a></li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-POC-READY-001/reviews/a150-final.md">A150 Python Code Quality</a></li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-POC-READY-001/reviews/a160-final.md">A160 Trading Security</a></li>
+  </ul>
+
+  <h2>6. Human Gate・発火制御</h2>
+  <p>対象Run <code>RUN-P3-POC-READY-001</code>についてユーザーの「承認します」を受領し、<a href="../../../tests/evidence/phase3/RUN-P3-POC-READY-001/human-gate-user-declaration.md">承認記録</a>を保存した。</p>
+  <ul>
+    <li>P3-09本Runの<code>execution_allowed</code>: <code>false</code></li>
+    <li>engine_started: <code>false</code></li>
+    <li>Broker / Paper / Live / Cloud / Secret: 未使用</li>
+    <li>P3-09本Runの実行は別プロンプト、別Gate、別証跡で行う</li>
+  </ul>
+
+  <h2>7. 証跡と次の境界</h2>
+  <ul>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-POC-READY-001/p3-08r-05-verification.json">P3-08R-05最終verification</a></li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-POC-READY-001/p3-08r-04-verification.json">P3-08R-04品質Gate verification</a></li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-POC-READY-001/wsl-verification-capture.json">WSL verification capture</a></li>
+    <li><a href="../../../plan/phase3/P3-08R_実行計画書_2026-08-10.md">P3-08R実行計画</a></li>
+    <li><a href="../../../plan/phase3/ログ/P3-08R_実行ログ_2026-08-10.md">P3-08R統合実行ログ</a></li>
+  </ul>
+  <p>次の作業は、P3-09本Runの明示承認と再照合を確認した別プロンプトである。本書だけでP3-09エンジンを起動してはならない。</p>
+</body>
+</html>

@@ -3,9 +3,10 @@
   "run_id": "RUN-P3-POC-READY-001",
   "phase_id": "phase3",
   "step_id": "P3-08R-01",
-  "status": "PASS",
-  "readiness_state": "IN_PROGRESS",
+  "status": "HISTORICAL_SUPERSEDED",
+  "readiness_state": "SUPERSEDED_BY_P3-08R-05",
   "created_at": "2026-08-10T11:20:34+09:00",
+  "superseded_by": "tests/evidence/phase3/RUN-P3-POC-READY-001/p3-08r-05-traceability.json",
   "source_contracts": [
     "plan/Phase3_実行計画書_v0.1_2026-08-09.md",
     "doc/phase3/04_Backtest詳細設計/04_Backtest_Experiment実装詳細設計書.html",

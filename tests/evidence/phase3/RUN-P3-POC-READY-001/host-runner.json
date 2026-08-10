@@ -1,5 +1,6 @@
 ﻿{
-    "execution_id":  "96ca4b122ac04ee181b62f043283d64f",
-    "reason":  "WSL runner returned non-zero; inspect verification.json",
-    "state":  "FAILED"
+    "output":  "{\"state\": \"PASS\", \"reason\": \"繝ｦ繝ｼ繧ｶ繝ｼ縺梧・遉ｺ逧・↓謇ｿ隱阪＠縺ｾ縺励◆\", \"gates\": [{\"gate\": \"formatter\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"ruff\", \"format\", \"--check\", \"src/autotrade\", \"scripts/quality_gate\", \"tests/engine_poc\", \"tests/strategy\", \"tests/backtest\"], \"exit_code\": 0, \"duration_ms\": 264}, {\"gate\": \"lint\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"ruff\", \"check\", \"src/autotrade\", \"scripts/quality_gate\", \"tests/engine_poc\", \"tests/strategy\", \"tests/backtest\"], \"exit_code\": 0, \"duration_ms\": 214}, {\"gate\": \"type\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"mypy\", \"src/autotrade\", \"scripts/quality_gate\", \"tests/engine_poc\"], \"exit_code\": 0, \"duration_ms\": 6130}, {\"gate\": \"test\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"scripts.quality_gate.local_p3_poc\", \"--mode\", \"prepare\"], \"exit_code\": 0, \"duration_ms\": 264}], \"generated_at\": \"2026-08-10T03:26:04.411124+00:00\"}",
+    "exit_code":  0,
+    "execution_id":  "b5f74843426849fb81e39cc6f8cad202",
+    "state":  "RUNNER_COMPLETED"
 }

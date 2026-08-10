@@ -1,0 +1,52 @@
+{
+  "schema_version": "p3-08r-05-verification/v1",
+  "run_id": "RUN-P3-POC-READY-001",
+  "phase_id": "phase3",
+  "step_id": "P3-08R-05",
+  "state": "READY_FOR_P3-09",
+  "readiness": "READY_FOR_P3-09",
+  "human_gate": {
+    "state": "APPROVED",
+    "declaration": "tests/evidence/phase3/RUN-P3-POC-READY-001/human-gate-user-declaration.md",
+    "approved_run_id": "RUN-P3-POC-READY-001"
+  },
+  "quality_gate": {
+    "windows_fixed_four": "PASS",
+    "wsl_fixed_four": "PASS",
+    "wsl_execution_id": "b5f74843426849fb81e39cc6f8cad202",
+    "wsl_wrapper_exit_code": 0,
+    "host_isolation": "CONFIRMED",
+    "networking_mode": "none",
+    "input_pre_post_hash_match": true,
+    "input_sha256": "sha256:8ff33516cb843a2b205346a6cb9bbe933a5aa30f7c0bad0edd21538a531446a8"
+  },
+  "reviews": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "unknown": 0,
+    "unassigned_pass": 0,
+    "stale_evidence_used": 0,
+    "files": [
+      "tests/evidence/phase3/RUN-P3-POC-READY-001/reviews/a40-final.md",
+      "tests/evidence/phase3/RUN-P3-POC-READY-001/reviews/a70-final.md",
+      "tests/evidence/phase3/RUN-P3-POC-READY-001/reviews/a130-final.md",
+      "tests/evidence/phase3/RUN-P3-POC-READY-001/reviews/a150-final.md",
+      "tests/evidence/phase3/RUN-P3-POC-READY-001/reviews/a160-final.md"
+    ]
+  },
+  "artifacts": {
+    "execution_manifest_sha256": "sha256:8ff33516cb843a2b205346a6cb9bbe933a5aa30f7c0bad0edd21538a531446a8",
+    "core_reference_sha256": "sha256:5f76c389dcc21774540a263fd0f6cf652090cd46f88a609947b8c4087f4a88e7",
+    "lean_output_schema_sha256": "sha256:197f9e4faef0cbbaf275876fb52bc0d6f6fc3231c83cf1118691a6b994ee192a",
+    "parity_map_sha256": "sha256:f137dbfb10c4e7205390103c40a470ef9c3cf72919c65d820d8df9c494fe0d95",
+    "traceability": "tests/evidence/phase3/RUN-P3-POC-READY-001/p3-08r-05-traceability.json"
+  },
+  "fire_control": {
+    "p3_09_execution_allowed": false,
+    "engine_started": false,
+    "broker_paper_live_cloud_secret_used": false,
+    "p3_09_run_result_created": false
+  },
+  "next_step": "P3-09は別プロンプトで、RUN-P3-POC-001の明示承認とManifest再照合を確認してから実行する。"
+}
