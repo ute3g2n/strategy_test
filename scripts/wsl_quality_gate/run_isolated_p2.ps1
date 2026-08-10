@@ -80,6 +80,11 @@ function Write-Evidence([hashtable]$Value, [string]$Name) {
     $json = (($Value | ConvertTo-Json -Depth 8) -replace "`r`n", "`n") + "`n"
     [IO.File]::WriteAllText((Join-Path $evidence $Name), $json, (New-Object System.Text.UTF8Encoding($true)))
 }
+function Write-EvidenceObject([object]$Value, [string]$Name) {
+    New-Item -ItemType Directory -Force -Path $evidence | Out-Null
+    $json = (($Value | ConvertTo-Json -Depth 12) -replace "`r`n", "`n") + "`n"
+    [IO.File]::WriteAllText((Join-Path $evidence $Name), $json, (New-Object System.Text.UTF8Encoding($true)))
+}
 function Write-WslEvidence([hashtable]$Value, [string]$Name) {
     $json = $Value | ConvertTo-Json -Depth 8 -Compress
     $encoded = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($json))
@@ -213,6 +218,7 @@ try {
         host_isolation = $hostIsolation
     } "wsl-verification-capture.json"
     if ($captureState -ne "CAPTURED") { throw "current WSL verification evidence was not captured for this wrapper execution" }
+    if ($null -ne $verification) { Write-EvidenceObject $verification "verification.json" }
     Write-Evidence @{ state = if ($runner.ExitCode -eq 0) { "RUNNER_COMPLETED" } else { "RUNNER_NONZERO" }; output = $runner.Output; exit_code = $runner.ExitCode; execution_id = $executionId } "host-runner.json"
     if ($runner.ExitCode -ne 0) { throw "WSL runner returned non-zero; inspect verification.json" }
 }
