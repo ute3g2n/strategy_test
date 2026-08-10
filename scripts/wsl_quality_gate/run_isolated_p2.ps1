@@ -219,6 +219,7 @@ try {
     } "wsl-verification-capture.json"
     if ($captureState -ne "CAPTURED") { throw "current WSL verification evidence was not captured for this wrapper execution" }
     if ($null -ne $verification) { Write-EvidenceObject $verification "verification.json" }
+    if ($null -ne $hostIsolation) { Write-EvidenceObject $hostIsolation "host-isolation.json" }
     Write-Evidence @{ state = if ($runner.ExitCode -eq 0) { "RUNNER_COMPLETED" } else { "RUNNER_NONZERO" }; output = $runner.Output; exit_code = $runner.ExitCode; execution_id = $executionId } "host-runner.json"
     if ($runner.ExitCode -ne 0) { throw "WSL runner returned non-zero; inspect verification.json" }
 }

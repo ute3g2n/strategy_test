@@ -94,6 +94,7 @@ def test_host_wrapper_dry_run_contract_is_declared_without_mutating_wslconfig() 
     assert "[switch]$RunAsRoot" in text
     assert "if ($RunAsRoot)" in text and '"-u", "root"' in text
     assert 'Write-EvidenceObject $verification "verification.json"' in text
+    assert 'Write-EvidenceObject $hostIsolation "host-isolation.json"' in text
     preflight = text.split("if ($DryRun)", 1)[0]
     assert "uname -r" not in preflight
     assert "test -x" not in preflight
