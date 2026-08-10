@@ -17,6 +17,8 @@
 
 ## 再開条件
 
+実行計画は `plan/phase3/P3-08R_実行計画書_2026-08-10.md` に固定した。
+
 1. `tests/engine_poc/` にP3-09専用の実行入口を作成し、レビューする。
 2. `RUN-P3-POC-001` Run Manifestへdigest、fixture hash、Calendar/timeframe/Adapter版、code revision、出力schemaを固定する。
 3. LEAN/Core parityの期待出力を機械検証可能な証跡として固定する。

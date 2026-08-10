@@ -504,7 +504,7 @@ firewall=true</pre></li>
     <h2>P3-09 取引エンジンPoCの現状（2026-08-10）</h2>
     <p><strong>状態:</strong> <span class="badge wait">BLOCKED・実engine未起動</span>。ユーザーからP3-09実行要求を受領したが、P3-09専用の<code>tests/engine_poc/</code>、Run Manifest、LEAN/Core parity期待出力が未確定で、trusted scopeも<code>execution_allowed=false</code>のため、発火制御に従って停止した。</p>
     <p><strong>安全側の扱い:</strong> LEAN、NautilusTrader、Broker、Paper、Live、Cloud、Secretは起動・使用していない。P3-08AのPASS、既存fixture、期待値、Calendar、性能合格値は変更していない。</p>
-    <p><strong>再開条件:</strong> P3-09専用実行入口、Run Manifest、固定fixture/hash、LEAN/Core parity期待出力、証跡schemaを作成・レビューし、trusted scopeのUnknownを解消してから再実行する。</p>
+    <p><strong>再開条件:</strong> <a href="../plan/phase3/P3-08R_実行計画書_2026-08-10.md">P3-08R実行計画</a>に従い、P3-09専用実行入口、Run Manifest、固定fixture/hash、LEAN/Core parity期待出力、証跡schemaを作成・レビューし、trusted scopeのUnknownを解消してから再実行する。</p>
     <p><strong>証跡:</strong> <a href="../tests/evidence/phase3/RUN-P3-POC-001/precondition-audit.json">事前条件監査</a> / <a href="../tests/evidence/phase3/RUN-P3-POC-001/verification.json">verification</a> / <a href="./phase3/08_エンジンPoC/01_P3-09_LEAN実enginePoC結果.html">P3-D10</a> / <a href="../plan/phase3/ログ/P3-09_実行ログ_2026-08-10.md">実行ログ</a></p>
   </section>
 
