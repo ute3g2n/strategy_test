@@ -1,0 +1,60 @@
+{
+  "run_id": "RUN-P3-POC-001",
+  "phase_id": "phase3",
+  "step_id": "P3-09",
+  "request_received": true,
+  "audit_status": "BLOCKED",
+  "baseline_ref": "5e30e242cd82629a2a41c15fe2f8d82c7867094f",
+  "checks": [
+    {
+      "id": "P3-09-PREP-001",
+      "name": "RUN-P3-LEAN-PREP-001 final status",
+      "status": "PASS",
+      "observed": "PASS",
+      "evidence": "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/verification.json"
+    },
+    {
+      "id": "P3-09-SCOPE-001",
+      "name": "P3-09 trusted scope execution permission",
+      "status": "BLOCKED",
+      "observed": {
+        "execution_allowed": false,
+        "unknowns": [
+          "P3-09 is not started until its own execution request and fixture/expected outputs are finalized"
+        ]
+      },
+      "evidence": "scripts/quality_gate/trusted_scopes.json"
+    },
+    {
+      "id": "P3-09-ENTRY-001",
+      "name": "P3-09 dedicated execution entry",
+      "status": "BLOCKED",
+      "observed": "tests/engine_poc does not exist",
+      "required_path": "tests/engine_poc"
+    },
+    {
+      "id": "P3-09-MANIFEST-001",
+      "name": "P3-09 dedicated Run Manifest",
+      "status": "BLOCKED",
+      "observed": "RUN-P3-POC-001/run-manifest.json does not exist",
+      "required_path": "tests/evidence/phase3/RUN-P3-POC-001/run-manifest.json"
+    },
+    {
+      "id": "P3-09-PARITY-001",
+      "name": "LEAN engine output and Core parity expectation",
+      "status": "BLOCKED",
+      "observed": "No P3-09-specific engine output schema, expected parity artifact, or execution evidence exists",
+      "evidence": "tests/fixtures/phase3/ and src/autotrade/backtest/engine_adapter.py"
+    }
+  ],
+  "engine_start": {
+    "status": "NOT_STARTED",
+    "reason": "P3-09 fire-control preconditions are not satisfied; no LEAN, Broker, Cloud, Secret, or external connection was started."
+  },
+  "reopen_conditions": [
+    "Create and review the P3-09 execution entry under tests/engine_poc.",
+    "Create RUN-P3-POC-001 Run Manifest with fixed digest, fixture hashes, code revision, and evidence schema.",
+    "Define machine-verifiable LEAN/Core parity expected outputs and register the completed trusted scope.",
+    "Re-run the P3-09 prompt from the clean Windows source tree under network-none isolation."
+  ]
+}

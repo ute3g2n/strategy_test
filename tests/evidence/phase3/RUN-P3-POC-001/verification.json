@@ -1,0 +1,16 @@
+{
+  "run_id": "RUN-P3-POC-001",
+  "phase_id": "phase3",
+  "step_id": "P3-09",
+  "state": "BLOCKED",
+  "final_status": "BLOCKED",
+  "reason": "P3-09 was explicitly requested, but its dedicated execution entry, Run Manifest, and LEAN/Core parity expected-output evidence are not finalized; the trusted scope remains execution_allowed=false.",
+  "engine_started": false,
+  "lean_started": false,
+  "nautilus_started": false,
+  "broker_paper_live_used": false,
+  "precondition_audit": "tests/evidence/phase3/RUN-P3-POC-001/precondition-audit.json",
+  "lean_prep_verification": "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/verification.json",
+  "trusted_scope": "scripts/quality_gate/trusted_scopes.json",
+  "next_action": "Finalize the P3-09 execution entry, Run Manifest, and machine-verifiable parity expectations, then rerun this prompt."
+}
