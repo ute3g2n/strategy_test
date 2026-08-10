@@ -1,0 +1,76 @@
+﻿{
+    "debug":  [
+                  {
+                      "kind":  "strict",
+                      "command":  [
+                                      "wsl.exe",
+                                      "--version"
+                                  ],
+                      "powershell_location":  "C:\\project\\strategy_test",
+                      "exit_code":  0,
+                      "output":  "W\u0000S\u0000L\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00002\u0000.\u00006\u0000.\u00003\u0000.\u00000\u0000\n\u0000\n\u0000ｫ0・ﾍ0・ \u0000ﾐ0・ｸ0・・:\u0000 \u00006\u0000.\u00006\u0000.\u00008\u00007\u0000.\u00002\u0000-\u00001\u0000\n\u0000\n\u0000W\u0000S\u0000L\u0000g\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00000\u0000.\u00007\u00001\u0000\n\u0000\n\u0000M\u0000S\u0000R\u0000D\u0000C\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00002\u0000.\u00006\u00003\u00005\u00003\u0000\n\u0000\n\u0000D\u0000i\u0000r\u0000e\u0000c\u0000t\u00003\u0000D\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00006\u00001\u00001\u0000.\u00001\u0000-\u00008\u00001\u00005\u00002\u00008\u00005\u00001\u00001\u0000\n\u0000\n\u0000D\u0000X\u0000C\u0000o\u0000r\u0000e\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u00000\u0000.\u00000\u0000.\u00002\u00006\u00001\u00000\u00000\u0000.\u00001\u0000-\u00002\u00004\u00000\u00003\u00003\u00001\u0000-\u00001\u00004\u00003\u00005\u0000.\u0000g\u0000e\u0000-\u0000r\u0000e\u0000l\u0000e\u0000a\u0000s\u0000e\u0000\n\u0000\n\u0000W\u0000i\u0000n\u0000d\u0000o\u0000w\u0000s\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u00000\u0000.\u00000\u0000.\u00002\u00006\u00002\u00000\u00000\u0000.\u00008\u00009\u00007\u00003\u0000\n\u0000\n\u0000",
+                      "recorded_at":  "2026-08-10T01:16:08.1208559Z"
+                  },
+                  {
+                      "kind":  "strict",
+                      "command":  [
+                                      "wsl.exe",
+                                      "-l",
+                                      "-v"
+                                  ],
+                      "powershell_location":  "C:\\project\\strategy_test",
+                      "exit_code":  0,
+                      "output":  " \u0000 \u0000N\u0000A\u0000M\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000S\u0000T\u0000A\u0000T\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000V\u0000E\u0000R\u0000S\u0000I\u0000O\u0000N\u0000\n\u0000\n\u0000*\u0000 \u0000U\u0000b\u0000u\u0000n\u0000t\u0000u\u0000-\u00002\u00004\u0000.\u00000\u00004\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000S\u0000t\u0000o\u0000p\u0000p\u0000e\u0000d\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\n\u0000\n\u0000 \u0000 \u0000d\u0000o\u0000c\u0000k\u0000e\u0000r\u0000-\u0000d\u0000e\u0000s\u0000k\u0000t\u0000o\u0000p\u0000 \u0000 \u0000 \u0000 \u0000S\u0000t\u0000o\u0000p\u0000p\u0000e\u0000d\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\n\u0000\n\u0000",
+                      "recorded_at":  "2026-08-10T01:16:08.1775920Z"
+                  },
+                  {
+                      "kind":  "capture",
+                      "command":  [
+                                      "wsl.exe",
+                                      "--",
+                                      "bash",
+                                      "-lc",
+                                      "cd / \u0026\u0026 cd \u0027/home/oue/strategy_test\u0027 \u0026\u0026 exec bash scripts/wsl_quality_gate/run_isolated_p3.sh \u0027/home/oue/strategy_test\u0027 \u0027RUN-P3-LEAN-PREP-001\u0027 \u00271252e64a2cba4d3e840aa1ac944639fe\u0027"
+                                  ],
+                      "powershell_location":  "C:\\project\\strategy_test",
+                      "exit_code":  1,
+                      "output":  "{\"state\": \"INVALID_MANIFEST\", \"reason\": \"phase_id 縺ｯ遨ｺ縺ｧ縺ｪ縺・枚蟄怜・縺ｧ縺・}\nTraceback (most recent call last):\n  File \"\u003cstdin\u003e\", line 15, in \u003cmodule\u003e\nKeyError: \u0027change_hash\u0027",
+                      "recorded_at":  "2026-08-10T01:16:15.8638496Z"
+                  },
+                  {
+                      "kind":  "capture",
+                      "command":  [
+                                      "wsl.exe",
+                                      "-d",
+                                      "Ubuntu-24.04",
+                                      "--",
+                                      "bash",
+                                      "-lc",
+                                      "cd / \u0026\u0026 base64 -w0 \u0027/home/oue/strategy_test/tests/evidence/phase3/RUN-P3-LEAN-PREP-001/verification.json\u0027"
+                                  ],
+                      "powershell_location":  "C:\\project\\strategy_test",
+                      "exit_code":  0,
+                      "output":  "ewogICJydW5faWQiOiAiUlVOLVAzLUxFQU4tUFJFUC0wMDEiLAogICJzdGF0ZSI6ICJQQVNTIiwKICAiZmluYWxfc3RhdHVzIjogIlBBU1MiLAogICJyZWFzb24iOiAiT2ZmaWNpYWwgZml4ZWQtZGlnZXN0IGltYWdlIGNvbXBsZXRlZCBhZnRlciB0aGUgdXNlciBhdXRob3JpemVkIGEgbG9uZ2VyIHdhaXQ7IGltYWdlIHRhci9saWNlbnNlIGhhc2hlcyBhbmQgbmV0d29yay1ub25lIHJlYWQtb25seSBvZmZsaW5lIHByZWZsaWdodCB3ZXJlIHJlY29yZGVkLiIsCiAgInAzXzA5X3N0YXJ0ZWQiOiBmYWxzZSwKICAidHJ1c3RlZF9zY29wZV9yZWdpc3RlcmVkIjogZmFsc2UsCiAgInB1bGxfZXZpZGVuY2UiOiAidGVzdHMvZXZpZGVuY2UvcGhhc2UzL1JVTi1QMy1MRUFOLVBSRVAtMDAxL3B1bGwtYXR0ZW1wdC1sb25nLXdhaXQuanNvbiIsCiAgIm1hbmlmZXN0IjogInRlc3RzL2V2aWRlbmNlL3BoYXNlMy9SVU4tUDMtTEVBTi1QUkVQLTAwMS9ydW4tbWFuaWZlc3QuanNvbiIsCiAgInByZWZsaWdodF9vdXRwdXQiOiAiRTpcXHN0cmF0ZWd5X3Rlc3RfZGF0YVxccGhhc2UzXFxlbmdpbmVfcG9jXFxsZWFuXFxwcmVmbGlnaHRcXGxlYW4tbG9jYWwtbmV0d29yay1ub25lLXJlYWRvbmx5LXYyLnR4dCIsCiAgInByZWZsaWdodF9zdGF0dXMiOiAiUEFTUyIKfQo=",
+                      "recorded_at":  "2026-08-10T01:16:15.9818835Z"
+                  },
+                  {
+                      "kind":  "capture",
+                      "command":  [
+                                      "wsl.exe",
+                                      "-d",
+                                      "Ubuntu-24.04",
+                                      "--",
+                                      "bash",
+                                      "-lc",
+                                      "cd / \u0026\u0026 cat \u0027/home/oue/strategy_test/tests/evidence/phase3/RUN-P3-LEAN-PREP-001/host-isolation.json\u0027"
+                                  ],
+                      "powershell_location":  "C:\\project\\strategy_test",
+                      "exit_code":  0,
+                      "output":  "{\n  \"state\": \"CONFIRMED\", \"wsl_version\": \"WSL ・・繝ｻ・ｸ0繝ｻ繝ｻ: 2.6.3.0\", \"kernel\": \"6.6.87.2-microsoft-standard-WSL2\", \"distro\": \"Ubuntu-24.04\", \"networking_mode\": \"none\",\n  \"host_wrapper_execution_id\": \"1252e64a2cba4d3e840aa1ac944639fe\",\n  \"ip_addr_summary\": \"1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\\n    inet 127.0.0.1/8 scope host lo\\n       valid_lft forever preferred_lft forever\\n    inet6 ::1/128 scope host \\n       valid_lft forever preferred_lft forever\",\n  \"ip_route_summary\": \"\",\n  \"confirmed_at\": \"2026-08-10T01:16:15Z\", \"scope\": [\"scripts/quality_gate/local_p3_lean_prep.py\", \"tests/engine_prep\", \"tests/strategy\", \"tests/backtest\", \"tests/evidence/phase3/RUN-P3-LEAN-PREP-001\"], \"input_sha256\": \"sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d\", \"input_kind\": \"fixture\"\n}",
+                      "recorded_at":  "2026-08-10T01:16:16.1083057Z"
+                  }
+              ],
+    "execution_id":  "1252e64a2cba4d3e840aa1ac944639fe",
+    "error":  "System.Management.Automation.RuntimeException: WSL runner returned non-zero; inspect verification.json",
+    "state":  "FAILED"
+}

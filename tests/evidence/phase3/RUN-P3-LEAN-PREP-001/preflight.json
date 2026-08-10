@@ -1,0 +1,5 @@
+﻿{
+    "execution_id":  "73bd2e1b707945ab9e269239043b09a1",
+    "reason":  "Target WSL distribution is already Running. Stop Codex and WSL, then rerun with -AllowRunningDistro when launching from a \\\\wsl.localhost path.",
+    "state":  "BLOCKED"
+}

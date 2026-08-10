@@ -356,8 +356,7 @@
         "scripts/quality_gate/local_p3_lean_prep.py",
         "tests/engine_prep",
         "tests/strategy",
-        "tests/backtest",
-        "tests/evidence/phase3/RUN-P3-LEAN-PREP-001"
+        "tests/backtest"
       ],
       "excluded_paths": [".env", "third_party/everything-claude-code", "research", "E:/strategy_test_data", "src/autotrade"],
       "fixture": {
@@ -377,10 +376,10 @@
       "unknowns": ["P3-09 engine strategy fit and performance are not executed by this prep run"],
       "network_isolation_required": true,
       "checks": [
-        {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "scripts/quality_gate/local_p3_lean_prep.py", "tests/engine_prep"]},
-        {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "scripts/quality_gate/local_p3_lean_prep.py", "tests/engine_prep"]},
-        {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "scripts/quality_gate/local_p3_lean_prep.py", "tests/engine_prep"]},
-        {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_lean_prep"]}
+        {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "scripts/quality_gate/local_p3_lean_prep.py", "tests/engine_prep"]},
+        {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "scripts/quality_gate/local_p3_lean_prep.py", "tests/engine_prep"]},
+        {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "scripts/quality_gate/local_p3_lean_prep.py", "tests/engine_prep"]},
+        {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p3_lean_prep"]}
       ],
       "preflight": {
         "command": "docker run --rm --network none --read-only --tmpfs /tmp --tmpfs /results -v C:\\project\\strategy_test\\tests\\evidence\\phase3\\RUN-P3-LEAN-PREP-001\\preflight-config.json:/tmp/lean-preflight-config.json:ro quantconnect/lean@sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d --config /tmp/lean-preflight-config.json",
