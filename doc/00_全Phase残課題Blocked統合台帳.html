@@ -71,8 +71,8 @@
   <section class="ok-note" id="latest-authoritative-status-20260810">
     <h2>最新の正本状態（2026-08-10）</h2>
     <p><strong>P2-12-03の技術判定はPASS、H2-3とH2-4はユーザー承認済み。</strong> ユーザーは2026-08-09に「h2-3,4を承認します」と明示した。これにより、Data Quality / Replay結果の本線引渡し（H2-3）と、Phase 2完了・Phase 3開始（H2-4）の人間Gateを通過済みとする。下の古い行は当時の履歴として保持し、この最新欄を現在の判定として扱う。</p>
-    <p><strong>P3-10は契約Gate PASS・Human Gate待ち。</strong> <code>RUN-P3-INT-001</code>でP3-AC-01〜08、WSL固定4 Gate、networking mode <code>none</code>、fixture前後hash一致を確認したが、対象Runのユーザー承認声明は未登録である。長期データ、実測cost/slippage、正式Calendar、利益採用、頑健性、Broker、Paper、Liveは未判定のまま維持する。</p>
-    <p><small>やさしい説明: Phase 2の承認は済んでいます。P3-10の問題の答え合わせと通信なしの確認も通りましたが、そのRunを正式に受け取る人のサインだけがまだ待ちです。</small></p>
+    <p><strong>P3-10は契約Gate PASS・Human Gate承認済み。</strong> <code>RUN-P3-INT-001</code>でP3-AC-01〜08、WSL固定4 Gate、networking mode <code>none</code>、fixture前後hash一致を確認し、ユーザーの「RUN-P3-INT-001を承認します」を固定文言で記録して再実行した。wrapper exit code 0、verification stateは<code>PASS</code>となった。長期データ、実測cost/slippage、正式Calendar、利益採用、頑健性、Broker、Paper、Liveは未判定のまま維持する。</p>
+    <p><small>やさしい説明: Phase 2の承認に加え、P3-10の問題の答え合わせ、通信なしの確認、そのRunを正式に受け取る人のサインもそろいました。ただし、長期間の成績や本番運用の許可ではありません。</small></p>
   </section>
   <section class="ok-note" id="ledger-wide-audit-20260809">
     <h2>統合台帳全体点検の実施（2026-08-09）</h2>
@@ -113,7 +113,7 @@
     <strong>正本:</strong> このHTMLが、Phase 0から今後の全Phaseまでの残課題を管理する唯一の台帳です。<br>
     <strong>初回集約日:</strong> 2026-08-06<br>
     <strong>最終更新日:</strong> 2026-08-10<br>
-    <strong>集約範囲:</strong> Phase 0、Phase 1、Phase 2、Phase 3計画・P3-01〜P3-10、AI実行基盤、個別Run。P3-05Rで30分足の設計・v2固定fixture・通常REDを完了し、H3-0/H3-1/H3-1R/H3-2は承認済みです。H3-1R改訂により、v2を履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する方針を採用した。P3-06のStrategy実装・固定4 Gate・独立レビュー、P3-07R-05のCore受入、P3-08の契約Gate、P3-08AのLEAN固定依存、P3-09のローカルBacktest PoCはPASSである。P3-10の<code>RUN-P3-INT-001</code>はP3-AC-01〜08の契約GateとWSL固定4 GateをPASSしたが、専用Human Gateは未承認である。外部依存の本番利用、Broker、Paper、Live、Phase 4移行は未着手であり、残課題として別管理する。</p>
+    <strong>集約範囲:</strong> Phase 0、Phase 1、Phase 2、Phase 3計画・P3-01〜P3-10、AI実行基盤、個別Run。P3-05Rで30分足の設計・v2固定fixture・通常REDを完了し、H3-0/H3-1/H3-1R/H3-2は承認済みです。H3-1R改訂により、v2を履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する方針を採用した。P3-06のStrategy実装・固定4 Gate・独立レビュー、P3-07R-05のCore受入、P3-08の契約Gate、P3-08AのLEAN固定依存、P3-09のローカルBacktest PoCはPASSである。P3-10の<code>RUN-P3-INT-001</code>はP3-AC-01〜08の契約Gate、WSL固定4 Gate、専用Human Gateを全てPASSした。外部依存の本番利用、Broker、Paper、Live、Phase 4移行は未着手であり、残課題として別管理する。</p>
   </section>
 
   <div class="important">
@@ -123,10 +123,10 @@
 
   <h2>1. まず、いまの状態</h2>
   <div class="cards">
-    <div class="card stop"><strong>1件</strong>P3-10 / RUN-P3-INT-001のHuman Gate承認待ち</div>
+    <div class="card stop"><strong>0件</strong>P3-10 / RUN-P3-INT-001を止めているHuman Gate</div>
     <div class="card wait"><strong>25件</strong>期限までは安全に保留できる根本課題</div>
     <div class="card done"><strong>15組</strong>解決済みとして確認できた主な課題</div>
-    <div class="card phase"><strong>0–10</strong>Phase 3計画・P3-01〜P3-10。P3-10は契約Gate PASS・Human Gate待ち。長期評価、Paper、Live、Phase 4境界は後続Gate</div>
+    <div class="card phase"><strong>0–10</strong>Phase 3計画・P3-01〜P3-10。P3-10は契約Gate・Human GateともPASS。長期評価、Paper、Live、Phase 4境界は後続Gate</div>
   </div>
   <p class="small">件数は、同じ原因を別の文書が違う名前で書いている場合に一つへまとめた「根本課題」の数です。たとえば、同じロール規則の問題を Phase 1 と Phase 2 が別IDで書いていても、一件として数えます。</p>
 
@@ -148,7 +148,7 @@
        <tr><td><code>H3-3</code></td><td>Phase 3レビュー指摘の採否</td><td><span class="badge wait">P3-11後に承認</span></td><td>統合レビューとレッドチーム監査の指摘、修正方針、残Unknownの送り先。</td><td>P3-D11/P3-D12を確認する。Critical/Highは承認だけで無効化せず、修正または明示的な停止が必要。</td></tr>
       <tr><td><code>H3-4</code></td><td>Phase 3完了・Phase 4移行</td><td><span class="badge wait">P3-12後に承認</span></td><td>Strategy / Backtest基盤の完了、結果の利用範囲、Phase 4 Broker / Paper基盤へ進む条件。</td><td>P3-D14と最終Gateを確認する。未承認時はPhase 4へ引き渡さない。</td></tr>
       <tr><td><code>H3-5</code></td><td>P3-08 / RUN-P3-BIAS-001</td><td><span class="badge done">承認済み（2026-08-10）</span></td><td>Cost、Roll、Gap、Holdout契約実装を、固定fixture・機械Gate・WSL隔離・独立レビューの証跡とともにP3-08の契約範囲として受け入れてよいか。</td><td>ユーザーが「RUN-P3-BIAS-001を承認します」と明示した。P3-08を受入済みへ更新し、P3-08AのLEAN依存固定へ進む。長期実データ・実測cost/slippage・正式Calendar・P3-09実engine評価は承認範囲に含めない。<a href="../tests/evidence/phase3/RUN-P3-BIAS-001/human-gate-approval.json">承認証跡</a> / <a href="./phase3/07_頑健性検証/08_Cost_Roll_Gap_Holdout検証結果.html">P3-D09</a></td></tr>
-      <tr><td><code>H3-6</code></td><td>P3-10 / RUN-P3-INT-001</td><td><span class="badge wait">未承認・実行済み</span></td><td>P3-AC-01〜08の契約Gate PASS、固定4 Gate、WSL隔離、fixture/hash、レビュー結果をP3-10統合Runとして正式受入するか。長期利益・頑健性・本番利用は承認範囲に含めない。</td><td>ユーザーが対象Runについて「RUN-P3-INT-001を承認します」と明示し、同じRunのHuman Gate証跡を更新する。<a href="../tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json">P3-10 summary</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json">WSL証跡</a> / <a href="./phase3/07_頑健性検証/10_P3-10_統合Replay_Golden_Bias検証結果.html">正式結果</a></td></tr>
+      <tr><td><code>H3-6</code></td><td>P3-10 / RUN-P3-INT-001</td><td><span class="badge done">承認済み（2026-08-10）</span></td><td>P3-AC-01〜08の契約Gate PASS、固定4 Gate、WSL隔離、fixture/hash、レビュー結果をP3-10統合Runとして正式受入するか。長期利益・頑健性・本番利用は承認範囲に含めない。</td><td>ユーザーが「RUN-P3-INT-001を承認します」と明示し、固定文言を含むHuman Gate証跡を保存した。同じ固定入口を再実行し、wrapper exit code 0、verification state <code>PASS</code>を確認した。<a href="../tests/evidence/phase3/RUN-P3-INT-001/human-gate-user-declaration.md">承認記録</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json">P3-10 summary</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json">WSL証跡</a> / <a href="./phase3/07_頑健性検証/10_P3-10_統合Replay_Golden_Bias検証結果.html">正式結果</a></td></tr>
     </tbody>
   </table>
 
@@ -447,6 +447,7 @@ firewall=true</pre></li>
       <tr><td>2026-08-09</td><td>v3.8</td><td>P3-06を完了した。Strategy CoreへTurtle規則、System 1/安全側55本版/System 2の独立設定、M30 v3の実M1連続30本検証、Snapshot、Campaign水位、同時close一回判断、TargetPositionを実装した。最終の固定4 GateはPASS、Strategyテスト116件と品質Gate登録テスト39件はPASS、独立レビューはCritical/High/Medium 0で受入可となった。台帳全体のHuman Gate、BLK-P3-004、件数、Phase表示、次Stepを点検し、P3-07開始可能へ更新した。</td></tr>
       <tr><td>2026-08-10</td><td>v3.9</td><td>P3-08を実行し、Cost/Slippage、保守的Gap/Stop、Roll、Holdout/Walk-forward、plan hash、冪等適用の契約実装を追加した。RUN-P3-BIAS-001をtrusted scopeへ登録し、ローカル265件、WSL隔離、fixture前後hash、formatter/lint/type/test固定4 Gate、A150/A160/A40レビューCritical/High 0を確認した。RunはHuman Gate未承認のため<code>HUMAN_GATE_REQUIRED</code>として維持し、H3-5を主表へ登録した。UNK-P3-01/05/07は未解消のまま、P3-08A/P3-09は開始しない。</td></tr>
       <tr><td>2026-08-10</td><td>v4.0</td><td>ユーザーの「RUN-P3-BIAS-001を承認します」を受領し、H3-5とRUN-P3-BIAS-001を承認済みへ更新した。P3-08の機械Gate、WSL隔離、レビュー、未解消Unknownの範囲は変更せず、P3-08AのLEAN依存固定へ進める状態にした。P3-09、Broker、Paper、Liveは開始しない。</td></tr>
+      <tr><td>2026-08-10</td><td>v4.1</td><td>P3-10の<code>RUN-P3-INT-001</code>を実行し、P3-AC-01〜08、WSL固定4 Gate、networking mode <code>none</code>、fixture前後hash、A150/A160/A30/A40レビューを確認した。ユーザーの「RUN-P3-INT-001を承認します」を受領してH3-6を承認済みへ更新し、同じ固定入口の再実行でwrapper exit code 0、verification state <code>PASS</code>を確認した。UNK-P3-01/05/07、長期利益、Broker、Paper、Live、Phase 4境界は変更しない。</td></tr>
     </tbody>
   </table>
 
@@ -506,19 +507,19 @@ firewall=true</pre></li>
     <h2>P3-09 取引エンジンPoCの現状（2026-08-10）</h2>
     <p><strong>状態:</strong> <span class="badge done">本Run PASS・条件付き採用候補</span>。P3-08R-05で固定したP3-09専用の<code>tests/engine_poc/</code>、唯一のRun Manifest、Core reference、LEAN/Core parity期待出力、固定4 Gate、WSL隔離、独立レビューを再照合し、ユーザーの「承認します。P3-09を実行して下さい。」を専用Human Gateとして実行した。</p>
     <p><strong>実測結果:</strong> 固定LEAN digest、network none、read-only入力、automatic data download=falseで、Windows本RunとWSL隔離品質GateをPASSした。P3-AC-01〜08は全てPASS、LEAN replay二回の出力hashは一致し、WSLのformatter/lint/type/testも全てPASS、wrapper exit codeは0である。</p>
-    <p><strong>境界:</strong> LEANはPhase 3のローカルBacktest PoC候補として扱う。H1/H4/D1を含む長い固定fixture、実取引所の正式Calendar、実測cost/slippage、長期利益・頑健性、Broker、Paper、Live、Cloud、Secretは未判定であり、P3-10またはPhase 4へ送る。</p>
+    <p><strong>境界:</strong> LEANはPhase 3のローカルBacktest PoC候補として扱う。P3-10で固定契約と再現性を統合確認したが、H1/H4/D1を含む長い固定fixture、実取引所の正式Calendar、実測cost/slippage、長期利益・頑健性、Broker、Paper、Live、Cloud、Secretは未判定であり、Phase 4以降へ送る。</p>
     <p><strong>証跡:</strong> <a href="../tests/evidence/phase3/RUN-P3-POC-001/verification.json">native verification</a> / <a href="../tests/evidence/phase3/RUN-P3-POC-001/wsl-verification-capture.json">WSL verification capture</a> / <a href="../tests/evidence/phase3/RUN-P3-POC-001/run-manifest.json">Run Manifest</a> / <a href="./phase3/08_エンジンPoC/09_取引エンジンPoC評価結果.html">P3-D10</a> / <a href="../plan/phase3/ログ/P3-09_実行ログ_2026-08-10.md">実行ログ</a></p>
   </section>
 
   <section class="note" id="current-status-p3-10-20260810">
     <h2>P3-10 統合Replay / Golden / Bias検証の現状（2026-08-10）</h2>
-    <p><strong>状態:</strong> <span class="badge wait">契約Gate PASS・H3-6 Human Gate待ち</span>。<code>RUN-P3-INT-001</code>でP3-AC-01〜08を全件PASSとし、設計、テストID、実装path、Run証跡、A150/A160/A30/A40レビューの追跡をそろえた。未割当・根拠なしのPASSは0件である。</p>
-    <p><strong>隔離品質:</strong> WSL Ubuntu-24.04 / networking mode <code>none</code>でformatter、lint、type、testの固定4 Gateを全てPASSした。入力fixtureの前後hashは一致し、target-only change hashはManifestと一致する。execution idは<code>7962eb58a8cc47eb9c8d702e0765f5e3</code>である。</p>
+    <p><strong>状態:</strong> <span class="badge done">契約Gate PASS・H3-6 Human Gate承認済み</span>。<code>RUN-P3-INT-001</code>でP3-AC-01〜08を全件PASSとし、設計、テストID、実装path、Run証跡、A150/A160/A30/A40レビューの追跡をそろえた。未割当・根拠なしのPASSは0件である。</p>
+    <p><strong>隔離品質:</strong> WSL Ubuntu-24.04 / networking mode <code>none</code>でformatter、lint、type、testの固定4 Gateを全てPASSした。入力fixtureの前後hashは一致し、target-only change hashはManifestと一致する。承認後のexecution idは<code>6c38c704dc534b7c98f395d1105d82b7</code>である。</p>
     <p><strong>証跡の扱い:</strong> 古い<code>RUN-P3-GOLD-001</code>のBLOCKED証跡は履歴として保存し、最終PASSの根拠に使っていない。現在の固定品質Suiteを代替根拠として明記した。</p>
     <p><strong>未解消:</strong> <code>UNK-P3-01</code>（長期データ・市場数）、<code>UNK-P3-05</code>（実測cost/slippage・Gap）、<code>UNK-P3-07</code>（正式Calendar）は継続する。<code>profitability_decision=NOT_MADE</code>、<code>phase3_completion_status=NOT_COMPLETE_UNKNOWN</code>であり、長期利益、頑健性、Broker、Paper、Live、本番採用をPASSとはしない。</p>
-    <p><strong>Human Gate:</strong> ユーザーのRun承認声明が未登録のため、canonical verificationは<code>HUMAN_GATE_REQUIRED</code>である。承認前にP3-11/P3-12やPhase 4へ進めない。</p>
+    <p><strong>Human Gate:</strong> ユーザーの「RUN-P3-INT-001を承認します」を受領し、固定文言を含む承認記録を保存した。同じ固定入口の再実行でwrapper exit code 0、canonical verificationは<code>PASS</code>となった。P3-11/P3-12、Phase 4へ自動的に進めたわけではなく、長期Unknownは継続する。</p>
     <p><strong>証跡:</strong> <a href="../tests/evidence/phase3/RUN-P3-INT-001/run-manifest.json">Run Manifest</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json">P3-10 summary</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/verification.json">verification</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json">WSL capture</a> / <a href="./phase3/07_頑健性検証/10_P3-10_統合Replay_Golden_Bias検証結果.html">正式結果</a> / <a href="../plan/phase3/ログ/P3-10_実行ログ_2026-08-10.md">実行ログ</a></p>
-    <p><small>やさしい説明: 8つの必須の答え合わせと、通信を切った場所での確認は通りました。ただし、このRunを正式に受け取る人のサインがまだないため、受入は待ちです。長い期間の成績や本番で使えるかどうかは、まだ別の宿題です。</small></p>
+    <p><small>やさしい説明: 8つの必須の答え合わせ、通信を切った場所での確認、このRunを正式に受け取る人のサインがそろいました。長い期間の成績や本番で使えるかどうかは、まだ別の宿題です。</small></p>
   </section>
 
   <section class="note" id="remaining-issues-detail-20260809">
@@ -569,8 +570,9 @@ firewall=true</pre></li>
     <p>P3-07R-05を実行し、Windows型Gateの残りを0件へ修正済み、WSL隔離下のR-05固定4 Gate（formatter、lint、mypy、258件wrapper）、全406テスト、phase3 fixture/hash/隔離契約、A150/A160/A40のCritical/High=0、Human Gate承認を確認した。登録Runnerは`PASS`となり、P3-07 Core範囲を受入可へ更新した。<a href="../tests/evidence/phase3/RUN-P3-BT-001/verification.json">RUN-P3-BT-001証跡</a> / <a href="../plan/phase3/ログ/P3-07R-05_実行ログ_2026-08-10.md">R-05実行ログ</a>を参照する。P3-08A、P3-09、Phase 4は後続Gateとして完了扱いにしない。H3-1/H3-1R/H3-2の承認状態は変更しない。台帳全体のHuman Gate、Phase表示、主課題、件数、履歴、関連証跡を点検した。</p>
     <p>【履歴：P3-09本Run実行前】P3-09の実行要求を受領し、P3-08A PASSを再確認したが、P3-09専用実行入口・Run Manifest・LEAN/Core parity期待出力が未確定でtrusted scopeが`execution_allowed=false`のため、実engineを起動せずBLOCKED証跡を作成した。この停止試行は<code>attempt-1</code>〜<code>attempt-6</code>とともに履歴として保持する。</p>
     <p>P3-09本Runでは、P3-08R-05の固定Manifest・期待値・trusted scope、ユーザー明示承認、network none、WSL隔離を再照合し、Windows/WSLともPASSした。<a href="../tests/evidence/phase3/RUN-P3-POC-001/verification.json">native verification</a> / <a href="../tests/evidence/phase3/RUN-P3-POC-001/wsl-verification-capture.json">WSL capture</a> / <a href="./phase3/08_エンジンPoC/09_取引エンジンPoC評価結果.html">P3-D10</a>を参照する。BLK-P3-010は解消済みとし、P3-10とPhase 4の残境界は別課題として維持する。</p>
-    <p>P3-10では、初回WSL試行でPowerShell依存テストが混入して失敗したため、その証跡を退避・保持し、P3-10の固定targetを修正した。修正後の<code>RUN-P3-INT-001</code>は、WSL networking mode <code>none</code>でformatter、lint、type、testを全てPASSし、fixture前後hashも一致した。P3-AC-01〜08の契約GateはPASSだが、専用Human Gateは未承認のため、現在のRun状態は<code>HUMAN_GATE_REQUIRED</code>である。<a href="../tests/evidence/phase3/RUN-P3-INT-001/verification.json">P3-10 verification</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json">WSL capture</a> / <a href="./phase3/07_頑健性検証/10_P3-10_統合Replay_Golden_Bias検証結果.html">P3-10正式結果</a> / <a href="../plan/phase3/ログ/P3-10_実行ログ_2026-08-10.md">実行ログ</a>を参照する。</p>
-    <p><small>やさしい説明: 最初の通し試験で、場所に合わないテストが混ざったため止まりました。問題を直してもう一度行うと、4つの品質確認は通りました。ただし本番運用の許可ではなく、Runの承認札はまだ待ちです。</small></p>
+    <p>【承認前の履歴】P3-10では、初回WSL試行でPowerShell依存テストが混入して失敗したため、その証跡を退避・保持し、P3-10の固定targetを修正した。修正後の<code>RUN-P3-INT-001</code>は、WSL networking mode <code>none</code>でformatter、lint、type、testを全てPASSし、fixture前後hashも一致した。承認前のRun状態は<code>HUMAN_GATE_REQUIRED</code>であった。</p>
+    <p>【承認後の確定】ユーザーの「RUN-P3-INT-001を承認します」を固定文言で記録し、同じ固定入口を再実行した。承認後のexecution idは<code>6c38c704dc534b7c98f395d1105d82b7</code>、wrapper exit codeは0、verification stateは<code>PASS</code>である。<a href="../tests/evidence/phase3/RUN-P3-INT-001/human-gate-user-declaration.md">承認記録</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/verification.json">P3-10 verification</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json">WSL capture</a> / <a href="./phase3/07_頑健性検証/10_P3-10_統合Replay_Golden_Bias検証結果.html">P3-10正式結果</a> / <a href="../plan/phase3/ログ/P3-10_実行ログ_2026-08-10.md">実行ログ</a>を参照する。</p>
+    <p><small>やさしい説明: 最初の通し試験では場所に合わないテストが混ざり、承認前は安全に止まりました。問題を直し、承認を受けてもう一度行うと、4つの品質確認と承認確認が通りました。ただし本番運用の許可ではありません。</small></p>
   </section>
   <section class="ok-note" id="policy-decisions-20260809">
     <h2>ユーザー決定の最新反映（2026-08-09）</h2>

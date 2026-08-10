@@ -14,12 +14,12 @@
   <p><a href="../../index.html">Phase 3成果物一覧</a> / <a href="../08_エンジンPoC/09_取引エンジンPoC評価結果.html">P3-D10</a> / <a href="../../../doc/00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
   <h1>P3-10 統合Replay・Golden・Bias検証結果</h1>
   <p><strong>Run:</strong> <code>RUN-P3-INT-001</code>　<strong>実行日:</strong> 2026-08-10　<strong>Step:</strong> P3-10</p>
-  <p><strong>現在の総合状態:</strong> <span class="wait">契約Gate PASS / Human Gate REQUIRED</span></p>
+  <p><strong>現在の総合状態:</strong> <span class="ok">契約Gate PASS / Human Gate PASS</span></p>
 
   <h2>1. 結論</h2>
   <p>Phase 3で必須としたP3-AC-01〜08の契約検証は、全件PASSとなった。追跡表には設計行、テストID、実装path、Run証跡、レビュー結果がそろい、未割当・根拠なしのPASSは0件である。古い<code>RUN-P3-GOLD-001</code>のBLOCKED証跡は履歴として残し、最終PASSの根拠には使っていない。</p>
-  <p>WSL隔離ではformatter、lint、type、testの固定4 Gateが全てPASSし、networking modeは<code>none</code>、入力fixtureの実行前後hashも一致した。ただし、品質Runnerが求める<code>RUN-P3-INT-001</code>のユーザー承認声明がまだないため、Runの最終状態は<code>HUMAN_GATE_REQUIRED</code>である。</p>
-  <div class="easy"><strong>中学生でも分かる説明:</strong> 問題集、答え合わせ、同じ問題をもう一度解くテスト、通信を切った場所での確認は合格しました。でも「このRunの結果を正式に受け取ってよい」という持ち主の札がまだ付いていないため、正式受入は待ちです。短いテストに合格したことだけで、長期間の利益や本番運用が安全だとは決めていません。</div>
+  <p>WSL隔離ではformatter、lint、type、testの固定4 Gateが全てPASSし、networking modeは<code>none</code>、入力fixtureの実行前後hashも一致した。ユーザーの<code>RUN-P3-INT-001</code>承認声明を固定文言で確認したため、Runの最終状態は<code>PASS</code>となった。</p>
+  <div class="easy"><strong>中学生でも分かる説明:</strong> 問題集、答え合わせ、同じ問題をもう一度解くテスト、通信を切った場所での確認、そして持ち主の承認札がそろいました。ただし、短いテストに合格したことだけで、長期間の利益や本番運用が安全だとは決めていません。</div>
 
   <h2>2. P3-AC受入表</h2>
   <table>
@@ -67,11 +67,11 @@
   <div class="pending"><strong>重要:</strong> この結果から長期利益、頑健性、Broker接続、Paper、Live、本番採用をPASSとはしない。<code>profitability_decision=NOT_MADE</code>、<code>phase3_completion_status=NOT_COMPLETE_UNKNOWN</code>を維持する。</div>
 
   <h2>6. Human Gate</h2>
-  <p><code>RUN-P3-INT-001</code>のユーザー承認声明が未登録のため、現在のverification stateは<code>HUMAN_GATE_REQUIRED</code>である。承認後も、上記Unknownは自動的に解消されない。承認する場合は、対象Runを明示して「RUN-P3-INT-001を承認します」と宣言し、同じ固定入口を再実行して最終証跡を更新する。</p>
+  <p><code>RUN-P3-INT-001</code>は、ユーザーの「RUN-P3-INT-001を承認します」を受領し、承認証跡を固定文言で記録したうえで同じ固定入口を再実行した。WSL wrapper exit codeは0、verification stateは<code>PASS</code>である。承認によって<code>UNK-P3-01</code>、<code>UNK-P3-05</code>、<code>UNK-P3-07</code>が自動解消されたわけではなく、長期利益・頑健性・本番運用の承認も含まない。</p>
 
   <h2>7. 関連証跡</h2>
   <ul>
-    <li><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/run-manifest.json">Run Manifest</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json">P3 acceptance summary</a></li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/run-manifest.json">Run Manifest</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json">P3 acceptance summary</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/human-gate-user-declaration.md">Human Gate承認記録</a></li>
     <li><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/verification.json">canonical verification</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json">WSL verification capture</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/automation/run-test-summary.json">WSL run summary</a></li>
     <li><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/reviews/a150-review.json">A150</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/reviews/a160-review.json">A160</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/reviews/a30-review.json">A30</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/reviews/a40-review.json">A40</a></li>
     <li><a href="../../../plan/phase3/ログ/P3-10_実行ログ_2026-08-10.md">P3-10実行ログ</a> / <a href="../../../plan/Phase3_実行計画書_v0.1_2026-08-09.md">Phase 3実行計画書</a> / <a href="../../../doc/00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></li>

@@ -134,10 +134,10 @@
     ],
     "status": "PASS"
   },
-  "generated_at": "2026-08-10T05:25:50.776735+00:00",
+  "generated_at": "2026-08-10T07:07:10.491278+00:00",
   "human_gate": {
     "declaration_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-INT-001/human-gate-user-declaration.md",
-    "status": "REQUIRED"
+    "status": "PASS"
   },
   "manifest": {
     "baseline_ref": "975759869baa73110316f4b4f06381a3a5c229b5",

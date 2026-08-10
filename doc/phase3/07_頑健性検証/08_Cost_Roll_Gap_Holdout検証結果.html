@@ -81,7 +81,7 @@
   <section class="note" id="p3-10-integration-20260810">
     <h2>7. P3-10統合再照合（2026-08-10）</h2>
     <p>P3-10の<code>RUN-P3-INT-001</code>で、Cost / Roll / Gap / Holdoutの固定契約をReplay、Golden、Calendar、PoC証跡と再照合した。固定Calendar 6ケース、Bias reject 10ケース、Manifest mutation 6ケースを確認し、P3-AC-01〜08の契約Gateは全件PASSとなった。</p>
-    <p>このPASSは、固定された契約とsynthetic fixtureの正しさを示すものであり、実測cost/slippage、長期頑健性、正式取引所Calendarの継続追随をPASSとはしない。<code>UNK-P3-01</code>、<code>UNK-P3-05</code>、<code>UNK-P3-07</code>は継続する。WSL固定4 Gateは全てPASSだが、P3-10のユーザー承認声明が未登録のためRun状態は<code>HUMAN_GATE_REQUIRED</code>である。</p>
+    <p>このPASSは、固定された契約とsynthetic fixtureの正しさを示すものであり、実測cost/slippage、長期頑健性、正式取引所Calendarの継続追随をPASSとはしない。<code>UNK-P3-01</code>、<code>UNK-P3-05</code>、<code>UNK-P3-07</code>は継続する。WSL固定4 Gateは全てPASSし、ユーザー承認後の再実行でwrapper exit code 0、P3-10 Run状態は<code>PASS</code>となった。</p>
     <p><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/replay-bias-audit.json">Replay/Bias audit</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json">P3-10 acceptance summary</a> / <a href="10_P3-10_統合Replay_Golden_Bias検証結果.html">P3-10正式結果</a></p>
   </section>
 </main>
