@@ -56,7 +56,7 @@
   ],
   "evidence_root": "tests/evidence/phase3/RUN-P3-POC-001",
   "input_fixture": {
-    "name": "preflight-config.json",
+    "name": "p3-lean-prep-output-boundary",
     "version": "p3-lean-prep-v1",
     "checksum": "sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d"
   },
