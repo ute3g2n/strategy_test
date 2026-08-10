@@ -59,4 +59,10 @@
   <h2>7. 次の作業</h2>
   <p>P3-07で、Strategyへ渡す前段のTimeframe Aggregator、決定的Replay、Calendar、Manifest、Backtestの最小仮想約定を実装する。P3-06はBroker、Secret、実注文、実engine、利益の採用判断を実装していない。</p>
   <div class="note"><strong>現在の残課題:</strong> 実Cost/Roll/Gap、正式Calendar、実engine固定、Riskの実注文数量、Paper接続は後続Stepの範囲であり、P3-06の合格をそれらの合格と読み替えない。</div>
+  <section class="note" id="p3-10-integration-20260810">
+    <h2>8. P3-10統合再照合（2026-08-10）</h2>
+    <p>P3-10の<code>RUN-P3-INT-001</code>で、P3-06のStrategy証跡をGolden、Replay、Bias、PoCと横断して再照合した。P3-AC-01〜08の契約Gateは全件PASS、A150/A160/A30/A40のCritical / Highは0件である。</p>
+    <p>WSL隔離下のformatter、lint、type、testは全てPASSし、networking modeは<code>none</code>、入力hash前後一致となった。ただし、P3-10 Runのユーザー承認声明が未登録のため、Run状態は<code>HUMAN_GATE_REQUIRED</code>であり、P3-06の過去のPASSを長期利益や本番採用の根拠へ拡張していない。</p>
+    <p><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json">P3-10 acceptance summary</a> / <a href="../07_頑健性検証/10_P3-10_統合Replay_Golden_Bias検証結果.html">P3-10正式結果</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json">WSL証跡</a></p>
+  </section>
 </main></body></html>

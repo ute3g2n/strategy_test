@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>P3-10 統合Replay・Golden・Bias検証結果</title>
+  <style>
+    body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.75;max-width:1180px;margin:28px auto;padding:0 22px;color:#1f2937}
+    h1,h2{color:#123b63}.ok{color:#166534;font-weight:700}.wait{color:#9a3412;font-weight:700}.mono,code{font-family:ui-monospace,Consolas,monospace;word-break:break-all}
+    table{border-collapse:collapse;width:100%;margin:14px 0}th,td{border:1px solid #cbd5e1;padding:9px;vertical-align:top}th{background:#eaf2fb}
+    .easy{background:#fff8db;border-left:5px solid #eab308;padding:12px;margin:12px 0}.note{background:#eef7ff;border-left:5px solid #2563eb;padding:12px;margin:12px 0}.pending{background:#fff7ed;border-left:5px solid #ea580c;padding:12px;margin:12px 0}
+  </style>
+</head>
+<body><main>
+  <p><a href="../../index.html">Phase 3成果物一覧</a> / <a href="../08_エンジンPoC/09_取引エンジンPoC評価結果.html">P3-D10</a> / <a href="../../../doc/00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
+  <h1>P3-10 統合Replay・Golden・Bias検証結果</h1>
+  <p><strong>Run:</strong> <code>RUN-P3-INT-001</code>　<strong>実行日:</strong> 2026-08-10　<strong>Step:</strong> P3-10</p>
+  <p><strong>現在の総合状態:</strong> <span class="wait">契約Gate PASS / Human Gate REQUIRED</span></p>
+
+  <h2>1. 結論</h2>
+  <p>Phase 3で必須としたP3-AC-01〜08の契約検証は、全件PASSとなった。追跡表には設計行、テストID、実装path、Run証跡、レビュー結果がそろい、未割当・根拠なしのPASSは0件である。古い<code>RUN-P3-GOLD-001</code>のBLOCKED証跡は履歴として残し、最終PASSの根拠には使っていない。</p>
+  <p>WSL隔離ではformatter、lint、type、testの固定4 Gateが全てPASSし、networking modeは<code>none</code>、入力fixtureの実行前後hashも一致した。ただし、品質Runnerが求める<code>RUN-P3-INT-001</code>のユーザー承認声明がまだないため、Runの最終状態は<code>HUMAN_GATE_REQUIRED</code>である。</p>
+  <div class="easy"><strong>中学生でも分かる説明:</strong> 問題集、答え合わせ、同じ問題をもう一度解くテスト、通信を切った場所での確認は合格しました。でも「このRunの結果を正式に受け取ってよい」という持ち主の札がまだ付いていないため、正式受入は待ちです。短いテストに合格したことだけで、長期間の利益や本番運用が安全だとは決めていません。</div>
+
+  <h2>2. P3-AC受入表</h2>
+  <table>
+    <thead><tr><th>条件</th><th>状態</th><th>今回確認した範囲</th><th>明示した境界</th></tr></thead>
+    <tbody>
+      <tr><td>P3-AC-01</td><td class="ok">PASS</td><td>固定Aggregator契約、時間足系列、P3-09のLEAN/Core parity。</td><td>LEAN parityの実測はM1/M15/M30固定fixture。H1/H4/D1の長時間engine parityはUnknown。</td></tr>
+      <tr><td>P3-AC-02</td><td class="ok">PASS</td><td>未完成bar、未来roll、holdout、wall clock参照の拒否とclosed-bar replay。</td><td>実市場の長期頑健性は別判定。</td></tr>
+      <tr><td>P3-AC-03</td><td class="ok">PASS</td><td>通常日、DST開始・終了、休日、短縮日、日次休場、同時closeの固定6ケース。</td><td>実取引所Calendarの継続追随はPhase 4境界。</td></tr>
+      <tr><td>P3-AC-04</td><td class="ok">PASS</td><td>同一ManifestでSignal、Intent、State、result hashを再Replayし一致。</td><td>入力・Manifestを変更した場合は同じPASSを再利用しない。</td></tr>
+      <tr><td>P3-AC-05</td><td class="ok">PASS</td><td>Core公開型とLeanLocalAdapterの境界、Broker/Live型の漏出拒否。</td><td>Broker接続・実注文は対象外。</td></tr>
+      <tr><td>P3-AC-06</td><td class="ok">PASS</td><td>固定ローカル入力、network none、automatic download false、offline evidence。</td><td>Cloud、Secret、外部データ取得は対象外。</td></tr>
+      <tr><td>P3-AC-07</td><td class="ok">PASS</td><td>5市場×2024/2025 synthetic性能fixtureの二回結果hash一致。</td><td>20〜40市場の連続運用はPhase 4境界。</td></tr>
+      <tr><td>P3-AC-08</td><td class="ok">PASS</td><td>Golden、snapshot/restore、Look-ahead、sticky stop、Manifest tamper。</td><td>短期fixtureの契約確認であり、利益採用の判断ではない。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. 固定入力・隔離品質Gate</h2>
+  <table>
+    <thead><tr><th>項目</th><th>結果</th><th>証拠</th></tr></thead>
+    <tbody>
+      <tr><td>WSL</td><td>Ubuntu-24.04 / WSL2、networking mode=<code>none</code></td><td>execution id <code>7962eb58a8cc47eb9c8d702e0765f5e3</code></td></tr>
+      <tr><td>formatter / lint / type / test</td><td class="ok">全てPASS</td><td>WSL verification capture</td></tr>
+      <tr><td>入力fixture</td><td class="ok">前後hash一致</td><td><code>sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4</code></td></tr>
+      <tr><td>target-only change hash</td><td class="ok">Manifest一致</td><td><code>sha256:2c8df36ac55836ce0b4888b52c1a960413b52ce994d90e8d230ee556eb655553</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. Replay・Bias・証跡の扱い</h2>
+  <ul>
+    <li>System 1 / System 2と比較候補は同一入力・同一cost条件で比較し、利益やパラメータ採用は行っていない。</li>
+    <li>未来bar、未来roll、holdout可視化、wall clock依存、Manifest改変、snapshot復旧の拒否契約を確認した。</li>
+    <li><code>RUN-P3-GOLD-001</code>の古いBLOCKEDは再利用せず、現在の固定品質Suiteを代替根拠として明記した。</li>
+    <li>Critical / HighはA150、A160、A30、A40の全レビューで0件。</li>
+  </ul>
+
+  <h2>5. 残るUnknownと、今回決めていないこと</h2>
+  <table>
+    <thead><tr><th>ID</th><th>内容</th><th>影響</th></tr></thead>
+    <tbody>
+      <tr><td><code>UNK-P3-01</code></td><td>長期データ、長期holdout、walk-forward、十分な市場数が未取得。</td><td>長期の頑健性・利益採用は決めない。</td></tr>
+      <tr><td><code>UNK-P3-05</code></td><td>実測cost、slippage、Gap、rollの市場別実値が未確定。</td><td>実運用の成績や約定品質は決めない。</td></tr>
+      <tr><td><code>UNK-P3-07</code></td><td>実取引所Calendarの正式追随と更新運用が未確定。</td><td>Phase 4のCalendar運用・Paper境界へ送る。</td></tr>
+    </tbody>
+  </table>
+  <div class="pending"><strong>重要:</strong> この結果から長期利益、頑健性、Broker接続、Paper、Live、本番採用をPASSとはしない。<code>profitability_decision=NOT_MADE</code>、<code>phase3_completion_status=NOT_COMPLETE_UNKNOWN</code>を維持する。</div>
+
+  <h2>6. Human Gate</h2>
+  <p><code>RUN-P3-INT-001</code>のユーザー承認声明が未登録のため、現在のverification stateは<code>HUMAN_GATE_REQUIRED</code>である。承認後も、上記Unknownは自動的に解消されない。承認する場合は、対象Runを明示して「RUN-P3-INT-001を承認します」と宣言し、同じ固定入口を再実行して最終証跡を更新する。</p>
+
+  <h2>7. 関連証跡</h2>
+  <ul>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/run-manifest.json">Run Manifest</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json">P3 acceptance summary</a></li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/verification.json">canonical verification</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json">WSL verification capture</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/automation/run-test-summary.json">WSL run summary</a></li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/reviews/a150-review.json">A150</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/reviews/a160-review.json">A160</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/reviews/a30-review.json">A30</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/reviews/a40-review.json">A40</a></li>
+    <li><a href="../../../plan/phase3/ログ/P3-10_実行ログ_2026-08-10.md">P3-10実行ログ</a> / <a href="../../../plan/Phase3_実行計画書_v0.1_2026-08-09.md">Phase 3実行計画書</a> / <a href="../../../doc/00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></li>
+  </ul>
+</main></body></html>

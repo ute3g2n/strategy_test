@@ -1,0 +1,532 @@
+{
+  "acceptance": {
+    "P3-AC-01": {
+      "basis": "contract_only_no_profit_adoption",
+      "note": "固定Aggregator契約は全対象時間足をテストし、LEAN三者parityはP3-09のM1/M15/M30範囲だけを実測。H1/H4/D1の長時間engine parityはUnknownとして分離。",
+      "status": "PASS",
+      "traceability_complete": true
+    },
+    "P3-AC-02": {
+      "basis": "contract_only_no_profit_adoption",
+      "note": "未完成bar、未来roll、holdout、wall clockの拒否契約とclosed-bar replayを確認。",
+      "status": "PASS",
+      "traceability_complete": true
+    },
+    "P3-AC-03": {
+      "basis": "contract_only_no_profit_adoption",
+      "note": "固定Calendarの通常日、DST、休日、短縮日、日次休場、同時closeを確認。正式取引所Calendar追随は対象外。",
+      "status": "PASS",
+      "traceability_complete": true
+    },
+    "P3-AC-04": {
+      "basis": "contract_only_no_profit_adoption",
+      "note": "同一Manifestのordered output、Signal/Intent/State/result hashを二回比較。",
+      "status": "PASS",
+      "traceability_complete": true
+    },
+    "P3-AC-05": {
+      "basis": "contract_only_no_profit_adoption",
+      "note": "Core公開型とLeanLocalAdapter境界を確認。Broker/Live型の漏出は許可しない。",
+      "status": "PASS",
+      "traceability_complete": true
+    },
+    "P3-AC-06": {
+      "basis": "contract_only_no_profit_adoption",
+      "note": "固定ローカル入力、network none、automatic download false、offline evidenceを確認。",
+      "status": "PASS",
+      "traceability_complete": true
+    },
+    "P3-AC-07": {
+      "basis": "contract_only_no_profit_adoption",
+      "note": "5市場×2024/2025 synthetic性能の二回hash一致を確認。20〜40市場連続運用はPhase 4。",
+      "status": "PASS",
+      "traceability_complete": true
+    },
+    "P3-AC-08": {
+      "basis": "contract_only_no_profit_adoption",
+      "note": "Golden、snapshot/restore、Look-ahead、sticky stop、Manifest tamperの固定契約を確認。",
+      "status": "PASS",
+      "traceability_complete": true
+    }
+  },
+  "evidence_policy": {
+    "historical_blocked_attempts_preserved": true,
+    "stale_passes_used": false,
+    "unassigned_acceptance_passes": 0,
+    "unsupported_acceptance_passes": 0
+  },
+  "final_status": "PASS",
+  "fixture_integrity": {
+    "bias_manifest_mutation_count": 6,
+    "bias_reject_case_count": 10,
+    "calendar_cases": [
+      "daily_halt",
+      "dst_end",
+      "dst_start",
+      "holiday",
+      "normal",
+      "short_day"
+    ],
+    "checked_files": [
+      {
+        "actual": "sha256:19eff1a99d407570e73fac74d3e0e00bbaf72c3c4278e6f046dcc6723adcc314",
+        "expected": "19eff1a99d407570e73fac74d3e0e00bbaf72c3c4278e6f046dcc6723adcc314",
+        "path": "tests/fixtures/phase3/run_p3_gold_fixture_manifest.json"
+      },
+      {
+        "actual": "sha256:8674ac9f2b932acc4a6bca5a3d2037b9202cc7f61df71f7e5249c758f51bd79d",
+        "expected": "8674ac9f2b932acc4a6bca5a3d2037b9202cc7f61df71f7e5249c758f51bd79d",
+        "path": "tests/fixtures/phase3/run_p3_m30_fixture_manifest_v3.json"
+      },
+      {
+        "actual": "sha256:55861db761a9d2272f235486e6ada5c4354ec2a155ba949b5f7fafc6d5df7299",
+        "expected": "55861db761a9d2272f235486e6ada5c4354ec2a155ba949b5f7fafc6d5df7299",
+        "path": "tests/fixtures/phase3/backtest_contract_cases_v1.json"
+      },
+      {
+        "actual": "sha256:a3fda8506aeba088405bcb3436aaa14957f990427f2e3dd9c0f1c8188fba63db",
+        "expected": "a3fda8506aeba088405bcb3436aaa14957f990427f2e3dd9c0f1c8188fba63db",
+        "path": "tests/fixtures/phase3/m30_backtest_contract_cases_v2.json"
+      },
+      {
+        "actual": "sha256:7282ea7bda1c6701cffc2e8e1949b2b38e036b107b99d2857b1508afe51f6e08",
+        "expected": "7282ea7bda1c6701cffc2e8e1949b2b38e036b107b99d2857b1508afe51f6e08",
+        "path": "tests/fixtures/phase3/m30_backtest_v2.json"
+      },
+      {
+        "actual": "sha256:986e87fec5abd90fdbf81f485737d099131b54fb1cd1326bd7399d22aa05bdc6",
+        "expected": "986e87fec5abd90fdbf81f485737d099131b54fb1cd1326bd7399d22aa05bdc6",
+        "path": "tests/fixtures/phase3/calendar_us_futures_v1.json"
+      },
+      {
+        "actual": "sha256:af8419125afbb22ba0754664aba989b95b2817072d83eef0f87f8268bd9c408d",
+        "expected": "af8419125afbb22ba0754664aba989b95b2817072d83eef0f87f8268bd9c408d",
+        "path": "tests/fixtures/phase3/backtest_replay_v1.json"
+      },
+      {
+        "actual": "sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24",
+        "expected": "1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24",
+        "path": "tests/fixtures/phase3/bias_manifest_v1.json"
+      },
+      {
+        "actual": "sha256:1000e99f8d3b75a464e5fbdc79111a58f3ed926e84b795c2df28e53c9b1aa731",
+        "expected": "1000e99f8d3b75a464e5fbdc79111a58f3ed926e84b795c2df28e53c9b1aa731",
+        "path": "tests/fixtures/phase3/performance_synthetic_v1.json"
+      },
+      {
+        "actual": "sha256:4a410f7ac15837ebb9d899daecd56f0c6e45c3795d7f8db067daef80359531e0",
+        "expected": "4a410f7ac15837ebb9d899daecd56f0c6e45c3795d7f8db067daef80359531e0",
+        "path": "tests/fixtures/phase3/run_p3_strategy_fixture_manifest_v3.json"
+      }
+    ],
+    "errors": [],
+    "golden_case_range": "GT-TUR-001..GT-TUR-012",
+    "performance_calendar_years": [
+      2024,
+      2025
+    ],
+    "performance_markets": [
+      "MKT-A",
+      "MKT-B",
+      "MKT-C",
+      "MKT-D",
+      "MKT-E"
+    ],
+    "status": "PASS"
+  },
+  "generated_at": "2026-08-10T05:25:50.776735+00:00",
+  "human_gate": {
+    "declaration_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-INT-001/human-gate-user-declaration.md",
+    "status": "REQUIRED"
+  },
+  "manifest": {
+    "baseline_ref": "975759869baa73110316f4b4f06381a3a5c229b5",
+    "change_hash": "sha256:2c8df36ac55836ce0b4888b52c1a960413b52ce994d90e8d230ee556eb655553",
+    "input_fixture_checksum": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+    "path": "tests/evidence/phase3/RUN-P3-INT-001/run-manifest.json",
+    "run_id": "RUN-P3-INT-001"
+  },
+  "phase3_completion_status": "NOT_COMPLETE_UNKNOWN",
+  "phase_id": "phase3",
+  "profitability_decision": "NOT_MADE",
+  "quality_gate_status": "PASS",
+  "replay_bias_audit": {
+    "calendar_fixture_cases": 6,
+    "comparison": {
+      "comparison_variant": "M15_CLOSE_CONFIRMED_V1",
+      "cost_binding": "backtest_replay_v1.fill_profile",
+      "input_binding": "run_p3_backtest_fixture_manifest_v1.json",
+      "original_systems": [
+        "SYSTEM_1",
+        "SYSTEM_2"
+      ],
+      "profit_or_parameter_adoption": "NOT_EVALUATED",
+      "same_input_and_cost_contract": "PASS"
+    },
+    "errors": [],
+    "fixture_status": "PASS",
+    "golden_cases": "GT-TUR-001..GT-TUR-012",
+    "look_ahead_guards": [
+      "future_bar",
+      "future_roll",
+      "holdout_visible",
+      "wall_clock_required"
+    ],
+    "manifest_tamper_mutations": 6,
+    "p3_09_performance_result_hash_match": true,
+    "p3_09_replay_output_hash_match": true,
+    "required_contract_test_paths": {
+      "calendar": "tests/backtest/test_calendar_port.py",
+      "cost_roll_gap": "tests/backtest/test_p3_08_robustness.py",
+      "golden": "tests/strategy/test_turtle_golden_red_contract.py",
+      "look_ahead": "tests/strategy/test_strategy_execution_safety_v3.py",
+      "manifest_tamper": "tests/backtest/test_experiment_manifest.py",
+      "offline": "tests/backtest/test_backtest_repair_red_contract.py",
+      "replay": "tests/backtest/test_replay_order.py",
+      "snapshot": "tests/strategy/test_strategy_general_rules.py"
+    },
+    "source_run_evidence": [
+      "RUN-P3-STR-001",
+      "RUN-P3-BT-001",
+      "RUN-P3-BIAS-001",
+      "RUN-P3-POC-001"
+    ],
+    "status": "PASS"
+  },
+  "required_acceptance_status": "PASS",
+  "reviews": {
+    "A150": {
+      "critical": 0,
+      "findings": [],
+      "focus": "revision and evidence consistency",
+      "high": 0,
+      "reviewer": "AutoTrade_A150_PythonCodeReviewer_v0_1",
+      "run_id": "RUN-P3-INT-001",
+      "scope": "P3-10 integration contract; no profit adoption",
+      "verdict": "APPROVE"
+    },
+    "A160": {
+      "critical": 0,
+      "findings": [],
+      "focus": "profit leakage, optimistic fills, hidden Unknowns",
+      "high": 0,
+      "reviewer": "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+      "run_id": "RUN-P3-INT-001",
+      "scope": "P3-10 integration contract; no profit adoption",
+      "verdict": "APPROVE"
+    },
+    "A30": {
+      "critical": 0,
+      "findings": [],
+      "focus": "Strategy Golden, Look-ahead, System 1/2 semantics",
+      "high": 0,
+      "reviewer": "AutoTrade_A30_StrategyQaArchitect_v0_1",
+      "run_id": "RUN-P3-INT-001",
+      "scope": "P3-10 integration contract; no profit adoption",
+      "verdict": "APPROVE"
+    },
+    "A40": {
+      "critical": 0,
+      "findings": [],
+      "focus": "Replay and engine parity boundary",
+      "high": 0,
+      "reviewer": "AutoTrade_A40_ExecutionEnginePocArchitect_v0_1",
+      "run_id": "RUN-P3-INT-001",
+      "scope": "P3-10 integration contract; no profit adoption",
+      "verdict": "APPROVE"
+    }
+  },
+  "robustness": {
+    "status": "UNKNOWN",
+    "unknowns": [
+      {
+        "id": "UNK-P3-01",
+        "impact": "短期fixtureとsynthetic性能は契約検証に使うが、利益・実市場頑健性の採用根拠にはしない。",
+        "reason": "55日Channel、Holdout、Walk-forwardに足る長期実データと市場数が未提供。",
+        "status": "UNKNOWN"
+      },
+      {
+        "id": "UNK-P3-05",
+        "impact": "明示した保守的モデルの契約だけをPASSとし、実値・利益保証とは呼ばない。",
+        "reason": "市場別の実測手数料、スリッページ、Gap約定値が未確定。",
+        "status": "UNKNOWN"
+      },
+      {
+        "id": "UNK-P3-07",
+        "impact": "固定テストCalendarの契約PASSだけを記録し、Live適合性は主張しない。",
+        "reason": "実取引所の正式Calendarと運用変更への継続追随が未確認。",
+        "status": "UNKNOWN"
+      }
+    ]
+  },
+  "run_id": "RUN-P3-INT-001",
+  "schema_version": "p3-acceptance-summary/v1",
+  "source_runs": {
+    "RUN-P3-BIAS-001": {
+      "observed_status": "PASS",
+      "used_for_final_pass": true,
+      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-BIAS-001/verification.json"
+    },
+    "RUN-P3-BT-001": {
+      "observed_status": "PASS",
+      "used_for_final_pass": true,
+      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-BT-001/verification.json"
+    },
+    "RUN-P3-GOLD-001": {
+      "observed_status": "BLOCKED",
+      "replacement_evidence": "current_fixed_quality_suite",
+      "used_for_final_pass": false,
+      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-GOLD-001/verification.json"
+    },
+    "RUN-P3-POC-001": {
+      "observed_status": "PASS",
+      "used_for_final_pass": true,
+      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-POC-001/verification.json"
+    },
+    "RUN-P3-STR-001": {
+      "observed_status": "PASS",
+      "used_for_final_pass": true,
+      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-STR-001/verification.json"
+    }
+  },
+  "step_id": "P3-10",
+  "traceability": {
+    "P3-AC-01": {
+      "design_refs": [
+        "P3-D04",
+        "P3-D05",
+        "P3-D06",
+        "P3-D10"
+      ],
+      "implementation_paths": [
+        "src/autotrade/backtest/timeframe_aggregator.py",
+        "src/autotrade/backtest/calendar_port.py"
+      ],
+      "review_results": [
+        "A150",
+        "A160",
+        "A30",
+        "A40"
+      ],
+      "run_evidence": [
+        "RUN-P3-BT-001",
+        "RUN-P3-BIAS-001",
+        "RUN-P3-POC-001"
+      ],
+      "status": "PASS",
+      "test_ids": [
+        "GT-TUR-001",
+        "GT-TUR-003",
+        "BT-007",
+        "BT-033",
+        "RUN-P3-POC-001/P3-AC-01"
+      ]
+    },
+    "P3-AC-02": {
+      "design_refs": [
+        "P3-D04",
+        "P3-D05",
+        "P3-D06",
+        "P3-D10"
+      ],
+      "implementation_paths": [
+        "src/autotrade/strategy/service.py",
+        "src/autotrade/backtest/runner.py"
+      ],
+      "review_results": [
+        "A150",
+        "A160",
+        "A30",
+        "A40"
+      ],
+      "run_evidence": [
+        "RUN-P3-STR-001",
+        "RUN-P3-BIAS-001",
+        "RUN-P3-POC-001"
+      ],
+      "status": "PASS",
+      "test_ids": [
+        "GT-TUR-012",
+        "BT-004",
+        "BT-021",
+        "RUN-P3-POC-001/P3-AC-02"
+      ]
+    },
+    "P3-AC-03": {
+      "design_refs": [
+        "P3-D04",
+        "P3-D05",
+        "P3-D06",
+        "P3-D10"
+      ],
+      "implementation_paths": [
+        "src/autotrade/backtest/calendar_port.py",
+        "src/autotrade/backtest/timeframe_aggregator.py"
+      ],
+      "review_results": [
+        "A150",
+        "A160",
+        "A30",
+        "A40"
+      ],
+      "run_evidence": [
+        "RUN-P3-BT-001",
+        "RUN-P3-BIAS-001",
+        "RUN-P3-POC-001"
+      ],
+      "status": "PASS",
+      "test_ids": [
+        "GT-TUR-013",
+        "BT-007",
+        "BT-009",
+        "RUN-P3-POC-001/P3-AC-03"
+      ]
+    },
+    "P3-AC-04": {
+      "design_refs": [
+        "P3-D05",
+        "P3-D06",
+        "P3-D08",
+        "P3-D10"
+      ],
+      "implementation_paths": [
+        "src/autotrade/backtest/runner.py",
+        "src/autotrade/backtest/result_store.py"
+      ],
+      "review_results": [
+        "A150",
+        "A160",
+        "A30",
+        "A40"
+      ],
+      "run_evidence": [
+        "RUN-P3-BT-001",
+        "RUN-P3-POC-001"
+      ],
+      "status": "PASS",
+      "test_ids": [
+        "BT-001",
+        "BT-010",
+        "BT-019",
+        "RUN-P3-POC-001/P3-AC-04"
+      ]
+    },
+    "P3-AC-05": {
+      "design_refs": [
+        "P3-D04",
+        "P3-D05",
+        "P3-D09",
+        "P3-D10"
+      ],
+      "implementation_paths": [
+        "src/autotrade/strategy/service.py",
+        "src/autotrade/backtest/engine_adapter.py"
+      ],
+      "review_results": [
+        "A150",
+        "A160",
+        "A30",
+        "A40"
+      ],
+      "run_evidence": [
+        "RUN-P3-STR-001",
+        "RUN-P3-BT-001",
+        "RUN-P3-POC-001"
+      ],
+      "status": "PASS",
+      "test_ids": [
+        "GT-TUR-018",
+        "BT-030",
+        "BT-032",
+        "RUN-P3-POC-001/P3-AC-05"
+      ]
+    },
+    "P3-AC-06": {
+      "design_refs": [
+        "P3-D05",
+        "P3-D09",
+        "P3-D10"
+      ],
+      "implementation_paths": [
+        "src/autotrade/backtest/offline_evidence.py",
+        "scripts/wsl_quality_gate/run_test.ps1"
+      ],
+      "review_results": [
+        "A150",
+        "A160",
+        "A30",
+        "A40"
+      ],
+      "run_evidence": [
+        "RUN-P3-BIAS-001",
+        "RUN-P3-LEAN-PREP-001",
+        "RUN-P3-POC-001"
+      ],
+      "status": "PASS",
+      "test_ids": [
+        "GT-TUR-024",
+        "BT-022",
+        "BT-029",
+        "RUN-P3-POC-001/P3-AC-06"
+      ]
+    },
+    "P3-AC-07": {
+      "design_refs": [
+        "P3-D05",
+        "P3-D08",
+        "P3-D10"
+      ],
+      "implementation_paths": [
+        "src/autotrade/backtest/performance_recorder.py",
+        "scripts/quality_gate/p3_poc_runner.py"
+      ],
+      "review_results": [
+        "A150",
+        "A160",
+        "A30",
+        "A40"
+      ],
+      "run_evidence": [
+        "RUN-P3-BT-001",
+        "RUN-P3-POC-001"
+      ],
+      "status": "PASS",
+      "test_ids": [
+        "BT-027",
+        "BT-028",
+        "RUN-P3-POC-001/P3-AC-07"
+      ]
+    },
+    "P3-AC-08": {
+      "design_refs": [
+        "P3-D04",
+        "P3-D05",
+        "P3-D06",
+        "P3-D09",
+        "P3-D10"
+      ],
+      "implementation_paths": [
+        "src/autotrade/strategy/snapshot.py",
+        "src/autotrade/backtest/snapshot.py"
+      ],
+      "review_results": [
+        "A150",
+        "A160",
+        "A30",
+        "A40"
+      ],
+      "run_evidence": [
+        "RUN-P3-STR-001",
+        "RUN-P3-BIAS-001",
+        "RUN-P3-POC-001"
+      ],
+      "status": "PASS",
+      "test_ids": [
+        "GT-TUR-011",
+        "GT-TUR-012",
+        "BT-026",
+        "RUN-P3-POC-001/P3-AC-08"
+      ]
+    }
+  }
+}

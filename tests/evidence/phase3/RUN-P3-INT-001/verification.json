@@ -1,0 +1,27 @@
+{
+  "schema_version": "p3-10-verification/v1",
+  "run_id": "RUN-P3-INT-001",
+  "phase_id": "phase3",
+  "step_id": "P3-10",
+  "state": "HUMAN_GATE_REQUIRED",
+  "final_status": "HUMAN_GATE_REQUIRED",
+  "reason": "WSL隔離下の固定4 Gateは全てPASSしたが、ユーザーのRun承認声明が未登録",
+  "gates": {
+    "formatter": "PASS",
+    "lint": "PASS",
+    "type": "PASS",
+    "test": "PASS"
+  },
+  "network_mode": "none",
+  "scope": "target_only",
+  "input_sha256": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+  "post_input_sha256": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+  "target_only_change_sha256": "sha256:2c8df36ac55836ce0b4888b52c1a960413b52ce994d90e8d230ee556eb655553",
+  "host_wrapper_execution_id": "7962eb58a8cc47eb9c8d702e0765f5e3",
+  "restore_state": "RESTORED",
+  "restore_evidence": "tests/evidence/phase3/RUN-P3-INT-001/restore.json",
+  "human_gate_required": true,
+  "summary": "tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json",
+  "wsl_capture": "tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json",
+  "generated_at": "2026-08-10T05:20:31.005956+00:00"
+}

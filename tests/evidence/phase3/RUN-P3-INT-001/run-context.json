@@ -1,0 +1,12 @@
+{
+  "branch": "main",
+  "fixture_hash": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+  "generated_at": "2026-08-10T05:25:50.920601+00:00",
+  "head": "035cf48fa268fb95da0d3a0acdf8f30a8e982d91",
+  "phase_id": "phase3",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.13 (main, Jul 23 2026, 14:44:57) [MSC v.1944 64 bit (AMD64)]",
+  "run_id": "RUN-P3-INT-001",
+  "status_short": "?? tests/evidence/phase3/RUN-P3-INT-001/automation/\n?? tests/evidence/phase3/RUN-P3-INT-001/fixture-integrity.json\n?? tests/evidence/phase3/RUN-P3-INT-001/host-runner-debug.json\n?? tests/evidence/phase3/RUN-P3-INT-001/host-runner.json\n?? tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json\n?? tests/evidence/phase3/RUN-P3-INT-001/replay-bias-audit.json\n?? tests/evidence/phase3/RUN-P3-INT-001/restore.json\n?? tests/evidence/phase3/RUN-P3-INT-001/reviews/\n?? tests/evidence/phase3/RUN-P3-INT-001/run-context.json\n?? tests/evidence/phase3/RUN-P3-INT-001/source-run-audit.json\n?? tests/evidence/phase3/RUN-P3-INT-001/verification.json\n?? tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json",
+  "step_id": "P3-10"
+}

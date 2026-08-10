@@ -1,0 +1,10 @@
+{
+  "critical": 0,
+  "findings": [],
+  "focus": "Strategy Golden, Look-ahead, System 1/2 semantics",
+  "high": 0,
+  "reviewer": "AutoTrade_A30_StrategyQaArchitect_v0_1",
+  "run_id": "RUN-P3-INT-001",
+  "scope": "P3-10 integration contract; no profit adoption",
+  "verdict": "APPROVE"
+}

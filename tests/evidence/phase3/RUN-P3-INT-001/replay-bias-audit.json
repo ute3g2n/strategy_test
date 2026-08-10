@@ -1,0 +1,43 @@
+{
+  "calendar_fixture_cases": 6,
+  "comparison": {
+    "comparison_variant": "M15_CLOSE_CONFIRMED_V1",
+    "cost_binding": "backtest_replay_v1.fill_profile",
+    "input_binding": "run_p3_backtest_fixture_manifest_v1.json",
+    "original_systems": [
+      "SYSTEM_1",
+      "SYSTEM_2"
+    ],
+    "profit_or_parameter_adoption": "NOT_EVALUATED",
+    "same_input_and_cost_contract": "PASS"
+  },
+  "errors": [],
+  "fixture_status": "PASS",
+  "golden_cases": "GT-TUR-001..GT-TUR-012",
+  "look_ahead_guards": [
+    "future_bar",
+    "future_roll",
+    "holdout_visible",
+    "wall_clock_required"
+  ],
+  "manifest_tamper_mutations": 6,
+  "p3_09_performance_result_hash_match": true,
+  "p3_09_replay_output_hash_match": true,
+  "required_contract_test_paths": {
+    "calendar": "tests/backtest/test_calendar_port.py",
+    "cost_roll_gap": "tests/backtest/test_p3_08_robustness.py",
+    "golden": "tests/strategy/test_turtle_golden_red_contract.py",
+    "look_ahead": "tests/strategy/test_strategy_execution_safety_v3.py",
+    "manifest_tamper": "tests/backtest/test_experiment_manifest.py",
+    "offline": "tests/backtest/test_backtest_repair_red_contract.py",
+    "replay": "tests/backtest/test_replay_order.py",
+    "snapshot": "tests/strategy/test_strategy_general_rules.py"
+  },
+  "source_run_evidence": [
+    "RUN-P3-STR-001",
+    "RUN-P3-BT-001",
+    "RUN-P3-BIAS-001",
+    "RUN-P3-POC-001"
+  ],
+  "status": "PASS"
+}

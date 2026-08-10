@@ -1,0 +1,31 @@
+{
+  "runs": {
+    "RUN-P3-BIAS-001": {
+      "observed_status": "PASS",
+      "used_for_final_pass": true,
+      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-BIAS-001/verification.json"
+    },
+    "RUN-P3-BT-001": {
+      "observed_status": "PASS",
+      "used_for_final_pass": true,
+      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-BT-001/verification.json"
+    },
+    "RUN-P3-GOLD-001": {
+      "observed_status": "BLOCKED",
+      "replacement_evidence": "current_fixed_quality_suite",
+      "used_for_final_pass": false,
+      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-GOLD-001/verification.json"
+    },
+    "RUN-P3-POC-001": {
+      "observed_status": "PASS",
+      "used_for_final_pass": true,
+      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-POC-001/verification.json"
+    },
+    "RUN-P3-STR-001": {
+      "observed_status": "PASS",
+      "used_for_final_pass": true,
+      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-STR-001/verification.json"
+    }
+  },
+  "status": "PASS"
+}

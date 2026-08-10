@@ -287,7 +287,7 @@ H3-2は外部データや外部依存を使う許可であり、Secret投入、B
 | G10 | P3-08 | 完了・受入済み | RUN-P3-BIAS-001のWSL隔離、fixture hash、formatter/lint/type/testの固定4 Gate、独立レビュー、H3-5 Human Gate承認を確認。P3-08Aを開始し、P3-09はP3-08A完了まで開始しない。 |
 | G11 | P3-08A | 完了・受入済み | H3-2、P3-02、P3-04、P3-05R、P3-08。`RUN-P3-LEAN-PREP-001`の固定digest、artifact hash、LICENSE、network none/read-only Local preflight、固定4 Gate、レビューを確認。P3-09は別Gateで実行する。 |
 | G12 | P3-09 | 完了・PASS（2026-08-10） | P3-08R-05で確定した専用実行入口、唯一のexecution Manifest、Core reference、LEAN/Core parity期待出力、固定4 Gate、WSL隔離、独立レビューを再照合し、ユーザー明示承認後に`RUN-P3-POC-001`を実行した。固定LEAN digest、network none、read-only入力、P3-AC-01〜08、Windows/WSL品質GateをPASS。P3-D10ではLEANをローカルBacktest PoCの条件付き採用候補とし、H1/H4/D1を含む長時間足、実取引所Calendar、実測cost/slippage、Paper/Liveは後続境界として明示する。 |
-| G13 | P3-10 | 不可 | P3-03〜P3-09。長期データ不足時は利益・頑健性だけUNKNOWNとし、P3-AC-01〜08のPhase 3範囲は省略しない。 |
+| G13 | P3-10 | 実行済み・契約Gate PASS／Human Gate待ち | `RUN-P3-INT-001`でP3-AC-01〜08の契約範囲、固定4 Gate、WSL隔離、fixture hashを確認。ユーザーRun承認声明が登録されるまで正式受入へ進めない。長期データ不足時は利益・頑健性だけUNKNOWNとし、P3-AC-01〜08のPhase 3範囲は省略しない。 |
 | G14 | P3-11 | 不可 | P3-01〜P3-10 |
 | G15 | P3-12 | 不可 | H3-3、P3-11 |
 
@@ -1250,6 +1250,8 @@ Phase 3のGolden、Replay、Manifest、Bias、Cost/Roll/Gap、PoCを統合検証
 - stale証跡を最終PASSに使わない。
 - `p3-acceptance-summary.json`でP3-AC-01〜08のPhase 3必須部分が全てPASSし、未割当、未実行、根拠なしのPASSが0件である。
 ```
+
+実行結果（2026-08-10）: **契約Gate PASS・Human Gate待ち**。`RUN-P3-INT-001`を登録済みManifestの固定入力・固定scopeで実行し、P3-AC-01〜08を全件PASSとした。WSL Ubuntu-24.04 / networking mode `none` でformatter、lint、type、testの固定4 Gate、fixture前後hash、target-only change hash、A150/A160/A30/A40レビューを確認した。古い`RUN-P3-GOLD-001`のBLOCKED証跡は最終PASSに使わず、現在の固定品質Suiteを代替根拠として記録した。一方、ユーザー承認声明が未登録のためRunのverification stateは`HUMAN_GATE_REQUIRED`、`phase3_completion_status=NOT_COMPLETE_UNKNOWN`、`profitability_decision=NOT_MADE`である。`UNK-P3-01`、`UNK-P3-05`、`UNK-P3-07`は継続し、P3-11/P3-12、Paper、Live、利益採用へは進まない。正式結果: `doc/phase3/07_頑健性検証/10_P3-10_統合Replay_Golden_Bias検証結果.html`。証跡: `tests/evidence/phase3/RUN-P3-INT-001/`。実行ログ: `plan/phase3/ログ/P3-10_実行ログ_2026-08-10.md`。
 
 ### P3-11 統合レビュー・レッドチーム監査
 
