@@ -1,0 +1,154 @@
+{
+  "schema_version": "p3-08r-acceptance-traceability/v1",
+  "run_id": "RUN-P3-POC-READY-001",
+  "phase_id": "phase3",
+  "step_id": "P3-08R-01",
+  "status": "PASS",
+  "readiness_state": "IN_PROGRESS",
+  "created_at": "2026-08-10T11:20:34+09:00",
+  "source_contracts": [
+    "plan/Phase3_実行計画書_v0.1_2026-08-09.md",
+    "doc/phase3/04_Backtest詳細設計/04_Backtest_Experiment実装詳細設計書.html",
+    "doc/phase3/05_テスト設計/05_Golden_Biasテスト設計書.html",
+    "tests/evidence/phase3/RUN-P3-GOLD-001/acceptance-traceability.json",
+    "tests/evidence/phase3/RUN-P3-BT-001/acceptance-traceability.json"
+  ],
+  "rules": {
+    "fixed_input_values_are_immutable": true,
+    "core_reference_is_the_only_expected_value_source": true,
+    "lean_measurements_are_not_expected_values": true,
+    "engine_result_is_not_created_in_p3_08r_01": true,
+    "unassigned_count": 0
+  },
+  "requirements": [
+    {
+      "id": "P3-AC-01",
+      "definition": "固定1分足からM15、M30、H1、H4、D1を決定的に生成し、値・順序・hashを再現する。",
+      "fixed_inputs": [
+        "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json",
+        "tests/fixtures/phase3/run_p3_m30_fixture_manifest_v3.json",
+        "tests/fixtures/phase3/calendar_us_futures_v1.json"
+      ],
+      "existing_core_evidence": ["BT-001..003", "BT-005", "BT-007", "BT-033", "BT-035", "tests/backtest"],
+      "core_reference": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json", "key": "P3-AC-01", "status": "NOT_CREATED_ASSIGNED_P3-08R-03"},
+      "lean_input": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/lean-input/p3-ac-01.json", "status": "NOT_CREATED_ASSIGNED_P3-08R-02"},
+      "lean_output": {"artifact": "tests/evidence/phase3/RUN-P3-POC-001/lean-output/p3-ac-01.json", "status": "NOT_CREATED_P3-09"},
+      "parity_decision": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/parity-map.json", "key": "P3-AC-01", "status": "NOT_CREATED_ASSIGNED_P3-08R-03"},
+      "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-01/",
+      "status": "CONTRACT_ASSIGNED_ENGINE_NOT_EXECUTED"
+    },
+    {
+      "id": "P3-AC-02",
+      "definition": "未完成の上位足、未来情報、重複・逆行・品質異常をStrategyへ渡さない。",
+      "fixed_inputs": [
+        "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json",
+        "tests/fixtures/phase3/run_p3_strategy_fixture_manifest_v3.json",
+        "tests/fixtures/phase3/calendar_us_futures_v1.json"
+      ],
+      "existing_core_evidence": ["BT-004", "BT-006", "BT-008", "BT-014", "BT-018", "BT-020", "BT-023..025", "GT-TUR-012..017", "GT-TUR-023", "GT-TUR-028", "GT-TUR-035"],
+      "core_reference": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json", "key": "P3-AC-02", "status": "NOT_CREATED_ASSIGNED_P3-08R-03"},
+      "lean_input": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/lean-input/p3-ac-02.json", "status": "NOT_CREATED_ASSIGNED_P3-08R-02"},
+      "lean_output": {"artifact": "tests/evidence/phase3/RUN-P3-POC-001/lean-output/p3-ac-02.json", "status": "NOT_CREATED_P3-09"},
+      "parity_decision": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/parity-map.json", "key": "P3-AC-02", "status": "NOT_CREATED_ASSIGNED_P3-08R-03"},
+      "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-02/",
+      "status": "CONTRACT_ASSIGNED_ENGINE_NOT_EXECUTED"
+    },
+    {
+      "id": "P3-AC-03",
+      "definition": "固定Calendarの通常日、DST、休日、短縮日、日次停止、session anchor、同時close順序を守る。",
+      "fixed_inputs": [
+        "tests/fixtures/phase3/calendar_us_futures_v1.json",
+        "tests/fixtures/phase3/run_p3_m30_fixture_manifest_v3.json",
+        "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json"
+      ],
+      "existing_core_evidence": ["BT-005", "BT-007", "BT-009", "BT-033", "GT-TUR-013", "GT-TUR-015", "GT-TUR-016", "GT-TUR-027"],
+      "core_reference": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json", "key": "P3-AC-03", "status": "NOT_CREATED_ASSIGNED_P3-08R-03"},
+      "lean_input": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/lean-input/p3-ac-03.json", "status": "NOT_CREATED_ASSIGNED_P3-08R-02"},
+      "lean_output": {"artifact": "tests/evidence/phase3/RUN-P3-POC-001/lean-output/p3-ac-03.json", "status": "NOT_CREATED_P3-09"},
+      "parity_decision": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/parity-map.json", "key": "P3-AC-03", "status": "NOT_CREATED_ASSIGNED_P3-08R-03"},
+      "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-03/",
+      "status": "CONTRACT_ASSIGNED_ENGINE_NOT_EXECUTED"
+    },
+    {
+      "id": "P3-AC-04",
+      "definition": "同じManifestと固定入力から同じMarketEvent、Signal、Intent、State、結果を再現する。",
+      "fixed_inputs": [
+        "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json",
+        "tests/fixtures/phase3/backtest_replay_v1.json",
+        "tests/fixtures/phase3/run_p3_strategy_fixture_manifest_v3.json"
+      ],
+      "existing_core_evidence": ["BT-001", "BT-010..019", "BT-021", "BT-026", "BT-034", "BT-035", "GT-TUR-011", "GT-TUR-022", "GT-TUR-025", "GT-TUR-029"],
+      "core_reference": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json", "key": "P3-AC-04", "status": "NOT_CREATED_ASSIGNED_P3-08R-03"},
+      "lean_input": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/lean-input/p3-ac-04.json", "status": "NOT_CREATED_ASSIGNED_P3-08R-02"},
+      "lean_output": {"artifact": "tests/evidence/phase3/RUN-P3-POC-001/lean-output/p3-ac-04.json", "status": "NOT_CREATED_P3-09"},
+      "parity_decision": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/parity-map.json", "key": "P3-AC-04", "status": "NOT_CREATED_ASSIGNED_P3-08R-03"},
+      "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-04/",
+      "status": "CONTRACT_ASSIGNED_ENGINE_NOT_EXECUTED"
+    },
+    {
+      "id": "P3-AC-05",
+      "definition": "LEAN固有型・ID・例外をCore/Strategyへ漏らさず、Adapter境界で共通DTOへ変換する。",
+      "fixed_inputs": [
+        "tests/fixtures/phase3/run_p3_strategy_fixture_manifest_v3.json",
+        "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json",
+        "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/run-manifest.json"
+      ],
+      "existing_core_evidence": ["BT-030..032", "BT-036", "GT-TUR-018", "tests/backtest/test_engine_contract.py"],
+      "core_reference": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json", "key": "P3-AC-05", "status": "NOT_CREATED_ASSIGNED_P3-08R-03"},
+      "lean_input": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/lean-input/p3-ac-05.json", "status": "NOT_CREATED_ASSIGNED_P3-08R-02"},
+      "lean_output": {"artifact": "tests/evidence/phase3/RUN-P3-POC-001/lean-output/p3-ac-05.json", "status": "NOT_CREATED_P3-09"},
+      "parity_decision": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/parity-map.json", "key": "P3-AC-05", "status": "NOT_CREATED_ASSIGNED_P3-08R-03"},
+      "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-05/",
+      "status": "CONTRACT_ASSIGNED_ENGINE_NOT_EXECUTED"
+    },
+    {
+      "id": "P3-AC-06",
+      "definition": "固定digest/hashと固定ローカル入力だけで、network noneの環境から再実行できる。",
+      "fixed_inputs": [
+        "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/preflight-config.json",
+        "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/run-manifest.json",
+        "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json",
+        "tests/fixtures/phase3/performance_synthetic_v1.json"
+      ],
+      "existing_core_evidence": ["BT-022", "BT-026", "BT-029", "BT-037", "GT-TUR-024", "RUN-P3-LEAN-PREP-001 preflight/WSL evidence"],
+      "core_reference": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json", "key": "P3-AC-06", "status": "NOT_CREATED_ASSIGNED_P3-08R-03"},
+      "lean_input": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/lean-input/p3-ac-06.json", "status": "NOT_CREATED_ASSIGNED_P3-08R-02"},
+      "lean_output": {"artifact": "tests/evidence/phase3/RUN-P3-POC-001/lean-output/p3-ac-06.json", "status": "NOT_CREATED_P3-09"},
+      "parity_decision": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/parity-map.json", "key": "P3-AC-06", "status": "NOT_CREATED_ASSIGNED_P3-08R-03"},
+      "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-06/",
+      "status": "CONTRACT_ASSIGNED_ENGINE_NOT_EXECUTED"
+    },
+    {
+      "id": "P3-AC-07",
+      "definition": "5市場×2暦年のsynthetic 1分足を再生し、30分以内、peak RSS 8GiB以下、二回の結果hash一致を測定する。",
+      "fixed_inputs": ["tests/fixtures/phase3/performance_synthetic_v1.json", "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json"],
+      "expected_limits": {"elapsed_minutes": 30, "peak_rss_gib": 8, "replay_count": 2, "result_hash_match": true},
+      "existing_core_evidence": ["BT-027", "BT-028", "tests/backtest/test_performance_contract.py"],
+      "core_reference": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json", "key": "P3-AC-07", "status": "NOT_CREATED_ASSIGNED_P3-08R-03"},
+      "lean_input": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/lean-input/p3-ac-07.json", "status": "NOT_CREATED_ASSIGNED_P3-08R-02"},
+      "lean_output": {"artifact": "tests/evidence/phase3/RUN-P3-POC-001/lean-output/p3-ac-07.json", "status": "NOT_CREATED_P3-09"},
+      "parity_decision": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/parity-map.json", "key": "P3-AC-07", "status": "NOT_CREATED_ASSIGNED_P3-08R-03"},
+      "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-07/",
+      "status": "CONTRACT_ASSIGNED_MEASUREMENT_NOT_EXECUTED"
+    },
+    {
+      "id": "P3-AC-08",
+      "definition": "Turtle Golden、snapshot/restore、Look-ahead防止、同時close順不変を固定入力で確認する。",
+      "fixed_inputs": [
+        "tests/fixtures/phase3/run_p3_gold_fixture_manifest.json",
+        "tests/fixtures/phase3/run_p3_strategy_fixture_manifest_v3.json",
+        "tests/fixtures/phase3/backtest_replay_v1.json"
+      ],
+      "existing_core_evidence": ["GT-TUR-001..035", "BT-005", "BT-006", "BT-026", "tests/strategy", "tests/backtest"],
+      "core_reference": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json", "key": "P3-AC-08", "status": "NOT_CREATED_ASSIGNED_P3-08R-03"},
+      "lean_input": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/lean-input/p3-ac-08.json", "status": "NOT_CREATED_ASSIGNED_P3-08R-02"},
+      "lean_output": {"artifact": "tests/evidence/phase3/RUN-P3-POC-001/lean-output/p3-ac-08.json", "status": "NOT_CREATED_P3-09"},
+      "parity_decision": {"artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/parity-map.json", "key": "P3-AC-08", "status": "NOT_CREATED_ASSIGNED_P3-08R-03"},
+      "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-08/",
+      "status": "CONTRACT_ASSIGNED_ENGINE_NOT_EXECUTED"
+    }
+  ],
+  "next_step": "P3-08R-02",
+  "p3_09_engine_execution": "NOT_STARTED",
+  "note": "この表は入力と判定の対応を固定するためのもの。P3-09のLEAN実測値や実engineの合否を先取りしない。"
+}
