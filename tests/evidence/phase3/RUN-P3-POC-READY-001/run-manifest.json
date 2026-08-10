@@ -1,0 +1,83 @@
+{
+  "adapter": {
+    "artifact_sha256": "sha256:fc1a7325006e447100b327a1caab7e15c1994bb17a09bc5505574403ddb05b52",
+    "name": "LeanLocalAdapter",
+    "version": "p3-lean-adapter-v1"
+  },
+  "code_revision": "08bcdf1468e0e0abb7897d025c254fa91cd5cae9",
+  "engine": {
+    "entrypoint": [
+      "dotnet",
+      "QuantConnect.Lean.Launcher.dll"
+    ],
+    "image_index_digest": "sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d",
+    "image_tar_sha256": "sha256:c79166b1c742b47f7d26fc6a63f2bb907728b933a7616365d7ea51c97c0e7ff8",
+    "license_sha256": "sha256:522cf0a716ce03f67d46f8fceb5bf78c5b84400ec5cd8d14bf9f02cddc1cb6ba",
+    "linux_amd64_digest": "sha256:9712dfd8c52d05e7292848cf0b365a02f6d603551bc883d423d2ce0877363263",
+    "source_commit": "c6cc3b743ed7b65d5e0b9fa2bfc18b7d3ac2aea0"
+  },
+  "execution": {
+    "automatic_data_download": false,
+    "broker": "NOT_USED",
+    "cloud": "NOT_USED",
+    "data_provider": "Local",
+    "input_root": "tests/fixtures/phase3",
+    "network_mode": "none",
+    "readonly_inputs": true,
+    "secret": "NOT_USED",
+    "write_roots": [
+      "tests/evidence/phase3/RUN-P3-POC-001"
+    ]
+  },
+  "execution_fire_control": {
+    "broker_paper_live_cloud_secret_used": false,
+    "engine_started": false,
+    "p3_09_execution_allowed": false
+  },
+  "expected": {
+    "core_reference_path": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
+    "core_reference_sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565",
+    "lean_output_schema_path": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
+    "lean_output_schema_sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd",
+    "parity_map_path": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/parity-map.json",
+    "parity_map_sha256": "sha256:9da3da1e72318e56db8c3962f3e9bbb86fa5bead7a5fe88d9bd74ed4c0ad4e8a"
+  },
+  "fixture_child_sha256s": [
+    "sha256:19eff1a99d407570e73fac74d3e0e00bbaf72c3c4278e6f046dcc6723adcc314",
+    "sha256:8674ac9f2b932acc4a6bca5a3d2037b9202cc7f61df71f7e5249c758f51bd79d",
+    "sha256:55861db761a9d2272f235486e6ada5c4354ec2a155ba949b5f7fafc6d5df7299",
+    "sha256:a3fda8506aeba088405bcb3436aaa14957f990427f2e3dd9c0f1c8188fba63db",
+    "sha256:7282ea7bda1c6701cffc2e8e1949b2b38e036b107b99d2857b1508afe51f6e08",
+    "sha256:986e87fec5abd90fdbf81f485737d099131b54fb1cd1326bd7399d22aa05bdc6",
+    "sha256:af8419125afbb22ba0754664aba989b95b2817072d83eef0f87f8268bd9c408d",
+    "sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24",
+    "sha256:1000e99f8d3b75a464e5fbdc79111a58f3ed926e84b795c2df28e53c9b1aa731",
+    "sha256:4a410f7ac15837ebb9d899daecd56f0c6e45c3795d7f8db067daef80359531e0"
+  ],
+  "fixture_manifest_sha256": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+  "input_contract_sha256": "sha256:bef0b38bbb14feff0e24be2eca21293bb0008bbbb68c88c4ce80088607cbca2a",
+  "manifest_sha256": "sha256:10f57fc3b9e14dde8839af6f44dc74c6f7cd0bd82b60abda08a29af106cb1534",
+  "performance": {
+    "elapsed_minutes": 30,
+    "fixture_path": "tests/fixtures/phase3/performance_synthetic_v1.json",
+    "fixture_sha256": "sha256:1000e99f8d3b75a464e5fbdc79111a58f3ed926e84b795c2df28e53c9b1aa731",
+    "measurement_status": "NOT_MEASURED_UNTIL_P3-09",
+    "peak_rss_gib": 8
+  },
+  "phase_id": "phase3",
+  "preparation_run_id": "RUN-P3-POC-READY-001",
+  "requirements": [
+    "P3-AC-01",
+    "P3-AC-02",
+    "P3-AC-03",
+    "P3-AC-04",
+    "P3-AC-05",
+    "P3-AC-06",
+    "P3-AC-07",
+    "P3-AC-08"
+  ],
+  "run_id": "RUN-P3-POC-001",
+  "schema_version": "p3-poc-execution-manifest/v1",
+  "source_contract_head": "7fb81693d0ebcd0c326896273485bbd920a50cca",
+  "step_id": "P3-09"
+}

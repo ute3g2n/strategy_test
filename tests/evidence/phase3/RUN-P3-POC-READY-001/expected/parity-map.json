@@ -1,0 +1,296 @@
+{
+  "engine_execution_status": "NOT_EXECUTED_P3-09",
+  "expected_values_source": "Core reference only",
+  "lean_measurements_are_not_expected_values": true,
+  "requirements": {
+    "P3-AC-01": {
+      "core_reference": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
+        "hashes": {
+          "core_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
+          "core_sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+          "core_state_sha256": "sha256:234998fd2b8fefefc98faca5d7303aee4e73347f1df8ba6a1e948d7a0ffe88b9",
+          "derived_bar_sha256_by_timeframe": {
+            "M1": "sha256:068f1c7c78d69e81742d9b8ffe03e2b1a781fab85efcb12893292ed23c06ea08",
+            "M15": "sha256:ea5c3a2983195b0a84b0ba19f5e34baf01ef554f263b962f32238f16ee84f1d7",
+            "M30": "sha256:a9f6de620352dba5d2eeb85c870faf98e363ba80a75143096bb76065cccfe9c7"
+          }
+        },
+        "key": "p3_ac.P3-AC-01",
+        "sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565"
+      },
+      "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-01/",
+      "lean_output": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-001/lean-output/p3-ac-01.json",
+        "status": "NOT_CREATED_P3-09"
+      },
+      "lean_output_schema": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
+        "sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd"
+      },
+      "parity_decision": {
+        "mismatch_action": "STOPPED_ENGINE_PARITY_MISMATCH",
+        "rule": "compare vendor-neutral ordered hashes after Adapter normalization",
+        "status": "PENDING_P3-09"
+      },
+      "review_required": [
+        "A40",
+        "A70",
+        "A130",
+        "A150",
+        "A160"
+      ]
+    },
+    "P3-AC-02": {
+      "core_reference": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
+        "hashes": {
+          "core_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
+          "core_sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+          "core_state_sha256": "sha256:234998fd2b8fefefc98faca5d7303aee4e73347f1df8ba6a1e948d7a0ffe88b9",
+          "signal_sha256": "sha256:fefd91cd1bcefdb2b5db4523cf77b99f9556a6f6aff2c83f1e8801867a9d7e01"
+        },
+        "key": "p3_ac.P3-AC-02",
+        "sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565"
+      },
+      "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-02/",
+      "lean_output": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-001/lean-output/p3-ac-02.json",
+        "status": "NOT_CREATED_P3-09"
+      },
+      "lean_output_schema": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
+        "sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd"
+      },
+      "parity_decision": {
+        "mismatch_action": "STOPPED_ENGINE_PARITY_MISMATCH",
+        "rule": "compare vendor-neutral ordered hashes after Adapter normalization",
+        "status": "PENDING_P3-09"
+      },
+      "review_required": [
+        "A40",
+        "A70",
+        "A130",
+        "A150",
+        "A160"
+      ]
+    },
+    "P3-AC-03": {
+      "core_reference": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
+        "hashes": {
+          "calendar_fixture_sha256": "sha256:986e87fec5abd90fdbf81f485737d099131b54fb1cd1326bd7399d22aa05bdc6",
+          "core_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
+          "core_sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+          "core_state_sha256": "sha256:234998fd2b8fefefc98faca5d7303aee4e73347f1df8ba6a1e948d7a0ffe88b9",
+          "derived_bar_sha256_by_timeframe": {
+            "M1": "sha256:068f1c7c78d69e81742d9b8ffe03e2b1a781fab85efcb12893292ed23c06ea08",
+            "M15": "sha256:ea5c3a2983195b0a84b0ba19f5e34baf01ef554f263b962f32238f16ee84f1d7",
+            "M30": "sha256:a9f6de620352dba5d2eeb85c870faf98e363ba80a75143096bb76065cccfe9c7"
+          }
+        },
+        "key": "p3_ac.P3-AC-03",
+        "sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565"
+      },
+      "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-03/",
+      "lean_output": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-001/lean-output/p3-ac-03.json",
+        "status": "NOT_CREATED_P3-09"
+      },
+      "lean_output_schema": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
+        "sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd"
+      },
+      "parity_decision": {
+        "mismatch_action": "STOPPED_ENGINE_PARITY_MISMATCH",
+        "rule": "compare vendor-neutral ordered hashes after Adapter normalization",
+        "status": "PENDING_P3-09"
+      },
+      "review_required": [
+        "A40",
+        "A70",
+        "A130",
+        "A150",
+        "A160"
+      ]
+    },
+    "P3-AC-04": {
+      "core_reference": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
+        "hashes": {
+          "core_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
+          "core_sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+          "core_state_sha256": "sha256:234998fd2b8fefefc98faca5d7303aee4e73347f1df8ba6a1e948d7a0ffe88b9",
+          "market_event_sha256": "sha256:9a242ce7f9a4db3638c711d18a31da2dd3c50b983f7496f873071da7d4dc7128",
+          "signal_sha256": "sha256:fefd91cd1bcefdb2b5db4523cf77b99f9556a6f6aff2c83f1e8801867a9d7e01",
+          "trace_sha256": "sha256:19ef80aea173e7e5eaae43c325186ca1a6303276eb05e692142fd7a32973d1e5"
+        },
+        "key": "p3_ac.P3-AC-04",
+        "sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565"
+      },
+      "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-04/",
+      "lean_output": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-001/lean-output/p3-ac-04.json",
+        "status": "NOT_CREATED_P3-09"
+      },
+      "lean_output_schema": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
+        "sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd"
+      },
+      "parity_decision": {
+        "mismatch_action": "STOPPED_ENGINE_PARITY_MISMATCH",
+        "rule": "compare vendor-neutral ordered hashes after Adapter normalization",
+        "status": "PENDING_P3-09"
+      },
+      "review_required": [
+        "A40",
+        "A70",
+        "A130",
+        "A150",
+        "A160"
+      ]
+    },
+    "P3-AC-05": {
+      "core_reference": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
+        "hashes": {
+          "adapter_artifact_sha256": "sha256:fc1a7325006e447100b327a1caab7e15c1994bb17a09bc5505574403ddb05b52",
+          "core_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
+          "core_sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+          "core_state_sha256": "sha256:234998fd2b8fefefc98faca5d7303aee4e73347f1df8ba6a1e948d7a0ffe88b9"
+        },
+        "key": "p3_ac.P3-AC-05",
+        "sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565"
+      },
+      "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-05/",
+      "lean_output": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-001/lean-output/p3-ac-05.json",
+        "status": "NOT_CREATED_P3-09"
+      },
+      "lean_output_schema": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
+        "sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd"
+      },
+      "parity_decision": {
+        "mismatch_action": "STOPPED_ENGINE_PARITY_MISMATCH",
+        "rule": "compare vendor-neutral ordered hashes after Adapter normalization",
+        "status": "PENDING_P3-09"
+      },
+      "review_required": [
+        "A40",
+        "A70",
+        "A130",
+        "A150",
+        "A160"
+      ]
+    },
+    "P3-AC-06": {
+      "core_reference": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
+        "hashes": {
+          "core_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
+          "core_sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+          "core_state_sha256": "sha256:234998fd2b8fefefc98faca5d7303aee4e73347f1df8ba6a1e948d7a0ffe88b9",
+          "input_sha256": "sha256:9a242ce7f9a4db3638c711d18a31da2dd3c50b983f7496f873071da7d4dc7128"
+        },
+        "key": "p3_ac.P3-AC-06",
+        "sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565"
+      },
+      "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-06/",
+      "lean_output": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-001/lean-output/p3-ac-06.json",
+        "status": "NOT_CREATED_P3-09"
+      },
+      "lean_output_schema": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
+        "sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd"
+      },
+      "parity_decision": {
+        "mismatch_action": "STOPPED_ENGINE_PARITY_MISMATCH",
+        "rule": "compare vendor-neutral ordered hashes after Adapter normalization",
+        "status": "PENDING_P3-09"
+      },
+      "review_required": [
+        "A40",
+        "A70",
+        "A130",
+        "A150",
+        "A160"
+      ]
+    },
+    "P3-AC-07": {
+      "core_reference": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
+        "hashes": {
+          "core_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
+          "core_sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+          "core_state_sha256": "sha256:234998fd2b8fefefc98faca5d7303aee4e73347f1df8ba6a1e948d7a0ffe88b9",
+          "first_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
+          "second_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101"
+        },
+        "key": "p3_ac.P3-AC-07",
+        "sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565"
+      },
+      "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-07/",
+      "lean_output": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-001/lean-output/p3-ac-07.json",
+        "status": "NOT_CREATED_P3-09"
+      },
+      "lean_output_schema": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
+        "sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd"
+      },
+      "parity_decision": {
+        "mismatch_action": "STOPPED_ENGINE_PARITY_MISMATCH",
+        "rule": "compare vendor-neutral ordered hashes after Adapter normalization",
+        "status": "PENDING_P3-09"
+      },
+      "review_required": [
+        "A40",
+        "A70",
+        "A130",
+        "A150",
+        "A160"
+      ]
+    },
+    "P3-AC-08": {
+      "core_reference": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
+        "hashes": {
+          "commit_marker_sha256": "sha256:78c7dc6985de7632b20c2a6a1ddba8fd97afcb48edfd3ca295edccca745a448f",
+          "core_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
+          "core_sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+          "core_state_sha256": "sha256:234998fd2b8fefefc98faca5d7303aee4e73347f1df8ba6a1e948d7a0ffe88b9",
+          "signal_sha256": "sha256:fefd91cd1bcefdb2b5db4523cf77b99f9556a6f6aff2c83f1e8801867a9d7e01",
+          "snapshot_sha256": "sha256:7937cca6e241ff7186d446cb787d0857406239b56cb13bb2db2af1e70f756faf"
+        },
+        "key": "p3_ac.P3-AC-08",
+        "sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565"
+      },
+      "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-08/",
+      "lean_output": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-001/lean-output/p3-ac-08.json",
+        "status": "NOT_CREATED_P3-09"
+      },
+      "lean_output_schema": {
+        "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
+        "sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd"
+      },
+      "parity_decision": {
+        "mismatch_action": "STOPPED_ENGINE_PARITY_MISMATCH",
+        "rule": "compare vendor-neutral ordered hashes after Adapter normalization",
+        "status": "PENDING_P3-09"
+      },
+      "review_required": [
+        "A40",
+        "A70",
+        "A130",
+        "A150",
+        "A160"
+      ]
+    }
+  },
+  "run_id": "RUN-P3-POC-READY-001",
+  "schema_version": "p3-parity-map/v1",
+  "unassigned_requirement_count": 0
+}

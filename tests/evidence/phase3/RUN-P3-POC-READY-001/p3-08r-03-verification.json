@@ -1,0 +1,52 @@
+{
+  "schema_version": "p3-08r-step-verification/v1",
+  "run_id": "RUN-P3-POC-READY-001",
+  "phase_id": "phase3",
+  "step_id": "P3-08R-03",
+  "status": "PASS",
+  "readiness_state": "IN_PROGRESS",
+  "engine_started": false,
+  "p3_09_execution_allowed": false,
+  "core_reference": {
+    "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
+    "execution_count": 2,
+    "matching": true,
+    "result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
+    "sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+    "expected_values_source": "Core reference only",
+    "lean_measurement_used_as_expected": false
+  },
+  "artifacts": {
+    "core_reference_sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565",
+    "lean_output_schema_sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd",
+    "parity_map_sha256": "sha256:9da3da1e72318e56db8c3962f3e9bbb86fa5bead7a5fe88d9bd74ed4c0ad4e8a",
+    "manifest_sha256": "sha256:10f57fc3b9e14dde8839af6f44dc74c6f7cd0bd82b60abda08a29af106cb1534"
+  },
+  "traceability": {
+    "assigned_requirement_count": 8,
+    "unassigned_requirement_count": 0,
+    "ids": [
+      "P3-AC-01",
+      "P3-AC-02",
+      "P3-AC-03",
+      "P3-AC-04",
+      "P3-AC-05",
+      "P3-AC-06",
+      "P3-AC-07",
+      "P3-AC-08"
+    ]
+  },
+  "checks": {
+    "prepare_entry": "READY_TO_REHEARSE",
+    "run_mode_fire_control": "STOPPED_EXIT_2_ENGINE_FALSE",
+    "engine_contract_tests": "16 passed",
+    "engine_poc_tests": "19 passed",
+    "tamper_manifest_expected_fixture_code_digest": "ALL_REJECTED",
+    "external_io": "NOT_USED_IN_R03"
+  },
+  "reviews": [
+    "tests/evidence/phase3/RUN-P3-POC-READY-001/reviews/a130-manifest.md",
+    "tests/evidence/phase3/RUN-P3-POC-READY-001/reviews/a70-offline-boundary.md"
+  ],
+  "next_step": "P3-08R-04"
+}
