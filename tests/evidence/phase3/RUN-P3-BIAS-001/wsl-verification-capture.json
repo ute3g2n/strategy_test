@@ -1,10 +1,10 @@
 ﻿{
-    "execution_id":  "e3082c4e9ac448f9bc0894cd22f23b25",
+    "execution_id":  "c89cc24545e54f9c85954ca60a30a2b8",
     "source_repository_path":  "/home/oue/strategy_test",
     "source_kind":  "wsl_verification",
-    "verification_raw":  "{\n  \"state\": \"PASS\",\n  \"reason\": \"ユーザーが明示的に承認しました\",\n  \"gates\": [\n    {\n      \"gate\": \"formatter\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"format\",\n        \"--check\",\n        \"src/autotrade/backtest\",\n        \"scripts/quality_gate\",\n        \"tests/quality_gate\",\n        \"tests/backtest\",\n        \"tests/strategy\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 264\n    },\n    {\n      \"gate\": \"lint\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"check\",\n        \"src/autotrade/backtest\",\n        \"scripts/quality_gate\",\n        \"tests/quality_gate\",\n        \"tests/backtest\",\n        \"tests/strategy\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 214\n    },\n    {\n      \"gate\": \"type\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"mypy\",\n        \"src/autotrade/backtest\",\n        \"scripts/quality_gate\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 3873\n    },\n    {\n      \"gate\": \"test\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"scripts.quality_gate.local_p3_pytest\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 966\n    }\n  ],\n  \"generated_at\": \"2026-08-10T08:11:17.686000+00:00\",\n  \"exit_code\": 0,\n  \"scope\": \"target_only\",\n  \"input_sha256\": \"sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24\",\n  \"post_input_sha256\": \"sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24\",\n  \"target_only_change_sha256\": \"sha256:e87d5981829efd367823fc328980b84647c5019cad3df95e5ae308be1f47821e\",\n  \"host_wrapper_execution_id\": \"e3082c4e9ac448f9bc0894cd22f23b25\",\n  \"restore_pending\": true,\n  \"execution_user\": \"oue\",\n  \"execution_uid\": 1000,\n  \"head\": \"ba51a2dcc5649c59ca33094223b30cf046a472bd\",\n  \"source_repository_path\": \"/home/oue/strategy_test\",\n  \"tool_versions\": {\n    \"python\": \"Python 3.12.13\",\n    \"ruff\": \"ruff 0.16.1\",\n    \"mypy\": \"mypy 2.3.0 (compiled: yes)\",\n    \"pytest\": \"pytest 9.1.1\"\n  }\n}\n",
+    "verification_raw":  "{\n  \"state\": \"PASS\",\n  \"reason\": \"ユーザーが明示的に承認しました\",\n  \"gates\": [\n    {\n      \"gate\": \"formatter\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"format\",\n        \"--check\",\n        \"src/autotrade/backtest\",\n        \"scripts/quality_gate\",\n        \"tests/quality_gate\",\n        \"tests/backtest\",\n        \"tests/strategy\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 264\n    },\n    {\n      \"gate\": \"lint\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"check\",\n        \"src/autotrade/backtest\",\n        \"scripts/quality_gate\",\n        \"tests/quality_gate\",\n        \"tests/backtest\",\n        \"tests/strategy\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 214\n    },\n    {\n      \"gate\": \"type\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"mypy\",\n        \"src/autotrade/backtest\",\n        \"scripts/quality_gate\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 3923\n    },\n    {\n      \"gate\": \"test\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"scripts.quality_gate.local_p3_pytest\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 1016\n    }\n  ],\n  \"generated_at\": \"2026-08-10T08:22:51.599499+00:00\",\n  \"exit_code\": 0,\n  \"scope\": \"target_only\",\n  \"input_sha256\": \"sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24\",\n  \"post_input_sha256\": \"sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24\",\n  \"target_only_change_sha256\": \"sha256:30a8b260f6d98a5ed97ef91d1835ea316eb81490787ce1b660afacdebf780b92\",\n  \"host_wrapper_execution_id\": \"c89cc24545e54f9c85954ca60a30a2b8\",\n  \"restore_pending\": true,\n  \"execution_user\": \"oue\",\n  \"execution_uid\": 1000,\n  \"head\": \"c1ac85402ad692eaa91ceb6ed2a7a54002e740d1\",\n  \"source_repository_path\": \"/home/oue/strategy_test\",\n  \"tool_versions\": {\n    \"python\": \"Python 3.12.13\",\n    \"ruff\": \"ruff 0.16.1\",\n    \"mypy\": \"mypy 2.3.0 (compiled: yes)\",\n    \"pytest\": \"pytest 9.1.1\"\n  }\n}\n",
     "retrieval_exit_code":  0,
-    "captured_at":  "2026-08-10T08:11:18.7216989Z",
+    "captured_at":  "2026-08-10T08:22:52.6339957Z",
     "state":  "CAPTURED",
     "verification":  {
                          "state":  "PASS",
@@ -56,7 +56,7 @@
                                                            "scripts/quality_gate"
                                                        ],
                                            "exit_code":  0,
-                                           "duration_ms":  3873
+                                           "duration_ms":  3923
                                        },
                                        {
                                            "gate":  "test",
@@ -67,20 +67,20 @@
                                                            "scripts.quality_gate.local_p3_pytest"
                                                        ],
                                            "exit_code":  0,
-                                           "duration_ms":  966
+                                           "duration_ms":  1016
                                        }
                                    ],
-                         "generated_at":  "2026-08-10T08:11:17.686000+00:00",
+                         "generated_at":  "2026-08-10T08:22:51.599499+00:00",
                          "exit_code":  0,
                          "scope":  "target_only",
                          "input_sha256":  "sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24",
                          "post_input_sha256":  "sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24",
-                         "target_only_change_sha256":  "sha256:e87d5981829efd367823fc328980b84647c5019cad3df95e5ae308be1f47821e",
-                         "host_wrapper_execution_id":  "e3082c4e9ac448f9bc0894cd22f23b25",
+                         "target_only_change_sha256":  "sha256:30a8b260f6d98a5ed97ef91d1835ea316eb81490787ce1b660afacdebf780b92",
+                         "host_wrapper_execution_id":  "c89cc24545e54f9c85954ca60a30a2b8",
                          "restore_pending":  true,
                          "execution_user":  "oue",
                          "execution_uid":  1000,
-                         "head":  "ba51a2dcc5649c59ca33094223b30cf046a472bd",
+                         "head":  "c1ac85402ad692eaa91ceb6ed2a7a54002e740d1",
                          "source_repository_path":  "/home/oue/strategy_test",
                          "tool_versions":  {
                                                "python":  "Python 3.12.13",
@@ -96,10 +96,10 @@
                            "kernel":  "6.6.87.2-microsoft-standard-WSL2",
                            "distro":  "Ubuntu-24.04",
                            "networking_mode":  "none",
-                           "host_wrapper_execution_id":  "e3082c4e9ac448f9bc0894cd22f23b25",
+                           "host_wrapper_execution_id":  "c89cc24545e54f9c85954ca60a30a2b8",
                            "ip_addr_summary":  "1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\n    inet 127.0.0.1/8 scope host lo\n       valid_lft forever preferred_lft forever\n    inet6 ::1/128 scope host \n       valid_lft forever preferred_lft forever",
                            "ip_route_summary":  "",
-                           "confirmed_at":  "2026-08-10T08:11:12Z",
+                           "confirmed_at":  "2026-08-10T08:22:45Z",
                            "scope":  [
                                          "src/autotrade/backtest",
                                          "scripts/quality_gate",

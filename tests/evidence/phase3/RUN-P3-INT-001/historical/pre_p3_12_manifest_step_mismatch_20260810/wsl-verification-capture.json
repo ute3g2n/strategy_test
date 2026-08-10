@@ -1,0 +1,70 @@
+﻿{
+    "execution_id":  "d0646eedf13f463fac3363f7ab74cff6",
+    "source_repository_path":  "/home/oue/strategy_test",
+    "source_kind":  "wsl_verification",
+    "verification_raw":  "{\n  \"schema_version\": \"p3-10-verification/v1\",\n  \"run_id\": \"RUN-P3-INT-001\",\n  \"phase_id\": \"phase3\",\n  \"step_id\": \"P3-10\",\n  \"state\": \"PASS\",\n  \"final_status\": \"PASS\",\n  \"reason\": \"ユーザー承認済み。WSL隔離下の固定4 GateとP3-10契約GateがPASS\",\n  \"gates\": {\n    \"formatter\": \"PASS\",\n    \"lint\": \"PASS\",\n    \"type\": \"PASS\",\n    \"test\": \"PASS\"\n  },\n  \"network_mode\": \"none\",\n  \"scope\": \"target_only\",\n  \"input_sha256\": \"sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4\",\n  \"post_input_sha256\": \"sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4\",\n  \"target_only_change_sha256\": \"sha256:5baf939382f3b423869ea91844d18660e49587806e559d2d45cc95266e944168\",\n  \"host_wrapper_execution_id\": \"d0646eedf13f463fac3363f7ab74cff6\",\n  \"restore_state\": \"RESTORED\",\n  \"restore_evidence\": \"tests/evidence/phase3/RUN-P3-INT-001/restore.json\",\n  \"human_gate_required\": false,\n  \"summary\": \"tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json\",\n  \"wsl_capture\": \"tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json\",\n  \"generated_at\": \"2026-08-10T07:06:00.430717+00:00\",\n  \"exit_code\": 2,\n  \"restore_pending\": true,\n  \"execution_user\": \"oue\",\n  \"execution_uid\": 1000,\n  \"head\": \"d6aaa7fddba1b32db774f791fe1eb1894f3e0263\",\n  \"source_repository_path\": \"/home/oue/strategy_test\",\n  \"tool_versions\": {\n    \"python\": \"Python 3.12.13\",\n    \"ruff\": \"ruff 0.16.1\",\n    \"mypy\": \"mypy 2.3.0 (compiled: yes)\",\n    \"pytest\": \"pytest 9.1.1\"\n  }\n}\n",
+    "retrieval_exit_code":  0,
+    "captured_at":  "2026-08-10T08:16:34.0355696Z",
+    "state":  "CAPTURED",
+    "verification":  {
+                         "schema_version":  "p3-10-verification/v1",
+                         "run_id":  "RUN-P3-INT-001",
+                         "phase_id":  "phase3",
+                         "step_id":  "P3-10",
+                         "state":  "PASS",
+                         "final_status":  "PASS",
+                         "reason":  "ユーザー承認済み。WSL隔離下の固定4 GateとP3-10契約GateがPASS",
+                         "gates":  {
+                                       "formatter":  "PASS",
+                                       "lint":  "PASS",
+                                       "type":  "PASS",
+                                       "test":  "PASS"
+                                   },
+                         "network_mode":  "none",
+                         "scope":  "target_only",
+                         "input_sha256":  "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+                         "post_input_sha256":  "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+                         "target_only_change_sha256":  "sha256:5baf939382f3b423869ea91844d18660e49587806e559d2d45cc95266e944168",
+                         "host_wrapper_execution_id":  "d0646eedf13f463fac3363f7ab74cff6",
+                         "restore_state":  "RESTORED",
+                         "restore_evidence":  "tests/evidence/phase3/RUN-P3-INT-001/restore.json",
+                         "human_gate_required":  false,
+                         "summary":  "tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json",
+                         "wsl_capture":  "tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json",
+                         "generated_at":  "2026-08-10T07:06:00.430717+00:00",
+                         "exit_code":  2,
+                         "restore_pending":  true,
+                         "execution_user":  "oue",
+                         "execution_uid":  1000,
+                         "head":  "d6aaa7fddba1b32db774f791fe1eb1894f3e0263",
+                         "source_repository_path":  "/home/oue/strategy_test",
+                         "tool_versions":  {
+                                               "python":  "Python 3.12.13",
+                                               "ruff":  "ruff 0.16.1",
+                                               "mypy":  "mypy 2.3.0 (compiled: yes)",
+                                               "pytest":  "pytest 9.1.1"
+                                           }
+                     },
+    "source_path":  "/home/oue/strategy_test/tests/evidence/phase3/RUN-P3-INT-001/verification.json",
+    "host_isolation":  {
+                           "state":  "CONFIRMED",
+                           "wsl_version":  "WSL ・・繝ｻ・ｸ0繝ｻ繝ｻ: 2.6.3.0",
+                           "kernel":  "6.6.87.2-microsoft-standard-WSL2",
+                           "distro":  "Ubuntu-24.04",
+                           "networking_mode":  "none",
+                           "host_wrapper_execution_id":  "d0646eedf13f463fac3363f7ab74cff6",
+                           "ip_addr_summary":  "1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\n    inet 127.0.0.1/8 scope host lo\n       valid_lft forever preferred_lft forever\n    inet6 ::1/128 scope host \n       valid_lft forever preferred_lft forever",
+                           "ip_route_summary":  "",
+                           "confirmed_at":  "2026-08-10T08:16:32Z",
+                           "scope":  [
+                                         "src/autotrade",
+                                         "scripts/quality_gate",
+                                         "tests/quality_gate",
+                                         "tests/strategy",
+                                         "tests/backtest",
+                                         "tests/fixtures/phase3"
+                                     ],
+                           "input_sha256":  "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+                           "input_kind":  "fixture"
+                       }
+}

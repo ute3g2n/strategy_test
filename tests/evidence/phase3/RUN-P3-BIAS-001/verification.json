@@ -48,7 +48,7 @@
                                       "scripts/quality_gate"
                                   ],
                       "exit_code":  0,
-                      "duration_ms":  3873
+                      "duration_ms":  3923
                   },
                   {
                       "gate":  "test",
@@ -59,20 +59,20 @@
                                       "scripts.quality_gate.local_p3_pytest"
                                   ],
                       "exit_code":  0,
-                      "duration_ms":  966
+                      "duration_ms":  1016
                   }
               ],
-    "generated_at":  "2026-08-10T08:11:17.686000+00:00",
+    "generated_at":  "2026-08-10T08:22:51.599499+00:00",
     "exit_code":  0,
     "scope":  "target_only",
     "input_sha256":  "sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24",
     "post_input_sha256":  "sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24",
-    "target_only_change_sha256":  "sha256:e87d5981829efd367823fc328980b84647c5019cad3df95e5ae308be1f47821e",
-    "host_wrapper_execution_id":  "e3082c4e9ac448f9bc0894cd22f23b25",
+    "target_only_change_sha256":  "sha256:30a8b260f6d98a5ed97ef91d1835ea316eb81490787ce1b660afacdebf780b92",
+    "host_wrapper_execution_id":  "c89cc24545e54f9c85954ca60a30a2b8",
     "restore_pending":  true,
     "execution_user":  "oue",
     "execution_uid":  1000,
-    "head":  "ba51a2dcc5649c59ca33094223b30cf046a472bd",
+    "head":  "c1ac85402ad692eaa91ceb6ed2a7a54002e740d1",
     "source_repository_path":  "/home/oue/strategy_test",
     "tool_versions":  {
                           "python":  "Python 3.12.13",

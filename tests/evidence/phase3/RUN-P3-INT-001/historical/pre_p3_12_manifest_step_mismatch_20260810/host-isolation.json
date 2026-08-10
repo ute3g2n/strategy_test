@@ -4,18 +4,18 @@
     "kernel":  "6.6.87.2-microsoft-standard-WSL2",
     "distro":  "Ubuntu-24.04",
     "networking_mode":  "none",
-    "host_wrapper_execution_id":  "c89cc24545e54f9c85954ca60a30a2b8",
+    "host_wrapper_execution_id":  "d0646eedf13f463fac3363f7ab74cff6",
     "ip_addr_summary":  "1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\n    inet 127.0.0.1/8 scope host lo\n       valid_lft forever preferred_lft forever\n    inet6 ::1/128 scope host \n       valid_lft forever preferred_lft forever",
     "ip_route_summary":  "",
-    "confirmed_at":  "2026-08-10T08:22:45Z",
+    "confirmed_at":  "2026-08-10T08:16:32Z",
     "scope":  [
-                  "src/autotrade/backtest",
+                  "src/autotrade",
                   "scripts/quality_gate",
                   "tests/quality_gate",
-                  "tests/backtest",
                   "tests/strategy",
+                  "tests/backtest",
                   "tests/fixtures/phase3"
               ],
-    "input_sha256":  "sha256:1d61e25f2fe2b29538788afb890c48caa0f852346d077816a3c34d140be8dd24",
+    "input_sha256":  "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
     "input_kind":  "fixture"
 }
