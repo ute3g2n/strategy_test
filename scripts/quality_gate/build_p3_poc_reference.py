@@ -80,7 +80,9 @@ def _jsonable(value: Any) -> Any:
 def _write_json(path: Path, value: Mapping[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     serialized = json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True)
-    path.write_text(serialized + "\n", encoding="utf-8")
+    with path.open("w", encoding="utf-8", newline="\n") as stream:
+        stream.write(serialized)
+        stream.write("\n")
 
 
 def _git_revision() -> str:
