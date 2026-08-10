@@ -7,7 +7,7 @@
   "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
   "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
   "data_version": "p3-bias-manifest-v1",
-  "change_hash": "sha256:b7db3e5d3bf4f2b5c25a30fa15a1587673ff14eff0255c84f8e8ffc4fbec2e66",
+  "change_hash": "sha256:e87d5981829efd367823fc328980b84647c5019cad3df95e5ae308be1f47821e",
   "baseline_ref": "a6c2ddbd6163abbf9792b3bbe8def57babadb03d",
   "human_gate_policy": "P3-07 Core受入可を前提にH3-1/H3-1R承認済みfixtureだけを使う。UNK-P3-01/05/07は解消済みとせず、長期データ・実測cost・正式Calendarの主張をしない。",
   "agents": ["AutoTrade_A110_PythonTestEngineer_v0_1", "AutoTrade_A120_PythonImplementer_v0_1", "AutoTrade_A130_VerificationEngineer_v0_1", "AutoTrade_A140_DebugEngineer_v0_1", "AutoTrade_A150_PythonCodeReviewer_v0_1", "AutoTrade_A160_TradingSecurityReviewer_v0_1", "AutoTrade_A40_ExecutionEnginePocArchitect_v0_1"],

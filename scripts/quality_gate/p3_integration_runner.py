@@ -268,7 +268,8 @@ def _audit_source_run_bundle(root: Path, run_id: str) -> dict[str, Any]:
         if observed != execution_id:
             errors.append(f"{run_id}: execution ID mismatch for {name}")
 
-    if verification.get("state") != "PASS" or verification.get("final_status") != "PASS":
+    canonical_status = verification.get("final_status", verification.get("state"))
+    if verification.get("state") != "PASS" or canonical_status != "PASS":
         errors.append(f"{run_id}: canonical verification is not PASS")
     if int(verification.get("exit_code", 1)) != 0:
         errors.append(f"{run_id}: canonical verification exit code is not zero")
@@ -396,7 +397,8 @@ def _source_run_audit(root: Path) -> dict[str, Any]:
         errors.append("Backtest source input hash does not match its fixture")
 
     bias = _read_json(_path(root, "tests/evidence/phase3/RUN-P3-BIAS-001/verification.json"))
-    if bias.get("state") != "PASS" or bias.get("final_status") != "PASS":
+    bias_final_status = bias.get("final_status", bias.get("state"))
+    if bias.get("state") != "PASS" or bias_final_status != "PASS":
         errors.append("current Bias source evidence is not PASS")
 
     poc = _read_json(_path(root, "tests/evidence/phase3/RUN-P3-POC-001/verification.json"))
