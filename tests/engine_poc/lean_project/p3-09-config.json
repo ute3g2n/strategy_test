@@ -1,0 +1,12 @@
+{
+  "environment": "backtesting",
+  "algorithm-type-name": "P3LeanParityAlgorithm",
+  "algorithm-language": "Python",
+  "algorithm-location": "/project/tests/engine_poc/lean_algorithm.py",
+  "data-folder": "/Lean/Data",
+  "log-handler": "QuantConnect.Logging.ConsoleLogHandler",
+  "object-store-root": "/tmp/storage",
+  "results-destination-folder": "/results",
+  "data-provider": "QuantConnect.Lean.Engine.DataFeeds.DefaultDataProvider",
+  "automatic-data-download": false
+}

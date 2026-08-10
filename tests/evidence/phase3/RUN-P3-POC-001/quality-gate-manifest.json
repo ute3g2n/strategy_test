@@ -1,0 +1,119 @@
+{
+  "run_id": "RUN-P3-POC-001",
+  "phase_id": "phase3",
+  "step_id": "P3-09",
+  "design": "P3-D03-P3-D04-P3-D05-P3-D06-P3-D08-P3-D09-P3-D10",
+  "requirements": [
+    "P3-AC-01",
+    "P3-AC-02",
+    "P3-AC-03",
+    "P3-AC-04",
+    "P3-AC-05",
+    "P3-AC-06",
+    "P3-AC-07",
+    "P3-AC-08"
+  ],
+  "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+  "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+  "data_version": "p3-09-lean-poc-v1",
+  "change_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "baseline_ref": "HEAD",
+  "human_gate_policy": "P3-09-explicit-user-approval; fixed-local-LEAN-backtest-only",
+  "agents": [
+    "AutoTrade_A40_ExecutionEnginePocArchitect_v0_1",
+    "AutoTrade_A70_OpsSecurityArchitect_v0_1",
+    "AutoTrade_A110_PythonTestEngineer_v0_1",
+    "AutoTrade_A130_VerificationEngineer_v0_1",
+    "AutoTrade_A140_DebugEngineer_v0_1",
+    "AutoTrade_A150_PythonCodeReviewer_v0_1",
+    "AutoTrade_A160_TradingSecurityReviewer_v0_1"
+  ],
+  "skills": [
+    "autotrade_skill_trading_engine_poc_v0_1",
+    "autotrade_skill_poc_evaluation_v0_1",
+    "autotrade_skill_execution_model_v0_1",
+    "autotrade_skill_adapter_boundary_v0_1",
+    "autotrade_skill_ops_security_v0_1",
+    "autotrade_skill_traceability_v0_1",
+    "autotrade_skill_python_test_quality_v0_1",
+    "autotrade_skill_debug_recovery_v0_1",
+    "autotrade_skill_python_code_review_v0_1"
+  ],
+  "target_paths": [
+    "src/autotrade",
+    "scripts/quality_gate",
+    "scripts/wsl_quality_gate",
+    "tests/engine_poc",
+    "tests/strategy",
+    "tests/backtest",
+    "tests/fixtures/phase3",
+    "tests/evidence/phase3/RUN-P3-POC-001"
+  ],
+  "excluded_paths": [
+    ".env",
+    "third_party/everything-claude-code",
+    "research",
+    "E:/strategy_test_data"
+  ],
+  "evidence_root": "tests/evidence/phase3/RUN-P3-POC-001",
+  "input_fixture": {
+    "name": "preflight-config.json",
+    "version": "p3-lean-prep-v1",
+    "checksum": "sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d"
+  },
+  "review": {
+    "critical": 0,
+    "high": 0
+  },
+  "unknowns": [],
+  "scope_mode": "target_only",
+  "checks": [
+    {
+      "gate": "formatter",
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/autotrade",
+        "scripts/quality_gate",
+        "tests/engine_poc",
+        "tests/strategy",
+        "tests/backtest"
+      ]
+    },
+    {
+      "gate": "lint",
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/autotrade",
+        "scripts/quality_gate",
+        "tests/engine_poc",
+        "tests/strategy",
+        "tests/backtest"
+      ]
+    },
+    {
+      "gate": "type",
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "mypy",
+        "src/autotrade",
+        "scripts/quality_gate"
+      ]
+    },
+    {
+      "gate": "test",
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "scripts.quality_gate.local_p3_pytest"
+      ]
+    }
+  ]
+}

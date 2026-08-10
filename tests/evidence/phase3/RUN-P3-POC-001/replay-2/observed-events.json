@@ -1,0 +1,302 @@
+[
+  {
+    "bar_close_time_utc": "2026-01-05T23:01:00Z",
+    "close": "100.10",
+    "event_id": "evt-m1-000",
+    "event_time_utc": "2026-01-05T23:00:00Z",
+    "high": "100.30",
+    "low": "99.80",
+    "open": "100.00",
+    "volume": "1"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:02:00Z",
+    "close": "100.20",
+    "event_id": "evt-m1-001",
+    "event_time_utc": "2026-01-05T23:01:00Z",
+    "high": "100.40",
+    "low": "99.90",
+    "open": "100.10",
+    "volume": "2"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:03:00Z",
+    "close": "100.30",
+    "event_id": "evt-m1-002",
+    "event_time_utc": "2026-01-05T23:02:00Z",
+    "high": "100.50",
+    "low": "100.00",
+    "open": "100.20",
+    "volume": "3"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:04:00Z",
+    "close": "100.40",
+    "event_id": "evt-m1-003",
+    "event_time_utc": "2026-01-05T23:03:00Z",
+    "high": "100.60",
+    "low": "100.10",
+    "open": "100.30",
+    "volume": "4"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:05:00Z",
+    "close": "100.50",
+    "event_id": "evt-m1-004",
+    "event_time_utc": "2026-01-05T23:04:00Z",
+    "high": "100.70",
+    "low": "100.20",
+    "open": "100.40",
+    "volume": "5"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:06:00Z",
+    "close": "100.60",
+    "event_id": "evt-m1-005",
+    "event_time_utc": "2026-01-05T23:05:00Z",
+    "high": "100.80",
+    "low": "100.30",
+    "open": "100.50",
+    "volume": "6"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:07:00Z",
+    "close": "100.70",
+    "event_id": "evt-m1-006",
+    "event_time_utc": "2026-01-05T23:06:00Z",
+    "high": "100.90",
+    "low": "100.40",
+    "open": "100.60",
+    "volume": "7"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:08:00Z",
+    "close": "100.80",
+    "event_id": "evt-m1-007",
+    "event_time_utc": "2026-01-05T23:07:00Z",
+    "high": "101.00",
+    "low": "100.50",
+    "open": "100.70",
+    "volume": "8"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:09:00Z",
+    "close": "100.90",
+    "event_id": "evt-m1-008",
+    "event_time_utc": "2026-01-05T23:08:00Z",
+    "high": "101.10",
+    "low": "100.60",
+    "open": "100.80",
+    "volume": "9"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:10:00Z",
+    "close": "101.00",
+    "event_id": "evt-m1-009",
+    "event_time_utc": "2026-01-05T23:09:00Z",
+    "high": "101.20",
+    "low": "100.70",
+    "open": "100.90",
+    "volume": "10"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:11:00Z",
+    "close": "101.10",
+    "event_id": "evt-m1-010",
+    "event_time_utc": "2026-01-05T23:10:00Z",
+    "high": "101.30",
+    "low": "100.80",
+    "open": "101.00",
+    "volume": "11"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:12:00Z",
+    "close": "101.20",
+    "event_id": "evt-m1-011",
+    "event_time_utc": "2026-01-05T23:11:00Z",
+    "high": "101.40",
+    "low": "100.90",
+    "open": "101.10",
+    "volume": "12"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:13:00Z",
+    "close": "101.30",
+    "event_id": "evt-m1-012",
+    "event_time_utc": "2026-01-05T23:12:00Z",
+    "high": "101.50",
+    "low": "101.00",
+    "open": "101.20",
+    "volume": "13"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:14:00Z",
+    "close": "101.40",
+    "event_id": "evt-m1-013",
+    "event_time_utc": "2026-01-05T23:13:00Z",
+    "high": "101.60",
+    "low": "101.10",
+    "open": "101.30",
+    "volume": "14"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:15:00Z",
+    "close": "101.50",
+    "event_id": "evt-m1-014",
+    "event_time_utc": "2026-01-05T23:14:00Z",
+    "high": "101.70",
+    "low": "101.20",
+    "open": "101.40",
+    "volume": "15"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:16:00Z",
+    "close": "101.60",
+    "event_id": "evt-m1-015",
+    "event_time_utc": "2026-01-05T23:15:00Z",
+    "high": "101.80",
+    "low": "101.30",
+    "open": "101.50",
+    "volume": "16"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:17:00Z",
+    "close": "101.70",
+    "event_id": "evt-m1-016",
+    "event_time_utc": "2026-01-05T23:16:00Z",
+    "high": "101.90",
+    "low": "101.40",
+    "open": "101.60",
+    "volume": "17"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:18:00Z",
+    "close": "101.80",
+    "event_id": "evt-m1-017",
+    "event_time_utc": "2026-01-05T23:17:00Z",
+    "high": "102.00",
+    "low": "101.50",
+    "open": "101.70",
+    "volume": "18"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:19:00Z",
+    "close": "101.90",
+    "event_id": "evt-m1-018",
+    "event_time_utc": "2026-01-05T23:18:00Z",
+    "high": "102.10",
+    "low": "101.60",
+    "open": "101.80",
+    "volume": "19"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:20:00Z",
+    "close": "102.00",
+    "event_id": "evt-m1-019",
+    "event_time_utc": "2026-01-05T23:19:00Z",
+    "high": "102.20",
+    "low": "101.70",
+    "open": "101.90",
+    "volume": "20"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:21:00Z",
+    "close": "102.10",
+    "event_id": "evt-m1-020",
+    "event_time_utc": "2026-01-05T23:20:00Z",
+    "high": "102.30",
+    "low": "101.80",
+    "open": "102.00",
+    "volume": "21"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:22:00Z",
+    "close": "102.20",
+    "event_id": "evt-m1-021",
+    "event_time_utc": "2026-01-05T23:21:00Z",
+    "high": "102.40",
+    "low": "101.90",
+    "open": "102.10",
+    "volume": "22"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:23:00Z",
+    "close": "102.30",
+    "event_id": "evt-m1-022",
+    "event_time_utc": "2026-01-05T23:22:00Z",
+    "high": "102.50",
+    "low": "102.00",
+    "open": "102.20",
+    "volume": "23"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:24:00Z",
+    "close": "102.40",
+    "event_id": "evt-m1-023",
+    "event_time_utc": "2026-01-05T23:23:00Z",
+    "high": "102.60",
+    "low": "102.10",
+    "open": "102.30",
+    "volume": "24"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:25:00Z",
+    "close": "102.50",
+    "event_id": "evt-m1-024",
+    "event_time_utc": "2026-01-05T23:24:00Z",
+    "high": "102.70",
+    "low": "102.20",
+    "open": "102.40",
+    "volume": "25"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:26:00Z",
+    "close": "102.60",
+    "event_id": "evt-m1-025",
+    "event_time_utc": "2026-01-05T23:25:00Z",
+    "high": "102.80",
+    "low": "102.30",
+    "open": "102.50",
+    "volume": "26"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:27:00Z",
+    "close": "102.70",
+    "event_id": "evt-m1-026",
+    "event_time_utc": "2026-01-05T23:26:00Z",
+    "high": "102.90",
+    "low": "102.40",
+    "open": "102.60",
+    "volume": "27"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:28:00Z",
+    "close": "102.80",
+    "event_id": "evt-m1-027",
+    "event_time_utc": "2026-01-05T23:27:00Z",
+    "high": "103.00",
+    "low": "102.50",
+    "open": "102.70",
+    "volume": "28"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:29:00Z",
+    "close": "102.90",
+    "event_id": "evt-m1-028",
+    "event_time_utc": "2026-01-05T23:28:00Z",
+    "high": "103.10",
+    "low": "102.60",
+    "open": "102.80",
+    "volume": "29"
+  },
+  {
+    "bar_close_time_utc": "2026-01-05T23:30:00Z",
+    "close": "103.00",
+    "event_id": "evt-m1-029",
+    "event_time_utc": "2026-01-05T23:29:00Z",
+    "high": "103.20",
+    "low": "102.70",
+    "open": "102.90",
+    "volume": "30"
+  }
+]

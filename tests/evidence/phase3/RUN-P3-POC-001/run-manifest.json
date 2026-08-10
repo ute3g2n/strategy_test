@@ -1,0 +1,59 @@
+{
+  "adapter": {
+    "artifact_sha256": "sha256:53c78580f301effd767b528523003e33fb6d901cf873fc55565a08a57f535d61",
+    "name": "LeanLocalAdapter",
+    "path": "scripts/quality_gate/p3_poc_runner.py",
+    "version": "p3-09-lean-adapter-v1"
+  },
+  "authorization": {
+    "approval_basis": "explicit user approval in current task",
+    "declaration": "tests/evidence/phase3/RUN-P3-POC-001/human-gate-user-declaration.md",
+    "execution_allowed": true
+  },
+  "execution": {
+    "automatic_data_download": false,
+    "broker": "NOT_USED",
+    "cloud": "NOT_USED",
+    "data_provider": "Local",
+    "engine_image": "quantconnect/lean@sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d",
+    "network_mode": "none",
+    "readonly_inputs": true,
+    "secret": "NOT_USED",
+    "write_root": "tests/evidence/phase3/RUN-P3-POC-001"
+  },
+  "expected": {
+    "core_reference_path": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
+    "core_reference_sha256": "sha256:5f76c389dcc21774540a263fd0f6cf652090cd46f88a609947b8c4087f4a88e7",
+    "lean_output_schema_path": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
+    "lean_output_schema_sha256": "sha256:197f9e4faef0cbbaf275876fb52bc0d6f6fc3231c83cf1118691a6b994ee192a",
+    "parity_map_path": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/parity-map.json",
+    "parity_map_sha256": "sha256:f137dbfb10c4e7205390103c40a470ef9c3cf72919c65d820d8df9c494fe0d95"
+  },
+  "input_projection": {
+    "path": "tests/fixtures/phase3/p3_09_lean_input_v1.csv",
+    "sha256": "sha256:af817aac796b1df0202118346facb3e9b49b3f5440c6e5f78665872ad6fecdf8",
+    "source_fixture_path": "tests/fixtures/phase3/m30_backtest_v2.json",
+    "source_fixture_sha256": "sha256:7282ea7bda1c6701cffc2e8e1949b2b38e036b107b99d2857b1508afe51f6e08"
+  },
+  "lean_project": {
+    "algorithm_path": "tests/engine_poc/lean_algorithm.py",
+    "algorithm_sha256": "sha256:18aa590043c8babf780c92e868aadc6ada859605a611fdd032d60b86a4f5dfc9",
+    "config_path": "tests/engine_poc/lean_project/p3-09-config.json",
+    "config_sha256": "sha256:f0b1b077e77bc3fa5ece7aa1a55a976ec29f56669629aace66d89f24014429b2"
+  },
+  "manifest_sha256": "sha256:0b9db738a1f82898d9c22bafb22532c64ae94d9202d427dd3a863cf9fff71d82",
+  "performance": {
+    "elapsed_minutes": 30,
+    "fixture_path": "tests/fixtures/phase3/performance_synthetic_v1.json",
+    "fixture_sha256": "sha256:1000e99f8d3b75a464e5fbdc79111a58f3ed926e84b795c2df28e53c9b1aa731",
+    "peak_rss_gib": 8
+  },
+  "phase_id": "phase3",
+  "preparation_run_id": "RUN-P3-POC-READY-001",
+  "run_id": "RUN-P3-POC-001",
+  "schema_version": "p3-09-run-manifest/v1",
+  "source_contract_head": "7fb81693d0ebcd0c326896273485bbd920a50cca",
+  "source_execution_manifest": "tests/evidence/phase3/RUN-P3-POC-READY-001/run-manifest.json",
+  "source_execution_manifest_sha256": "sha256:8ff33516cb843a2b205346a6cb9bbe933a5aa30f7c0bad0edd21538a531446a8",
+  "step_id": "P3-09"
+}

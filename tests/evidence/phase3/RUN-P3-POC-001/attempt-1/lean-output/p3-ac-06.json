@@ -1,0 +1,13 @@
+{
+  "checks": {
+    "automatic_data_download": false,
+    "input_projection_sha256": "sha256:af817aac796b1df0202118346facb3e9b49b3f5440c6e5f78665872ad6fecdf8",
+    "network_mode": "none",
+    "status": "PASS"
+  },
+  "output_sha256": "sha256:5bacb10450a0c9f685820581a50047123d20f4991f2f462c3fb1ccdce8daf9f9",
+  "requirement_id": "P3-AC-06",
+  "run_id": "RUN-P3-POC-001",
+  "schema_version": "p3-09-acceptance-result/v1",
+  "status": "PASS"
+}

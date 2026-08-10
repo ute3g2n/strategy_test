@@ -1,0 +1,1276 @@
+{
+  "commit_marker_sha256": "sha256:a777b3c0eb9248b536a62149d42ea1beb724e847ba71d5638fb7494f6cd8c1a9",
+  "core_reference_code_revision": "99261c1eb766b4b5972ef0e2f97d0bfe32466e94",
+  "counts": {
+    "derived_bars": 33,
+    "directives": 0,
+    "fills": 0,
+    "row_kinds": {
+      "SIGNAL": 10
+    },
+    "rows": 10,
+    "signals": 10
+  },
+  "derived_bar_sha256_by_timeframe": {
+    "M1": "sha256:068f1c7c78d69e81742d9b8ffe03e2b1a781fab85efcb12893292ed23c06ea08",
+    "M15": "sha256:ea5c3a2983195b0a84b0ba19f5e34baf01ef554f263b962f32238f16ee84f1d7",
+    "M30": "sha256:a9f6de620352dba5d2eeb85c870faf98e363ba80a75143096bb76065cccfe9c7"
+  },
+  "derived_bars": [
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:01:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "100.10",
+        "high": "100.30",
+        "low": "99.80",
+        "open": "100.00",
+        "volume": "1"
+      },
+      "open_time_utc": "2026-01-05T23:00:00Z",
+      "source_event_ids": [
+        "evt-m1-000"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:02:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "100.20",
+        "high": "100.40",
+        "low": "99.90",
+        "open": "100.10",
+        "volume": "2"
+      },
+      "open_time_utc": "2026-01-05T23:01:00Z",
+      "source_event_ids": [
+        "evt-m1-001"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:03:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "100.30",
+        "high": "100.50",
+        "low": "100.00",
+        "open": "100.20",
+        "volume": "3"
+      },
+      "open_time_utc": "2026-01-05T23:02:00Z",
+      "source_event_ids": [
+        "evt-m1-002"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:04:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "100.40",
+        "high": "100.60",
+        "low": "100.10",
+        "open": "100.30",
+        "volume": "4"
+      },
+      "open_time_utc": "2026-01-05T23:03:00Z",
+      "source_event_ids": [
+        "evt-m1-003"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:05:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "100.50",
+        "high": "100.70",
+        "low": "100.20",
+        "open": "100.40",
+        "volume": "5"
+      },
+      "open_time_utc": "2026-01-05T23:04:00Z",
+      "source_event_ids": [
+        "evt-m1-004"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:06:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "100.60",
+        "high": "100.80",
+        "low": "100.30",
+        "open": "100.50",
+        "volume": "6"
+      },
+      "open_time_utc": "2026-01-05T23:05:00Z",
+      "source_event_ids": [
+        "evt-m1-005"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:07:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "100.70",
+        "high": "100.90",
+        "low": "100.40",
+        "open": "100.60",
+        "volume": "7"
+      },
+      "open_time_utc": "2026-01-05T23:06:00Z",
+      "source_event_ids": [
+        "evt-m1-006"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:08:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "100.80",
+        "high": "101.00",
+        "low": "100.50",
+        "open": "100.70",
+        "volume": "8"
+      },
+      "open_time_utc": "2026-01-05T23:07:00Z",
+      "source_event_ids": [
+        "evt-m1-007"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:09:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "100.90",
+        "high": "101.10",
+        "low": "100.60",
+        "open": "100.80",
+        "volume": "9"
+      },
+      "open_time_utc": "2026-01-05T23:08:00Z",
+      "source_event_ids": [
+        "evt-m1-008"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:10:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "101.00",
+        "high": "101.20",
+        "low": "100.70",
+        "open": "100.90",
+        "volume": "10"
+      },
+      "open_time_utc": "2026-01-05T23:09:00Z",
+      "source_event_ids": [
+        "evt-m1-009"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:11:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "101.10",
+        "high": "101.30",
+        "low": "100.80",
+        "open": "101.00",
+        "volume": "11"
+      },
+      "open_time_utc": "2026-01-05T23:10:00Z",
+      "source_event_ids": [
+        "evt-m1-010"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:12:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "101.20",
+        "high": "101.40",
+        "low": "100.90",
+        "open": "101.10",
+        "volume": "12"
+      },
+      "open_time_utc": "2026-01-05T23:11:00Z",
+      "source_event_ids": [
+        "evt-m1-011"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:13:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "101.30",
+        "high": "101.50",
+        "low": "101.00",
+        "open": "101.20",
+        "volume": "13"
+      },
+      "open_time_utc": "2026-01-05T23:12:00Z",
+      "source_event_ids": [
+        "evt-m1-012"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:14:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "101.40",
+        "high": "101.60",
+        "low": "101.10",
+        "open": "101.30",
+        "volume": "14"
+      },
+      "open_time_utc": "2026-01-05T23:13:00Z",
+      "source_event_ids": [
+        "evt-m1-013"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:15:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "101.50",
+        "high": "101.70",
+        "low": "101.20",
+        "open": "101.40",
+        "volume": "15"
+      },
+      "open_time_utc": "2026-01-05T23:14:00Z",
+      "source_event_ids": [
+        "evt-m1-014"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:15:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "101.50",
+        "high": "101.70",
+        "low": "99.80",
+        "open": "100.00",
+        "volume": "120"
+      },
+      "open_time_utc": "2026-01-05T23:00:00Z",
+      "source_event_ids": [
+        "evt-m1-000",
+        "evt-m1-001",
+        "evt-m1-002",
+        "evt-m1-003",
+        "evt-m1-004",
+        "evt-m1-005",
+        "evt-m1-006",
+        "evt-m1-007",
+        "evt-m1-008",
+        "evt-m1-009",
+        "evt-m1-010",
+        "evt-m1-011",
+        "evt-m1-012",
+        "evt-m1-013",
+        "evt-m1-014"
+      ],
+      "timeframe": "M15"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:16:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "101.60",
+        "high": "101.80",
+        "low": "101.30",
+        "open": "101.50",
+        "volume": "16"
+      },
+      "open_time_utc": "2026-01-05T23:15:00Z",
+      "source_event_ids": [
+        "evt-m1-015"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:17:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "101.70",
+        "high": "101.90",
+        "low": "101.40",
+        "open": "101.60",
+        "volume": "17"
+      },
+      "open_time_utc": "2026-01-05T23:16:00Z",
+      "source_event_ids": [
+        "evt-m1-016"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:18:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "101.80",
+        "high": "102.00",
+        "low": "101.50",
+        "open": "101.70",
+        "volume": "18"
+      },
+      "open_time_utc": "2026-01-05T23:17:00Z",
+      "source_event_ids": [
+        "evt-m1-017"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:19:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "101.90",
+        "high": "102.10",
+        "low": "101.60",
+        "open": "101.80",
+        "volume": "19"
+      },
+      "open_time_utc": "2026-01-05T23:18:00Z",
+      "source_event_ids": [
+        "evt-m1-018"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:20:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "102.00",
+        "high": "102.20",
+        "low": "101.70",
+        "open": "101.90",
+        "volume": "20"
+      },
+      "open_time_utc": "2026-01-05T23:19:00Z",
+      "source_event_ids": [
+        "evt-m1-019"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:21:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "102.10",
+        "high": "102.30",
+        "low": "101.80",
+        "open": "102.00",
+        "volume": "21"
+      },
+      "open_time_utc": "2026-01-05T23:20:00Z",
+      "source_event_ids": [
+        "evt-m1-020"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:22:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "102.20",
+        "high": "102.40",
+        "low": "101.90",
+        "open": "102.10",
+        "volume": "22"
+      },
+      "open_time_utc": "2026-01-05T23:21:00Z",
+      "source_event_ids": [
+        "evt-m1-021"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:23:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "102.30",
+        "high": "102.50",
+        "low": "102.00",
+        "open": "102.20",
+        "volume": "23"
+      },
+      "open_time_utc": "2026-01-05T23:22:00Z",
+      "source_event_ids": [
+        "evt-m1-022"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:24:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "102.40",
+        "high": "102.60",
+        "low": "102.10",
+        "open": "102.30",
+        "volume": "24"
+      },
+      "open_time_utc": "2026-01-05T23:23:00Z",
+      "source_event_ids": [
+        "evt-m1-023"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:25:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "102.50",
+        "high": "102.70",
+        "low": "102.20",
+        "open": "102.40",
+        "volume": "25"
+      },
+      "open_time_utc": "2026-01-05T23:24:00Z",
+      "source_event_ids": [
+        "evt-m1-024"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:26:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "102.60",
+        "high": "102.80",
+        "low": "102.30",
+        "open": "102.50",
+        "volume": "26"
+      },
+      "open_time_utc": "2026-01-05T23:25:00Z",
+      "source_event_ids": [
+        "evt-m1-025"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:27:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "102.70",
+        "high": "102.90",
+        "low": "102.40",
+        "open": "102.60",
+        "volume": "27"
+      },
+      "open_time_utc": "2026-01-05T23:26:00Z",
+      "source_event_ids": [
+        "evt-m1-026"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:28:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "102.80",
+        "high": "103.00",
+        "low": "102.50",
+        "open": "102.70",
+        "volume": "28"
+      },
+      "open_time_utc": "2026-01-05T23:27:00Z",
+      "source_event_ids": [
+        "evt-m1-027"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:29:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "102.90",
+        "high": "103.10",
+        "low": "102.60",
+        "open": "102.80",
+        "volume": "29"
+      },
+      "open_time_utc": "2026-01-05T23:28:00Z",
+      "source_event_ids": [
+        "evt-m1-028"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:30:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "103.00",
+        "high": "103.20",
+        "low": "102.70",
+        "open": "102.90",
+        "volume": "30"
+      },
+      "open_time_utc": "2026-01-05T23:29:00Z",
+      "source_event_ids": [
+        "evt-m1-029"
+      ],
+      "timeframe": "M1"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:30:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "103.00",
+        "high": "103.20",
+        "low": "101.30",
+        "open": "101.50",
+        "volume": "345"
+      },
+      "open_time_utc": "2026-01-05T23:15:00Z",
+      "source_event_ids": [
+        "evt-m1-015",
+        "evt-m1-016",
+        "evt-m1-017",
+        "evt-m1-018",
+        "evt-m1-019",
+        "evt-m1-020",
+        "evt-m1-021",
+        "evt-m1-022",
+        "evt-m1-023",
+        "evt-m1-024",
+        "evt-m1-025",
+        "evt-m1-026",
+        "evt-m1-027",
+        "evt-m1-028",
+        "evt-m1-029"
+      ],
+      "timeframe": "M15"
+    },
+    {
+      "calendar_version": "us-futures-fixture-v1",
+      "close_time_utc": "2026-01-05T23:30:00Z",
+      "decision_time_utc": "2026-01-05T23:30:00Z",
+      "is_closed": true,
+      "ohlcv": {
+        "close": "103.00",
+        "high": "103.20",
+        "low": "99.80",
+        "open": "100.00",
+        "volume": "465"
+      },
+      "open_time_utc": "2026-01-05T23:00:00Z",
+      "session_anchor_utc": "2026-01-05T23:00:00Z",
+      "source_bar_count": 30,
+      "source_bar_kind": "BAR_1M",
+      "source_event_ids": [
+        "evt-m1-000",
+        "evt-m1-001",
+        "evt-m1-002",
+        "evt-m1-003",
+        "evt-m1-004",
+        "evt-m1-005",
+        "evt-m1-006",
+        "evt-m1-007",
+        "evt-m1-008",
+        "evt-m1-009",
+        "evt-m1-010",
+        "evt-m1-011",
+        "evt-m1-012",
+        "evt-m1-013",
+        "evt-m1-014",
+        "evt-m1-015",
+        "evt-m1-016",
+        "evt-m1-017",
+        "evt-m1-018",
+        "evt-m1-019",
+        "evt-m1-020",
+        "evt-m1-021",
+        "evt-m1-022",
+        "evt-m1-023",
+        "evt-m1-024",
+        "evt-m1-025",
+        "evt-m1-026",
+        "evt-m1-027",
+        "evt-m1-028",
+        "evt-m1-029"
+      ],
+      "source_m1_bars": [
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:01:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "100.10",
+            "high": "100.30",
+            "low": "99.80",
+            "open": "100.00",
+            "volume": "1"
+          },
+          "open_time_utc": "2026-01-05T23:00:00Z",
+          "source_event_ids": [
+            "evt-m1-000"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:02:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "100.20",
+            "high": "100.40",
+            "low": "99.90",
+            "open": "100.10",
+            "volume": "2"
+          },
+          "open_time_utc": "2026-01-05T23:01:00Z",
+          "source_event_ids": [
+            "evt-m1-001"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:03:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "100.30",
+            "high": "100.50",
+            "low": "100.00",
+            "open": "100.20",
+            "volume": "3"
+          },
+          "open_time_utc": "2026-01-05T23:02:00Z",
+          "source_event_ids": [
+            "evt-m1-002"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:04:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "100.40",
+            "high": "100.60",
+            "low": "100.10",
+            "open": "100.30",
+            "volume": "4"
+          },
+          "open_time_utc": "2026-01-05T23:03:00Z",
+          "source_event_ids": [
+            "evt-m1-003"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:05:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "100.50",
+            "high": "100.70",
+            "low": "100.20",
+            "open": "100.40",
+            "volume": "5"
+          },
+          "open_time_utc": "2026-01-05T23:04:00Z",
+          "source_event_ids": [
+            "evt-m1-004"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:06:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "100.60",
+            "high": "100.80",
+            "low": "100.30",
+            "open": "100.50",
+            "volume": "6"
+          },
+          "open_time_utc": "2026-01-05T23:05:00Z",
+          "source_event_ids": [
+            "evt-m1-005"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:07:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "100.70",
+            "high": "100.90",
+            "low": "100.40",
+            "open": "100.60",
+            "volume": "7"
+          },
+          "open_time_utc": "2026-01-05T23:06:00Z",
+          "source_event_ids": [
+            "evt-m1-006"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:08:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "100.80",
+            "high": "101.00",
+            "low": "100.50",
+            "open": "100.70",
+            "volume": "8"
+          },
+          "open_time_utc": "2026-01-05T23:07:00Z",
+          "source_event_ids": [
+            "evt-m1-007"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:09:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "100.90",
+            "high": "101.10",
+            "low": "100.60",
+            "open": "100.80",
+            "volume": "9"
+          },
+          "open_time_utc": "2026-01-05T23:08:00Z",
+          "source_event_ids": [
+            "evt-m1-008"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:10:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "101.00",
+            "high": "101.20",
+            "low": "100.70",
+            "open": "100.90",
+            "volume": "10"
+          },
+          "open_time_utc": "2026-01-05T23:09:00Z",
+          "source_event_ids": [
+            "evt-m1-009"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:11:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "101.10",
+            "high": "101.30",
+            "low": "100.80",
+            "open": "101.00",
+            "volume": "11"
+          },
+          "open_time_utc": "2026-01-05T23:10:00Z",
+          "source_event_ids": [
+            "evt-m1-010"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:12:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "101.20",
+            "high": "101.40",
+            "low": "100.90",
+            "open": "101.10",
+            "volume": "12"
+          },
+          "open_time_utc": "2026-01-05T23:11:00Z",
+          "source_event_ids": [
+            "evt-m1-011"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:13:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "101.30",
+            "high": "101.50",
+            "low": "101.00",
+            "open": "101.20",
+            "volume": "13"
+          },
+          "open_time_utc": "2026-01-05T23:12:00Z",
+          "source_event_ids": [
+            "evt-m1-012"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:14:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "101.40",
+            "high": "101.60",
+            "low": "101.10",
+            "open": "101.30",
+            "volume": "14"
+          },
+          "open_time_utc": "2026-01-05T23:13:00Z",
+          "source_event_ids": [
+            "evt-m1-013"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:15:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "101.50",
+            "high": "101.70",
+            "low": "101.20",
+            "open": "101.40",
+            "volume": "15"
+          },
+          "open_time_utc": "2026-01-05T23:14:00Z",
+          "source_event_ids": [
+            "evt-m1-014"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:16:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "101.60",
+            "high": "101.80",
+            "low": "101.30",
+            "open": "101.50",
+            "volume": "16"
+          },
+          "open_time_utc": "2026-01-05T23:15:00Z",
+          "source_event_ids": [
+            "evt-m1-015"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:17:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "101.70",
+            "high": "101.90",
+            "low": "101.40",
+            "open": "101.60",
+            "volume": "17"
+          },
+          "open_time_utc": "2026-01-05T23:16:00Z",
+          "source_event_ids": [
+            "evt-m1-016"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:18:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "101.80",
+            "high": "102.00",
+            "low": "101.50",
+            "open": "101.70",
+            "volume": "18"
+          },
+          "open_time_utc": "2026-01-05T23:17:00Z",
+          "source_event_ids": [
+            "evt-m1-017"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:19:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "101.90",
+            "high": "102.10",
+            "low": "101.60",
+            "open": "101.80",
+            "volume": "19"
+          },
+          "open_time_utc": "2026-01-05T23:18:00Z",
+          "source_event_ids": [
+            "evt-m1-018"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:20:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "102.00",
+            "high": "102.20",
+            "low": "101.70",
+            "open": "101.90",
+            "volume": "20"
+          },
+          "open_time_utc": "2026-01-05T23:19:00Z",
+          "source_event_ids": [
+            "evt-m1-019"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:21:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "102.10",
+            "high": "102.30",
+            "low": "101.80",
+            "open": "102.00",
+            "volume": "21"
+          },
+          "open_time_utc": "2026-01-05T23:20:00Z",
+          "source_event_ids": [
+            "evt-m1-020"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:22:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "102.20",
+            "high": "102.40",
+            "low": "101.90",
+            "open": "102.10",
+            "volume": "22"
+          },
+          "open_time_utc": "2026-01-05T23:21:00Z",
+          "source_event_ids": [
+            "evt-m1-021"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:23:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "102.30",
+            "high": "102.50",
+            "low": "102.00",
+            "open": "102.20",
+            "volume": "23"
+          },
+          "open_time_utc": "2026-01-05T23:22:00Z",
+          "source_event_ids": [
+            "evt-m1-022"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:24:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "102.40",
+            "high": "102.60",
+            "low": "102.10",
+            "open": "102.30",
+            "volume": "24"
+          },
+          "open_time_utc": "2026-01-05T23:23:00Z",
+          "source_event_ids": [
+            "evt-m1-023"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:25:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "102.50",
+            "high": "102.70",
+            "low": "102.20",
+            "open": "102.40",
+            "volume": "25"
+          },
+          "open_time_utc": "2026-01-05T23:24:00Z",
+          "source_event_ids": [
+            "evt-m1-024"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:26:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "102.60",
+            "high": "102.80",
+            "low": "102.30",
+            "open": "102.50",
+            "volume": "26"
+          },
+          "open_time_utc": "2026-01-05T23:25:00Z",
+          "source_event_ids": [
+            "evt-m1-025"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:27:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "102.70",
+            "high": "102.90",
+            "low": "102.40",
+            "open": "102.60",
+            "volume": "27"
+          },
+          "open_time_utc": "2026-01-05T23:26:00Z",
+          "source_event_ids": [
+            "evt-m1-026"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:28:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "102.80",
+            "high": "103.00",
+            "low": "102.50",
+            "open": "102.70",
+            "volume": "28"
+          },
+          "open_time_utc": "2026-01-05T23:27:00Z",
+          "source_event_ids": [
+            "evt-m1-027"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:29:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "102.90",
+            "high": "103.10",
+            "low": "102.60",
+            "open": "102.80",
+            "volume": "29"
+          },
+          "open_time_utc": "2026-01-05T23:28:00Z",
+          "source_event_ids": [
+            "evt-m1-028"
+          ],
+          "timeframe": "M1"
+        },
+        {
+          "calendar_version": "us-futures-fixture-v1",
+          "close_time_utc": "2026-01-05T23:30:00Z",
+          "is_closed": true,
+          "ohlcv": {
+            "close": "103.00",
+            "high": "103.20",
+            "low": "102.70",
+            "open": "102.90",
+            "volume": "30"
+          },
+          "open_time_utc": "2026-01-05T23:29:00Z",
+          "source_event_ids": [
+            "evt-m1-029"
+          ],
+          "timeframe": "M1"
+        }
+      ],
+      "timeframe": "M30"
+    }
+  ],
+  "expected_timeframe_hashes": {
+    "M1": "sha256:068f1c7c78d69e81742d9b8ffe03e2b1a781fab85efcb12893292ed23c06ea08",
+    "M15": "sha256:ea5c3a2983195b0a84b0ba19f5e34baf01ef554f263b962f32238f16ee84f1d7",
+    "M30": "sha256:a9f6de620352dba5d2eeb85c870faf98e363ba80a75143096bb76065cccfe9c7"
+  },
+  "hashes": {
+    "directive_sha256": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "fill_sha256": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
+    "signal_sha256": "sha256:5b8d0ddd6c9c2780d306a03cb696bc7242cfc805e7e200e216bab2f2b8b06032",
+    "state_sha256": "sha256:234998fd2b8fefefc98faca5d7303aee4e73347f1df8ba6a1e948d7a0ffe88b9",
+    "trace_sha256": "sha256:f2f4b6bdeac9cb5ecdf20d0512a83cd98f165b6da129e7bcf81bad80c79c04a1"
+  },
+  "observed_event_count": 30,
+  "observed_event_ids": [
+    "evt-m1-000",
+    "evt-m1-001",
+    "evt-m1-002",
+    "evt-m1-003",
+    "evt-m1-004",
+    "evt-m1-005",
+    "evt-m1-006",
+    "evt-m1-007",
+    "evt-m1-008",
+    "evt-m1-009",
+    "evt-m1-010",
+    "evt-m1-011",
+    "evt-m1-012",
+    "evt-m1-013",
+    "evt-m1-014",
+    "evt-m1-015",
+    "evt-m1-016",
+    "evt-m1-017",
+    "evt-m1-018",
+    "evt-m1-019",
+    "evt-m1-020",
+    "evt-m1-021",
+    "evt-m1-022",
+    "evt-m1-023",
+    "evt-m1-024",
+    "evt-m1-025",
+    "evt-m1-026",
+    "evt-m1-027",
+    "evt-m1-028",
+    "evt-m1-029"
+  ],
+  "observed_events_sha256": "sha256:9a242ce7f9a4db3638c711d18a31da2dd3c50b983f7496f873071da7d4dc7128",
+  "schema_version": "p3-09-engine-projection/v1",
+  "sequence": [
+    {
+      "logical_time_utc": "2026-01-05T23:21:00Z",
+      "manifest_sha256": "sha256:6f790e31a0e64d299dbf60e808768dfc0dfb8faefb5184a3fec05739a4a49639",
+      "payload_sha256": "sha256:0d05a95b0654c81f0fe42d72ba9401a4cfb0c90dc6a92269ed7d289ee415dcf1",
+      "row_kind": "SIGNAL",
+      "sequence_no": 0
+    },
+    {
+      "logical_time_utc": "2026-01-05T23:22:00Z",
+      "manifest_sha256": "sha256:6f790e31a0e64d299dbf60e808768dfc0dfb8faefb5184a3fec05739a4a49639",
+      "payload_sha256": "sha256:3728869674890dd34f7ef32de7ae47af538eab8d820e4ce2667f60070ae587fe",
+      "row_kind": "SIGNAL",
+      "sequence_no": 1
+    },
+    {
+      "logical_time_utc": "2026-01-05T23:23:00Z",
+      "manifest_sha256": "sha256:6f790e31a0e64d299dbf60e808768dfc0dfb8faefb5184a3fec05739a4a49639",
+      "payload_sha256": "sha256:a3401fd7f37de0fb9226afb29726f2f17309fd378a969dd31a9873c47eb6ab05",
+      "row_kind": "SIGNAL",
+      "sequence_no": 2
+    },
+    {
+      "logical_time_utc": "2026-01-05T23:24:00Z",
+      "manifest_sha256": "sha256:6f790e31a0e64d299dbf60e808768dfc0dfb8faefb5184a3fec05739a4a49639",
+      "payload_sha256": "sha256:ed3a46ac7c7f275360e5d24aebaaf8d55060b245c17417a36351435685ea9be7",
+      "row_kind": "SIGNAL",
+      "sequence_no": 3
+    },
+    {
+      "logical_time_utc": "2026-01-05T23:25:00Z",
+      "manifest_sha256": "sha256:6f790e31a0e64d299dbf60e808768dfc0dfb8faefb5184a3fec05739a4a49639",
+      "payload_sha256": "sha256:364b5ec68c21f367b63df10fc2d4af2641f2a3b4dbe83da084704915fb88ac50",
+      "row_kind": "SIGNAL",
+      "sequence_no": 4
+    },
+    {
+      "logical_time_utc": "2026-01-05T23:26:00Z",
+      "manifest_sha256": "sha256:6f790e31a0e64d299dbf60e808768dfc0dfb8faefb5184a3fec05739a4a49639",
+      "payload_sha256": "sha256:7d4134ae611fbee25e26b631a361bd3a417e139d8d1ac0ee9397c261b4307e70",
+      "row_kind": "SIGNAL",
+      "sequence_no": 5
+    },
+    {
+      "logical_time_utc": "2026-01-05T23:27:00Z",
+      "manifest_sha256": "sha256:6f790e31a0e64d299dbf60e808768dfc0dfb8faefb5184a3fec05739a4a49639",
+      "payload_sha256": "sha256:9c50ffac0e4119be3850f01d9b22a02e7d287367789b1345a113aff3f5f19f96",
+      "row_kind": "SIGNAL",
+      "sequence_no": 6
+    },
+    {
+      "logical_time_utc": "2026-01-05T23:28:00Z",
+      "manifest_sha256": "sha256:6f790e31a0e64d299dbf60e808768dfc0dfb8faefb5184a3fec05739a4a49639",
+      "payload_sha256": "sha256:6e7382d437c4992cb0eeaf094811dc3d3a429ce5a99ba6e3289eb687bf966d4f",
+      "row_kind": "SIGNAL",
+      "sequence_no": 7
+    },
+    {
+      "logical_time_utc": "2026-01-05T23:29:00Z",
+      "manifest_sha256": "sha256:6f790e31a0e64d299dbf60e808768dfc0dfb8faefb5184a3fec05739a4a49639",
+      "payload_sha256": "sha256:c3666c2f3433f1a251958f0819dcd593dd2bac344b241792b32c2b60b27b3c80",
+      "row_kind": "SIGNAL",
+      "sequence_no": 8
+    },
+    {
+      "logical_time_utc": "2026-01-05T23:30:00Z",
+      "manifest_sha256": "sha256:6f790e31a0e64d299dbf60e808768dfc0dfb8faefb5184a3fec05739a4a49639",
+      "payload_sha256": "sha256:98b9cb4060844fef78d1d7e325f002eb8a45de499d22c97fa616ae2bd6410e5b",
+      "row_kind": "SIGNAL",
+      "sequence_no": 9
+    }
+  ],
+  "snapshot_sha256": "sha256:09072eebb3f331cc20414049aa9eb130e5ac8ef28f992e2ca539555537d223ca"
+}

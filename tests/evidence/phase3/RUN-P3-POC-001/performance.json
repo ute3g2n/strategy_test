@@ -1,0 +1,87 @@
+{
+  "first": {
+    "calendar_years": [
+      2024,
+      2025
+    ],
+    "cpu": "AMD64 Family 23 Model 113 Stepping 0, AuthenticAMD",
+    "derived_counts": {
+      "15m": 350880,
+      "1d": 3655,
+      "1h": 87720,
+      "1m": 5263200,
+      "4h": 21930
+    },
+    "derived_timeframes": [
+      "1m",
+      "15m",
+      "1h",
+      "4h",
+      "1d"
+    ],
+    "elapsed_ms": 11306,
+    "event_count": 5263200,
+    "input_sha256": "sha256:1000e99f8d3b75a464e5fbdc79111a58f3ed926e84b795c2df28e53c9b1aa731",
+    "markets": [
+      "MKT-A",
+      "MKT-B",
+      "MKT-C",
+      "MKT-D",
+      "MKT-E"
+    ],
+    "os": "Windows-11-10.0.26200-SP0",
+    "peak_rss_bytes": 51982336,
+    "python": "3.12.13",
+    "ram_bytes": 0,
+    "result_sha256": "sha256:adb8af3804204f057395b821fba7f1dc5c1b822862429d368f5d304b1356bc59",
+    "rss_tool": "GetProcessMemoryInfo",
+    "status": "PASS",
+    "strategy_replay_count": 464185
+  },
+  "limits": {
+    "elapsed_minutes": 30,
+    "peak_rss_gib": 8
+  },
+  "replay_count": 2,
+  "result_hash_match": true,
+  "second": {
+    "calendar_years": [
+      2024,
+      2025
+    ],
+    "cpu": "AMD64 Family 23 Model 113 Stepping 0, AuthenticAMD",
+    "derived_counts": {
+      "15m": 350880,
+      "1d": 3655,
+      "1h": 87720,
+      "1m": 5263200,
+      "4h": 21930
+    },
+    "derived_timeframes": [
+      "1m",
+      "15m",
+      "1h",
+      "4h",
+      "1d"
+    ],
+    "elapsed_ms": 11205,
+    "event_count": 5263200,
+    "input_sha256": "sha256:1000e99f8d3b75a464e5fbdc79111a58f3ed926e84b795c2df28e53c9b1aa731",
+    "markets": [
+      "MKT-A",
+      "MKT-B",
+      "MKT-C",
+      "MKT-D",
+      "MKT-E"
+    ],
+    "os": "Windows-11-10.0.26200-SP0",
+    "peak_rss_bytes": 51982336,
+    "python": "3.12.13",
+    "ram_bytes": 0,
+    "result_sha256": "sha256:adb8af3804204f057395b821fba7f1dc5c1b822862429d368f5d304b1356bc59",
+    "rss_tool": "GetProcessMemoryInfo",
+    "status": "PASS",
+    "strategy_replay_count": 464185
+  },
+  "status": "PASS"
+}

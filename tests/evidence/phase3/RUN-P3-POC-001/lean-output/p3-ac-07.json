@@ -1,0 +1,13 @@
+{
+  "checks": {
+    "first_result_sha256": "sha256:adb8af3804204f057395b821fba7f1dc5c1b822862429d368f5d304b1356bc59",
+    "result_hash_match": true,
+    "second_result_sha256": "sha256:adb8af3804204f057395b821fba7f1dc5c1b822862429d368f5d304b1356bc59",
+    "status": "PASS"
+  },
+  "output_sha256": "sha256:5bacb10450a0c9f685820581a50047123d20f4991f2f462c3fb1ccdce8daf9f9",
+  "requirement_id": "P3-AC-07",
+  "run_id": "RUN-P3-POC-001",
+  "schema_version": "p3-09-acceptance-result/v1",
+  "status": "PASS"
+}

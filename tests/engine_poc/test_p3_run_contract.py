@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-
 from scripts.quality_gate.p3_poc_runner import (
     RunContractError,
     build_lean_output_from_observed,
@@ -56,7 +55,7 @@ def test_observed_bars_are_ordered_and_complete() -> None:
 
     invalid = copy.deepcopy(observed)
     invalid[1], invalid[2] = invalid[2], invalid[1]
-    with pytest.raises(RunContractError, match="ordered"):
+    with pytest.raises(RunContractError, match="order"):
         validate_observed_bars(invalid)
 
 

@@ -1,0 +1,58 @@
+{
+  "acceptance": {
+    "P3-AC-01": {
+      "derived_bar_sha256_by_timeframe": {
+        "M1": "sha256:068f1c7c78d69e81742d9b8ffe03e2b1a781fab85efcb12893292ed23c06ea08",
+        "M15": "sha256:ea5c3a2983195b0a84b0ba19f5e34baf01ef554f263b962f32238f16ee84f1d7",
+        "M30": "sha256:a9f6de620352dba5d2eeb85c870faf98e363ba80a75143096bb76065cccfe9c7"
+      },
+      "expected": {
+        "M1": "sha256:068f1c7c78d69e81742d9b8ffe03e2b1a781fab85efcb12893292ed23c06ea08",
+        "M15": "sha256:ea5c3a2983195b0a84b0ba19f5e34baf01ef554f263b962f32238f16ee84f1d7",
+        "M30": "sha256:a9f6de620352dba5d2eeb85c870faf98e363ba80a75143096bb76065cccfe9c7"
+      },
+      "fixture_scope_note": "H1/H4/D1 require a longer fixed fixture; this 30-minute fixture covers M1/M15/M30.",
+      "status": "PASS"
+    },
+    "P3-AC-02": {
+      "signal_sha256": "sha256:5b8d0ddd6c9c2780d306a03cb696bc7242cfc805e7e200e216bab2f2b8b06032",
+      "status": "PASS"
+    },
+    "P3-AC-03": {
+      "calendar_version": "us-futures-fixture-v1",
+      "same_close_decision_count": 10,
+      "status": "PASS"
+    },
+    "P3-AC-04": {
+      "sequence_sha256": "sha256:bed65e52341e71ecb97b90a1f59781951fb23253853171178e71340ddf0e5481",
+      "status": "PASS"
+    },
+    "P3-AC-05": {
+      "adapter_artifact_sha256": "sha256:5529e8e11f1dc4fbda4d6ae06c977b787e8dfe94bbe071a82e6ed3ad66916632",
+      "status": "PASS"
+    },
+    "P3-AC-06": {
+      "automatic_data_download": false,
+      "input_projection_sha256": "sha256:af817aac796b1df0202118346facb3e9b49b3f5440c6e5f78665872ad6fecdf8",
+      "network_mode": "none",
+      "status": "PASS"
+    },
+    "P3-AC-07": {
+      "first_result_sha256": "sha256:adb8af3804204f057395b821fba7f1dc5c1b822862429d368f5d304b1356bc59",
+      "result_hash_match": true,
+      "second_result_sha256": "sha256:adb8af3804204f057395b821fba7f1dc5c1b822862429d368f5d304b1356bc59",
+      "status": "STOPPED"
+    },
+    "P3-AC-08": {
+      "commit_marker_sha256": "sha256:a777b3c0eb9248b536a62149d42ea1beb724e847ba71d5638fb7494f6cd8c1a9",
+      "snapshot_sha256": "sha256:09072eebb3f331cc20414049aa9eb130e5ac8ef28f992e2ca539555537d223ca",
+      "status": "PASS"
+    }
+  },
+  "expected_values_source": "P3-08R Core reference",
+  "first_output_sha256": "sha256:5bacb10450a0c9f685820581a50047123d20f4991f2f462c3fb1ccdce8daf9f9",
+  "output_hash_match": true,
+  "run_id": "RUN-P3-POC-001",
+  "schema_version": "p3-09-parity-results/v1",
+  "second_output_sha256": "sha256:5bacb10450a0c9f685820581a50047123d20f4991f2f462c3fb1ccdce8daf9f9"
+}

@@ -1,0 +1,11 @@
+{
+  "checks": {
+    "signal_sha256": "sha256:5b8d0ddd6c9c2780d306a03cb696bc7242cfc805e7e200e216bab2f2b8b06032",
+    "status": "PASS"
+  },
+  "output_sha256": "sha256:5bacb10450a0c9f685820581a50047123d20f4991f2f462c3fb1ccdce8daf9f9",
+  "requirement_id": "P3-AC-02",
+  "run_id": "RUN-P3-POC-001",
+  "schema_version": "p3-09-acceptance-result/v1",
+  "status": "PASS"
+}

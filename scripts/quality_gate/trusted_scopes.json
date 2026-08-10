@@ -405,7 +405,7 @@
       },
       "baseline_ref": "HEAD",
       "scope_mode": "target_only",
-      "unknowns": ["P3-09 is not started until its own execution request and fixture/expected outputs are finalized"],
+      "unknowns": [],
       "network_isolation_required": true,
       "checks": [
         {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade", "scripts/quality_gate", "tests/engine_poc", "tests/strategy", "tests/backtest"]},
@@ -414,7 +414,7 @@
         {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_pytest"]}
       ],
       "precondition": "RUN-P3-LEAN-PREP-001.final_status == PASS",
-      "execution_allowed": false
+      "execution_allowed": true
     },
     "RUN-P3-BIAS-001": {
       "phase_id": "phase3",

@@ -1,0 +1,3 @@
+/inputs/p3_09_lean_input_v1.csv
+/equity/usa/hour/spy.zip
+/equity/usa/daily/spy.zip

@@ -35,7 +35,7 @@ from autotrade.backtest.contracts import (  # noqa: E402
 from autotrade.backtest.runner import BacktestRunner  # noqa: E402
 from autotrade.market_data.store_contracts import DataVersionManifest, MarketEvent  # noqa: E402
 from autotrade.strategy.contracts import StrategyConfig, StrategyState  # noqa: E402
-from engine_poc.entrypoint import load_input_contract, sha256_file  # noqa: E402
+from engine_poc.entrypoint import load_input_contract, sha256_file  # type: ignore[import-not-found]  # noqa: E402
 
 PREPARATION_RUN_ID = "RUN-P3-POC-READY-001"
 CORE_RUN_ID = "RUN-P3-POC-READY-001-CORE-001"

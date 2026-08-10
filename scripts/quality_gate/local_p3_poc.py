@@ -1,4 +1,4 @@
-"""Run the P3-09 preparation contract without starting an engine."""
+"""Run the P3-09 preparation contract or the approved local engine replay."""
 
 from __future__ import annotations
 
@@ -17,7 +17,8 @@ if str(SOURCE_ROOT) not in sys.path:
 if str(TEST_ROOT) not in sys.path:
     sys.path.insert(0, str(TEST_ROOT))
 
-from engine_poc.entrypoint import ContractError, prepare_entry  # noqa: E402
+from engine_poc.entrypoint import ContractError, prepare_entry  # type: ignore[import-not-found]  # noqa: E402
+from scripts.quality_gate.p3_poc_runner import run_p3_09  # noqa: E402
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -40,19 +41,9 @@ def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     repo_root = REPO_ROOT
     if args.mode == "run":
-        print(
-            json.dumps(
-                {
-                    "schema_version": "p3-poc-prepare-result/v1",
-                    "status": "STOPPED",
-                    "reason": "P3_09_EXECUTION_NOT_IMPLEMENTED_IN_PREPARE_ENTRY",
-                    "engine_started": False,
-                },
-                ensure_ascii=False,
-                sort_keys=True,
-            )
-        )
-        return 2
+        result = run_p3_09(repo_root)
+        print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+        return 0 if result.get("state") == "PASS" else 1
     try:
         result = prepare_entry(repo_root, args.contract, args.manifest)
     except ContractError as error:
