@@ -52,7 +52,7 @@
   "input_fixture": {
     "name": "run-manifest.json",
     "version": "p3-poc-execution-manifest-v1",
-    "checksum": "sha256:72d1e8834cecadd20cfb7e1df282a2a1ee9b5acda245acb2c90f7d988fbe1b94"
+    "checksum": "sha256:49a6303e918f8b858be790383caaceea9e6a6479fe7c2138c5460cd20c08fea5"
   },
   "review": {
     "critical": 0,

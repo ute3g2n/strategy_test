@@ -1,0 +1,17 @@
+﻿{
+    "execution_id":  "b98ed21aabc34b9b9db8abd827794aba",
+    "source_repository_path":  "/home/oue/strategy_test",
+    "source_kind":  "wsl_verification",
+    "verification_raw":  "{\"state\":\"BLOCKED\",\"reason\":\"input checksum mismatch\",\"generated_at\":\"2026-08-10T03:06:28Z\",\"host_wrapper_execution_id\":\"b98ed21aabc34b9b9db8abd827794aba\"}\n",
+    "retrieval_exit_code":  0,
+    "captured_at":  "2026-08-10T03:06:28.9494111Z",
+    "state":  "CAPTURED",
+    "verification":  {
+                         "state":  "BLOCKED",
+                         "reason":  "input checksum mismatch",
+                         "generated_at":  "2026-08-10T03:06:28Z",
+                         "host_wrapper_execution_id":  "b98ed21aabc34b9b9db8abd827794aba"
+                     },
+    "source_path":  "/home/oue/strategy_test/tests/evidence/phase3/RUN-P3-POC-READY-001/verification.json",
+    "host_isolation":  null
+}
