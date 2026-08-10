@@ -1,0 +1,211 @@
+﻿{
+    "execution_id":  "273f8624ba9546bd8ac7cb57e34683e6",
+    "source_repository_path":  "/home/oue/strategy_test",
+    "source_kind":  "wsl_verification",
+    "verification_raw":  "{\n  \"acceptance\": {\n    \"P3-AC-01\": {\n      \"derived_bar_sha256_by_timeframe\": {\n        \"M1\": \"sha256:068f1c7c78d69e81742d9b8ffe03e2b1a781fab85efcb12893292ed23c06ea08\",\n        \"M15\": \"sha256:ea5c3a2983195b0a84b0ba19f5e34baf01ef554f263b962f32238f16ee84f1d7\",\n        \"M30\": \"sha256:a9f6de620352dba5d2eeb85c870faf98e363ba80a75143096bb76065cccfe9c7\"\n      },\n      \"expected\": {\n        \"M1\": \"sha256:068f1c7c78d69e81742d9b8ffe03e2b1a781fab85efcb12893292ed23c06ea08\",\n        \"M15\": \"sha256:ea5c3a2983195b0a84b0ba19f5e34baf01ef554f263b962f32238f16ee84f1d7\",\n        \"M30\": \"sha256:a9f6de620352dba5d2eeb85c870faf98e363ba80a75143096bb76065cccfe9c7\"\n      },\n      \"fixture_scope_note\": \"H1/H4/D1 require a longer fixed fixture; this 30-minute fixture covers M1/M15/M30.\",\n      \"status\": \"PASS\"\n    },\n    \"P3-AC-02\": {\n      \"signal_sha256\": \"sha256:5b8d0ddd6c9c2780d306a03cb696bc7242cfc805e7e200e216bab2f2b8b06032\",\n      \"status\": \"PASS\"\n    },\n    \"P3-AC-03\": {\n      \"calendar_version\": \"us-futures-fixture-v1\",\n      \"same_close_decision_count\": 10,\n      \"status\": \"PASS\"\n    },\n    \"P3-AC-04\": {\n      \"sequence_sha256\": \"sha256:bed65e52341e71ecb97b90a1f59781951fb23253853171178e71340ddf0e5481\",\n      \"status\": \"PASS\"\n    },\n    \"P3-AC-05\": {\n      \"adapter_artifact_sha256\": \"sha256:53c78580f301effd767b528523003e33fb6d901cf873fc55565a08a57f535d61\",\n      \"status\": \"PASS\"\n    },\n    \"P3-AC-06\": {\n      \"automatic_data_download\": false,\n      \"input_projection_sha256\": \"sha256:af817aac796b1df0202118346facb3e9b49b3f5440c6e5f78665872ad6fecdf8\",\n      \"network_mode\": \"none\",\n      \"status\": \"PASS\"\n    },\n    \"P3-AC-07\": {\n      \"first_result_sha256\": \"sha256:adb8af3804204f057395b821fba7f1dc5c1b822862429d368f5d304b1356bc59\",\n      \"result_hash_match\": true,\n      \"second_result_sha256\": \"sha256:adb8af3804204f057395b821fba7f1dc5c1b822862429d368f5d304b1356bc59\",\n      \"status\": \"PASS\"\n    },\n    \"P3-AC-08\": {\n      \"commit_marker_sha256\": \"sha256:a777b3c0eb9248b536a62149d42ea1beb724e847ba71d5638fb7494f6cd8c1a9\",\n      \"snapshot_sha256\": \"sha256:09072eebb3f331cc20414049aa9eb130e5ac8ef28f992e2ca539555537d223ca\",\n      \"status\": \"PASS\"\n    }\n  },\n  \"broker_paper_live_cloud_secret_used\": false,\n  \"engine\": \"QuantConnect LEAN\",\n  \"engine_image\": \"quantconnect/lean@sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d\",\n  \"engine_started\": true,\n  \"evidence\": {\n    \"manifest\": \"tests/evidence/phase3/RUN-P3-POC-001/run-manifest.json\",\n    \"parity\": \"tests/evidence/phase3/RUN-P3-POC-001/parity-results.json\",\n    \"performance\": \"tests/evidence/phase3/RUN-P3-POC-001/performance.json\"\n  },\n  \"final_status\": \"PASS\",\n  \"network_mode\": \"none\",\n  \"performance\": {\n    \"first\": {\n      \"calendar_years\": [\n        2024,\n        2025\n      ],\n      \"cpu\": \"AMD64 Family 23 Model 113 Stepping 0, AuthenticAMD\",\n      \"derived_counts\": {\n        \"15m\": 350880,\n        \"1d\": 3655,\n        \"1h\": 87720,\n        \"1m\": 5263200,\n        \"4h\": 21930\n      },\n      \"derived_timeframes\": [\n        \"1m\",\n        \"15m\",\n        \"1h\",\n        \"4h\",\n        \"1d\"\n      ],\n      \"elapsed_ms\": 11306,\n      \"event_count\": 5263200,\n      \"input_sha256\": \"sha256:1000e99f8d3b75a464e5fbdc79111a58f3ed926e84b795c2df28e53c9b1aa731\",\n      \"markets\": [\n        \"MKT-A\",\n        \"MKT-B\",\n        \"MKT-C\",\n        \"MKT-D\",\n        \"MKT-E\"\n      ],\n      \"os\": \"Windows-11-10.0.26200-SP0\",\n      \"peak_rss_bytes\": 51982336,\n      \"python\": \"3.12.13\",\n      \"ram_bytes\": 0,\n      \"result_sha256\": \"sha256:adb8af3804204f057395b821fba7f1dc5c1b822862429d368f5d304b1356bc59\",\n      \"rss_tool\": \"GetProcessMemoryInfo\",\n      \"status\": \"PASS\",\n      \"strategy_replay_count\": 464185\n    },\n    \"limits\": {\n      \"elapsed_minutes\": 30,\n      \"peak_rss_gib\": 8\n    },\n    \"replay_count\": 2,\n    \"result_hash_match\": true,\n    \"second\": {\n      \"calendar_years\": [\n        2024,\n        2025\n      ],\n      \"cpu\": \"AMD64 Family 23 Model 113 Stepping 0, AuthenticAMD\",\n      \"derived_counts\": {\n        \"15m\": 350880,\n        \"1d\": 3655,\n        \"1h\": 87720,\n        \"1m\": 5263200,\n        \"4h\": 21930\n      },\n      \"derived_timeframes\": [\n        \"1m\",\n        \"15m\",\n        \"1h\",\n        \"4h\",\n        \"1d\"\n      ],\n      \"elapsed_ms\": 11205,\n      \"event_count\": 5263200,\n      \"input_sha256\": \"sha256:1000e99f8d3b75a464e5fbdc79111a58f3ed926e84b795c2df28e53c9b1aa731\",\n      \"markets\": [\n        \"MKT-A\",\n        \"MKT-B\",\n        \"MKT-C\",\n        \"MKT-D\",\n        \"MKT-E\"\n      ],\n      \"os\": \"Windows-11-10.0.26200-SP0\",\n      \"peak_rss_bytes\": 51982336,\n      \"python\": \"3.12.13\",\n      \"ram_bytes\": 0,\n      \"result_sha256\": \"sha256:adb8af3804204f057395b821fba7f1dc5c1b822862429d368f5d304b1356bc59\",\n      \"rss_tool\": \"GetProcessMemoryInfo\",\n      \"status\": \"PASS\",\n      \"strategy_replay_count\": 464185\n    },\n    \"status\": \"PASS\"\n  },\n  \"phase_id\": \"phase3\",\n  \"replays\": [\n    {\n      \"elapsed_ms\": 9924,\n      \"exit_code\": 0,\n      \"label\": \"replay-1\",\n      \"output_sha256\": \"sha256:5bacb10450a0c9f685820581a50047123d20f4991f2f462c3fb1ccdce8daf9f9\"\n    },\n    {\n      \"elapsed_ms\": 9770,\n      \"exit_code\": 0,\n      \"label\": \"replay-2\",\n      \"output_sha256\": \"sha256:5bacb10450a0c9f685820581a50047123d20f4991f2f462c3fb1ccdce8daf9f9\"\n    }\n  ],\n  \"run_id\": \"RUN-P3-POC-001\",\n  \"schema_version\": \"p3-09-verification/v1\",\n  \"source_execution_manifest_sha256\": \"sha256:8ff33516cb843a2b205346a6cb9bbe933a5aa30f7c0bad0edd21538a531446a8\",\n  \"state\": \"PASS\",\n  \"step_id\": \"P3-09\",\n  \"exit_code\": 2,\n  \"scope\": \"target_only\",\n  \"input_sha256\": \"sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d\",\n  \"post_input_sha256\": \"sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d\",\n  \"target_only_change_sha256\": \"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n  \"host_wrapper_execution_id\": \"273f8624ba9546bd8ac7cb57e34683e6\",\n  \"restore_pending\": true,\n  \"execution_user\": \"oue\",\n  \"execution_uid\": 1000\n}\n",
+    "retrieval_exit_code":  0,
+    "captured_at":  "2026-08-10T04:18:49.1995735Z",
+    "state":  "CAPTURED",
+    "verification":  {
+                         "acceptance":  {
+                                            "P3-AC-01":  {
+                                                             "derived_bar_sha256_by_timeframe":  {
+                                                                                                     "M1":  "sha256:068f1c7c78d69e81742d9b8ffe03e2b1a781fab85efcb12893292ed23c06ea08",
+                                                                                                     "M15":  "sha256:ea5c3a2983195b0a84b0ba19f5e34baf01ef554f263b962f32238f16ee84f1d7",
+                                                                                                     "M30":  "sha256:a9f6de620352dba5d2eeb85c870faf98e363ba80a75143096bb76065cccfe9c7"
+                                                                                                 },
+                                                             "expected":  {
+                                                                              "M1":  "sha256:068f1c7c78d69e81742d9b8ffe03e2b1a781fab85efcb12893292ed23c06ea08",
+                                                                              "M15":  "sha256:ea5c3a2983195b0a84b0ba19f5e34baf01ef554f263b962f32238f16ee84f1d7",
+                                                                              "M30":  "sha256:a9f6de620352dba5d2eeb85c870faf98e363ba80a75143096bb76065cccfe9c7"
+                                                                          },
+                                                             "fixture_scope_note":  "H1/H4/D1 require a longer fixed fixture; this 30-minute fixture covers M1/M15/M30.",
+                                                             "status":  "PASS"
+                                                         },
+                                            "P3-AC-02":  {
+                                                             "signal_sha256":  "sha256:5b8d0ddd6c9c2780d306a03cb696bc7242cfc805e7e200e216bab2f2b8b06032",
+                                                             "status":  "PASS"
+                                                         },
+                                            "P3-AC-03":  {
+                                                             "calendar_version":  "us-futures-fixture-v1",
+                                                             "same_close_decision_count":  10,
+                                                             "status":  "PASS"
+                                                         },
+                                            "P3-AC-04":  {
+                                                             "sequence_sha256":  "sha256:bed65e52341e71ecb97b90a1f59781951fb23253853171178e71340ddf0e5481",
+                                                             "status":  "PASS"
+                                                         },
+                                            "P3-AC-05":  {
+                                                             "adapter_artifact_sha256":  "sha256:53c78580f301effd767b528523003e33fb6d901cf873fc55565a08a57f535d61",
+                                                             "status":  "PASS"
+                                                         },
+                                            "P3-AC-06":  {
+                                                             "automatic_data_download":  false,
+                                                             "input_projection_sha256":  "sha256:af817aac796b1df0202118346facb3e9b49b3f5440c6e5f78665872ad6fecdf8",
+                                                             "network_mode":  "none",
+                                                             "status":  "PASS"
+                                                         },
+                                            "P3-AC-07":  {
+                                                             "first_result_sha256":  "sha256:adb8af3804204f057395b821fba7f1dc5c1b822862429d368f5d304b1356bc59",
+                                                             "result_hash_match":  true,
+                                                             "second_result_sha256":  "sha256:adb8af3804204f057395b821fba7f1dc5c1b822862429d368f5d304b1356bc59",
+                                                             "status":  "PASS"
+                                                         },
+                                            "P3-AC-08":  {
+                                                             "commit_marker_sha256":  "sha256:a777b3c0eb9248b536a62149d42ea1beb724e847ba71d5638fb7494f6cd8c1a9",
+                                                             "snapshot_sha256":  "sha256:09072eebb3f331cc20414049aa9eb130e5ac8ef28f992e2ca539555537d223ca",
+                                                             "status":  "PASS"
+                                                         }
+                                        },
+                         "broker_paper_live_cloud_secret_used":  false,
+                         "engine":  "QuantConnect LEAN",
+                         "engine_image":  "quantconnect/lean@sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d",
+                         "engine_started":  true,
+                         "evidence":  {
+                                          "manifest":  "tests/evidence/phase3/RUN-P3-POC-001/run-manifest.json",
+                                          "parity":  "tests/evidence/phase3/RUN-P3-POC-001/parity-results.json",
+                                          "performance":  "tests/evidence/phase3/RUN-P3-POC-001/performance.json"
+                                      },
+                         "final_status":  "PASS",
+                         "network_mode":  "none",
+                         "performance":  {
+                                             "first":  {
+                                                           "calendar_years":  [
+                                                                                  2024,
+                                                                                  2025
+                                                                              ],
+                                                           "cpu":  "AMD64 Family 23 Model 113 Stepping 0, AuthenticAMD",
+                                                           "derived_counts":  {
+                                                                                  "15m":  350880,
+                                                                                  "1d":  3655,
+                                                                                  "1h":  87720,
+                                                                                  "1m":  5263200,
+                                                                                  "4h":  21930
+                                                                              },
+                                                           "derived_timeframes":  [
+                                                                                      "1m",
+                                                                                      "15m",
+                                                                                      "1h",
+                                                                                      "4h",
+                                                                                      "1d"
+                                                                                  ],
+                                                           "elapsed_ms":  11306,
+                                                           "event_count":  5263200,
+                                                           "input_sha256":  "sha256:1000e99f8d3b75a464e5fbdc79111a58f3ed926e84b795c2df28e53c9b1aa731",
+                                                           "markets":  [
+                                                                           "MKT-A",
+                                                                           "MKT-B",
+                                                                           "MKT-C",
+                                                                           "MKT-D",
+                                                                           "MKT-E"
+                                                                       ],
+                                                           "os":  "Windows-11-10.0.26200-SP0",
+                                                           "peak_rss_bytes":  51982336,
+                                                           "python":  "3.12.13",
+                                                           "ram_bytes":  0,
+                                                           "result_sha256":  "sha256:adb8af3804204f057395b821fba7f1dc5c1b822862429d368f5d304b1356bc59",
+                                                           "rss_tool":  "GetProcessMemoryInfo",
+                                                           "status":  "PASS",
+                                                           "strategy_replay_count":  464185
+                                                       },
+                                             "limits":  {
+                                                            "elapsed_minutes":  30,
+                                                            "peak_rss_gib":  8
+                                                        },
+                                             "replay_count":  2,
+                                             "result_hash_match":  true,
+                                             "second":  {
+                                                            "calendar_years":  [
+                                                                                   2024,
+                                                                                   2025
+                                                                               ],
+                                                            "cpu":  "AMD64 Family 23 Model 113 Stepping 0, AuthenticAMD",
+                                                            "derived_counts":  {
+                                                                                   "15m":  350880,
+                                                                                   "1d":  3655,
+                                                                                   "1h":  87720,
+                                                                                   "1m":  5263200,
+                                                                                   "4h":  21930
+                                                                               },
+                                                            "derived_timeframes":  [
+                                                                                       "1m",
+                                                                                       "15m",
+                                                                                       "1h",
+                                                                                       "4h",
+                                                                                       "1d"
+                                                                                   ],
+                                                            "elapsed_ms":  11205,
+                                                            "event_count":  5263200,
+                                                            "input_sha256":  "sha256:1000e99f8d3b75a464e5fbdc79111a58f3ed926e84b795c2df28e53c9b1aa731",
+                                                            "markets":  [
+                                                                            "MKT-A",
+                                                                            "MKT-B",
+                                                                            "MKT-C",
+                                                                            "MKT-D",
+                                                                            "MKT-E"
+                                                                        ],
+                                                            "os":  "Windows-11-10.0.26200-SP0",
+                                                            "peak_rss_bytes":  51982336,
+                                                            "python":  "3.12.13",
+                                                            "ram_bytes":  0,
+                                                            "result_sha256":  "sha256:adb8af3804204f057395b821fba7f1dc5c1b822862429d368f5d304b1356bc59",
+                                                            "rss_tool":  "GetProcessMemoryInfo",
+                                                            "status":  "PASS",
+                                                            "strategy_replay_count":  464185
+                                                        },
+                                             "status":  "PASS"
+                                         },
+                         "phase_id":  "phase3",
+                         "replays":  [
+                                         {
+                                             "elapsed_ms":  9924,
+                                             "exit_code":  0,
+                                             "label":  "replay-1",
+                                             "output_sha256":  "sha256:5bacb10450a0c9f685820581a50047123d20f4991f2f462c3fb1ccdce8daf9f9"
+                                         },
+                                         {
+                                             "elapsed_ms":  9770,
+                                             "exit_code":  0,
+                                             "label":  "replay-2",
+                                             "output_sha256":  "sha256:5bacb10450a0c9f685820581a50047123d20f4991f2f462c3fb1ccdce8daf9f9"
+                                         }
+                                     ],
+                         "run_id":  "RUN-P3-POC-001",
+                         "schema_version":  "p3-09-verification/v1",
+                         "source_execution_manifest_sha256":  "sha256:8ff33516cb843a2b205346a6cb9bbe933a5aa30f7c0bad0edd21538a531446a8",
+                         "state":  "PASS",
+                         "step_id":  "P3-09",
+                         "exit_code":  2,
+                         "scope":  "target_only",
+                         "input_sha256":  "sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d",
+                         "post_input_sha256":  "sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d",
+                         "target_only_change_sha256":  "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                         "host_wrapper_execution_id":  "273f8624ba9546bd8ac7cb57e34683e6",
+                         "restore_pending":  true,
+                         "execution_user":  "oue",
+                         "execution_uid":  1000
+                     },
+    "source_path":  "/home/oue/strategy_test/tests/evidence/phase3/RUN-P3-POC-001/verification.json",
+    "host_isolation":  {
+                           "state":  "CONFIRMED",
+                           "wsl_version":  "WSL ・・繝ｻ・ｸ0繝ｻ繝ｻ: 2.6.3.0",
+                           "kernel":  "6.6.87.2-microsoft-standard-WSL2",
+                           "distro":  "Ubuntu-24.04",
+                           "networking_mode":  "none",
+                           "host_wrapper_execution_id":  "273f8624ba9546bd8ac7cb57e34683e6",
+                           "ip_addr_summary":  "1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\n    inet 127.0.0.1/8 scope host lo\n       valid_lft forever preferred_lft forever\n    inet6 ::1/128 scope host \n       valid_lft forever preferred_lft forever",
+                           "ip_route_summary":  "",
+                           "confirmed_at":  "2026-08-10T04:18:48Z",
+                           "scope":  [
+                                         "src/autotrade",
+                                         "scripts/quality_gate",
+                                         "tests/engine_poc",
+                                         "tests/strategy",
+                                         "tests/backtest",
+                                         "tests/fixtures/phase3",
+                                         "tests/evidence/phase3/RUN-P3-POC-001"
+                                     ],
+                           "input_sha256":  "sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d",
+                           "input_kind":  "fixture"
+                       }
+}

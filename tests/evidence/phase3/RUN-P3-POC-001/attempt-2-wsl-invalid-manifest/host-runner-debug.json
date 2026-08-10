@@ -1,0 +1,76 @@
+﻿{
+    "debug":  [
+                  {
+                      "kind":  "strict",
+                      "command":  [
+                                      "wsl.exe",
+                                      "--version"
+                                  ],
+                      "powershell_location":  "C:\\project\\strategy_test",
+                      "exit_code":  0,
+                      "output":  "W\u0000S\u0000L\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00002\u0000.\u00006\u0000.\u00003\u0000.\u00000\u0000\n\u0000\n\u0000ｫ0・ﾍ0・ \u0000ﾐ0・ｸ0・・:\u0000 \u00006\u0000.\u00006\u0000.\u00008\u00007\u0000.\u00002\u0000-\u00001\u0000\n\u0000\n\u0000W\u0000S\u0000L\u0000g\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00000\u0000.\u00007\u00001\u0000\n\u0000\n\u0000M\u0000S\u0000R\u0000D\u0000C\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00002\u0000.\u00006\u00003\u00005\u00003\u0000\n\u0000\n\u0000D\u0000i\u0000r\u0000e\u0000c\u0000t\u00003\u0000D\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00006\u00001\u00001\u0000.\u00001\u0000-\u00008\u00001\u00005\u00002\u00008\u00005\u00001\u00001\u0000\n\u0000\n\u0000D\u0000X\u0000C\u0000o\u0000r\u0000e\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u00000\u0000.\u00000\u0000.\u00002\u00006\u00001\u00000\u00000\u0000.\u00001\u0000-\u00002\u00004\u00000\u00003\u00003\u00001\u0000-\u00001\u00004\u00003\u00005\u0000.\u0000g\u0000e\u0000-\u0000r\u0000e\u0000l\u0000e\u0000a\u0000s\u0000e\u0000\n\u0000\n\u0000W\u0000i\u0000n\u0000d\u0000o\u0000w\u0000s\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u00000\u0000.\u00000\u0000.\u00002\u00006\u00002\u00000\u00000\u0000.\u00008\u00009\u00007\u00003\u0000\n\u0000\n\u0000",
+                      "recorded_at":  "2026-08-10T04:18:41.6887620Z"
+                  },
+                  {
+                      "kind":  "strict",
+                      "command":  [
+                                      "wsl.exe",
+                                      "-l",
+                                      "-v"
+                                  ],
+                      "powershell_location":  "C:\\project\\strategy_test",
+                      "exit_code":  0,
+                      "output":  " \u0000 \u0000N\u0000A\u0000M\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000S\u0000T\u0000A\u0000T\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000V\u0000E\u0000R\u0000S\u0000I\u0000O\u0000N\u0000\n\u0000\n\u0000*\u0000 \u0000U\u0000b\u0000u\u0000n\u0000t\u0000u\u0000-\u00002\u00004\u0000.\u00000\u00004\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\n\u0000\n\u0000 \u0000 \u0000d\u0000o\u0000c\u0000k\u0000e\u0000r\u0000-\u0000d\u0000e\u0000s\u0000k\u0000t\u0000o\u0000p\u0000 \u0000 \u0000 \u0000 \u0000S\u0000t\u0000o\u0000p\u0000p\u0000e\u0000d\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\n\u0000\n\u0000",
+                      "recorded_at":  "2026-08-10T04:18:41.7368366Z"
+                  },
+                  {
+                      "kind":  "capture",
+                      "command":  [
+                                      "wsl.exe",
+                                      "--",
+                                      "bash",
+                                      "-lc",
+                                      "cd / \u0026\u0026 cd \u0027/home/oue/strategy_test\u0027 \u0026\u0026 exec bash scripts/wsl_quality_gate/run_isolated_p3.sh \u0027/home/oue/strategy_test\u0027 \u0027RUN-P3-POC-001\u0027 \u0027273f8624ba9546bd8ac7cb57e34683e6\u0027"
+                                  ],
+                      "powershell_location":  "C:\\project\\strategy_test",
+                      "exit_code":  2,
+                      "output":  "{\"state\": \"INVALID_MANIFEST\", \"reason\": \"target_paths 縺ｾ縺溘・ excluded_paths 縺・trusted scope 縺ｨ荳閾ｴ縺励∪縺帙ｓ\"}",
+                      "recorded_at":  "2026-08-10T04:18:48.9725760Z"
+                  },
+                  {
+                      "kind":  "capture",
+                      "command":  [
+                                      "wsl.exe",
+                                      "-d",
+                                      "Ubuntu-24.04",
+                                      "--",
+                                      "bash",
+                                      "-lc",
+                                      "cd / \u0026\u0026 base64 -w0 \u0027/home/oue/strategy_test/tests/evidence/phase3/RUN-P3-POC-001/verification.json\u0027"
+                                  ],
+                      "powershell_location":  "C:\\project\\strategy_test",
+                      "exit_code":  0,
+                      "output":  "ewogICJhY2NlcHRhbmNlIjogewogICAgIlAzLUFDLTAxIjogewogICAgICAiZGVyaXZlZF9iYXJfc2hhMjU2X2J5X3RpbWVmcmFtZSI6IHsKICAgICAgICAiTTEiOiAic2hhMjU2OjA2OGYxYzdjNzhkNjllODE3NDJkOWI4ZmZlMDNlMmIxYTc4MWZhYjg1ZWZjYjEyODkzMjkyZWQyM2MwNmVhMDgiLAogICAgICAgICJNMTUiOiAic2hhMjU2OmVhNWMzYTI5ODMxOTViMGE4NGIwYmExOWY1ZTM0YmFmMDFlZjU1NGYyNjNiOTYyZjMyMjM4ZjE2ZWU4NGYxZDciLAogICAgICAgICJNMzAiOiAic2hhMjU2OmE5ZjZkZTYyMDM1MmRiYTVkMmVlYjg1Yzg3MGZhZjk4ZTM2M2JhODBhNzUxNDMwOTZiYjc2MDY1Y2NjZmU5YzciCiAgICAgIH0sCiAgICAgICJleHBlY3RlZCI6IHsKICAgICAgICAiTTEiOiAic2hhMjU2OjA2OGYxYzdjNzhkNjllODE3NDJkOWI4ZmZlMDNlMmIxYTc4MWZhYjg1ZWZjYjEyODkzMjkyZWQyM2MwNmVhMDgiLAogICAgICAgICJNMTUiOiAic2hhMjU2OmVhNWMzYTI5ODMxOTViMGE4NGIwYmExOWY1ZTM0YmFmMDFlZjU1NGYyNjNiOTYyZjMyMjM4ZjE2ZWU4NGYxZDciLAogICAgICAgICJNMzAiOiAic2hhMjU2OmE5ZjZkZTYyMDM1MmRiYTVkMmVlYjg1Yzg3MGZhZjk4ZTM2M2JhODBhNzUxNDMwOTZiYjc2MDY1Y2NjZmU5YzciCiAgICAgIH0sCiAgICAgICJmaXh0dXJlX3Njb3BlX25vdGUiOiAiSDEvSDQvRDEgcmVxdWlyZSBhIGxvbmdlciBmaXhlZCBmaXh0dXJlOyB0aGlzIDMwLW1pbnV0ZSBmaXh0dXJlIGNvdmVycyBNMS9NMTUvTTMwLiIsCiAgICAgICJzdGF0dXMiOiAiUEFTUyIKICAgIH0sCiAgICAiUDMtQUMtMDIiOiB7CiAgICAgICJzaWduYWxfc2hhMjU2IjogInNoYTI1Njo1YjhkMGRkZDZjOWMyNzgwZDMwNmEwM2NiNjk2YmM3MjQyY2ZjODA1ZTdlMjAwZTIxNmJhYjJmMmI4YjA2MDMyIiwKICAgICAgInN0YXR1cyI6ICJQQVNTIgogICAgfSwKICAgICJQMy1BQy0wMyI6IHsKICAgICAgImNhbGVuZGFyX3ZlcnNpb24iOiAidXMtZnV0dXJlcy1maXh0dXJlLXYxIiwKICAgICAgInNhbWVfY2xvc2VfZGVjaXNpb25fY291bnQiOiAxMCwKICAgICAgInN0YXR1cyI6ICJQQVNTIgogICAgfSwKICAgICJQMy1BQy0wNCI6IHsKICAgICAgInNlcXVlbmNlX3NoYTI1NiI6ICJzaGEyNTY6YmVkNjVlNTIzNDFlNzFlY2I5N2I5MGExZjU5NzgxOTUxZmIyMzI1Mzg1MzE3MTE3OGU3MTM0MGRkZjBlNTQ4MSIsCiAgICAgICJzdGF0dXMiOiAiUEFTUyIKICAgIH0sCiAgICAiUDMtQUMtMDUiOiB7CiAgICAgICJhZGFwdGVyX2FydGlmYWN0X3NoYTI1NiI6ICJzaGEyNTY6NTNjNzg1ODBmMzAxZWZmZDc2N2I1Mjg1MjMwMDNlMzNmYjZkOTAxY2Y4NzNmYzU1NTY1YTA4YTU3ZjUzNWQ2MSIsCiAgICAgICJzdGF0dXMiOiAiUEFTUyIKICAgIH0sCiAgICAiUDMtQUMtMDYiOiB7CiAgICAgICJhdXRvbWF0aWNfZGF0YV9kb3dubG9hZCI6IGZhbHNlLAogICAgICAiaW5wdXRfcHJvamVjdGlvbl9zaGEyNTYiOiAic2hhMjU2OmFmODE3YWFjNzk2YjFkZjAyMDIxMTgzNDZmYWNiM2U5YjQ5YjNmNTQ0MGM2ZTVmNzg2NjU4NzJhZDZmZWNkZjgiLAogICAgICAibmV0d29ya19tb2RlIjogIm5vbmUiLAogICAgICAic3RhdHVzIjogIlBBU1MiCiAgICB9LAogICAgIlAzLUFDLTA3IjogewogICAgICAiZmlyc3RfcmVzdWx0X3NoYTI1NiI6ICJzaGEyNTY6YWRiOGFmMzgwNDIwNGYwNTczOTViODIxZmJhN2YxZGM1YzFiODIyODYyNDI5ZDM2OGY1ZDMwNGIxMzU2YmM1OSIsCiAgICAgICJyZXN1bHRfaGFzaF9tYXRjaCI6IHRydWUsCiAgICAgICJzZWNvbmRfcmVzdWx0X3NoYTI1NiI6ICJzaGEyNTY6YWRiOGFmMzgwNDIwNGYwNTczOTViODIxZmJhN2YxZGM1YzFiODIyODYyNDI5ZDM2OGY1ZDMwNGIxMzU2YmM1OSIsCiAgICAgICJzdGF0dXMiOiAiUEFTUyIKICAgIH0sCiAgICAiUDMtQUMtMDgiOiB7CiAgICAgICJjb21taXRfbWFya2VyX3NoYTI1NiI6ICJzaGEyNTY6YTc3N2IzYzBlYjkyNDhiNTM2YTYyMTQ5ZDQyZWExYmViNzI0ZTg0N2JhNzFkNTYzOGZiNzQ5NGY2Y2Q4YzFhOSIsCiAgICAgICJzbmFwc2hvdF9zaGEyNTYiOiAic2hhMjU2OjA5MDcyZWViYjNmMzMxY2MyMDQxNDA0OWFhOWViMTMwZTVhYzhlZjI4Zjk5MmUyY2E1Mzk1NTU1MzdkMjIzY2EiLAogICAgICAic3RhdHVzIjogIlBBU1MiCiAgICB9CiAgfSwKICAiYnJva2VyX3BhcGVyX2xpdmVfY2xvdWRfc2VjcmV0X3VzZWQiOiBmYWxzZSwKICAiZW5naW5lIjogIlF1YW50Q29ubmVjdCBMRUFOIiwKICAiZW5naW5lX2ltYWdlIjogInF1YW50Y29ubmVjdC9sZWFuQHNoYTI1NjpiYzAxYjIyYTI3MjYyZmYxZTY5YmRkN2Y0NTEyMzRlNTY1NDYzMjkyMzUwNjI2YWFhMjQ3OWJkYTdhNTQ3NjVkIiwKICAiZW5naW5lX3N0YXJ0ZWQiOiB0cnVlLAogICJldmlkZW5jZSI6IHsKICAgICJtYW5pZmVzdCI6ICJ0ZXN0cy9ldmlkZW5jZS9waGFzZTMvUlVOLVAzLVBPQy0wMDEvcnVuLW1hbmlmZXN0Lmpzb24iLAogICAgInBhcml0eSI6ICJ0ZXN0cy9ldmlkZW5jZS9waGFzZTMvUlVOLVAzLVBPQy0wMDEvcGFyaXR5LXJlc3VsdHMuanNvbiIsCiAgICAicGVyZm9ybWFuY2UiOiAidGVzdHMvZXZpZGVuY2UvcGhhc2UzL1JVTi1QMy1QT0MtMDAxL3BlcmZvcm1hbmNlLmpzb24iCiAgfSwKICAiZmluYWxfc3RhdHVzIjogIlBBU1MiLAogICJuZXR3b3JrX21vZGUiOiAibm9uZSIsCiAgInBlcmZvcm1hbmNlIjogewogICAgImZpcnN0IjogewogICAgICAiY2FsZW5kYXJfeWVhcnMiOiBbCiAgICAgICAgMjAyNCwKICAgICAgICAyMDI1CiAgICAgIF0sCiAgICAgICJjcHUiOiAiQU1ENjQgRmFtaWx5IDIzIE1vZGVsIDExMyBTdGVwcGluZyAwLCBBdXRoZW50aWNBTUQiLAogICAgICAiZGVyaXZlZF9jb3VudHMiOiB7CiAgICAgICAgIjE1bSI6IDM1MDg4MCwKICAgICAgICAiMWQiOiAzNjU1LAogICAgICAgICIxaCI6IDg3NzIwLAogICAgICAgICIxbSI6IDUyNjMyMDAsCiAgICAgICAgIjRoIjogMjE5MzAKICAgICAgfSwKICAgICAgImRlcml2ZWRfdGltZWZyYW1lcyI6IFsKICAgICAgICAiMW0iLAogICAgICAgICIxNW0iLAogICAgICAgICIxaCIsCiAgICAgICAgIjRoIiwKICAgICAgICAiMWQiCiAgICAgIF0sCiAgICAgICJlbGFwc2VkX21zIjogMTEzMDYsCiAgICAgICJldmVudF9jb3VudCI6IDUyNjMyMDAsCiAgICAgICJpbnB1dF9zaGEyNTYiOiAic2hhMjU2OjEwMDBlOTlmOGQzYjc1YTQ2NGU1ZmJkYzc5MTExYTU4ZjNlZDkyNmU4NGI3OTVjMmRmMjhlNTNjOWIxYWE3MzEiLAogICAgICAibWFya2V0cyI6IFsKICAgICAgICAiTUtULUEiLAogICAgICAgICJNS1QtQiIsCiAgICAgICAgIk1LVC1DIiwKICAgICAgICAiTUtULUQiLAogICAgICAgICJNS1QtRSIKICAgICAgXSwKICAgICAgIm9zIjogIldpbmRvd3MtMTEtMTAuMC4yNjIwMC1TUDAiLAogICAgICAicGVha19yc3NfYnl0ZXMiOiA1MTk4MjMzNiwKICAgICAgInB5dGhvbiI6ICIzLjEyLjEzIiwKICAgICAgInJhbV9ieXRlcyI6IDAsCiAgICAgICJyZXN1bHRfc2hhMjU2IjogInNoYTI1NjphZGI4YWYzODA0MjA0ZjA1NzM5NWI4MjFmYmE3ZjFkYzVjMWI4MjI4NjI0MjlkMzY4ZjVkMzA0YjEzNTZiYzU5IiwKICAgICAgInJzc190b29sIjogIkdldFByb2Nlc3NNZW1vcnlJbmZvIiwKICAgICAgInN0YXR1cyI6ICJQQVNTIiwKICAgICAgInN0cmF0ZWd5X3JlcGxheV9jb3VudCI6IDQ2NDE4NQogICAgfSwKICAgICJsaW1pdHMiOiB7CiAgICAgICJlbGFwc2VkX21pbnV0ZXMiOiAzMCwKICAgICAgInBlYWtfcnNzX2dpYiI6IDgKICAgIH0sCiAgICAicmVwbGF5X2NvdW50IjogMiwKICAgICJyZXN1bHRfaGFzaF9tYXRjaCI6IHRydWUsCiAgICAic2Vjb25kIjogewogICAgICAiY2FsZW5kYXJfeWVhcnMiOiBbCiAgICAgICAgMjAyNCwKICAgICAgICAyMDI1CiAgICAgIF0sCiAgICAgICJjcHUiOiAiQU1ENjQgRmFtaWx5IDIzIE1vZGVsIDExMyBTdGVwcGluZyAwLCBBdXRoZW50aWNBTUQiLAogICAgICAiZGVyaXZlZF9jb3VudHMiOiB7CiAgICAgICAgIjE1bSI6IDM1MDg4MCwKICAgICAgICAiMWQiOiAzNjU1LAogICAgICAgICIxaCI6IDg3NzIwLAogICAgICAgICIxbSI6IDUyNjMyMDAsCiAgICAgICAgIjRoIjogMjE5MzAKICAgICAgfSwKICAgICAgImRlcml2ZWRfdGltZWZyYW1lcyI6IFsKICAgICAgICAiMW0iLAogICAgICAgICIxNW0iLAogICAgICAgICIxaCIsCiAgICAgICAgIjRoIiwKICAgICAgICAiMWQiCiAgICAgIF0sCiAgICAgICJlbGFwc2VkX21zIjogMTEyMDUsCiAgICAgICJldmVudF9jb3VudCI6IDUyNjMyMDAsCiAgICAgICJpbnB1dF9zaGEyNTYiOiAic2hhMjU2OjEwMDBlOTlmOGQzYjc1YTQ2NGU1ZmJkYzc5MTExYTU4ZjNlZDkyNmU4NGI3OTVjMmRmMjhlNTNjOWIxYWE3MzEiLAogICAgICAibWFya2V0cyI6IFsKICAgICAgICAiTUtULUEiLAogICAgICAgICJNS1QtQiIsCiAgICAgICAgIk1LVC1DIiwKICAgICAgICAiTUtULUQiLAogICAgICAgICJNS1QtRSIKICAgICAgXSwKICAgICAgIm9zIjogIldpbmRvd3MtMTEtMTAuMC4yNjIwMC1TUDAiLAogICAgICAicGVha19yc3NfYnl0ZXMiOiA1MTk4MjMzNiwKICAgICAgInB5dGhvbiI6ICIzLjEyLjEzIiwKICAgICAgInJhbV9ieXRlcyI6IDAsCiAgICAgICJyZXN1bHRfc2hhMjU2IjogInNoYTI1NjphZGI4YWYzODA0MjA0ZjA1NzM5NWI4MjFmYmE3ZjFkYzVjMWI4MjI4NjI0MjlkMzY4ZjVkMzA0YjEzNTZiYzU5IiwKICAgICAgInJzc190b29sIjogIkdldFByb2Nlc3NNZW1vcnlJbmZvIiwKICAgICAgInN0YXR1cyI6ICJQQVNTIiwKICAgICAgInN0cmF0ZWd5X3JlcGxheV9jb3VudCI6IDQ2NDE4NQogICAgfSwKICAgICJzdGF0dXMiOiAiUEFTUyIKICB9LAogICJwaGFzZV9pZCI6ICJwaGFzZTMiLAogICJyZXBsYXlzIjogWwogICAgewogICAgICAiZWxhcHNlZF9tcyI6IDk5MjQsCiAgICAgICJleGl0X2NvZGUiOiAwLAogICAgICAibGFiZWwiOiAicmVwbGF5LTEiLAogICAgICAib3V0cHV0X3NoYTI1NiI6ICJzaGEyNTY6NWJhY2IxMDQ1MGEwYzlmNjg1ODIwNTgxYTUwMDQ3MTIzZDIwZjQ5OTFmMmY0NjJjM2ZiMWNjZGNlOGRhZjlmOSIKICAgIH0sCiAgICB7CiAgICAgICJlbGFwc2VkX21zIjogOTc3MCwKICAgICAgImV4aXRfY29kZSI6IDAsCiAgICAgICJsYWJlbCI6ICJyZXBsYXktMiIsCiAgICAgICJvdXRwdXRfc2hhMjU2IjogInNoYTI1Njo1YmFjYjEwNDUwYTBjOWY2ODU4MjA1ODFhNTAwNDcxMjNkMjBmNDk5MWYyZjQ2MmMzZmIxY2NkY2U4ZGFmOWY5IgogICAgfQogIF0sCiAgInJ1bl9pZCI6ICJSVU4tUDMtUE9DLTAwMSIsCiAgInNjaGVtYV92ZXJzaW9uIjogInAzLTA5LXZlcmlmaWNhdGlvbi92MSIsCiAgInNvdXJjZV9leGVjdXRpb25fbWFuaWZlc3Rfc2hhMjU2IjogInNoYTI1Njo4ZmYzMzUxNmNiODQzYTJiMjA1MzQ2YTZjYjliYmU5MzNhNWFhMzBmN2MwYmFkMGVkZDIxNTM4YTUzMTQ0NmE4IiwKICAic3RhdGUiOiAiUEFTUyIsCiAgInN0ZXBfaWQiOiAiUDMtMDkiLAogICJleGl0X2NvZGUiOiAyLAogICJzY29wZSI6ICJ0YXJnZXRfb25seSIsCiAgImlucHV0X3NoYTI1NiI6ICJzaGEyNTY6YWRhNDgxMGUyZDM0YjQzMjY5ODE4OWJkMjUyYWNjNDhjZDA3YTY2ZDRmMWFiZGJlMDZhMWEwZDU3ZGNhYzgzZCIsCiAgInBvc3RfaW5wdXRfc2hhMjU2IjogInNoYTI1NjphZGE0ODEwZTJkMzRiNDMyNjk4MTg5YmQyNTJhY2M0OGNkMDdhNjZkNGYxYWJkYmUwNmExYTBkNTdkY2FjODNkIiwKICAidGFyZ2V0X29ubHlfY2hhbmdlX3NoYTI1NiI6ICJzaGEyNTY6ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsCiAgImhvc3Rfd3JhcHBlcl9leGVjdXRpb25faWQiOiAiMjczZjg2MjRiYTk1NDZiZDhhYzdjYjU3ZTM0NjgzZTYiLAogICJyZXN0b3JlX3BlbmRpbmciOiB0cnVlLAogICJleGVjdXRpb25fdXNlciI6ICJvdWUiLAogICJleGVjdXRpb25fdWlkIjogMTAwMAp9Cg==",
+                      "recorded_at":  "2026-08-10T04:18:49.0800996Z"
+                  },
+                  {
+                      "kind":  "capture",
+                      "command":  [
+                                      "wsl.exe",
+                                      "-d",
+                                      "Ubuntu-24.04",
+                                      "--",
+                                      "bash",
+                                      "-lc",
+                                      "cd / \u0026\u0026 cat \u0027/home/oue/strategy_test/tests/evidence/phase3/RUN-P3-POC-001/host-isolation.json\u0027"
+                                  ],
+                      "powershell_location":  "C:\\project\\strategy_test",
+                      "exit_code":  0,
+                      "output":  "{\n  \"state\": \"CONFIRMED\", \"wsl_version\": \"WSL ・・繝ｻ・ｸ0繝ｻ繝ｻ: 2.6.3.0\", \"kernel\": \"6.6.87.2-microsoft-standard-WSL2\", \"distro\": \"Ubuntu-24.04\", \"networking_mode\": \"none\",\n  \"host_wrapper_execution_id\": \"273f8624ba9546bd8ac7cb57e34683e6\",\n  \"ip_addr_summary\": \"1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\\n    inet 127.0.0.1/8 scope host lo\\n       valid_lft forever preferred_lft forever\\n    inet6 ::1/128 scope host \\n       valid_lft forever preferred_lft forever\",\n  \"ip_route_summary\": \"\",\n  \"confirmed_at\": \"2026-08-10T04:18:48Z\", \"scope\": [\"src/autotrade\", \"scripts/quality_gate\", \"tests/engine_poc\", \"tests/strategy\", \"tests/backtest\", \"tests/fixtures/phase3\", \"tests/evidence/phase3/RUN-P3-POC-001\"], \"input_sha256\": \"sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d\", \"input_kind\": \"fixture\"\n}",
+                      "recorded_at":  "2026-08-10T04:18:49.1930768Z"
+                  }
+              ],
+    "execution_id":  "273f8624ba9546bd8ac7cb57e34683e6",
+    "error":  "System.Management.Automation.RuntimeException: WSL runner returned non-zero; inspect verification.json",
+    "state":  "FAILED"
+}

@@ -42,7 +42,6 @@
   "target_paths": [
     "src/autotrade",
     "scripts/quality_gate",
-    "scripts/wsl_quality_gate",
     "tests/engine_poc",
     "tests/strategy",
     "tests/backtest",

@@ -1,0 +1,5 @@
+﻿{
+    "execution_id":  "73b0c127aed94c0194815fd2c7925bf3",
+    "reason":  "Stop all WSL distributions other than the target before running this wrapper.",
+    "state":  "BLOCKED"
+}
