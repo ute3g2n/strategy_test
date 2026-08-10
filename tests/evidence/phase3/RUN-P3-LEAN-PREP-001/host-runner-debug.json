@@ -9,7 +9,7 @@
                       "powershell_location":  "C:\\project\\strategy_test",
                       "exit_code":  0,
                       "output":  "W\u0000S\u0000L\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00002\u0000.\u00006\u0000.\u00003\u0000.\u00000\u0000\n\u0000\n\u0000ｫ0・ﾍ0・ \u0000ﾐ0・ｸ0・・:\u0000 \u00006\u0000.\u00006\u0000.\u00008\u00007\u0000.\u00002\u0000-\u00001\u0000\n\u0000\n\u0000W\u0000S\u0000L\u0000g\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00000\u0000.\u00007\u00001\u0000\n\u0000\n\u0000M\u0000S\u0000R\u0000D\u0000C\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00002\u0000.\u00006\u00003\u00005\u00003\u0000\n\u0000\n\u0000D\u0000i\u0000r\u0000e\u0000c\u0000t\u00003\u0000D\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00006\u00001\u00001\u0000.\u00001\u0000-\u00008\u00001\u00005\u00002\u00008\u00005\u00001\u00001\u0000\n\u0000\n\u0000D\u0000X\u0000C\u0000o\u0000r\u0000e\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u00000\u0000.\u00000\u0000.\u00002\u00006\u00001\u00000\u00000\u0000.\u00001\u0000-\u00002\u00004\u00000\u00003\u00003\u00001\u0000-\u00001\u00004\u00003\u00005\u0000.\u0000g\u0000e\u0000-\u0000r\u0000e\u0000l\u0000e\u0000a\u0000s\u0000e\u0000\n\u0000\n\u0000W\u0000i\u0000n\u0000d\u0000o\u0000w\u0000s\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u00000\u0000.\u00000\u0000.\u00002\u00006\u00002\u00000\u00000\u0000.\u00008\u00009\u00007\u00003\u0000\n\u0000\n\u0000",
-                      "recorded_at":  "2026-08-10T01:22:00.1043380Z"
+                      "recorded_at":  "2026-08-10T01:23:53.9338850Z"
                   },
                   {
                       "kind":  "strict",
@@ -21,7 +21,7 @@
                       "powershell_location":  "C:\\project\\strategy_test",
                       "exit_code":  0,
                       "output":  " \u0000 \u0000N\u0000A\u0000M\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000S\u0000T\u0000A\u0000T\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000V\u0000E\u0000R\u0000S\u0000I\u0000O\u0000N\u0000\n\u0000\n\u0000*\u0000 \u0000U\u0000b\u0000u\u0000n\u0000t\u0000u\u0000-\u00002\u00004\u0000.\u00000\u00004\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\n\u0000\n\u0000 \u0000 \u0000d\u0000o\u0000c\u0000k\u0000e\u0000r\u0000-\u0000d\u0000e\u0000s\u0000k\u0000t\u0000o\u0000p\u0000 \u0000 \u0000 \u0000 \u0000S\u0000t\u0000o\u0000p\u0000p\u0000e\u0000d\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\n\u0000\n\u0000",
-                      "recorded_at":  "2026-08-10T01:22:00.1627710Z"
+                      "recorded_at":  "2026-08-10T01:23:53.9894097Z"
                   },
                   {
                       "kind":  "capture",
@@ -30,12 +30,12 @@
                                       "--",
                                       "bash",
                                       "-lc",
-                                      "cd / \u0026\u0026 cd \u0027/home/oue/strategy_test\u0027 \u0026\u0026 exec bash scripts/wsl_quality_gate/run_isolated_p3.sh \u0027/home/oue/strategy_test\u0027 \u0027RUN-P3-LEAN-PREP-001\u0027 \u0027bf0e73406ab34f7c93e0ccf89f9fb33d\u0027"
+                                      "cd / \u0026\u0026 cd \u0027/home/oue/strategy_test\u0027 \u0026\u0026 exec bash scripts/wsl_quality_gate/run_isolated_p3.sh \u0027/home/oue/strategy_test\u0027 \u0027RUN-P3-LEAN-PREP-001\u0027 \u0027ab7c8ddef85e46caaae2bb7378f97e6e\u0027"
                                   ],
                       "powershell_location":  "C:\\project\\strategy_test",
                       "exit_code":  1,
-                      "output":  "{\"state\": \"BLOCKED\", \"reason\": \"Unknown 縺梧悴隗｣豎ｺ縺ｧ縺・, \"gates\": [], \"generated_at\": \"2026-08-10T01:22:07.749955+00:00\"}",
-                      "recorded_at":  "2026-08-10T01:22:07.9970374Z"
+                      "output":  "{\"state\": \"HUMAN_GATE_REQUIRED\", \"reason\": \"Human Gate 縺ｯ縺薙・譖ｸ霎ｼ縺ｿ蜿ｯ閭ｽ worktree 螟悶・謇ｿ隱阪メ繝｣繝阪Ν縺ｧ螳滓命縺励∪縺・, \"gates\": [{\"gate\": \"formatter\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"ruff\", \"format\", \"--check\", \"scripts/quality_gate/local_p3_lean_prep.py\", \"tests/engine_prep\"], \"exit_code\": 0, \"duration_ms\": 314}, {\"gate\": \"lint\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"ruff\", \"check\", \"scripts/quality_gate/local_p3_lean_prep.py\", \"tests/engine_prep\"], \"exit_code\": 0, \"duration_ms\": 214}, {\"gate\": \"type\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"mypy\", \"scripts/quality_gate/local_p3_lean_prep.py\", \"tests/engine_prep\"], \"exit_code\": 0, \"duration_ms\": 3925}, {\"gate\": \"test\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"scripts.quality_gate.local_p3_lean_prep\"], \"exit_code\": 0, \"duration_ms\": 1117}], \"generated_at\": \"2026-08-10T01:24:06.770160+00:00\"}",
+                      "recorded_at":  "2026-08-10T01:24:07.0181150Z"
                   },
                   {
                       "kind":  "capture",
@@ -50,8 +50,8 @@
                                   ],
                       "powershell_location":  "C:\\project\\strategy_test",
                       "exit_code":  0,
-                      "output":  "ewogICJzdGF0ZSI6ICJCTE9DS0VEIiwKICAicmVhc29uIjogIlVua25vd24g44GM5pyq6Kej5rG644Gn44GZIiwKICAiZ2F0ZXMiOiBbXSwKICAiZ2VuZXJhdGVkX2F0IjogIjIwMjYtMDgtMTBUMDE6MjI6MDcuNzQ5Nzc2KzAwOjAwIiwKICAiZXhpdF9jb2RlIjogMSwKICAic2NvcGUiOiAidGFyZ2V0X29ubHkiLAogICJpbnB1dF9zaGEyNTYiOiAic2hhMjU2OmFkYTQ4MTBlMmQzNGI0MzI2OTgxODliZDI1MmFjYzQ4Y2QwN2E2NmQ0ZjFhYmRiZTA2YTFhMGQ1N2RjYWM4M2QiLAogICJwb3N0X2lucHV0X3NoYTI1NiI6ICJzaGEyNTY6YWRhNDgxMGUyZDM0YjQzMjY5ODE4OWJkMjUyYWNjNDhjZDA3YTY2ZDRmMWFiZGJlMDZhMWEwZDU3ZGNhYzgzZCIsCiAgInRhcmdldF9vbmx5X2NoYW5nZV9zaGEyNTYiOiAic2hhMjU2OmUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLAogICJob3N0X3dyYXBwZXJfZXhlY3V0aW9uX2lkIjogImJmMGU3MzQwNmFiMzRmN2M5M2UwY2NmODlmOWZiMzNkIiwKICAicmVzdG9yZV9wZW5kaW5nIjogdHJ1ZSwKICAiZXhlY3V0aW9uX3VzZXIiOiAib3VlIiwKICAiZXhlY3V0aW9uX3VpZCI6IDEwMDAKfQo=",
-                      "recorded_at":  "2026-08-10T01:22:08.1134367Z"
+                      "output":  "ewogICJzdGF0ZSI6ICJIVU1BTl9HQVRFX1JFUVVJUkVEIiwKICAicmVhc29uIjogIkh1bWFuIEdhdGUg44Gv44GT44Gu5pu46L6844G/5Y+v6IO9IHdvcmt0cmVlIOWkluOBruaJv+iqjeODgeODo+ODjeODq+OBp+Wun+aWveOBl+OBvuOBmSIsCiAgImdhdGVzIjogWwogICAgewogICAgICAiZ2F0ZSI6ICJmb3JtYXR0ZXIiLAogICAgICAic3RhdHVzIjogIlBBU1MiLAogICAgICAiY29tbWFuZCI6IFsKICAgICAgICAiLnZlbnYvYmluL3B5dGhvbiIsCiAgICAgICAgIi1tIiwKICAgICAgICAicnVmZiIsCiAgICAgICAgImZvcm1hdCIsCiAgICAgICAgIi0tY2hlY2siLAogICAgICAgICJzY3JpcHRzL3F1YWxpdHlfZ2F0ZS9sb2NhbF9wM19sZWFuX3ByZXAucHkiLAogICAgICAgICJ0ZXN0cy9lbmdpbmVfcHJlcCIKICAgICAgXSwKICAgICAgImV4aXRfY29kZSI6IDAsCiAgICAgICJkdXJhdGlvbl9tcyI6IDMxNAogICAgfSwKICAgIHsKICAgICAgImdhdGUiOiAibGludCIsCiAgICAgICJzdGF0dXMiOiAiUEFTUyIsCiAgICAgICJjb21tYW5kIjogWwogICAgICAgICIudmVudi9iaW4vcHl0aG9uIiwKICAgICAgICAiLW0iLAogICAgICAgICJydWZmIiwKICAgICAgICAiY2hlY2siLAogICAgICAgICJzY3JpcHRzL3F1YWxpdHlfZ2F0ZS9sb2NhbF9wM19sZWFuX3ByZXAucHkiLAogICAgICAgICJ0ZXN0cy9lbmdpbmVfcHJlcCIKICAgICAgXSwKICAgICAgImV4aXRfY29kZSI6IDAsCiAgICAgICJkdXJhdGlvbl9tcyI6IDIxNAogICAgfSwKICAgIHsKICAgICAgImdhdGUiOiAidHlwZSIsCiAgICAgICJzdGF0dXMiOiAiUEFTUyIsCiAgICAgICJjb21tYW5kIjogWwogICAgICAgICIudmVudi9iaW4vcHl0aG9uIiwKICAgICAgICAiLW0iLAogICAgICAgICJteXB5IiwKICAgICAgICAic2NyaXB0cy9xdWFsaXR5X2dhdGUvbG9jYWxfcDNfbGVhbl9wcmVwLnB5IiwKICAgICAgICAidGVzdHMvZW5naW5lX3ByZXAiCiAgICAgIF0sCiAgICAgICJleGl0X2NvZGUiOiAwLAogICAgICAiZHVyYXRpb25fbXMiOiAzOTI1CiAgICB9LAogICAgewogICAgICAiZ2F0ZSI6ICJ0ZXN0IiwKICAgICAgInN0YXR1cyI6ICJQQVNTIiwKICAgICAgImNvbW1hbmQiOiBbCiAgICAgICAgIi52ZW52L2Jpbi9weXRob24iLAogICAgICAgICItbSIsCiAgICAgICAgInNjcmlwdHMucXVhbGl0eV9nYXRlLmxvY2FsX3AzX2xlYW5fcHJlcCIKICAgICAgXSwKICAgICAgImV4aXRfY29kZSI6IDAsCiAgICAgICJkdXJhdGlvbl9tcyI6IDExMTcKICAgIH0KICBdLAogICJnZW5lcmF0ZWRfYXQiOiAiMjAyNi0wOC0xMFQwMToyNDowNi43Njk4NDErMDA6MDAiLAogICJleGl0X2NvZGUiOiAxLAogICJzY29wZSI6ICJ0YXJnZXRfb25seSIsCiAgImlucHV0X3NoYTI1NiI6ICJzaGEyNTY6YWRhNDgxMGUyZDM0YjQzMjY5ODE4OWJkMjUyYWNjNDhjZDA3YTY2ZDRmMWFiZGJlMDZhMWEwZDU3ZGNhYzgzZCIsCiAgInBvc3RfaW5wdXRfc2hhMjU2IjogInNoYTI1NjphZGE0ODEwZTJkMzRiNDMyNjk4MTg5YmQyNTJhY2M0OGNkMDdhNjZkNGYxYWJkYmUwNmExYTBkNTdkY2FjODNkIiwKICAidGFyZ2V0X29ubHlfY2hhbmdlX3NoYTI1NiI6ICJzaGEyNTY6ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsCiAgImhvc3Rfd3JhcHBlcl9leGVjdXRpb25faWQiOiAiYWI3YzhkZGVmODVlNDZjYWFhZTJiYjczNzhmOTdlNmUiLAogICJyZXN0b3JlX3BlbmRpbmciOiB0cnVlLAogICJleGVjdXRpb25fdXNlciI6ICJvdWUiLAogICJleGVjdXRpb25fdWlkIjogMTAwMAp9Cg==",
+                      "recorded_at":  "2026-08-10T01:24:07.1351827Z"
                   },
                   {
                       "kind":  "capture",
@@ -66,11 +66,11 @@
                                   ],
                       "powershell_location":  "C:\\project\\strategy_test",
                       "exit_code":  0,
-                      "output":  "{\n  \"state\": \"CONFIRMED\", \"wsl_version\": \"WSL ・・繝ｻ・ｸ0繝ｻ繝ｻ: 2.6.3.0\", \"kernel\": \"6.6.87.2-microsoft-standard-WSL2\", \"distro\": \"Ubuntu-24.04\", \"networking_mode\": \"none\",\n  \"host_wrapper_execution_id\": \"bf0e73406ab34f7c93e0ccf89f9fb33d\",\n  \"ip_addr_summary\": \"1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\\n    inet 127.0.0.1/8 scope host lo\\n       valid_lft forever preferred_lft forever\\n    inet6 ::1/128 scope host \\n       valid_lft forever preferred_lft forever\",\n  \"ip_route_summary\": \"\",\n  \"confirmed_at\": \"2026-08-10T01:22:07Z\", \"scope\": [\"scripts/quality_gate/local_p3_lean_prep.py\", \"tests/engine_prep\", \"tests/strategy\", \"tests/backtest\"], \"input_sha256\": \"sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d\", \"input_kind\": \"fixture\"\n}",
-                      "recorded_at":  "2026-08-10T01:22:08.2415967Z"
+                      "output":  "{\n  \"state\": \"CONFIRMED\", \"wsl_version\": \"WSL ・・繝ｻ・ｸ0繝ｻ繝ｻ: 2.6.3.0\", \"kernel\": \"6.6.87.2-microsoft-standard-WSL2\", \"distro\": \"Ubuntu-24.04\", \"networking_mode\": \"none\",\n  \"host_wrapper_execution_id\": \"ab7c8ddef85e46caaae2bb7378f97e6e\",\n  \"ip_addr_summary\": \"1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\\n    inet 127.0.0.1/8 scope host lo\\n       valid_lft forever preferred_lft forever\\n    inet6 ::1/128 scope host \\n       valid_lft forever preferred_lft forever\",\n  \"ip_route_summary\": \"\",\n  \"confirmed_at\": \"2026-08-10T01:24:00Z\", \"scope\": [\"scripts/quality_gate/local_p3_lean_prep.py\", \"tests/engine_prep\", \"tests/strategy\", \"tests/backtest\"], \"input_sha256\": \"sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d\", \"input_kind\": \"fixture\"\n}",
+                      "recorded_at":  "2026-08-10T01:24:07.2661062Z"
                   }
               ],
-    "execution_id":  "bf0e73406ab34f7c93e0ccf89f9fb33d",
+    "execution_id":  "ab7c8ddef85e46caaae2bb7378f97e6e",
     "error":  "System.Management.Automation.RuntimeException: WSL runner returned non-zero; inspect verification.json",
     "state":  "FAILED"
 }
