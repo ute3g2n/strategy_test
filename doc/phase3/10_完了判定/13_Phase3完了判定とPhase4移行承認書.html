@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P3-D14 Phase 3完了判定とPhase 4移行承認書</title>
+  <style>
+    :root{--ink:#20242a;--navy:#173b59;--line:#cbd5e1;--paper:#fff;--blue:#eef7ff;--yellow:#fff8df;--green:#166534;--orange:#92400e}
+    body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.7;max-width:1280px;margin:0 auto;padding:2rem;color:var(--ink);background:#f8fafc}
+    main{background:var(--paper);padding:2rem;border:1px solid #d9e2ec}h1,h2{color:var(--navy)}h1{border-bottom:3px solid var(--navy);padding-bottom:.5rem}
+    table{border-collapse:collapse;width:100%;margin:1rem 0 2rem}th,td{border:1px solid var(--line);padding:.6rem;vertical-align:top}th{background:#eef4f8;text-align:left}
+    code{background:#f5f7f9;padding:.1rem .25rem;word-break:break-all}.ok{color:var(--green);font-weight:700}.wait{color:var(--orange);font-weight:700}
+    .note{background:var(--blue);border-left:5px solid #2563eb;padding:1rem;margin:1rem 0}.hold{background:var(--yellow);border-left:5px solid #d49b00;padding:1rem;margin:1rem 0}
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">Phase 3成果物一覧</a> / <a href="12_Phase3レビュー反映履歴.html">P3-D13</a> / <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
+  <h1>P3-D14 Phase 3完了判定とPhase 4移行承認書</h1>
+  <p><strong>成果物ID:</strong> P3-D14<br>
+     <strong>Phase / Step:</strong> Phase 3 / P3-12<br>
+     <strong>判定日:</strong> 2026-08-10<br>
+     <strong>判定:</strong> <span class="wait">NOT_COMPLETE_UNKNOWN</span><br>
+     <strong>H3-4:</strong> <span class="wait">未承認</span></p>
+
+  <div class="hold"><strong>結論:</strong> P3-12の固定契約GateはPASSした。しかし、UNK-P3-01（長期データ・市場数）、UNK-P3-05（実測cost/slippage）、UNK-P3-07（正式取引所Calendar）が残り、H3-4の人間承認もないため、Phase 3完了およびPhase 4移行は承認しない。</div>
+  <div class="note"><strong>やさしい説明:</strong> 固定された問題集を使った採点は全部合格した。ただし、長い期間・本物の費用・本物の取引所の時間割はまだ調べていないので、「Phase 3が全部終わった」「次の本番準備へ進んでよい」とはまだ決めない。</div>
+
+  <h2>1. 最終受入条件</h2>
+  <p>下表のPASSは、固定fixture・固定Manifest・固定契約・オフライン隔離の範囲に限る。利益、実市場での優位性、Broker接続、Paper、Liveの合否を意味しない。</p>
+  <table>
+    <thead><tr><th>受入条件</th><th>最終状態</th><th>根拠</th><th>残る境界</th></tr></thead>
+    <tbody>
+      <tr><td><code>P3-AC-01</code></td><td class="ok">PASS（固定契約範囲）</td><td>全対象時間足契約、M30 provenance、P3-09 replay evidence。</td><td>H1/H4/D1の長時間engine parity、長期実データはUNK-P3-01。</td></tr>
+      <tr><td><code>P3-AC-02</code></td><td class="ok">PASS（固定契約範囲）</td><td>closed-bar、未来roll、holdout、wall-clock、look-ahead拒否。</td><td>実市場での長期運用結果は未判定。</td></tr>
+      <tr><td><code>P3-AC-03</code></td><td class="ok">PASS（固定Calendar範囲）</td><td>normal、DST開始、DST終了、holiday、short_day、daily_haltの6ケースをproduction CalendarPortで検証。</td><td>正式取引所Calendarの継続追随はUNK-P3-07。</td></tr>
+      <tr><td><code>P3-AC-04</code></td><td class="ok">PASS（固定契約範囲）</td><td>Manifest、replay hash、snapshot/restore、source bundle整合を検証。</td><td>長期実データの完全な再現性はUNK-P3-01。</td></tr>
+      <tr><td><code>P3-AC-05</code></td><td class="ok">PASS（境界契約範囲）</td><td>Core公開型とengine/adapter境界、Broker/Live型の漏出拒否。</td><td>Broker接続とPaper運用はPhase 4以降の別Gate。</td></tr>
+      <tr><td><code>P3-AC-06</code></td><td class="ok">PASS（オフライン範囲）</td><td>networking mode none、固定入力、automatic download false、host isolation。</td><td>外部接続・Secret・Cloud利用は未承認。</td></tr>
+      <tr><td><code>P3-AC-07</code></td><td class="ok">PASS（5市場synthetic範囲）</td><td>5市場×2024/2025の固定synthetic性能と再実行hash。</td><td>20〜40市場の連続負荷運用はPhase 4候補、UNK-P3-01。</td></tr>
+      <tr><td><code>P3-AC-08</code></td><td class="ok">PASS（固定契約範囲）</td><td>Golden、snapshot/restore、look-ahead、sticky stop、Manifest tamper。</td><td>本番採用・利益判断は含まない。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. 残存Unknownと完了を妨げる理由</h2>
+  <table>
+    <thead><tr><th>Unknown</th><th>未確定事項</th><th>影響</th><th>再開条件</th></tr></thead>
+    <tbody>
+      <tr><td><code>UNK-P3-01</code></td><td>長期データ、市場数、長期holdout。</td><td>固定synthetic PASSを長期利益・頑健性へ一般化できない。</td><td>期間・市場・Catalog・データ品質・split・hashを固定した別実測Run。</td></tr>
+      <tr><td><code>UNK-P3-05</code></td><td>市場別実測cost/slippage、Gap約定。</td><td>固定保守値の結果を実運用costの結果と呼べない。</td><td>正式な市場別値、Gapルール、感度分析、承認済みfixture。</td></tr>
+      <tr><td><code>UNK-P3-07</code></td><td>正式取引所Calendarの継続追随。</td><td>固定6ケースは合格だが、実取引所の休日・短縮日・halt更新を保証しない。</td><td>公式Calendar版、更新監視、欠損時停止、再現fixtureの別Gate。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. H3-4で承認を求める事項</h2>
+  <p>本書はH3-4を承認済みとは扱わない。次の3点を人間が明示的に決めるまで、Phase 4へ移行しない。</p>
+  <ol>
+    <li>P3-AC-01〜08のPASSを、固定契約・オフライン・非利益採用の範囲で正式成果物として利用してよいか。</li>
+    <li>UNK-P3-01、UNK-P3-05、UNK-P3-07をPhase 4へ送るか、Phase 3内で解消するか。送る場合の期限と再開条件。</li>
+    <li>Phase 4でPaper/Broker境界を設計・検証する範囲。Secret投入、実注文、Live開始は別のHuman Gateとするか。</li>
+  </ol>
+
+  <h2>4. Phase 4への候補引渡し（H3-4承認前）</h2>
+  <table>
+    <thead><tr><th>候補入力</th><th>利用可能な範囲</th><th>利用不可・保留</th></tr></thead>
+    <tbody>
+      <tr><td>Strategy / Backtest固定契約</td><td>設計・テスト・Paper用の境界検討に参照可能。</td><td>実利益、実注文数量、Live適合性の証明には使わない。</td></tr>
+      <tr><td>OrderIntent / Manifest / hash / snapshot</td><td>Phase 4の安全境界設計の入力候補。</td><td>Broker送信、Secret、Cloud、実注文の許可ではない。</td></tr>
+      <tr><td>残存Unknown台帳</td><td>Phase 4実行計画の再開条件として引き渡す。</td><td>UnknownをPASSや完了へ自動昇格しない。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. 最終証跡</h2>
+  <ul>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json">RUN-P3-INT-001 P3-12集約summary</a>：final_status PASS、quality_gate_status PASS、phase3_completion_status NOT_COMPLETE_UNKNOWN。</li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/verification.json">最終verification</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json">最終WSL capture</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/restore.json">restore</a>。</li>
+    <li><a href="12_Phase3レビュー反映履歴.html">P3-D13レビュー反映履歴</a> / <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a> / <a href="../../../plan/phase3/ログ/P3-12_実行ログ_2026-08-10.md">P3-12実行ログ</a>。</li>
+  </ul>
+  <div class="hold"><strong>最終宣言:</strong> P3-12は実行済みで、固定契約GateはPASS。Phase 3全体の判定は <code>NOT_COMPLETE_UNKNOWN</code>。H3-4承認前のPhase 4移行、Broker、Paper、Live、Secret、利益採用は行わない。</div>
+</main>
+</body>
+</html>

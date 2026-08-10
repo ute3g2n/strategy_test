@@ -1,10 +1,10 @@
 ﻿{
-    "execution_id":  "6c38c704dc534b7c98f395d1105d82b7",
+    "execution_id":  "bd5fa1d6889c430fbf1a094a38132457",
     "source_repository_path":  "/home/oue/strategy_test",
     "source_kind":  "wsl_verification",
-    "verification_raw":  "{\n  \"state\": \"PASS\",\n  \"reason\": \"ユーザーが明示的に承認しました\",\n  \"gates\": [\n    {\n      \"gate\": \"formatter\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"format\",\n        \"--check\",\n        \"src/autotrade\",\n        \"scripts/quality_gate\",\n        \"tests/quality_gate\",\n        \"tests/strategy\",\n        \"tests/backtest\",\n        \"tests/fixtures/phase3\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 264\n    },\n    {\n      \"gate\": \"lint\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"check\",\n        \"src/autotrade\",\n        \"scripts/quality_gate\",\n        \"tests/quality_gate\",\n        \"tests/strategy\",\n        \"tests/backtest\",\n        \"tests/fixtures/phase3\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 214\n    },\n    {\n      \"gate\": \"type\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"mypy\",\n        \"src/autotrade\",\n        \"scripts/quality_gate\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 5477\n    },\n    {\n      \"gate\": \"test\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"scripts.quality_gate.local_p3_integration\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 1166\n    }\n  ],\n  \"generated_at\": \"2026-08-10T07:06:00.430717+00:00\",\n  \"exit_code\": 0,\n  \"scope\": \"target_only\",\n  \"input_sha256\": \"sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4\",\n  \"post_input_sha256\": \"sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4\",\n  \"target_only_change_sha256\": \"sha256:2c8df36ac55836ce0b4888b52c1a960413b52ce994d90e8d230ee556eb655553\",\n  \"host_wrapper_execution_id\": \"6c38c704dc534b7c98f395d1105d82b7\",\n  \"restore_pending\": true,\n  \"execution_user\": \"oue\",\n  \"execution_uid\": 1000\n}\n",
+    "verification_raw":  "{\n  \"state\": \"PASS\",\n  \"reason\": \"ユーザーが明示的に承認しました\",\n  \"gates\": [\n    {\n      \"gate\": \"formatter\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"format\",\n        \"--check\",\n        \"src/autotrade\",\n        \"scripts/quality_gate\",\n        \"tests/quality_gate\",\n        \"tests/strategy\",\n        \"tests/backtest\",\n        \"tests/fixtures/phase3\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 264\n    },\n    {\n      \"gate\": \"lint\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"check\",\n        \"src/autotrade\",\n        \"scripts/quality_gate\",\n        \"tests/quality_gate\",\n        \"tests/strategy\",\n        \"tests/backtest\",\n        \"tests/fixtures/phase3\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 214\n    },\n    {\n      \"gate\": \"type\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"mypy\",\n        \"src/autotrade\",\n        \"scripts/quality_gate\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 5426\n    },\n    {\n      \"gate\": \"test\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"scripts.quality_gate.local_p3_integration\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 1066\n    }\n  ],\n  \"generated_at\": \"2026-08-10T08:26:38.912382+00:00\",\n  \"exit_code\": 0,\n  \"scope\": \"target_only\",\n  \"input_sha256\": \"sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4\",\n  \"post_input_sha256\": \"sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4\",\n  \"target_only_change_sha256\": \"sha256:51efad9f59afc79bf399729acd8fd64d73f49298e80f3a86bf0ccf4f9633eb1c\",\n  \"host_wrapper_execution_id\": \"bd5fa1d6889c430fbf1a094a38132457\",\n  \"restore_pending\": true,\n  \"execution_user\": \"oue\",\n  \"execution_uid\": 1000,\n  \"head\": \"d50d95975640e1c995f41e4661e83637bd34b564\",\n  \"source_repository_path\": \"/home/oue/strategy_test\",\n  \"tool_versions\": {\n    \"python\": \"Python 3.12.13\",\n    \"ruff\": \"ruff 0.16.1\",\n    \"mypy\": \"mypy 2.3.0 (compiled: yes)\",\n    \"pytest\": \"pytest 9.1.1\"\n  }\n}\n",
     "retrieval_exit_code":  0,
-    "captured_at":  "2026-08-10T07:06:00.8825703Z",
+    "captured_at":  "2026-08-10T08:26:39.9336662Z",
     "state":  "CAPTURED",
     "verification":  {
                          "state":  "PASS",
@@ -58,7 +58,7 @@
                                                            "scripts/quality_gate"
                                                        ],
                                            "exit_code":  0,
-                                           "duration_ms":  5477
+                                           "duration_ms":  5426
                                        },
                                        {
                                            "gate":  "test",
@@ -69,19 +69,27 @@
                                                            "scripts.quality_gate.local_p3_integration"
                                                        ],
                                            "exit_code":  0,
-                                           "duration_ms":  1166
+                                           "duration_ms":  1066
                                        }
                                    ],
-                         "generated_at":  "2026-08-10T07:06:00.430717+00:00",
+                         "generated_at":  "2026-08-10T08:26:38.912382+00:00",
                          "exit_code":  0,
                          "scope":  "target_only",
                          "input_sha256":  "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
                          "post_input_sha256":  "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
-                         "target_only_change_sha256":  "sha256:2c8df36ac55836ce0b4888b52c1a960413b52ce994d90e8d230ee556eb655553",
-                         "host_wrapper_execution_id":  "6c38c704dc534b7c98f395d1105d82b7",
+                         "target_only_change_sha256":  "sha256:51efad9f59afc79bf399729acd8fd64d73f49298e80f3a86bf0ccf4f9633eb1c",
+                         "host_wrapper_execution_id":  "bd5fa1d6889c430fbf1a094a38132457",
                          "restore_pending":  true,
                          "execution_user":  "oue",
-                         "execution_uid":  1000
+                         "execution_uid":  1000,
+                         "head":  "d50d95975640e1c995f41e4661e83637bd34b564",
+                         "source_repository_path":  "/home/oue/strategy_test",
+                         "tool_versions":  {
+                                               "python":  "Python 3.12.13",
+                                               "ruff":  "ruff 0.16.1",
+                                               "mypy":  "mypy 2.3.0 (compiled: yes)",
+                                               "pytest":  "pytest 9.1.1"
+                                           }
                      },
     "source_path":  "/home/oue/strategy_test/tests/evidence/phase3/RUN-P3-INT-001/verification.json",
     "host_isolation":  {
@@ -90,10 +98,10 @@
                            "kernel":  "6.6.87.2-microsoft-standard-WSL2",
                            "distro":  "Ubuntu-24.04",
                            "networking_mode":  "none",
-                           "host_wrapper_execution_id":  "6c38c704dc534b7c98f395d1105d82b7",
+                           "host_wrapper_execution_id":  "bd5fa1d6889c430fbf1a094a38132457",
                            "ip_addr_summary":  "1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\n    inet 127.0.0.1/8 scope host lo\n       valid_lft forever preferred_lft forever\n    inet6 ::1/128 scope host \n       valid_lft forever preferred_lft forever",
                            "ip_route_summary":  "",
-                           "confirmed_at":  "2026-08-10T07:05:53Z",
+                           "confirmed_at":  "2026-08-10T08:26:31Z",
                            "scope":  [
                                          "src/autotrade",
                                          "scripts/quality_gate",

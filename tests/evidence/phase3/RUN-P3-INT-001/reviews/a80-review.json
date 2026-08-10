@@ -1,22 +1,13 @@
 {
   "critical": 0,
   "evidence_path": "tests/evidence/phase3/RUN-P3-INT-001/reviews/p3-12-a80-document-integration.md",
-  "evidence_sha256": null,
-  "findings": [
-    {
-      "detail": "missing substantive review evidence: p3-12-a80-document-integration.md",
-      "severity": "High"
-    },
-    {
-      "detail": "source evidence bundle audit is not PASS",
-      "severity": "High"
-    }
-  ],
+  "evidence_sha256": "sha256:37efc270a1edb35ca81d900841bcb263385295f5dfa2fa9e5699e117b68e317f",
+  "findings": [],
   "focus": "document integration and traceability",
-  "high": 2,
+  "high": 0,
   "reviewer": "AutoTrade_A80_DocumentIntegrator_v0_1",
   "run_id": "RUN-P3-INT-001",
   "scope": "P3-12 final contract review; no profit adoption",
-  "substantive_evidence": false,
-  "verdict": "RETURN"
+  "substantive_evidence": true,
+  "verdict": "APPROVE"
 }

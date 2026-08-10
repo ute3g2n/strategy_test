@@ -10,49 +10,46 @@
           "tests/evidence/phase3/RUN-P3-BIAS-001/host-runner.json",
           "tests/evidence/phase3/RUN-P3-BIAS-001/restore.json"
         ],
-        "errors": [
-          "RUN-P3-BIAS-001: canonical verification exit code is not zero",
-          "RUN-P3-BIAS-001: captured nested verification is not PASS",
-          "RUN-P3-BIAS-001: automation summary is not PASS",
-          "RUN-P3-BIAS-001: automation evidence state is not PASS",
-          "RUN-P3-BIAS-001: host runner did not complete",
-          "RUN-P3-BIAS-001: WSL HEAD is missing",
-          "RUN-P3-BIAS-001: WSL tool versions are missing"
-        ],
-        "execution_id": "8b0f20c5be484021a3bd553052234554",
-        "head": null,
+        "errors": [],
+        "execution_id": "c89cc24545e54f9c85954ca60a30a2b8",
+        "head": "c1ac85402ad692eaa91ceb6ed2a7a54002e740d1",
         "restore_reconciliation": {
           "capture_restore_pending": true,
           "host_restore_state": "RESTORED",
           "status": "PASS"
         },
-        "status": "FAIL",
-        "tool_versions": null
+        "status": "PASS",
+        "tool_versions": {
+          "mypy": "mypy 2.3.0 (compiled: yes)",
+          "pytest": "pytest 9.1.1",
+          "python": "Python 3.12.13",
+          "ruff": "ruff 0.16.1"
+        }
       },
       "observed_status": "PASS",
-      "used_for_final_pass": false,
-      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-BIAS-001/verification.json"
+      "used_for_final_pass": true,
+      "verification_path": "tests/evidence/phase3/RUN-P3-BIAS-001/verification.json"
     },
     "RUN-P3-BT-001": {
       "observed_status": "PASS",
       "used_for_final_pass": true,
-      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-BT-001/verification.json"
+      "verification_path": "tests/evidence/phase3/RUN-P3-BT-001/verification.json"
     },
     "RUN-P3-GOLD-001": {
       "observed_status": "BLOCKED",
       "replacement_evidence": "current_fixed_quality_suite",
       "used_for_final_pass": false,
-      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-GOLD-001/verification.json"
+      "verification_path": "tests/evidence/phase3/RUN-P3-GOLD-001/verification.json"
     },
     "RUN-P3-POC-001": {
       "observed_status": "PASS",
       "used_for_final_pass": true,
-      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-POC-001/verification.json"
+      "verification_path": "tests/evidence/phase3/RUN-P3-POC-001/verification.json"
     },
     "RUN-P3-STR-001": {
       "observed_status": "PASS",
       "used_for_final_pass": true,
-      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-STR-001/verification.json"
+      "verification_path": "tests/evidence/phase3/RUN-P3-STR-001/verification.json"
     }
   },
   "status": "PASS"

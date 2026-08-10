@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P3-D13 Phase 3レビュー反映履歴</title>
+  <style>
+    :root{--ink:#20242a;--navy:#173b59;--line:#cbd5e1;--paper:#fff;--blue:#eef7ff;--yellow:#fff8df;--green:#166534;--red:#991b1b;--orange:#92400e}
+    body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.7;max-width:1280px;margin:0 auto;padding:2rem;color:var(--ink);background:#f8fafc}
+    main{background:var(--paper);padding:2rem;border:1px solid #d9e2ec}h1,h2{color:var(--navy)}h1{border-bottom:3px solid var(--navy);padding-bottom:.5rem}
+    table{border-collapse:collapse;width:100%;margin:1rem 0 2rem}th,td{border:1px solid var(--line);padding:.6rem;vertical-align:top}th{background:#eef4f8;text-align:left}
+    code{background:#f5f7f9;padding:.1rem .25rem;word-break:break-all}.ok{color:var(--green);font-weight:700}.high{color:var(--red);font-weight:700}.medium{color:var(--orange);font-weight:700}
+    .note{background:var(--blue);border-left:5px solid #2563eb;padding:1rem;margin:1rem 0}.hold{background:var(--yellow);border-left:5px solid #d49b00;padding:1rem;margin:1rem 0}
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">Phase 3成果物一覧</a> / <a href="../09_統合レビュー/10_Phase3統合レビュー結果.html">P3-D11</a> / <a href="../09_統合レビュー/11_Phase3レッドチーム監査結果.html">P3-D12</a> / <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
+  <h1>P3-D13 Phase 3レビュー反映履歴</h1>
+  <p><strong>成果物ID:</strong> P3-D13<br>
+     <strong>Phase / Step:</strong> Phase 3 / P3-12<br>
+     <strong>作成日:</strong> 2026-08-10<br>
+     <strong>状態:</strong> <span class="ok">PASS（レビュー反映完了・完了判定はUnknown分離）</span><br>
+     <strong>対象Run:</strong> <code>RUN-P3-BIAS-001</code>、<code>RUN-P3-INT-001</code></p>
+
+  <div class="note"><strong>この文書の意味:</strong> H3-3で承認された4指摘を実装・証跡・再レビューへ反映した履歴である。固定契約の品質GateはPASSしたが、長期データ、実測cost/slippage、正式取引所CalendarのUnknownは残るため、Phase 3完了そのものはD14で別判定する。</div>
+
+  <h2>1. 入力と判定範囲</h2>
+  <ul>
+    <li>P3-D01〜P3-D12、P3-11統合レビュー、P3-11レッドチーム監査、Phase 3実行計画。</li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/human-gate/h3-3-approval.md">H3-3承認記録</a>。P3-IR-001〜004の採用、修正、再検証を明示。</li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/verification.json">BIAS最終verification</a>、<a href="../../../tests/evidence/phase3/RUN-P3-BIAS-001/wsl-verification-capture.json">BIAS WSL capture</a>、<a href="../../../tests/evidence/phase3/RUN-P3-INT-001/verification.json">統合最終verification</a>、<a href="../../../tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json">P3-12集約summary</a>。</li>
+    <li>判定対象は固定fixture・固定契約・再現性・安全境界であり、利益、Broker、Paper、Live、Secretの採用判定ではない。</li>
+  </ul>
+
+  <h2>2. H3-3指摘の採否と修正結果</h2>
+  <table>
+    <thead><tr><th>指摘ID</th><th>重大度</th><th>採否</th><th>実施した修正</th><th>再レビュー・証跡</th></tr></thead>
+    <tbody>
+      <tr><td><code>P3-IR-001</code></td><td class="high">High</td><td class="ok">採用・解消（固定契約範囲）</td><td>Calendar Portにnormal、DST開始、DST終了、holiday、short_day、daily_haltの6ケースを実装し、BacktestRunnerのイベント処理前にCalendar windowを検証する。休日停止、短縮日境界、日次halt境界も明示的に停止・制限する。</td><td><code>tests/backtest/test_calendar_port.py</code>、<code>src/autotrade/backtest/calendar_port.py</code>、<code>src/autotrade/backtest/runner.py</code>、P3-12 Calendar behavioral audit = <span class="ok">PASS</span>。</td></tr>
+      <tr><td><code>P3-IR-002</code></td><td class="high">High</td><td class="ok">採用・解消</td><td>canonical verificationだけでなく、capture、automation summary、host-runner、restore、host isolation、WSL HEAD、tool version、fixture hash、target-only change hash、Execution IDを同一bundleとして監査する。P3-12専用Trusted Scopeのstep IDをP3-12へ整合させ、Manifest hashも現行targetへ更新した。</td><td><code>scripts/quality_gate/p3_integration_runner.py:_audit_source_run_bundle</code>、BIAS最終bundle audit = <span class="ok">PASS</span>、<code>RUN-P3-BIAS-001</code> wrapper exit 0 / restore RESTORED。</td></tr>
+      <tr><td><code>P3-IR-003</code></td><td class="medium">Medium</td><td class="ok">採用・解消（固定契約範囲）</td><td>M30直接集計に明示的な30個の一意source event IDと親Manifest hashを必須化し、source ID hash、source content hash、source provenance hashを分離した。欠落・重複・不正IDはSTOPPEDとする。</td><td><code>src/autotrade/backtest/timeframe_aggregator.py</code>、<code>tests/backtest/test_backtest_m30_red_contract.py</code>、P3-12 M30 provenance audit = <span class="ok">PASS</span>。</td></tr>
+      <tr><td><code>P3-IR-004</code></td><td class="medium">Medium</td><td class="ok">採用・解消</td><td>A130、A150、A160、A90、A91、A80、A81、A30、A40について、ファイル存在だけでは受入にせず、status、verdict、Critical/High件数、4指摘IDを含む実質的なMarkdownレビュー証跡を必須化した。</td><td><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/reviews/">P3-12レビュー証跡</a> 9件すべて <span class="ok">APPROVE / Critical 0 / High 0</span>。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. 再実行結果</h2>
+  <table>
+    <thead><tr><th>確認項目</th><th>結果</th><th>証拠</th></tr></thead>
+    <tbody>
+      <tr><td>Windows品質Suite</td><td class="ok">330 passed</td><td><code>pytest -q tests/backtest tests/strategy tests/quality_gate</code>、ruff check、ruff format --check、mypy。</td></tr>
+      <tr><td>RUN-P3-BIAS-001</td><td class="ok">WSL state PASS / wrapper exit 0</td><td>Execution ID <code>c89cc24545e54f9c85954ca60a30a2b8</code>、HEAD <code>c1ac854</code>、networking mode <code>none</code>、restore <code>RESTORED</code>。</td></tr>
+      <tr><td>RUN-P3-INT-001</td><td class="ok">WSL state PASS / wrapper exit 0</td><td>Execution ID <code>bd5fa1d6889c430fbf1a094a38132457</code>、HEAD <code>d50d959</code>、固定4 Gate全PASS、fixture前後hash一致、restore <code>RESTORED</code>。</td></tr>
+      <tr><td>Calendar behavioral audit</td><td class="ok">PASS（6ケース）</td><td><code>normal / dst_start / dst_end / holiday / short_day / daily_halt</code>をproduction CalendarPortで実行。</td></tr>
+      <tr><td>M30 provenance audit</td><td class="ok">PASS</td><td>source ID hash安定、content/provenance hash変化、source ID欠落STOPを確認。</td></tr>
+      <tr><td>P3-AC-01〜08</td><td class="ok">全件PASS（固定契約範囲）</td><td><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json">P3-12集約summary</a>。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. 残すUnknownと境界</h2>
+  <table>
+    <thead><tr><th>ID</th><th>残す理由</th><th>P3-12での扱い</th><th>再開条件</th></tr></thead>
+    <tbody>
+      <tr><td><code>UNK-P3-01</code></td><td>長期データ・市場数・長期holdoutを未評価。</td><td>固定syntheticのPASSから利益・頑健性へ昇格しない。</td><td>対象市場、期間、Catalog、分割、hashを固定し、別Runで実測する。</td></tr>
+      <tr><td><code>UNK-P3-05</code></td><td>市場別の実測cost/slippage、Gap約定の正式値を未確定。</td><td>保守的な固定契約のPASSに限定する。</td><td>正式な市場別値・約定ルール・感度分析を承認済みfixtureへ反映する。</td></tr>
+      <tr><td><code>UNK-P3-07</code></td><td>正式取引所Calendarの継続追随を未接続。</td><td>6ケースの固定Calendar behavioral PASSに限定する。</td><td>対象取引所の公式Calendar版、更新手順、欠損時停止を別Gateで固定する。</td></tr>
+    </tbody>
+  </table>
+
+  <div class="hold"><strong>明示的な非採用:</strong> この成果物は利益の採用、長期頑健性の保証、Broker接続、Paper運用、Live運用、Cloud接続、Secret投入、Phase 4移行承認を含まない。</div>
+
+  <h2>5. 関連成果物</h2>
+  <ul>
+    <li><a href="../09_統合レビュー/10_Phase3統合レビュー結果.html">P3-D11 統合レビュー</a> / <a href="../09_統合レビュー/11_Phase3レッドチーム監査結果.html">P3-D12 レッドチーム監査</a></li>
+    <li><a href="13_Phase3完了判定とPhase4移行承認書.html">P3-D14 Phase 3完了判定とPhase 4移行承認書</a></li>
+    <li><a href="../../../plan/phase3/ログ/P3-12_実行ログ_2026-08-10.md">P3-12実行ログ</a> / <a href="../../../plan/Phase3_実行計画書_v0.1_2026-08-09.md">Phase 3実行計画書</a></li>
+  </ul>
+</main>
+</body>
+</html>

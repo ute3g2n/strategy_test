@@ -1,27 +1,85 @@
-{
-  "schema_version": "p3-10-verification/v1",
-  "run_id": "RUN-P3-INT-001",
-  "phase_id": "phase3",
-  "step_id": "P3-10",
-  "state": "PASS",
-  "final_status": "PASS",
-  "reason": "ユーザー承認済み。WSL隔離下の固定4 GateとP3-10契約GateがPASS",
-  "gates": {
-    "formatter": "PASS",
-    "lint": "PASS",
-    "type": "PASS",
-    "test": "PASS"
-  },
-  "network_mode": "none",
-  "scope": "target_only",
-  "input_sha256": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
-  "post_input_sha256": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
-  "target_only_change_sha256": "sha256:2c8df36ac55836ce0b4888b52c1a960413b52ce994d90e8d230ee556eb655553",
-  "host_wrapper_execution_id": "6c38c704dc534b7c98f395d1105d82b7",
-  "restore_state": "RESTORED",
-  "restore_evidence": "tests/evidence/phase3/RUN-P3-INT-001/restore.json",
-  "human_gate_required": false,
-  "summary": "tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json",
-  "wsl_capture": "tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json",
-  "generated_at": "2026-08-10T07:06:00.430717+00:00"
+﻿{
+    "state":  "PASS",
+    "reason":  "ユーザーが明示的に承認しました",
+    "gates":  [
+                  {
+                      "gate":  "formatter",
+                      "status":  "PASS",
+                      "command":  [
+                                      ".venv/bin/python",
+                                      "-m",
+                                      "ruff",
+                                      "format",
+                                      "--check",
+                                      "src/autotrade",
+                                      "scripts/quality_gate",
+                                      "tests/quality_gate",
+                                      "tests/strategy",
+                                      "tests/backtest",
+                                      "tests/fixtures/phase3"
+                                  ],
+                      "exit_code":  0,
+                      "duration_ms":  264
+                  },
+                  {
+                      "gate":  "lint",
+                      "status":  "PASS",
+                      "command":  [
+                                      ".venv/bin/python",
+                                      "-m",
+                                      "ruff",
+                                      "check",
+                                      "src/autotrade",
+                                      "scripts/quality_gate",
+                                      "tests/quality_gate",
+                                      "tests/strategy",
+                                      "tests/backtest",
+                                      "tests/fixtures/phase3"
+                                  ],
+                      "exit_code":  0,
+                      "duration_ms":  214
+                  },
+                  {
+                      "gate":  "type",
+                      "status":  "PASS",
+                      "command":  [
+                                      ".venv/bin/python",
+                                      "-m",
+                                      "mypy",
+                                      "src/autotrade",
+                                      "scripts/quality_gate"
+                                  ],
+                      "exit_code":  0,
+                      "duration_ms":  5426
+                  },
+                  {
+                      "gate":  "test",
+                      "status":  "PASS",
+                      "command":  [
+                                      ".venv/bin/python",
+                                      "-m",
+                                      "scripts.quality_gate.local_p3_integration"
+                                  ],
+                      "exit_code":  0,
+                      "duration_ms":  1066
+                  }
+              ],
+    "generated_at":  "2026-08-10T08:26:38.912382+00:00",
+    "exit_code":  0,
+    "scope":  "target_only",
+    "input_sha256":  "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+    "post_input_sha256":  "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
+    "target_only_change_sha256":  "sha256:51efad9f59afc79bf399729acd8fd64d73f49298e80f3a86bf0ccf4f9633eb1c",
+    "host_wrapper_execution_id":  "bd5fa1d6889c430fbf1a094a38132457",
+    "restore_pending":  true,
+    "execution_user":  "oue",
+    "execution_uid":  1000,
+    "head":  "d50d95975640e1c995f41e4661e83637bd34b564",
+    "source_repository_path":  "/home/oue/strategy_test",
+    "tool_versions":  {
+                          "python":  "Python 3.12.13",
+                          "ruff":  "ruff 0.16.1",
+                          "mypy":  "mypy 2.3.0 (compiled: yes)",
+                          "pytest":  "pytest 9.1.1"
+                      }
 }

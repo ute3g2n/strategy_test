@@ -14,10 +14,10 @@
   <p><a href="../../index.html">Phase 3成果物一覧</a> / <a href="../08_エンジンPoC/09_取引エンジンPoC評価結果.html">P3-D10</a> / <a href="../../../doc/00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
   <h1>P3-10 統合Replay・Golden・Bias検証結果</h1>
   <p><strong>Run:</strong> <code>RUN-P3-INT-001</code>　<strong>実行日:</strong> 2026-08-10　<strong>Step:</strong> P3-10</p>
-  <p><strong>P3-10実行時の総合状態:</strong> <span class="ok">契約Gate PASS / Human Gate PASS</span>。ただし、P3-11の独立再監査で現在の完了判定に関わるHigh指摘が検出されており、Phase 3完了は未確定である。</p>
+  <p><strong>P3-10実行時の総合状態:</strong> <span class="ok">契約Gate PASS / Human Gate PASS</span>。後続のP3-11指摘をH3-3承認後にP3-12で反映・再検証し、固定契約範囲の最終状態もPASSとなった。ただし、Phase 3全体の判定は残存Unknownのため<code>NOT_COMPLETE_UNKNOWN</code>である。</p>
 
   <h2>1. 結論</h2>
-  <p>この文書はP3-10 Run時点の契約検証結果を記録し、P3-AC-01〜08を全件PASSとしていた。後続のP3-11独立再監査で、Calendar 6ケースの動作証拠不足と、複数Run証跡の不整合というHigh指摘が検出されたため、現在のP3-AC受入状態とPhase 3完了判定はP3-D11/P3-D12を正本として再評価する。古い<code>RUN-P3-GOLD-001</code>のBLOCKED証跡は履歴として残し、最終PASSの根拠には使っていない。</p>
+  <p>この文書はP3-10 Run時点の契約検証結果を記録する。後続のP3-11独立再監査で検出されたCalendar動作証拠、複数Run証跡、M30 provenance、実質レビューの不足は、P3-D13の履歴どおりP3-12で修正した。現在のP3-AC受入状態とPhase 3完了判定は<a href="../10_完了判定/12_Phase3レビュー反映履歴.html">P3-D13</a>および<a href="../10_完了判定/13_Phase3完了判定とPhase4移行承認書.html">P3-D14</a>を正本とする。古い<code>RUN-P3-GOLD-001</code>のBLOCKED証跡は履歴として残し、最終PASSの根拠には使っていない。</p>
   <p>WSL隔離ではformatter、lint、type、testの固定4 Gateが全てPASSし、networking modeは<code>none</code>、入力fixtureの実行前後hashも一致した。ユーザーの<code>RUN-P3-INT-001</code>承認声明を固定文言で確認したため、Runの最終状態は<code>PASS</code>となった。</p>
   <div class="easy"><strong>中学生でも分かる説明:</strong> 問題集、答え合わせ、同じ問題をもう一度解くテスト、通信を切った場所での確認、そして持ち主の承認札がそろいました。ただし、短いテストに合格したことだけで、長期間の利益や本番運用が安全だとは決めていません。</div>
 
@@ -65,7 +65,7 @@
     </tbody>
   </table>
   <div class="pending"><strong>重要:</strong> この結果から長期利益、頑健性、Broker接続、Paper、Live、本番採用をPASSとはしない。<code>profitability_decision=NOT_MADE</code>、<code>phase3_completion_status=NOT_COMPLETE_UNKNOWN</code>を維持する。</div>
-  <div class="pending"><strong>P3-11による現在状態:</strong> P3-AC-03はBLOCKED、P3-AC-01/04はCONDITIONAL。P3-12はH3-3未承認とHigh指摘のため停止中であり、P3-D13/P3-D14は未作成である。詳細は<a href="../../09_統合レビュー/10_Phase3統合レビュー結果.html">P3-D11</a>と<a href="../../09_統合レビュー/11_Phase3レッドチーム監査結果.html">P3-D12</a>を参照する。</div>
+  <div class="pending"><strong>P3-12反映後の現在状態:</strong> H3-3は承認済み。P3-IR-001〜004は修正・再レビュー済みで、P3-AC-01〜08は固定契約範囲でPASS、RUN-P3-INT-001のWSL固定4 GateもPASSである。P3-D13/P3-D14を正式作成したが、UNK-P3-01/05/07とH3-4未承認のため、Phase 3完了とPhase 4移行は<code>NOT_COMPLETE_UNKNOWN</code>のまま保留する。詳細は<a href="../10_完了判定/12_Phase3レビュー反映履歴.html">P3-D13</a>、<a href="../10_完了判定/13_Phase3完了判定とPhase4移行承認書.html">P3-D14</a>、<a href="../../09_統合レビュー/10_Phase3統合レビュー結果.html">P3-D11</a>、<a href="../../09_統合レビュー/11_Phase3レッドチーム監査結果.html">P3-D12</a>を参照する。</div>
 
   <h2>6. Human Gate</h2>
   <p><code>RUN-P3-INT-001</code>は、ユーザーの「RUN-P3-INT-001を承認します」を受領し、承認証跡を固定文言で記録したうえで同じ固定入口を再実行した。WSL wrapper exit codeは0、verification stateは<code>PASS</code>である。承認によって<code>UNK-P3-01</code>、<code>UNK-P3-05</code>、<code>UNK-P3-07</code>が自動解消されたわけではなく、長期利益・頑健性・本番運用の承認も含まない。</p>

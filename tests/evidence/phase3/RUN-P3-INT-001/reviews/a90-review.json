@@ -1,22 +1,13 @@
 {
   "critical": 0,
   "evidence_path": "tests/evidence/phase3/RUN-P3-INT-001/reviews/p3-12-a90-design-review.md",
-  "evidence_sha256": null,
-  "findings": [
-    {
-      "detail": "missing substantive review evidence: p3-12-a90-design-review.md",
-      "severity": "High"
-    },
-    {
-      "detail": "source evidence bundle audit is not PASS",
-      "severity": "High"
-    }
-  ],
+  "evidence_sha256": "sha256:bbc68a6e5c7e89d9595367482b38293069b6c305e18a4dd9c2213334125ba623",
+  "findings": [],
   "focus": "design, requirement, and review consistency",
-  "high": 2,
+  "high": 0,
   "reviewer": "AutoTrade_A90_DesignReviewer_v0_1",
   "run_id": "RUN-P3-INT-001",
   "scope": "P3-12 final contract review; no profit adoption",
-  "substantive_evidence": false,
-  "verdict": "RETURN"
+  "substantive_evidence": true,
+  "verdict": "APPROVE"
 }

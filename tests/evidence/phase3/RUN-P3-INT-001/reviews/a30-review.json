@@ -1,22 +1,13 @@
 {
   "critical": 0,
   "evidence_path": "tests/evidence/phase3/RUN-P3-INT-001/reviews/p3-12-a30-strategy-qa-review.md",
-  "evidence_sha256": null,
-  "findings": [
-    {
-      "detail": "missing substantive review evidence: p3-12-a30-strategy-qa-review.md",
-      "severity": "High"
-    },
-    {
-      "detail": "source evidence bundle audit is not PASS",
-      "severity": "High"
-    }
-  ],
+  "evidence_sha256": "sha256:b8b5dd73f10b08548a4ac42f9c2e63b89bacdaf20494cd4fb6fec932c0ac4fcd",
+  "findings": [],
   "focus": "Strategy, Golden, and look-ahead boundary",
-  "high": 2,
+  "high": 0,
   "reviewer": "AutoTrade_A30_StrategyQaArchitect_v0_1",
   "run_id": "RUN-P3-INT-001",
   "scope": "P3-12 final contract review; no profit adoption",
-  "substantive_evidence": false,
-  "verdict": "RETURN"
+  "substantive_evidence": true,
+  "verdict": "APPROVE"
 }

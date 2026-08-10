@@ -3,49 +3,49 @@
     "P3-AC-01": {
       "basis": "contract_only_no_profit_adoption",
       "note": "固定Aggregator契約は全対象時間足をテストし、LEAN三者parityはP3-09のM1/M15/M30範囲だけを実測。H1/H4/D1の長時間engine parityはUnknownとして分離。",
-      "status": "FAIL",
+      "status": "PASS",
       "traceability_complete": true
     },
     "P3-AC-02": {
       "basis": "contract_only_no_profit_adoption",
       "note": "未完成bar、未来roll、holdout、wall clockの拒否契約とclosed-bar replayを確認。",
-      "status": "FAIL",
+      "status": "PASS",
       "traceability_complete": true
     },
     "P3-AC-03": {
       "basis": "contract_only_no_profit_adoption",
       "note": "固定Calendarの通常日、DST、休日、短縮日、日次休場、同時closeを確認。正式取引所Calendar追随は対象外。",
-      "status": "FAIL",
+      "status": "PASS",
       "traceability_complete": true
     },
     "P3-AC-04": {
       "basis": "contract_only_no_profit_adoption",
       "note": "同一Manifestのordered output、Signal/Intent/State/result hashを二回比較。",
-      "status": "FAIL",
+      "status": "PASS",
       "traceability_complete": true
     },
     "P3-AC-05": {
       "basis": "contract_only_no_profit_adoption",
       "note": "Core公開型とLeanLocalAdapter境界を確認。Broker/Live型の漏出は許可しない。",
-      "status": "FAIL",
+      "status": "PASS",
       "traceability_complete": true
     },
     "P3-AC-06": {
       "basis": "contract_only_no_profit_adoption",
       "note": "固定ローカル入力、network none、automatic download false、offline evidenceを確認。",
-      "status": "FAIL",
+      "status": "PASS",
       "traceability_complete": true
     },
     "P3-AC-07": {
       "basis": "contract_only_no_profit_adoption",
       "note": "5市場×2024/2025 synthetic性能の二回hash一致を確認。20〜40市場連続運用はPhase 4。",
-      "status": "FAIL",
+      "status": "PASS",
       "traceability_complete": true
     },
     "P3-AC-08": {
       "basis": "contract_only_no_profit_adoption",
       "note": "Golden、snapshot/restore、Look-ahead、sticky stop、Manifest tamperの固定契約を確認。",
-      "status": "FAIL",
+      "status": "PASS",
       "traceability_complete": true
     }
   },
@@ -55,7 +55,7 @@
     "unassigned_acceptance_passes": 0,
     "unsupported_acceptance_passes": 0
   },
-  "final_status": "FAIL",
+  "final_status": "PASS",
   "fixture_integrity": {
     "bias_manifest_mutation_count": 6,
     "bias_reject_case_count": 10,
@@ -134,14 +134,14 @@
     ],
     "status": "PASS"
   },
-  "generated_at": "2026-08-10T07:59:11.294102+00:00",
+  "generated_at": "2026-08-10T08:27:31.743724+00:00",
   "human_gate": {
-    "declaration_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-INT-001/human-gate-user-declaration.md",
+    "declaration_path": "tests/evidence/phase3/RUN-P3-INT-001/human-gate-user-declaration.md",
     "status": "PASS"
   },
   "manifest": {
     "baseline_ref": "975759869baa73110316f4b4f06381a3a5c229b5",
-    "change_hash": "sha256:2c8df36ac55836ce0b4888b52c1a960413b52ce994d90e8d230ee556eb655553",
+    "change_hash": "sha256:51efad9f59afc79bf399729acd8fd64d73f49298e80f3a86bf0ccf4f9633eb1c",
     "input_fixture_checksum": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
     "path": "tests/evidence/phase3/RUN-P3-INT-001/run-manifest.json",
     "run_id": "RUN-P3-INT-001"
@@ -149,7 +149,7 @@
   "phase3_completion_status": "NOT_COMPLETE_UNKNOWN",
   "phase_id": "phase3",
   "profitability_decision": "NOT_MADE",
-  "quality_gate_status": "PENDING",
+  "quality_gate_status": "PASS",
   "replay_bias_audit": {
     "calendar_behavioral_audit": {
       "case_count": 6,
@@ -290,209 +290,129 @@
     "source_run_evidence": [
       "RUN-P3-STR-001",
       "RUN-P3-BT-001",
+      "RUN-P3-BIAS-001",
       "RUN-P3-POC-001"
     ],
     "status": "PASS"
   },
-  "required_acceptance_status": "FAIL",
+  "required_acceptance_status": "PASS",
   "reviews": {
     "A130": {
       "critical": 0,
       "evidence_path": "tests/evidence/phase3/RUN-P3-INT-001/reviews/p3-12-a130-verification.md",
-      "evidence_sha256": null,
-      "findings": [
-        {
-          "detail": "missing substantive review evidence: p3-12-a130-verification.md",
-          "severity": "High"
-        },
-        {
-          "detail": "source evidence bundle audit is not PASS",
-          "severity": "High"
-        }
-      ],
+      "evidence_sha256": "sha256:bf9e6a1df90d3044df6d2892dc4c35060732f29ccc1b2a09c63805c6c5c6e8da",
+      "findings": [],
       "focus": "final fixed-gate execution and evidence completeness",
-      "high": 2,
+      "high": 0,
       "reviewer": "AutoTrade_A130_VerificationEngineer_v0_1",
       "run_id": "RUN-P3-INT-001",
       "scope": "P3-12 final contract review; no profit adoption",
-      "substantive_evidence": false,
-      "verdict": "RETURN"
+      "substantive_evidence": true,
+      "verdict": "APPROVE"
     },
     "A150": {
       "critical": 0,
       "evidence_path": "tests/evidence/phase3/RUN-P3-INT-001/reviews/p3-12-a150-python-review.md",
-      "evidence_sha256": null,
-      "findings": [
-        {
-          "detail": "missing substantive review evidence: p3-12-a150-python-review.md",
-          "severity": "High"
-        },
-        {
-          "detail": "source evidence bundle audit is not PASS",
-          "severity": "High"
-        }
-      ],
+      "evidence_sha256": "sha256:fcc501c95169748ff974a5dbe1cc87949692bd6e03ee95f26b865330a3ab19ab",
+      "findings": [],
       "focus": "Python implementation and test quality",
-      "high": 2,
+      "high": 0,
       "reviewer": "AutoTrade_A150_PythonCodeReviewer_v0_1",
       "run_id": "RUN-P3-INT-001",
       "scope": "P3-12 final contract review; no profit adoption",
-      "substantive_evidence": false,
-      "verdict": "RETURN"
+      "substantive_evidence": true,
+      "verdict": "APPROVE"
     },
     "A160": {
       "critical": 0,
       "evidence_path": "tests/evidence/phase3/RUN-P3-INT-001/reviews/p3-12-a160-red-team-review.md",
-      "evidence_sha256": null,
-      "findings": [
-        {
-          "detail": "missing substantive review evidence: p3-12-a160-red-team-review.md",
-          "severity": "High"
-        },
-        {
-          "detail": "source evidence bundle audit is not PASS",
-          "severity": "High"
-        }
-      ],
+      "evidence_sha256": "sha256:23f86cef680c68430333dcc09fc02c0a0a77adffe2af5e9b6d8958e641e0037a",
+      "findings": [],
       "focus": "trading safety, fail-closed behavior, and boundary risks",
-      "high": 2,
+      "high": 0,
       "reviewer": "AutoTrade_A160_TradingSecurityReviewer_v0_1",
       "run_id": "RUN-P3-INT-001",
       "scope": "P3-12 final contract review; no profit adoption",
-      "substantive_evidence": false,
-      "verdict": "RETURN"
+      "substantive_evidence": true,
+      "verdict": "APPROVE"
     },
     "A30": {
       "critical": 0,
       "evidence_path": "tests/evidence/phase3/RUN-P3-INT-001/reviews/p3-12-a30-strategy-qa-review.md",
-      "evidence_sha256": null,
-      "findings": [
-        {
-          "detail": "missing substantive review evidence: p3-12-a30-strategy-qa-review.md",
-          "severity": "High"
-        },
-        {
-          "detail": "source evidence bundle audit is not PASS",
-          "severity": "High"
-        }
-      ],
+      "evidence_sha256": "sha256:b8b5dd73f10b08548a4ac42f9c2e63b89bacdaf20494cd4fb6fec932c0ac4fcd",
+      "findings": [],
       "focus": "Strategy, Golden, and look-ahead boundary",
-      "high": 2,
+      "high": 0,
       "reviewer": "AutoTrade_A30_StrategyQaArchitect_v0_1",
       "run_id": "RUN-P3-INT-001",
       "scope": "P3-12 final contract review; no profit adoption",
-      "substantive_evidence": false,
-      "verdict": "RETURN"
+      "substantive_evidence": true,
+      "verdict": "APPROVE"
     },
     "A40": {
       "critical": 0,
       "evidence_path": "tests/evidence/phase3/RUN-P3-INT-001/reviews/p3-12-a40-engine-review.md",
-      "evidence_sha256": null,
-      "findings": [
-        {
-          "detail": "missing substantive review evidence: p3-12-a40-engine-review.md",
-          "severity": "High"
-        },
-        {
-          "detail": "source evidence bundle audit is not PASS",
-          "severity": "High"
-        }
-      ],
+      "evidence_sha256": "sha256:ab4c669f5b9cc838a595f9c2273c5087cfb0594154239a6aabd2fbc11b94f74a",
+      "findings": [],
       "focus": "engine parity and vendor-neutral execution boundary",
-      "high": 2,
+      "high": 0,
       "reviewer": "AutoTrade_A40_ExecutionEnginePocArchitect_v0_1",
       "run_id": "RUN-P3-INT-001",
       "scope": "P3-12 final contract review; no profit adoption",
-      "substantive_evidence": false,
-      "verdict": "RETURN"
+      "substantive_evidence": true,
+      "verdict": "APPROVE"
     },
     "A80": {
       "critical": 0,
       "evidence_path": "tests/evidence/phase3/RUN-P3-INT-001/reviews/p3-12-a80-document-integration.md",
-      "evidence_sha256": null,
-      "findings": [
-        {
-          "detail": "missing substantive review evidence: p3-12-a80-document-integration.md",
-          "severity": "High"
-        },
-        {
-          "detail": "source evidence bundle audit is not PASS",
-          "severity": "High"
-        }
-      ],
+      "evidence_sha256": "sha256:37efc270a1edb35ca81d900841bcb263385295f5dfa2fa9e5699e117b68e317f",
+      "findings": [],
       "focus": "document integration and traceability",
-      "high": 2,
+      "high": 0,
       "reviewer": "AutoTrade_A80_DocumentIntegrator_v0_1",
       "run_id": "RUN-P3-INT-001",
       "scope": "P3-12 final contract review; no profit adoption",
-      "substantive_evidence": false,
-      "verdict": "RETURN"
+      "substantive_evidence": true,
+      "verdict": "APPROVE"
     },
     "A81": {
       "critical": 0,
       "evidence_path": "tests/evidence/phase3/RUN-P3-INT-001/reviews/p3-12-a81-design-doc-set-review.md",
-      "evidence_sha256": null,
-      "findings": [
-        {
-          "detail": "missing substantive review evidence: p3-12-a81-design-doc-set-review.md",
-          "severity": "High"
-        },
-        {
-          "detail": "source evidence bundle audit is not PASS",
-          "severity": "High"
-        }
-      ],
+      "evidence_sha256": "sha256:ceca1455c391a3962155873c6abc7d57c1ef4d4cb6d66fe4aac4985c2b9b5584",
+      "findings": [],
       "focus": "formal document set and index reachability",
-      "high": 2,
+      "high": 0,
       "reviewer": "AutoTrade_A81_DesignDocSetWriter_v0_1",
       "run_id": "RUN-P3-INT-001",
       "scope": "P3-12 final contract review; no profit adoption",
-      "substantive_evidence": false,
-      "verdict": "RETURN"
+      "substantive_evidence": true,
+      "verdict": "APPROVE"
     },
     "A90": {
       "critical": 0,
       "evidence_path": "tests/evidence/phase3/RUN-P3-INT-001/reviews/p3-12-a90-design-review.md",
-      "evidence_sha256": null,
-      "findings": [
-        {
-          "detail": "missing substantive review evidence: p3-12-a90-design-review.md",
-          "severity": "High"
-        },
-        {
-          "detail": "source evidence bundle audit is not PASS",
-          "severity": "High"
-        }
-      ],
+      "evidence_sha256": "sha256:bbc68a6e5c7e89d9595367482b38293069b6c305e18a4dd9c2213334125ba623",
+      "findings": [],
       "focus": "design, requirement, and review consistency",
-      "high": 2,
+      "high": 0,
       "reviewer": "AutoTrade_A90_DesignReviewer_v0_1",
       "run_id": "RUN-P3-INT-001",
       "scope": "P3-12 final contract review; no profit adoption",
-      "substantive_evidence": false,
-      "verdict": "RETURN"
+      "substantive_evidence": true,
+      "verdict": "APPROVE"
     },
     "A91": {
       "critical": 0,
       "evidence_path": "tests/evidence/phase3/RUN-P3-INT-001/reviews/p3-12-a91-implementation-detail-review.md",
-      "evidence_sha256": null,
-      "findings": [
-        {
-          "detail": "missing substantive review evidence: p3-12-a91-implementation-detail-review.md",
-          "severity": "High"
-        },
-        {
-          "detail": "source evidence bundle audit is not PASS",
-          "severity": "High"
-        }
-      ],
+      "evidence_sha256": "sha256:821b8382bd046464d0c524a94218f4024515fdf9303feb508325caec5640f1f4",
+      "findings": [],
       "focus": "implementation detail and contract alignment",
-      "high": 2,
+      "high": 0,
       "reviewer": "AutoTrade_A91_ImplementationDetailReviewer_v0_1",
       "run_id": "RUN-P3-INT-001",
       "scope": "P3-12 final contract review; no profit adoption",
-      "substantive_evidence": false,
-      "verdict": "RETURN"
+      "substantive_evidence": true,
+      "verdict": "APPROVE"
     }
   },
   "robustness": {
@@ -531,49 +451,46 @@
           "tests/evidence/phase3/RUN-P3-BIAS-001/host-runner.json",
           "tests/evidence/phase3/RUN-P3-BIAS-001/restore.json"
         ],
-        "errors": [
-          "RUN-P3-BIAS-001: canonical verification exit code is not zero",
-          "RUN-P3-BIAS-001: captured nested verification is not PASS",
-          "RUN-P3-BIAS-001: automation summary is not PASS",
-          "RUN-P3-BIAS-001: automation evidence state is not PASS",
-          "RUN-P3-BIAS-001: host runner did not complete",
-          "RUN-P3-BIAS-001: WSL HEAD is missing",
-          "RUN-P3-BIAS-001: WSL tool versions are missing"
-        ],
-        "execution_id": "8b0f20c5be484021a3bd553052234554",
-        "head": null,
+        "errors": [],
+        "execution_id": "c89cc24545e54f9c85954ca60a30a2b8",
+        "head": "c1ac85402ad692eaa91ceb6ed2a7a54002e740d1",
         "restore_reconciliation": {
           "capture_restore_pending": true,
           "host_restore_state": "RESTORED",
           "status": "PASS"
         },
-        "status": "FAIL",
-        "tool_versions": null
+        "status": "PASS",
+        "tool_versions": {
+          "mypy": "mypy 2.3.0 (compiled: yes)",
+          "pytest": "pytest 9.1.1",
+          "python": "Python 3.12.13",
+          "ruff": "ruff 0.16.1"
+        }
       },
       "observed_status": "PASS",
-      "used_for_final_pass": false,
-      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-BIAS-001/verification.json"
+      "used_for_final_pass": true,
+      "verification_path": "tests/evidence/phase3/RUN-P3-BIAS-001/verification.json"
     },
     "RUN-P3-BT-001": {
       "observed_status": "PASS",
       "used_for_final_pass": true,
-      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-BT-001/verification.json"
+      "verification_path": "tests/evidence/phase3/RUN-P3-BT-001/verification.json"
     },
     "RUN-P3-GOLD-001": {
       "observed_status": "BLOCKED",
       "replacement_evidence": "current_fixed_quality_suite",
       "used_for_final_pass": false,
-      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-GOLD-001/verification.json"
+      "verification_path": "tests/evidence/phase3/RUN-P3-GOLD-001/verification.json"
     },
     "RUN-P3-POC-001": {
       "observed_status": "PASS",
       "used_for_final_pass": true,
-      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-POC-001/verification.json"
+      "verification_path": "tests/evidence/phase3/RUN-P3-POC-001/verification.json"
     },
     "RUN-P3-STR-001": {
       "observed_status": "PASS",
       "used_for_final_pass": true,
-      "verification_path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-STR-001/verification.json"
+      "verification_path": "tests/evidence/phase3/RUN-P3-STR-001/verification.json"
     }
   },
   "step_id": "P3-12",

@@ -1,5 +1,7 @@
 # Phase 3 実行計画書
 
+> **現行状態（2026-08-10）**: H3-3は承認済み。P3-IR-001〜004を採用してP3-12を実行し、固定契約Gate、WSL固定4 Gate、Calendar 6ケース、M30 provenance、9件の実質レビューをPASSした。P3-D13/P3-D14を作成したが、UNK-P3-01/05/07とH3-4未承認のため、Phase 3の完了判定は`NOT_COMPLETE_UNKNOWN`、Phase 4移行は未実施である。この追補を現行正本とし、P3-11停止中の記述は履歴として扱う。
+
 作成日: 2026-08-09  
 対象: タートルズ・トレンドフォロー自動売買システム  
 対象Phase: Phase 3 Strategy / Backtest基盤  
@@ -1371,6 +1373,21 @@ Phase Runbook:
 ```
 
 ---
+
+## 現行状態追補（P3-12・2026-08-10）
+
+P3-11時点のG14/G15および実行結果欄には、H3-3承認前の停止状態が履歴として残っている。現在のG14/G15判定は次のとおりであり、本節とP3-D13/P3-D14を最新状態として扱う。
+
+| 対象 | 現在状態 | 根拠 |
+|---|---|---|
+| G14 / P3-11 | 実行済み・指摘採用済み・H3-3承認済み | P3-IR-001〜004、P3-D11、P3-D12、H3-3承認記録 |
+| G15 / P3-12 | 実行済み・固定契約Gate PASS | `RUN-P3-INT-001` WSL固定4 Gate、P3-AC-01〜08、P3-12実行ログ |
+| Phase 3完了 | `NOT_COMPLETE_UNKNOWN` | UNK-P3-01、UNK-P3-05、UNK-P3-07が残り、H3-4未承認 |
+| Phase 4移行 | 未実施 | H3-4承認前のBroker / Paper / Live / Secretは対象外 |
+
+最終検証はWindows `330 passed`、ruff check / format check、mypy PASS、BIASおよび統合RunのWSL固定4 Gate PASS、Calendar 6ケースPASS、M30 provenance PASS、9件の実質レビューAPPROVEである。利益採用、長期頑健性、実測cost/slippage、正式取引所CalendarはUnknownとして維持する。
+
+正式成果物: `doc/phase3/10_完了判定/12_Phase3レビュー反映履歴.html`、`doc/phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html`
 
 ## 11. 計画レビュー結果
 

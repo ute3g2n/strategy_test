@@ -138,6 +138,7 @@
   "source_run_evidence": [
     "RUN-P3-STR-001",
     "RUN-P3-BT-001",
+    "RUN-P3-BIAS-001",
     "RUN-P3-POC-001"
   ],
   "status": "PASS"

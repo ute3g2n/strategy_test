@@ -1,22 +1,13 @@
 {
   "critical": 0,
   "evidence_path": "tests/evidence/phase3/RUN-P3-INT-001/reviews/p3-12-a160-red-team-review.md",
-  "evidence_sha256": null,
-  "findings": [
-    {
-      "detail": "missing substantive review evidence: p3-12-a160-red-team-review.md",
-      "severity": "High"
-    },
-    {
-      "detail": "source evidence bundle audit is not PASS",
-      "severity": "High"
-    }
-  ],
+  "evidence_sha256": "sha256:23f86cef680c68430333dcc09fc02c0a0a77adffe2af5e9b6d8958e641e0037a",
+  "findings": [],
   "focus": "trading safety, fail-closed behavior, and boundary risks",
-  "high": 2,
+  "high": 0,
   "reviewer": "AutoTrade_A160_TradingSecurityReviewer_v0_1",
   "run_id": "RUN-P3-INT-001",
   "scope": "P3-12 final contract review; no profit adoption",
-  "substantive_evidence": false,
-  "verdict": "RETURN"
+  "substantive_evidence": true,
+  "verdict": "APPROVE"
 }
