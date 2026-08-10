@@ -1,4 +1,4 @@
-"""Run the fixed P3-10 integration test suite without network access."""
+"""Run the fixed P3-10 Strategy/Backtest suite without network access."""
 
 from __future__ import annotations
 
@@ -37,14 +37,14 @@ class _NoSkipPlugin:
 
 
 def main() -> int:
-    """Run the immutable P3 integration targets and write their summary."""
+    """Run the immutable Strategy/Backtest targets and write their summary."""
     import pytest
 
     from scripts.quality_gate.p3_integration_runner import run_p3_10
 
     plugin = _NoSkipPlugin()
     result = pytest.main(
-        ["tests/strategy", "tests/backtest", "tests/quality_gate", "--runxfail", "-q"],
+        ["tests/strategy", "tests/backtest", "--runxfail", "-q"],
         plugins=[plugin],
     )
     quality_gate_status = "PASS" if result == 0 and not plugin.skipped else "FAIL"

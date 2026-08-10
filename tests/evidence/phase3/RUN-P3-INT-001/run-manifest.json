@@ -25,7 +25,7 @@
     "autotrade_skill_html_doc_writer_v0_1"
   ],
   "data_version": "p3-integration-contract-v1",
-  "change_hash": "sha256:50397fd5efa6b0a2e3047a02666478162af527035d2d69488bc34387fea77b1d",
+  "change_hash": "sha256:2c8df36ac55836ce0b4888b52c1a960413b52ce994d90e8d230ee556eb655553",
   "baseline_ref": "975759869baa73110316f4b4f06381a3a5c229b5",
   "human_gate_policy": "P3-10は承認済みfixture、固定入力、固定依存だけを使用し、短期データから利益採用を決めない。",
   "target_paths": [
