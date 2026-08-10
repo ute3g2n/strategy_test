@@ -7,15 +7,16 @@
 - Critical: 0
 - High: 0
 - Medium: 0
-- 未解決: WSL隔離4 Gateはcommit/push後のWSL同期で実施する。
+- 未解決: 0
 
 ## 確認
 
-- 公式固定digestのDocker pull完了、Docker RepoDigest、image ID、Eドライブtar bytes/hash、LICENSE bytes/hashを再照合した。
-- 固定preflightは`network none`、`read-only`、tmpfsの書込root、設定ファイルhashを含み、exit code 0で完了した。
-- 契約テスト2件、固定4 Gateの267件テストがPASSした。
+- 公式固定digestのDocker pull結果、Docker RepoDigest、Image ID、ドライブtar bytes/hash、LICENSE bytes/hashを照合した。
+- 固定preflightは `network none`、`read-only`、tmpfs書込みroot、設定fixture hashを含み、exit code 0で完了した。
+- WSL隔離固定4 Gate（formatter / lint / mypy / test）は全てPASSした。実行証跡は `automation/run-test-summary.json` と `wsl-verification-capture.json` に保存した。
+- Human Gateはユーザー明示承認を反映してPASSした。
 - P3-09はまだ開始しておらず、P3-08Aの範囲外をPASS扱いしていない。
 
-## 再検証条件
+## 再確認条件
 
-P3-09起動前に同じdigest、tar hash、license hash、trusted scope、fixture hashを実行前後で再照合する。
+P3-09開始前に、同じdigest、tar hash、license hash、trusted scope、fixture hashを再照合する。

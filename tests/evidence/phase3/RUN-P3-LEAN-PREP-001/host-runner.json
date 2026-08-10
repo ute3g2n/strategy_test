@@ -1,5 +1,6 @@
 ﻿{
-    "execution_id":  "ab7c8ddef85e46caaae2bb7378f97e6e",
-    "reason":  "WSL runner returned non-zero; inspect verification.json",
-    "state":  "FAILED"
+    "output":  "{\"state\": \"PASS\", \"reason\": \"繝ｦ繝ｼ繧ｶ繝ｼ縺梧・遉ｺ逧・↓謇ｿ隱阪＠縺ｾ縺励◆\", \"gates\": [{\"gate\": \"formatter\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"ruff\", \"format\", \"--check\", \"scripts/quality_gate/local_p3_lean_prep.py\", \"tests/engine_prep\"], \"exit_code\": 0, \"duration_ms\": 264}, {\"gate\": \"lint\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"ruff\", \"check\", \"scripts/quality_gate/local_p3_lean_prep.py\", \"tests/engine_prep\"], \"exit_code\": 0, \"duration_ms\": 214}, {\"gate\": \"type\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"mypy\", \"scripts/quality_gate/local_p3_lean_prep.py\", \"tests/engine_prep\"], \"exit_code\": 0, \"duration_ms\": 3774}, {\"gate\": \"test\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"scripts.quality_gate.local_p3_lean_prep\"], \"exit_code\": 0, \"duration_ms\": 1066}], \"generated_at\": \"2026-08-10T01:31:03.291499+00:00\"}",
+    "exit_code":  0,
+    "execution_id":  "a50424d82ab1436484f68e4f8e5fc345",
+    "state":  "RUNNER_COMPLETED"
 }

@@ -2,11 +2,26 @@
   "run_id": "RUN-P3-LEAN-PREP-001",
   "state": "PASS",
   "final_status": "PASS",
-  "reason": "Official fixed-digest image completed after the user authorized a longer wait; image tar/license hashes and network-none read-only offline preflight were recorded.",
+  "reason": "Official fixed-digest image, network-none/read-only offline preflight, WSL isolated fixed quality gates, and explicit Human Gate approval all passed.",
   "p3_09_started": false,
   "trusted_scope_registered": true,
   "pull_evidence": "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/pull-attempt-long-wait.json",
   "manifest": "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/run-manifest.json",
   "preflight_output": "E:\\strategy_test_data\\phase3\\engine_poc\\lean\\preflight\\lean-local-network-none-readonly-v2.txt",
-  "preflight_status": "PASS"
+  "preflight_status": "PASS",
+  "wsl_quality_gate": {
+    "status": "PASS",
+    "summary": "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/automation/run-test-summary.json",
+    "capture": "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/wsl-verification-capture.json",
+    "execution_id": "a50424d82ab1436484f68e4f8e5fc345",
+    "distro": "Ubuntu-24.04",
+    "networking_mode": "none",
+    "scope": "target_only",
+    "gates": ["formatter", "lint", "type", "test"]
+  },
+  "human_gate": {
+    "status": "APPROVED",
+    "declaration": "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/human-gate-user-declaration.md"
+  },
+  "wrapper_restore": "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/restore.json"
 }

@@ -1,14 +1,14 @@
 ﻿{
-    "execution_id":  "ab7c8ddef85e46caaae2bb7378f97e6e",
+    "execution_id":  "a50424d82ab1436484f68e4f8e5fc345",
     "source_repository_path":  "/home/oue/strategy_test",
     "source_kind":  "wsl_verification",
-    "verification_raw":  "{\n  \"state\": \"HUMAN_GATE_REQUIRED\",\n  \"reason\": \"Human Gate はこの書込み可能 worktree 外の承認チャネルで実施します\",\n  \"gates\": [\n    {\n      \"gate\": \"formatter\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"format\",\n        \"--check\",\n        \"scripts/quality_gate/local_p3_lean_prep.py\",\n        \"tests/engine_prep\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 314\n    },\n    {\n      \"gate\": \"lint\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"check\",\n        \"scripts/quality_gate/local_p3_lean_prep.py\",\n        \"tests/engine_prep\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 214\n    },\n    {\n      \"gate\": \"type\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"mypy\",\n        \"scripts/quality_gate/local_p3_lean_prep.py\",\n        \"tests/engine_prep\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 3925\n    },\n    {\n      \"gate\": \"test\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"scripts.quality_gate.local_p3_lean_prep\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 1117\n    }\n  ],\n  \"generated_at\": \"2026-08-10T01:24:06.769841+00:00\",\n  \"exit_code\": 1,\n  \"scope\": \"target_only\",\n  \"input_sha256\": \"sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d\",\n  \"post_input_sha256\": \"sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d\",\n  \"target_only_change_sha256\": \"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n  \"host_wrapper_execution_id\": \"ab7c8ddef85e46caaae2bb7378f97e6e\",\n  \"restore_pending\": true,\n  \"execution_user\": \"oue\",\n  \"execution_uid\": 1000\n}\n",
+    "verification_raw":  "{\n  \"state\": \"PASS\",\n  \"reason\": \"ユーザーが明示的に承認しました\",\n  \"gates\": [\n    {\n      \"gate\": \"formatter\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"format\",\n        \"--check\",\n        \"scripts/quality_gate/local_p3_lean_prep.py\",\n        \"tests/engine_prep\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 264\n    },\n    {\n      \"gate\": \"lint\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"check\",\n        \"scripts/quality_gate/local_p3_lean_prep.py\",\n        \"tests/engine_prep\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 214\n    },\n    {\n      \"gate\": \"type\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"mypy\",\n        \"scripts/quality_gate/local_p3_lean_prep.py\",\n        \"tests/engine_prep\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 3774\n    },\n    {\n      \"gate\": \"test\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"scripts.quality_gate.local_p3_lean_prep\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 1066\n    }\n  ],\n  \"generated_at\": \"2026-08-10T01:31:03.290553+00:00\",\n  \"exit_code\": 0,\n  \"scope\": \"target_only\",\n  \"input_sha256\": \"sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d\",\n  \"post_input_sha256\": \"sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d\",\n  \"target_only_change_sha256\": \"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n  \"host_wrapper_execution_id\": \"a50424d82ab1436484f68e4f8e5fc345\",\n  \"restore_pending\": true,\n  \"execution_user\": \"oue\",\n  \"execution_uid\": 1000\n}\n",
     "retrieval_exit_code":  0,
-    "captured_at":  "2026-08-10T01:24:07.2746842Z",
+    "captured_at":  "2026-08-10T01:31:03.7652750Z",
     "state":  "CAPTURED",
     "verification":  {
-                         "state":  "HUMAN_GATE_REQUIRED",
-                         "reason":  "Human Gate はこの書込み可能 worktree 外の承認チャネルで実施します",
+                         "state":  "PASS",
+                         "reason":  "ユーザーが明示的に承認しました",
                          "gates":  [
                                        {
                                            "gate":  "formatter",
@@ -23,7 +23,7 @@
                                                            "tests/engine_prep"
                                                        ],
                                            "exit_code":  0,
-                                           "duration_ms":  314
+                                           "duration_ms":  264
                                        },
                                        {
                                            "gate":  "lint",
@@ -50,7 +50,7 @@
                                                            "tests/engine_prep"
                                                        ],
                                            "exit_code":  0,
-                                           "duration_ms":  3925
+                                           "duration_ms":  3774
                                        },
                                        {
                                            "gate":  "test",
@@ -61,16 +61,16 @@
                                                            "scripts.quality_gate.local_p3_lean_prep"
                                                        ],
                                            "exit_code":  0,
-                                           "duration_ms":  1117
+                                           "duration_ms":  1066
                                        }
                                    ],
-                         "generated_at":  "2026-08-10T01:24:06.769841+00:00",
-                         "exit_code":  1,
+                         "generated_at":  "2026-08-10T01:31:03.290553+00:00",
+                         "exit_code":  0,
                          "scope":  "target_only",
                          "input_sha256":  "sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d",
                          "post_input_sha256":  "sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d",
                          "target_only_change_sha256":  "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-                         "host_wrapper_execution_id":  "ab7c8ddef85e46caaae2bb7378f97e6e",
+                         "host_wrapper_execution_id":  "a50424d82ab1436484f68e4f8e5fc345",
                          "restore_pending":  true,
                          "execution_user":  "oue",
                          "execution_uid":  1000
@@ -82,10 +82,10 @@
                            "kernel":  "6.6.87.2-microsoft-standard-WSL2",
                            "distro":  "Ubuntu-24.04",
                            "networking_mode":  "none",
-                           "host_wrapper_execution_id":  "ab7c8ddef85e46caaae2bb7378f97e6e",
+                           "host_wrapper_execution_id":  "a50424d82ab1436484f68e4f8e5fc345",
                            "ip_addr_summary":  "1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\n    inet 127.0.0.1/8 scope host lo\n       valid_lft forever preferred_lft forever\n    inet6 ::1/128 scope host \n       valid_lft forever preferred_lft forever",
                            "ip_route_summary":  "",
-                           "confirmed_at":  "2026-08-10T01:24:00Z",
+                           "confirmed_at":  "2026-08-10T01:30:57Z",
                            "scope":  [
                                          "scripts/quality_gate/local_p3_lean_prep.py",
                                          "tests/engine_prep",
