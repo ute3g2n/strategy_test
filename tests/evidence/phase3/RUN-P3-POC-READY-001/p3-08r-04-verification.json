@@ -1,0 +1,62 @@
+{
+  "schema_version": "p3-08r-04-verification/v1",
+  "run_id": "RUN-P3-POC-READY-001",
+  "phase_id": "phase3",
+  "step_id": "P3-08R-04",
+  "state": "HUMAN_GATE_REQUIRED",
+  "readiness": "NOT_READY_FOR_P3_09",
+  "reason": "Windows側とWSL側の固定4 Gateおよび隔離確認は完了したが、quality gate runnerが要求する書込み可能worktree外のHuman Gate承認が未取得である。",
+  "windows_fixed_gates": {
+    "state": "PASS",
+    "formatter": "PASS",
+    "lint": "PASS",
+    "type": "PASS",
+    "prepare_contract": "PASS",
+    "prepare_state": "READY_TO_REHEARSE",
+    "manifest_state": "VALIDATED",
+    "engine_started": false
+  },
+  "wsl_fixed_gates": {
+    "wrapper_state": "BLOCKED",
+    "wrapper_exit_code": 20,
+    "verification_state": "HUMAN_GATE_REQUIRED",
+    "execution_id": "96ca4b122ac04ee181b62f043283d64f",
+    "formatter": "PASS",
+    "lint": "PASS",
+    "type": "PASS",
+    "prepare_contract": "PASS",
+    "engine_started": false
+  },
+  "isolation": {
+    "state": "CONFIRMED",
+    "distro": "Ubuntu-24.04",
+    "kernel": "6.6.87.2-microsoft-standard-WSL2",
+    "networking_mode": "none",
+    "ip_route_summary": "",
+    "input_sha256": "sha256:8ff33516cb843a2b205346a6cb9bbe933a5aa30f7c0bad0edd21538a531446a8"
+  },
+  "hash_binding": {
+    "expected_input_sha256": "sha256:8ff33516cb843a2b205346a6cb9bbe933a5aa30f7c0bad0edd21538a531446a8",
+    "wsl_input_sha256": "sha256:8ff33516cb843a2b205346a6cb9bbe933a5aa30f7c0bad0edd21538a531446a8",
+    "pre_post_match": true,
+    "artifact_hash_epoch": "R04-LF-normalized-current"
+  },
+  "fire_control": {
+    "p3_09_execution_allowed": false,
+    "engine_started": false,
+    "broker_paper_live_cloud_secret_used": false
+  },
+  "review": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "unknown": 0
+  },
+  "evidence": {
+    "wsl_capture": "tests/evidence/phase3/RUN-P3-POC-READY-001/wsl-verification-capture.json",
+    "automation_summary": "tests/evidence/phase3/RUN-P3-POC-READY-001/automation/run-test-summary.json",
+    "quality_gate_manifest": "tests/evidence/phase3/RUN-P3-POC-READY-001/quality-gate-manifest.json",
+    "execution_manifest": "tests/evidence/phase3/RUN-P3-POC-READY-001/run-manifest.json"
+  },
+  "next_action": "RUN-P3-POC-READY-001の品質Gate Human Gateについて、ユーザーの明示承認を取得してから標準入口で再実行する。承認前はP3-08R-05およびP3-09を実行しない。"
+}
