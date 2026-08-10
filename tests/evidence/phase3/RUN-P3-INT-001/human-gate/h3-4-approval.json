@@ -1,0 +1,46 @@
+{
+  "schema_version": "phase3-human-gate-decision/v1",
+  "decision_id": "H3-4-20260810",
+  "phase_id": "phase3",
+  "gate_id": "H3-4",
+  "run_id": "RUN-P3-INT-001",
+  "approved_by": "user",
+  "approved_at": "2026-08-10 Asia/Tokyo",
+  "approval_text": "UNK-P3-01/05/07、H3-4 を承認します。",
+  "decision": "APPROVED",
+  "phase3_completion_status": "COMPLETE_WITH_APPROVED_UNKNOWN",
+  "fixed_contract_gate_status": "PASS",
+  "unknowns": [
+    {
+      "id": "UNK-P3-01",
+      "disposition": "DEFERRED_TO_PHASE4",
+      "status": "NOT_RESOLVED",
+      "not_promoted_to_pass": true,
+      "reopen_condition": "期間・市場・Catalog・データ品質・split・hashを固定した長期実測Run"
+    },
+    {
+      "id": "UNK-P3-05",
+      "disposition": "DEFERRED_TO_PHASE4",
+      "status": "NOT_RESOLVED",
+      "not_promoted_to_pass": true,
+      "reopen_condition": "市場別の正式cost/slippage、Gapルール、感度分析、承認済みfixture"
+    },
+    {
+      "id": "UNK-P3-07",
+      "disposition": "DEFERRED_TO_PHASE4",
+      "status": "NOT_RESOLVED",
+      "not_promoted_to_pass": true,
+      "reopen_condition": "公式Calendar版、更新監視、欠損時停止、再現fixtureの別Gate"
+    }
+  ],
+  "phase4_transition": {
+    "status": "AUTHORIZED_FOR_PHASE4_PLANNING_AND_BOUNDARY_DESIGN",
+    "allowed": ["Phase 4実行計画の作成", "Broker / Paper境界の設計", "隔離検証計画の作成"],
+    "excluded": ["Broker接続", "Paper実行", "実注文", "Live運用", "Secret投入", "Cloud接続", "利益性・頑健性の採用"]
+  },
+  "evidence": [
+    "tests/evidence/phase3/RUN-P3-INT-001/human-gate/h3-4-approval.md",
+    "tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json",
+    "doc/phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html"
+  ]
+}

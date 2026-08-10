@@ -64,8 +64,8 @@
       <tr><td><code>UNK-P3-07</code></td><td>実取引所Calendarの正式追随と更新運用が未確定。</td><td>Phase 4のCalendar運用・Paper境界へ送る。</td></tr>
     </tbody>
   </table>
-  <div class="pending"><strong>重要:</strong> この結果から長期利益、頑健性、Broker接続、Paper、Live、本番採用をPASSとはしない。<code>profitability_decision=NOT_MADE</code>、<code>phase3_completion_status=NOT_COMPLETE_UNKNOWN</code>を維持する。</div>
-  <div class="pending"><strong>P3-12反映後の現在状態:</strong> H3-3は承認済み。P3-IR-001〜004は修正・再レビュー済みで、P3-AC-01〜08は固定契約範囲でPASS、RUN-P3-INT-001のWSL固定4 GateもPASSである。P3-D13/P3-D14を正式作成したが、UNK-P3-01/05/07とH3-4未承認のため、Phase 3完了とPhase 4移行は<code>NOT_COMPLETE_UNKNOWN</code>のまま保留する。詳細は<a href="../10_完了判定/12_Phase3レビュー反映履歴.html">P3-D13</a>、<a href="../10_完了判定/13_Phase3完了判定とPhase4移行承認書.html">P3-D14</a>、<a href="../../09_統合レビュー/10_Phase3統合レビュー結果.html">P3-D11</a>、<a href="../../09_統合レビュー/11_Phase3レッドチーム監査結果.html">P3-D12</a>を参照する。</div>
+  <div class="pending"><strong>重要:</strong> この結果から長期利益、頑健性、Broker接続、Paper、Live、本番採用をPASSとはしない。<code>profitability_decision=NOT_MADE</code>は維持する。Run summaryの<code>phase3_completion_status=NOT_COMPLETE_UNKNOWN</code>はH3-4前の機械実行時点の履歴であり、UnknownをPASSへ変更したものではない。</div>
+  <div class="pending"><strong>P3-12反映後の現在状態:</strong> H3-3とH3-4は承認済み。P3-IR-001〜004は修正・再レビュー済みで、P3-AC-01〜08は固定契約範囲でPASS、RUN-P3-INT-001のWSL固定4 GateもPASSである。UNK-P3-01/05/07は未解消のままPhase 4へ延期し、Phase 3の総合状態は<code>COMPLETE_WITH_APPROVED_UNKNOWN</code>、Phase 4は計画・Broker / Paper境界設計・隔離検証準備のみ許可する。詳細は<a href="../10_完了判定/12_Phase3レビュー反映履歴.html">P3-D13</a>、<a href="../10_完了判定/13_Phase3完了判定とPhase4移行承認書.html">P3-D14</a>、<a href="../09_統合レビュー/10_Phase3統合レビュー結果.html">P3-D11</a>、<a href="../09_統合レビュー/11_Phase3レッドチーム監査結果.html">P3-D12</a>を参照する。</div>
 
   <h2>6. Human Gate</h2>
   <p><code>RUN-P3-INT-001</code>は、ユーザーの「RUN-P3-INT-001を承認します」を受領し、承認証跡を固定文言で記録したうえで同じ固定入口を再実行した。WSL wrapper exit codeは0、verification stateは<code>PASS</code>である。承認によって<code>UNK-P3-01</code>、<code>UNK-P3-05</code>、<code>UNK-P3-07</code>が自動解消されたわけではなく、長期利益・頑健性・本番運用の承認も含まない。</p>

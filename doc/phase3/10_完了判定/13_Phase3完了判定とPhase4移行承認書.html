@@ -20,11 +20,12 @@
   <p><strong>成果物ID:</strong> P3-D14<br>
      <strong>Phase / Step:</strong> Phase 3 / P3-12<br>
      <strong>判定日:</strong> 2026-08-10<br>
-     <strong>判定:</strong> <span class="wait">NOT_COMPLETE_UNKNOWN</span><br>
-     <strong>H3-4:</strong> <span class="wait">未承認</span></p>
+     <strong>判定:</strong> <span class="ok">COMPLETE_WITH_APPROVED_UNKNOWN</span><br>
+     <strong>H3-4:</strong> <span class="ok">承認済み（2026-08-10）</span></p>
 
-  <div class="hold"><strong>結論:</strong> P3-12の固定契約GateはPASSした。しかし、UNK-P3-01（長期データ・市場数）、UNK-P3-05（実測cost/slippage）、UNK-P3-07（正式取引所Calendar）が残り、H3-4の人間承認もないため、Phase 3完了およびPhase 4移行は承認しない。</div>
-  <div class="note"><strong>やさしい説明:</strong> 固定された問題集を使った採点は全部合格した。ただし、長い期間・本物の費用・本物の取引所の時間割はまだ調べていないので、「Phase 3が全部終わった」「次の本番準備へ進んでよい」とはまだ決めない。</div>
+  <div class="note"><strong>結論:</strong> P3-12の固定契約GateはPASSし、H3-4は承認された。UNK-P3-01、UNK-P3-05、UNK-P3-07は解消済み・PASSではなく、再開条件付きでPhase 4へ引き継ぐ。したがってPhase 3は <code>COMPLETE_WITH_APPROVED_UNKNOWN</code> として完了扱いにし、Phase 4は計画作成とBroker / Paper境界の設計・隔離検証準備まで許可する。</div>
+  <div class="hold"><strong>安全境界:</strong> この承認はBroker接続、Paper実行、実注文、Live、Secret、Cloud、利益性・頑健性の採用を含まない。各項目はPhase 4以降の個別Human Gateと品質証拠が必要である。</div>
+  <div class="note"><strong>やさしい説明:</strong> 固定された問題集の採点とPhase 3の作業は終わりにします。ただし、長い期間、本物の費用、本物の取引所の時間割はまだ調べていません。その3つは「合格」にせず、次のPhaseで調べる宿題として残します。</div>
 
   <h2>1. 最終受入条件</h2>
   <p>下表のPASSは、固定fixture・固定Manifest・固定契約・オフライン隔離の範囲に限る。利益、実市場での優位性、Broker接続、Paper、Liveの合否を意味しない。</p>
@@ -42,41 +43,42 @@
     </tbody>
   </table>
 
-  <h2>2. 残存Unknownと完了を妨げる理由</h2>
+  <h2>2. 残存UnknownとPhase 4への引継ぎ境界</h2>
   <table>
     <thead><tr><th>Unknown</th><th>未確定事項</th><th>影響</th><th>再開条件</th></tr></thead>
     <tbody>
-      <tr><td><code>UNK-P3-01</code></td><td>長期データ、市場数、長期holdout。</td><td>固定synthetic PASSを長期利益・頑健性へ一般化できない。</td><td>期間・市場・Catalog・データ品質・split・hashを固定した別実測Run。</td></tr>
-      <tr><td><code>UNK-P3-05</code></td><td>市場別実測cost/slippage、Gap約定。</td><td>固定保守値の結果を実運用costの結果と呼べない。</td><td>正式な市場別値、Gapルール、感度分析、承認済みfixture。</td></tr>
-      <tr><td><code>UNK-P3-07</code></td><td>正式取引所Calendarの継続追随。</td><td>固定6ケースは合格だが、実取引所の休日・短縮日・halt更新を保証しない。</td><td>公式Calendar版、更新監視、欠損時停止、再現fixtureの別Gate。</td></tr>
+       <tr><td><code>UNK-P3-01</code><br><span class="ok">DEFERRED_TO_PHASE4</span></td><td>長期データ、市場数、長期holdout。</td><td>固定synthetic PASSを長期利益・頑健性へ一般化できない。承認後も未解消・未PASS。</td><td>期間・市場・Catalog・データ品質・split・hashを固定した別実測Run。</td></tr>
+       <tr><td><code>UNK-P3-05</code><br><span class="ok">DEFERRED_TO_PHASE4</span></td><td>市場別実測cost/slippage、Gap約定。</td><td>固定保守値の結果を実運用costの結果と呼べない。承認後も未解消・未PASS。</td><td>正式な市場別値、Gapルール、感度分析、承認済みfixture。</td></tr>
+       <tr><td><code>UNK-P3-07</code><br><span class="ok">DEFERRED_TO_PHASE4</span></td><td>正式取引所Calendarの継続追随。</td><td>固定6ケースは合格だが、実取引所の休日・短縮日・halt更新を保証しない。承認後も未解消・未PASS。</td><td>公式Calendar版、更新監視、欠損時停止、再現fixtureの別Gate。</td></tr>
     </tbody>
   </table>
 
-  <h2>3. H3-4で承認を求める事項</h2>
-  <p>本書はH3-4を承認済みとは扱わない。次の3点を人間が明示的に決めるまで、Phase 4へ移行しない。</p>
+  <h2>3. H3-4承認の反映</h2>
+  <p>ユーザーの <code>UNK-P3-01/05/07、H3-4 を承認します。</code> を受領した。次の範囲を承認済みとして固定する。</p>
   <ol>
-    <li>P3-AC-01〜08のPASSを、固定契約・オフライン・非利益採用の範囲で正式成果物として利用してよいか。</li>
-    <li>UNK-P3-01、UNK-P3-05、UNK-P3-07をPhase 4へ送るか、Phase 3内で解消するか。送る場合の期限と再開条件。</li>
-    <li>Phase 4でPaper/Broker境界を設計・検証する範囲。Secret投入、実注文、Live開始は別のHuman Gateとするか。</li>
+    <li>P3-AC-01〜08を、固定契約・オフライン・非利益採用の範囲で正式成果物として利用する。</li>
+    <li>UNK-P3-01、UNK-P3-05、UNK-P3-07を未解消のままPhase 4へ送り、各再開条件をPhase 4の実行計画へ登録する。</li>
+    <li>Phase 4でPaper / Broker境界を設計・隔離検証する。ただしSecret投入、実注文、Live開始は別のHuman Gateとする。</li>
   </ol>
 
-  <h2>4. Phase 4への候補引渡し（H3-4承認前）</h2>
+  <h2>4. Phase 4への候補引渡し（H3-4承認済み・限定範囲）</h2>
   <table>
     <thead><tr><th>候補入力</th><th>利用可能な範囲</th><th>利用不可・保留</th></tr></thead>
     <tbody>
       <tr><td>Strategy / Backtest固定契約</td><td>設計・テスト・Paper用の境界検討に参照可能。</td><td>実利益、実注文数量、Live適合性の証明には使わない。</td></tr>
       <tr><td>OrderIntent / Manifest / hash / snapshot</td><td>Phase 4の安全境界設計の入力候補。</td><td>Broker送信、Secret、Cloud、実注文の許可ではない。</td></tr>
-      <tr><td>残存Unknown台帳</td><td>Phase 4実行計画の再開条件として引き渡す。</td><td>UnknownをPASSや完了へ自動昇格しない。</td></tr>
+       <tr><td>残存Unknown台帳</td><td>Phase 4実行計画の再開条件として引き渡す。3件とも承認済み延期であり、未解消のまま管理する。</td><td>UnknownをPASSへ自動昇格しない。再開条件を満たすまで利益・本番利用へ使わない。</td></tr>
     </tbody>
   </table>
 
   <h2>5. 最終証跡</h2>
   <ul>
-    <li><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json">RUN-P3-INT-001 P3-12集約summary</a>：final_status PASS、quality_gate_status PASS、phase3_completion_status NOT_COMPLETE_UNKNOWN。</li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json">RUN-P3-INT-001 P3-12集約summary</a>：固定Runのfinal_status PASS、quality_gate_status PASS。Run実行時の<code>phase3_completion_status=NOT_COMPLETE_UNKNOWN</code>は、H3-4前の機械実行結果として履歴保存する。</li>
     <li><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/verification.json">最終verification</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json">最終WSL capture</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/restore.json">restore</a>。</li>
-    <li><a href="12_Phase3レビュー反映履歴.html">P3-D13レビュー反映履歴</a> / <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a> / <a href="../../../plan/phase3/ログ/P3-12_実行ログ_2026-08-10.md">P3-12実行ログ</a>。</li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-INT-001/human-gate/h3-4-approval.md">H3-4承認記録</a> / <a href="../../../tests/evidence/phase3/RUN-P3-INT-001/human-gate/h3-4-approval.json">H3-4承認JSON</a> / <a href="12_Phase3レビュー反映履歴.html">P3-D13レビュー反映履歴</a> / <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a>。</li>
+    <li><a href="../../../plan/phase3/ログ/P3-12_実行ログ_2026-08-10.md">P3-12実行ログ</a> / <a href="../../../plan/Phase3_実行計画書_v0.1_2026-08-09.md">Phase 3実行計画書</a>。</li>
   </ul>
-  <div class="hold"><strong>最終宣言:</strong> P3-12は実行済みで、固定契約GateはPASS。Phase 3全体の判定は <code>NOT_COMPLETE_UNKNOWN</code>。H3-4承認前のPhase 4移行、Broker、Paper、Live、Secret、利益採用は行わない。</div>
+  <div class="note"><strong>最終宣言:</strong> P3-12は実行済みで固定契約GateはPASS。H3-4承認により、Phase 3全体は <code>COMPLETE_WITH_APPROVED_UNKNOWN</code>、Phase 4は <code>AUTHORIZED_FOR_PHASE4_PLANNING_AND_BOUNDARY_DESIGN</code> とする。Broker、Paper実行、Live、Secret、利益採用は別Gate前のため行わない。</div>
 </main>
 </body>
 </html>

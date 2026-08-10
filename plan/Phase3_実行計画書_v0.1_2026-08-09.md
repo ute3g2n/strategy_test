@@ -1,6 +1,6 @@
 # Phase 3 実行計画書
 
-> **現行状態（2026-08-10）**: H3-3は承認済み。P3-IR-001〜004を採用してP3-12を実行し、固定契約Gate、WSL固定4 Gate、Calendar 6ケース、M30 provenance、9件の実質レビューをPASSした。P3-D13/P3-D14を作成したが、UNK-P3-01/05/07とH3-4未承認のため、Phase 3の完了判定は`NOT_COMPLETE_UNKNOWN`、Phase 4移行は未実施である。この追補を現行正本とし、P3-11停止中の記述は履歴として扱う。
+> **現行状態（2026-08-10）**: H3-3とH3-4は承認済み。P3-IR-001〜004を採用してP3-12を実行し、固定契約Gate、WSL固定4 Gate、Calendar 6ケース、M30 provenance、9件の実質レビューをPASSした。UNK-P3-01/05/07は解消済み・PASSではなく、再開条件付きでPhase 4へ延期する。Phase 3の総合判定は`COMPLETE_WITH_APPROVED_UNKNOWN`、Phase 4は計画作成とBroker / Paper境界の設計・隔離検証準備まで許可する。Broker接続、Paper実行、実注文、Live、Secret、Cloud、利益性・頑健性の採用は別Human Gate前のため停止する。この追補を現行正本とし、P3-11停止中の記述は履歴として扱う。
 
 作成日: 2026-08-09  
 対象: タートルズ・トレンドフォロー自動売買システム  
@@ -265,7 +265,7 @@ Phase 3で作る大容量データは次へ保存する。バックアップ、�
 | H3-1R | 承認済み（2026-08-09） | 30分足を含む改訂fixture、期待OHLCV、session境界、同時close順、Manifest/timeframe rule版、新hash、追加REDテストを凍結する。改訂承認により、v2は履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する。 | `RES-P3-H3-1R-REVISION`。P3-06/P3-07はv3を正本として実装・GREEN化する。既存15分〜日足の承認済み範囲は変更しない。 |
 | H3-2 | 承認済み（2026-08-09） | LEANを主PoC候補として、固定版・hash・公式配布元をP3-09開始前に証跡化して導入する。必要な長期履歴は `E:\strategy_test_data\phase3\datasets\` に限る。OD-02はPhase 3では候補選定まで、最終決定はPhase 4のPaper証拠後とする。 | Broker、Secret、実注文、Live運用は引き続き許可しない。固定版・hashを記録できない導入は行わない。 |
 | H3-3 | P3-11完了後 | 統合レビューとレッドチーム指摘の採否、残Unknownの送り先。 | P3-12の完了判定へ進めない。 |
-| H3-4 | P3-12完了後 | Phase 3完了、Backtest結果の利用範囲、Phase 4 Broker / Paper基盤への移行。 | Phase 4へ進めない。 |
+| H3-4 | P3-12完了後 | Phase 3完了、Backtest結果の利用範囲、Phase 4 Broker / Paper基盤への移行。 | 承認済み。Phase 4の計画作成とBroker / Paper境界の設計・隔離検証準備のみ許可し、接続・実行・Live・Secretは別Gateとする。 |
 
 H3-2は外部データや外部依存を使う許可であり、Secret投入、Broker接続、実注文、Live運用の許可ではない。
 
@@ -1382,10 +1382,10 @@ P3-11時点のG14/G15および実行結果欄には、H3-3承認前の停止状�
 |---|---|---|
 | G14 / P3-11 | 実行済み・指摘採用済み・H3-3承認済み | P3-IR-001〜004、P3-D11、P3-D12、H3-3承認記録 |
 | G15 / P3-12 | 実行済み・固定契約Gate PASS | `RUN-P3-INT-001` WSL固定4 Gate、P3-AC-01〜08、P3-12実行ログ |
-| Phase 3完了 | `NOT_COMPLETE_UNKNOWN` | UNK-P3-01、UNK-P3-05、UNK-P3-07が残り、H3-4未承認 |
-| Phase 4移行 | 未実施 | H3-4承認前のBroker / Paper / Live / Secretは対象外 |
+| Phase 3完了 | `COMPLETE_WITH_APPROVED_UNKNOWN` | H3-4承認済み。UNK-P3-01、UNK-P3-05、UNK-P3-07は未解消のままPhase 4へ延期 |
+| Phase 4移行 | 計画・境界設計のみ許可 | Broker接続、Paper実行、実注文、Live、Secret、Cloud、利益性・頑健性の採用は別Gate |
 
-最終検証はWindows `330 passed`、ruff check / format check、mypy PASS、BIASおよび統合RunのWSL固定4 Gate PASS、Calendar 6ケースPASS、M30 provenance PASS、9件の実質レビューAPPROVEである。利益採用、長期頑健性、実測cost/slippage、正式取引所CalendarはUnknownとして維持する。
+最終検証はWindows `330 passed`、ruff check / format check、mypy PASS、BIASおよび統合RunのWSL固定4 Gate PASS、Calendar 6ケースPASS、M30 provenance PASS、9件の実質レビューAPPROVEである。H3-4承認記録は`tests/evidence/phase3/RUN-P3-INT-001/human-gate/h3-4-approval.md`に保存した。利益採用、長期頑健性、実測cost/slippage、正式取引所CalendarはUnknownとして維持し、Phase 4の再開条件へ引き継ぐ。
 
 正式成果物: `doc/phase3/10_完了判定/12_Phase3レビュー反映履歴.html`、`doc/phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html`
 

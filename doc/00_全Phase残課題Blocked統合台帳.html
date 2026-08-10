@@ -78,20 +78,20 @@
   </section>
   <section class="ok-note" id="p3-12-final-current-20260810">
     <h2>P3-12最終状態（2026-08-10）</h2>
-    <p><strong>H3-3はユーザー承認済み、P3-12は実行済み。</strong> P3-11で検出したP3-IR-001～004を反映し、P3-D13（レビュー反映履歴）とP3-D14（完了判定・Phase 4移行承認書）を作成した。P3-12の契約Gate、再レビュー、WSL隔離品質GateはPASSだが、残るUnknownがあるため、Phase 3の現在判定は <code>NOT_COMPLETE_UNKNOWN</code> とする。</p>
+    <p><strong>H3-3とH3-4はユーザー承認済み、P3-12は実行済み。</strong> P3-11で検出したP3-IR-001～004を反映し、P3-D13（レビュー反映履歴）とP3-D14（完了判定・Phase 4移行承認書）を作成した。P3-12の契約Gate、再レビュー、WSL隔離品質GateはPASS。UNK-P3-01/05/07は未解消のままPhase 4へ延期し、Phase 3の現在判定は <code>COMPLETE_WITH_APPROVED_UNKNOWN</code> とする。</p>
     <table>
       <thead><tr><th>対象</th><th>現在状態</th><th>証拠・次の条件</th></tr></thead>
       <tbody>
         <tr><td>H3-3</td><td><strong>APPROVED</strong></td><td><a href="../tests/evidence/phase3/RUN-P3-INT-001/human-gate/h3-3-approval.md">承認記録</a></td></tr>
         <tr><td>P3-IR-001～004</td><td><strong>RESOLVED</strong></td><td>P3-D13、Calendar動作監査、証跡束監査、M30来歴監査、9件の専門レビュー</td></tr>
         <tr><td>P3-12</td><td><strong>PASS</strong></td><td><a href="../tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json">P3-12受入サマリー</a>、330 passed、固定4 Gate</td></tr>
-        <tr><td>H3-4</td><td><strong>NOT APPROVED</strong></td><td><a href="./phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html">D14の承認依頼</a>。Unknown解消または明示承認が必要</td></tr>
-        <tr><td>Phase 3完了・Phase 4</td><td><strong>停止中</strong></td><td>UNK-P3-01、UNK-P3-05、UNK-P3-07が残るため、完了・移行・利益採用は行わない</td></tr>
+        <tr><td>H3-4</td><td><strong>APPROVED（2026-08-10）</strong></td><td><a href="../tests/evidence/phase3/RUN-P3-INT-001/human-gate/h3-4-approval.md">承認記録</a>。Unknown 3件を未解消のままPhase 4へ引き継ぎ、計画・境界設計へ進む</td></tr>
+        <tr><td>Phase 3完了・Phase 4</td><td><strong>COMPLETE_WITH_APPROVED_UNKNOWN / 計画・境界設計のみ許可</strong></td><td>UNK-P3-01、UNK-P3-05、UNK-P3-07はPASSにせず再開条件付きで延期。Broker接続、Paper実行、Secret、Live、利益採用は別Gate待ち</td></tr>
       </tbody>
     </table>
-    <p><strong>実行証拠:</strong> <code>RUN-P3-BIAS-001</code>（execution_id <code>c89cc24545e54f9c85954ca60a30a2b8</code>）と <code>RUN-P3-INT-001</code>（execution_id <code>bd5fa1d6889c430fbf1a094a38132457</code>）はいずれもWindows正本でPASS、WSL networking modeは<code>none</code>、復元状態は<code>RESTORED</code>。Calendar 6ケース、M30来歴、専門レビューを再確認した。</p>
+    <p><strong>実行証拠:</strong> <code>RUN-P3-BIAS-001</code>（execution_id <code>c89cc24545e54f9c85954ca60a30a2b8</code>）と <code>RUN-P3-INT-001</code>（execution_id <code>bd5fa1d6889c430fbf1a094a38132457</code>）はいずれもWindows正本でPASS、WSL networking modeは<code>none</code>、復元状態は<code>RESTORED</code>。Calendar 6ケース、M30来歴、専門レビューを再確認した。H3-4の承認記録は <a href="../tests/evidence/phase3/RUN-P3-INT-001/human-gate/h3-4-approval.md">こちら</a>。</p>
     <p><a href="./phase3/10_完了判定/12_Phase3レビュー反映履歴.html">P3-D13</a> / <a href="./phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html">P3-D14</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/">RUN-P3-INT-001証拠</a></p>
-    <p><small>この欄を現在の正本とする。下に残るP3-11のH3-3未承認、P3-12停止、P3-10時点の記述は、修正前または判定時点の履歴である。</small></p>
+    <p><small>この欄を現在の正本とする。下に残るP3-11のH3-3未承認、P3-12停止、H3-4未承認、P3-10時点の記述は、修正前または判定時点の履歴である。Run summary内の<code>NOT_COMPLETE_UNKNOWN</code>もH3-4前の機械実行結果として保持し、現在のHuman Gate判定で上書きしない。</small></p>
   </section>
   <section class="ok-note" id="ledger-wide-audit-20260809">
     <h2>統合台帳全体点検の実施（2026-08-09）</h2>
@@ -147,10 +147,10 @@
 
   <h2>1. まず、いまの状態</h2>
   <div class="cards">
-    <div class="card stop"><strong>1件</strong>P3-12を止めているHuman Gate（H3-3）</div>
+    <div class="card done"><strong>0件</strong>P3-12を止めているHuman Gate（H3-3/H3-4承認済み）</div>
     <div class="card wait"><strong>28件</strong>期限までは安全に保留できる根本課題</div>
     <div class="card done"><strong>15組</strong>解決済みとして確認できた主な課題</div>
-    <div class="card phase"><strong>0–11</strong>Phase 3計画・P3-01〜P3-11。P3-11はHigh 2・Medium 2、H3-3承認待ち。P3-12、Phase 3完了、Paper、Live、Phase 4移行は停止中</div>
+    <div class="card phase"><strong>0–12</strong>Phase 3計画・P3-01〜P3-12。固定契約範囲は完了、Unknown 3件はPhase 4へ延期。Phase 4は計画・Broker / Paper境界設計のみ許可</div>
   </div>
   <p class="small">件数は、同じ原因を別の文書が違う名前で書いている場合に一つへまとめた「根本課題」の数です。たとえば、同じロール規則の問題を Phase 1 と Phase 2 が別IDで書いていても、一件として数えます。</p>
 
@@ -169,8 +169,8 @@
        <tr><td><code>H3-1</code></td><td>Golden・時間足・Calendar・性能fixture凍結</td><td><span class="badge done">承認済み（2026-08-09）</span></td><td>固定fixture、期待Signal/Directive/State、15分・1時間・4時間・日足の期待値、Calendar境界、同時close順序、Decimal精度、丸め、hash、出力方式はTargetPosition、原典日中突破は<code>M15_CLOSE_CONFIRMED_V1</code>、Look-ahead/Bias、5市場性能fixtureと合格値を凍結した。</td><td><code>RES-P3-H3-1</code>。ユーザーの「H3-1 を承認します」を2026-08-09に受領。P3-D06とRUN-P3-GOLD-001のRED証跡を採用する。<br><small>やさしい説明: これまでに作ったテスト問題と答え、時計の区切り方を、この内容で進めてよいと承認しました。</small></td></tr>
        <tr><td><code>H3-1R</code></td><td>30分足追加後の再凍結</td><td><span class="badge ok">承認済み（2026-08-09）</span><br><span class="badge done">改訂承認済み（2026-08-09）</span></td><td>30分足を加えたv2 fixture、30分足のOHLCV・Calendar境界・同時close順、Manifest/timeframe rule版、新hash、追加Golden/Backtest REDを凍結する。P3-06でGT-TUR-038のv2入力が実M1 30本を含まない矛盾を発見した。</td><td>ユーザーは「v3では実M1を連続30本必須とし、不足するM30は停止」と改訂承認した。v2は過去の承認証跡として保存し、v3を新設して安全な実装・再検証を進める。<br><small>やさしい説明: 古い問題集は消しません。ただし、これからの答え合わせでは1分足30本がそろわない30分足を必ず止めます。</small></td></tr>
        <tr><td><code>H3-2</code></td><td>外部engine依存・長期データ・OD-02範囲</td><td><span class="badge done">承認済み（2026-08-09）</span></td><td>LEANを主PoC候補として、P3-08Aで固定版・hashを記録した依存だけをP3-09のローカルPoCに使う。長期履歴を使う場合は <code>E:\strategy_test_data\phase3\datasets\</code> に保存する。OD-02はPhase 3では候補選定まで、最終決定はPhase 4のPaper証拠後とする。</td><td><code>RES-P3-H3-2</code>。ユーザーの「H3-2はあなたの推奨判断で承認します」を受領。LEANを主候補、NautilusTraderを固定失敗条件での代替候補とする。Broker、Secret、実注文、Live運用はこの承認に含めない。<br><small>やさしい説明: LEANを使って安全な練習試験を始めてよい、という許可です。本番で使うと決めたわけではありません。</small></td></tr>
-       <tr><td><code>H3-3</code></td><td>Phase 3レビュー指摘の採否</td><td><span class="badge stop">P3-11実行済み・承認待ち</span></td><td>統合レビューとレッドチーム監査の指摘、修正方針、残Unknownの送り先。</td><td><a href="./phase3/09_統合レビュー/10_Phase3統合レビュー結果.html">P3-D11</a> / <a href="./phase3/09_統合レビュー/11_Phase3レッドチーム監査結果.html">P3-D12</a>を確認する。High 2件は修正または明示的な停止を決め、承認だけで無効化しない。承認記録がないためP3-12は停止中。</td></tr>
-      <tr><td><code>H3-4</code></td><td>Phase 3完了・Phase 4移行</td><td><span class="badge wait">P3-12未実行・未承認</span></td><td>Strategy / Backtest基盤の完了、結果の利用範囲、Phase 4 Broker / Paper基盤へ進む条件。</td><td>P3-D13/P3-D14と最終Gateを確認する。現在はP3-D14未作成であり、Phase 4へ引き渡さない。</td></tr>
+       <tr><td><code>H3-3</code></td><td>Phase 3レビュー指摘の採否</td><td><span class="badge done">承認済み（2026-08-10）</span></td><td>統合レビューとレッドチーム監査の指摘、修正方針、残Unknownの送り先。</td><td><a href="./phase3/09_統合レビュー/10_Phase3統合レビュー結果.html">P3-D11</a> / <a href="./phase3/09_統合レビュー/11_Phase3レッドチーム監査結果.html">P3-D12</a>の4指摘をP3-12で修正・再レビューし、ユーザー承認を記録した。Unknown 3件はPASSにせずPhase 4へ延期。</td></tr>
+       <tr><td><code>H3-4</code></td><td>Phase 3完了・Phase 4移行</td><td><span class="badge done">承認済み（2026-08-10）</span></td><td>Strategy / Backtest基盤の完了、結果の利用範囲、Phase 4 Broker / Paper基盤へ進む条件。</td><td><a href="./phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html">P3-D14</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/human-gate/h3-4-approval.md">H3-4承認記録</a>。Phase 4は計画・境界設計・隔離検証準備のみ許可し、接続・実行・Liveは別Gateとする。</td></tr>
       <tr><td><code>H3-5</code></td><td>P3-08 / RUN-P3-BIAS-001</td><td><span class="badge done">契約範囲は承認済み・証跡再整合待ち</span></td><td>Cost、Roll、Gap、Holdout契約実装を、固定fixture・機械Gate・WSL隔離・独立レビューの証跡とともにP3-08の契約範囲として受け入れてよいか。</td><td>ユーザーが「RUN-P3-BIAS-001を承認します」と明示したため、契約範囲のH3-5承認は維持する。ただしP3-11のP3-IR-002でcanonical PASSとcapture/automation/host/restoreの不一致が判明したため、承認後再Runと整合チェック完了までP3-12の最終根拠へ再利用しない。<a href="../tests/evidence/phase3/RUN-P3-BIAS-001/human-gate-approval.json">承認証跡</a> / <a href="./phase3/07_頑健性検証/08_Cost_Roll_Gap_Holdout検証結果.html">P3-D09</a></td></tr>
       <tr><td><code>H3-6</code></td><td>P3-10 / RUN-P3-INT-001</td><td><span class="badge done">承認済み（2026-08-10）</span></td><td>P3-AC-01〜08の契約Gate PASS、固定4 Gate、WSL隔離、fixture/hash、レビュー結果をP3-10統合Runとして正式受入するか。長期利益・頑健性・本番利用は承認範囲に含めない。</td><td>ユーザーが「RUN-P3-INT-001を承認します」と明示し、固定文言を含むHuman Gate証跡を保存した。同じ固定入口を再実行し、wrapper exit code 0、verification state <code>PASS</code>を確認した。<a href="../tests/evidence/phase3/RUN-P3-INT-001/human-gate-user-declaration.md">承認記録</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json">P3-10 summary</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json">WSL証跡</a> / <a href="./phase3/07_頑健性検証/10_P3-10_統合Replay_Golden_Bias検証結果.html">正式結果</a></td></tr>
     </tbody>
@@ -554,8 +554,8 @@ firewall=true</pre></li>
     <p><strong>状態:</strong> <span class="badge done">契約Gate PASS・H3-6 Human Gate承認済み</span>。<code>RUN-P3-INT-001</code>でP3-AC-01〜08を全件PASSとし、設計、テストID、実装path、Run証跡、A150/A160/A30/A40レビューの追跡をそろえた。未割当・根拠なしのPASSは0件である。</p>
     <p><strong>隔離品質:</strong> WSL Ubuntu-24.04 / networking mode <code>none</code>でformatter、lint、type、testの固定4 Gateを全てPASSした。入力fixtureの前後hashは一致し、target-only change hashはManifestと一致する。承認後のexecution idは<code>6c38c704dc534b7c98f395d1105d82b7</code>である。</p>
     <p><strong>証跡の扱い:</strong> 古い<code>RUN-P3-GOLD-001</code>のBLOCKED証跡は履歴として保存し、最終PASSの根拠に使っていない。現在の固定品質Suiteを代替根拠として明記した。</p>
-    <p><strong>未解消:</strong> <code>UNK-P3-01</code>（長期データ・市場数）、<code>UNK-P3-05</code>（実測cost/slippage・Gap）、<code>UNK-P3-07</code>（正式Calendar）は継続する。<code>profitability_decision=NOT_MADE</code>、<code>phase3_completion_status=NOT_COMPLETE_UNKNOWN</code>であり、長期利益、頑健性、Broker、Paper、Live、本番採用をPASSとはしない。</p>
-    <p><strong>Human Gate:</strong> ユーザーの「RUN-P3-INT-001を承認します」を受領し、固定文言を含む承認記録を保存した。同じ固定入口の再実行でwrapper exit code 0、canonical verificationは<code>PASS</code>となった。P3-11/P3-12、Phase 4へ自動的に進めたわけではなく、長期Unknownは継続する。</p>
+     <p><strong>未解消:</strong> <code>UNK-P3-01</code>（長期データ・市場数）、<code>UNK-P3-05</code>（実測cost/slippage・Gap）、<code>UNK-P3-07</code>（正式Calendar）は継続する。固定Runの<code>profitability_decision=NOT_MADE</code>と<code>phase3_completion_status=NOT_COMPLETE_UNKNOWN</code>は履歴として保持し、長期利益、頑健性、Broker、Paper、Live、本番採用をPASSとはしない。</p>
+     <p><strong>Human Gate:</strong> ユーザーの「RUN-P3-INT-001を承認します」を受領し、固定文言を含む承認記録を保存した。同じ固定入口の再実行でwrapper exit code 0、canonical verificationは<code>PASS</code>となった。さらにH3-4でUnknown 3件のPhase 4延期とPhase 3完了を承認したため、総合状態は<code>COMPLETE_WITH_APPROVED_UNKNOWN</code>、Phase 4は計画・境界設計のみ許可する。</p>
     <p><strong>証跡:</strong> <a href="../tests/evidence/phase3/RUN-P3-INT-001/run-manifest.json">Run Manifest</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json">P3-10 summary</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/verification.json">verification</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json">WSL capture</a> / <a href="./phase3/07_頑健性検証/10_P3-10_統合Replay_Golden_Bias検証結果.html">正式結果</a> / <a href="../plan/phase3/ログ/P3-10_実行ログ_2026-08-10.md">実行ログ</a></p>
     <p><small>やさしい説明: 8つの必須の答え合わせ、通信を切った場所での確認、このRunを正式に受け取る人のサインがそろいました。長い期間の成績や本番で使えるかどうかは、まだ別の宿題です。</small></p>
   </section>
@@ -634,6 +634,12 @@ firewall=true</pre></li>
     <p><strong>本プロジェクトへの採用値:</strong> ユーザー決定により、1分足の売買システムでは、(a) bar_close_timeから受信まで2秒以内を正常、2秒超〜5秒を警告、5秒超をSignal停止、(b) 市場が開いていて次の1分足が15秒以上来なければSignal停止、(c) Provider/transport側は別指標としてp99.98が200ms以内を目標にし、アプリ側の5秒判定と混ぜない、の二層を採用する。これはFISDの200msをそのまま1分足の停止値にしたものではなく、外部目安と本プロジェクトの1分足用途から導いた推奨推論である。実測後の見直しは可能だが、未承認の残課題としては扱わない。</p>
      <p><small>やさしい説明: 高速道路の通過時間と、家に荷物が届くまでの時間は別々に測ります。このシステムでは、1分足が締まってから5秒を超えたら、古い情報で売買しないと決めています。</small></p>
     <p><strong>調査日:</strong> 2026-08-09。URLと確認日をこの台帳に固定し、基準値を「法律で決まった唯一の値」とは扱わない。</p>
+  </section>
+  <section class="ok-note" id="p3-h3-4-approval-current-20260810">
+    <h2>H3-4承認の反映（2026-08-10）</h2>
+    <p>ユーザーの「UNK-P3-01/05/07、H3-4 を承認します。」を受領し、<code>h3-4-approval.md</code> / <code>h3-4-approval.json</code>へ固定した。3件のUnknownは解消済み・PASSではなく、Phase 4の再開条件付き延期として扱う。</p>
+    <p>これにより、Phase 3の総合状態は <code>COMPLETE_WITH_APPROVED_UNKNOWN</code>、Phase 4は計画作成とBroker / Paper境界の設計・隔離検証準備まで許可する。Broker接続、Paper実行、実注文、Live、Secret、Cloud、利益性・頑健性の採用は別Human Gate前のため停止する。</p>
+    <p><a href="../tests/evidence/phase3/RUN-P3-INT-001/human-gate/h3-4-approval.json">H3-4承認JSON</a> / <a href="./phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html">更新済みP3-D14</a></p>
   </section>
   <section class="note" id="history-p3-12-20260810">
     <h2>更新履歴 v4.6（2026-08-10）</h2>
