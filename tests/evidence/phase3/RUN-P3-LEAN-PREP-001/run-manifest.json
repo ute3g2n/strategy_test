@@ -53,9 +53,7 @@
     "critical": 0,
     "high": 0
   },
-  "unknowns": [
-    "P3-09 engine strategy fit and performance are not executed by this prep run"
-  ],
+  "unknowns": [],
   "scope_mode": "target_only",
   "checks": [
     {

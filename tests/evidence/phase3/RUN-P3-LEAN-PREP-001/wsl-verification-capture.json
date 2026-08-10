@@ -1,23 +1,27 @@
 ﻿{
-    "execution_id":  "1252e64a2cba4d3e840aa1ac944639fe",
+    "execution_id":  "bf0e73406ab34f7c93e0ccf89f9fb33d",
     "source_repository_path":  "/home/oue/strategy_test",
     "source_kind":  "wsl_verification",
-    "verification_raw":  "{\n  \"run_id\": \"RUN-P3-LEAN-PREP-001\",\n  \"state\": \"PASS\",\n  \"final_status\": \"PASS\",\n  \"reason\": \"Official fixed-digest image completed after the user authorized a longer wait; image tar/license hashes and network-none read-only offline preflight were recorded.\",\n  \"p3_09_started\": false,\n  \"trusted_scope_registered\": false,\n  \"pull_evidence\": \"tests/evidence/phase3/RUN-P3-LEAN-PREP-001/pull-attempt-long-wait.json\",\n  \"manifest\": \"tests/evidence/phase3/RUN-P3-LEAN-PREP-001/run-manifest.json\",\n  \"preflight_output\": \"E:\\\\strategy_test_data\\\\phase3\\\\engine_poc\\\\lean\\\\preflight\\\\lean-local-network-none-readonly-v2.txt\",\n  \"preflight_status\": \"PASS\"\n}\n",
+    "verification_raw":  "{\n  \"state\": \"BLOCKED\",\n  \"reason\": \"Unknown が未解決です\",\n  \"gates\": [],\n  \"generated_at\": \"2026-08-10T01:22:07.749776+00:00\",\n  \"exit_code\": 1,\n  \"scope\": \"target_only\",\n  \"input_sha256\": \"sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d\",\n  \"post_input_sha256\": \"sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d\",\n  \"target_only_change_sha256\": \"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n  \"host_wrapper_execution_id\": \"bf0e73406ab34f7c93e0ccf89f9fb33d\",\n  \"restore_pending\": true,\n  \"execution_user\": \"oue\",\n  \"execution_uid\": 1000\n}\n",
     "retrieval_exit_code":  0,
-    "captured_at":  "2026-08-10T01:16:16.1272052Z",
+    "captured_at":  "2026-08-10T01:22:08.2511169Z",
     "state":  "CAPTURED",
     "verification":  {
-                         "run_id":  "RUN-P3-LEAN-PREP-001",
-                         "state":  "PASS",
-                         "final_status":  "PASS",
-                         "reason":  "Official fixed-digest image completed after the user authorized a longer wait; image tar/license hashes and network-none read-only offline preflight were recorded.",
-                         "p3_09_started":  false,
-                         "trusted_scope_registered":  false,
-                         "pull_evidence":  "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/pull-attempt-long-wait.json",
-                         "manifest":  "tests/evidence/phase3/RUN-P3-LEAN-PREP-001/run-manifest.json",
-                         "preflight_output":  "E:\\strategy_test_data\\phase3\\engine_poc\\lean\\preflight\\lean-local-network-none-readonly-v2.txt",
-                         "preflight_status":  "PASS",
-                         "host_wrapper_execution_id":  "1252e64a2cba4d3e840aa1ac944639fe"
+                         "state":  "BLOCKED",
+                         "reason":  "Unknown が未解決です",
+                         "gates":  [
+
+                                   ],
+                         "generated_at":  "2026-08-10T01:22:07.749776+00:00",
+                         "exit_code":  1,
+                         "scope":  "target_only",
+                         "input_sha256":  "sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d",
+                         "post_input_sha256":  "sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d",
+                         "target_only_change_sha256":  "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                         "host_wrapper_execution_id":  "bf0e73406ab34f7c93e0ccf89f9fb33d",
+                         "restore_pending":  true,
+                         "execution_user":  "oue",
+                         "execution_uid":  1000
                      },
     "source_path":  "/home/oue/strategy_test/tests/evidence/phase3/RUN-P3-LEAN-PREP-001/verification.json",
     "host_isolation":  {
@@ -26,16 +30,15 @@
                            "kernel":  "6.6.87.2-microsoft-standard-WSL2",
                            "distro":  "Ubuntu-24.04",
                            "networking_mode":  "none",
-                           "host_wrapper_execution_id":  "1252e64a2cba4d3e840aa1ac944639fe",
+                           "host_wrapper_execution_id":  "bf0e73406ab34f7c93e0ccf89f9fb33d",
                            "ip_addr_summary":  "1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\n    inet 127.0.0.1/8 scope host lo\n       valid_lft forever preferred_lft forever\n    inet6 ::1/128 scope host \n       valid_lft forever preferred_lft forever",
                            "ip_route_summary":  "",
-                           "confirmed_at":  "2026-08-10T01:16:15Z",
+                           "confirmed_at":  "2026-08-10T01:22:07Z",
                            "scope":  [
                                          "scripts/quality_gate/local_p3_lean_prep.py",
                                          "tests/engine_prep",
                                          "tests/strategy",
-                                         "tests/backtest",
-                                         "tests/evidence/phase3/RUN-P3-LEAN-PREP-001"
+                                         "tests/backtest"
                                      ],
                            "input_sha256":  "sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d",
                            "input_kind":  "fixture"
