@@ -12,16 +12,17 @@
     "execution_count": 2,
     "matching": true,
     "result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
-    "sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+    "sequence_sha256": "sha256:bed65e52341e71ecb97b90a1f59781951fb23253853171178e71340ddf0e5481",
     "expected_values_source": "Core reference only",
     "lean_measurement_used_as_expected": false
   },
   "artifacts": {
-    "core_reference_sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565",
-    "lean_output_schema_sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd",
-    "parity_map_sha256": "sha256:9da3da1e72318e56db8c3962f3e9bbb86fa5bead7a5fe88d9bd74ed4c0ad4e8a",
-    "manifest_sha256": "sha256:10f57fc3b9e14dde8839af6f44dc74c6f7cd0bd82b60abda08a29af106cb1534"
+    "core_reference_sha256": "sha256:5f76c389dcc21774540a263fd0f6cf652090cd46f88a609947b8c4087f4a88e7",
+    "lean_output_schema_sha256": "sha256:197f9e4faef0cbbaf275876fb52bc0d6f6fc3231c83cf1118691a6b994ee192a",
+    "parity_map_sha256": "sha256:f137dbfb10c4e7205390103c40a470ef9c3cf72919c65d820d8df9c494fe0d95",
+    "manifest_sha256": "sha256:74f4bebcf8807a6be7fee7e64efdf43e0a4f5042d4e405684c26cb5139ff999e"
   },
+  "artifact_hash_epoch": "R04-LF-normalized-current",
   "traceability": {
     "assigned_requirement_count": 8,
     "unassigned_requirement_count": 0,

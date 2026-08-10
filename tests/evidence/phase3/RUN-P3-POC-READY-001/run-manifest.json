@@ -4,7 +4,7 @@
     "name": "LeanLocalAdapter",
     "version": "p3-lean-adapter-v1"
   },
-  "code_revision": "08bcdf1468e0e0abb7897d025c254fa91cd5cae9",
+  "code_revision": "99261c1eb766b4b5972ef0e2f97d0bfe32466e94",
   "engine": {
     "entrypoint": [
       "dotnet",
@@ -36,11 +36,11 @@
   },
   "expected": {
     "core_reference_path": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
-    "core_reference_sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565",
+    "core_reference_sha256": "sha256:5f76c389dcc21774540a263fd0f6cf652090cd46f88a609947b8c4087f4a88e7",
     "lean_output_schema_path": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
-    "lean_output_schema_sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd",
+    "lean_output_schema_sha256": "sha256:197f9e4faef0cbbaf275876fb52bc0d6f6fc3231c83cf1118691a6b994ee192a",
     "parity_map_path": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/parity-map.json",
-    "parity_map_sha256": "sha256:9da3da1e72318e56db8c3962f3e9bbb86fa5bead7a5fe88d9bd74ed4c0ad4e8a"
+    "parity_map_sha256": "sha256:f137dbfb10c4e7205390103c40a470ef9c3cf72919c65d820d8df9c494fe0d95"
   },
   "fixture_child_sha256s": [
     "sha256:19eff1a99d407570e73fac74d3e0e00bbaf72c3c4278e6f046dcc6723adcc314",
@@ -56,7 +56,7 @@
   ],
   "fixture_manifest_sha256": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4",
   "input_contract_sha256": "sha256:bef0b38bbb14feff0e24be2eca21293bb0008bbbb68c88c4ce80088607cbca2a",
-  "manifest_sha256": "sha256:10f57fc3b9e14dde8839af6f44dc74c6f7cd0bd82b60abda08a29af106cb1534",
+  "manifest_sha256": "sha256:74f4bebcf8807a6be7fee7e64efdf43e0a4f5042d4e405684c26cb5139ff999e",
   "performance": {
     "elapsed_minutes": 30,
     "fixture_path": "tests/fixtures/phase3/performance_synthetic_v1.json",

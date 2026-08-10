@@ -8,7 +8,7 @@
         "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
         "hashes": {
           "core_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
-          "core_sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+          "core_sequence_sha256": "sha256:bed65e52341e71ecb97b90a1f59781951fb23253853171178e71340ddf0e5481",
           "core_state_sha256": "sha256:234998fd2b8fefefc98faca5d7303aee4e73347f1df8ba6a1e948d7a0ffe88b9",
           "derived_bar_sha256_by_timeframe": {
             "M1": "sha256:068f1c7c78d69e81742d9b8ffe03e2b1a781fab85efcb12893292ed23c06ea08",
@@ -17,7 +17,7 @@
           }
         },
         "key": "p3_ac.P3-AC-01",
-        "sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565"
+        "sha256": "sha256:5f76c389dcc21774540a263fd0f6cf652090cd46f88a609947b8c4087f4a88e7"
       },
       "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-01/",
       "lean_output": {
@@ -26,7 +26,7 @@
       },
       "lean_output_schema": {
         "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
-        "sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd"
+        "sha256": "sha256:197f9e4faef0cbbaf275876fb52bc0d6f6fc3231c83cf1118691a6b994ee192a"
       },
       "parity_decision": {
         "mismatch_action": "STOPPED_ENGINE_PARITY_MISMATCH",
@@ -46,12 +46,12 @@
         "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
         "hashes": {
           "core_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
-          "core_sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+          "core_sequence_sha256": "sha256:bed65e52341e71ecb97b90a1f59781951fb23253853171178e71340ddf0e5481",
           "core_state_sha256": "sha256:234998fd2b8fefefc98faca5d7303aee4e73347f1df8ba6a1e948d7a0ffe88b9",
-          "signal_sha256": "sha256:fefd91cd1bcefdb2b5db4523cf77b99f9556a6f6aff2c83f1e8801867a9d7e01"
+          "signal_sha256": "sha256:5b8d0ddd6c9c2780d306a03cb696bc7242cfc805e7e200e216bab2f2b8b06032"
         },
         "key": "p3_ac.P3-AC-02",
-        "sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565"
+        "sha256": "sha256:5f76c389dcc21774540a263fd0f6cf652090cd46f88a609947b8c4087f4a88e7"
       },
       "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-02/",
       "lean_output": {
@@ -60,7 +60,7 @@
       },
       "lean_output_schema": {
         "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
-        "sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd"
+        "sha256": "sha256:197f9e4faef0cbbaf275876fb52bc0d6f6fc3231c83cf1118691a6b994ee192a"
       },
       "parity_decision": {
         "mismatch_action": "STOPPED_ENGINE_PARITY_MISMATCH",
@@ -81,7 +81,7 @@
         "hashes": {
           "calendar_fixture_sha256": "sha256:986e87fec5abd90fdbf81f485737d099131b54fb1cd1326bd7399d22aa05bdc6",
           "core_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
-          "core_sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+          "core_sequence_sha256": "sha256:bed65e52341e71ecb97b90a1f59781951fb23253853171178e71340ddf0e5481",
           "core_state_sha256": "sha256:234998fd2b8fefefc98faca5d7303aee4e73347f1df8ba6a1e948d7a0ffe88b9",
           "derived_bar_sha256_by_timeframe": {
             "M1": "sha256:068f1c7c78d69e81742d9b8ffe03e2b1a781fab85efcb12893292ed23c06ea08",
@@ -90,7 +90,7 @@
           }
         },
         "key": "p3_ac.P3-AC-03",
-        "sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565"
+        "sha256": "sha256:5f76c389dcc21774540a263fd0f6cf652090cd46f88a609947b8c4087f4a88e7"
       },
       "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-03/",
       "lean_output": {
@@ -99,7 +99,7 @@
       },
       "lean_output_schema": {
         "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
-        "sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd"
+        "sha256": "sha256:197f9e4faef0cbbaf275876fb52bc0d6f6fc3231c83cf1118691a6b994ee192a"
       },
       "parity_decision": {
         "mismatch_action": "STOPPED_ENGINE_PARITY_MISMATCH",
@@ -119,14 +119,14 @@
         "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
         "hashes": {
           "core_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
-          "core_sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+          "core_sequence_sha256": "sha256:bed65e52341e71ecb97b90a1f59781951fb23253853171178e71340ddf0e5481",
           "core_state_sha256": "sha256:234998fd2b8fefefc98faca5d7303aee4e73347f1df8ba6a1e948d7a0ffe88b9",
           "market_event_sha256": "sha256:9a242ce7f9a4db3638c711d18a31da2dd3c50b983f7496f873071da7d4dc7128",
-          "signal_sha256": "sha256:fefd91cd1bcefdb2b5db4523cf77b99f9556a6f6aff2c83f1e8801867a9d7e01",
-          "trace_sha256": "sha256:19ef80aea173e7e5eaae43c325186ca1a6303276eb05e692142fd7a32973d1e5"
+          "signal_sha256": "sha256:5b8d0ddd6c9c2780d306a03cb696bc7242cfc805e7e200e216bab2f2b8b06032",
+          "trace_sha256": "sha256:f2f4b6bdeac9cb5ecdf20d0512a83cd98f165b6da129e7bcf81bad80c79c04a1"
         },
         "key": "p3_ac.P3-AC-04",
-        "sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565"
+        "sha256": "sha256:5f76c389dcc21774540a263fd0f6cf652090cd46f88a609947b8c4087f4a88e7"
       },
       "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-04/",
       "lean_output": {
@@ -135,7 +135,7 @@
       },
       "lean_output_schema": {
         "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
-        "sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd"
+        "sha256": "sha256:197f9e4faef0cbbaf275876fb52bc0d6f6fc3231c83cf1118691a6b994ee192a"
       },
       "parity_decision": {
         "mismatch_action": "STOPPED_ENGINE_PARITY_MISMATCH",
@@ -156,11 +156,11 @@
         "hashes": {
           "adapter_artifact_sha256": "sha256:fc1a7325006e447100b327a1caab7e15c1994bb17a09bc5505574403ddb05b52",
           "core_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
-          "core_sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+          "core_sequence_sha256": "sha256:bed65e52341e71ecb97b90a1f59781951fb23253853171178e71340ddf0e5481",
           "core_state_sha256": "sha256:234998fd2b8fefefc98faca5d7303aee4e73347f1df8ba6a1e948d7a0ffe88b9"
         },
         "key": "p3_ac.P3-AC-05",
-        "sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565"
+        "sha256": "sha256:5f76c389dcc21774540a263fd0f6cf652090cd46f88a609947b8c4087f4a88e7"
       },
       "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-05/",
       "lean_output": {
@@ -169,7 +169,7 @@
       },
       "lean_output_schema": {
         "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
-        "sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd"
+        "sha256": "sha256:197f9e4faef0cbbaf275876fb52bc0d6f6fc3231c83cf1118691a6b994ee192a"
       },
       "parity_decision": {
         "mismatch_action": "STOPPED_ENGINE_PARITY_MISMATCH",
@@ -189,12 +189,12 @@
         "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
         "hashes": {
           "core_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
-          "core_sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+          "core_sequence_sha256": "sha256:bed65e52341e71ecb97b90a1f59781951fb23253853171178e71340ddf0e5481",
           "core_state_sha256": "sha256:234998fd2b8fefefc98faca5d7303aee4e73347f1df8ba6a1e948d7a0ffe88b9",
           "input_sha256": "sha256:9a242ce7f9a4db3638c711d18a31da2dd3c50b983f7496f873071da7d4dc7128"
         },
         "key": "p3_ac.P3-AC-06",
-        "sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565"
+        "sha256": "sha256:5f76c389dcc21774540a263fd0f6cf652090cd46f88a609947b8c4087f4a88e7"
       },
       "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-06/",
       "lean_output": {
@@ -203,7 +203,7 @@
       },
       "lean_output_schema": {
         "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
-        "sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd"
+        "sha256": "sha256:197f9e4faef0cbbaf275876fb52bc0d6f6fc3231c83cf1118691a6b994ee192a"
       },
       "parity_decision": {
         "mismatch_action": "STOPPED_ENGINE_PARITY_MISMATCH",
@@ -223,13 +223,13 @@
         "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
         "hashes": {
           "core_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
-          "core_sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+          "core_sequence_sha256": "sha256:bed65e52341e71ecb97b90a1f59781951fb23253853171178e71340ddf0e5481",
           "core_state_sha256": "sha256:234998fd2b8fefefc98faca5d7303aee4e73347f1df8ba6a1e948d7a0ffe88b9",
           "first_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
           "second_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101"
         },
         "key": "p3_ac.P3-AC-07",
-        "sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565"
+        "sha256": "sha256:5f76c389dcc21774540a263fd0f6cf652090cd46f88a609947b8c4087f4a88e7"
       },
       "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-07/",
       "lean_output": {
@@ -238,7 +238,7 @@
       },
       "lean_output_schema": {
         "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
-        "sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd"
+        "sha256": "sha256:197f9e4faef0cbbaf275876fb52bc0d6f6fc3231c83cf1118691a6b994ee192a"
       },
       "parity_decision": {
         "mismatch_action": "STOPPED_ENGINE_PARITY_MISMATCH",
@@ -257,15 +257,15 @@
       "core_reference": {
         "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/core-reference.json",
         "hashes": {
-          "commit_marker_sha256": "sha256:78c7dc6985de7632b20c2a6a1ddba8fd97afcb48edfd3ca295edccca745a448f",
+          "commit_marker_sha256": "sha256:a777b3c0eb9248b536a62149d42ea1beb724e847ba71d5638fb7494f6cd8c1a9",
           "core_result_sha256": "sha256:72ae20a88737a70a46486891c2f7dad938575d7d49bbd8b1655f8f550d494101",
-          "core_sequence_sha256": "sha256:4a6ad8e779178553dd9a66c8107d4a1570c5d29b7a369383f5a9b04ed0dd236c",
+          "core_sequence_sha256": "sha256:bed65e52341e71ecb97b90a1f59781951fb23253853171178e71340ddf0e5481",
           "core_state_sha256": "sha256:234998fd2b8fefefc98faca5d7303aee4e73347f1df8ba6a1e948d7a0ffe88b9",
-          "signal_sha256": "sha256:fefd91cd1bcefdb2b5db4523cf77b99f9556a6f6aff2c83f1e8801867a9d7e01",
-          "snapshot_sha256": "sha256:7937cca6e241ff7186d446cb787d0857406239b56cb13bb2db2af1e70f756faf"
+          "signal_sha256": "sha256:5b8d0ddd6c9c2780d306a03cb696bc7242cfc805e7e200e216bab2f2b8b06032",
+          "snapshot_sha256": "sha256:09072eebb3f331cc20414049aa9eb130e5ac8ef28f992e2ca539555537d223ca"
         },
         "key": "p3_ac.P3-AC-08",
-        "sha256": "sha256:9d15de954b906431f176117cf1484fd2ef7480042361855d6862667d8165a565"
+        "sha256": "sha256:5f76c389dcc21774540a263fd0f6cf652090cd46f88a609947b8c4087f4a88e7"
       },
       "evidence_destination": "tests/evidence/phase3/RUN-P3-POC-001/requirements/P3-AC-08/",
       "lean_output": {
@@ -274,7 +274,7 @@
       },
       "lean_output_schema": {
         "artifact": "tests/evidence/phase3/RUN-P3-POC-READY-001/expected/lean-output-schema.json",
-        "sha256": "sha256:8a33aa78fef1689b9c4fcb587f0fd6e739cb9138d2a3d9e9542835021c2839cd"
+        "sha256": "sha256:197f9e4faef0cbbaf275876fb52bc0d6f6fc3231c83cf1118691a6b994ee192a"
       },
       "parity_decision": {
         "mismatch_action": "STOPPED_ENGINE_PARITY_MISMATCH",
