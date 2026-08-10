@@ -1,0 +1,21 @@
+{
+  "checks": {
+    "derived_bar_sha256_by_timeframe": {
+      "M1": "sha256:068f1c7c78d69e81742d9b8ffe03e2b1a781fab85efcb12893292ed23c06ea08",
+      "M15": "sha256:ea5c3a2983195b0a84b0ba19f5e34baf01ef554f263b962f32238f16ee84f1d7",
+      "M30": "sha256:a9f6de620352dba5d2eeb85c870faf98e363ba80a75143096bb76065cccfe9c7"
+    },
+    "expected": {
+      "M1": "sha256:068f1c7c78d69e81742d9b8ffe03e2b1a781fab85efcb12893292ed23c06ea08",
+      "M15": "sha256:ea5c3a2983195b0a84b0ba19f5e34baf01ef554f263b962f32238f16ee84f1d7",
+      "M30": "sha256:a9f6de620352dba5d2eeb85c870faf98e363ba80a75143096bb76065cccfe9c7"
+    },
+    "fixture_scope_note": "H1/H4/D1 require a longer fixed fixture; this 30-minute fixture covers M1/M15/M30.",
+    "status": "PASS"
+  },
+  "output_sha256": "sha256:5bacb10450a0c9f685820581a50047123d20f4991f2f462c3fb1ccdce8daf9f9",
+  "requirement_id": "P3-AC-01",
+  "run_id": "RUN-P3-POC-001",
+  "schema_version": "p3-09-acceptance-result/v1",
+  "status": "PASS"
+}

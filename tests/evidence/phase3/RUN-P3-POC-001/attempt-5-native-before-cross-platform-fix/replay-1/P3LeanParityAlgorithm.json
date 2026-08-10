@@ -387,15 +387,15 @@
     "Volume": "$0.00"
   },
   "state": {
-    "StartTime": "2026-08-10T04:33:03Z",
-    "EndTime": "2026-08-10T04:33:09Z",
+    "StartTime": "2026-08-10T04:12:55Z",
+    "EndTime": "2026-08-10T04:13:00Z",
     "RuntimeError": "",
     "StackTrace": "",
     "LogCount": "3",
     "OrderCount": "0",
     "InsightCount": "0",
     "Name": "local",
-    "Hostname": "d265481f2673",
+    "Hostname": "227bd6608afb",
     "Status": "Completed"
   },
   "algorithmConfiguration": {

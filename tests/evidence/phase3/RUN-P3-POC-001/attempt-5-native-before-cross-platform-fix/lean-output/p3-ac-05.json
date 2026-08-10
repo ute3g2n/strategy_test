@@ -1,6 +1,6 @@
 {
   "checks": {
-    "adapter_artifact_sha256": "sha256:f9060588b6a73ee566968cbc655188039a3d9cc3b4bc337a163223e83a1621b7",
+    "adapter_artifact_sha256": "sha256:53c78580f301effd767b528523003e33fb6d901cf873fc55565a08a57f535d61",
     "status": "PASS"
   },
   "output_sha256": "sha256:5bacb10450a0c9f685820581a50047123d20f4991f2f462c3fb1ccdce8daf9f9",

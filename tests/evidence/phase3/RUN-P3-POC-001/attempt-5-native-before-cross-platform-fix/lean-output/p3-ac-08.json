@@ -1,10 +1,11 @@
 {
   "checks": {
-    "adapter_artifact_sha256": "sha256:f9060588b6a73ee566968cbc655188039a3d9cc3b4bc337a163223e83a1621b7",
+    "commit_marker_sha256": "sha256:a777b3c0eb9248b536a62149d42ea1beb724e847ba71d5638fb7494f6cd8c1a9",
+    "snapshot_sha256": "sha256:09072eebb3f331cc20414049aa9eb130e5ac8ef28f992e2ca539555537d223ca",
     "status": "PASS"
   },
   "output_sha256": "sha256:5bacb10450a0c9f685820581a50047123d20f4991f2f462c3fb1ccdce8daf9f9",
-  "requirement_id": "P3-AC-05",
+  "requirement_id": "P3-AC-08",
   "run_id": "RUN-P3-POC-001",
   "schema_version": "p3-09-acceptance-result/v1",
   "status": "PASS"

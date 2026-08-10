@@ -1,6 +1,6 @@
 {
   "adapter": {
-    "artifact_sha256": "sha256:53c78580f301effd767b528523003e33fb6d901cf873fc55565a08a57f535d61",
+    "artifact_sha256": "sha256:f9060588b6a73ee566968cbc655188039a3d9cc3b4bc337a163223e83a1621b7",
     "name": "LeanLocalAdapter",
     "path": "scripts/quality_gate/p3_poc_runner.py",
     "version": "p3-09-lean-adapter-v1"
@@ -41,7 +41,7 @@
     "config_path": "tests/engine_poc/lean_project/p3-09-config.json",
     "config_sha256": "sha256:f0b1b077e77bc3fa5ece7aa1a55a976ec29f56669629aace66d89f24014429b2"
   },
-  "manifest_sha256": "sha256:0b9db738a1f82898d9c22bafb22532c64ae94d9202d427dd3a863cf9fff71d82",
+  "manifest_sha256": "sha256:1f673bfb2b2d0751441b8a65ba4ec3e2e24e208d4945b341782d9a71d9abaf8f",
   "performance": {
     "elapsed_minutes": 30,
     "fixture_path": "tests/fixtures/phase3/performance_synthetic_v1.json",

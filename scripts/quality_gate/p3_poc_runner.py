@@ -385,10 +385,13 @@ def _current_rss_bytes() -> tuple[int, str]:
             ]
 
         try:
+            windll = getattr(ctypes, "windll", None)
+            if windll is None:
+                return 0, "unavailable"
             counters = MemoryCounters()
             counters.cb = ctypes.sizeof(counters)
-            process = ctypes.windll.kernel32.GetCurrentProcess()
-            get_process_memory_info = ctypes.windll.psapi.GetProcessMemoryInfo
+            process = windll.kernel32.GetCurrentProcess()
+            get_process_memory_info = windll.psapi.GetProcessMemoryInfo
             get_process_memory_info.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_ulong]
             get_process_memory_info.restype = ctypes.c_int
             if get_process_memory_info(process, ctypes.byref(counters), counters.cb):
@@ -401,7 +404,11 @@ def _current_rss_bytes() -> tuple[int, str]:
         import resource
     except ImportError:
         return 0, "unavailable"
-    value = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)  # type: ignore[attr-defined]
+    getrusage = getattr(resource, "getrusage", None)
+    resource_self = getattr(resource, "RUSAGE_SELF", None)
+    if getrusage is None or resource_self is None:
+        return 0, "unavailable"
+    value = int(getrusage(resource_self).ru_maxrss)
     return value * (1024 if sys.platform.startswith("linux") else 1), "resource.getrusage"
 
 
