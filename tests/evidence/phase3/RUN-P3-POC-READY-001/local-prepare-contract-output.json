@@ -1,0 +1,61 @@
+{
+  "contract_sha256": "sha256:bef0b38bbb14feff0e24be2eca21293bb0008bbbb68c88c4ce80088607cbca2a",
+  "engine_started": false,
+  "entry_plan": {
+    "engine": {
+      "entrypoint": ["dotnet", "QuantConnect.Lean.Launcher.dll"],
+      "image_index_digest": "sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d",
+      "linux_amd64_digest": "sha256:9712dfd8c52d05e7292848cf0b365a02f6d603551bc883d423d2ce0877363263"
+    },
+    "execution_boundary": {
+      "automatic_data_download": false,
+      "broker": "NOT_USED",
+      "cloud": "NOT_USED",
+      "network_mode": "none",
+      "secret": "NOT_USED",
+      "write_roots": ["/tmp", "/results"]
+    },
+    "input": {
+      "paths": [
+        "tests/fixtures/phase3/run_p3_gold_fixture_manifest.json",
+        "tests/fixtures/phase3/run_p3_m30_fixture_manifest_v3.json",
+        "tests/fixtures/phase3/backtest_contract_cases_v1.json",
+        "tests/fixtures/phase3/m30_backtest_contract_cases_v2.json",
+        "tests/fixtures/phase3/m30_backtest_v2.json",
+        "tests/fixtures/phase3/calendar_us_futures_v1.json",
+        "tests/fixtures/phase3/backtest_replay_v1.json",
+        "tests/fixtures/phase3/bias_manifest_v1.json",
+        "tests/fixtures/phase3/performance_synthetic_v1.json",
+        "tests/fixtures/phase3/run_p3_strategy_fixture_manifest_v3.json"
+      ],
+      "readonly": true,
+      "root": "tests/fixtures/phase3"
+    },
+    "launch": {
+      "engine_started": false,
+      "launch_allowed": false,
+      "mode": "prepare_only"
+    },
+    "project": {
+      "config_schema": "tests/engine_poc/lean_project/config.schema.json",
+      "data_provider": "Local",
+      "template_root": "tests/engine_poc/lean_project"
+    },
+    "run_id": "RUN-P3-POC-001",
+    "schema_version": "p3-poc-entry-plan/v1"
+  },
+  "manifest": {
+    "path": "C:/project/strategy_test/tests/evidence/phase3/RUN-P3-POC-READY-001/run-manifest.json",
+    "status": "NOT_YET_FIXED"
+  },
+  "mode": "prepare",
+  "network": {
+    "observed": false,
+    "required_mode": "none"
+  },
+  "next_step": "P3-08R-03",
+  "p3_09_start_allowed": false,
+  "run_id": "RUN-P3-POC-READY-001",
+  "schema_version": "p3-poc-prepare-result/v1",
+  "status": "CONTRACT_READY"
+}

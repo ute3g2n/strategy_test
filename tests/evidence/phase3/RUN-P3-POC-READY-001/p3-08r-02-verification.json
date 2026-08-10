@@ -1,0 +1,34 @@
+{
+  "schema_version": "p3-08r-step-verification/v1",
+  "run_id": "RUN-P3-POC-READY-001",
+  "phase_id": "phase3",
+  "step_id": "P3-08R-02",
+  "status": "PASS",
+  "readiness_state": "IN_PROGRESS",
+  "implementation_commit": "b9f3c77f4f449808ec27d2c167cbea9435618068",
+  "engine_started": false,
+  "p3_09_start_allowed": false,
+  "red_green": {
+    "red": [
+      {"id": "R02-RED-001", "observation": "専用入口未作成時の契約test import failure", "resolved_by": "tests/engine_poc/entrypoint.py"},
+      {"id": "R02-RED-002", "observation": "CLI直接起動時のsrc-layout import failure", "resolved_by": "scripts/quality_gate/local_p3_poc.pyのsource root固定"}
+    ],
+    "green": {"contract_tests": "20 passed", "status": "PASS"}
+  },
+  "gates": {
+    "formatter": {"status": "PASS", "command": ".venv/Scripts/python.exe -m ruff format --check scripts/quality_gate/local_p3_poc.py tests/engine_poc"},
+    "lint": {"status": "PASS", "command": ".venv/Scripts/python.exe -m ruff check scripts/quality_gate/local_p3_poc.py tests/engine_poc"},
+    "type": {"status": "PASS", "command": ".venv/Scripts/python.exe -m mypy src/autotrade scripts/quality_gate tests/engine_poc", "checked_files": 50},
+    "contract_test": {"status": "PASS", "command": ".venv/Scripts/python.exe -m pytest tests/engine_poc tests/backtest/test_engine_contract.py -q", "result": "20 passed"},
+    "prepare": {"status": "CONTRACT_READY", "engine_started": false, "p3_09_start_allowed": false},
+    "run_mode_fire_control": {"status": "STOPPED", "reason": "P3_09_EXECUTION_NOT_IMPLEMENTED_IN_PREPARE_ENTRY", "exit_code": 2}
+  },
+  "fixtures_changed": false,
+  "external_io": {"network": "NOT_USED", "broker": "NOT_USED", "paper": "NOT_USED", "live": "NOT_USED", "cloud": "NOT_USED", "secret": "NOT_USED"},
+  "review_artifacts": [
+    "tests/evidence/phase3/RUN-P3-POC-READY-001/reviews/a40-entry.md",
+    "tests/evidence/phase3/RUN-P3-POC-READY-001/reviews/a150-entry.md",
+    "tests/evidence/phase3/RUN-P3-POC-READY-001/reviews/a160-entry.md"
+  ],
+  "next_step": "P3-08R-03"
+}
