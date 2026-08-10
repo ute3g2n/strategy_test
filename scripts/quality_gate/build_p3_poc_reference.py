@@ -236,7 +236,7 @@ def _build_core_manifest(
         "cost_profile_sha256": cost_profile_sha256,
         "adapter_version": "ENGINE_NOT_USED",
         "adapter_artifact_sha256": "ENGINE_NOT_USED",
-        "engine_identity": asdict(EngineIdentity()),
+        "engine_identity": EngineIdentity(),
         "fixture_manifest_sha256": parent["sha256"],
         "child_fixture_sha256s": [item["sha256"] for item in children],
         "input_sha256": raw_input_sha256,
@@ -245,9 +245,12 @@ def _build_core_manifest(
         "session_anchor_utc": session_anchor,
         "enabled_timeframes": list(config.enabled_timeframes),
     }
-    values["manifest_sha256"] = canonical_hash(
-        {key: _jsonable(value) for key, value in values.items() if key != "manifest_sha256"}
-    )
+    canonical_values = {
+        key: asdict(value) if key == "engine_identity" else _jsonable(value)
+        for key, value in values.items()
+        if key != "manifest_sha256"
+    }
+    values["manifest_sha256"] = canonical_hash(canonical_values)
     return ExperimentManifest(**values)
 
 
