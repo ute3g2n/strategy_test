@@ -484,7 +484,7 @@
     },
     "RUN-P3-INT-001": {
       "phase_id": "phase3",
-      "step_id": "P3-10",
+      "step_id": "P3-12",
       "design": "P3-D04-P3-D05-P3-D06-P3-D07-P3-D08-P3-D09-P3-D10",
       "requirements": ["P3-AC-01", "P3-AC-02", "P3-AC-03", "P3-AC-04", "P3-AC-05", "P3-AC-06", "P3-AC-07", "P3-AC-08"],
       "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
