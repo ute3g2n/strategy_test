@@ -1,0 +1,31 @@
+{
+  "$id": "p3-lean-project-config/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "network_mode",
+    "data_provider",
+    "automatic_data_download",
+    "input_root",
+    "write_roots",
+    "engine_digest",
+    "expected_output_schema_sha256",
+    "core_reference_sha256",
+    "launch_allowed"
+  ],
+  "properties": {
+    "schema_version": {"const": "p3-lean-project-config/v1"},
+    "run_id": {"type": "string", "pattern": "^RUN-P3-POC-001$"},
+    "network_mode": {"const": "none"},
+    "data_provider": {"const": "Local"},
+    "automatic_data_download": {"const": false},
+    "input_root": {"type": "string", "minLength": 1},
+    "write_roots": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "engine_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "expected_output_schema_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "core_reference_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "launch_allowed": {"const": false}
+  }
+}
