@@ -93,6 +93,24 @@
     <p><a href="./phase3/10_完了判定/12_Phase3レビュー反映履歴.html">P3-D13</a> / <a href="./phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html">P3-D14</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/">RUN-P3-INT-001証拠</a></p>
     <p><small>この欄を現在の正本とする。下に残るP3-11のH3-3未承認、P3-12停止、H3-4未承認、P3-10時点の記述は、修正前または判定時点の履歴である。Run summary内の<code>NOT_COMPLETE_UNKNOWN</code>もH3-4前の機械実行結果として保持し、現在のHuman Gate判定で上書きしない。</small></p>
   </section>
+  <section class="note" id="rqu-current-20260810">
+    <h2>要件定義書更新 RQU の現在状態（2026-08-10）</h2>
+    <p><strong>RQU-H0、RQU-H2、RQU-H3は承認済み、RQU-01〜RQU-10は完了。</strong> 現行の要件定義書を、これまでの実装・決定事項・証拠を反映した中学生向けC4 Level 1〜4構成へ更新した。RQU-02では既存AI部品の再利用で十分と判定し、新しいSkill、Agent、Orchestratorは追加していない。RQU-10で<code>v0.3</code>を正式Markdown・正式HTML・<code>doc/index.html</code>へ反映した。</p>
+    <table>
+      <thead><tr><th>対象</th><th>現在状態</th><th>証拠・次の条件</th></tr></thead>
+      <tbody>
+        <tr><td>RQU-H0</td><td><strong>APPROVED</strong></td><td>ユーザーの「RQU-H0を承認します。RQU-01からRQU-10までを順に実行してください。」を受領。</td></tr>
+        <tr><td>RQU-01〜RQU-04</td><td><strong>COMPLETED</strong></td><td><code>plan/requirements_update/</code>の現行事実、AI部品適合性、要件追跡、C4構成・用語・Mermaid試験。</td></tr>
+        <tr><td>RQU-H2</td><td><strong>APPROVED（2026-08-10）</strong></td><td>ユーザーの「RQU-H2を承認します。RQU-05から順に実行してください。」を受領。C4章構成、正本ルール、状態表現を採用。</td></tr>
+        <tr><td>RQU-05〜RQU-09B</td><td><strong>COMPLETED</strong></td><td><a href="../plan/requirements_update/reviews/RQU-09A_指摘採否反映表.md">RQU-09A採否表</a>、<a href="../plan/requirements_update/reviews/RQU-09B_最終再レビュー結果.md">RQU-09B再レビュー</a>、Mermaid・HTML・要求ID同期証跡。候補版<code>candidate-0.3</code>をRQU-10へ引き渡した。</td></tr>
+        <tr><td>RQU-H3</td><td><strong>APPROVED（2026-08-10）</strong></td><td>ユーザーの「RQU-H3を承認します。RQU-10を実行してください。」を受領。意味、読みやすさ、安全境界を承認し、正式化を許可した。</td></tr>
+        <tr><td>RQU-10</td><td><strong>COMPLETED</strong></td><td><a href="../plan/自動トレードシステム_要件定義書.md">正式Markdown</a>、<a href="./requirements/01_自動トレードシステム要件定義書.html">正式HTML</a>、<a href="./index.html">doc/index.html</a>を<code>v0.3</code>へ更新。実行ログ、最終検証、commit/pushを完了した。</td></tr>
+        <tr><td>RQU-UNK-01</td><td><strong>PARTIALLY_RESOLVED</strong></td><td>構文・SVG生成・静的HTML検査は確認済み。実ブラウザの文字重なり、横切れ、縦切れ、画面幅変更は、アプリ内Browserのローカル<code>file://</code>表示制限により未確認。</td></tr>
+      </tbody>
+    </table>
+    <p><small>やさしい説明: 人が「意味・読みやすさ・安全な範囲」を確認してよいと承認したので、要件定義書を正式版へ入れ替えました。ただし、実際のブラウザ画面で文字が重ならないかという確認は、まだ未PASSの課題として残しています。</small></p>
+    <p><a href="../plan/requirements_update/drafts/RQU-07_自動トレードシステム要件定義書_candidate.md">候補Markdown</a> / <a href="../plan/requirements_update/drafts/01_自動トレードシステム要件定義書_candidate.html">候補HTML</a> / <a href="../plan/requirements_update/reviews/RQU-09B_最終再レビュー結果.md">RQU-09B結果</a> / <a href="../plan/requirements_update/RQU-04_C4章構成図解仕様用語辞書_2026-08-10.md">RQU-04成果物</a> / <a href="../plan/requirements_update/evidence/mermaid/RQU-09B_final_candidate_render_result.txt">最終Mermaid試験結果</a> / <a href="../plan/要件定義書アップデート実行計画書_v0.1_2026-08-10.md">RQU実行計画</a></p>
+  </section>
   <section class="ok-note" id="ledger-wide-audit-20260809">
     <h2>統合台帳全体点検の実施（2026-08-09）</h2>
     <p>H2-3・H2-4の承認状態を更新した際、主表だけでなく、Human Gate一覧、BLK-P2-004〜012、Unknown解消欄、最新のP2-12-03状態、Phase 3判定、保存先・品質・遅延方針、履歴リンクを全件検索して突き合わせた。古い「未承認」「安全停止」「未決定」の記述は履歴として残し、現在状態の箇所は承認済み・解決済みへ整合させた。</p>
@@ -173,6 +191,9 @@
        <tr><td><code>H3-4</code></td><td>Phase 3完了・Phase 4移行</td><td><span class="badge done">承認済み（2026-08-10）</span></td><td>Strategy / Backtest基盤の完了、結果の利用範囲、Phase 4 Broker / Paper基盤へ進む条件。</td><td><a href="./phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html">P3-D14</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/human-gate/h3-4-approval.md">H3-4承認記録</a>。Phase 4は計画・境界設計・隔離検証準備のみ許可し、接続・実行・Liveは別Gateとする。</td></tr>
       <tr><td><code>H3-5</code></td><td>P3-08 / RUN-P3-BIAS-001</td><td><span class="badge done">契約範囲は承認済み・証跡再整合待ち</span></td><td>Cost、Roll、Gap、Holdout契約実装を、固定fixture・機械Gate・WSL隔離・独立レビューの証跡とともにP3-08の契約範囲として受け入れてよいか。</td><td>ユーザーが「RUN-P3-BIAS-001を承認します」と明示したため、契約範囲のH3-5承認は維持する。ただしP3-11のP3-IR-002でcanonical PASSとcapture/automation/host/restoreの不一致が判明したため、承認後再Runと整合チェック完了までP3-12の最終根拠へ再利用しない。<a href="../tests/evidence/phase3/RUN-P3-BIAS-001/human-gate-approval.json">承認証跡</a> / <a href="./phase3/07_頑健性検証/08_Cost_Roll_Gap_Holdout検証結果.html">P3-D09</a></td></tr>
       <tr><td><code>H3-6</code></td><td>P3-10 / RUN-P3-INT-001</td><td><span class="badge done">承認済み（2026-08-10）</span></td><td>P3-AC-01〜08の契約Gate PASS、固定4 Gate、WSL隔離、fixture/hash、レビュー結果をP3-10統合Runとして正式受入するか。長期利益・頑健性・本番利用は承認範囲に含めない。</td><td>ユーザーが「RUN-P3-INT-001を承認します」と明示し、固定文言を含むHuman Gate証跡を保存した。同じ固定入口を再実行し、wrapper exit code 0、verification state <code>PASS</code>を確認した。<a href="../tests/evidence/phase3/RUN-P3-INT-001/human-gate-user-declaration.md">承認記録</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/p3-acceptance-summary.json">P3-10 summary</a> / <a href="../tests/evidence/phase3/RUN-P3-INT-001/wsl-verification-capture.json">WSL証跡</a> / <a href="./phase3/07_頑健性検証/10_P3-10_統合Replay_Golden_Bias検証結果.html">正式結果</a></td></tr>
+      <tr><td><code>RQU-H0</code></td><td>要件定義書更新開始</td><td><span class="badge done">承認済み（2026-08-10）</span></td><td>現行要件、実装、決定事項、証拠を読み、C4要件定義書の更新準備を開始してよいか。</td><td>ユーザーの「RQU-H0を承認します。RQU-01からRQU-10までを順に実行してください。」を受領。RQU-01〜RQU-04の読取・追跡・構成設計を実行した。</td></tr>
+      <tr><td><code>RQU-H2</code></td><td>要件定義書C4構成更新</td><td><span class="badge done">承認済み（2026-08-10）</span></td><td>C4 Level 1〜4を主構造とし、Level 4を概念データ・状態・追跡に限定すること。実装済み、固定範囲で確認済み、承認済み延期/Unknown、将来計画、未承認/禁止境界を、色・ラベル・線種で分けること。</td><td><a href="../plan/requirements_update/RQU-04_C4章構成図解仕様用語辞書_2026-08-10.md">RQU-04構成・用語・Mermaid結果</a>。ユーザーの「RQU-H2を承認します。RQU-05から順に実行してください。」を受領し、RQU-05以降を再開した。</td></tr>
+       <tr><td><code>RQU-H3</code></td><td>要件定義書最終候補</td><td><span class="badge done">承認済み（2026-08-10）</span></td><td>RQU-09Bで確定した最終候補の意味、読みやすさ、安全境界を承認し、正式HTML・索引・正本Markdownへの差し替えを許可すること。</td><td><a href="../plan/requirements_update/reviews/RQU-09A_指摘採否反映表.md">RQU-09A採否表</a> / <a href="../plan/requirements_update/reviews/RQU-09B_最終再レビュー結果.md">RQU-09B再レビュー</a> / ユーザーの「RQU-H3を承認します。RQU-10を実行してください。」を受領。RQU-10で正式化、検証、commit/pushを完了した。</td></tr>
     </tbody>
   </table>
 

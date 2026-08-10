@@ -1,0 +1,12 @@
+INPUT=C:\project\strategy_test\plan\requirements_update\drafts\01_自動トレードシステム要件定義書_candidate.html
+BLOCKS=9
+BLOCK_1=PASS diagramType=flowchart-v2
+BLOCK_2=PASS diagramType=flowchart-v2
+BLOCK_3=PASS diagramType=sequence
+BLOCK_4=PASS diagramType=sequence
+BLOCK_5=PASS diagramType=flowchart-v2
+BLOCK_6=PASS diagramType=flowchart-v2
+BLOCK_7=PASS diagramType=class
+BLOCK_8=PASS diagramType=stateDiagram
+BLOCK_9=PASS diagramType=stateDiagram
+SUMMARY=PASS

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RQU-04 Mermaid互換性プローブ</title>
+  <style>
+    body { margin: 24px auto; max-width: 1280px; padding: 0 20px; font-family: system-ui, sans-serif; color: #1f2937; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #cbd5e1; padding: 24px; }
+    .status { padding: 12px; border-left: 4px solid #2563eb; background: #eff6ff; }
+    .diagram-shell { margin: 16px 0; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>RQU-04 Mermaid互換性プローブ</h1>
+  <p class="status" id="probe-status">描画確認中</p>
+
+  <h2>1. flowchart / subgraph / classDef</h2>
+  <div class="mermaid">
+  flowchart LR
+    subgraph USER["利用者"]
+      U["利用者"]
+    end
+    subgraph CORE["システム"]
+      C["Backtest"]
+    end
+    U -->|"実行依頼"| C
+    classDef user fill:#fef3c7,stroke:#b45309,color:#78350f;
+    classDef core fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a;
+    class U user;
+    class C core;
+  </div>
+
+  <h2>2. sequence / box</h2>
+  <div class="mermaid">
+  sequenceDiagram
+    box rgb(254,243,199) 利用者
+      participant U as 利用者
+    end
+    box rgb(219,234,254) システム
+      participant B as Backtest
+      participant R as Result
+    end
+    U->>B: 実行依頼
+    B-->>R: 結果または停止理由
+    R-->>U: 証跡
+  </div>
+
+  <h2>3. classDiagram / classDef</h2>
+  <div class="mermaid">
+  classDiagram
+    class MarketEvent
+    class ExperimentManifest
+    class DataGate
+    MarketEvent --> ExperimentManifest : 入力版
+    ExperimentManifest --> DataGate : 検証
+    classDef data fill:#dcfce7,stroke:#15803d,color:#14532d;
+    classDef gate fill:#fee2e2,stroke:#b91c1c,color:#7f1d1d;
+    class MarketEvent data
+    class ExperimentManifest data
+    class DataGate gate
+  </div>
+
+  <h2>4. stateDiagram-v2 / classDef</h2>
+  <div class="mermaid">
+  stateDiagram-v2
+    [*] --> READY
+    READY --> COMMITTED : 入力とGateが合格
+    READY --> STOPPED : 不明または不整合
+    COMMITTED --> [*]
+    STOPPED --> [*]
+    classDef ready fill:#dcfce7,stroke:#15803d,color:#14532d;
+    classDef stopped fill:#fee2e2,stroke:#b91c1c,color:#7f1d1d;
+    class READY,COMMITTED ready;
+    class STOPPED stopped;
+  </div>
+
+  <h2>5. 検証メモ</h2>
+  <ul>
+    <li>Level 1〜3のflowchartはsubgraphとclassDefを使う。</li>
+    <li>Sequence図はboxで利用者・システムを色分けする。</li>
+    <li>Level 4の概念図はclassDiagramを第一候補にする。</li>
+    <li>状態図はclassDefが動かない場合、色以外のラベルと凡例を併用する。</li>
+  </ul>
+</main>
+<script src="../../../../doc/assets/mermaid.min.js"></script>
+<script src="../../../../doc/assets/mermaid-init.js"></script>
+<script>
+  window.setTimeout(() => {
+    const nodes = [...document.querySelectorAll(".mermaid")];
+    const rendered = nodes.filter((node) => node.querySelector("svg")).length;
+    const errors = nodes.filter((node) => node.querySelector(".error-icon, .error-text")).length;
+    const status = document.getElementById("probe-status");
+    if (rendered === nodes.length && errors === 0) {
+      status.textContent = `PROBE_PASS: ${rendered}/${nodes.length} diagrams rendered`;
+      status.dataset.status = "PASS";
+    } else {
+      status.textContent = `PROBE_FAIL: rendered=${rendered}/${nodes.length}, errors=${errors}`;
+      status.dataset.status = "FAIL";
+    }
+  }, 1500);
+</script>
+</body>
+</html>

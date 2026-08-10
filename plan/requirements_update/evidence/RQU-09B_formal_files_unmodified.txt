@@ -1,0 +1,4 @@
+FORMAL_UNMODIFIED=plan/自動トレードシステム_要件定義書.md
+FORMAL_UNMODIFIED=doc/requirements/01_自動トレードシステム要件定義書.html
+FORMAL_UNMODIFIED=doc/index.html
+FORMAL_SWITCH=NOT_EXECUTED_BEFORE_RQU-H3

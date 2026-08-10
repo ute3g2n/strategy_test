@@ -1,0 +1,30 @@
+RQU-04 Mermaid最小描画試験結果
+基準日: 2026-08-10
+対象資産: doc/assets/mermaid.min.js, doc/assets/mermaid-init.js
+Node package: mermaid 11.16.0
+試験HTML: plan/requirements_update/evidence/mermaid/RQU-04_mermaid_probe.html
+
+試験方法:
+- Mermaid 11.16.0をJSDOM上で初期化した。
+- 各Mermaidブロックをparseした。
+- その後、各ブロックをrenderし、SVG要素の生成を確認した。
+- 試験用DOMではJSDOMが持たないSVGElement.getBBoxを固定の測定値で補った。
+- これは構文とSVG生成の確認であり、実ブラウザの画面幅・文字レイアウト確認ではない。
+
+結果:
+PROBE_BLOCKS=4
+PROBE_1=PASS diagramType=flowchart-v2
+RENDER_1=PASS
+PROBE_2=PASS diagramType=sequence
+RENDER_2=PASS
+PROBE_3=PASS diagramType=class
+RENDER_3=PASS
+PROBE_4=PASS diagramType=stateDiagram
+RENDER_4=PASS
+
+判定:
+- flowchart + subgraph + classDef: PASS
+- sequenceDiagram + box rgb(...): PASS
+- classDiagram + classDef + 個別class割当: PASS
+- stateDiagram-v2 + classDef + class: PASS
+- 実ブラウザの文字重なり・横切れ・縦切れ・画面幅変更: RQU-08B/RQU-08Cへ引き渡し

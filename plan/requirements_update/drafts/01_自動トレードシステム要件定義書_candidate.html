@@ -4,11 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="document-id" content="AT-REQ-001">
-  <meta name="document-version" content="v0.3">
-  <meta name="document-status" content="formal-approved">
+  <meta name="document-version" content="candidate-0.3">
   <meta name="baseline-date" content="2026-08-10">
   <meta name="requirement-ids" content="REQ-CTX-003 REQ-CTX-004 REQ-DATA-001 REQ-DATA-002 REQ-DATA-003 REQ-DATA-004 REQ-DATA-005 REQ-DATA-006 REQ-DATA-007 REQ-DATA-008 REQ-STR-001 REQ-STR-002 REQ-STR-003 REQ-STR-004 REQ-STR-005 REQ-STR-006 REQ-STR-007 REQ-STR-008 REQ-STR-009 REQ-BT-001 REQ-BT-002 REQ-BT-003 REQ-BT-004 REQ-BT-005 REQ-EXE-001 REQ-EXE-002 REQ-EXE-003 REQ-RISK-001 REQ-RISK-002 REQ-RISK-003 REQ-RISK-005 REQ-RISK-006 REQ-RISK-007 REQ-OPS-001 REQ-OPS-002 REQ-OPS-003 REQ-OPS-004 REQ-OPS-005 REQ-OPS-006 REQ-OPS-007 REQ-QA-001 REQ-QA-002 REQ-QA-003 REQ-QA-004 REQ-GATE-001 REQ-GATE-002 REQ-GATE-003 REQ-GATE-004">
-  <title>自動トレードシステム 要件定義書（C4正式版）</title>
+  <title>自動トレードシステム 要件定義書（C4候補）</title>
   <style>
     :root { --ink:#1f2937; --muted:#475569; --line:#cbd5e1; --bg:#f8fafc; --blue:#dbeafe; --green:#dcfce7; --yellow:#fef3c7; --purple:#f3e8ff; --red:#fee2e2; }
     * { box-sizing: border-box; }
@@ -47,16 +46,16 @@
 </head>
 <body>
 <header>
-  <p class="eyebrow">AT-REQ-001 / C4正式版 / RQU-H3承認済み</p>
+  <p class="eyebrow">AT-REQ-001 / C4候補 / RQU-H3承認前</p>
   <h1>自動トレードシステム 要件定義書</h1>
-  <p>基準日: 2026-08-10　版: v0.3　状態: 正式正本（RQU-H3承認済み、RQU-10正式化済み）</p>
-  <p><a href="../index.html">正式ドキュメント一覧へ戻る</a> / <a href="../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
-  <p class="small">関連成果物: <a href="../phase3/03_Strategy詳細設計/03_Strategy_Turtle実装詳細設計書.html">P3-D04 Strategy詳細設計</a> / <a href="../phase3/04_Backtest詳細設計/04_Backtest_Experiment実装詳細設計書.html">P3-D05 Backtest詳細設計</a> / <a href="../phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html">P3-D14完了判定</a> / <a href="../../plan/requirements_update/RQU-03_要件採否追跡マトリクス_2026-08-10.md">RQU-03追跡表</a> / <a href="../../plan/requirements_update/RQU-04_C4章構成図解仕様用語辞書_2026-08-10.md">RQU-04辞書</a></p>
+  <p>基準日: 2026-08-10　版: candidate-0.3　状態: 編集用候補</p>
+  <p><a href="../../../doc/index.html">正式ドキュメント一覧へ戻る</a> / <a href="../../../doc/00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
+  <p class="small">関連成果物: <a href="../../../doc/phase3/03_Strategy詳細設計/03_Strategy_Turtle実装詳細設計書.html">P3-D04 Strategy詳細設計</a> / <a href="../../../doc/phase3/04_Backtest詳細設計/04_Backtest_Experiment実装詳細設計書.html">P3-D05 Backtest詳細設計</a> / <a href="../../../doc/phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html">P3-D14完了判定</a> / <a href="../RQU-03_要件採否追跡マトリクス_2026-08-10.md">RQU-03追跡表</a> / <a href="../RQU-04_C4章構成図解仕様用語辞書_2026-08-10.md">RQU-04辞書</a></p>
 </header>
 <main>
   <div class="callout">
     <strong>この文書の目的</strong><br>
-    ITを知らない中学生でも読めるように、システムを「街の建物」として説明する。専門用語は、たとえ、正式名称、このシステムでの意味の順に説明する。これはRQU-H3で承認された正式正本である。
+    ITを知らない中学生でも読めるように、システムを「街の建物」として説明する。専門用語は、たとえ、正式名称、このシステムでの意味の順に説明する。これはRQU-H3前の候補であり、正式正本ではない。
   </div>
 
   <nav aria-label="目次">
@@ -485,14 +484,14 @@ stateDiagram-v2
         <tr><td>OD-08</td><td><code>REQ-GATE-003</code></td><td>Paper/Live移行前に決定</td></tr>
       </tbody>
     </table>
-    <p class="small"><code>REQ-DATA-005</code>と<code>REQ-DATA-006</code>の細かい意味は、この正式版で勝手に再定義しない。採否、根拠、未確定状態は<a href="../../plan/requirements_update/RQU-03_要件採否追跡マトリクス_2026-08-10.md">RQU-03</a>を追跡先とする。</p>
+    <p class="small"><code>REQ-DATA-005</code>と<code>REQ-DATA-006</code>の細かい意味は、この候補で勝手に再定義しない。採否、根拠、未確定状態は<a href="../RQU-03_要件採否追跡マトリクス_2026-08-10.md">RQU-03</a>を追跡先とする。</p>
     <table>
       <thead><tr><th>Unknown</th><th>内容</th><th>再開条件</th><th>状態</th></tr></thead>
       <tbody>
         <tr><td><code>UNK-P3-01</code></td><td>長期データ、市場数、holdout</td><td>市場・期間・Catalog・品質・split・hashを別Runで固定</td><td>承認済み延期・未PASS</td></tr>
         <tr><td><code>UNK-P3-05</code></td><td>実Cost、slippage、Gap</td><td>市場別実値、感度分析、fixture</td><td>承認済み延期・未PASS</td></tr>
         <tr><td><code>UNK-P3-07</code></td><td>正式Calendar継続追随</td><td>公式版、監視、欠損時停止、fixture</td><td>承認済み延期・未PASS</td></tr>
-        <tr><td><code>RQU-UNK-01</code></td><td>実ブラウザのMermaid文字配置・画面幅</td><td>実ブラウザ表示のスクリーンショット確認</td><td>部分解消・未PASS</td></tr>
+        <tr><td><code>RQU-UNK-01</code></td><td>実ブラウザのMermaid文字配置</td><td>RQU-08B/C</td><td>部分解消・未PASS</td></tr>
       </tbody>
     </table>
   </section>
@@ -516,16 +515,16 @@ stateDiagram-v2
     <h3>要求ID凡例</h3>
     <p><code>REQ-CTX-003</code> <code>REQ-CTX-004</code> <code>REQ-DATA-001</code> <code>REQ-DATA-002</code> <code>REQ-DATA-003</code> <code>REQ-DATA-004</code> <code>REQ-DATA-005</code> <code>REQ-DATA-006</code> <code>REQ-DATA-007</code> <code>REQ-DATA-008</code> <code>REQ-STR-001</code> <code>REQ-STR-002</code> <code>REQ-STR-003</code> <code>REQ-STR-004</code> <code>REQ-STR-005</code> <code>REQ-STR-006</code> <code>REQ-STR-007</code> <code>REQ-STR-008</code> <code>REQ-STR-009</code> <code>REQ-BT-001</code> <code>REQ-BT-002</code> <code>REQ-BT-003</code> <code>REQ-BT-004</code> <code>REQ-BT-005</code> <code>REQ-EXE-001</code> <code>REQ-EXE-002</code> <code>REQ-EXE-003</code> <code>REQ-RISK-001</code> <code>REQ-RISK-002</code> <code>REQ-RISK-003</code> <code>REQ-RISK-005</code> <code>REQ-RISK-006</code> <code>REQ-RISK-007</code> <code>REQ-OPS-001</code> <code>REQ-OPS-002</code> <code>REQ-OPS-003</code> <code>REQ-OPS-004</code> <code>REQ-OPS-005</code> <code>REQ-OPS-006</code> <code>REQ-OPS-007</code> <code>REQ-QA-001</code> <code>REQ-QA-002</code> <code>REQ-QA-003</code> <code>REQ-QA-004</code> <code>REQ-GATE-001</code> <code>REQ-GATE-002</code> <code>REQ-GATE-003</code> <code>REQ-GATE-004</code></p>
     <h3>変更履歴</h3>
-    <table><thead><tr><th>版</th><th>日付</th><th>内容</th></tr></thead><tbody><tr><td>candidate-0.1</td><td>2026-08-10</td><td>RQU-05/06をC4 Level 1〜4と横断章へ統合</td></tr><tr><td>candidate-0.2</td><td>2026-08-10</td><td>RQU-06R指摘、Unknown、状態凡例、用語、要求ID同期を反映</td></tr><tr><td>v0.3</td><td>2026-08-10</td><td>RQU-08A〜C指摘、追跡リンク、Q/OD行単位表、可読性補足を反映し、RQU-H3承認後に正式化</td></tr></tbody></table>
+    <table><thead><tr><th>版</th><th>日付</th><th>内容</th></tr></thead><tbody><tr><td>candidate-0.1</td><td>2026-08-10</td><td>RQU-05/06をC4 Level 1〜4と横断章へ統合</td></tr><tr><td>candidate-0.2</td><td>2026-08-10</td><td>RQU-06R指摘、Unknown、状態凡例、用語、要求ID同期を反映</td></tr><tr><td>candidate-0.3</td><td>2026-08-10</td><td>RQU-08A〜C指摘、追跡リンク、Q/OD行単位表、可読性補足を反映</td></tr></tbody></table>
   </section>
 
-  <div class="callout"><strong>関連する正式成果物・追跡先:</strong> <a href="../phase3/03_Strategy詳細設計/03_Strategy_Turtle実装詳細設計書.html">P3-D04 Strategy詳細設計</a>、<a href="../phase3/04_Backtest詳細設計/04_Backtest_Experiment実装詳細設計書.html">P3-D05 Backtest詳細設計</a>、<a href="../phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html">P3-D14完了判定</a>、<a href="../../plan/requirements_update/RQU-03_要件採否追跡マトリクス_2026-08-10.md">RQU-03追跡表</a>、<a href="../00_全Phase残課題Blocked統合台帳.html">統合台帳</a>。実装の細部や過去の判断は、これらの文書で確認する。</div>
-  <div class="callout"><strong>正式版の状態:</strong> RQU-08A〜C、RQU-09A、RQU-09Bのレビューを完了し、RQU-H3承認を受けてRQU-10で正式化した。<code>RQU-UNK-01</code>と<code>UNK-P3-01/05/07</code>は未PASSのまま明示している。</div>
+  <div class="callout"><strong>関連する正式成果物・追跡先:</strong> <a href="../../../doc/phase3/03_Strategy詳細設計/03_Strategy_Turtle実装詳細設計書.html">P3-D04 Strategy詳細設計</a>、<a href="../../../doc/phase3/04_Backtest詳細設計/04_Backtest_Experiment実装詳細設計書.html">P3-D05 Backtest詳細設計</a>、<a href="../../../doc/phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html">P3-D14完了判定</a>、<a href="../RQU-03_要件採否追跡マトリクス_2026-08-10.md">RQU-03追跡表</a>、<a href="../../../doc/00_全Phase残課題Blocked統合台帳.html">統合台帳</a>。実装の細部や過去の判断は、これらの文書で確認する。</div>
+  <div class="callout warning"><strong>正式化条件:</strong> RQU-08A〜C、RQU-09A、RQU-09Bを完了し、RQU-H3で最終候補の意味・読みやすさ・安全境界を承認した後に、正式Markdown、正式HTML、<code>doc/index.html</code>を同じ版・基準日で更新する。</div>
 </main>
 <footer>
-  <p>正式HTML正本（v0.3）。RQU-H3承認済み。ローカルMermaid資産のみ使用。</p>
+  <p>候補HTML（candidate-0.3）。正式版への切替前にRQU-H3が必要。ローカルMermaid資産のみ使用。</p>
 </footer>
-<script src="../assets/mermaid.min.js"></script>
-<script src="../assets/mermaid-init.js"></script>
+<script src="../../../doc/assets/mermaid.min.js"></script>
+<script src="../../../doc/assets/mermaid-init.js"></script>
 </body>
 </html>

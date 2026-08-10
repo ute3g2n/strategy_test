@@ -1,18 +1,18 @@
-# 自動トレードシステム 要件定義書（C4正式版）
+# 自動トレードシステム 要件定義書（C4候補）
 
 ## 文書情報
 
 | 項目 | 内容 |
 |---|---|
 | 文書ID | `AT-REQ-001` |
-| 版 | `v0.3` |
+| 版 | `candidate-0.3` |
 | 基準日 | 2026-08-10 |
-| 状態 | 正式正本（RQU-H3承認済み、RQU-10正式化済み） |
-| 編集原稿 | `plan/自動トレードシステム_要件定義書.md` |
-| 正式HTMLの正本 | [doc/requirements/01_自動トレードシステム要件定義書.html](../doc/requirements/01_自動トレードシステム要件定義書.html) |
+| 状態 | RQU-H3承認前の最終候補。正式正本ではない |
+| 編集原稿の正本候補 | `plan/自動トレードシステム_要件定義書.md` |
+| 正式HTMLの正本候補 | `doc/requirements/01_自動トレードシステム要件定義書.html` |
 | 事実の基準 | Phase 3完了判定、正式詳細設計、src、tests、統合台帳 |
 
-> この文書は、RQU-H3で承認された正式な要件定義書である。ITを知らない中学生でも読めるように、専門用語を消さず、身近なたとえ、正式名称、システム上の意味の順に説明する。正式HTMLは `doc/requirements/01_自動トレードシステム要件定義書.html`、総合入口は `doc/index.html` である。
+> この文書は、ITを知らない中学生でも読めるようにした要件定義書の候補である。専門用語を消さず、身近なたとえ、正式名称、システム上の意味の順に説明する。RQU-H3承認前は、正式Markdown、正式HTML、`doc/index.html`を差し替えない。
 
 ## 目次
 
@@ -455,7 +455,7 @@ stateDiagram-v2
 | `UNK-P3-01` | 長期データ、市場数、holdout | 市場・期間・Catalog・品質・split・hashを別Runで固定 | `APPROVED_DEFERRED_UNKNOWN` |
 | `UNK-P3-05` | 実Cost、slippage、Gap | 市場別実値・感度分析・fixture | `APPROVED_DEFERRED_UNKNOWN` |
 | `UNK-P3-07` | 正式Calendar継続追随 | 公式版・監視・欠損時停止・fixture | `APPROVED_DEFERRED_UNKNOWN` |
-| `RQU-UNK-01` | 実ブラウザのMermaid文字配置・画面幅 | 実ブラウザ表示のスクリーンショット確認 | 部分解消、未PASS |
+| `RQU-UNK-01` | 実ブラウザのMermaid文字配置 | RQU-08B/C | 部分解消、未PASS |
 
 固定RunのPASSは、その固定範囲を示す証拠である。Unknown、長期利益、本番安全性をPASSへ広げない。[REQ-QA-001][REQ-GATE-003]
 
@@ -494,19 +494,19 @@ stateDiagram-v2
 |---|---|---|---|
 | `candidate-0.1` | 2026-08-10 | RQU-05/06をC4 Level 1〜4と横断章へ統合 | 履歴候補 |
 | `candidate-0.2` | 2026-08-10 | RQU-06R指摘、用語、Unknown、状態凡例を反映 | 履歴候補 |
-| `v0.3` | 2026-08-10 | RQU-08A〜C指摘、追跡リンク、Q/OD行単位表、可読性補足を反映し、RQU-H3承認後に正式化 | 正式版 |
+| `candidate-0.3` | 2026-08-10 | RQU-08A〜C指摘、追跡リンク、Q/OD行単位表、可読性補足を反映 | RQU-H3承認待ち |
 
 ### 関連する正式成果物・追跡先
 
-この正式版は要件の全体像を示す。実装の細部と過去の判断は、次の正式成果物を開いて確認する。
+この候補は要件の全体像を示す。実装の細部と過去の判断は、次の正式成果物を開いて確認する。
 
-- [P3-D04 Strategy実装詳細設計書](../doc/phase3/03_Strategy詳細設計/03_Strategy_Turtle実装詳細設計書.html)
-- [P3-D05 Backtest/Experiment実装詳細設計書](../doc/phase3/04_Backtest詳細設計/04_Backtest_Experiment実装詳細設計書.html)
-- [P3-D14 Phase 3完了判定・Phase 4移行承認書](../doc/phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html)
-- [RQU-03 要件採否追跡マトリクス](requirements_update/RQU-03_要件採否追跡マトリクス_2026-08-10.md)
-- [RQU-04 C4章構成・用語辞書](requirements_update/RQU-04_C4章構成図解仕様用語辞書_2026-08-10.md)
-- [全Phase残課題・Blocked統合台帳](../doc/00_全Phase残課題Blocked統合台帳.html)
+- [P3-D04 Strategy実装詳細設計書](../../../doc/phase3/03_Strategy詳細設計/03_Strategy_Turtle実装詳細設計書.html)
+- [P3-D05 Backtest/Experiment実装詳細設計書](../../../doc/phase3/04_Backtest詳細設計/04_Backtest_Experiment実装詳細設計書.html)
+- [P3-D14 Phase 3完了判定・Phase 4移行承認書](../../../doc/phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html)
+- [RQU-03 要件採否追跡マトリクス](../RQU-03_要件採否追跡マトリクス_2026-08-10.md)
+- [RQU-04 C4章構成・用語辞書](../RQU-04_C4章構成図解仕様用語辞書_2026-08-10.md)
+- [全Phase残課題・Blocked統合台帳](../../../doc/00_全Phase残課題Blocked統合台帳.html)
 
-`REQ-DATA-005`と`REQ-DATA-006`の細かい意味は、この文書で勝手に再定義しない。採否、根拠、未確定状態はRQU-03を追跡先とする。[REQ-QA-001]
+`REQ-DATA-005`と`REQ-DATA-006`の細かい意味は、この候補で勝手に再定義しない。採否、根拠、未確定状態はRQU-03を追跡先とする。[REQ-QA-001]
 
-RQU-08A〜C、RQU-09A、RQU-09Bを完了し、RQU-H3承認を受けてRQU-10で正式Markdown、正式HTML、`doc/index.html`を同じ版・基準日で正式化した。[REQ-GATE-002]
+RQU-08A〜Cのレビュー、RQU-09Aの改訂、RQU-09Bの再レビューを完了し、RQU-H3が承認された後に、正式Markdown、正式HTML、`doc/index.html`を同じ版・基準日で更新する。[REQ-GATE-002]
