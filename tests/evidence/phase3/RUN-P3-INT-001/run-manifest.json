@@ -1,0 +1,57 @@
+{
+  "schema_version": "p3-integration-run-manifest-v1",
+  "run_id": "RUN-P3-INT-001",
+  "phase_id": "phase3",
+  "step_id": "P3-10",
+  "design": "P3-D04-P3-D05-P3-D06-P3-D07-P3-D08-P3-D09-P3-D10",
+  "requirements": ["P3-AC-01", "P3-AC-02", "P3-AC-03", "P3-AC-04", "P3-AC-05", "P3-AC-06", "P3-AC-07", "P3-AC-08"],
+  "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+  "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+  "agents": [
+    "AutoTrade_A130_VerificationEngineer_v0_1",
+    "AutoTrade_A150_PythonCodeReviewer_v0_1",
+    "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+    "AutoTrade_A30_StrategyQaArchitect_v0_1",
+    "AutoTrade_A40_ExecutionEnginePocArchitect_v0_1",
+    "AutoTrade_A80_DocumentIntegrator_v0_1"
+  ],
+  "skills": [
+    "autotrade_skill_python_test_quality_v0_1",
+    "autotrade_skill_python_code_review_v0_1",
+    "autotrade_skill_golden_test_v0_1",
+    "autotrade_skill_test_strategy_v0_1",
+    "autotrade_skill_execution_model_v0_1",
+    "autotrade_skill_traceability_v0_1",
+    "autotrade_skill_html_doc_writer_v0_1"
+  ],
+  "data_version": "p3-integration-contract-v1",
+  "change_hash": "sha256:b0f5b78f59febf1c90672e7f6ec3ca708b0ff807ad08327e03f6454ed2ed861b",
+  "baseline_ref": "975759869baa73110316f4b4f06381a3a5c229b5",
+  "human_gate_policy": "P3-10は承認済みfixture、固定入力、固定依存だけを使用し、短期データから利益採用を決めない。",
+  "target_paths": [
+    "src/autotrade",
+    "scripts/quality_gate",
+    "tests/quality_gate",
+    "tests/strategy",
+    "tests/backtest",
+    "tests/fixtures/phase3"
+  ],
+  "excluded_paths": [".env", "third_party/everything-claude-code", "research", "E:/strategy_test_data"],
+  "evidence_root": "tests/evidence/phase3/RUN-P3-INT-001",
+  "scope_mode": "target_only",
+  "input_fixture": {
+    "path": "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json",
+    "name": "run_p3_backtest_fixture_manifest_v1.json",
+    "version": "p3-backtest-fixture-manifest-v1",
+    "checksum": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4"
+  },
+  "source_runs": ["RUN-P3-GOLD-001", "RUN-P3-STR-001", "RUN-P3-BT-001", "RUN-P3-BIAS-001", "RUN-P3-POC-001"],
+  "review": {"critical": 0, "high": 0},
+  "unknowns": [],
+  "checks": [
+    {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade", "scripts/quality_gate", "tests/quality_gate", "tests/strategy", "tests/backtest", "tests/fixtures/phase3"]},
+    {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade", "scripts/quality_gate", "tests/quality_gate", "tests/strategy", "tests/backtest", "tests/fixtures/phase3"]},
+    {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade", "scripts/quality_gate"]},
+    {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p3_integration"]}
+  ]
+}

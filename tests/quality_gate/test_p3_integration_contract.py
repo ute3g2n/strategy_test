@@ -9,7 +9,6 @@ from scripts.quality_gate.p3_integration_runner import (
     build_p3_10_summary,
 )
 
-
 ROOT = Path(__file__).parents[2]
 
 

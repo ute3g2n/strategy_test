@@ -481,6 +481,40 @@
         {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade", "scripts/quality_gate", "tests/engine_poc"]},
         {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p3_poc", "--mode", "prepare"]}
       ]
+    },
+    "RUN-P3-INT-001": {
+      "phase_id": "phase3",
+      "step_id": "P3-10",
+      "design": "P3-D04-P3-D05-P3-D06-P3-D07-P3-D08-P3-D09-P3-D10",
+      "requirements": ["P3-AC-01", "P3-AC-02", "P3-AC-03", "P3-AC-04", "P3-AC-05", "P3-AC-06", "P3-AC-07", "P3-AC-08"],
+      "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+      "target_paths": [
+        "src/autotrade",
+        "scripts/quality_gate",
+        "tests/quality_gate",
+        "tests/strategy",
+        "tests/backtest",
+        "tests/fixtures/phase3"
+      ],
+      "excluded_paths": [".env", "third_party/everything-claude-code", "research", "E:/strategy_test_data"],
+      "fixture": {
+        "path": "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json",
+        "name": "run_p3_backtest_fixture_manifest_v1.json",
+        "version": "p3-backtest-fixture-manifest-v1",
+        "checksum": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4"
+      },
+      "baseline_ref": "975759869baa73110316f4b4f06381a3a5c229b5",
+      "scope_mode": "target_only",
+      "unknowns": [],
+      "network_isolation_required": true,
+      "checks": [
+        {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade", "scripts/quality_gate", "tests/quality_gate", "tests/strategy", "tests/backtest", "tests/fixtures/phase3"]},
+        {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade", "scripts/quality_gate", "tests/quality_gate", "tests/strategy", "tests/backtest", "tests/fixtures/phase3"]},
+        {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade", "scripts/quality_gate"]},
+        {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p3_integration"]}
+      ],
+      "execution_allowed": true
     }
   }
 }
