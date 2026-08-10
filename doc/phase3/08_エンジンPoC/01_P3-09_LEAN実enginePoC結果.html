@@ -2,41 +2,11 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <title>P3-09 LEAN実engine PoC結果</title>
-  <style>
-    body { font-family: system-ui, sans-serif; line-height: 1.7; margin: 2rem auto; max-width: 70rem; padding: 0 1rem; color: #1f2937; }
-    .status { color: #991b1b; font-weight: 700; }
-    .note { background: #fff7ed; border-left: 4px solid #c2410c; padding: 1rem; }
-    code { background: #f3f4f6; padding: .1rem .25rem; }
-  </style>
+  <meta http-equiv="refresh" content="0; url=09_取引エンジンPoC評価結果.html">
+  <title>P3-09 LEAN実enginePoC結果（互換導線）</title>
 </head>
 <body>
-  <h1>P3-09 取引エンジンPoC</h1>
-  <p>文書ID: P3-D10 / Run: <code>RUN-P3-POC-001</code> / 実行日: 2026-08-10 / 状態: <span class="status">BLOCKED</span></p>
-
-  <div class="note">
-    <strong>結論:</strong> P3-09の実行要求は受領したが、P3-09専用の実行入口、Run Manifest、LEAN/Core parity期待出力が未確定のため、発火制御に従って実engineを起動しなかった。
-  </div>
-
-  <h2>確認結果</h2>
-  <ul>
-    <li>P3-08A `RUN-P3-LEAN-PREP-001`: PASS</li>
-    <li>P3-09 trusted scope: <code>execution_allowed=false</code>、Unknownあり</li>
-    <li><code>tests/engine_poc/</code>: 未作成</li>
-    <li>P3-09専用Run Manifest: 未作成</li>
-    <li>LEAN/Core parityの期待出力・実測証跡: 未作成</li>
-  </ul>
-
-  <h2>安全側の停止</h2>
-  <p>LEAN、NautilusTrader、Broker、Paper、Live、Cloud、Secretは起動・使用していない。既存fixture、期待値、Calendar、性能合格値も変更していない。P3-08AのPASSは維持するが、P3-09のPASSやengine採用を意味しない。</p>
-
-  <h2>証跡</h2>
-  <ul>
-    <li><a href="../../../plan/phase3/P3-08R_実行計画書_2026-08-10.md">P3-08R再実行準備計画</a></li>
-    <li><a href="../../../tests/evidence/phase3/RUN-P3-POC-001/precondition-audit.json">P3-09事前条件監査</a></li>
-    <li><a href="../../../tests/evidence/phase3/RUN-P3-POC-001/verification.json">P3-09 verification</a></li>
-    <li><a href="../../../tests/evidence/phase3/RUN-P3-POC-001/blocker.md">BLOCKED理由と再開条件</a></li>
-    <li><a href="../../../plan/phase3/ログ/P3-09_実行ログ_2026-08-10.md">P3-09実行ログ</a></li>
-  </ul>
+  <p>現在の正式なP3-09評価結果は、<a href="09_取引エンジンPoC評価結果.html">09_取引エンジンPoC評価結果.html</a>です。</p>
+  <p>このファイルは旧リンクの互換導線として残しています。</p>
 </body>
 </html>

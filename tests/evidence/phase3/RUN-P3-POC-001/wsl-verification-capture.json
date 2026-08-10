@@ -1,0 +1,107 @@
+﻿{
+    "execution_id":  "4ff0f27d623a41a2a852b301a06c152a",
+    "source_repository_path":  "/home/oue/strategy_test",
+    "source_kind":  "wsl_verification",
+    "verification_raw":  "{\n  \"state\": \"PASS\",\n  \"reason\": \"ユーザーが明示的に承認しました\",\n  \"gates\": [\n    {\n      \"gate\": \"formatter\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"format\",\n        \"--check\",\n        \"src/autotrade\",\n        \"scripts/quality_gate\",\n        \"tests/engine_poc\",\n        \"tests/strategy\",\n        \"tests/backtest\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 314\n    },\n    {\n      \"gate\": \"lint\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"check\",\n        \"src/autotrade\",\n        \"scripts/quality_gate\",\n        \"tests/engine_poc\",\n        \"tests/strategy\",\n        \"tests/backtest\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 214\n    },\n    {\n      \"gate\": \"type\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"mypy\",\n        \"src/autotrade\",\n        \"scripts/quality_gate\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 5427\n    },\n    {\n      \"gate\": \"test\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"scripts.quality_gate.local_p3_pytest\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 1016\n    }\n  ],\n  \"generated_at\": \"2026-08-10T04:35:02.382670+00:00\",\n  \"exit_code\": 0,\n  \"scope\": \"target_only\",\n  \"input_sha256\": \"sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d\",\n  \"post_input_sha256\": \"sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d\",\n  \"target_only_change_sha256\": \"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n  \"host_wrapper_execution_id\": \"4ff0f27d623a41a2a852b301a06c152a\",\n  \"restore_pending\": true,\n  \"execution_user\": \"oue\",\n  \"execution_uid\": 1000\n}\n",
+    "retrieval_exit_code":  0,
+    "captured_at":  "2026-08-10T04:35:02.8182013Z",
+    "state":  "CAPTURED",
+    "verification":  {
+                         "state":  "PASS",
+                         "reason":  "ユーザーが明示的に承認しました",
+                         "gates":  [
+                                       {
+                                           "gate":  "formatter",
+                                           "status":  "PASS",
+                                           "command":  [
+                                                           ".venv/bin/python",
+                                                           "-m",
+                                                           "ruff",
+                                                           "format",
+                                                           "--check",
+                                                           "src/autotrade",
+                                                           "scripts/quality_gate",
+                                                           "tests/engine_poc",
+                                                           "tests/strategy",
+                                                           "tests/backtest"
+                                                       ],
+                                           "exit_code":  0,
+                                           "duration_ms":  314
+                                       },
+                                       {
+                                           "gate":  "lint",
+                                           "status":  "PASS",
+                                           "command":  [
+                                                           ".venv/bin/python",
+                                                           "-m",
+                                                           "ruff",
+                                                           "check",
+                                                           "src/autotrade",
+                                                           "scripts/quality_gate",
+                                                           "tests/engine_poc",
+                                                           "tests/strategy",
+                                                           "tests/backtest"
+                                                       ],
+                                           "exit_code":  0,
+                                           "duration_ms":  214
+                                       },
+                                       {
+                                           "gate":  "type",
+                                           "status":  "PASS",
+                                           "command":  [
+                                                           ".venv/bin/python",
+                                                           "-m",
+                                                           "mypy",
+                                                           "src/autotrade",
+                                                           "scripts/quality_gate"
+                                                       ],
+                                           "exit_code":  0,
+                                           "duration_ms":  5427
+                                       },
+                                       {
+                                           "gate":  "test",
+                                           "status":  "PASS",
+                                           "command":  [
+                                                           ".venv/bin/python",
+                                                           "-m",
+                                                           "scripts.quality_gate.local_p3_pytest"
+                                                       ],
+                                           "exit_code":  0,
+                                           "duration_ms":  1016
+                                       }
+                                   ],
+                         "generated_at":  "2026-08-10T04:35:02.382670+00:00",
+                         "exit_code":  0,
+                         "scope":  "target_only",
+                         "input_sha256":  "sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d",
+                         "post_input_sha256":  "sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d",
+                         "target_only_change_sha256":  "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                         "host_wrapper_execution_id":  "4ff0f27d623a41a2a852b301a06c152a",
+                         "restore_pending":  true,
+                         "execution_user":  "oue",
+                         "execution_uid":  1000
+                     },
+    "source_path":  "/home/oue/strategy_test/tests/evidence/phase3/RUN-P3-POC-001/verification.json",
+    "host_isolation":  {
+                           "state":  "CONFIRMED",
+                           "wsl_version":  "WSL ・・繝ｻ・ｸ0繝ｻ繝ｻ: 2.6.3.0",
+                           "kernel":  "6.6.87.2-microsoft-standard-WSL2",
+                           "distro":  "Ubuntu-24.04",
+                           "networking_mode":  "none",
+                           "host_wrapper_execution_id":  "4ff0f27d623a41a2a852b301a06c152a",
+                           "ip_addr_summary":  "1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\n    inet 127.0.0.1/8 scope host lo\n       valid_lft forever preferred_lft forever\n    inet6 ::1/128 scope host \n       valid_lft forever preferred_lft forever",
+                           "ip_route_summary":  "",
+                           "confirmed_at":  "2026-08-10T04:34:55Z",
+                           "scope":  [
+                                         "src/autotrade",
+                                         "scripts/quality_gate",
+                                         "tests/engine_poc",
+                                         "tests/strategy",
+                                         "tests/backtest",
+                                         "tests/fixtures/phase3",
+                                         "tests/evidence/phase3/RUN-P3-POC-001"
+                                     ],
+                           "input_sha256":  "sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d",
+                           "input_kind":  "fixture"
+                       }
+}

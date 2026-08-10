@@ -23,12 +23,17 @@
   <p>文書ID: P3-08R / Phase 3 / 対象Run: <code>RUN-P3-POC-READY-001</code> / 判定日: 2026-08-10</p>
 
   <div class="ready">
-    <strong>最終判定: READY_FOR_P3-09</strong>
-    <p>P3-09専用入口、唯一のexecution Manifest、Core reference、LEAN output schema、parity map、Windows/WSL固定4 Gate、WSL隔離、Human Gate、独立レビューを固定した。P3-09の実engine自体は起動していない。</p>
+    <strong>準備時点の最終判定: READY_FOR_P3-09</strong>
+    <p>P3-09専用入口、唯一のexecution Manifest、Core reference、LEAN output schema、parity map、Windows/WSL固定4 Gate、WSL隔離、Human Gate、独立レビューを固定した。この準備Runの時点ではP3-09の実engine自体を起動していない。</p>
   </div>
 
   <div class="stop">
-    <strong>重要な境界:</strong> <code>READY_FOR_P3-09</code>は準備完了を意味し、P3-09本Run、Broker、Paper、Live、Cloud、Secretの許可を意味しない。<code>RUN-P3-POC-001.execution_allowed=false</code>は維持する。
+    <strong>準備時点の境界:</strong> <code>READY_FOR_P3-09</code>は準備完了を意味し、準備記録の時点では<code>RUN-P3-POC-001.execution_allowed=false</code>として本Runを停止していた。その後、別Gateでユーザー明示承認を受領し、P3-09本Runを実行した結果は<a href="09_取引エンジンPoC評価結果.html">P3-D10</a>に記録する。Broker、Paper、Live、Cloud、Secretの許可を意味しない。
+  </div>
+
+  <div class="ready">
+    <strong>後続結果: P3-09本Run PASS</strong>
+    <p>2026-08-10、固定LEAN digest、固定ローカル入力、network none、read-only入力でP3-AC-01〜08をPASSした。WSL隔離品質Gateもformatter/lint/type/test全PASS、wrapper exit code 0となった。本書はP3-08Rの準備時点の証跡として保持し、現在の正式判定はP3-D10へ集約する。</p>
   </div>
 
   <h2>1. 固定された実行入口</h2>
@@ -38,7 +43,7 @@
       <tr><td>準備入口</td><td><code>scripts/quality_gate/local_p3_poc.py --mode prepare</code></td></tr>
       <tr><td>専用入口</td><td><code>tests/engine_poc/entrypoint.py</code></td></tr>
       <tr><td>準備Run</td><td><code>RUN-P3-POC-READY-001</code></td></tr>
-      <tr><td>P3-09本Run</td><td><code>RUN-P3-POC-001</code>（別Gate、未実行）</td></tr>
+      <tr><td>P3-09本Run</td><td><code>RUN-P3-POC-001</code>（別Gateで実行済み、P3-D10 PASS）</td></tr>
       <tr><td>execution Manifest</td><td><code>tests/evidence/phase3/RUN-P3-POC-READY-001/run-manifest.json</code>のみ</td></tr>
       <tr><td>入力</td><td>承認済みPhase 3 fixture、read-only、automatic data download=false</td></tr>
       <tr><td>ネットワーク</td><td><code>network_mode=none</code>、WSL host isolation CONFIRMED</td></tr>
@@ -55,7 +60,7 @@
       <tr><td><code>expected/parity-map.json</code></td><td><code>sha256:f137dbfb10c4e7205390103c40a470ef9c3cf72919c65d820d8df9c494fe0d95</code></td><td>P3-AC-01〜08の比較規則と停止条件</td></tr>
     </tbody>
   </table>
-  <p class="muted">LEANの実測値、実engineの性能値、P3-09のparity合否はまだ存在しない。Core referenceを期待値の唯一の出所とし、未実施項目を先取りしていない。</p>
+  <p class="muted">準備Runの時点ではLEANの実測値、実engineの性能値、P3-09のparity合否は存在しなかった。後続の実測結果は<a href="09_取引エンジンPoC評価結果.html">P3-D10</a>へ分離し、Core referenceを期待値の唯一の出所とする境界は維持している。</p>
 
   <h2>3. P3-AC追跡</h2>
   <table>
@@ -99,8 +104,8 @@
   <h2>6. Human Gate・発火制御</h2>
   <p>対象Run <code>RUN-P3-POC-READY-001</code>についてユーザーの「承認します」を受領し、<a href="../../../tests/evidence/phase3/RUN-P3-POC-READY-001/human-gate-user-declaration.md">承認記録</a>を保存した。</p>
   <ul>
-    <li>P3-09本Runの<code>execution_allowed</code>: <code>false</code></li>
-    <li>engine_started: <code>false</code></li>
+    <li>準備Runの<code>execution_allowed</code>: <code>false</code>（準備時点の履歴）</li>
+    <li>P3-09本Run: <code>execution_allowed=true</code>、engine_started: <code>true</code>、最終PASS</li>
     <li>Broker / Paper / Live / Cloud / Secret: 未使用</li>
     <li>P3-09本Runの実行は別プロンプト、別Gate、別証跡で行う</li>
   </ul>
@@ -113,6 +118,6 @@
     <li><a href="../../../plan/phase3/P3-08R_実行計画書_2026-08-10.md">P3-08R実行計画</a></li>
     <li><a href="../../../plan/phase3/ログ/P3-08R_実行ログ_2026-08-10.md">P3-08R統合実行ログ</a></li>
   </ul>
-  <p>次の作業は、P3-09本Runの明示承認と再照合を確認した別プロンプトである。本書だけでP3-09エンジンを起動してはならない。</p>
+  <p>準備時点の次作業は別GateでのP3-09本Runだった。その後の正式結果は<a href="09_取引エンジンPoC評価結果.html">P3-D10</a>を参照する。本書だけでP3-09エンジンを起動することはできない。</p>
 </body>
 </html>

@@ -111,8 +111,8 @@
     <p><strong>文書ID:</strong> AT-BLOCKER-LEDGER-01<br>
     <strong>正本:</strong> このHTMLが、Phase 0から今後の全Phaseまでの残課題を管理する唯一の台帳です。<br>
     <strong>初回集約日:</strong> 2026-08-06<br>
-    <strong>最終更新日:</strong> 2026-08-09<br>
-    <strong>集約範囲:</strong> Phase 0、Phase 1、Phase 2、Phase 3計画・P3-01〜P3-07、AI実行基盤、個別Run。P3-05Rで30分足の設計・v2固定fixture・通常REDを完了し、H3-0/H3-1/H3-1R/H3-2は承認済みです。H3-1R改訂により、v2を履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する方針を採用した。P3-06のStrategy実装・固定4 Gate・独立レビューはPASSである。P3-07R-03で実ReplayからResultStore公開・復旧までをPASSし、BLK-P3-008を解消した。P3-07R-04ではEngine/Offline/PerformanceのCore証跡を実装・検証したが、登録品質Gateはhost outbound isolation未確認でBLOCKEDである。外部依存導入と実engine PoCはまだ未着手です。</p>
+    <strong>最終更新日:</strong> 2026-08-10<br>
+    <strong>集約範囲:</strong> Phase 0、Phase 1、Phase 2、Phase 3計画・P3-01〜P3-09、AI実行基盤、個別Run。P3-05Rで30分足の設計・v2固定fixture・通常REDを完了し、H3-0/H3-1/H3-1R/H3-2は承認済みです。H3-1R改訂により、v2を履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する方針を採用した。P3-06のStrategy実装・固定4 Gate・独立レビュー、P3-07R-05のCore受入、P3-08の契約Gate、P3-08AのLEAN固定依存、P3-09のローカルBacktest PoCはPASSである。P3-09は固定LEAN digest、固定ローカル入力、network none、WSL隔離でP3-AC-01〜08を確認した。外部依存の本番利用、Broker、Paper、Live、Phase 4移行は未着手であり、残課題として別管理する。</p>
   </section>
 
   <div class="important">
@@ -122,10 +122,10 @@
 
   <h2>1. まず、いまの状態</h2>
   <div class="cards">
-    <div class="card stop"><strong>1件</strong>いま、P3-08の最終受入を止めているHuman Gate</div>
+    <div class="card stop"><strong>0件</strong>いま、P3-08/P3-09の実行を止めているHuman Gate</div>
     <div class="card wait"><strong>25件</strong>期限までは安全に保留できる根本課題</div>
     <div class="card done"><strong>15組</strong>解決済みとして確認できた主な課題</div>
-    <div class="card phase"><strong>0–8</strong>Phase 3計画・P3-01〜P3-07 Core受入可。P3-08とP3-08AはPASS、P3-09は実行前条件未確定のためBLOCKED</div>
+    <div class="card phase"><strong>0–9</strong>Phase 3計画・P3-01〜P3-09。P3-07 Core、P3-08、P3-08A、P3-09ローカルPoCはPASS。P3-10以降とPhase 4境界は後続Gate</div>
   </div>
   <p class="small">件数は、同じ原因を別の文書が違う名前で書いている場合に一つへまとめた「根本課題」の数です。たとえば、同じロール規則の問題を Phase 1 と Phase 2 が別IDで書いていても、一件として数えます。</p>
 
@@ -311,7 +311,7 @@ firewall=true</pre></li>
       <tr><td><code>BLK-P3-001</code></td><td>P3-10 / H3-2</td><td><span class="badge wait">長期評価前まで保留</span> P2-12-03の実DBNは4件、研究用5銘柄CSVは主に1か月で、55日Channelや本格的なHoldout / Walk-forwardには短い。<br><small>やさしい説明: 計算機が正しく動く試験はできますが、「長い期間でも役立つか」を判断するには、問題の数が足りません。</small></td><td>Goldenとsynthetic Replayの実装は進めるが、利益・頑健性を合格扱いしない。H3-2で承認された長期データをdata_version、Catalog、品質報告へ接続してから評価する。<br><small>やさしい説明: まず答えの出し方が正しいかを確認します。長期成績は、十分な問題用紙を用意してから別に判定します。</small></td><td>対象期間、市場数、取得元、hash、分割、品質Gate、Experiment Manifest。</td><td><code>UNK-P3-01</code></td></tr>
       <tr><td><code>BLK-P3-002</code></td><td>P3-02 / P3-08A</td><td><span class="badge done">P3-08A解消（2026-08-10）</span> LEANを主PoC候補、NautilusTraderを代替候補として使う許可に加え、実導入対象の公式image tag、image index digest、Linux amd64 digest、source commit、ライセンス、実行方法、offline再実行条件を固定した。<br><small>やさしい説明: 道具の型番と箱の中身を確認し、同じ箱をもう一度使えるように記録しました。</small></td><td>P3-09では`RUN-P3-LEAN-PREP-001`のManifest、tar hash、license hash、fixture、network none条件を再照合してから実engineを起動する。Strategy適合性、性能、正式CalendarはP3-09で別途判定する。</td><td><a href="../tests/evidence/phase3/RUN-P3-LEAN-PREP-001/run-manifest.json">P3-08A Run Manifest</a> / <a href="./phase3/07_頑健性検証/09_LEAN依存固定・オフライン準備結果.html">P3-D10A</a> / 公式URL・hash・offline証跡</td><td><code>RES-P3-LEAN-PREP-001</code></td></tr>
       <tr><td><code>BLK-P3-003</code></td><td>P3-09 / H3-2</td><td><span class="badge done">決定時期の境界を承認済み</span> Phase 3ではローカルPoCの候補を選び、Paper接続・再同期を含む本番engine最終決定はPhase 4証拠後に行うと確定した。<br><small>やさしい説明: 教室の試験で次に試す機械を選び、実際の練習運転まで合格してから最後の決定をします。</small></td><td>P3-09/P3-10は候補選定までとし、P3-D14とPhase 4引継ぎで最終決定に必要なPaper証拠を明記する。<br><small>やさしい説明: 今回の試験結果だけで本番採用とは書きません。</small></td><td>H3-2承認、P3-D03、P3-D10、Phase 4引継ぎ。</td><td><code>RES-P3-OD02-BOUNDARY</code></td></tr>
-      <tr><td><code>BLK-P3-010</code></td><td>P3-09開始前</td><td><span class="badge done">P3-08R-05で準備契約を確定・P3-09別Gate待ち</span> P3-09専用入口、唯一のexecution Manifest、Core reference、LEAN/Core parity期待出力、固定4 Gate、WSL隔離、独立レビューを確定した。<br><small>やさしい説明: 問題用紙、採点表、実行手順を一つの固定された箱に揃えました。ただし本番前の通し試験は、別の承認を確認してから始めます。</small></td><td>P3-09本Runのtrusted scopeは<code>execution_allowed=false</code>、実engine未起動を維持する。別プロンプトでRun承認、P3-08A依存再照合、Manifest/hash、network none、expected outputを確認してから開始する。</td><td><a href="../tests/evidence/phase3/RUN-P3-POC-READY-001/p3-08r-05-verification.json">P3-08R-05 verification</a> / <a href="../tests/evidence/phase3/RUN-P3-POC-READY-001/p3-08r-05-traceability.json">最終追跡表</a> / <a href="./phase3/08_エンジンPoC/00_P3-08R_P3-09実行準備結果.html">準備結果HTML</a></td><td><code>RUN-P3-POC-READY-001</code> / <code>RUN-P3-POC-001</code></td></tr>
+      <tr><td><code>BLK-P3-010</code></td><td>P3-09開始前</td><td><span class="badge done">解消済み（P3-09 PASS・2026-08-10）</span> P3-08R-05で確定した専用入口、唯一のexecution Manifest、Core reference、LEAN/Core parity期待出力、固定4 Gate、WSL隔離、独立レビューを使い、ユーザーの明示承認後にP3-09本Runを完了した。<br><small>やさしい説明: 固定した問題用紙と採点表を使って通し試験を行い、同じ答えが再現されることを確認しました。</small></td><td><code>execution_allowed=true</code>のP3-09専用scopeで、network none、read-only入力、固定digest、入力hash前後一致、P3-AC-01〜08、Windows/WSL品質GateをPASSした。Broker、Paper、Live、Cloud、Secretは対象外のまま。</td><td><a href="../tests/evidence/phase3/RUN-P3-POC-001/verification.json">native verification</a> / <a href="../tests/evidence/phase3/RUN-P3-POC-001/wsl-verification-capture.json">WSL verification capture</a> / <a href="./phase3/08_エンジンPoC/09_取引エンジンPoC評価結果.html">P3-D10</a></td><td><code>RUN-P3-POC-001</code> / <code>RES-P3-09-PASS</code></td></tr>
       <tr><td><code>BLK-P3-004</code></td><td>H3-1R改訂 / P3-06</td><td><span class="badge done">改訂方針を承認済み（2026-08-09）</span> ユーザーがv3で実M1を連続30本必須、不足M30を停止することを承認した。v2が実M1 30本を持たない歴史的な矛盾は、v2を履歴証跡として保存して解消する。P3-06/P3-07はv3を正本としてGREEN化・再検証を進められる。<br><small>やさしい説明: 古い問題集は記録として残し、新しい問題集では材料が30枚そろわない30分足を必ず止める、と決まりました。</small></td><td>v3の親Manifest/hash、GT-TUR-038改訂テスト、M30の実M1 30本検証を実装・再検証する。v2を実行時の受理根拠に使わない。<br><small>やさしい説明: これから作るプログラムは新しい安全な問題集で確認します。古い問題集を理由に、材料不足のデータを通すことはしません。</small></td><td>ユーザーのH3-1R改訂承認、P3-06 A150/A30独立レビュー、P3-D04/P3-D05/P3-D06のv3改訂、RUN-P3-STR-001。</td><td><code>RES-P3-H3-1R-REVISION</code></td></tr>
       <tr><td><code>BLK-P3-005</code></td><td>P3-08 / P3-10</td><td><span class="badge wait">正式な頑健性評価前まで保留</span> 市場別の実手数料、スリッページ、Gap約定、休日・取引時間Calendarが未確定。<br><small>やさしい説明: 売買するときの本当の手数料や、値段が飛んだときに何円で買えたことにするか、休みの日をどう扱うかがまだ決まっていません。</small></td><td>Phase 3では明示した保守的なテスト値と固定Calendarを使い、実値や利益保証と呼ばない。P3-10までに正式評価へ使える範囲を証拠付きで確定する。<br><small>やさしい説明: 今は少し厳しめの仮の数字で試験し、本当の成績だとは言いません。正式な数字が分かってから成績を確定します。</small></td><td>Cost/Gap/Roll設定、Calendar版、Experiment Manifest、感度分析。</td><td><code>UNK-P3-05</code> / <code>UNK-P3-07</code></td></tr>
       <tr><td><code>BLK-P3-006</code></td><td>Phase 4/5 Risk設計時</td><td><span class="badge wait">実注文数量の決定前まで保留</span> 1NのLive用金額、証拠金、最小数量、4/6/10/12 Unit上限の最終Risk判定値が未確定。<br><small>やさしい説明: 売買の合図は作れますが、実際に何枚買うかを決める安全上限はまだ完成していません。</small></td><td>Phase 3のStrategyはSignalとUnit Hintだけを出し、注文可否・実数量を決めない。Phase 4/5で契約情報、資金、ストレス試験を確認して承認する。<br><small>やさしい説明: Phase 3では「買う条件を満たした」とだけ伝えます。「何枚買うか」は安全装置が完成するまで決めません。</small></td><td>Risk設計、Catalog契約情報、資金シナリオ、Human Gate。</td><td><code>UNK-P3-06</code> / <code>BLK-P1-001</code></td></tr>
@@ -464,7 +464,7 @@ firewall=true</pre></li>
     <h2>P2-12-03 最終状態（2026-08-09）</h2>
     <p><strong>UNK-P2-15 は解消済み、P2-12-03 はPASS。</strong> ユーザー承認の方針 <code>main-future-active-only-v1</code>（有効な先物だけを本線へ採用）で、実DBN 4件からNormalizedBar 3件、MarketEvent 3件を作成し、spread 1件はRaw・監査記録だけに残した。Replayバー系列は一致し、入力hashは実行前後で一致した。実行IDは <code>37da7396f4e84be3b82dfd0aae69a217</code>、data_versionは <code>dv_780568eab89680cfc758</code>、品質報告hashは <code>sha256:30422966a36a6becc273e0a78f86fc6183851e41dec66317c5e6f0bfaa906d43</code>。固定4 Gateも4件すべてPASS。</p>
     <p><small>やさしい説明: 本物の市場データ4個を読み、売買に使ってよい3個だけを通しました。組み合わせ商品1個は、あとで確認できるよう記録だけ残しました。最初と最後でデータが変わっておらず、もう一度読んでも同じ結果になることまで確認できています。</small></p>
-    <p><strong>Phase 3の状態:</strong> H2-3、H2-4、H3-0、H3-1、H3-1R、H3-2、H3-5は承認済み。P3-01〜P3-06は完了し、P3-07 Coreは受入可、P3-08はCost/Roll/Gap/Holdout契約実装とHuman Gateを完了、P3-08Aは公式LEAN固定digest、artifact hash、LICENSE、network none/read-only Local preflight、固定4 Gate、独立レビューを完了してPASSである。P3-08R-05でP3-09専用入口、唯一のexecution Manifest、Core reference、LEAN output schema、parity map、固定4 Gate、WSL隔離、独立レビューを完了し、準備RunはREADY_FOR_P3-09となった。P3-09本Runは別Gateであり、trusted scopeのexecution_allowed=false、実engine未起動、Paper、Live、Phase 4 Risk/OMS引渡し未開始を維持する。</p>
+    <p><strong>Phase 3の状態:</strong> H2-3、H2-4、H3-0、H3-1、H3-1R、H3-2、H3-5は承認済み。P3-01〜P3-06は完了し、P3-07 Coreは受入可、P3-08はCost/Roll/Gap/Holdout契約実装とHuman Gateを完了、P3-08Aは公式LEAN固定digest、artifact hash、LICENSE、network none/read-only Local preflight、固定4 Gate、独立レビューを完了してPASSである。P3-08R-05でP3-09専用入口、唯一のexecution Manifest、Core reference、LEAN output schema、parity map、固定4 Gate、WSL隔離、独立レビューを完了し、準備RunはREADY_FOR_P3-09となった。P3-09本Runは2026-08-10にWindows/WSLともPASSし、P3-D10で固定ローカルBacktest PoCの条件付き採用候補と判定した。Paper、Live、Phase 4 Risk/OMS引渡しは未開始である。</p>
     <p><small>やさしい説明: LEANという道具の型番と中身の確認、家の中だけで起動する試験は終わりました。これから別のGateでStrategyを実際に試します。本番売買の許可ではありません。</small></p>
     <p><strong>Phase 3以降へ持ち越す課題:</strong> Phase 1・AI基盤の継続課題、および実測後に遅延値を見直す可能性は残る。ただし、Phase 3移行を止める未承認Gateではない。</p>
     <p><small>やさしい説明: 車は動きましたが、ガソリン代、長い荷物の置き場所、何秒遅れたら危険か、という別の約束がまだ残っています。今すぐ車を直す話ではありませんが、本番で使う前に決めておく必要があります。</small></p>
@@ -488,24 +488,24 @@ firewall=true</pre></li>
     <h2>P3-08 Cost / Roll / Gap / Holdout契約実装の現状（2026-08-10）</h2>
     <p><strong>状態:</strong> <span class="badge done">機械Gate PASS・H3-5承認済み</span>。<code>RUN-P3-BIAS-001</code>で、Cost/Slippage、保守的Gap/Stop、Roll PnL、train/validation/holdout分割、Holdout隠蔽、plan hash、冪等適用を契約実装した。ローカル265件、WSLのformatter/lint/type/test固定4 Gate、fixture前後hash、networking mode <code>none</code>を確認し、ユーザーのH3-5承認を記録した。P3-08AのLEAN依存固定へ進む。</p>
     <p><strong>未解消Unknown:</strong> <code>UNK-P3-01</code>（長期データと市場数）、<code>UNK-P3-05</code>（市場別の実測cost/slippageとGap約定）、<code>UNK-P3-07</code>（実取引所の正式Calendar）は残す。固定synthetic fixtureの結果を実市場の利益・頑健性・Live適合性と呼ばない。</p>
-    <p><strong>再開条件:</strong> H3-5承認済み。P3-08AのLEAN依存固定を開始できる。P3-09の実engine PoC、Paper、Live、Phase 4 Risk/OMS引渡しはP3-08A以降の後続Gateであり、まだ開始しない。</p>
+    <p><strong>後続結果:</strong> H3-5承認済み。P3-08AのLEAN依存固定を完了し、P3-09本Runも別GateでPASSした。P3-D10ではLEANをローカルBacktest PoCの条件付き採用候補とし、Paper、Live、Phase 4 Risk/OMS引渡しは未開始のまま後続Gateへ送る。</p>
     <p><strong>証跡:</strong> <a href="../tests/evidence/phase3/RUN-P3-BIAS-001/run-manifest.json">Run Manifest</a> / <a href="../tests/evidence/phase3/RUN-P3-BIAS-001/acceptance-traceability.json">要求追跡</a> / <a href="../tests/evidence/phase3/RUN-P3-BIAS-001/wsl-verification-capture.json">WSL捕捉</a> / <a href="./phase3/07_頑健性検証/08_Cost_Roll_Gap_Holdout検証結果.html">P3-D09</a></p>
   </section>
 
   <section class="ok-note" id="current-status-p3-08a-20260810">
     <h2>P3-08A LEAN依存固定・オフライン準備（2026-08-10）</h2>
     <p><strong>状態:</strong> <span class="badge done">PASS・受入済み</span>。`RUN-P3-LEAN-PREP-001`でQuantConnect公式LEAN tag 17991のimage index digest、Linux amd64 digest、source commit、Apache-2.0 LICENSE、Eドライブtar hashを固定した。`network none`、`read-only`、Local provider、tmpfs書込rootのpreflightはexit code 0で完了し、formatter/lint/mypy/267 tests、vendor import境界、A70/A160/A150/A40/A130レビューを確認した。</p>
-    <p><strong>境界:</strong> P3-09のStrategy適合性、複数時間足、正式Calendar、Adapter parity、性能は未実施である。Broker、Paper、Live、Secret、Cloudは使用していない。</p>
+    <p><strong>準備時点の境界:</strong> P3-08Aの準備Runでは、P3-09のStrategy適合性、複数時間足、正式Calendar、Adapter parity、性能を判定していなかった。後続のP3-09本Runで固定fixture範囲の判定を行った。Broker、Paper、Live、Secret、Cloudは使用していない。</p>
     <p><strong>証跡:</strong> <a href="../tests/evidence/phase3/RUN-P3-LEAN-PREP-001/run-manifest.json">Run Manifest</a> / <a href="../tests/evidence/phase3/RUN-P3-LEAN-PREP-001/verification.json">verification</a> / <a href="../tests/evidence/phase3/RUN-P3-LEAN-PREP-001/acceptance-traceability.json">受入追跡</a> / <a href="./phase3/07_頑健性検証/09_LEAN依存固定・オフライン準備結果.html">P3-D10A</a></p>
-    <p><strong>次のGate:</strong> P3-09は、P3-08A Manifestとdigest/hashを再照合した別実行として開始する。P3-08AのPASSだけで本番採用を宣言しない。</p>
+    <p><strong>後続結果:</strong> P3-09本Runは別Gateとして2026-08-10にPASSした。P3-08AのPASSだけで本番採用を宣言せず、P3-D10の条件付き採用候補という境界を維持する。</p>
   </section>
 
-  <section class="note" id="current-status-p3-09-20260810">
+  <section class="ok-note" id="current-status-p3-09-20260810">
     <h2>P3-09 取引エンジンPoCの現状（2026-08-10）</h2>
-    <p><strong>状態:</strong> <span class="badge wait">本RunはBLOCKED・実engine未起動／準備RunはREADY_FOR_P3-09</span>。P3-08R-05でP3-09専用の<code>tests/engine_poc/</code>、唯一のRun Manifest、Core reference、LEAN/Core parity期待出力、固定4 Gate、WSL隔離、独立レビューを確定した。P3-09本Runのtrusted scopeは安全側の<code>execution_allowed=false</code>を維持している。</p>
-    <p><strong>安全側の扱い:</strong> LEAN、NautilusTrader、Broker、Paper、Live、Cloud、Secretは起動・使用していない。P3-08AのPASS、既存fixture、期待値、Calendar、性能合格値は変更していない。</p>
-    <p><strong>再開条件:</strong> <a href="../plan/phase3/P3-08R_実行計画書_2026-08-10.md">P3-08R実行計画</a>の完了証跡を確認したうえで、別プロンプトのP3-09本Run承認、P3-08A固定digest/hash、唯一のexecution Manifest、expected output、network none、実行証跡先を再照合する。</p>
-    <p><strong>証跡:</strong> <a href="../tests/evidence/phase3/RUN-P3-POC-READY-001/p3-08r-05-verification.json">P3-08R-05 verification</a> / <a href="../tests/evidence/phase3/RUN-P3-POC-READY-001/p3-08r-05-traceability.json">最終追跡表</a> / <a href="./phase3/08_エンジンPoC/00_P3-08R_P3-09実行準備結果.html">準備結果HTML</a> / <a href="../tests/evidence/phase3/RUN-P3-POC-001/verification.json">P3-09 BLOCKED verification</a> / <a href="../plan/phase3/ログ/P3-09_実行ログ_2026-08-10.md">実行ログ</a></p>
+    <p><strong>状態:</strong> <span class="badge done">本Run PASS・条件付き採用候補</span>。P3-08R-05で固定したP3-09専用の<code>tests/engine_poc/</code>、唯一のRun Manifest、Core reference、LEAN/Core parity期待出力、固定4 Gate、WSL隔離、独立レビューを再照合し、ユーザーの「承認します。P3-09を実行して下さい。」を専用Human Gateとして実行した。</p>
+    <p><strong>実測結果:</strong> 固定LEAN digest、network none、read-only入力、automatic data download=falseで、Windows本RunとWSL隔離品質GateをPASSした。P3-AC-01〜08は全てPASS、LEAN replay二回の出力hashは一致し、WSLのformatter/lint/type/testも全てPASS、wrapper exit codeは0である。</p>
+    <p><strong>境界:</strong> LEANはPhase 3のローカルBacktest PoC候補として扱う。H1/H4/D1を含む長い固定fixture、実取引所の正式Calendar、実測cost/slippage、長期利益・頑健性、Broker、Paper、Live、Cloud、Secretは未判定であり、P3-10またはPhase 4へ送る。</p>
+    <p><strong>証跡:</strong> <a href="../tests/evidence/phase3/RUN-P3-POC-001/verification.json">native verification</a> / <a href="../tests/evidence/phase3/RUN-P3-POC-001/wsl-verification-capture.json">WSL verification capture</a> / <a href="../tests/evidence/phase3/RUN-P3-POC-001/run-manifest.json">Run Manifest</a> / <a href="./phase3/08_エンジンPoC/09_取引エンジンPoC評価結果.html">P3-D10</a> / <a href="../plan/phase3/ログ/P3-09_実行ログ_2026-08-10.md">実行ログ</a></p>
   </section>
 
   <section class="note" id="remaining-issues-detail-20260809">
@@ -551,11 +551,12 @@ firewall=true</pre></li>
     <p><small>やさしい説明: 今回は「市場データを正しく読む」試験に合格しました。売買の危険を管理する仕組み、通知の仕組み、本番へ移す条件は別の宿題として残っています。</small></p>
   </section>
   <section class="note" id="history-p3-07-20260809">
-    <h2>最新更新履歴 v4.3（2026-08-10）</h2>
+    <h2>更新履歴 v4.4（2026-08-10）</h2>
     <p>P3-07R-05を実行し、Windows型Gateの残りを0件へ修正済み、WSL隔離下のR-05固定4 Gate（formatter、lint、mypy、258件wrapper）、全406テスト、phase3 fixture/hash/隔離契約、A150/A160/A40のCritical/High=0、Human Gate承認を確認した。登録Runnerは`PASS`となり、P3-07 Core範囲を受入可へ更新した。<a href="../tests/evidence/phase3/RUN-P3-BT-001/verification.json">RUN-P3-BT-001証跡</a> / <a href="../plan/phase3/ログ/P3-07R-05_実行ログ_2026-08-10.md">R-05実行ログ</a>を参照する。P3-08A、P3-09、Phase 4は後続Gateとして完了扱いにしない。H3-1/H3-1R/H3-2の承認状態は変更しない。台帳全体のHuman Gate、Phase表示、主課題、件数、履歴、関連証跡を点検した。</p>
     <p>P3-07R-05を実行し、Windows型Gateの残りを0件へ修正済み、WSL隔離下のR-05固定4 Gate（formatter、lint、mypy、258件wrapper）、全406テスト、phase3 fixture/hash/隔離契約、A150/A160/A40のCritical/High=0、Human Gate承認を確認した。登録Runnerは`PASS`となり、P3-07 Core範囲を受入可へ更新した。<a href="../tests/evidence/phase3/RUN-P3-BT-001/verification.json">RUN-P3-BT-001証跡</a> / <a href="../plan/phase3/ログ/P3-07R-05_実行ログ_2026-08-10.md">R-05実行ログ</a>を参照する。P3-08A、P3-09、Phase 4は後続Gateとして完了扱いにしない。H3-1/H3-1R/H3-2の承認状態は変更しない。台帳全体のHuman Gate、Phase表示、主課題、件数、履歴、関連証跡を点検した。</p>
-    <p>P3-09の実行要求を受領し、P3-08A PASSを再確認したが、P3-09専用実行入口・Run Manifest・LEAN/Core parity期待出力が未確定でtrusted scopeが`execution_allowed=false`のため、実engineを起動せずBLOCKED証跡を作成した。<a href="../tests/evidence/phase3/RUN-P3-POC-001/verification.json">RUN-P3-POC-001 verification</a> / <a href="../plan/phase3/ログ/P3-09_実行ログ_2026-08-10.md">P3-09実行ログ</a>を参照する。新しい根本課題<code>BLK-P3-010</code>を主表へ登録し、件数、Phase表示、関連導線を点検した。</p>
-    <p><small>やさしい説明: 部品のテストは通りましたが、全部をつないだ本番前の通し試験がまだです。安全確認が終わるまで、次のPhaseへは進みません。</small></p>
+    <p>【履歴：P3-09本Run実行前】P3-09の実行要求を受領し、P3-08A PASSを再確認したが、P3-09専用実行入口・Run Manifest・LEAN/Core parity期待出力が未確定でtrusted scopeが`execution_allowed=false`のため、実engineを起動せずBLOCKED証跡を作成した。この停止試行は<code>attempt-1</code>〜<code>attempt-6</code>とともに履歴として保持する。</p>
+    <p>P3-09本Runでは、P3-08R-05の固定Manifest・期待値・trusted scope、ユーザー明示承認、network none、WSL隔離を再照合し、Windows/WSLともPASSした。<a href="../tests/evidence/phase3/RUN-P3-POC-001/verification.json">native verification</a> / <a href="../tests/evidence/phase3/RUN-P3-POC-001/wsl-verification-capture.json">WSL capture</a> / <a href="./phase3/08_エンジンPoC/09_取引エンジンPoC評価結果.html">P3-D10</a>を参照する。BLK-P3-010は解消済みとし、P3-10とPhase 4の残境界は別課題として維持する。</p>
+    <p><small>やさしい説明: 準備が足りなかった最初の試行は記録に残し、準備を整えた後の通し試験は合格しました。ただし本番運用の許可ではありません。</small></p>
   </section>
   <section class="ok-note" id="policy-decisions-20260809">
     <h2>ユーザー決定の最新反映（2026-08-09）</h2>

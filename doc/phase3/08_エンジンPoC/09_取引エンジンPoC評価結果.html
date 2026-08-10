@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P3-09 取引エンジンPoC評価結果</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: system-ui, sans-serif; line-height: 1.7; margin: 2rem auto; max-width: 84rem; padding: 0 1rem; color: #1f2937; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: .45rem; }
+    h2 { margin-top: 2rem; border-bottom: 1px solid #cbd5e1; padding-bottom: .25rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0 1.5rem; }
+    th, td { border: 1px solid #cbd5e1; padding: .45rem .6rem; text-align: left; vertical-align: top; }
+    th { background: #f1f5f9; }
+    code { background: #f1f5f9; padding: .08rem .25rem; overflow-wrap: anywhere; }
+    .pass { color: #166534; font-weight: 700; }
+    .boundary { background: #eff6ff; border-left: 5px solid #2563eb; padding: 1rem; }
+    .limit { background: #fff7ed; border-left: 5px solid #c2410c; padding: 1rem; }
+    .small { color: #475569; font-size: .94rem; }
+    a { color: #1d4ed8; }
+  </style>
+</head>
+<body>
+  <h1>P3-09 取引エンジンPoC評価結果</h1>
+  <p><strong>文書ID:</strong> P3-D10 ／ <strong>Run:</strong> <code>RUN-P3-POC-001</code> ／ <strong>実行日:</strong> 2026-08-10 ／ <strong>状態:</strong> <span class="pass">PASS</span></p>
+
+  <div class="boundary">
+    <strong>結論:</strong> 固定fixture・固定Manifest・固定LEAN digest・network none・ローカル入力限定のBacktest PoCとして、LEANはP3-AC-01〜08をすべてPASSした。LEANは「条件付き採用候補」とし、Phase 3ではローカルBacktest PoCの範囲に限定する。
+  </div>
+
+  <h2>1. 判定範囲と安全境界</h2>
+  <p>本RunはCore referenceとLEAN実測出力を比較する隔離PoCである。Broker、Paper、Live、Cloud QuantConnect、Secret、外部データ取得、実注文は使用していない。今回のPASSは、エンジンの本番採用、Paper接続、Live適合性、利益や頑健性を意味しない。</p>
+  <table>
+    <thead><tr><th>項目</th><th>固定値・証拠</th></tr></thead>
+    <tbody>
+      <tr><td>LEAN image</td><td><code>quantconnect/lean@sha256:bc01b22a27262ff1e69bdd7f451234e565463292350626aaa2479bda7a54765d</code></td></tr>
+      <tr><td>実行方式</td><td>Local provider、Docker <code>--network none</code>、入力read-only、automatic data download=false</td></tr>
+      <tr><td>実行Manifest</td><td><code>tests/evidence/phase3/RUN-P3-POC-001/run-manifest.json</code> ／ manifest hash <code>sha256:1f673bfb2b2d0751441b8a65ba4ec3e2e24e208d4945b341782d9a71d9abaf8f</code></td></tr>
+      <tr><td>P3-08R親Manifest</td><td><code>sha256:8ff33516cb843a2b205346a6cb9bbe933a5aa30f7c0bad0edd21538a531446a8</code></td></tr>
+      <tr><td>LEAN入力projection</td><td><code>sha256:af817aac796b1df0202118346facb3e9b49b3f5440c6e5f78665872ad6fecdf8</code></td></tr>
+      <tr><td>現行Adapter実装</td><td><code>scripts/quality_gate/p3_poc_runner.py</code> ／ <code>sha256:f9060588b6a73ee566968cbc655188039a3d9cc3b4bc337a163223e83a1621b7</code></td></tr>
+      <tr><td>WSL隔離</td><td>Ubuntu-24.04 / WSL2、networking mode <code>none</code>、loopbackのみ、default routeなし</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. P3-AC-01〜08</h2>
+  <p>各行は、固定入力と期待値を変更せずに実行した個別判定である。</p>
+  <table>
+    <thead><tr><th>条件</th><th>判定</th><th>実測・固定証拠</th></tr></thead>
+    <tbody>
+      <tr><td>P3-AC-01</td><td class="pass">PASS</td><td>30分固定fixture内のM1/M15/M30の派生bar hashが一致。H1/H4/D1はこの30分fixtureでは主張せず、長い固定fixtureを別途必要とする。</td></tr>
+      <tr><td>P3-AC-02</td><td class="pass">PASS</td><td>closed-bar signal hash: <code>sha256:5b8d0ddd6c9c2780d306a03cb696bc7242cfc805e7e200e216bab2f2b8b06032</code></td></tr>
+      <tr><td>P3-AC-03</td><td class="pass">PASS</td><td>calendar <code>us-futures-fixture-v1</code>、same-close decision count 10</td></tr>
+      <tr><td>P3-AC-04</td><td class="pass">PASS</td><td>順序付き系列 hash: <code>sha256:bed65e52341e71ecb97b90a1f59781951fb23253853171178e71340ddf0e5481</code></td></tr>
+      <tr><td>P3-AC-05</td><td class="pass">PASS</td><td>vendor-neutral <code>LeanLocalAdapter</code>。実装hash: <code>sha256:f9060588b6a73ee566968cbc655188039a3d9cc3b4bc337a163223e83a1621b7</code></td></tr>
+      <tr><td>P3-AC-06</td><td class="pass">PASS</td><td>network none、Local入力、automatic data download=false、projection hash一致</td></tr>
+      <tr><td>P3-AC-07</td><td class="pass">PASS</td><td>5市場×2024/2025、1分足5,263,200件、派生5時間足、11,420ms / 11,210ms、peak RSS 52,416,512 bytes（約50.0 MiB、上限8 GiB以下）、二回の結果hash一致</td></tr>
+      <tr><td>P3-AC-08</td><td class="pass">PASS</td><td>snapshot hash <code>sha256:09072eebb3f331cc20414049aa9eb130e5ac8ef28f992e2ca539555537d223ca</code>、commit marker hash <code>sha256:a777b3c0eb9248b536a62149d42ea1beb724e847ba71d5638fb7494f6cd8c1a9</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. 再現性・隔離Gate</h2>
+  <ul>
+    <li>LEAN replay-1 / replay-2の出力hash: いずれも <code>sha256:5bacb10450a0c9f685820581a50047123d20f4991f2f462c3fb1ccdce8daf9f9</code>。</li>
+    <li>WSL固定4 Gate: formatter、lint、type、testが全てPASS、wrapper exit code 0。</li>
+    <li>WSL実行ID: <code>4ff0f27d623a41a2a852b301a06c152a</code>。入力hashは実行前後とも <code>sha256:ada4810e2d34b432698189bd252acc48cd07a66d4f1abdbe06a1a0d57dcac83d</code>。</li>
+    <li>独立レビュー5件（A40、A70、A130、A150、A160）はCritical / High / Medium / Unknownを0件とした。</li>
+  </ul>
+
+  <h2>4. 再試行履歴</h2>
+  <p>初回のWindows性能計測ではRSS取得が一時的にunavailableとなり、P3-AC-07を停止した。この試行は削除せず <code>attempt-1</code> に保存した。その後、実測RSS取得を修正し、今回の再実行でPASSした。WSLではManifestのtemplate、fixture descriptor、type Gateの停止試行も、それぞれ <code>attempt-2</code>〜<code>attempt-6</code> に履歴保存している。期待値、fixture、性能合格値を変更していない。</p>
+
+  <div class="limit">
+    <strong>未判定の境界:</strong> H1/H4/D1を含む長時間足の実データ適合、実取引所の正式Calendar、実測手数料・スリッページ、長期利益・頑健性、Paper/Live/Broker接続は未判定である。これらはP3-10またはPhase 4の別Gateで扱い、今回のPASSに混ぜない。
+  </div>
+
+  <h2>5. 採用判断と次工程</h2>
+  <p><strong>採用判断:</strong> LEANをPhase 3のローカルBacktest PoCにおける条件付き採用候補とする。今回LEAN固有の失敗は発生しなかったため、NautilusTraderへの縮退PoCは起動しない。Phase 4でPaper証拠、実取引所Calendar、Broker境界、長期連続運用を確認するまで、最終engine決定や本番運用移行は行わない。</p>
+  <p><strong>次工程:</strong> P3-10の統合Replay / Golden / Bias検証へ進む。P3-09の結果だけでPhase 3全体完了、利益保証、Paper/Live準備完了とはしない。</p>
+
+  <h2>6. 証拠リンク</h2>
+  <ul>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-POC-001/verification.json">P3-09 native verification</a></li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-POC-001/wsl-verification-capture.json">WSL最終verification capture</a></li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-POC-001/run-manifest.json">P3-09 run-manifest</a> ／ <a href="../../../tests/evidence/phase3/RUN-P3-POC-001/quality-gate-manifest.json">quality-gate-manifest</a></li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-POC-001/parity-results.json">parity-results</a> ／ <a href="../../../tests/evidence/phase3/RUN-P3-POC-001/performance.json">performance</a> ／ <a href="../../../tests/evidence/phase3/RUN-P3-POC-001/precondition-audit.json">precondition audit</a></li>
+    <li><a href="../../../tests/evidence/phase3/RUN-P3-POC-001/reviews/a40-execution-engine.md">A40</a> / <a href="../../../tests/evidence/phase3/RUN-P3-POC-001/reviews/a70-ops-security.md">A70</a> / <a href="../../../tests/evidence/phase3/RUN-P3-POC-001/reviews/a130-verification.md">A130</a> / <a href="../../../tests/evidence/phase3/RUN-P3-POC-001/reviews/a150-python-quality.md">A150</a> / <a href="../../../tests/evidence/phase3/RUN-P3-POC-001/reviews/a160-trading-security.md">A160</a></li>
+    <li><a href="../../../plan/phase3/ログ/P3-09_実行ログ_2026-08-10.md">P3-09実行ログ</a> ／ <a href="../../../plan/Phase3_実行計画書_v0.1_2026-08-09.md">Phase 3実行計画書</a> ／ <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></li>
+  </ul>
+</body>
+</html>

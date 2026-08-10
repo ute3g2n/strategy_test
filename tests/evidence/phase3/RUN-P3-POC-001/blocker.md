@@ -1,25 +1,17 @@
-# P3-09 取引エンジンPoC — BLOCKED
+# P3-09 取引エンジンPoC — 初回停止履歴と最終判定
 
-実行要求は受領したが、P3-09の発火制御により実engineの起動前に停止した。
+## 現在の判定
 
-## 停止理由
+P3-09本Runは、固定LEAN digest、固定ローカル入力、network none、read-only入力、P3-AC-01〜08の固定契約でPASSした。現在の正本は `verification.json` とP3-D10である。
 
-- `RUN-P3-LEAN-PREP-001` はPASSであり、LEANの固定digest、artifact hash、LICENSE、network none/read-only preflight、WSL固定4 Gateは確認済み。
-- しかし、`RUN-P3-POC-001` のtrusted scopeは `execution_allowed=false` で、P3-09専用のUnknownが残っている。
-- `tests/engine_poc/`、P3-09専用Run Manifest、LEAN実測結果とCoreのparity期待値を結ぶ機械証跡が存在しない。
-- そのため、固定入力と期待出力が確定していない状態でLEANを起動すると、結果を後付けで合格扱いする余地が生じる。
+## 初回停止履歴
 
-## 実行安全性
+このファイルの旧内容は、P3-09専用入口・Run Manifest・期待出力・trusted scopeが未確定だった準備段階の停止理由を記録していた。準備契約をP3-08R-01〜05で確定し、ユーザーの明示承認を受領した後、P3-09本Runを実行した。
 
-- LEAN、NautilusTrader、Broker、Paper、Live、Cloud、Secretは起動・使用していない。
-- 既存のfixture、期待値、Calendar、性能合格値は変更していない。
-- 詳細は `precondition-audit.json` と `verification.json` を正本とする。
+## 安全境界
 
-## 再開条件
+- LEANは固定ローカルBacktest PoCとしてのみ使用した。
+- Broker、Paper、Live、Cloud、Secret、外部データ取得、実注文は使用していない。
+- 初回RSS計測停止、WSL Manifest照合停止、WSL type Gate停止は削除せず、`attempt-1`〜`attempt-6`へ履歴保存した。
 
-実行計画は `plan/phase3/P3-08R_実行計画書_2026-08-10.md` に固定した。
-
-1. `tests/engine_poc/` にP3-09専用の実行入口を作成し、レビューする。
-2. `RUN-P3-POC-001` Run Manifestへdigest、fixture hash、Calendar/timeframe/Adapter版、code revision、出力schemaを固定する。
-3. LEAN/Core parityの期待出力を機械検証可能な証跡として固定する。
-4. trusted scopeのUnknownを解消し、`execution_allowed=true`に更新したうえで、再度P3-09を実行する。
+詳細: `verification.json`、`wsl-verification-capture.json`、`../../../../doc/phase3/08_エンジンPoC/09_取引エンジンPoC評価結果.html`

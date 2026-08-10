@@ -3,7 +3,7 @@
 作成日: 2026-08-09  
 対象: タートルズ・トレンドフォロー自動売買システム  
 対象Phase: Phase 3 Strategy / Backtest基盤  
-状態: v1.0 / H3-0、H3-1、H3-1R、H3-2、H3-5承認済み。H3-1R改訂により、v2は履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する。P3-06のStrategy実装・固定4 GateはPASS（2026-08-09）。P3-07R-01〜05でCore範囲を受入可へ更新し、P3-08のRUN-P3-BIAS-001も機械Gate・WSL隔離・独立レビュー・Human Gateを完了した。P3-08Aはユーザーの追加待機指示後、公式LEAN固定digest、artifact hash、ライセンス、network none/read-onlyのLocal preflight、固定4 Gate、レビューを完了してPASS。P3-08R-01〜05でP3-09専用入口、唯一のexecution Manifest、Core reference、LEAN schema、parity map、隔離品質Gate、独立レビューを完了し、準備RunはREADY_FOR_P3-09。P3-09本Runは別Gateであり、実engine、Broker、Paper、Liveは対象外のままとする。
+状態: v1.0 / H3-0、H3-1、H3-1R、H3-2、H3-5承認済み。H3-1R改訂により、v2は履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する。P3-06のStrategy実装・固定4 GateはPASS（2026-08-09）。P3-07R-01〜05でCore範囲を受入可へ更新し、P3-08のRUN-P3-BIAS-001も機械Gate・WSL隔離・独立レビュー・Human Gateを完了した。P3-08Aはユーザーの追加待機指示後、公式LEAN固定digest、artifact hash、ライセンス、network none/read-onlyのLocal preflight、固定4 Gate、レビューを完了してPASS。P3-08R-01〜05でP3-09専用入口、唯一のexecution Manifest、Core reference、LEAN schema、parity map、隔離品質Gate、独立レビューを完了し、準備RunはREADY_FOR_P3-09。2026-08-10、ユーザーの明示承認を受けてP3-09本Runを実行し、Windows本RunとWSL隔離品質Gate、P3-AC-01〜08をPASSした。P3-09は固定ローカルBacktest PoCの条件付き採用候補であり、実engine、Broker、Paper、Live、Cloud、Secretの本番利用は対象外のままとする。
 
 参照:
 
@@ -286,7 +286,7 @@ H3-2は外部データや外部依存を使う許可であり、Secret投入、B
 | G9R | P3-07R-01〜05 | 完了 | P3-07差戻し、P3-D05/P3-D06/P3-D08、H3-1/H3-1R/H3-2承認済み。RUN-P3-BT-001を登録入口で再実行し、固定4 GateとHuman Gateを完了。 |
 | G10 | P3-08 | 完了・受入済み | RUN-P3-BIAS-001のWSL隔離、fixture hash、formatter/lint/type/testの固定4 Gate、独立レビュー、H3-5 Human Gate承認を確認。P3-08Aを開始し、P3-09はP3-08A完了まで開始しない。 |
 | G11 | P3-08A | 完了・受入済み | H3-2、P3-02、P3-04、P3-05R、P3-08。`RUN-P3-LEAN-PREP-001`の固定digest、artifact hash、LICENSE、network none/read-only Local preflight、固定4 Gate、レビューを確認。P3-09は別Gateで実行する。 |
-| G12 | P3-09 | 準備完了・本Runは別Gate待ち（2026-08-10） | P3-08R-05で専用実行入口、唯一のexecution Manifest、Core reference、LEAN/Core parity期待出力、固定4 Gate、WSL隔離、独立レビューを確定。`RUN-P3-POC-READY-001`は`READY_FOR_P3-09`だが、P3-09本Runのtrusted scopeは`execution_allowed=false`のまま、実engineは未起動。別プロンプトでRun承認と再照合後に開始する。 |
+| G12 | P3-09 | 完了・PASS（2026-08-10） | P3-08R-05で確定した専用実行入口、唯一のexecution Manifest、Core reference、LEAN/Core parity期待出力、固定4 Gate、WSL隔離、独立レビューを再照合し、ユーザー明示承認後に`RUN-P3-POC-001`を実行した。固定LEAN digest、network none、read-only入力、P3-AC-01〜08、Windows/WSL品質GateをPASS。P3-D10ではLEANをローカルBacktest PoCの条件付き採用候補とし、H1/H4/D1を含む長時間足、実取引所Calendar、実測cost/slippage、Paper/Liveは後続境界として明示する。 |
 | G13 | P3-10 | 不可 | P3-03〜P3-09。長期データ不足時は利益・頑健性だけUNKNOWNとし、P3-AC-01〜08のPhase 3範囲は省略しない。 |
 | G14 | P3-11 | 不可 | P3-01〜P3-10 |
 | G15 | P3-12 | 不可 | H3-3、P3-11 |
@@ -1187,6 +1187,8 @@ LEANを主候補として、同じ固定入力・Strategy意味論・Manifestで
 - Broker/Paper未検証を合格扱いしていない。
 - P3-D10がdoc/index.htmlから到達できる。
 ```
+
+実行結果（2026-08-10）: **PASS**。`RUN-P3-POC-001`をユーザーの明示承認後に実行した。固定LEAN digest、固定ローカル入力、`network_mode=none`、read-only入力、automatic data download=falseを使用し、LEAN replay二回の出力hashを一致させた。P3-AC-01〜08は全てPASS、5市場×2024/2025の1分足5,263,200件と派生5時間足を11,420ms / 11,210ms、peak RSS 52,416,512 bytesで処理した。WSL隔離品質Gateもformatter/lint/type/test全PASS、wrapper exit code 0、入力hash前後一致となった。P3-AC-01は30分固定fixture内のM1/M15/M30までを判定範囲とし、H1/H4/D1、実取引所Calendar、実測cost/slippage、Paper/Liveは後続境界としてP3-D10と統合台帳へ記録した。証跡は `tests/evidence/phase3/RUN-P3-POC-001/`、正式結果は `doc/phase3/08_エンジンPoC/09_取引エンジンPoC評価結果.html`、実行ログは `plan/phase3/ログ/P3-09_実行ログ_2026-08-10.md` である。
 
 ### P3-10 統合Replay / Golden / Bias検証
 
