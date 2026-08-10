@@ -151,6 +151,12 @@ def test_phase3_runner_has_valid_bash_syntax_and_is_fixture_only() -> None:
     assert "tests/evidence/phase3/$run_id" in text
     assert "QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED=1" in text
     assert "dbn" not in text.lower()
+    assert (
+        '"$evidence_root/verification.json" "$gate_exit" "$input_hash" "$post_input_hash" '
+        '"$host_execution_id" "$manifest"'
+    ) in text
+    assert "path, exit_code, input_hash, post_input_hash, host_execution_id, manifest_path = sys.argv[1:]" in text
+    assert 'json.loads(Path(manifest_path).read_text(encoding="utf-8"))' in text
 
 
 def test_automation_wrapper_captures_wrapper_and_evidence_results() -> None:

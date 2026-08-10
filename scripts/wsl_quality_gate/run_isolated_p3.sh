@@ -94,15 +94,15 @@ if [[ "$post_input_hash" != "$input_hash" || "$post_input_hash" != "$expected_in
   exit 20
 fi
 
-"$python_bin" - "$evidence_root/verification.json" "$gate_exit" "$input_hash" "$post_input_hash" "$host_execution_id" <<'PY'
+"$python_bin" - "$evidence_root/verification.json" "$gate_exit" "$input_hash" "$post_input_hash" "$host_execution_id" "$manifest" <<'PY'
 import json
 import sys
 from pathlib import Path
 
-path, exit_code, input_hash, post_input_hash, host_execution_id = sys.argv[1:]
+path, exit_code, input_hash, post_input_hash, host_execution_id, manifest_path = sys.argv[1:]
 verification_path = Path(path)
 result = json.loads(verification_path.read_text(encoding="utf-8")) if verification_path.exists() else {"state": "FAILED"}
-manifest = json.loads((verification_path.parent / "run-manifest.json").read_text(encoding="utf-8"))
+manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
 result.update(
     {
         "exit_code": int(exit_code),
