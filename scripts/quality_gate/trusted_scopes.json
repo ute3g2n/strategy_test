@@ -448,6 +448,39 @@
         {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/backtest", "scripts/quality_gate"]},
         {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p3_pytest"]}
       ]
+    },
+    "RUN-P3-POC-READY-001": {
+      "phase_id": "phase3",
+      "step_id": "P3-08R-04",
+      "design": "P3-D03-P3-D04-P3-D05-P3-D09-P3-D10",
+      "requirements": ["P3-AC-01", "P3-AC-02", "P3-AC-03", "P3-AC-04", "P3-AC-05", "P3-AC-06", "P3-AC-07", "P3-AC-08"],
+      "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+      "target_paths": [
+        "src/autotrade",
+        "scripts/quality_gate",
+        "scripts/wsl_quality_gate",
+        "tests/engine_poc",
+        "tests/strategy",
+        "tests/backtest"
+      ],
+      "excluded_paths": [".env", "third_party/everything-claude-code", "research", "E:/strategy_test_data"],
+      "fixture": {
+        "path": "tests/evidence/phase3/RUN-P3-POC-READY-001/run-manifest.json",
+        "name": "run-manifest.json",
+        "version": "p3-poc-execution-manifest-v1",
+        "checksum": "sha256:72d1e8834cecadd20cfb7e1df282a2a1ee9b5acda245acb2c90f7d988fbe1b94"
+      },
+      "baseline_ref": "HEAD",
+      "scope_mode": "target_only",
+      "unknowns": [],
+      "network_isolation_required": true,
+      "checks": [
+        {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade", "scripts/quality_gate", "tests/engine_poc", "tests/strategy", "tests/backtest"]},
+        {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade", "scripts/quality_gate", "tests/engine_poc", "tests/strategy", "tests/backtest"]},
+        {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade", "scripts/quality_gate", "tests/engine_poc"]},
+        {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p3_poc", "--mode", "prepare"]}
+      ]
     }
   }
 }

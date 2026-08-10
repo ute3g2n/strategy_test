@@ -16,6 +16,7 @@ from scripts.quality_gate.runner import (
     CommandResult,
     LocalQualityGateRunner,
     ManifestValidationError,
+    _validate_gate_command,
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -601,6 +602,15 @@ def test_p3_pytest_wrapper_has_only_fixed_strategy_and_backtest_targets(monkeypa
     monkeypatch.setitem(sys.modules, "pytest", FakePytest)
 
     assert local_p3_pytest.main() == 0
+
+
+def test_p3_poc_prepare_module_is_allowlisted_for_engine_poc_boundary() -> None:
+    _validate_gate_command(
+        "test",
+        (".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p3_poc", "--mode", "prepare"),
+        ("scripts/quality_gate", "tests/engine_poc"),
+        (),
+    )
 
 
 def test_p3_wrapper_marks_collection_or_execution_skip_as_invalid() -> None:

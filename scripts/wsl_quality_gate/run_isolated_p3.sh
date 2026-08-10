@@ -7,6 +7,10 @@ host_execution_id="${WSL_HOST_WRAPPER_EXECUTION_ID:-${3:?host wrapper execution 
 distro="${WSL_DISTRO_NAME:-unknown}"
 evidence_root="$repository_path/tests/evidence/phase3/$run_id"
 manifest="$evidence_root/run-manifest.json"
+quality_gate_manifest="$evidence_root/quality-gate-manifest.json"
+if [[ -f "$quality_gate_manifest" ]]; then
+  manifest="$quality_gate_manifest"
+fi
 python_bin="$repository_path/.venv/bin/python"
 
 blocked() {

@@ -575,6 +575,7 @@ def _validate_gate_command(
             "scripts.quality_gate.local_pytest",
             "scripts.quality_gate.local_p2_pytest",
             "scripts.quality_gate.local_p3_pytest",
+            "scripts.quality_gate.local_p3_poc",
             "scripts.quality_gate.local_p3_lean_prep",
             "scripts.quality_gate.local_p3_r04_pytest",
             "scripts.quality_gate.local_p3_strategy_pytest",
@@ -584,6 +585,8 @@ def _validate_gate_command(
             if python_module == "scripts.quality_gate.local_p2_pytest"
             else ("tests/strategy", "tests/backtest")
             if python_module == "scripts.quality_gate.local_p3_pytest"
+            else ("scripts/quality_gate", "tests/engine_poc")
+            if python_module == "scripts.quality_gate.local_p3_poc"
             else ("tests/strategy",)
             if python_module == "scripts.quality_gate.local_p3_strategy_pytest"
             else ("tests/backtest",)
