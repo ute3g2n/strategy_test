@@ -166,6 +166,17 @@ def test_manifest_accepts_fixed_engine_and_fixture_bindings() -> None:
     assert config["launch_allowed"] is False
 
 
+def test_manifest_allows_preparation_revision_to_be_distinct_from_contract_snapshot() -> None:
+    manifest = _valid_manifest()
+    manifest["source_contract_head"] = manifest["code_revision"]
+    manifest["code_revision"] = "a" * 40
+    manifest["manifest_sha256"] = canonical_hash(
+        {key: value for key, value in manifest.items() if key != "manifest_sha256"}
+    )
+
+    validate_execution_manifest(manifest, _contract(), ROOT)
+
+
 @pytest.mark.parametrize(
     "mutation",
     [

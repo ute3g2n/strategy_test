@@ -272,8 +272,14 @@ def validate_execution_manifest(
         not SHA256_PATTERN.fullmatch(str(item)) for item in manifest_children
     ):
         raise ContractError("Manifest child fixture hash is invalid")
-    if manifest.get("code_revision") != contract["repository_recheck"]["head"]:
-        raise ContractError("Manifest code revision mismatch")
+    contract_head = contract["repository_recheck"]["head"]
+    source_contract_head = manifest.get("source_contract_head", manifest.get("code_revision"))
+    if source_contract_head != contract_head:
+        raise ContractError("Manifest source contract revision mismatch")
+    if not isinstance(manifest.get("code_revision"), str) or not re.fullmatch(
+        r"[0-9a-f]{40}", manifest["code_revision"]
+    ):
+        raise ContractError("Manifest code revision is not a full lowercase commit")
 
     p3_08a = _require_mapping(contract.get("p3_08a_recheck"), "p3_08a_recheck")
     contract_engine = _require_mapping(p3_08a.get("engine_identity"), "P3-08A engine identity")
