@@ -547,16 +547,16 @@
     HTTP retry middleware、外部QueueはP4対象外である。</p>
 
   <h2>10. APIとUIの双方向binding</h2>
-  <p>P4-04Bで全21画面の部品・状態・アクセシビリティ詳細を作る。本章は先行して、各APIを呼ぶ画面と、
+  <p>P4-04Cで全21画面の部品・状態・アクセシビリティ詳細を作る。本章は先行して、各APIを呼ぶ画面と、
     APIが返す状態をどのUISTATEとして表すかを固定する。UIはAPIを通らずに状態を推測しない。</p>
   <p>本章の短縮表記は、正本IDではそれぞれ <code>UISTATE-NORMAL</code>、<code>UISTATE-LOADING</code>、
     <code>UISTATE-EMPTY</code>、<code>UISTATE-REQUIRED</code>、<code>UISTATE-WARNING</code>、
     <code>UISTATE-STOPPED</code>、<code>UISTATE-FAILED</code>、<code>UISTATE-RECOVERY</code>、
-    <code>UISTATE-HUMAN-GATE</code>、<code>UISTATE-UNAPPROVED</code> を指す。P4-04Bは各画面×各正本IDを
+    <code>UISTATE-HUMAN-GATE</code>、<code>UISTATE-UNAPPROVED</code> を指す。P4-04Cは各画面×各正本IDを
     <code>SUPPORTED</code>、<code>PROHIBITED</code>、理由付き<code>N/A</code>のいずれかへ展開する。</p>
   <div class="wide">
   <table>
-    <caption>API→Screen／Stateのbinding。P4-04Bが全21画面を設計する際の入力となる表。</caption>
+    <caption>API→Screen／Stateのbinding。P4-04Cが全21画面を設計する際の入力となる表。</caption>
     <thead><tr><th>API</th><th>主Screen</th><th>表示するUISTATE</th><th>禁止するUI動作</th><th>次のAPI／Evidence</th></tr></thead>
     <tbody>
       <tr><td>001</td><td>SCREEN-01/18/19</td><td>NORMAL、UNAPPROVED、HUMAN-GATE</td><td>P4外能力を有効操作として見せる</td><td>018／統合台帳</td></tr>
@@ -572,12 +572,12 @@
   </div>
 
   <h3>10.1 全21画面のAPI coverage register（API観点）</h3>
-  <p>画面のレイアウト・部品・10状態の個別詳細はP4-04Bの責務である。ただし、APIの呼出元を未定義にしないため、
+  <p>画面のレイアウト・部品・10状態の個別詳細はP4-04Cの責務である。ただし、APIの呼出元を未定義にしないため、
     ここでSCREEN-01〜21を一度ずつ登録する。<code>BOUNDARY_ONLY</code>はP4で安全な境界表示だけを設計し、
     後続Phaseの機能を実装する意味ではない。</p>
   <div class="wide">
   <table>
-    <caption>全21画面とAPIの一次対応。P4-04Bはこの表を画面側から更新して双方向参照にする。</caption>
+    <caption>全21画面とAPIの一次対応。P4-04Cはこの表を画面側から更新して双方向参照にする。</caption>
     <thead><tr><th>Screen / 主目的</th><th>P4判定</th><th>参照・操作するAPI</th><th>P4で禁止する動作 / 後続</th></tr></thead>
     <tbody>
       <tr><td>SCREEN-01 システム状態・禁止事項</td><td>BOUNDARY_ONLY</td><td>001、X02、X04</td><td>Provider／Broker接続、Secret設定。P7／Security Gate</td></tr>
@@ -623,11 +623,11 @@
   </div>
 
   <h2>12. APIテスト、固定入力、期待結果、Evidence</h2>
-  <p>テストはP4-04CでRED化する。P4-04Aは実行しないが、全APIに少なくとも正常・境界／失敗の固定テストを割り当てる。
+  <p>テストはP4-04DでRED化する。P4-04Aは実行しないが、全APIに少なくとも正常・境界／失敗の固定テストを割り当てる。
     全テストは固定local fixtureとdummy IDだけを使い、network、実Data、Secret、実Risk、Brokerを使わない。</p>
   <div class="wide">
   <table>
-    <caption>API別テスト仕様。実装・P4-04C・P4-05のレビューでcoverageを機械照合できる表。</caption>
+    <caption>API別テスト仕様。実装・P4-04D・P4-05のレビューでcoverageを機械照合できる表。</caption>
     <thead><tr><th>Test ID</th><th>API</th><th>固定入力・操作</th><th>期待結果</th><th>Evidence</th></tr></thead>
     <tbody>
       <tr><td>TEST-P4-API-001</td><td>001</td><td>p4-v1 capability query</td><td>BACKTEST_LOCALのみ設計対象、P4外は理由・Phase・Gate付きUNSUPPORTED</td><td>P4-EV-UI-STATE-CONTRACT</td></tr>
@@ -682,10 +682,10 @@
       <tr><td>REQ-V2-0036〜0043</td><td>Unit、Run／Job分離、Queue、retry、checkpoint、履歴</td><td>003、005〜012、7章</td><td class="ok">収容</td></tr>
       <tr><td>REQ-V2-0045〜0050</td><td>単一Backtest／Sweepの開始、五指標、部分失敗</td><td>004、007、010〜015</td><td class="ok">収容</td></tr>
       <tr><td>REQ-V2-0052〜0055/0090</td><td>比較、CSV、Holdout境界・再利用制限</td><td>015〜019、8〜12章</td><td class="ok">収容</td></tr>
-      <tr><td>REQ-V2-0084〜0086/0098/0100/0102/0105</td><td>21画面追跡、状態、Fail-closed、メッセージ、Unknown</td><td>010〜012、P4-04B入力</td><td class="ok">収容</td></tr>
+      <tr><td>REQ-V2-0084〜0086/0098/0100/0102/0105</td><td>21画面追跡、状態、Fail-closed、メッセージ、Unknown</td><td>010〜012、P4-04C入力</td><td class="ok">収容</td></tr>
       <tr><td>DEC-P4-001〜006</td><td>Application境界、SQLite候補、FastAPI不採用、React候補、local worker、AtomicResultStore</td><td>1〜3、8〜9章。HTTPはprojectionだけ</td><td class="ok">維持</td></tr>
       <tr><td>UNK-P3-01/05/07、Q-243、RQV2-BLK-001</td><td>実Data、Cost、正式Calendar、性能／Gate、Phase1証跡</td><td>API成功・P4完成に変換しない。Capability／Failure／Evidenceへ保持</td><td class="pending">未解決のまま</td></tr>
-      <tr><td>ART-P4-03 / ART-P4-04</td><td>Backtest詳細設計／API詳細設計</td><td>本書とP4-03を相互参照。P4-04B/C/05へ引渡し</td><td class="ok">設計完了</td></tr>
+      <tr><td>ART-P4-03 / ART-P4-04</td><td>Backtest詳細設計／API詳細設計</td><td>本書とP4-03を相互参照。P4-04B/C/D/05へ引渡し</td><td class="ok">設計完了</td></tr>
     </tbody>
   </table>
   </div>
@@ -694,22 +694,23 @@
   <div class="finding"><strong><span class="ok">P4-04A-R-001　API inventoryの欠落 0</span></strong> P4のRun、Sweep、Job、Queue、Result、Chart／Trade／Signal projection、比較、CSV、Evidence、Holdout guardを19 APIへ分解し、各APIにAPI-P4-IDを付与した。</div>
   <div class="finding"><strong><span class="ok">P4-04A-R-002　HTTPの実装誤認 0</span></strong> HTTPは無効なlocal投影に限定し、in-process contractを正本とした。server、route、socket、認証、外部通信を設計許可へ含めていない。</div>
   <div class="finding"><strong><span class="ok">P4-04A-R-003　失敗・副作用境界の欠落 0</span></strong> 全write APIへschema、preflight、idempotency、expected revision、metadata transaction、Core／file非副作用の順序を定義した。</div>
-  <div class="finding"><strong><span class="ok">P4-04A-R-004　UI／APIの追跡孤立 0</span></strong> API→Screen／UISTATE、P4-TR、Test、Evidenceをinventoryとbinding表に記録し、P4-04Bの21画面設計入力を確定した。</div>
+  <div class="finding"><strong><span class="ok">P4-04A-R-004　UI／APIの追跡孤立 0</span></strong> API→Screen／UISTATE、P4-TR、Test、Evidenceをinventoryとbinding表に記録し、P4-04Cの21画面設計入力を確定した。DB／ER／Persistenceの保存契約はP4-04Bで後続確定する。</div>
   <div class="finding"><strong><span class="ok">P4-04A-R-005　P4外endpointの曖昧さ 0</span></strong> Paper／Live、Broker／Data、Risk／OMS、Secret、file transferをAPI-P4-X01〜X05としてUNSUPPORTEDに固定した。</div>
   <div class="finding"><strong><span class="ok">P4-04A-R-006　Critical／High未解決 0</span></strong> A91はfield、型、失敗、保存、状態、並行性、テスト、Evidenceを、A90はREQ／UC／Screen／StateとP4外境界を確認した。未解決Unknownは台帳のまま残し、Passにしない。</div>
   <p>改訂履歴: v0.1で初版作成。P4-03のApplication設計を変更せず、API正本・DTO・全19 API・P4外拒否・テストを追加した。
     Critical／High指摘が後続レビューで出た場合は、P4-04Aを改訂してからP4-H1承認対象へ入れる。</p>
 
-  <h2>15. P4-04B／P4-04C／P4-H1への引渡し</h2>
+  <h2>15. P4-04B（DB／ER）／P4-04C（UI）／P4-04D（RED）／P4-H1への引渡し</h2>
   <div class="wide">
   <table>
     <caption>本書から次Stepへ渡す確定物と、まだ許可しない作業を明確にする表。</caption>
     <thead><tr><th>宛先</th><th>渡すもの</th><th>受入条件</th><th>禁止事項</th></tr></thead>
     <tbody>
-      <tr><td>P4-04B</td><td>API-P4-001〜019、X01〜X05、DTO、binding、FailureView、固定ダミー例</td><td>全21 Screenで操作→API→View／Failure／Evidenceを明記し、10 UISTATEセルを扱う</td><td>UIソース変更、API実装、依存導入、実ブラウザ起動</td></tr>
-      <tr><td>P4-04C</td><td>TEST-P4-API-001〜038、idempotency／state／Evidence契約</td><td>RED、Run Manifest、target scope、Core差分0の検査仕様を追加</td><td>テスト実行、fixture変更、WSL Gate</td></tr>
-      <tr><td>P4-05</td><td>本書、P4-04B/C、P4-03</td><td>全API、全Screen、screen×state、REQ／UC／Test／Evidenceの矛盾がなくCritical／High=0</td><td>実装・依存・Runの開始</td></tr>
-      <tr><td>P4-H1</td><td>レビュー済みP4-03、P4-04A/B/C、P4-05、全API inventory、21/21 coverage、RED／Run Manifest</td><td>運用者が明示承認し、target_paths、fixture hash、trusted scope、停止条件を確定</td><td>承認前のP4-06〜09、外部I/O、Core変更、Paper／Live／Broker／Secret</td></tr>
+      <tr><td>P4-04B</td><td>API-P4-001〜019、X01〜X05、全APIのread/write対象、DB／file／Evidence境界</td><td>全APIに保存先またはread-only／N/A理由、ER図、PK／FK／unique／index、transaction／migration／rollback／idempotency契約を明記</td><td>DB作成、migration実行、repository実装、依存導入</td></tr>
+      <tr><td>P4-04C</td><td>API-P4-001〜019、X01〜X05、DTO、binding、FailureView、固定ダミー例、P4-04B保存契約</td><td>全21 Screenで操作→API→View／Failure／Evidenceを明記し、10 UISTATEセルとDB read/writeを扱う</td><td>UIソース変更、API実装、依存導入、実ブラウザ起動</td></tr>
+      <tr><td>P4-04D</td><td>TEST-P4-API-001〜038、P4-04B DB Test、idempotency／state／Evidence契約</td><td>RED、Run Manifest、target scope、Core差分0の検査仕様を追加</td><td>テスト実行、fixture変更、WSL Gate</td></tr>
+      <tr><td>P4-05</td><td>本書、P4-04B/C/D、P4-03</td><td>全API、DB／ER／Persistence、全Screen、screen×state、REQ／UC／Test／Evidenceの矛盾がなくCritical／High=0</td><td>実装・依存・Runの開始</td></tr>
+      <tr><td>P4-H1</td><td>レビュー済みP4-03、P4-04A/B/C/D、P4-05、全API inventory、DB／ER／Persistence契約、21/21 coverage、RED／Run Manifest</td><td>運用者が明示承認し、target_paths、fixture hash、trusted scope、停止条件を確定</td><td>承認前のP4-06〜09、外部I/O、Core変更、Paper／Live／Broker／Secret</td></tr>
     </tbody>
   </table>
   </div>
