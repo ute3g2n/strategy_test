@@ -145,6 +145,20 @@
     </table>
     <p class="small">H1承認後、RQU-UI-03の外部取得とSmoke、RQU-UI-04のAI部品作成・仕様同期・静的検証、RQU-UI-05の共通仕様確定、RQU-UI-06の要件candidate作成、RQU-UI-07の共通UI骨格・状態部品・Storybook・component/E2E検証、RQU-UI-08の中核画面・単一Run/網羅検証・結果比較・運用単位・Strategy版、RQU-UI-09のNAV-06〜10・警告・Human Gate・停止・復旧・Secret境界・用語導線、RQU-UI-10の要件candidate-0.5・21画面オフライン静的UIモック候補・相互リンク・ID/Trace・外部境界監査、RQU-UI-11のPlaywright E2E・Visual・a11y、RQU-UI-12の専門・Design・Red Teamレビュー、RQU-UI-13の指摘修正・再試験・最終candidate統合、RQU-UI-14の正式要件・正式UI・doc/index.html・台帳同期を完了した。実Broker、実市場データ、Secret、外部AIサービス、実注文、性能・実運用証跡はUnknownとして維持する。</p>
   </section>
+  <section class="note" id="requirements-v2-plan-current-20260811">
+    <h2>要件定義書v2 ゼロベース再作成 実行計画（2026-08-11）</h2>
+    <p><strong>実行計画 <code>RQV2-PLAN-001 v0.1</code>を作成し、<code>RQV2-H0</code>の開始承認待ちで停止している。</strong> <code>RQU-20</code>の0〜62章を新しい構成正本とし、Q-01〜Q-305、67ユースケース、既存UIモック21画面、Phase 1〜3の実装・検証済みPython Coreを18 Stepで追跡・統合する。旧要件定義書の本文・章立ては継承せず、欠落比較と履歴参照だけに使う。詳細は<a href="../plan/requirements_update/RQV2-PLAN-001_自動トレードシステム要件定義書v2再作成実行計画_2026-08-11.md">RQV2-PLAN-001</a>を正本とする。</p>
+    <p>Phase 1〜3 Core、既存テスト、fixture、証拠は凍結し、要件作成中に変更しない。新Phase 4〜11は、Product/Application基盤、実データ実証、Portfolio／Risk／OMS、Broker／Paper、運用堅牢化、Live候補、小規模Live、通常Liveの順に再編する。どのRQV2 Gateも、外部取得、Broker接続、Secret、Paper注文、Live注文、実資金、Cloud公開を承認しない。</p>
+    <table>
+      <thead><tr><th>ID</th><th>対象</th><th>現在状態</th><th>期限・再開条件</th><th>証拠先</th></tr></thead>
+      <tbody>
+        <tr><td><code>RQV2-H0</code></td><td>RQV2-PLAN-001 v0.1の開始</td><td><span class="badge wait">未承認・開始前</span></td><td>運用者が計画ID・版を明示承認した場合、入力・Core基準線、Q/UC追跡、UIモック抽出のRQV2-01〜03だけを開始する。</td><td><a href="../plan/requirements_update/RQV2-PLAN-001_自動トレードシステム要件定義書v2再作成実行計画_2026-08-11.md">実行計画</a>、将来の承認記録、RQV2実行ログ</td></tr>
+        <tr><td><code>RQV2-H1</code></td><td>入力・追跡・Core凍結・UI対応の基準線</td><td><span class="badge wait">未承認・RQV2-03後</span></td><td>RQV2-01〜03の入力欠落0、Q分類、Core再利用状態、21画面対応、Phase再編原則を運用者が承認した場合、RQV2-04〜15を開始する。</td><td>将来のCore再利用基準線、追跡マトリクス、RQV2実行ログ、承認記録</td></tr>
+        <tr><td><code>RQV2-H2</code></td><td>レビュー反映済みv2最終candidate</td><td><span class="badge wait">未承認・RQV2-15後</span></td><td>Critical/High 0、Q 305件・UC 67件・Screen 21件の追跡、candidate hash、残存Unknownを運用者が承認した場合、正式公開と最終検証を開始する。</td><td>将来のcandidate、専門レビュー、追跡マトリクス、承認記録</td></tr>
+        <tr><td><code>RQV2-H3</code></td><td>正式v2と新Phase 4〜11の基準線</td><td><span class="badge wait">未承認・RQV2-17後</span></td><td>正式HTML、最終受入、Core差分0、Unknown/Gate、新Phaseロードマップを運用者が承認した場合、完了記録とPhase 4計画入力の引渡しを行う。Phase 4実装開始は別計画・別Gate。</td><td>将来の正式v2、最終受入確認、Phase再編ロードマップ、承認記録</td></tr>
+      </tbody>
+    </table>
+  </section>
   <section class="ok-note" id="p3-12-final-current-20260810">
     <h2>P3-12最終状態（2026-08-10）</h2>
     <p><strong>H3-3とH3-4はユーザー承認済み、P3-12は実行済み。</strong> P3-11で検出したP3-IR-001～004を反映し、P3-D13（レビュー反映履歴）とP3-D14（完了判定・Phase 4移行承認書）を作成した。P3-12の契約Gate、再レビュー、WSL隔離品質GateはPASS。UNK-P3-01/05/07は未解消のままPhase 4へ延期し、Phase 3の現在判定は <code>COMPLETE_WITH_APPROVED_UNKNOWN</code> とする。</p>
@@ -296,7 +310,7 @@
     <strong>正本:</strong> このHTMLが、Phase 0から今後の全Phaseまでの残課題を管理する唯一の台帳です。<br>
     <strong>初回集約日:</strong> 2026-08-06<br>
     <strong>最終更新日:</strong> 2026-08-11<br>
-    <strong>集約範囲:</strong> Phase 0、Phase 1、Phase 2、Phase 3計画・P3-01〜P3-11、P3-D01〜P3-D12、AI実行基盤、個別Run。P3-05Rで30分足の設計・v2固定fixture・通常REDを完了し、H3-0/H3-1/H3-1R/H3-2は承認済みです。H3-1R改訂により、v2を履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する方針を採用した。P3-06のStrategy実装・固定4 Gate・独立レビュー、P3-07R-05のCore受入、P3-08の契約Gate、P3-08AのLEAN固定依存、P3-09のローカルBacktest PoC、P3-10の契約Runは各時点のPASS証跡として保持する。P3-11ではHigh 2件・Medium 2件を検出したが、H3-3/H3-4は承認済みでPhase 3の固定契約範囲は完了している。外部依存の本番利用、Broker、Paper、Live、要件更新・UI・実装変更は未着手または別Gate待ちであり、残課題として別管理する。</p>
+    <strong>集約範囲:</strong> Phase 0、Phase 1、Phase 2、Phase 3計画・P3-01〜P3-11、P3-D01〜P3-D12、AI実行基盤、個別Run。P3-05Rで30分足の設計・v2固定fixture・通常REDを完了し、H3-0/H3-1/H3-1R/H3-2は承認済みです。H3-1R改訂により、v2を履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する方針を採用した。P3-06のStrategy実装・固定4 Gate・独立レビュー、P3-07R-05のCore受入、P3-08の契約Gate、P3-08AのLEAN固定依存、P3-09のローカルBacktest PoC、P3-10の契約Runは各時点のPASS証跡として保持する。P3-11ではHigh 2件・Medium 2件を検出したが、H3-3/H3-4は承認済みでPhase 3の固定契約範囲は完了している。RQU-UI-H0〜H3は承認済みでAT-REQ-001 v0.4とUIモックv1.0を正式化した。要件定義書v2再作成はRQV2-PLAN-001 v0.1を登録し、RQV2-H0未承認で開始前である。外部依存の本番利用、Broker、Paper、Live、Secret、Cloud、実資金、Phase 4実装は別Gate待ちとして管理する。</p>
   </section>
 
   <div class="important">
@@ -335,6 +349,10 @@
       <tr><td><code>RQU-H0</code></td><td>要件定義書更新開始</td><td><span class="badge done">承認済み（2026-08-10）</span></td><td>現行要件、実装、決定事項、証拠を読み、C4要件定義書の更新準備を開始してよいか。</td><td>ユーザーの「RQU-H0を承認します。RQU-01からRQU-10までを順に実行してください。」を受領。RQU-01〜RQU-04の読取・追跡・構成設計を実行した。</td></tr>
       <tr><td><code>RQU-H2</code></td><td>要件定義書C4構成更新</td><td><span class="badge done">承認済み（2026-08-10）</span></td><td>C4 Level 1〜4を主構造とし、Level 4を概念データ・状態・追跡に限定すること。実装済み、固定範囲で確認済み、承認済み延期/Unknown、将来計画、未承認/禁止境界を、色・ラベル・線種で分けること。</td><td><a href="../plan/requirements_update/RQU-04_C4章構成図解仕様用語辞書_2026-08-10.md">RQU-04構成・用語・Mermaid結果</a>。ユーザーの「RQU-H2を承認します。RQU-05から順に実行してください。」を受領し、RQU-05以降を再開した。</td></tr>
        <tr><td><code>RQU-H3</code></td><td>要件定義書最終候補</td><td><span class="badge done">承認済み（2026-08-10）</span></td><td>RQU-09Bで確定した最終候補の意味、読みやすさ、安全境界を承認し、正式HTML・索引・正本Markdownへの差し替えを許可すること。</td><td><a href="../plan/requirements_update/reviews/RQU-09A_指摘採否反映表.md">RQU-09A採否表</a> / <a href="../plan/requirements_update/reviews/RQU-09B_最終再レビュー結果.md">RQU-09B再レビュー</a> / ユーザーの「RQU-H3を承認します。RQU-10を実行してください。」を受領。RQU-10で正式化、検証、commit/pushを完了した。</td></tr>
+      <tr><td><code>RQV2-H0</code></td><td>要件定義書v2再作成計画の開始</td><td><span class="badge wait">未承認</span></td><td><code>RQV2-PLAN-001 v0.1</code>に従い、入力・Core再利用基準線、Q/UC追跡、UIモック抽出のRQV2-01〜03を開始してよいか。</td><td><a href="../plan/requirements_update/RQV2-PLAN-001_自動トレードシステム要件定義書v2再作成実行計画_2026-08-11.md">RQV2-PLAN-001</a>。計画ID・版を含む運用者の明示承認が再開条件。</td></tr>
+      <tr><td><code>RQV2-H1</code></td><td>v2執筆基準線</td><td><span class="badge wait">未承認・後続</span></td><td>入力優先順位、Q-01〜305分類、67 UC、Core凍結・再利用状態、21画面対応、新Phase再編原則を承認し、v2本文の段階執筆を開始してよいか。</td><td>RQV2-01〜03成果物と運用者の明示承認。承認前はRQV2-04を開始しない。</td></tr>
+      <tr><td><code>RQV2-H2</code></td><td>v2最終candidateの正式公開</td><td><span class="badge wait">未承認・後続</span></td><td>専門レビュー反映済みcandidate、Critical/High 0、完全追跡、残存Unknownを承認し、正式HTMLへ公開してよいか。</td><td>RQV2-15最終candidate、hash、レビュー、追跡表、運用者の明示承認。承認前はRQV2-16を開始しない。</td></tr>
+      <tr><td><code>RQV2-H3</code></td><td>正式v2・新Phase 4〜11基準線</td><td><span class="badge wait">未承認・後続</span></td><td>正式v2、最終受入、Core差分0、残存Unknown、新Phaseロードマップを現行基準線として承認するか。</td><td>RQV2-17最終受入と運用者の明示承認。承認後もPhase 4実装、外部接続、Secret、Paper、Live、実資金は別計画・別Gate。</td></tr>
     </tbody>
   </table>
 
@@ -678,6 +696,7 @@ firewall=true</pre></li>
       <tr><td>2026-08-11</td><td>v7.1</td><td>RQU-UI-13を完了した。RQU-UI-12のFindingsを採否表に基づき修正・部分採用・後続Gateへ分解し、要件candidate-0.6、静的UI candidate-0.2、追跡マトリクス、受入確認表、実行ログ、Playwright 18/18、21画面×10状態のPC/スマホ状態行列、主要7画面のVisual、a11y証跡を同期した。Q-243の安全境界・初期候補・実行可能性・性能はUnknownを維持し、H3未承認のため正式要件・正式UIモック・doc/index.html・Python実装を変更せず、RQU-UI-14を停止した。スクリーンショットはGit管理対象外とした。</td></tr>
       <tr><td>2026-08-11</td><td>v7.2</td><td>運用者の「RQU-UI-H3 を承認します。RQU-UI-14 のプロンプトを実行して下さい」を受領し、RQU-UI-H3を承認済み、RQU-UI-14を実行中へ更新した。承認対象candidateとRQU-UI-13証跡の識別を確認し、正式要件・正式UI・doc/index.html・台帳の同期を開始した。Q-243、実接続、性能、Backup、端末境界などのUnknownは正式化後も消去しない。</td></tr>
       <tr><td>2026-08-11</td><td>v7.3</td><td>RQU-UI-14を完了した。AT-REQ-001 v0.4、AT-UI-MOCK-001 v1.0、`doc/index.html`、追跡・受入・実行ログを同期し、HTML parse/link、重複ID、外部境界、Secret、差分検査とPlaywright再試験を完了した。Unknown、Q-243、後続Gate、Playwright画像のGit管理外方針は維持する。</td></tr>
+      <tr><td>2026-08-11</td><td>v7.4</td><td><code>RQU-20</code>を構成正本とする要件定義書v2ゼロベース再作成実行計画（<code>RQV2-PLAN-001 v0.1</code>）を作成した。Phase 1〜3 Python Coreを凍結再利用し、Q-01〜Q-305、67 UC、UIモック21画面、RQU-20の63章、新Phase 4〜11を18 Stepで統合する。<code>RQV2-H0</code>〜<code>H3</code>を未承認Gateとして登録し、現在はH0待ちで停止している。外部取得、Core変更、Broker、Paper、Live、Secret、Cloud、実資金は開始していない。以前のRQU-UI-03で追跡済みだったPlaywright画像2枚は、ローカルの無視対象ファイルを残したままGit追跡から外した。</td></tr>
     </tbody>
   </table>
 
