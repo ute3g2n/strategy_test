@@ -25,12 +25,12 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D04<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.6 / 詳細設計テンプレート準拠基準反映済み<br>
+    <strong>文書状態:</strong> v0.7 / UIモック生成・視覚／アクセシビリティQA Agentを追加<br>
     <strong>ステップID:</strong> AF-02</p>
   </section>
 
   <h2>1. 目的</h2>
-  <p>本書は、プロジェクト汎用サブエージェント <code>AutoTrade_Axx_*_v0_1</code> の責務、入力、出力、使用Skill、推奨モデル、境界条件を定義する。Phase 1の15体構成を整理し、現在はA05、A06、A81、A82、A91を含む14体構成として運用する。Skillは小粒度のまま組み合わせる。</p>
+  <p>本書は、プロジェクト汎用サブエージェント <code>AutoTrade_Axx_*_v0_1</code> の責務、入力、出力、使用Skill、推奨モデル、境界条件を定義する。Phase 1の15体構成を整理し、現在は汎用Agent 22体（RQU-UI-04でA170/A171を追加）として運用する。Skillは小粒度のまま組み合わせる。</p>
 
   <h2>2. 共通仕様</h2>
   <table>
@@ -62,6 +62,8 @@
       <tr><td><code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code></td><td>承認済みの設計判断を、AF-D16に従う日本語説明、受渡し名を矢印に付けたMermaid図、モジュール間データ受渡し表、実装対象のモジュール、型付き契約、保存構造、失敗系、疑似コード、全テストへ落とし込む。</td><td>要件追跡、領域設計、対象リポジトリ、実装制約、Phase Runbook、AF-D16、AF-D17。</td><td>DD-01からDD-12、平易な表の前置き、受渡しの用途・停止条件、文章化した試験仕様を満たす実装詳細設計書、コード例、受入条件。</td><td><code>implementation_detail_design</code>, <code>source_reader</code>, <code>traceability</code></td><td><code>gpt-5.6-luna</code></td><td>要件判断を勝手に変更しない。未承認SDKやSecretを仮定しない。実装対象が未確定ならUnknownとして停止する。Mermaid以外の図、長文で見切れるノード、受渡し内容がない構造図、単語だけの試験表を作らない。</td></tr>
       <tr><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>整合性レビュー、Red Teamレビュー、未確定事項監査。</td><td>対象HTML、要件、Phase Runbook、成果物一覧。</td><td>整合性指摘、Red Team指摘、重大度、修正提案。</td><td><code>design_review</code>, <code>red_team_review</code>, <code>traceability</code></td><td><code>gpt-5.6-luna</code></td><td>Findings first。Unknownを承認しない。安全停止漏れを見逃さない。</td></tr>
       <tr><td><code>AutoTrade_A91_ImplementationDetailReviewer_v0_1</code></td><td>実装担当者と非専門読者の視点で詳細設計を独立レビューし、実装不能な曖昧さ、図・表・試験の読めない欠落を検出する。</td><td>実装詳細設計書、要件追跡、対象リポジトリ、テスト方針、AF-D16適合表。</td><td>DD-01からDD-12とAF-D16の網羅表、Findings firstの指摘、再レビュー判定。</td><td><code>implementation_detail_review</code>, <code>design_review</code>, <code>red_team_review</code>, <code>traceability</code></td><td><code>gpt-5.6-luna</code></td><td>文書作成者の自己判定をPassにしない。Critical/Highを残したまま実装開始を許容しない。Mermaid不足、文字見切れ、構造図の受渡し名または受渡し表の不足、表目的不足、単語だけの試験表をPassにしない。</td></tr>
+      <tr><td><code>AutoTrade_A170_UiMockEngineer_v0_1</code></td><td>要件追跡、固定ダミーデータ、状態遷移、Storybook、component testを一体にしたクリック可能UIモックを生成する。</td><td>要件・ユースケース・画面・状態・テスト追跡表、UI Runbook、Frontend契約。</td><td>UIモックソース、Storybook、component test骨格、追跡差分、Unknown引継ぎ。</td><td><code>ui_mock_generation</code>, <code>source_reader</code>, <code>traceability</code>, <code>test_strategy</code></td><td><code>gpt-5.6-terra</code></td><td>外部I/O、Secret、実注文、実データを扱わない。固定値を実数値にしない。認証・権限管理を追加しない。UIソースだけで合否を宣言しない。</td></tr>
+      <tr><td><code>AutoTrade_A171_UiVisualQaReviewer_v0_1</code></td><td>A170から独立して、PC・スマートフォンの視覚差分、キーボード、focus、axe、状態表示をFindings firstでレビューする。</td><td>UIモック、Storybook、テスト設定、追跡表、viewport、ベースライン、Human Gate方針。</td><td>視覚Findings、アクセシビリティFindings、重大度付きGate判定、HTML/Trace/画像証跡。</td><td><code>ui_visual_validation</code>, <code>ui_accessibility_validation</code>, <code>traceability</code>, <code>test_strategy</code>, <code>design_review</code></td><td><code>gpt-5.6-terra</code></td><td>自分で修正して指摘を隠さない。AI向けCLIだけで正式合否を出さない。jsdom警告・未確認viewport・UnknownをPassにしない。外部接続しない。</td></tr>
     </tbody>
   </table>
 
@@ -89,6 +91,15 @@
       <tr><td>AI部品保守専任性</td><td class="ok">Pass</td><td>AI部品の追加・変更と仕様追従を A06 に集約し、通常設計フローと混線しないようにした。</td></tr>
       <tr><td>設計書セット作成専任性</td><td class="ok">Pass</td><td>複数HTML設計書のセット作成とリンク整合を A81 に集約し、A80の単体HTML統合責務と分離した。</td></tr>
       <tr><td>実装可能性レビュー</td><td class="ok">Pass</td><td>詳細化するA82と独立判定するA91を分離し、作成・修正・再レビューを必須化した。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>6. UIモック専用Agentの追加履歴</h2>
+  <table>
+    <thead><tr><th>版</th><th>日付</th><th>変更</th><th>状態</th></tr></thead>
+    <tbody>
+      <tr><td>v0.7</td><td>2026-08-11</td><td>RQU-UI-04でA170（生成）とA171（独立視覚・アクセシビリティQA）を追加。両者の責務、固定ダミー、正式Playwright境界、Unknown停止を分離した。</td><td>作成済み・RQU-UI-H2提示待ち</td></tr>
+      <tr><td>v0.6</td><td>2026-08-03</td><td>詳細設計テンプレート準拠基準を反映。</td><td>履歴</td></tr>
     </tbody>
   </table>
 </main>

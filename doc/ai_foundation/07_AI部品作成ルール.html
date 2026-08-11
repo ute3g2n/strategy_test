@@ -25,7 +25,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D07<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.6 / オーケストレータのモデル割当をgpt-5.6-terraへ同期済み<br>
+    <strong>文書状態:</strong> v0.7 / UIモック専用部品の作成・検証境界を追加<br>
     <strong>後続実体化先:</strong> <code>settings/ai_component_rules.md</code></p>
   </section>
 
@@ -68,7 +68,7 @@
     <li>完全名で指定されていない既存Skill、既存Agent、既存Orchestratorを推測で起動しない。</li>
     <li>指定部品が存在しない場合は、現在ステップが作成ステップかどうかを確認する。作成ステップでなければ停止する。</li>
     <li>Phase専用部品を使う場合は、理由、利用期限、凍結条件をプロンプトまたは仕様書に明記する。</li>
-    <li>現行の汎用AutoTrade Orchestrator 5件は <code>gpt-5.6-terra</code> を使用する。サブエージェントのモデルはAgent JSONの個別定義を維持し、オーケストレータのモデル変更で変更してはならない。</li>
+    <li>現行の汎用AutoTrade Orchestrator 6件は <code>gpt-5.6-terra</code> を使用する。サブエージェントのモデルはAgent JSONの個別定義を維持し、オーケストレータのモデル変更で変更してはならない。</li>
     <li>Phase 1の凍結済みOrchestratorと <code>default_orchestrator</code> は、このモデル割当ルールの変更対象外とする。</li>
   </ul>
 
@@ -84,6 +84,15 @@
     <li>Phase内で複数の正式HTML設計書をセットとして作成または更新する場合は、標準として <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code>、<code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>、<code>autotrade_skill_design_doc_set_writer_v0_1</code> を使用する。</li>
     <li>単体HTML作成とレビュー反映には引き続き <code>AutoTrade_A80_DocumentIntegrator_v0_1</code> を使い、設計書セット全体の共通メタ、相互リンク、Unknown、レビュー履歴、doc/index導線は <code>AutoTrade_A81_DesignDocSetWriter_v0_1</code> が主担当する。</li>
     <li>技術領域の設計判断は、Adapter、Architecture、Execution、QAなどの領域Agentが担当し、A81は承認済み内容の文書セット統合を担当する。</li>
+  </ul>
+
+  <h2>4.4 UIモック専用部品</h2>
+  <ul>
+    <li>UIモック作成では、まず既存の汎用Skill・Agent・Orchestratorを調査し、必要最小限として <code>autotrade_skill_ui_mock_generation_v0_1</code>、<code>AutoTrade_A170_UiMockEngineer_v0_1</code>、<code>AutoTradeProject_UiMock_Orchestrator_v0_1</code> を使う。</li>
+    <li>生成と品質判定を同じ責務にしない。<code>AutoTrade_A171_UiVisualQaReviewer_v0_1</code> が <code>autotrade_skill_ui_visual_validation_v0_1</code> と <code>autotrade_skill_ui_accessibility_validation_v0_1</code> を使い、A170から独立してFindings firstでレビューする。</li>
+    <li>UIは固定Seed・固定基準日時の匿名ダミーデータだけで動かし、Broker、実市場データ、実口座、Secret、外部AIサービス、実注文へ接続しない。</li>
+    <li>正式合否はStorybook、Vitest/axe、固定 <code>@playwright/test</code>、受入確認表で判定する。AI向け <code>playwright-cli</code> は匿名ローカル探索の補助に限り、探索結果を正式Passへ変換しない。</li>
+    <li>単一運用者・認証不要の要件を維持し、認証、ユーザー管理、権限管理をUIモックへ追加しない。Unknown、未確認viewport、未確認状態、Critical/HighをPassにしない。</li>
   </ul>
 
   <h2>5. 成果物ルール</h2>
@@ -137,6 +146,16 @@ Phase Runbook:
       <tr><td>AI部品保守運用</td><td class="ok">Pass</td><td>AI部品作成・変更専用の標準Orchestrator / Agent / Skill と依頼プロンプトを追加した。</td></tr>
       <tr><td>設計書セット作成運用</td><td class="ok">Pass</td><td>複数HTML設計書をPhase内で作る場合の標準Orchestrator / Agent / Skillを追加した。</td></tr>
       <tr><td>実装詳細設計運用</td><td class="ok">Pass</td><td>DD-01からDD-12、独立レビュー、改訂、再レビューを実装開始の前提として追加した。</td></tr>
+      <tr><td>UIモック専用境界</td><td class="ok">Pass</td><td>生成と独立QAの分離、固定ダミー、PC/スマホ、正式Playwrightと探索CLIの境界、外部I/O禁止、Unknown停止を追加した。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>9. UIモック専用ルールの追加履歴</h2>
+  <table>
+    <thead><tr><th>版</th><th>日付</th><th>変更</th><th>状態</th></tr></thead>
+    <tbody>
+      <tr><td>v0.7</td><td>2026-08-11</td><td>RQU-UI-04でUI生成・視覚／アクセシビリティQAの責務、固定ダミー、外部I/O禁止、正式Playwrightと探索CLIの境界を追加。</td><td>作成済み・RQU-UI-H2提示待ち</td></tr>
+      <tr><td>v0.6</td><td>2026-08-03</td><td>汎用Orchestratorのモデル割当を同期。</td><td>履歴</td></tr>
     </tbody>
   </table>
 </main>

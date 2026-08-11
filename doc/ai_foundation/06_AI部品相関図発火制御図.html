@@ -25,7 +25,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D06<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.8 / ImplementationQualityのtrusted scope発火制御を反映</p>
+    <strong>文書状態:</strong> v0.9 / UIモック専用AI基盤の相関・発火制御を追加</p>
   </section>
 
   <h2>1. 目的</h2>
@@ -108,6 +108,25 @@ AutoTradeProject_ImplementationQuality_Orchestrator_v0_1
   +-- AutoTrade_A150_PythonCodeReviewer_v0_1
   +-- AutoTrade_A160_TradingSecurityReviewer_v0_1
 
+AutoTradeProject_UiMock_Orchestrator_v0_1
+  |
+  +-- AutoTrade_A170_UiMockEngineer_v0_1
+  |     +-- autotrade_skill_ui_mock_generation_v0_1
+  |     +-- autotrade_skill_source_reader_v0_1
+  |     +-- autotrade_skill_traceability_v0_1
+  |     +-- autotrade_skill_test_strategy_v0_1
+  |
+  +-- AutoTrade_A171_UiVisualQaReviewer_v0_1
+  |     +-- autotrade_skill_ui_visual_validation_v0_1
+  |     +-- autotrade_skill_ui_accessibility_validation_v0_1
+  |     +-- autotrade_skill_traceability_v0_1
+  |     +-- autotrade_skill_test_strategy_v0_1
+  |     +-- autotrade_skill_design_review_v0_1
+  |
+  +-- AutoTrade_A10_RequirementsCurator_v0_1
+  +-- AutoTrade_A80_DocumentIntegrator_v0_1
+  +-- AutoTrade_A90_DesignReviewer_v0_1
+
 AutoTradeProject_Orchestrator_v0_1
   |
   +-- reads Phase Runbook
@@ -175,6 +194,14 @@ Rules:
               |          +-- Use AutoTradeComponentLifecycle_Orchestrator_v0_1
               |          +-- Use AutoTrade_A06_AiComponentEngineer_v0_1 as primary engineer
               |
+              +-- Is this a clickable UI mock, visual comparison, or accessibility validation task?
+              |     |
+              |     +-- Yes
+              |          +-- Use AutoTradeProject_UiMock_Orchestrator_v0_1
+              |          +-- Use AutoTrade_A170_UiMockEngineer_v0_1 for generation
+              |          +-- Use AutoTrade_A171_UiVisualQaReviewer_v0_1 for independent visual/a11y review
+              |          +-- Formal result must come from @playwright/test, Storybook, Vitest/axe; exploratory CLI cannot Pass
+              |
               +-- Is this a multi-document formal HTML design set task?
               |     |
               |     +-- Yes
@@ -216,6 +243,12 @@ Rules:
   |     +-- Yes: prefer AutoTrade_A06_AiComponentEngineer_v0_1
   |     +-- Yes: prefer AutoTradeComponentLifecycle_Orchestrator_v0_1
   |
+  +-- Need a clickable UI mock or UI visual/accessibility review?
+  |     +-- Yes: prefer autotrade_skill_ui_mock_generation_v0_1 for generation
+  |     +-- Yes: prefer autotrade_skill_ui_visual_validation_v0_1 and autotrade_skill_ui_accessibility_validation_v0_1 for independent QA
+  |     +-- Yes: prefer AutoTrade_A170_UiMockEngineer_v0_1 and AutoTrade_A171_UiVisualQaReviewer_v0_1
+  |     +-- Yes: prefer AutoTradeProject_UiMock_Orchestrator_v0_1
+  |
   +-- Need to create or update many formal HTML design documents as one set?
   |     +-- Yes: prefer autotrade_skill_design_doc_set_writer_v0_1
   |     +-- Yes: prefer AutoTrade_A81_DesignDocSetWriter_v0_1
@@ -239,7 +272,7 @@ Rules:
   |
   +-- Need a new Agent?
         +-- Prefer existing AutoTrade_Axx
-        +-- Create new Agent only if responsibility is stable and cannot fit current 11 agents</pre>
+        +-- Create new Agent only if responsibility is stable and cannot fit current generic agents</pre>
 
   <h2>6. 更新対象</h2>
   <table>
@@ -249,6 +282,7 @@ Rules:
       <tr><td>Skillを作る</td><td>HTML仕様書、<code>.codex/skills</code>、検証結果。</td></tr>
       <tr><td>Agentを作る</td><td>HTML仕様書、<code>.codex/agents</code>、相関図。</td></tr>
       <tr><td>Orchestratorを作る</td><td>HTML仕様書、<code>.codex/orchestrators</code>、<code>.codex/config.json</code>。defaultは変更しない。</td></tr>
+      <tr><td>UIモック専用部品を作る</td><td>UI生成と独立QAのSkill / Agent / Orchestrator、固定Seed・viewport・正式Playwright境界、相関図、<code>.codex/config.json</code>、検証結果。</td></tr>
       <tr><td>Skill / Agent / Orchestrator を変更する</td><td><code>doc/ai_foundation/03</code> から <code>06</code> の該当仕様書と相関図を追従更新する。</td></tr>
     </tbody>
   </table>
@@ -264,6 +298,16 @@ Rules:
       <tr><td>AI部品保守導線</td><td class="ok">Pass</td><td>AI部品作成・変更専用のSkill / Agent / Orchestrator を相関図と発火制御図へ追加した。</td></tr>
       <tr><td>設計書セット作成導線</td><td class="ok">Pass</td><td>複数HTML設計書作成専用のSkill / Agent / Orchestrator を相関図と発火制御図へ追加した。</td></tr>
       <tr><td>実装詳細設計導線</td><td class="ok">Pass</td><td>実装可能性を要求する設計では、AF-D16/AF-D17の参照、構造図の受渡し名とモジュール間データ受渡し表、A82による詳細化、A91による独立レビューと再レビューを必須とした。</td></tr>
+      <tr><td>UIモック生成と独立QA</td><td class="ok">Pass</td><td>RQU-UI-04でA170（生成）とA171（視覚・アクセシビリティ独立レビュー）を分離し、固定ダミー、PC/スマホ、正式Playwright、探索CLIの境界、外部I/O禁止を相関図へ追加した。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>8. UIモック専用導線の追加履歴</h2>
+  <table>
+    <thead><tr><th>版</th><th>日付</th><th>変更</th><th>状態</th></tr></thead>
+    <tbody>
+      <tr><td>v0.9</td><td>2026-08-11</td><td>UIモック専用Orchestrator、A170/A171、3つのUI Skillの相関、発火制御、正式Playwrightと探索CLIの境界を追加。</td><td>作成済み・RQU-UI-H2提示待ち</td></tr>
+      <tr><td>v0.8</td><td>2026-08-03</td><td>ImplementationQualityのtrusted scope発火制御を反映。</td><td>履歴</td></tr>
     </tbody>
   </table>
 </main>

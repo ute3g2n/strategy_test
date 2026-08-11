@@ -25,12 +25,12 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D05<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.7 / オーケストレータのモデル割当をgpt-5.6-terraへ同期済み<br>
-    <strong>対象:</strong> <code>AutoTradeProject_Orchestrator_v0_1</code>, <code>AutoTradePhasePlanning_Orchestrator_v0_1</code>, <code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code>, <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code>, <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></p>
+    <strong>文書状態:</strong> v0.8 / UIモック専用オーケストレータを追加<br>
+    <strong>対象:</strong> <code>AutoTradeProject_Orchestrator_v0_1</code>, <code>AutoTradePhasePlanning_Orchestrator_v0_1</code>, <code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code>, <code>AutoTradeProject_UiMock_Orchestrator_v0_1</code>, <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code>, <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></p>
   </section>
 
   <h2>1. 目的</h2>
-  <p><code>AutoTradeProject_Orchestrator_v0_1</code> は、自動売買システムの全Phaseで、AI部品の明示起動、DAG、Human Gate、成果物状態、レビュー反映、Unknown管理を統括する。<code>AutoTradePhasePlanning_Orchestrator_v0_1</code> は各Phase開始前の実行計画作成に特化し、<code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code> はAI部品そのものの作成・変更と仕様追従更新に特化する。<code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code> は複数HTMLの統合に、<code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code> は実装可能な詳細設計、専門レビュー、改訂、再レビューに特化する。</p>
+  <p><code>AutoTradeProject_Orchestrator_v0_1</code> は、自動売買システムの全Phaseで、AI部品の明示起動、DAG、Human Gate、成果物状態、レビュー反映、Unknown管理を統括する。<code>AutoTradePhasePlanning_Orchestrator_v0_1</code> は各Phase開始前の実行計画作成に特化し、<code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code> はAI部品そのものの作成・変更と仕様追従更新に特化する。<code>AutoTradeProject_UiMock_Orchestrator_v0_1</code> は、要件追跡可能なUIモックの生成、固定ダミーデータ、Storybook、component test、視覚・アクセシビリティレビュー、Human Gateの境界に特化する。<code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code> は複数HTMLの統合に、<code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code> は実装可能な詳細設計、専門レビュー、改訂、再レビューに特化する。</p>
 
   <h2>2. JSON仕様</h2>
   <table>
@@ -115,6 +115,20 @@
     </tbody>
   </table>
 
+  <h3>2.6 UIモック専用オーケストレータ</h3>
+  <table>
+    <thead><tr><th>キー</th><th>仕様</th></tr></thead>
+    <tbody>
+      <tr><td><code>name</code></td><td><code>AutoTradeProject_UiMock_Orchestrator_v0_1</code></td></tr>
+      <tr><td><code>model</code></td><td><code>gpt-5.6-terra</code></td></tr>
+      <tr><td><code>purpose</code></td><td>要件・ユースケース・画面・状態・テストIDを先に検証し、A170が生成、A171が独立に視覚・アクセシビリティをレビューするUIモック工程を統括する。</td></tr>
+      <tr><td><code>agents</code></td><td><code>AutoTrade_A170_UiMockEngineer_v0_1</code> と <code>AutoTrade_A171_UiVisualQaReviewer_v0_1</code> を主担当とし、要件入力にA10、正式HTML統合にA80、横断レビューにA90を明示的に組み合わせる。</td></tr>
+      <tr><td><code>runbook_schema</code></td><td>共通Runbookに加え、<code>evidence_root</code>、<code>traceability_matrix</code>、<code>seed_policy</code>、<code>viewport_policy</code>、<code>baseline_policy</code>、<code>unknown_policy</code>を必須とする。</td></tr>
+      <tr><td><code>workflow_policy</code></td><td>追跡表確認、固定ダミー生成、Storybook/component test、A171のPC/スマホVisual・a11y独立レビュー、A90横断レビュー、HTML・index・証跡統合の順に進める。正式合否は固定 <code>@playwright/test</code> で行い、AI向け <code>playwright-cli</code> は匿名ローカル探索に限定する。</td></tr>
+      <tr><td><code>stop_conditions</code></td><td>外部I/O、Secret、実注文、Critical/High、未確認viewport・状態、UnknownのPass、無承認CDN、floating version、正式HTML孤立、<code>default_orchestrator</code>変更要求。</td></tr>
+    </tbody>
+  </table>
+
   <h2>3. Phase Runbook</h2>
   <pre>{
   "phase_id": "Phase 2",
@@ -125,13 +139,13 @@
   "human_gate_policy": [
     { "gate": "H2-1", "condition": "Market Data基盤方式承認" }
   ],
-  "allowed_orchestrator": "AutoTradeProject_Orchestrator_v0_1 or AutoTradePhasePlanning_Orchestrator_v0_1 or AutoTradeProject_DesignDocSet_Orchestrator_v0_1 or AutoTradeProject_ImplementationDesign_Orchestrator_v0_1",
+  "allowed_orchestrator": "AutoTradeProject_Orchestrator_v0_1 or AutoTradePhasePlanning_Orchestrator_v0_1 or AutoTradeComponentLifecycle_Orchestrator_v0_1 or AutoTradeProject_UiMock_Orchestrator_v0_1 or AutoTradeProject_DesignDocSet_Orchestrator_v0_1 or AutoTradeProject_ImplementationDesign_Orchestrator_v0_1",
   "allowed_agent_prefix": "AutoTrade_A",
   "allowed_skill_prefix": "autotrade_skill_"
 }</pre>
 
   <h2>3.1 モデル割当</h2>
-  <p>本書の5つの汎用オーケストレータはすべて <code>gpt-5.6-terra</code> を使用する。サブエージェントのモデルは各Agent JSONの個別定義を正本とし、本オーケストレータの変更によって書き換えない。Phase 1の凍結済み <code>AutoTradePhase1_Orchestrator_v0_1</code> と <code>default_orchestrator</code> は対象外である。</p>
+  <p>本書の6つの汎用オーケストレータはすべて <code>gpt-5.6-terra</code> を使用する。サブエージェントのモデルは各Agent JSONの個別定義を正本とし、本オーケストレータの変更によって書き換えない。Phase 1の凍結済み <code>AutoTradePhase1_Orchestrator_v0_1</code> と <code>default_orchestrator</code> は対象外である。</p>
 
   <h2>4. 管理責務</h2>
   <table>
@@ -179,6 +193,15 @@
       <tr><td>AI部品保守統制</td><td class="ok">Pass</td><td>AI部品作成・変更専用オーケストレータを追加し、再利用調査と仕様追従更新を標準フローに組み込んだ。</td></tr>
       <tr><td>設計書セット作成統制</td><td class="ok">Pass</td><td>複数HTML設計書の共通メタ、相互リンク、レビュー履歴、doc/index導線を管理する専用オーケストレータを追加した。</td></tr>
       <tr><td>実装詳細設計統制</td><td class="ok">Pass</td><td>実装詳細の必須構成、独立レビュー、改訂、再レビューを専用オーケストレータで固定した。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>8. UIモック専用オーケストレータの追加履歴</h2>
+  <table>
+    <thead><tr><th>版</th><th>日付</th><th>変更</th><th>状態</th></tr></thead>
+    <tbody>
+      <tr><td>v0.8</td><td>2026-08-11</td><td>RQU-UI-04で <code>AutoTradeProject_UiMock_Orchestrator_v0_1</code> を追加。A170生成、A171独立QA、正式Playwrightと探索CLIの境界、外部I/O禁止、Human Gateを定義。</td><td>作成済み・RQU-UI-H2提示待ち</td></tr>
+      <tr><td>v0.7</td><td>2026-08-03</td><td>汎用オーケストレータのモデル割当を同期。</td><td>履歴</td></tr>
     </tbody>
   </table>
 </main>

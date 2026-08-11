@@ -1,0 +1,31 @@
+{
+  "name": "AutoTrade_A170_UiMockEngineer_v0_1",
+  "display_name": "Auto Trade UI Mock Engineer",
+  "model": "gpt-5.6-terra",
+  "skill": "autotrade_skill_ui_mock_generation_v0_1",
+  "skills": [
+    "autotrade_skill_ui_mock_generation_v0_1",
+    "autotrade_skill_source_reader_v0_1",
+    "autotrade_skill_traceability_v0_1",
+    "autotrade_skill_test_strategy_v0_1"
+  ],
+  "role": "要件追跡、固定ダミーデータ、状態遷移、Storybook、component testを一体にしたクリック可能なUIモックを生成する。",
+  "inputs": {
+    "requirements": "要件定義書、RQU-11からRQU-19Aの回答、ユースケース・画面・状態・テスト追跡表。",
+    "ui_runbook": "phase_id、step_id、output_root、detail_boundary、human_gate_policy、seed_policy、viewport_policy。",
+    "frontend_contract": "承認済みReact/TypeScript基盤、部品方針、固定版、Storybookとテストの実行入口。"
+  },
+  "outputs": {
+    "ui_mock_source": "クリック可能UIモックのソース、部品カタログ、Storybook stories。",
+    "traceability_delta": "要件ID、ユースケースID、画面ID、UI状態ID、テストIDの対応差分。",
+    "component_test_skeleton": "Dialog、Form、Table、キーボード操作、固定ダミーデータのcomponent test骨格。",
+    "unknown_handoff": "未確定事項、未実装操作、後続Gateへの引き継ぎ。"
+  },
+  "boundaries": [
+    "Broker、実市場データ、実口座、Secret、外部API、外部AIサービス、実注文へ接続しない。",
+    "固定ダミー値を後続Gateの実数値として確定しない。",
+    "認証、ユーザー管理、権限管理を追加せず、単一運用者・認証不要の要件を維持する。",
+    "UIソースのみで正式要件、視覚合否、アクセシビリティ合否を宣言しない。",
+    "Critical/HighまたはUnknownを隠して次工程へ渡さない。"
+  ]
+}

@@ -37,7 +37,7 @@
 
 ## モデル割当ルール
 
-- 現行の汎用AutoTrade Orchestratorである `AutoTradeProject_Orchestrator_v0_1`、`AutoTradePhasePlanning_Orchestrator_v0_1`、`AutoTradeComponentLifecycle_Orchestrator_v0_1`、`AutoTradeProject_DesignDocSet_Orchestrator_v0_1`、`AutoTradeProject_ImplementationDesign_Orchestrator_v0_1` の `model` は `gpt-5.6-terra` とする。
+- 現行の汎用AutoTrade Orchestratorである `AutoTradeProject_Orchestrator_v0_1`、`AutoTradePhasePlanning_Orchestrator_v0_1`、`AutoTradeComponentLifecycle_Orchestrator_v0_1`、`AutoTradeProject_UiMock_Orchestrator_v0_1`、`AutoTradeProject_DesignDocSet_Orchestrator_v0_1`、`AutoTradeProject_ImplementationDesign_Orchestrator_v0_1` の `model` は `gpt-5.6-terra` とする。
 - サブエージェントの `model` は各 `.codex/agents/AutoTrade_A*.json` の個別定義を正本とする。オーケストレータのモデル変更だけを理由に、サブエージェントのモデルを変更してはならない。
 - `AutoTradePhase1_Orchestrator_v0_1` はPhase 1の凍結証跡であり、この割当変更の対象外とする。`default_orchestrator` も変更しない。
 
@@ -93,6 +93,15 @@
 - 実体更新だけで終わらせず、`doc/ai_foundation/03` から `08`、`doc/index.html`、必要に応じて `AGENTS.md` と `README.md` を同じ変更セットで更新する。
 
 ## 設計書セット作成ルール
+
+## UIモック専用部品ルール
+
+- UIモックの生成では、まず `autotrade_skill_ui_mock_generation_v0_1`、`AutoTrade_A170_UiMockEngineer_v0_1`、`AutoTradeProject_UiMock_Orchestrator_v0_1` を完全名で指定する。
+- 視覚・アクセシビリティの確認は生成担当と分離し、`AutoTrade_A171_UiVisualQaReviewer_v0_1` と `autotrade_skill_ui_visual_validation_v0_1`、`autotrade_skill_ui_accessibility_validation_v0_1` を使う。
+- UI部品は固定Seed・固定基準日時の匿名ダミーデータだけで動かし、Broker、実市場データ、実口座、Secret、外部AIサービス、実注文へ接続しない。
+- 正式合否は固定された `@playwright/test`、Storybook、Vitest/axe、受入確認表で判定する。AI向け `playwright-cli` は匿名ローカルモックの探索補助に限り、探索結果をPassへ変換しない。
+- UIソース、Storybook、スクリーンショットは正式要件HTML、追跡表、機械Gate証跡の代替ではない。Unknown、未確認viewport、未確認状態、Critical/High指摘を残したまま合格にしない。
+- 生成・レビュー部品は、単一運用者・認証不要という要件を変更せず、認証、ユーザー管理、権限管理を追加しない。
 
 - Phase内で複数の正式HTML設計書をセットとして作成または更新する場合は、標準として `AutoTradeProject_DesignDocSet_Orchestrator_v0_1`、`AutoTrade_A81_DesignDocSetWriter_v0_1`、`autotrade_skill_design_doc_set_writer_v0_1` を使用する。
 - 単体HTML作成とレビュー反映には `AutoTrade_A80_DocumentIntegrator_v0_1` を使い、設計書セット全体の共通メタ、相互リンク、Unknown、レビュー履歴、`doc/index.html` 導線の整合は `AutoTrade_A81_DesignDocSetWriter_v0_1` が主担当する。

@@ -103,6 +103,48 @@
     </table>
     <p class="small">「あとから」は、今は決めないという意味であって、実注文を許可してよいという意味ではない。該当する段階の開始条件・停止条件・承認者・証跡を今の要件へ含め、具体値と実証だけを後続Gateで埋める。</p>
   </section>
+  <section class="note" id="ui-ai-foundation-research-20260811">
+    <h2>UI作成用AI基盤の外部調査・導入選定（2026-08-11）</h2>
+    <p><strong>調査は完了し、再現可能なローカル品質セットを推奨選定した。</strong> 要件定義書更新とUIモックHTML作成では、<code>shadcn/ui</code>、Storybook、<code>@storybook/addon-vitest</code>、<code>@storybook/addon-a11y</code>（axe-core）、<code>@playwright/test</code>とローカルPlaywright CLI（<code>npx playwright</code>）、固定Seedの<code>@faker-js/faker</code>を組み合わせる。Microsoftの<code>@playwright/cli</code>（<code>playwright-cli</code>）は探索補助に限って採用候補とする。Vercel <code>v0</code>は発想・比較に限る外部サービス候補とし、Figma MCPとChromaticは今回の必須導入から外した。</p>
+    <p>選定内容、公式一次情報、既存調査との対応、導入手順案、AI部品の新設・再利用案は <a href="../plan/requirements_update/UI作成用AI基盤サードパーティ調査・選定書_2026-08-11.md">UI作成用AI基盤サードパーティ調査・選定書</a> に記録した。この時点ではnpm等のインストール、外部アカウント作成、費用発生、Secret投入、既存Skill・Agent・Orchestratorの実体変更、正式要件定義書・UIモックHTML・Python実装の変更は行っていない。</p>
+    <table>
+      <thead><tr><th>ID</th><th>区分</th><th>対象</th><th>現時点の状態</th><th>次の条件</th></tr></thead>
+      <tbody>
+        <tr><td><code>UI-AI-DEC-01</code></td><td>導入選定</td><td>ローカル品質セット（shadcn、Storybook/Vitest/a11y、Playwright Test・標準CLI、Faker）</td><td><span class="badge done">H1承認・RQU-UI-03導入Smoke完了</span></td><td>固定版、lockfile、証跡、RQU-UI-03-F-001〜004を確認済み。shadcn registry手順はRQU-UI-05/07で再確認する。</td></tr>
+        <tr><td><code>UI-AI-DEC-04</code></td><td>導入選定</td><td><code>@playwright/test</code>＋ローカルPlaywright CLI（<code>npx playwright</code>）</td><td><span class="badge done">必須選定・RQU-UI-03導入Smoke完了</span></td><td>Node・lockfile・Playwright版・Chromium版を固定し、E2E、画面比較、Trace、HTMLレポートのSmokeをPASS。正式合否の入口は固定<code>@playwright/test</code>。</td></tr>
+        <tr><td><code>UI-AI-DEC-05</code></td><td>限定導入</td><td>Microsoft <code>@playwright/cli</code>（<code>playwright-cli</code>）</td><td><span class="badge wait">匿名モックでの試行待ち</span></td><td>操作探索・Snapshot・スクリーンショットに限定し、正式合否は標準Playwright CLIの固定テストで判定する。実アカウント・Secret・実データは使わない。</td></tr>
+        <tr><td><code>UI-AI-DEC-02</code></td><td>外部サービス</td><td>Vercel <code>v0</code>の限定利用（画面案の発想・比較のみ）</td><td><span class="badge wait">Human Gate待ち</span></td><td>運用者がアカウント、費用上限、送信可能データ、生成物のレビュー境界を承認する。Broker・Secret・実データは送信しない。</td></tr>
+        <tr><td><code>UI-AI-DEC-03</code></td><td>保留</td><td>Figma MCP、Chromatic</td><td><span class="badge history">今回は導入しない</span></td><td>Figmaを正式な設計正本にする場合、またはローカルPlaywrightで不足が証明された場合に再評価する。</td></tr>
+        <tr><td><code>UI-AI-UNK-01</code></td><td>未確定</td><td>Frontendルート、Node版、パッケージマネージャ、既存React/Vite構成</td><td><span class="badge done">RQU-UI-02/03確認済み</span></td><td><code>ui/mock/</code>、Node/npm、lockfile、固定コマンドを導入記録へ反映。既存root packageとは分離した。</td></tr>
+        <tr><td><code>UI-AI-UNK-02</code></td><td>未確定</td><td>shadcnの基盤部品をBase UIとRadixのどちらに固定するか、registry追加手順</td><td><span class="badge wait">RQU-UI-H2／後続確認待ち</span></td><td>RQU-UI-03でButton/Dialog/Table/Formのpilotを確認したが、init非0終了を含むregistry追加手順は未確定。RQU-UI-05/07で再確認する。</td></tr>
+        <tr><td><code>UI-AI-UNK-03</code></td><td>Human Gate</td><td>v0のアカウント、費用、外部送信、API利用</td><td><span class="badge wait">未承認</span></td><td>利用する場合だけ、運用者の明示承認と送信禁止項目・費用上限・成果物受入条件を記録する。</td></tr>
+        <tr><td><code>UI-AI-UNK-04</code></td><td>未確定</td><td>StorybookのVisual TestsでChromaticを使うか</td><td><span class="badge history">後続再評価</span></td><td>自PCのPlaywright画面比較を先に実施し、差分管理・実行時間・外部送信の不足が証明された場合だけ再評価する。</td></tr>
+        <tr><td><code>UI-AI-UNK-05</code></td><td>未確定</td><td>Figmaを設計正本またはCode Connectの入力にするか</td><td><span class="badge history">後続再評価</span></td><td>要件・UIモックHTMLを正本とする現行方針を変える必要性が生じた場合に、別Human Gateで判断する。</td></tr>
+        <tr><td><code>UI-AI-UNK-06</code></td><td>成果物</td><td>UIモック生成・Visual検証・a11y検証のローカルSkill、Agent、Orchestratorの最終配置と責務</td><td><span class="badge done">RQU-UI-04作成済み・H2提示</span></td><td>新設3 Skill、A170/A171、UI Orchestrator、AI基盤03〜08、settingsルールを同期。初回Agent実行は後続Unknown。<a href="../plan/requirements_update/RQU-UI-04_AI部品作成・基盤同期記録_2026-08-11.md">RQU-UI-04記録</a>。</td></tr>
+        <tr><td><code>UI-AI-UNK-07</code></td><td>未確定</td><td>標準Playwright CLIのFrontend導入先、Node版、Playwright版、Chromium等のブラウザ導入・保存先</td><td><span class="badge done">RQU-UI-02/03確認済み</span></td><td><code>ui/mock/</code>、Node/npm、lockfile、Playwright 1.62.1、Chromium revision 1234、固定Smokeと証跡を確認済み。</td></tr>
+        <tr><td><code>UI-AI-UNK-08</code></td><td>未確定</td><td>AI向け<code>@playwright/cli</code>のローカル利用、0.1系の固定版、Skills導入範囲、正式テストとの境界</td><td><span class="badge wait">匿名モック試行待ち</span></td><td>外部I/Oなしの画面で探索し、Snapshot・操作漏れ・画面崩れを記録したうえで、固定Playwrightテストへ移植できることを確認する。正式合否は固定<code>@playwright/test</code>のみ。</td></tr>
+        <tr><td><code>UI-AI-UNK-09</code></td><td>未確定</td><td>RQU-UI-03のshadcn init非0終了後にregistry部品を追加するローカル手順</td><td><span class="badge wait">RQU-UI-05/07確認待ち</span></td><td>設定・部品追加・build・Storybook・testの再実行結果を記録する。RQU-UI-03-F-001、RQU-UI-04-F-001を解消扱いにしない。</td></tr>
+        <tr><td><code>UI-AI-UNK-10</code></td><td>未確定</td><td>RQU-UI-04で新設したA170/A171/UI Orchestratorの初回実行結果</td><td><span class="badge wait">RQU-UI-05以降の初回起動待ち</span></td><td>指定された実行プロンプトで静的出力、停止条件、Human Gate記録を確認し、Critical/High・UnknownをPassにしない。</td></tr>
+      </tbody>
+    </table>
+    <p class="small">この欄は外部サービスの承認待ちと、後続のAI部品導入・作成に必要な未確定事項を統合台帳で追跡するためのもの。選定済みであっても、実際のインストールや外部アカウント利用を開始したことを意味しない。</p>
+  </section>
+  <section class="note" id="requirements-ui-plan-current-20260811">
+    <h2>要件定義書追加更新・UIモックHTML作成 実行計画（2026-08-11）</h2>
+    <p><strong>実行計画 <code>RQU-UI-PLAN-001 v0.1</code> はRQU-UI-H0/H1承認済みで、RQU-UI-03/04を完了しRQU-UI-H2待ちである。</strong> 計画は、回答Q-01〜Q-305の入力凍結、Frontend導入前調査、第三者UI・品質部品の導入、UI専用AI部品の作成、ユースケース・画面仕様、要件定義書候補、21画面のクリック可能UIモック、Playwright・Visual・a11y、専門・Red Teamレビュー、運用者承認、正式化を14 Stepへ分割した。詳細は <a href="../plan/要件定義書追加更新・UIモックHTML作成実行計画書_v0.1_2026-08-11.md">実行計画書</a> を正本とする。</p>
+    <p>計画承認だけで外部取得や外部サービス利用を許可しない。<code>RQU-UI-H0</code>は入力整理と導入前の読み取り調査まで、<code>RQU-UI-H1</code>は固定版パッケージ・ブラウザ取得、<code>RQU-UI-H2</code>は新設AI部品とUI基盤、<code>RQU-UI-H3</code>は要件・UI最終候補の正式化をそれぞれ分離して承認する。Vercel v0は任意の別Gateであり、未利用でも計画を完遂できる。RQU-UI-01/02/03/04の証跡は <a href="../plan/requirements_update/RQU-UI_要件UIテスト追跡マトリクス_2026-08-11.md">追跡マトリクス</a>、<a href="../plan/requirements_update/RQU-UI_導入前調査記録_2026-08-11.md">導入前調査記録</a>、<a href="../plan/requirements_update/RQU-UI-03_第三者部品導入Smoke記録_2026-08-11.md">RQU-UI-03記録</a>、<a href="../plan/requirements_update/RQU-UI-04_AI部品作成・基盤同期記録_2026-08-11.md">RQU-UI-04記録</a>、<a href="../plan/requirements_update/RQU-UI_実行ログ_2026-08-11.md">実行ログ</a>へ保存した。</p>
+    <table>
+      <thead><tr><th>ID</th><th>対象</th><th>現在状態</th><th>期限・再開条件</th><th>証拠先</th></tr></thead>
+      <tbody>
+        <tr><td><code>RQU-UI-H0</code></td><td>実行計画v0.1の開始承認</td><td><span class="badge done">承認済み・RQU-UI-01/02完了</span></td><td>2026-08-11、運用者が計画ID・版と、RQU-UI-03前にH1で停止する条件を明示承認した。RQU-UI-01/02の成果物を作成し、現在はH1待ち。</td><td><a href="../plan/要件定義書追加更新・UIモックHTML作成実行計画書_v0.1_2026-08-11.md">RQU-UI-PLAN-001</a>、<a href="../plan/requirements_update/RQU-UI_実行ログ_2026-08-11.md">RQU-UI実行ログ</a></td></tr>
+        <tr><td><code>RQU-UI-H1</code></td><td>Nodeパッケージ・Playwrightブラウザ等の外部取得</td><td><span class="badge done">承認済み・RQU-UI-03完了</span></td><td>2026-08-11、運用者がRQU-UI-H1を承認した。承認範囲の固定版Frontend、第三者部品、Chromium取得、Smokeを完了し、導入記録と証跡を保存した。</td><td><a href="../plan/requirements_update/RQU-UI-03_第三者部品導入Smoke記録_2026-08-11.md">RQU-UI-03記録</a>、<a href="../plan/requirements_update/RQU-UI_実行ログ_2026-08-11.md">実行ログ</a>、承認記録</td></tr>
+        <tr><td><code>RQU-UI-H2</code></td><td>UI専用AI部品、Base UI/Radix、UI品質基盤</td><td><span class="badge wait">未承認・RQU-UI-04完了／承認待ち</span></td><td>RQU-UI-05開始前。RQU-UI-03/04のSmoke、再利用判定、AI基盤仕様同期、残リスク、Unknownを提示し、運用者が承認するまで停止する。</td><td><a href="../plan/requirements_update/RQU-UI-03_第三者部品導入Smoke記録_2026-08-11.md">RQU-UI-03記録</a>、<a href="../plan/requirements_update/RQU-UI-04_AI部品作成・基盤同期記録_2026-08-11.md">RQU-UI-04記録</a>、承認記録</td></tr>
+        <tr><td><code>RQU-UI-H3</code></td><td>要件定義書・UIモック最終候補の正式化</td><td><span class="badge wait">未承認・候補未作成</span></td><td>RQU-UI-14開始前。21画面、10状態、PC/スマホ、追跡表、E2E/Visual/a11y、レビュー採否、Q-243対応を提示する。</td><td>RQU-UI-13候補・受入確認表・試験証跡</td></tr>
+        <tr><td><code>RQU-UI-H1-V0</code></td><td>Vercel v0の外部送信・費用・アカウント</td><td><span class="badge history">任意・未承認</span></td><td>利用する場合だけ別承認。未承認ならv0を使わずローカル工程を継続する。</td><td>利用時の送信内容・費用・受入記録</td></tr>
+      </tbody>
+    </table>
+    <p class="small">H1承認後、RQU-UI-03の外部取得とSmoke、RQU-UI-04のAI部品作成・仕様同期・静的検証を承認済み範囲で完了した。実Broker、実市場データ、Secret、外部AIサービス、実注文、正式要件、正式UIモック、Python実装は変更しない。RQU-UI-05開始前はRQU-UI-H2で停止する。</p>
+  </section>
   <section class="ok-note" id="p3-12-final-current-20260810">
     <h2>P3-12最終状態（2026-08-10）</h2>
     <p><strong>H3-3とH3-4はユーザー承認済み、P3-12は実行済み。</strong> P3-11で検出したP3-IR-001～004を反映し、P3-D13（レビュー反映履歴）とP3-D14（完了判定・Phase 4移行承認書）を作成した。P3-12の契約Gate、再レビュー、WSL隔離品質GateはPASS。UNK-P3-01/05/07は未解消のままPhase 4へ延期し、Phase 3の現在判定は <code>COMPLETE_WITH_APPROVED_UNKNOWN</code> とする。</p>
@@ -615,6 +657,15 @@ firewall=true</pre></li>
       <tr><td>2026-08-11</td><td>v5.1</td><td>Q-262〜Q-280の回答をRQU-18Aへ記録し、19件を方針回答済みへ更新した。Q-265は日次30世代・月1回復元確認を最新方針とし、Q-269は固定期間・取引数なしで運用者判断、Q-272は自PC先行・将来拡張、Q-277は具体値・外部承認・証跡後に正式要件化する方針とした。実データ・契約・中継・Databento・UI・テストの証跡は残課題として維持し、正式要件・UI・実装は変更していない。</td></tr>
       <tr><td>2026-08-11</td><td>v5.2</td><td>運用者によるQ-277撤回を反映し、RQU-19を作成した。要件・UIの構造、運用単位、戦略・時間足、Backtest、状態、Human Gate、Risk、安全停止、技術境界、品質を「今決めるもの」、実データ・契約・Broker・中継・実数値・実機証跡・将来拡張を「あとから決めるもの」として分類した。Q-281〜Q-305の追加ヒアリングを回答待ちとして登録し、正式要件・UI・実装はまだ変更していない。</td></tr>
       <tr><td>2026-08-11</td><td>v5.3</td><td>Q-281〜Q-305の全回答（A）をRQU-19Aへ記録した。運用単位、戦略・時間足、Backtest網羅検証、結果履歴、状態・Human Gate、Risk、停止・復旧、UI、技術候補、品質、Q-277撤回後の文書化範囲を方針回答済みへ更新した。Q-243の安全境界・初期候補・実行可能性・性能基準の4項目、実データ・外部接続・実機・実運用証跡は後続Gateとして維持し、正式要件・UI・実装はまだ変更していない。</td></tr>
+      <tr><td>2026-08-11</td><td>v5.4</td><td>UI作成用AI基盤の外部調査・選定書（<code>UI-AIF-01</code>）を作成した。ローカル品質セット（shadcn、Storybook/Vitest/a11y、Playwright画面比較、固定SeedのFaker）を必須導入候補、Vercel v0をHuman Gate付きの限定候補、Figma MCP・Chromaticを保留とした。Frontend構成、Base UI/Radix、外部アカウント・費用・データ送信、最終AI部品配置を<code>UI-AI-UNK-01</code>〜<code>06</code>として登録した。調査時点ではインストール、外部アカウント、Secret、既存AI部品・正式要件・UIモック・Python実装の変更を行っていない。</td></tr>
+      <tr><td>2026-08-11</td><td>v5.5</td><td>Playwright CLIを追加調査した。<code>@playwright/test</code>とローカル<code>npx playwright</code>をE2E・画面比較・Trace・HTMLレポートの必須入口、Microsoft <code>@playwright/cli</code>（<code>playwright-cli</code>）を匿名モックの探索補助に限定採用した。Node・ブラウザ・版固定、正式合否との境界、Storage・Secret禁止を<code>UI-AI-DEC-04/05</code>、<code>UI-AI-UNK-07/08</code>として登録した。Playwrightのインストール、ブラウザ取得、AI向けCLIの試行はまだ行っていない。</td></tr>
+      <tr><td>2026-08-11</td><td>v5.6</td><td>要件定義書追加更新・UIモックHTML作成実行計画（<code>RQU-UI-PLAN-001 v0.1</code>）を作成した。回答入力凍結、第三者部品導入、UI専用AI部品作成、要件候補、21画面UIモック、Playwright/Visual/a11y、レビュー、正式化を14 Stepへ分割し、<code>RQU-UI-H0</code>〜<code>H3</code>と任意の<code>H1-V0</code>を登録した。現時点はH0未承認であり、外部取得、AI部品・正式要件・UIモック・Python実装は変更していない。</td></tr>
+      <tr><td>2026-08-11</td><td>v5.6</td><td>要件定義書追加更新・UIモックHTML作成実行計画（<code>RQU-UI-PLAN-001 v0.1</code>）を作成した。回答入力凍結、第三者部品導入、UI専用AI部品作成、要件候補、21画面UIモック、Playwright/Visual/a11y、レビュー、正式化を14 Stepへ分割し、<code>RQU-UI-H0</code>〜<code>H3</code>と任意の<code>H1-V0</code>を登録した。作成時点はH0未承認であり、外部取得、AI部品・正式要件・UIモック・Python実装は変更していない。</td></tr>
+      <tr><td>2026-08-11</td><td>v5.7</td><td>運用者が<code>RQU-UI-H0</code>を承認したため、計画を<code>EXECUTING_RQU-UI-01_02</code>へ進めた。RQU-UI-01（入力凍結・追跡骨格）とRQU-UI-02（Frontend・第三者部品の導入前調査）だけを実行し、外部取得を伴うRQU-UI-03はRQU-UI-H1まで停止する。正式要件、UIモック、Frontend、package.json、AI部品実体、外部接続、Secret、Python実装は変更しない。</td></tr>
+      <tr><td>2026-08-11</td><td>v5.8</td><td>RQU-UI-01/02を完了し、67ユースケースの追跡マトリクス、Frontend・第三者部品の導入前調査記録、実行ログを作成した。Frontend・Storybook・Playwrightは未導入のまま、RQU-UI-03を<code>RQU-UI-H1</code>待ちで停止した。正式要件、UIモック、package.json、AI部品実体、外部接続、Secret、Python実装は変更していない。</td></tr>
+      <tr><td>2026-08-11</td><td>v5.9</td><td>運用者が<code>RQU-UI-H1</code>を承認したため、承認済み範囲のRQU-UI-03（UI専用Frontend、固定版第三者部品、Playwrightブラウザ、Smoke）を開始する。RQU-UI-05開始前は<code>RQU-UI-H2</code>で停止する。</td></tr>
+      <tr><td>2026-08-11</td><td>v6.0</td><td>RQU-UI-03でFrontend、固定版第三者部品、Chromium、Storybook/Vitest/axe/Playwright/Faker、Base UI/Radix pilotを導入し、Desktop/Mobile SmokeをPASSした。shadcn initのworkspace config読込エラーはRQU-UI-04/07へ追跡し、RQU-UI-04を開始する。</td></tr>
+      <tr><td>2026-08-11</td><td>v6.1</td><td>RQU-UI-04を完了した。既存AI部品の再利用調査後、UIモック生成・Visual検証・a11y検証のSkill 3件、A170/A171、UI専用Orchestratorを作成し、AI基盤03〜08、settingsルール、config、台帳の相互参照を同期した。shadcn registry手順、AI向けplaywright-cli採否、新Agent初回起動はUnknownとしてRQU-UI-H2へ提示し、RQU-UI-05開始前で停止する。</td></tr>
     </tbody>
   </table>
 

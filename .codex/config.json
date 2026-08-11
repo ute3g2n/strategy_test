@@ -27,6 +27,11 @@
       "model": "gpt-5.6-terra"
     },
     {
+      "name": "AutoTradeProject_UiMock_Orchestrator_v0_1",
+      "file": ".codex/orchestrators/AutoTradeProject_UiMock_Orchestrator_v0_1.json",
+      "model": "gpt-5.6-terra"
+    },
+    {
       "name": "AutoTradeProject_DesignDocSet_Orchestrator_v0_1",
       "file": ".codex/orchestrators/AutoTradeProject_DesignDocSet_Orchestrator_v0_1.json",
       "model": "gpt-5.6-terra"

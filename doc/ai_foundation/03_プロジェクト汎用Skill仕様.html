@@ -25,9 +25,9 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D03<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.6 / 詳細設計テンプレート準拠基準反映済み<br>
+    <strong>文書状態:</strong> v0.7 / UIモック生成・視覚検証・アクセシビリティ検証Skillを追加<br>
     <strong>ステップID:</strong> AF-02<br>
-    <strong>作成モード:</strong> 汎用AI部品は未作成のため、Codex通常実行で仕様化。Phase 1専用Skillは参照元としてのみ使用。</p>
+    <strong>作成モード:</strong> 既存汎用Skillを正本とし、RQU-UI-04でUIモック専用Skill 3件を追加。Phase 1専用Skillは参照元としてのみ使用。</p>
   </section>
 
   <h2>1. 目的</h2>
@@ -75,6 +75,9 @@
       <tr><td><code>autotrade_skill_design_review_v0_1</code></td><td>設計書の整合性、追跡性、責務境界をレビューする。</td><td>対象HTML、要件、Phase Runbook。</td><td>指摘一覧、重大度、修正提案、残リスク。</td><td>要約を先に出すこと。Unknownの承認。</td><td>指摘がファイル、章、IDに紐づく。</td></tr>
       <tr><td><code>autotrade_skill_red_team_review_v0_1</code></td><td>安全性、運用事故、危険な先送りを批判的に監査する。</td><td>対象HTML、運用制約、Failure scenario。</td><td>Red Team指摘、事故シナリオ、Gate追加案。</td><td>安全停止漏れの見逃し。危険な先送りのPass。</td><td>Fail-closed、監査証跡、手動介入、Secretが点検される。</td></tr>
       <tr><td><code>autotrade_skill_revision_integration_v0_1</code></td><td>レビュー指摘を反映し、変更履歴を残す。</td><td>レビュー指摘、対象HTML、採否方針。</td><td>修正版HTML、採否表、変更履歴、残課題。</td><td>未解決リスクの削除。安全要件の弱体化。</td><td>採用、部分採用、保留、却下が理由付きで記録される。</td></tr>
+      <tr><td><code>autotrade_skill_ui_mock_generation_v0_1</code></td><td>要件追跡可能なクリック可能UIモックを、固定ダミーデータとローカル品質確認を前提に生成する。</td><td>要件・ユースケース・画面・状態・テスト追跡表、Seed、基準日時、viewport、Frontend契約。</td><td>UIモックソース、Storybook、component test骨格、追跡差分、Unknown引継ぎ。</td><td>実Broker、実市場データ、Secret、外部AI、実注文、固定値の実数値化。</td><td>再現可能なSeed、キーボード操作、状態説明、ID追跡、外部I/Oなし。</td></tr>
+      <tr><td><code>autotrade_skill_ui_visual_validation_v0_1</code></td><td>固定条件のPC・スマートフォン画面を比較し、見切れ、重なり、状態表示欠落を検出する。</td><td>画面・状態・テストID、viewport、ブラウザ、ベースライン、Playwright設定。</td><td>比較画像、HTMLレポート、Trace、重大度付きFindings、Unknown引継ぎ。</td><td>差分の隠蔽、外部送信、実口座画面、探索結果だけの正式合否。</td><td>条件固定、PC/スマホ双方、Critical/High判定、証跡リンク、未実行の明示。</td></tr>
+      <tr><td><code>autotrade_skill_ui_accessibility_validation_v0_1</code></td><td>名前、役割、キーボード、focus、Dialog、Form、Tableをaxeと実ブラウザで検証する。</td><td>画面・状態・テストID、Storybook、Vitest/axe、キーボード表、viewport。</td><td>axe結果、操作証跡、実ブラウザ差分、重大度付きFindings、後続Gate引継ぎ。</td><td>jsdom警告の無視、色だけの合格、実データ接続、UnknownのPass。</td><td>Critical/Serious違反0、キーボード完結、focus可視、実Chromium証跡、Unknown管理。</td></tr>
     </tbody>
   </table>
 
@@ -111,6 +114,15 @@ unknown_policy: Unknown must not pass</pre>
     <li><a href="./14_実装詳細設計書構成標準.html">AF-D14 実装詳細設計書構成標準</a></li>
     <li><a href="./15_実装詳細設計AI基盤仕様.html">AF-D15 実装詳細設計AI基盤仕様</a></li>
   </ul>
+
+  <h2>7. UIモック専用Skillの追加履歴</h2>
+  <table>
+    <thead><tr><th>版</th><th>日付</th><th>変更</th><th>状態</th></tr></thead>
+    <tbody>
+      <tr><td>v0.7</td><td>2026-08-11</td><td>RQU-UI-04で、UIモック生成、視覚検証、アクセシビリティ検証を汎用Skillとして追加。固定ダミー、PC/スマホ、正式Playwrightと探索CLIの境界、Unknown管理を明文化。</td><td>作成済み・RQU-UI-H2提示待ち</td></tr>
+      <tr><td>v0.6</td><td>2026-08-03</td><td>詳細設計テンプレート準拠基準を反映。</td><td>履歴</td></tr>
+    </tbody>
+  </table>
 </main>
 </body>
 </html>
