@@ -47,10 +47,7 @@ mermaidModule.default.initialize({
 
 const source = fs.readFileSync(inputPath, "utf8");
 const blocks = inputPath.endsWith(".html")
-  ? source
-      .split('<div class="mermaid">')
-      .slice(1)
-      .map((part) => part.split("</div>")[0].trim())
+  ? [...new JSDOM(source).window.document.querySelectorAll(".mermaid")].map((block) => block.textContent.trim())
   : source
       .split("```mermaid")
       .slice(1)

@@ -12,6 +12,7 @@ function escapeHtml(text) {
 
 function inlineFormat(text) {
   let out = escapeHtml(text);
+  out = out.replace(/`(\.\.\/\.\.\/\.\.\/\.\.\/doc\/ui_mock\/[^`]+#SCREEN-\d{2})`/g, '<a href="$1"><code>$1</code></a>');
   out = out.replace(/`([^`]+)`/g, "<code>$1</code>");
   out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
   return out;
@@ -175,7 +176,7 @@ function renderMarkdown(md) {
 
 function renderToc(toc) {
   if (!toc.length) return "";
-  return `<nav class="toc"><h2>目次</h2><ul>${toc
+  return `<nav class="toc" aria-label="目次"><h2>目次</h2><ul>${toc
     .map((item) => `<li class="lvl-${item.level}"><a href="#${item.id}">${escapeHtml(item.text)}</a></li>`)
     .join("")}</ul></nav>`;
 }
@@ -187,6 +188,12 @@ function main() {
   const firstHeading = markdown.match(/^#\s+(.+)$/m);
   const title = firstHeading ? firstHeading[1].trim() : path.basename(inputPath, path.extname(inputPath));
   const rendered = renderMarkdown(markdown);
+  const repoRelative = (value) => path.relative(process.cwd(), value).split(path.sep).join("/");
+  const htmlRelative = (value) => path.relative(path.dirname(outputPath), value).split(path.sep).join("/");
+  const inputDisplay = repoRelative(inputPath);
+  const outputDisplay = repoRelative(outputPath);
+  const mermaidJs = htmlRelative(path.resolve(__dirname, "../doc/assets/mermaid.min.js"));
+  const mermaidInit = htmlRelative(path.resolve(__dirname, "../doc/assets/mermaid-init.js"));
 
   const html = `<!doctype html>
 <html lang="ja">
@@ -215,21 +222,22 @@ function main() {
     .toc li { margin: 6px 0; }
     .toc .lvl-2 { padding-left: 12px; }
     .toc .lvl-3 { padding-left: 24px; }
+    @media (max-width: 700px) { body { margin: 0; } main { border-left: 0; border-right: 0; padding: 16px; } table { display: block; overflow-x: auto; } .mermaid { min-width: 680px; } }
+    @media print { body { margin: 0; background: #fff; } main { max-width: none; border: 0; } h1, h2, h3, h4, table, figure { break-inside: avoid; } a { color: #000; text-decoration: none; } .mermaid { min-width: 0; } }
   </style>
 </head>
 <body>
 <main>
-  <h1>${escapeHtml(title)}</h1>
   <section class="meta">
     <p><strong>文書種別:</strong> 要件定義書 HTML化成果物<br>
-    <strong>元ファイル:</strong> <code>plan/自動トレードシステム_要件定義書.md</code><br>
-    <strong>保存先:</strong> <code>doc/requirements/01_自動トレードシステム要件定義書.html</code></p>
+    <strong>元ファイル:</strong> <code>${escapeHtml(inputDisplay)}</code><br>
+    <strong>保存先:</strong> <code>${escapeHtml(outputDisplay)}</code></p>
   </section>
   ${renderToc(rendered.toc)}
   ${rendered.html}
 </main>
-<script src="../assets/mermaid.min.js"></script>
-<script src="../assets/mermaid-init.js"></script>
+<script src="${escapeHtml(mermaidJs)}"></script>
+<script src="${escapeHtml(mermaidInit)}"></script>
 </body>
 </html>
 `;
