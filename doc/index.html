@@ -24,7 +24,7 @@
   <h1>ドキュメント インデックス</h1>
   <div class="note">
     <p>このファイルは、<code>doc/</code> 配下のHTML成果物への共通入口である。新しいHTML成果物を追加した場合は、この一覧も同時に更新する。</p>
-    <p><strong>更新状態:</strong> RQU-10で要件定義書の正式HTMLをv0.3へ更新し、本文・統合台帳・主要詳細設計への導線を再検証済み。</p>
+    <p><strong>更新状態:</strong> RQU-UI-14で要件定義書をv0.4、UIモックをv1.0へ正式化し、本文・UI・統合台帳・追跡表への導線を再検証済み。Q-243と後続GateのUnknownは維持している。</p>
   </div>
 
   <h2>全Phase共通：残課題・Blocked</h2>
@@ -34,9 +34,17 @@
   </div>
 
   <h2>要件定義</h2>
-  <p class="muted">設計の起点となる上流文書。AT-REQ-001 / v0.3 / 2026-08-10 / C4 Level 1〜4。</p>
+  <p class="muted">設計の起点となる上流文書。AT-REQ-001 / v0.4 / 2026-08-11 / C4 Level 1〜4＋ユーザー機能・操作。</p>
   <ul>
-    <li><a href="./requirements/01_自動トレードシステム要件定義書.html">01_自動トレードシステム要件定義書.html</a> <span class="muted">（正式正本・RQU-H3承認済み）</span></li>
+    <li><a href="./requirements/01_自動トレードシステム要件定義書.html">01_自動トレードシステム要件定義書.html</a> <span class="muted">（正式正本 v0.4・RQU-H3／RQU-UI-H3承認済み）</span></li>
+  </ul>
+
+  <h2>ユーザー機能・UIモック</h2>
+  <p class="muted">運用者が「何ができ、どう使うか」を確認する正式UI仕様。固定Seedの匿名ダミーであり、実Broker・実注文・Secretへ接続しない。</p>
+  <ul>
+    <li><a href="./ui_mock/01_自動トレードシステム_UIモック.html">01_自動トレードシステム_UIモック.html</a> <span class="muted">（AT-UI-MOCK-001 v1.0正式版・21画面）</span></li>
+    <li><a href="../plan/requirements_update/RQU-UI_要件UIテスト追跡マトリクス_2026-08-11.md">RQU-UI要件・UI・テスト追跡マトリクス</a></li>
+    <li><a href="../plan/requirements_update/RQU-UI_UIモック受入確認表_2026-08-11.md">RQU-UI UIモック受入確認表</a></li>
   </ul>
 
   <h2>AI実行基盤</h2>

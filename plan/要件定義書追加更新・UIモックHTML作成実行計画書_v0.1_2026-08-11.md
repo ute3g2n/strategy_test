@@ -7,13 +7,13 @@
 | 文書ID | `RQU-UI-PLAN-001` |
 | 版 | `v0.1` |
 | 作成日 | 2026-08-11 |
-| 状態 | `WAITING_RQU-UI-H3` |
+| 状態 | `COMPLETE_RQU-UI-14` |
 | 計画対象 | 現行要件定義書へのユーザー機能・操作要件追加、UIモックHTML作成、両者の追跡・品質確認 |
-| 現行正式要件 | `doc/requirements/01_自動トレードシステム要件定義書.html`（`AT-REQ-001`、v0.3） |
+| 現行正式要件 | `doc/requirements/01_自動トレードシステム要件定義書.html`（`AT-REQ-001`、v0.4正式版） |
 | 計画作成基盤 | `AutoTradePhasePlanning_Orchestrator_v0_1` |
 | 計画担当Agent | `AutoTrade_A05_PhaseExecutionPlanner_v0_1` |
 | 主Skill | `autotrade_skill_phase_execution_planning_v0_1` |
-| 実行開始条件 | 運用者が `RQU-UI-H0`、`RQU-UI-H1`、`RQU-UI-H2`（いずれも2026-08-11）を承認済み |
+| 実行開始条件 | 運用者が `RQU-UI-H0`〜`RQU-UI-H3`（2026-08-11）を承認済み |
 
 ## 1. 結論
 
@@ -79,9 +79,9 @@ UIモックは、操作、状態、警告、画面遷移、表示項目を確認
 |---|---|---|---|
 | `RQUUI-ART-REQ-HTML` | 更新後の自動トレードシステム要件定義書 | `doc/requirements/01_自動トレードシステム要件定義書.html` | 正式HTML正本 |
 | `RQUUI-ART-REQ-MD` | 要件定義書の編集用Markdown | `plan/自動トレードシステム_要件定義書.md` | 編集用・HTMLと同期 |
-| `RQUUI-ART-REQ-CANDIDATE-MD` | ユーザー機能・操作追加candidate Markdown | `plan/requirements_update/drafts/RQU-UI-06_自動トレードシステム要件定義書_candidate.md` | RQU-UI-06候補 |
-| `RQUUI-ART-REQ-CANDIDATE-HTML` | ユーザー機能・操作追加candidate HTML | `plan/requirements_update/drafts/01_自動トレードシステム要件定義書_candidate.html` | RQU-UI-06候補。正式HTMLではない |
-| `RQUUI-ART-UI-HTML` | クリック可能なUIモックHTML候補 | `doc/ui_mock/01_自動トレードシステム_UIモック.html` | RQU-UI-13 candidate-0.2。RQU-UI-H3後に正式化判定 |
+| `RQUUI-ART-REQ-CANDIDATE-MD` | ユーザー機能・操作追加candidate Markdown | `plan/requirements_update/drafts/RQU-UI-06_自動トレードシステム要件定義書_candidate.md` | RQU-UI-06〜13の履歴候補。正式版v0.4へ反映済み |
+| `RQUUI-ART-REQ-CANDIDATE-HTML` | ユーザー機能・操作追加candidate HTML | `plan/requirements_update/drafts/01_自動トレードシステム要件定義書_candidate.html` | RQU-UI-06〜13の履歴候補。正式HTML v0.4へ反映済み |
+| `RQUUI-ART-UI-HTML` | クリック可能なUIモックHTML | `doc/ui_mock/01_自動トレードシステム_UIモック.html` | AT-UI-MOCK-001 v1.0正式版 |
 | `RQUUI-ART-UI-ASSET` | UIモックのローカル資産 | `doc/ui_mock/assets/` | HTML付属・外部CDN禁止 |
 | `RQUUI-ART-TRACE` | 要件・ユースケース・画面・状態・テスト追跡表 | `plan/requirements_update/RQU-UI_要件UIテスト追跡マトリクス_2026-08-11.md` | 追跡正本 |
 | `RQUUI-ART-PREINSTALL` | Frontend・第三者部品の導入前調査記録 | `plan/requirements_update/RQU-UI_導入前調査記録_2026-08-11.md` | RQU-UI-H1承認資料 |
@@ -1068,3 +1068,5 @@ RQU-19-LATER-01以降の実データ、契約、Broker、実数値、実機、Cl
 | `v1.5` | 2026-08-11 | RQU-UI-11で初回失敗（指定・コントラスト・モバイルスクロール）を検出・修正し、Playwright 14/14、PC/スマートフォン21画面、axe 4条件、外部要求0、Visual baseline再実行を確認した。Open Unknownを保持し、RQU-UI-12へ進む。 |
 | `v1.6` | 2026-08-11 | RQU-UI-12でDesign、Risk/Account、Ops/Security、Visual/a11yをレビューし、High 8件、Medium 4件、Low 1件を記録した。RQU-UI-13で必須修正・再試験を行う。 |
 | `v1.7` | 2026-08-11 | RQU-UI-13でHigh指摘を修正・採否分類し、candidate-0.6／静的candidate-0.2、React安全操作、21画面×10状態、静的重要7画面Visual、追跡・受入・実行ログを同期した。機械Gateを通過し、RQU-UI-H3承認待ちへ停止した。 |
+| `v1.8` | 2026-08-11 | 運用者のRQU-UI-H3承認を受領したため、RQU-UI-14（正式化・索引・統合台帳・実行完了記録）を開始した。正式要件v0.4、正式UI v1.0、`doc/index.html`、台帳を同期し、Unknownと後続Gateは消去しない。 |
+| `v1.9` | 2026-08-11 | RQU-UI-14を完了した。正式要件HTML/Markdown（AT-REQ-001 v0.4）、正式UI（AT-UI-MOCK-001 v1.0）、`doc/index.html`、統合台帳、追跡・受入・実行ログを同期し、HTML・リンク・ID・外部境界・Secret・差分検査とPlaywright再試験を完了した。Unknown、Q-243、後続Gateは維持する。 |
