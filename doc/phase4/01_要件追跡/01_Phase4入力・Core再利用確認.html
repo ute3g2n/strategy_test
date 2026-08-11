@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 4入力・Core再利用確認</title>
+  <style>
+    :root{color-scheme:light;--ink:#182230;--muted:#526174;--line:#cbd5e1;--panel:#f8fafc;--accent:#0f766e;--warn:#92400e;--danger:#991b1b}
+    *{box-sizing:border-box} body{margin:0;background:#eef2f7;color:var(--ink);font-family:system-ui,-apple-system,"Yu Gothic",Meiryo,sans-serif;line-height:1.65}
+    main{max-width:1180px;margin:0 auto;padding:32px 22px 64px} h1,h2,h3{line-height:1.3} h1{font-size:2rem;margin:0 0 8px} h2{margin-top:34px;border-left:6px solid var(--accent);padding-left:12px} h3{margin-top:24px}
+    .meta,.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:16px 0;box-shadow:0 2px 8px #0f172a0b}
+    .status{display:inline-block;border-radius:999px;padding:2px 10px;background:#d1fae5;color:#065f46;font-weight:700}.wait{background:#fef3c7;color:#92400e}.stop{background:#fee2e2;color:#991b1b}.tag{display:inline-block;margin:2px 4px 2px 0;padding:1px 7px;border:1px solid #99f6e4;border-radius:999px;background:#f0fdfa;color:#115e59;font-size:.9em}
+    table{width:100%;border-collapse:collapse;margin:12px 0 20px;background:#fff} th,td{border:1px solid var(--line);padding:9px 10px;vertical-align:top;text-align:left} th{background:#e8eef5} code,pre{font-family:ui-monospace,SFMono-Regular,Consolas,"ＭＳ ゴシック",monospace} code{overflow-wrap:anywhere} pre{white-space:pre-wrap;overflow:auto;background:#0f172a;color:#e2e8f0;padding:14px;border-radius:8px;font-size:.82rem;line-height:1.45}
+    .ok{color:#065f46;font-weight:700}.caution{color:var(--warn);font-weight:700}.small{color:var(--muted);font-size:.92rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}.finding{border-left:4px solid var(--accent);padding:10px 12px;background:var(--panel);margin:8px 0}.finding strong{display:block}.rule{border-left:4px solid #64748b;padding:10px 12px;background:#f8fafc}
+    a{color:#075985} @media print{body{background:#fff}main{max-width:none;padding:0}.meta,.panel,table{box-shadow:none}a{color:#000;text-decoration:underline}}
+  </style>
+</head>
+<body>
+<main>
+  <header class="meta">
+    <h1>Phase 4入力・Core再利用確認</h1>
+    <p><strong>文書ID:</strong> <code>P4-ART-01-INPUT-CORE-001</code>　<strong>Step:</strong> <code>P4-01</code>　<strong>Phase:</strong> <code>PHASE4_PRODUCT_APPLICATION_BACKTEST_2026_08_11</code></p>
+    <p><strong>計画:</strong> <code>P4-PLAN-001</code> / <a href="../../../plan/Phase4_実行計画書_v0.1_2026-08-11.md">Phase4実行計画書</a><br>
+    <strong>作成日:</strong> 2026-08-11　<strong>状態:</strong> <span class="status">P4-01_COMPLETE_WITH_CORE_BASELINE_RECONCILED</span><br>
+    <strong>実行部品:</strong> <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code>（<code>gpt-5.6-terra</code>）、<code>AutoTrade_A10_RequirementsCurator_v0_1</code>、<code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code>、<code>AutoTrade_A80_DocumentIntegrator_v0_1</code>、<code>AutoTrade_A90_DesignReviewer_v0_1</code></p>
+  </header>
+
+  <section class="panel">
+    <h2>1. この確認で決めたこと</h2>
+    <p>Phase 4は、固定されたローカル入力を既存Python Coreへ渡し、Product/Application層でBacktest製品として扱える境界を作る。ここでは入力の正本、Coreの凍結範囲、既存Evidenceの意味、P4外の課題だけを再確認した。コード、fixture、既存Evidence、外部接続は変更していない。</p>
+    <div class="grid">
+      <div class="rule"><strong>再利用する範囲</strong><br>固定fixture、Catalog／Manifest、Normalized／Replay入力、Turtle Strategy契約、固定Backtest／Fill／Cost／Roll／Gap／Calendar／Holdout契約。</div>
+      <div class="rule"><strong>凍結する範囲</strong><br><code>src/autotrade/</code>内の対象Core 36ファイル、対応tests／fixture 58ファイル、既存Evidence。P4都合の例外追加や振る舞い変更はしない。</div>
+      <div class="rule"><strong>固定しない範囲</strong><br>実市場Data、実測Cost／Slippage、正式Calendar、実Risk値、Account、Portfolio、OMS、Broker、Secret、Paper、Live、Cloud。</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Human Gateと発火範囲</h2>
+    <table>
+      <thead><tr><th>Gate</th><th>状態</th><th>確認結果</th></tr></thead>
+      <tbody>
+        <tr><td><code>P4-H0</code></td><td><span class="status">APPROVED</span></td><td>運用者の「P4-H0を承認します。」を2026-08-11に受領。P4-01〜05の入力照合、追跡、詳細設計、RED、レビューだけを許可する。</td></tr>
+        <tr><td><code>P4-H1</code></td><td><span class="status wait">WAITING_FOR_USER_APPROVAL</span></td><td>詳細設計、RED、対象Run、target_paths、fixture hash、trusted scopeが揃うまで実装・依存導入・実行Runへ進まない。</td></tr>
+        <tr><td><code>P4-H2</code></td><td><span class="status wait">WAITING_FOR_USER_APPROVAL</span></td><td>P4-09の完了候補に対する後続Gate。P4-01では扱わない。</td></tr>
+      </tbody>
+    </table>
+    <p class="small">P4-H0は設計開始の承認であり、外部Data取得、Broker通信、Secret投入、Paper／Live、実資金、Cloud、Core変更の承認ではない。</p>
+  </section>
+
+  <section>
+    <h2>3. 入力正本とhash</h2>
+    <p>次のhashはP4-H0承認を台帳へ反映した後、P4-01の作業成果物を作成する前に取得した。要件の正式HTML／Markdown、Phase 4のロードマップと引渡し、Core基準線、追跡入力、既存UI、統合台帳を入力優先順位どおりに固定した。</p>
+    <table>
+      <thead><tr><th>優先</th><th>入力</th><th>用途</th><th>SHA-256</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><a href="../../requirements/01_自動トレードシステム要件定義書_v2.html">正式要件v2 HTML</a><br><code>doc/requirements/01_自動トレードシステム要件定義書_v2.html</code></td><td>REQ、UC、Screen、State、Gateの正式基準線</td><td><code>97e248a36f71514b7c6312e614be04b82d5eae358541e195167e9611c14027fa</code></td></tr>
+        <tr><td>1</td><td><a href="../../../plan/requirements_update/01_自動トレードシステム要件定義書_v2.md">正式要件v2 Markdown</a></td><td>HTMLと対になる正式本文</td><td><code>b54382e42d1da3985b12a639cd1210075c5d7ff860b110772064b54816c6c921</code></td></tr>
+        <tr><td>2</td><td><a href="../../../plan/requirements_update/RQV2_Phase4以降再編ロードマップ_2026-08-11.md">RQV2 Phase 4以降ロードマップ</a></td><td>Phase間DAG、P4目的、非対象、後続Phase</td><td><code>9a13e9e27fc6da33567109ed26fdb353a7d0cd065525efd9bcda9943ae45dbad</code></td></tr>
+        <tr><td>2</td><td><a href="../../../plan/requirements_update/RQV2_Phase4計画引渡し入力一覧_2026-08-11.md">RQV2 Phase 4計画引渡し入力一覧</a></td><td>RQV2-18からの入力、Unknown、停止条件、優先順位</td><td><code>875caccd2aca5c226e949bf111327522797856b4dac262fd1fec9cceb86d9d67</code></td></tr>
+        <tr><td>3</td><td><a href="../../../plan/requirements_update/RQV2_既存Core再利用基準線_2026-08-11.md">RQV2 Core再利用基準線</a></td><td>Coreの公開境界、状態分類、既存Evidence</td><td><code>f71c9a5a964586d441b39b3a2e0cb00f4be8f7417f59f9854a6c3da33df0e756</code></td></tr>
+        <tr><td>3</td><td><a href="../../../plan/requirements_update/RQV2_要件UIテスト追跡マトリクス_2026-08-11.md">RQV2 要件UIテスト追跡マトリクス</a></td><td>Q、UC、Screen、State、Testの母集団</td><td><code>c45be95eb8057b3d38b2b46c0fe0be7f7dcc5f6c30a602945a560c2df612cd9b</code></td></tr>
+        <tr><td>4</td><td><a href="../../ui_mock/01_自動トレードシステム_UIモック.html">既存UIモック</a></td><td>21画面・10状態の固定匿名ダミーの操作意味だけを参照</td><td><code>9d5a2bfe2e25b5e663fe710ce8d1f412d7816f0046cf98e3b81a40275d42f7e7</code></td></tr>
+        <tr><td>5</td><td><a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></td><td>Human Gate、Unknown、Blockedの現在状態</td><td><code>7a72b4f0238e37a1f75f5dda0afae7e99aaaa187226f596b739ad438be6874cd</code></td></tr>
+        <tr><td>5</td><td><a href="../../../plan/Phase4_実行計画書_v0.1_2026-08-11.md">P4実行計画書</a></td><td>P4-01の完了条件、停止条件、成果物配置</td><td><code>5af41f09389c9ce79b6b5db9f593668a4007d43ffd3d04595b484bac61466002</code></td></tr>
+      </tbody>
+    </table>
+    <p class="small">追跡マトリクスのhashは、表示上の折返しを避けるため通常の64桁を一続きで記録すべき値である。値の正本は上のリンク先と実行ログの機械取得結果である。</p>
+  </section>
+
+  <section>
+    <h2>4. Core／tests／fixture Manifestの再照合</h2>
+    <p>Manifestはファイルを相対パスで昇順に並べ、各ファイルの小文字SHA-256を連結して再計算した。Coreとtests／fixtureは「相対パス + TAB + SHA-256」をCRLFで連結し、既存Evidenceは「相対パス + <code>|</code> + SHA-256」をCRLFで連結した。いずれも末尾にCRLFを付けた。</p>
+    <table>
+      <thead><tr><th>対象</th><th>件数</th><th>基準線hash</th><th>再計算hash</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr><td>Core source<br><code>src/autotrade/backtest/*.py</code><br><code>src/autotrade/market_data/*.py</code><br><code>src/autotrade/strategy/*.py</code></td><td>36</td><td><code>f8a25911a2dd4007e9d430f308965c36e9474abb37132d2813c3078d99ac1eeb</code></td><td><code>f8a25911a2dd4007e9d430f308965c36e9474abb37132d2813c3078d99ac1eeb</code></td><td class="ok">一致・凍結維持</td></tr>
+        <tr><td>関連tests／fixtures<br><code>tests/market_data/</code>、<code>tests/strategy/</code>、<code>tests/backtest/</code>、<code>tests/engine_poc/</code>、<code>tests/fixtures/</code></td><td>58</td><td><code>6909d2888bd65aac4dcf12a0827bcabab6d8766db39de29b4ef6b3b24ab13377</code></td><td><code>6909d2888bd65aac4dcf12a0827bcabab6d8766db39de29b4ef6b3b24ab13377</code></td><td class="ok">一致・凍結維持</td></tr>
+        <tr><td>既存Evidence Phase 2<br><code>tests/evidence/phase2/</code></td><td>143</td><td><code>911fe60e24828df943652a4edea63fc38115fc60d741200dc7b96da199382dcd</code></td><td><code>911fe60e24828df943652a4edea63fc38115fc60d741200dc7b96da199382dcd</code></td><td class="ok">一致・履歴証拠として参照</td></tr>
+        <tr><td>既存Evidence Phase 3<br><code>tests/evidence/phase3/</code></td><td>373</td><td><code>e8179bd83cc8eb23d523cdadac5e6d844509bfdcb10409f04f1191c13b8e7daa</code></td><td><code>e8179bd83cc8eb23d523cdadac5e6d844509bfdcb10409f04f1191c13b8e7daa</code></td><td class="ok">一致・履歴証拠として参照</td></tr>
+        <tr><td>Phase 1 Evidence<br><code>tests/evidence/phase1/</code></td><td>0・ディレクトリなし</td><td>算出不可</td><td>存在確認 <code>False</code></td><td class="caution">RQV2-BLK-001を保持。機械PASSへ変換しない</td></tr>
+      </tbody>
+    </table>
+    <p class="small">Core sourceの全36パスは<a href="../../../plan/requirements_update/RQV2_既存Core再利用基準線_2026-08-11.md#">既存Core再利用基準線 §2.1</a>、関連tests／fixtureの母集団は同書§2.2に記載されている。P4-01の再計算はその母集団を変更せずに行った。</p>
+  </section>
+
+  <section>
+    <h2>5. 再利用境界とP4外</h2>
+    <table>
+      <thead><tr><th>領域</th><th>P4で再利用・参照する公開境界</th><th>凍結・停止すること</th><th>状態</th></tr></thead>
+      <tbody>
+        <tr><td>Market Data</td><td>固定Catalog、Manifest、Normalized入力、Quality停止条件、Replay入力契約</td><td>Provider API、継続取得、実市場期間の補完、正式Calendarの推測</td><td><span class="tag">IMPLEMENTED_VERIFIED（固定範囲）</span></td></tr>
+        <tr><td>Strategy</td><td>Generic Strategy／Turtleの入力、Indicator、Signal／Directive／State契約、固定Golden</td><td>Turtle規則の変更、未検証パラメータの一般化、利益性・Live注文の主張</td><td><span class="tag">IMPLEMENTED_VERIFIED（固定範囲）</span></td></tr>
+        <tr><td>Backtest</td><td>Replay、Fill、固定Cost、Roll、Gap、Calendar、Holdout、snapshot／restore、look-ahead拒否</td><td>実測Cost／Slippage、正式Calendar、長期実市場性能、固定fixtureの書換え</td><td><span class="tag">IMPLEMENTED_VERIFIED（synthetic範囲）</span></td></tr>
+        <tr><td>Engine PoC</td><td>オフラインの候補比較とCore parityの既存証拠</td><td>最終engine採用、Paper接続、Live接続</td><td><span class="tag">IMPLEMENTED_VERIFIED（PoC範囲）</span></td></tr>
+        <tr><td>Product/Application</td><td>P4-03以降で、固定Core APIを読む新しい境界を設計する</td><td>Coreへの逆依存、Core本体の変更、未設計の任意ファイル書込み</td><td><span class="tag">P4で詳細化</span></td></tr>
+      </tbody>
+    </table>
+    <h3>明示的なP4外</h3>
+    <p><span class="tag">OUT_OF_SCOPE</span> 外部Data取得・Provider契約・費用・entitlement、Broker・注文・Paper・Live・実資金・Cloud、Secret・認証情報、実Risk値・Account・Portfolio・OMS、実市場の長期性能・利益性・実測Cost／Slippage・正式CalendarをP4へ持ち込まない。これらを見つけた場合は、代替接続せず停止し、該当Phase／Gateへ送る。</p>
+  </section>
+
+  <section>
+    <h2>6. Unknown・Blocked・後続送り</h2>
+    <table>
+      <thead><tr><th>ID</th><th>現在状態</th><th>P4-01での扱い</th><th>送り先・再開条件</th></tr></thead>
+      <tbody>
+        <tr><td><code>UNK-P3-01</code></td><td>長期Data、市場数、長期Holdout／Walk-forward未解消・未PASS</td><td>固定fixtureの契約PASSと分離し、P4では解消しない</td><td>Phase 5。対象、期間、Provenance、Quality、Manifest、Evidence、外部Data Gate</td></tr>
+        <tr><td><code>UNK-P3-05</code></td><td>市場別実測Cost／Slippage、Gap約定未解消・未PASS</td><td>固定Cost／Gap契約を実測値の代わりにしない</td><td>Phase 5。実測、感度、根拠、停止条件</td></tr>
+        <tr><td><code>UNK-P3-07</code></td><td>正式取引所Calendarの継続追随未解消・未PASS</td><td>固定Calendarケースと公式Calendarを分離する</td><td>Phase 5。公式版、更新監視、欠損時停止、Evidence</td></tr>
+        <tr><td>Q-243</td><td>安全境界、初期候補、実行可能性、性能の後続Gate</td><td>設計入力として参照するが、P4-01で閉じない</td><td>該当Phaseの機械EvidenceとHuman Gate。UNKNOWNのまま保持</td></tr>
+        <tr><td><code>RQV2-BLK-001</code></td><td><code>tests/evidence/phase1/</code>物理欠落。運用者上書きでRQV2継続</td><td><code>PASS_WITH_OPERATOR_OVERRIDE</code>の事実だけを引用し、P4機械証拠の代替にしない</td><td>原欠落の復旧・再証明は別作業。P4の新しいEvidenceとは別管理</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>7. Findings firstレビュー</h2>
+    <p>指定されたA90の観点で、要約より先に停止条件を確認した。Critical／Highは0件で、P4-01内で解消すべき指摘は残っていない。</p>
+    <div class="finding"><strong><span class="ok">P4-01-R-001　Critical/High 0　hash不足なし</span></strong>入力ファイルhash、Core 36件、tests／fixture 58件、Phase 2／3 Evidenceの件数とgroup hash、Phase 1欠落を記録した。Core／tests／fixtureの再計算値は基準線と一致した。</div>
+    <div class="finding"><strong><span class="ok">P4-01-R-002　Unknownの誤閉鎖なし</span></strong><code>UNK-P3-01/05/07</code>、Q-243、<code>RQV2-BLK-001</code>を未解消・後続・欠落として残した。固定fixtureのPASSを実市場性能やLive適合性へ一般化していない。</div>
+    <div class="finding"><strong><span class="ok">P4-01-R-003　外部I/O混入なし</span></strong>外部Data、Broker、Secret、Paper、Live、実資金、Cloud、WSL操作、依存取得、実行Runは0件。P4-01では読み取りとhash照合だけを行った。</div>
+    <div class="finding"><strong><span class="ok">P4-01-R-004　導線不足なし</span></strong>本HTMLを<code>doc/index.html</code>へ追加し、計画・入力・台帳・Core基準線への相対リンクを付けた。リンク検査はP4-01終了時に実施した。</div>
+  </section>
+
+  <section class="panel">
+    <h2>8. P4-01判定と次Step</h2>
+    <p><strong class="ok">判定: P4-01_COMPLETE_WITH_CORE_BASELINE_RECONCILED</strong></p>
+    <ul>
+      <li>入力hash、Core 36件、関連tests／fixture 58件、既存Evidenceの状態を再照合した。</li>
+      <li>Coreと既存tests／fixtureに差分を作っていない。P4-01の書込みは確認書、ログ、統合台帳、doc/index.htmlだけである。</li>
+      <li>固定Coreの公開境界、凍結対象、入力優先順位、P4外、Unknown、停止条件を明示した。</li>
+      <li>P4-H0は承認済み、P4-H1／P4-H2は承認待ちのまま維持した。</li>
+    </ul>
+    <p>次はP4-02「P4要件・UC・UI・Test追跡の確定」を実行する。P4-03とは計画上並行可能だが、ユーザー指示の「1つずつ」に従い、P4-02を完了してからP4-03へ進める。</p>
+  </section>
+
+  <section>
+    <h2>9. 参照・成果物</h2>
+    <ul>
+      <li><a href="../../../plan/phase4/ログ/P4-01_入力・Core再利用確認_2026-08-11.md">P4-01実行ログ</a></li>
+      <li><a href="../../00_全Phase残課題Blocked統合台帳.html#phase4-plan-current-20260811">統合台帳 Phase 4現在状態</a></li>
+      <li><a href="../../../plan/requirements_update/RQV2_既存Core再利用基準線_2026-08-11.md">RQV2既存Core再利用基準線</a></li>
+      <li><a href="../../../plan/requirements_update/RQV2_Phase4計画引渡し入力一覧_2026-08-11.md">RQV2 Phase 4計画引渡し入力一覧</a></li>
+      <li><a href="../../../plan/requirements_update/RQV2_Phase4以降再編ロードマップ_2026-08-11.md">RQV2 Phase 4以降再編ロードマップ</a></li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

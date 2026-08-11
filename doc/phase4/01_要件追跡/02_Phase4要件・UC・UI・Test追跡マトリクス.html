@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 4要件・UC・UI・Test追跡マトリクス</title>
+  <style>
+    :root{color-scheme:light;--ink:#182230;--muted:#526174;--line:#cbd5e1;--panel:#f8fafc;--accent:#1d4ed8;--warn:#92400e;--danger:#991b1b}
+    *{box-sizing:border-box}body{margin:0;background:#eef2f7;color:var(--ink);font-family:system-ui,-apple-system,"Yu Gothic",Meiryo,sans-serif;line-height:1.6}
+    main{max-width:1420px;margin:0 auto;padding:30px 20px 60px}h1,h2,h3{line-height:1.3}h1{font-size:2rem;margin:0 0 8px}h2{margin-top:32px;border-left:6px solid var(--accent);padding-left:12px}h3{margin-top:24px}
+    .meta,.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:16px 0;box-shadow:0 2px 8px #0f172a0b}.status{display:inline-block;border-radius:999px;padding:2px 10px;background:#dbeafe;color:#1e3a8a;font-weight:700}.wait{background:#fef3c7;color:#92400e}.stop{background:#fee2e2;color:#991b1b}.tag{display:inline-block;margin:2px 4px 2px 0;padding:1px 7px;border:1px solid #bfdbfe;border-radius:999px;background:#eff6ff;color:#1e40af;font-size:.9em}
+    table{width:100%;border-collapse:collapse;margin:12px 0 20px;background:#fff;font-size:.92rem}th,td{border:1px solid var(--line);padding:8px 9px;vertical-align:top;text-align:left}th{background:#e8eef5}code,pre{font-family:ui-monospace,SFMono-Regular,Consolas,"ＭＳ ゴシック",monospace}code{overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow:auto;background:#0f172a;color:#e2e8f0;padding:14px;border-radius:8px;font-size:.82rem;line-height:1.45}
+    .ok{color:#065f46;font-weight:700}.caution{color:var(--warn);font-weight:700}.small{color:var(--muted);font-size:.92rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}.rule{border-left:4px solid #64748b;padding:10px 12px;background:#f8fafc}.finding{border-left:4px solid var(--accent);padding:10px 12px;background:var(--panel);margin:8px 0}.finding strong{display:block}a{color:#075985}
+    .wide{overflow-x:auto}.trace td:nth-child(1){white-space:nowrap}.trace td:nth-child(2){min-width:145px}.trace td:nth-child(3){min-width:210px}.trace td:nth-child(4){min-width:150px}.trace td:nth-child(5){min-width:170px}.trace td:nth-child(6){min-width:145px}.trace td:nth-child(7){min-width:200px}
+    @media print{body{background:#fff}main{max-width:none;padding:0}.meta,.panel,table{box-shadow:none}a{color:#000;text-decoration:underline}.wide{overflow:visible}}
+  </style>
+</head>
+<body>
+<main>
+  <header class="meta">
+    <h1>Phase 4要件・UC・UI・Test追跡マトリクス</h1>
+    <p><strong>文書ID:</strong> <code>P4-ART-02-TRACE-001</code>　<strong>Step:</strong> <code>P4-02</code>　<strong>Phase:</strong> <code>PHASE4_PRODUCT_APPLICATION_BACKTEST_2026_08_11</code></p>
+    <p><strong>計画:</strong> <code>P4-PLAN-001</code> / <a href="../../../plan/Phase4_実行計画書_v0.1_2026-08-11.md">Phase4実行計画書</a><br>
+    <strong>作成日:</strong> 2026-08-11　<strong>状態:</strong> <span class="status">P4-02_COMPLETE_WITH_P4_TRACE_SCOPE_FIXED</span><br>
+    <strong>実行部品:</strong> <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code>（<code>gpt-5.6-terra</code>）、<code>AutoTrade_A10_RequirementsCurator_v0_1</code>、<code>AutoTrade_A30_StrategyQaArchitect_v0_1</code>、<code>AutoTrade_A80_DocumentIntegrator_v0_1</code>、<code>AutoTrade_A81_DesignDocSetWriter_v0_1</code>、<code>AutoTrade_A90_DesignReviewer_v0_1</code></p>
+  </header>
+
+  <section class="panel">
+    <h2>1. 追跡の結論とGate境界</h2>
+    <p>P4-02では、P4の実装候補を <code>REQ → UC → SCREEN/VIEW → UISTATE → Test → Evidence → Gate</code> の順で固定した。TestとEvidenceの欄は、将来のP4-04以降で作成・実行する契約を示すものであり、P4-02で機械Passを作ったことを意味しない。</p>
+    <div class="grid">
+      <div class="rule"><strong>P4-H0</strong><br><span class="ok">APPROVED</span>。P4-01〜05の入力、追跡、設計、RED、レビューだけを許可。</div>
+      <div class="rule"><strong>P4-H1</strong><br><span class="caution">WAITING_FOR_USER_APPROVAL</span>。P4-06以降の実装、依存導入、対象Run、WSL品質Gateは未許可。</div>
+      <div class="rule"><strong>P4-H2</strong><br><span class="caution">WAITING_FOR_USER_APPROVAL</span>。統合品質の後続Gate。P4-02では扱わない。</div>
+    </div>
+    <p class="small">固定UIモックは要求・操作意味・状態語彙の参照であり、正式UI実装、外部接続、認証、実注文、実データのEvidenceではない。</p>
+  </section>
+
+  <section>
+    <h2>2. 入力と追跡規則</h2>
+    <table>
+      <thead><tr><th>入力</th><th>用途</th><th>SHA-256（P4-02再読時）</th></tr></thead>
+      <tbody>
+        <tr><td><a href="../../../doc/phase4/01_要件追跡/01_Phase4入力・Core再利用確認.html">P4-01確認書</a></td><td>入力優先順位、Core凍結、P4外、Human Gate</td><td><code>70a13f0223317b66222c242206780dd9ff90419ff72daa19130aea80637e7a36</code></td></tr>
+        <tr><td><a href="../../../plan/requirements_update/01_自動トレードシステム要件定義書_v2.md">正式要件v2 Markdown</a></td><td>F01〜F06のREQ、UC、Screen、UISTATE、Gate</td><td><code>b54382e42d1da3985b12a639cd1210075c5d7ff860b110772064b54816c6c921</code></td></tr>
+        <tr><td><a href="../../../plan/requirements_update/RQV2_要件UIテスト追跡マトリクス_2026-08-11.md">RQV2要件UIテスト追跡マトリクス</a></td><td>Q、旧UC別名、Screen、State、E2E候補</td><td><code>c45be95eb8057b3d38b2b46c0fe0be7f7dcc5f6c30a602945a560c2df612cd9b</code></td></tr>
+        <tr><td><a href="../../../doc/ui_mock/01_自動トレードシステム_UIモック.html">既存UIモック</a></td><td>固定匿名ダミーの画面・状態・操作意味</td><td><code>9d5a2bfe2e25b5e663fe710ce8d1f412d7816f0046cf98e3b81a40275d42f7e7</code></td></tr>
+        <tr><td><a href="../../../doc/00_全Phase残課題Blocked統合台帳.html">統合Blocked台帳</a></td><td>Human Gate、Unknown、Blockedの現在状態（再読時）</td><td><code>1d678f80b5b15e288b9ec0d0304548ab37ff74ab700ebb15c55109fa20ecef35</code></td></tr>
+        <tr><td><a href="../../../plan/Phase4_実行計画書_v0.1_2026-08-11.md">P4実行計画書</a></td><td>Step、停止条件、成果物配置</td><td><code>5af41f09389c9ce79b6b5db9f593668a4007d43ffd3d04595b484bac61466002</code></td></tr>
+      </tbody>
+    </table>
+    <p class="small">正本IDは正式要件v2の <code>REQ-V2-*</code>、<code>UC-V2-*</code>、<code>SCREEN-*</code>、<code>UISTATE-*</code> を使う。RQV2 Matrixの <code>ADD-UC-*</code> は旧別名として併記し、意味を変更しない。</p>
+  </section>
+
+  <section>
+    <h2>3. P4実装対象の詳細追跡</h2>
+    <p>この表はP4-03の詳細設計、P4-04のRED、P4-06〜08の対象範囲を固定する。Evidence IDは設計上の保管先を示す仮IDであり、P4-H1承認前にRunや実装を開始しない。</p>
+    <div class="wide">
+    <table class="trace">
+      <thead><tr><th>Trace ID</th><th>REQ／根拠Q</th><th>P4で固定する能力・受入観点</th><th>UC</th><th>Screen／UISTATE</th><th>Test候補</th><th>Evidence／Gate責任</th></tr></thead>
+      <tbody>
+        <tr><td><code>P4-TR-001</code></td><td><code>REQ-V2-0015/0020/0021/0044</code><br>Q-30/31/32/114/149/262</td><td>型付きData／Strategy／Config／Risk参照を入力し、必須・型・版・Manifest・Riskの基本検査を完了するまで開始しない。</td><td>UC-V2-024/025<br><small>ADD-UC-030/031</small></td><td>SCREEN-08<br><code>REQUIRED</code> <code>WARNING</code> <code>FAILED</code> <code>UNAPPROVED</code></td><td>E2E-UI-030/031<br>TEST-P4-PREFLIGHT</td><td><code>P4-EV-INPUT-PREFLIGHT</code><br>P4-04 RED → P4-H1後実装。実Risk値は別Gate。</td></tr>
+        <tr><td><code>P4-TR-002</code></td><td><code>REQ-V2-0036/0037</code><br>Q-87/89/90/149/281</td><td>Instrument×Timeframe×Strategy Version×ModeのUnit ID、設定版、開始・停止、重複拒否を保存し、稼働中の直接変更を拒否する。</td><td>UC-V2-006/020/021<br><small>ADD-UC-006/025/026</small></td><td>SCREEN-02/03/04<br><code>NORMAL</code> <code>REQUIRED</code> <code>WARNING</code> <code>STOPPED</code> <code>UNAPPROVED</code></td><td>E2E-UI-006/025/026<br>TEST-P4-UNIT-KEY</td><td><code>P4-EV-UNIT-AUDIT</code><br>Unitの型と監査をP4で設計。Risk政策値・実Modeは後続Gate。</td></tr>
+        <tr><td><code>P4-TR-003</code></td><td><code>REQ-V2-0038/0040/0048</code><br>Q-102/103/104/157/244/282</td><td>Resource State、優先度、Queue位置、待機理由、開始拒否、実時間優先を表示し、網羅検証の件数・予想時間・容量を開始前確認する。</td><td>UC-V2-021/026/027<br><small>ADD-UC-026/032/033</small></td><td>SCREEN-02/03/08/09<br><code>LOADING</code> <code>WARNING</code> <code>STOPPED</code> <code>REQUIRED</code></td><td>E2E-UI-032/033<br>TEST-P4-QUEUE-RESOURCE</td><td><code>P4-EV-QUEUE-DECISION</code><br>性能実測・3〜5／20〜40単位の合否は後続Gate。</td></tr>
+        <tr><td><code>P4-TR-004</code></td><td><code>REQ-V2-0039/0045</code><br>Q-34/35/186/221/222</td><td>Run、Job、Queueを分離し、状態遷移、進捗、部分結果、停止理由、操作、Evidenceを親子関係で保存する。</td><td>UC-V2-024〜029<br><small>ADD-UC-030〜035</small></td><td>SCREEN-08/09/10/17<br><code>LOADING</code> <code>NORMAL</code> <code>STOPPED</code> <code>FAILED</code> <code>RECOVERY</code></td><td>E2E-UI-030〜035<br>TEST-P4-RUN-JOB</td><td><code>P4-EV-RUN-JOB-STATE</code><br>固定Core契約は参照し、Worker/UI実装はP4-H1後。</td></tr>
+        <tr><td><code>P4-TR-005</code></td><td><code>REQ-V2-0041</code><br>Q-114/122/133/163/222/239</td><td>一時失敗の最大3回再試行と、入力不正・Manifest不一致・副作用不明の即時停止を区別する。</td><td>UC-V2-025/028/054<br><small>ADD-UC-031/034/071</small></td><td>SCREEN-09/17<br><code>FAILED</code> <code>STOPPED</code> <code>RECOVERY</code></td><td>TEST-P4-RETRY-BOUND<br>TEST-P4-FAIL-CLOSED</td><td><code>P4-EV-FAILURE-CATALOG</code><br>外部副作用はP4対象外。再試行契約のみ設計。</td></tr>
+        <tr><td><code>P4-TR-006</code></td><td><code>REQ-V2-0042/0050</code><br>Q-109/112/221/222/260</td><td>処理済み範囲、次位置、Manifest、途中結果をCheckpointへ保存し、取消・停止・個別失敗・全体失敗・再開を別状態にする。</td><td>UC-V2-028/029/035<br><small>ADD-UC-034/035/041</small></td><td>SCREEN-09/10/12/17<br><code>STOPPED</code> <code>FAILED</code> <code>RECOVERY</code> <code>UNAPPROVED</code></td><td>E2E-UI-034/035/041<br>TEST-P4-CHECKPOINT</td><td><code>P4-EV-CHECKPOINT-RECOVERY</code><br>固定Core snapshot／restoreとP4 Worker設計を分離。</td></tr>
+        <tr><td><code>P4-TR-007</code></td><td><code>REQ-V2-0043/0051</code><br>Q-37/43/115/147/250/287</td><td>同条件の再Runを新IDで保存し、最新表示だけを更新する。過去の設定版、Run、ログ、結果、Evidenceを上書きしない。</td><td>UC-V2-032/034/061<br><small>ADD-UC-038/040/080</small></td><td>SCREEN-10/12/19、VIEW-03<br><code>NORMAL</code> <code>EMPTY</code> <code>UNAPPROVED</code></td><td>E2E-UI-038/040/080<br>TEST-P4-RUN-HISTORY</td><td><code>P4-EV-RUN-HISTORY</code><br>最新ポインタと内部履歴の保存責任を分ける。</td></tr>
+        <tr><td><code>P4-TR-008</code></td><td><code>REQ-V2-0044</code><br>Q-31/32/33/114/149/262/263</td><td>単一Backtestの銘柄、期間、時間足、Strategy／Config Version、Data Manifest、初期資金、費用、滑り、Gap、Roll、Calendar、Holdoutを一意に固定する。</td><td>UC-V2-024/025<br><small>ADD-UC-030/031</small></td><td>SCREEN-08<br><code>NORMAL</code> <code>REQUIRED</code> <code>WARNING</code> <code>FAILED</code></td><td>TEST-P4-TYPED-CONFIG<br>TEST-P4-MANIFEST</td><td><code>P4-EV-BACKTEST-INPUT</code><br>実市場Data・実測Cost・正式CalendarはP5以降。</td></tr>
+        <tr><td><code>P4-TR-009</code></td><td><code>REQ-V2-0045</code><br>Q-34/35/104/109</td><td>開始前確認、Queued、Running、Cancel、Stop、Fail、再Run、Completeを画面と機械記録で区別する。</td><td>UC-V2-026〜029<br><small>ADD-UC-032〜035</small></td><td>SCREEN-09/17<br><code>LOADING</code> <code>STOPPED</code> <code>FAILED</code> <code>RECOVERY</code></td><td>E2E-UI-032〜035<br>TEST-P4-CANCEL-STOP</td><td><code>P4-EV-CANCEL-STOP</code><br>取消と停止の意味、次操作、保存先を固定。</td></tr>
+        <tr><td><code>P4-TR-010</code></td><td><code>REQ-V2-0046</code><br>Q-38/41/42/73/74/82</td><td>総損益、最大の落ち込み、取引回数、勝率、総残高を単位・期間・丸めとともに示し、Chart・取引・Signal・設定・Data・Evidenceへ戻れるようにする。</td><td>UC-V2-030/034/035<br><small>ADD-UC-036/040/041</small></td><td>SCREEN-10/11/12<br><code>NORMAL</code> <code>EMPTY</code> <code>UNAPPROVED</code> <code>FAILED</code></td><td>E2E-UI-036/040/041<br>TEST-P4-FIVE-METRICS</td><td><code>P4-EV-RESULT-DETAIL</code><br>利益性・自動採用は要求しない。</td></tr>
+        <tr><td><code>P4-TR-011</code></td><td><code>REQ-V2-0047</code><br>Q-103/105〜108/260</td><td>Sweepの固定値・下限・上限・Step・型・小数・丸め・適用条件、上限包含、重複除去、無効組合せ理由を固定する。</td><td>UC-V2-024/025/033<br><small>ADD-UC-030/031/039</small></td><td>SCREEN-08/09/10<br><code>REQUIRED</code> <code>LOADING</code> <code>FAILED</code> <code>UNAPPROVED</code></td><td>E2E-UI-030/039<br>TEST-P4-SWEEP-EXPANSION</td><td><code>P4-EV-SWEEP-SCHEMA</code><br>別Run／Job／Resultの型として設計。</td></tr>
+        <tr><td><code>P4-TR-012</code></td><td><code>REQ-V2-0048</code><br>Q-102〜104/157/244/282</td><td>Sweepの全件数、実行可能件数、無効件数、予想時間・容量、Resource State、Queue状態を表示し、明示確認なしに開始しない。</td><td>UC-V2-027<br><small>ADD-UC-033</small></td><td>SCREEN-02/09<br><code>LOADING</code> <code>WARNING</code> <code>STOPPED</code></td><td>E2E-UI-033<br>TEST-P4-SWEEP-PREFLIGHT</td><td><code>P4-EV-SWEEP-PREFLIGHT</code><br>予想値は保証値でなく、未測定性能をPassにしない。</td></tr>
+        <tr><td><code>P4-TR-013</code></td><td><code>REQ-V2-0049</code><br>Q-38/40/42/73/80</td><td>全組合せを一行単位で保存し、5指標、設定値、状態、Run／Job／Manifest／Evidenceを結び、Sort／Filter／Detailへ遷移できるようにする。</td><td>UC-V2-030〜034/061<br><small>ADD-UC-036〜040/080</small></td><td>SCREEN-10/11/12/19<br><code>NORMAL</code> <code>EMPTY</code> <code>LOADING</code> <code>FAILED</code></td><td>E2E-UI-036〜040/080<br>TEST-P4-SWEEP-RESULT</td><td><code>P4-EV-SWEEP-ROWS</code><br>大量表の実性能は後続測定。</td></tr>
+        <tr><td><code>P4-TR-014</code></td><td><code>REQ-V2-0050</code><br>Q-109/112/114/221/222</td><td>Sweepの個別失敗継続、全体停止、取消、未実行、要確認、Checkpoint再開、失敗行のみの再Jobを分ける。</td><td>UC-V2-028/029/035<br><small>ADD-UC-034/035/041</small></td><td>SCREEN-09/10/17<br><code>STOPPED</code> <code>FAILED</code> <code>RECOVERY</code> <code>WARNING</code></td><td>E2E-UI-034/035<br>TEST-P4-SWEEP-PARTIAL-FAIL</td><td><code>P4-EV-SWEEP-RECOVERY</code><br>失敗行を削除して完了扱いにしない。</td></tr>
+        <tr><td><code>P4-TR-015</code></td><td><code>REQ-V2-0052</code><br>Q-40/80/115/250</td><td>比較時にData、期間、Timeframe、Instrument、Strategy／Config Version、費用、Calendar、Modeの一致・差分を示す。</td><td>UC-V2-031/032/035<br><small>ADD-UC-037/038/041</small></td><td>SCREEN-10/12/19、VIEW-03<br><code>NORMAL</code> <code>EMPTY</code> <code>UNAPPROVED</code></td><td>E2E-UI-037/038/041<br>TEST-P4-COMPARE</td><td><code>P4-EV-COMPARE-CONDITION</code><br>比較不能Runを同じ順位へ流用しない。</td></tr>
+        <tr><td><code>P4-TR-016</code></td><td><code>REQ-V2-0053/0090</code><br>Q-44/73/147/152/238</td><td>全件CSVを非同期Jobとして実行し、進捗、取消、失敗、出力hash、再生成を記録する。</td><td>UC-V2-031/034/065<br><small>ADD-UC-037/040/084</small></td><td>SCREEN-10/12/19、VIEW-03<br><code>LOADING</code> <code>FAILED</code> <code>NORMAL</code></td><td>E2E-UI-040/084<br>TEST-P4-CSV-JOB</td><td><code>P4-EV-CSV-JOB</code><br>ファイル出力の原子性・Job境界をP4-03へ接続。</td></tr>
+        <tr><td><code>P4-TR-017</code></td><td><code>REQ-V2-0054</code><br>Q-115/117/262</td><td>学習・調整・Holdout・Walk-forwardの期間、窓、境界、TZ、Data／Manifest、Config Versionを保存し、重複・隙間・未来参照を拒否する。</td><td>UC-V2-033/035<br><small>ADD-UC-039/041</small></td><td>SCREEN-08/09/10/12/19<br><code>REQUIRED</code> <code>FAILED</code> <code>UNAPPROVED</code> <code>RECOVERY</code></td><td>E2E-UI-039/041<br>TEST-P4-HOLDOUT-BOUNDARY</td><td><code>P4-EV-HOLDOUT-BOUNDARY</code><br>長期実Data・最低期間の具体値は後続Gate。</td></tr>
+        <tr><td><code>P4-TR-018</code></td><td><code>REQ-V2-0055</code><br>Q-117/237〜240</td><td>Holdout結果を自動最良選択・設定調整へ直接再利用せず、再利用要求は理由・対象・判断・新Run・Gateを保存する。</td><td>UC-V2-032/033<br><small>ADD-UC-038/039</small></td><td>SCREEN-10/12/18/19<br><code>UNAPPROVED</code> <code>HUMAN-GATE</code> <code>WARNING</code></td><td>E2E-UI-038/039<br>TEST-P4-HOLDOUT-REUSE</td><td><code>GATE-V2-HOLDOUT</code><br><code>P4-EV-HOLDOUT-GATE</code>。自動採用なし。</td></tr>
+        <tr><td><code>P4-TR-019</code></td><td><code>REQ-V2-0015/0084</code><br>Q-69/78/298/299/339〜347</td><td>起動後に現在状態・禁止事項・未承認を示し、Backtest製品の主要操作と危険状態の意味を統一する。</td><td>UC-V2-001/024〜035<br><small>ADD-UC-001/030〜041</small></td><td>SCREEN-01/02/08/09/10/12/17/18/19<br><code>UISTATE-NORMAL</code> <code>UISTATE-LOADING</code> <code>UISTATE-EMPTY</code> <code>UISTATE-REQUIRED</code> <code>UISTATE-WARNING</code> <code>UISTATE-STOPPED</code> <code>UISTATE-FAILED</code> <code>UISTATE-RECOVERY</code> <code>UISTATE-HUMAN-GATE</code> <code>UISTATE-UNAPPROVED</code></td><td>E2E-UI-001/030〜041<br>TEST-P4-UI-MAIN-STATES</td><td><code>P4-EV-UI-STATE-CONTRACT</code><br>固定モックは参照のみ。正式UIはP4-H1後。</td></tr>
+        <tr><td><code>P4-TR-020</code></td><td><code>REQ-V2-0085/0086/0102</code><br>Q-348〜353/505〜513</td><td>主要画面のScreen・UC・State・E2E・Mockを双方向に辿り、NORMAL/LOADING/EMPTY/REQUIRED/WARNING/STOPPED/FAILED/RECOVERY/HUMAN-GATE/UNAPPROVEDを別IDで扱う。</td><td>UC-V2-024〜035/061〜067<br><small>ADD-UC-030〜041/080〜086</small></td><td>SCREEN-08/09/10/11/12/19<br>UISTATE全10種</td><td>TEST-P4-210-CELL-SUBSET<br>E2E-UI-030〜041/080〜086</td><td><code>P4-EV-UI-TRACE</code><br>RQV2-03既存固定証跡と新UI実装を混同しない。</td></tr>
+        <tr><td><code>P4-TR-021</code></td><td><code>REQ-V2-0016/0018/0019/0101</code><br>Q-490〜504</td><td>開始から停止・復旧までのE2E、全67 UCの収容、異常・停止・復旧、Critical／High停止、Unknown非Passを品質規則へ接続する。</td><td>UC-V2-001〜067<br>※P4対象Subsetを別表で指定</td><td>対象Screen／State全体<br>未確認はUnknown</td><td>TEST-P4-TRACE-CONSISTENCY<br>TEST-P4-GATE</td><td><code>P4-EV-TRACE-REVIEW</code><br>P4-H1前は設計Gate、P4-H2前は統合品質Gate。</td></tr>
+        <tr><td><code>P4-TR-022</code></td><td><code>REQ-V2-0098/0100/0102</code><br>Q-457〜466/505〜513</td><td>不明状態・保存不一致・Manifest mismatch・Look-ahead・理由不明をFail-closedとし、Error／Message／停止理由を同じIDで説明する。</td><td>UC-V2-025/028/029/035<br><small>ADD-UC-031/034/035/041</small></td><td>SCREEN-09/10/17/19<br><code>FAILED</code> <code>STOPPED</code> <code>RECOVERY</code></td><td>TEST-P4-FAIL-CLOSED<br>TEST-P4-MESSAGE-ID</td><td><code>P4-EV-FAIL-CLOSED</code><br>外部副作用なしでも停止契約を検証対象にする。</td></tr>
+        <tr><td><code>P4-TR-023</code></td><td><code>REQ-V2-0105</code><br>Q-243/304/305/532〜540</td><td>Unknown、Blocked、後続Gate、未承認を台帳・要件・UI・Testから追跡し、実市場Data、実Risk値、Broker、Secret、Paper／LiveをPassへ変換しない。</td><td>UC-V2-036〜068のGate関連<br><small>ADD-UC-050〜086</small></td><td>SCREEN-18/19/20<br><code>HUMAN-GATE</code> <code>UNAPPROVED</code> <code>STOPPED</code></td><td>TEST-P4-UNKNOWN-GATE<br>TEST-P4-SCOPE</td><td><a href="../../../doc/00_全Phase残課題Blocked統合台帳.html">統合台帳</a>が正本。P4-H1/H2待ち。</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>4. REQ-V2-0015〜0055の全件収容</h2>
+    <p>F01〜F03の要求範囲を一行ずつ点検した。P4の実装対象、設計上の横断参照、P4外の後続Gateを分け、要求を未追跡のまま残していない。</p>
+    <div class="wide">
+    <table>
+      <thead><tr><th>REQ</th><th>要約</th><th>P4判定</th><th>P4 Trace／扱い</th></tr></thead>
+      <tbody>
+        <tr><td><code>REQ-V2-0015</code></td><td>起動直後に現在状態と禁止事項を表示</td><td>対象</td><td>P4-TR-001/P4-TR-019</td></tr>
+        <tr><td><code>REQ-V2-0016</code></td><td>E2Eシナリオを開始から復旧まで保存</td><td>対象</td><td>P4-TR-021</td></tr>
+        <tr><td><code>REQ-V2-0017</code></td><td>境界図と文章の意味を一致</td><td>横断参照</td><td>P4-TR-021。P4-03の構造図・依存方向で確認。</td></tr>
+        <tr><td><code>REQ-V2-0018</code></td><td>67 UCを一意に収容</td><td>対象</td><td>P4-TR-021。P4対象Subsetと非対象を別管理。</td></tr>
+        <tr><td><code>REQ-V2-0019</code></td><td>UCの異常・停止・復旧を必須化</td><td>対象</td><td>P4-TR-006/P4-TR-009/P4-TR-014/P4-TR-021</td></tr>
+        <tr><td><code>REQ-V2-0020</code></td><td>起動前検査未完了なら開始しない</td><td>対象</td><td>P4-TR-001/P4-TR-008</td></tr>
+        <tr><td><code>REQ-V2-0021</code></td><td>初期設定を未入力・後続Gateと区別</td><td>対象</td><td>P4-TR-001/P4-TR-019</td></tr>
+        <tr><td><code>REQ-V2-0022</code></td><td>正常終了と強制終了を分離</td><td>対象</td><td>P4-TR-009/P4-TR-014</td></tr>
+        <tr><td><code>REQ-V2-0023</code></td><td>再起動後Live自動承認をOFF</td><td>後続Gate</td><td>P4-TR-023でUNAPPROVED境界だけ追跡。Live実装はP4外。</td></tr>
+        <tr><td><code>REQ-V2-0024</code></td><td>横断操作の意味を統一</td><td>対象</td><td>P4-TR-009/P4-TR-019/P4-TR-020</td></tr>
+        <tr><td><code>REQ-V2-0025</code></td><td>4資産種類の構造対応と実証状態を分離</td><td>固定local参照対象</td><td>P4-TR-001。実Symbol・Provider・実市場DataはP4外。</td></tr>
+        <tr><td><code>REQ-V2-0026</code></td><td>初期5候補を論理名として管理</td><td>固定local参照対象</td><td>P4-TR-001。候補名と実Symbolを分離。</td></tr>
+        <tr><td><code>REQ-V2-0027</code></td><td>5時間足の生成・確定・判断時刻を固定</td><td>固定Core参照対象</td><td>P4-TR-001。固定契約と正式Calendarを分離。</td></tr>
+        <tr><td><code>REQ-V2-0028</code></td><td>欠損・休日・短縮日・DST・遅延を別判定</td><td>固定Core参照対象</td><td>P4-TR-001/P4-TR-022。実市場Calendarは後続。</td></tr>
+        <tr><td><code>REQ-V2-0029</code></td><td>Raw／Normalized／Qualityを分離保存</td><td>固定local参照対象</td><td>P4-TR-001/P4-TR-008。保存schemaはP4-03で詳細化。</td></tr>
+        <tr><td><code>REQ-V2-0030</code></td><td>Catalog／Calendar／Roll／ManifestをRunへ固定</td><td>対象</td><td>P4-TR-008。Manifest mismatchはP4-TR-022で停止。</td></tr>
+        <tr><td><code>REQ-V2-0031</code></td><td>外部取得と保存済み取込を分ける</td><td>P4外境界を含む</td><td>P4-TR-001。保存済みfixtureのみ。外部取得は発火しない。</td></tr>
+        <tr><td><code>REQ-V2-0032</code></td><td>品質不良で影響範囲を停止</td><td>対象</td><td>P4-TR-001/P4-TR-022。理由付き停止を保存。</td></tr>
+        <tr><td><code>REQ-V2-0033</code></td><td>Strategy Pluginを4モード共通にする</td><td>固定Core参照対象</td><td>P4-TR-001。P4実行ModeはBacktestのみ。</td></tr>
+        <tr><td><code>REQ-V2-0034</code></td><td>Turtle固有ルールをGeneric Interfaceから隔離</td><td>固定Core参照対象</td><td>P4-TR-001。Turtle規則とCore fixtureは凍結。</td></tr>
+        <tr><td><code>REQ-V2-0035</code></td><td>Strategyと時間足・設定版を固定</td><td>対象</td><td>P4-TR-001/P4-TR-002。版変更は新Unit。</td></tr>
+        <tr><td><code>REQ-V2-0036</code></td><td>運用単位キーと重複</td><td>対象</td><td>P4-TR-002</td></tr>
+        <tr><td><code>REQ-V2-0037</code></td><td>Unit変更を新版・新実行単位へ分離</td><td>対象</td><td>P4-TR-002/P4-TR-007</td></tr>
+        <tr><td><code>REQ-V2-0038</code></td><td>同時実行を資源状態で制御</td><td>対象（性能は後続）</td><td>P4-TR-003。実測性能は未Pass。</td></tr>
+        <tr><td><code>REQ-V2-0039</code></td><td>RunとJobを分離</td><td>対象</td><td>P4-TR-004</td></tr>
+        <tr><td><code>REQ-V2-0040</code></td><td>Queue優先度・待機理由を表示</td><td>対象（性能は後続）</td><td>P4-TR-003/P4-TR-004</td></tr>
+        <tr><td><code>REQ-V2-0041</code></td><td>上限付き再試行と停止</td><td>対象</td><td>P4-TR-005/P4-TR-022</td></tr>
+        <tr><td><code>REQ-V2-0042</code></td><td>Checkpointと再開位置</td><td>対象</td><td>P4-TR-006</td></tr>
+        <tr><td><code>REQ-V2-0043</code></td><td>同条件再実行と最新表示を分離</td><td>対象</td><td>P4-TR-007</td></tr>
+        <tr><td><code>REQ-V2-0044</code></td><td>単一Backtest入力を一意に固定</td><td>対象</td><td>P4-TR-008</td></tr>
+        <tr><td><code>REQ-V2-0045</code></td><td>単一Backtestの開始・進捗・停止</td><td>対象</td><td>P4-TR-009</td></tr>
+        <tr><td><code>REQ-V2-0046</code></td><td>単一Backtestの5指標と根拠</td><td>対象</td><td>P4-TR-010</td></tr>
+        <tr><td><code>REQ-V2-0047</code></td><td>Sweep範囲・型・上限包含</td><td>対象</td><td>P4-TR-011</td></tr>
+        <tr><td><code>REQ-V2-0048</code></td><td>Sweep開始前の件数・負荷確認</td><td>対象（性能は後続）</td><td>P4-TR-012</td></tr>
+        <tr><td><code>REQ-V2-0049</code></td><td>Sweep結果を全組合せ単位で保存</td><td>対象</td><td>P4-TR-013</td></tr>
+        <tr><td><code>REQ-V2-0050</code></td><td>Sweepの取消・失敗・再開を分離</td><td>対象</td><td>P4-TR-014</td></tr>
+        <tr><td><code>REQ-V2-0051</code></td><td>同条件Runの最新表示と内部履歴</td><td>対象</td><td>P4-TR-007</td></tr>
+        <tr><td><code>REQ-V2-0052</code></td><td>比較可能条件を明示</td><td>対象</td><td>P4-TR-015</td></tr>
+        <tr><td><code>REQ-V2-0053</code></td><td>大量表・全件CSVを非同期化</td><td>対象（性能は後続）</td><td>P4-TR-016</td></tr>
+        <tr><td><code>REQ-V2-0054</code></td><td>Holdout／Walk-forward境界を保存</td><td>対象（長期Dataは後続）</td><td>P4-TR-017</td></tr>
+        <tr><td><code>REQ-V2-0055</code></td><td>Holdout結果の再利用を制限</td><td>対象・Gate必須</td><td>P4-TR-018</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>5. F05該当要求と固定ダミーUI主要状態</h2>
+    <table>
+      <thead><tr><th>REQ</th><th>P4での扱い</th><th>対象Screen／State</th><th>Test／Evidence</th><th>非対象・後続条件</th></tr></thead>
+      <tbody>
+        <tr><td><code>REQ-V2-0084</code> UI情報設計</td><td>Backtest主要画面の目的、危険状態、未承認、停止、Evidence導線を統一。</td><td>SCREEN-01/02/08〜12/17〜19、UISTATE全10種</td><td>TEST-P4-UI-MAIN-STATES<br><code>P4-EV-UI-STATE-CONTRACT</code></td><td>正式UI実装・実端末はP4-H1/H2後。</td></tr>
+        <tr><td><code>REQ-V2-0085</code> 21画面追跡</td><td>既存21画面のうちP4対象Subsetを行単位で参照し、他画面は後続Mode/Risk境界へ送る。</td><td>SCREEN-08/09/10/11/12/19中心</td><td>TEST-P4-TRACE-CONSISTENCY<br><code>P4-EV-UI-TRACE</code></td><td>モックの固定表示は正式UI合格ではない。</td></tr>
+        <tr><td><code>REQ-V2-0086</code> 21×10状態契約</td><td>状態IDを表示ラベルから分離し、主要P4画面で許可・禁止操作・出口・Evidenceを定義。</td><td><code>UISTATE-NORMAL</code>、<code>LOADING</code>、<code>EMPTY</code>、<code>REQUIRED</code>、<code>WARNING</code>、<code>STOPPED</code>、<code>FAILED</code>、<code>RECOVERY</code>、<code>HUMAN-GATE</code>、<code>UNAPPROVED</code></td><td>TEST-P4-STATE-CONTRACT<br><code>P4-EV-UI-TRACE</code></td><td>未確認セルはUnknown。色だけの表示は禁止。</td></tr>
+        <tr><td><code>REQ-V2-0090</code> 大量表・CSV</td><td>REQ-V2-0053とP4-TR-016へ統合。</td><td>SCREEN-10/12/19</td><td>TEST-P4-CSV-JOB</td><td>実性能・長時間容量は後続測定。</td></tr>
+        <tr><td><code>REQ-V2-0098</code> 不明状態Fail-closed</td><td>Manifest mismatch、保存不一致、状態不明で新規処理を止める。</td><td>SCREEN-09/17/19、FAILED/STOPPED/RECOVERY</td><td>TEST-P4-FAIL-CLOSED</td><td>外部Order停止は設計境界だけ。実BrokerはP4外。</td></tr>
+        <tr><td><code>REQ-V2-0100</code> Error・停止理由ID</td><td>Test・UI・Run記録の停止Reasonを同じIDで追跡。</td><td>SCREEN-09/10/17、FAILED/STOPPED</td><td>TEST-P4-MESSAGE-ID</td><td>外部通知・運用監視の実接続は後続。</td></tr>
+        <tr><td><code>REQ-V2-0101</code> 品質Gate分離</td><td>Critical／High、Unknown、Human Gate、Coverage目安を機械判定から分離。</td><td>全P4対象Screen／State</td><td>TEST-P4-GATE、P4-04/P4-05レビュー</td><td>P4-H1/H2は承認前のまま。</td></tr>
+        <tr><td><code>REQ-V2-0102</code> UIモック双方向リンク</td><td>SCREEN、REQ、UC、UISTATE、E2E、Mockを往復できる契約として記録。</td><td>SCREEN-08〜12/19、VIEW-03</td><td>TEST-P4-UI-TRACE<br>既存RQV2-03を参照</td><td>既存モックを実装・接続・認証の証拠へ拡張しない。</td></tr>
+        <tr><td><code>REQ-V2-0105</code> Unknown／Gate非Pass</td><td>Q-243、RQV2-BLK-001、実Data／Risk／Externalを台帳へ接続。</td><td>SCREEN-18/19/20、HUMAN-GATE/UNAPPROVED</td><td>TEST-P4-UNKNOWN-GATE<br>統合台帳</td><td>未承認項目をP4完了・品質Passへ変換しない。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>6. P4外・後続Gateの固定</h2>
+    <table>
+      <thead><tr><th>要求群</th><th>P4-02での扱い</th><th>表示・追跡</th><th>送り先・停止条件</th></tr></thead>
+      <tbody>
+        <tr><td><code>REQ-V2-0056〜0065</code><br>Mode昇格、Paper、Live、Auto-approval</td><td>BacktestのみをP4対象とし、Mode間の副作用境界と未承認状態だけを追跡。</td><td>SCREEN-13/14/18、<code>HUMAN-GATE</code>/<code>UNAPPROVED</code></td><td>P7以降。Paper／Live実接続、実注文、実資金を発見したら停止。</td></tr>
+        <tr><td><code>REQ-V2-0066〜0073</code><br>Account、Risk、OMS、Order</td><td>Risk参照の型・未入力拒否・監査だけをP4-TR-001へ接続。実値・数量・証拠金・注文は含めない。</td><td>SCREEN-15/16/17、<code>REQUIRED</code>/<code>UNAPPROVED</code>/<code>STOPPED</code></td><td>P6以降。実Risk値やOrderを仮定した時点で停止。</td></tr>
+        <tr><td><code>REQ-V2-0074/0075</code><br>Broker Adapter・照合</td><td>Core／外部Adapterの境界を説明するだけで、Provider／Brokerを接続しない。</td><td>SCREEN-01/14/20、<code>UNAPPROVED</code>/<code>FAILED</code></td><td>P7以降。Secret、Account、外部I/OはP4外。</td></tr>
+        <tr><td><code>REQ-V2-0091〜0097</code><br>Adapter/API、Secret、性能</td><td>候補と差替え条件、Fail-closed、測定項目をP4-03/P4-04へ渡す。依存導入・外部接続・実性能Passはしない。</td><td>対象範囲の設計Evidenceのみ</td><td>性能・容量・Network・Secretは後続Gate。未測定はUnknown。</td></tr>
+        <tr><td><code>REQ-V2-0103/0104</code><br>法務・費用・将来拡張</td><td>利用可能性、契約、Cloud、複数AccountをP4要件へ混ぜない。</td><td><code>OUT_OF_SCOPE</code>/<code>UNAPPROVED</code></td><td>別Phase・別承認。推測で埋めない。</td></tr>
+        <tr><td><code>UNK-P3-01/05/07</code>、Q-243、<code>RQV2-BLK-001</code></td><td>固定Core・固定UI・設計追跡の完了を、実Data・実測Cost・正式Calendar・Phase1証跡の機械Passに拡張しない。</td><td>統合台帳、P4-01、P4-TR-023</td><td>各台帳行の期限・開始条件・必要Evidenceが揃うまで後続Gate待ち。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>7. Findings firstレビュー</h2>
+    <p>指定されたA90の観点で、要約より先に孤立・過大解釈・Unknown・Gateを検査した。P4-02で解消すべきCritical／Highは0件とした。</p>
+    <div class="finding"><strong><span class="ok">P4-02-R-001　REQ／UC／Screen／State／Testの孤立 0</span></strong>必須能力はP4-TR-001〜023へ収容し、REQ-V2-0015〜0055は全件収容表で対象・横断・後続を明記した。</div>
+    <div class="finding"><strong><span class="ok">P4-02-R-002　UIモックの過大解釈 0</span></strong>既存モックは固定匿名ダミーの参照とし、正式UI、実端末、外部接続、認証、注文の証拠へ変換していない。</div>
+    <div class="finding"><strong><span class="ok">P4-02-R-003　Unknown／Gateの誤閉鎖 0</span></strong>Q-243、UNK-P3-01/05/07、RQV2-BLK-001、P4-H1/H2を未解消・後続のまま台帳へ接続した。</div>
+    <div class="finding"><strong><span class="ok">P4-02-R-004　外部副作用・実Data 0</span></strong>Broker、Secret、Paper、Live、実資金、実市場Data、実Risk値、依存取得、実行Runは発火していない。</div>
+  </section>
+
+  <section class="panel">
+    <h2>8. P4-02判定と次Step</h2>
+    <p><strong class="ok">判定: P4-02_COMPLETE_WITH_P4_TRACE_SCOPE_FIXED</strong></p>
+    <ul>
+      <li>型付き設定、Preflight、Run／Job／Queue、単一Backtest、Sweep、5指標、Chart／取引明細、CSV Job、同条件Run履歴、Holdout境界、取消／停止／Checkpoint／復旧を行単位で追跡した。</li>
+      <li>REQ-V2-0015〜0055の全件、F05のP4該当要求、固定UI主要状態、P4外のBroker／Secret／Paper／Live／実市場Data／実Risk値を分離した。</li>
+      <li>Test／Evidenceは設計契約として記録し、P4-H1承認前の実装・Run・依存取得を行っていない。</li>
+      <li>P4-01のCore凍結・既存Evidence・統合台帳を入力として維持し、Critical／Highは0件。</li>
+    </ul>
+    <p>次はP4-03「Product/Application・Backtest実装詳細設計」。P4-H0は継続して有効だが、P4-H1承認までは実装・依存導入・実行Runへ進まない。</p>
+  </section>
+
+  <section>
+    <h2>9. 参照・成果物</h2>
+    <ul>
+      <li><a href="../../../plan/phase4/ログ/P4-02_追跡範囲確定_2026-08-11.md">P4-02実行ログ</a></li>
+      <li><a href="../../../doc/phase4/01_要件追跡/01_Phase4入力・Core再利用確認.html">P4-01入力・Core再利用確認</a></li>
+      <li><a href="../../../plan/requirements_update/01_自動トレードシステム要件定義書_v2.md">正式要件v2 Markdown</a></li>
+      <li><a href="../../../plan/requirements_update/RQV2_要件UIテスト追跡マトリクス_2026-08-11.md">RQV2要件UIテスト追跡マトリクス</a></li>
+      <li><a href="../../../doc/00_全Phase残課題Blocked統合台帳.html#phase4-plan-current-20260811">統合台帳 Phase 4現在状態</a></li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

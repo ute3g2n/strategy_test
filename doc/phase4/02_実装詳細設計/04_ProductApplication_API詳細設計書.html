@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P4-ART-04 Product/Application API詳細設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; background: #f3f4f6; color: #111827; font-family: "Yu Gothic UI", "Meiryo", sans-serif; line-height: 1.65; }
+    main { max-width: 1560px; margin: 0 auto; padding: 28px; background: #fff; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { margin-top: 34px; border-bottom: 1px solid #d1d5db; padding-bottom: 4px; }
+    h3 { margin-top: 25px; color: #1f2937; }
+    h4 { margin-top: 18px; color: #374151; }
+    a { color: #1d4ed8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; }
+    th, td { border: 1px solid #cbd5e1; padding: 7px 9px; vertical-align: top; text-align: left; }
+    th { background: #e5e7eb; }
+    code, pre { font-family: Consolas, "ＭＳ ゴシック", monospace; }
+    code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; }
+    pre { overflow-x: auto; padding: 14px; background: #111827; color: #f9fafb; border-radius: 5px; }
+    .mermaid { background: #fff; color: #111827; border: 1px solid #cbd5e1; }
+    .note { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 14px 0; }
+    .hold { border-left: 4px solid #b45309; padding: 10px 14px; background: #fffbeb; margin: 14px 0; }
+    .danger { border-left: 4px solid #b91c1c; padding: 10px 14px; background: #fef2f2; margin: 14px 0; }
+    .ok { color: #166534; font-weight: 700; }
+    .pending { color: #92400e; font-weight: 700; }
+    .small { font-size: .9em; color: #4b5563; }
+    .wide { overflow-x: auto; }
+    .nowrap { white-space: nowrap; }
+    .finding { border: 1px solid #bbf7d0; background: #f0fdf4; padding: 10px 14px; margin: 10px 0; }
+    @media print { body { background: #fff; } main { max-width: none; padding: 0; } .wide { overflow: visible; } a { color: #111827; } }
+  </style>
+  <script src="../../assets/mermaid.min.js"></script>
+  <script src="../../assets/mermaid-init.js"></script>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックス</a> /
+    <a href="../01_要件追跡/01_Phase4入力・Core再利用確認.html">P4-01</a> /
+    <a href="../01_要件追跡/02_Phase4要件・UC・UI・Test追跡マトリクス.html">P4-02</a> /
+    <a href="./03_ProductApplication_Backtest実装詳細設計書.html">P4-03</a> /
+    <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
+
+  <h1>P4-ART-04 Product/Application API詳細設計書</h1>
+  <p><strong>成果物ID:</strong> <code>P4-ART-04-API-001</code><br>
+    <strong>文書セット:</strong> <code>P4-APP-DOCSET-001</code><br>
+    <strong>Phase / Step:</strong> Phase 4 / P4-04A<br>
+    <strong>版:</strong> v0.1（2026-08-11）<br>
+    <strong>現在状態:</strong> <span class="ok">P4-04A設計完了・P4-H0範囲・P4-H1承認待ち</span><br>
+    <strong>設計責任:</strong> AutoTrade_A10 / A20 / A30 / A70 / A80 / A82 / A91 / A90</p>
+
+  <div class="hold">
+    <strong>効力範囲:</strong>
+    本書はP4-H0で承認された詳細設計であり、実装契約を固定する文書である。P4-H1が承認されるまで、
+    Applicationソース、UIソース、テスト、fixture、依存、trusted scope、実行Runを作成・変更・起動しない。
+    本書内のHTTP表記は将来のローカルAdapter候補を曖昧にしないための投影であり、HTTP server、route、socket、
+    認証、外部公開を導入する許可ではない。
+  </div>
+  <div class="danger">
+    <strong>安全境界:</strong>
+    P4 canonical APIは固定local入力を使うBacktest Product/Applicationだけを扱う。外部Data、Provider、Broker、
+    Account、Portfolio、OMS、実Risk値、注文、Paper、Live、Secret、Cloud、外部通信、実資金を受け付けない。
+    それらに相当する呼出しは <code>UNSUPPORTED</code> または <code>BLOCKED</code> を理由・後続Phase・Gate付きで返し、
+    副作用を発生させない。
+  </div>
+
+  <h2>0. 読み方、入力、詳細設計の合否</h2>
+  <p>実装者は、まず1〜3章でAPIの正本と境界を、4〜6章で型・個別契約を、7〜10章で状態・保存・UI受渡しを、
+    11〜14章でテスト・追跡・レビュー・Gateを読む。各表の目的は表の直前に示す。未実装の予定を実装済みと読める
+    表現は使わない。</p>
+  <div class="wide">
+  <table>
+    <caption>AF-D16 DD-01〜12への充足。API実装者が追加判断をせずに作業できるかを確認する表。</caption>
+    <thead><tr><th>ID</th><th>判断できる内容</th><th>本書の章</th><th>状態</th></tr></thead>
+    <tbody>
+      <tr><td>DD-01</td><td>Product/Application APIの目的、P4境界、所有者</td><td>1〜3</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-02</td><td>予定モジュール、依存方向、in-process正本とHTTP投影</td><td>2、3</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-03</td><td>Run、Job、Queue、Result、CSV、Evidence、HoldoutのAPI単位</td><td>4〜7</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-04</td><td>全APIのID、入出力型、必須性、失敗、状態、transport</td><td>4〜6</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-05</td><td>metadata、ResultStore、CSV、Evidenceのread/write境界</td><td>8</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-06</td><td>開始、停止、取消、再開、再試行、Sweep部分失敗の順序</td><td>7</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-07</td><td>Preflight、Fail-closed、冪等性、Holdout再利用拒否</td><td>3、5、7</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-08</td><td>監査、Correlation、Secret境界、固定ダミー例、互換性</td><td>3、8、9</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-09</td><td>全APIを覆う固定入力・期待結果・証跡のテスト</td><td>12</td><td class="ok">設計済み（実行はP4-H1後）</td></tr>
+      <tr><td>DD-10</td><td>Core版、Manifest、ページング、再試行、Run Manifest</td><td>4、8、9</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-11</td><td>REQ、UC、Screen、State、DEC、UNK、ARTの追跡</td><td>10、13、14</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-12</td><td>専門レビュー、改訂、再レビュー、次Stepへの引渡し</td><td>14、15</td><td class="ok">設計済み</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="wide">
+  <table>
+    <caption>P4-04Aで固定した入力とSHA-256。設計時の参照差替えを検出するための表。</caption>
+    <thead><tr><th>入力</th><th>用途</th><th>SHA-256</th></tr></thead>
+    <tbody>
+      <tr><td>P4実行計画書 改訂1</td><td>P4-04Aの直接実行プロンプト、後続Step、Human Gate</td><td><code>e6444ac7b2f4480151fa92cae11831627cc967599f229f1d537bde5af84f3412</code></td></tr>
+      <tr><td>統合台帳</td><td>P4-H0承認、P4-H1待ち、Unknown／Blockedの正本</td><td><code>2272f7d4c06cbcc9af7e28576edb8a8fd7a20dc8ac3c965c30302f79aa2d6d84</code></td></tr>
+      <tr><td>P4-01確認書</td><td>Core baseline、fixture、P4外境界</td><td><code>70a13f0223317b66222c242206780dd9ff90419ff72daa19130aea80637e7a36</code></td></tr>
+      <tr><td>P4-02追跡</td><td>P4-TR-001〜023、REQ、UC、Screen、State、Test、Evidence</td><td><code>6893a285a5df703b0db300adbdcc81a49abf24c2b3d6f842e1796180a032d8df</code></td></tr>
+      <tr><td>P4-03詳細設計</td><td>Run／Job／Queue／Core Adapter／ResultStore／CSVの既定契約</td><td><code>30fbf0d566aecc94800efd688b37679a2ac82588b05f18a6c581466dc8168206</code></td></tr>
+      <tr><td>AF-D14 / AF-D16 / AF-D17</td><td>詳細設計書構成、HTML、作成・レビュー閉ループ</td><td><code>49803809bae571db444c9fb487c792ec12f385a42345218f7c61d864816a1c61</code> / <code>f2cbcff26ee2d9441b08132c2eb6a4d110b584f6fa1f6cb99dfbce3722857ed3</code> / <code>6cb43f58b13a93a35d659e7a319f3d4b2fb08a3768beb25dfa473a2dbd923809</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>1. API正本、対象、非対象</h2>
+  <p>API正本は <code>ProductApplicationApi</code> の型付きin-process呼出しである。UI、Worker、将来のAdapterは
+    同じCommand／QueryとResponseを使う。HTTPは、P4-H1後に明示承認された場合だけローカルAdapterとして
+    同型に投影できる候補であり、現在は無効である。</p>
+  <div class="wide">
+  <table>
+    <caption>API層ごとの責務を固定し、UIからCoreや保存先へ直接到達させないための表。</caption>
+    <thead><tr><th>層</th><th>許可される責務</th><th>禁止・拒否する責務</th><th>設計上の所有者</th></tr></thead>
+    <tbody>
+      <tr><td>UI Adapter</td><td>固定ダミー入力を型付きCommandへ変換し、Viewを表示する</td><td>Core、SQLite、ResultStoreの直接呼出し。HTTP server起動</td><td>将来のUI実装（P4-08）</td></tr>
+      <tr><td>ProductApplicationApi</td><td>schema検査、Correlation、handler振分け、Response封筒</td><td>Broker、Provider、Secret、Risk値、外部I/O</td><td>Application API Adapter</td></tr>
+      <tr><td>Application Service</td><td>Preflight、Run／Job／Queue、View、Evidence、CSV Job</td><td>Core内部状態の再構成、利益性の採用判断</td><td>Run／Job／Result／Evidence Service</td></tr>
+      <tr><td>Core Adapter</td><td>既存 <code>BacktestRunner.run/resume</code> と <code>AtomicResultStore</code> の公開契約だけを読む</td><td>Core source、fixture、既存テストの変更。UI型の持込み</td><td>Core Adapter</td></tr>
+      <tr><td>Persistence／File</td><td>metadata、idempotency、audit、既存ResultStore、CSV原子出力</td><td>任意path、UNC、reparse、Secret、外部同期</td><td>Repository／File Adapter</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note">
+    <strong>versionの規則:</strong> canonical API versionは <code>p4-v1</code> とする。後方互換でない変更は
+    fieldの意味変更ではなく新しいversionを追加する。未実装HTTP投影の仮表記は <code>/local/v1</code> で統一するが、
+    P4ではlistenしない。HTTP statusはResponseの <code>transport_status_hint</code> でのみ表現する。
+  </div>
+
+  <h2>2. 予定モジュール構成と構造図</h2>
+  <p>以下はP4-H1後の予定構成であり、P4-04Aではファイルを作成しない。矢印は依存方向と受渡し型を表す。</p>
+  <pre>src/autotrade/application/                         # P4-H1後の予定
+  api.py                                            # ProductApplicationApi / response envelope
+  contracts.py                                      # command, query, view, error DTO
+  preflight.py                                      # all start gates; fail before Core
+  run_service.py / sweep_service.py                 # run creation and independent children
+  job_service.py / local_queue.py / worker.py       # job lifecycle and local polling
+  result_view.py / csv_job.py / evidence.py          # read views, file job, evidence
+  persistence.py / state_machine.py / core_adapter.py</pre>
+  <pre class="mermaid">flowchart LR
+    UI["UI / fixed mock"]
+    API["ProductApplicationApi<br/>in-process canonical"]
+    PREF["Preflight"]
+    SVC["Run / Sweep / Job / View Services"]
+    DB["Metadata Repository<br/>planned SQLite"]
+    W["Local Worker"]
+    AD["Core Adapter"]
+    CORE["Frozen Backtest Core"]
+    STORE["Existing AtomicResultStore"]
+    EVI["Evidence / CSV File Adapter"]
+    UI -->|"Command / Query"| API
+    API --> PREF
+    API --> SVC
+    PREF -->|"ValidatedRunSpec only"| SVC
+    SVC --> DB
+    SVC --> W
+    W --> AD
+    AD --> CORE
+    CORE --> AD
+    AD --> STORE
+    SVC --> EVI
+    DB --> SVC
+    STORE --> SVC
+    EVI --> SVC
+    SVC -->|"ApplicationResponse View"| API
+    API --> UI
+    UI -. "direct access prohibited" .-> CORE</pre>
+  <div class="wide">
+  <table>
+    <caption>構造図の受渡しを、実装時の引数・戻り値・拒否条件へ落とすための表。</caption>
+    <thead><tr><th>受渡し</th><th>入力</th><th>出力</th><th>拒否・不変条件</th></tr></thead>
+    <tbody>
+      <tr><td>UI → API</td><td>Command／Query JSON相当の型付きDTO</td><td><code>ApplicationResponse[T]</code></td><td>unknown field、float、naive datetime、秘密値、P4外種別を受付前に拒否</td></tr>
+      <tr><td>API → Preflight</td><td><code>PreflightRunRequest</code></td><td><code>PreflightReport</code></td><td>FAIL／BLOCKEDならRun、Job、Core、Fileを作らない</td></tr>
+      <tr><td>API → Service</td><td>validated Command／Query、<code>RequestContext</code></td><td>ViewまたはReceipt</td><td>writeはrequest fingerprintとidempotency recordを必須化</td></tr>
+      <tr><td>Service → Worker</td><td>Job、QueueItem、lease、cancel intent</td><td>Job state更新</td><td>単一local worker。外部Queue、subprocess、networkなし</td></tr>
+      <tr><td>Worker → Core</td><td>既存 <code>BacktestRunRequest</code>／snapshot</td><td>既存 <code>BacktestRunResult</code></td><td>Coreを一回だけ呼ぶ。P4 baseline mismatchなら呼ばない</td></tr>
+      <tr><td>Service → File</td><td>COMMITTED result ref、CSV spec、relative output key</td><td>hash付きfile／evidence ref</td><td>temp→hash→renameのみ。root外path、上書き、download serverなし</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>3. 共通通信契約、型、失敗形式</h2>
+  <p>この章は全APIが参照する共通DTOを定義する。型はPython実装時にdataclassまたは同等の明示型へ対応させ、
+    JSONを採用する場合も同じ意味・制約を変えない。数値はDecimal文字列、日時はUTCのRFC 3339文字列だけとする。</p>
+  <h3>3.1 RequestContextとResponse封筒</h3>
+  <div class="wide">
+  <table>
+    <caption>全API共通の入力・出力field。監査、再送、UIの理由表示を一貫させるための表。</caption>
+    <thead><tr><th>型 / field</th><th>型</th><th>必須・nullable・既定</th><th>制約・用途</th></tr></thead>
+    <tbody>
+      <tr><td><code>RequestContext.request_id</code></td><td>UUID string</td><td>必須、non-null</td><td>呼出し単位で一意。固定ダミー例 <code>11111111-1111-4111-8111-111111111111</code></td></tr>
+      <tr><td><code>RequestContext.correlation_id</code></td><td>UUID string</td><td>必須、non-null</td><td>画面操作からJob／Evidenceまで同じ値。ログ・Evidenceに残す</td></tr>
+      <tr><td><code>RequestContext.actor_kind</code></td><td>enum</td><td>必須、<code>LOCAL_UI</code> または <code>LOCAL_WORKER</code></td><td>認証主体ではない。個人名、token、email、Secretを受け取らない</td></tr>
+      <tr><td><code>RequestContext.api_version</code></td><td>literal</td><td>必須、<code>p4-v1</code></td><td>不一致は <code>API_VERSION_UNSUPPORTED</code></td></tr>
+      <tr><td><code>RequestContext.idempotency_key</code></td><td>safe string</td><td>writeで必須、queryではnull</td><td>1〜128文字、英数字・<code>-_.:</code>のみ。scope内で一意</td></tr>
+      <tr><td><code>ApplicationResponse.result</code></td><td>enum</td><td>必須</td><td><code>COMPLETED</code>、<code>ACCEPTED</code>、<code>REJECTED</code>、<code>CONFLICT</code>、<code>BLOCKED</code>、<code>UNSUPPORTED</code></td></tr>
+      <tr><td><code>ApplicationResponse.transport_status_hint</code></td><td>integer</td><td>必須</td><td>200、201、202、400、403、404、409、422、423、501。HTTP未実装時も意味を固定</td></tr>
+      <tr><td><code>ApplicationResponse.data</code></td><td>T or null</td><td>成功時non-null、失敗時null</td><td>各APIが定めるView。partial成功をdataだけで成功扱いしない</td></tr>
+      <tr><td><code>ApplicationResponse.failure</code></td><td><code>FailureView</code> or null</td><td>成功時null、失敗時non-null</td><td>画面表示、監査、Testで同じcodeを用いる</td></tr>
+      <tr><td><code>ApplicationResponse.evidence_refs</code></td><td>relative reference array</td><td>必須、空配列可</td><td>絶対pathを返さない。P4-H0設計段階では <code>PLANNED_NOT_EXECUTED</code> を添える</td></tr>
+      <tr><td><code>ApplicationResponse.generated_at_utc</code></td><td>RFC 3339 UTC</td><td>必須、non-null</td><td>clock failureは <code>TIME_SOURCE_INVALID</code> としてFail-closed</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="wide">
+  <table>
+    <caption>FailureViewのfield。理由不明を成功表示へ変えないための表。</caption>
+    <thead><tr><th>field</th><th>型・必須性</th><th>内容・制約</th></tr></thead>
+    <tbody>
+      <tr><td><code>error_id</code></td><td>safe ID、必須</td><td>例: <code>P4ERR-PREFLIGHT-003</code>。画面、監査、Evidence、Testを横断して同一</td></tr>
+      <tr><td><code>reason_code</code></td><td>enum、必須</td><td><code>TYPED_INPUT_INVALID</code>、<code>MANIFEST_MISMATCH</code>、<code>LOOKAHEAD_REJECTED</code>等の安定ID</td></tr>
+      <tr><td><code>message_key</code></td><td>safe string、必須</td><td>UIの日本語文言を分離するkey。実装でfree textだけを判定材料にしない</td></tr>
+      <tr><td><code>field_errors</code></td><td>array、既定空</td><td><code>path</code>、<code>rule</code>、<code>rejected_value_kind</code>だけ。値そのもの、Secret、実Dataを記録しない</td></tr>
+      <tr><td><code>retryable</code></td><td>boolean、必須</td><td>再送可否。<code>CONFLICT</code>、Look-ahead、P4外はfalse</td></tr>
+      <tr><td><code>next_action</code></td><td>enum、必須</td><td><code>FIX_INPUT</code>、<code>WAIT_GATE</code>、<code>SELECT_OTHER_RUN</code>、<code>RECOVER</code>、<code>NONE</code></td></tr>
+      <tr><td><code>phase_boundary</code></td><td>string or null</td><td>P4外なら <code>P6</code>、<code>P7</code> 等。P4内の入力失敗ではnull</td></tr>
+      <tr><td><code>gate_id</code></td><td>string or null</td><td>例: <code>P4-H1</code>、<code>GATE-V2-HOLDOUT</code>。未承認をPASSへ変換しない</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>3.2 API共通の失敗・status対応</h3>
+  <div class="wide">
+  <table>
+    <caption>Response結果と理由IDの対応。transportを後から実装してもFail-closedの意味を変えないための表。</caption>
+    <thead><tr><th>result / hint</th><th>主なreason_code</th><th>副作用</th><th>UI・再試行規則</th></tr></thead>
+    <tbody>
+      <tr><td><code>COMPLETED / 200</code></td><td>なし</td><td>queryのみ。writeの完了確認にも使用</td><td>表示可。writeの再送可否はidempotency recordで判断</td></tr>
+      <tr><td><code>ACCEPTED / 201,202</code></td><td>なし</td><td>DRAFT RunまたはJob／CSV Jobを一度だけ作成</td><td>状態照会へ遷移。Core完了・CSV完成を意味しない</td></tr>
+      <tr><td><code>REJECTED / 400,422</code></td><td><code>TYPED_INPUT_INVALID</code>、<code>PLAN_INVALID</code>、<code>OUTPUT_POLICY_INVALID</code></td><td>なし</td><td>該当fieldと理由を表示。修正後は新しいidempotency keyを使う</td></tr>
+      <tr><td><code>BLOCKED / 403,423</code></td><td><code>DATA_GATE_BLOCKED</code>、<code>CORE_BASELINE_MISMATCH</code>、<code>HOLDOUT_ACCESS_BLOCKED</code>、<code>RECOVERY_REQUIRED</code></td><td>新規Core／File副作用なし</td><td>Gate又は回復手順を表示。自動retryしない</td></tr>
+      <tr><td><code>CONFLICT / 409</code></td><td><code>DUPLICATE_RUN</code>、<code>IDEMPOTENCY_FINGERPRINT_CONFLICT</code>、<code>STATE_CONFLICT</code></td><td>なし、または既存receiptを再返却</td><td>既存IDへ遷移。別入力を同じkeyで再送しない</td></tr>
+      <tr><td><code>UNSUPPORTED / 501</code></td><td><code>P4_OUT_OF_SCOPE</code>、<code>EXTERNAL_IO_FORBIDDEN</code>、<code>API_VERSION_UNSUPPORTED</code></td><td>なし</td><td>後続Phase／Gateを表示。代替動作や疑似成功を返さない</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>4. 全APIが参照する入力・出力DTO</h2>
+  <p>個別APIは本章のschema IDを参照する。これにより同名fieldの意味・必須性・制約をすべての画面・APIで一致させる。
+    文字列のhashは64桁小文字SHA-256、IDはsafe ID、相対pathはlocal root配下のPOSIX形式とする。</p>
+  <h3>4.1 RunSpec系入力</h3>
+  <div class="wide">
+  <table>
+    <caption>Run作成とPreflightが共有する入力。実値を持たない参照型と不変条件を定義する表。</caption>
+    <thead><tr><th>schema / field</th><th>型</th><th>必須性・既定</th><th>制約・説明</th></tr></thead>
+    <tbody>
+      <tr><td><code>RunSpecInput.run_kind</code></td><td>enum</td><td>必須</td><td><code>SINGLE</code> または <code>SWEEP</code>。<code>PAPER</code>／<code>LIVE</code> はP4外</td></tr>
+      <tr><td><code>RunSpecInput.unit_key</code></td><td><code>UnitKeyInput</code></td><td>必須</td><td>instrument logical ID、timeframe、strategy version、mode=<code>BACKTEST</code>。実Symbolを含めない</td></tr>
+      <tr><td><code>RunSpecInput.data_reference</code></td><td><code>DataReference</code></td><td>必須</td><td>local fixture／manifest ID、hash、source_mode=<code>LOCAL_FIXED</code>。URL、credential、providerは拒否</td></tr>
+      <tr><td><code>RunSpecInput.strategy_reference</code></td><td><code>StrategyReference</code></td><td>必須</td><td>strategy logical ID、version、config SHA-256。Turtle規則の編集値は持たない</td></tr>
+      <tr><td><code>RunSpecInput.risk_reference</code></td><td><code>RiskReference</code></td><td>必須</td><td>policy ID、version、hashだけ。数量、証拠金、損失上限、金額は拒否</td></tr>
+      <tr><td><code>RunSpecInput.experiment_plan</code></td><td><code>ExperimentPlanReference</code></td><td>必須</td><td>train／tune／holdout boundary、TZ、calendar／manifest hash。重複、隙間、未来参照を拒否</td></tr>
+      <tr><td><code>RunSpecInput.core_reference</code></td><td><code>CoreReference</code></td><td>必須</td><td>P4-01 baseline hash、fixture hash、<code>ENGINE_NOT_USED</code>。不一致はCore呼出し前に停止</td></tr>
+      <tr><td><code>RunSpecInput.output_policy</code></td><td><code>OutputPolicy</code></td><td>必須</td><td>logical output key、overwrite=false、relative root class。任意pathは受けない</td></tr>
+      <tr><td><code>RunSpecInput.config_sha256</code></td><td>SHA-256 string</td><td>必須</td><td>canonical JSONから計算。API受信後に再計算して不一致を拒否</td></tr>
+      <tr><td><code>RunSpecInput.requested_at_utc</code></td><td>RFC 3339 UTC</td><td>必須</td><td>naive datetime、future時刻、clock不正を拒否。実行順の真実はevent sequence</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="wide">
+  <table>
+    <caption>RunSpec内部参照のfield。外部接続・Secret・実Risk値の混入を型で止めるための表。</caption>
+    <thead><tr><th>型</th><th>field</th><th>型・必須性</th><th>制約</th></tr></thead>
+    <tbody>
+      <tr><td><code>UnitKeyInput</code></td><td>logical_instrument_id / timeframe / strategy_version / mode</td><td>safe ID / enum / version / literal、全必須</td><td>modeは<code>BACKTEST</code>のみ。実Broker symbol、account IDなし</td></tr>
+      <tr><td><code>DataReference</code></td><td>manifest_id / manifest_sha256 / fixture_sha256 / source_mode</td><td>全必須</td><td>source_modeは<code>LOCAL_FIXED</code>。data URL、token、remote pathを拒否</td></tr>
+      <tr><td><code>StrategyReference</code></td><td>strategy_id / strategy_version / config_sha256</td><td>全必須</td><td>既存Coreで解決できるIDだけ。inline source、plugin URLを拒否</td></tr>
+      <tr><td><code>RiskReference</code></td><td>policy_id / policy_version / policy_sha256</td><td>全必須</td><td>参照のみ。numeric risk field、account／portfolio参照を拒否</td></tr>
+      <tr><td><code>ExperimentPlanReference</code></td><td>plan_id / plan_sha256 / train_end / tune_end / holdout_end / timezone</td><td>全必須</td><td>UTC offset付き、順序厳密増加。raw holdout valueを含めない</td></tr>
+      <tr><td><code>CoreReference</code></td><td>core_baseline_sha256 / fixture_set_sha256 / engine_identity</td><td>全必須</td><td>engine_identityは<code>ENGINE_NOT_USED</code>。外部engine SDKを受けない</td></tr>
+      <tr><td><code>OutputPolicy</code></td><td>output_class / logical_output_key / overwrite</td><td>全必須</td><td><code>RESULT</code>／<code>CSV</code>、safe key、false固定。absolute／UNC／<code>..</code>を拒否</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>4.2 Command、Query、View schema</h3>
+  <div class="wide">
+  <table>
+    <caption>個別APIから参照する追加schema。fieldを省略してUI都合の別形式を作らないための表。</caption>
+    <thead><tr><th>schema</th><th>field</th><th>型・必須性</th><th>制約・既定</th></tr></thead>
+    <tbody>
+      <tr><td><code>PreflightRunRequest</code></td><td>context / run_spec / purpose</td><td>必須 / 必須 / 必須</td><td>purpose=<code>CREATE</code>又は<code>START</code>。read-only、side effect 0</td></tr>
+      <tr><td><code>CreateRunRequest</code></td><td>context / run_spec / preflight_sha256</td><td>必須 / 必須 / 必須</td><td>preflight result=PASSかつ同じRunSpec hashのみ。作成結果はDRAFT又はREJECTED</td></tr>
+      <tr><td><code>CreateSweepRequest</code></td><td>context / base_run_spec / sweep_spec / preflight_sha256</td><td>全必須</td><td>candidate definitions、上限、include endpoints、candidate hash。候補ごとに独立child Run</td></tr>
+      <tr><td><code>StartJobRequest</code></td><td>context / target_run_id / operation / expected_run_revision</td><td>全必須</td><td>operation=<code>START</code>。DRAFT又はRESUMABLEのみ。queue操作だけを受理</td></tr>
+      <tr><td><code>CancelJobRequest</code></td><td>context / job_id / reason_code / expected_job_revision</td><td>全必須</td><td>reasonはenum。自由文、external stop、force killを受けない</td></tr>
+      <tr><td><code>ResumeJobRequest</code></td><td>context / job_id / resume_mode / checkpoint_sha256 / expected_job_revision</td><td>全必須</td><td>resume_mode=<code>CHECKPOINT</code>又は<code>FAILED_SWEEP_CHILD</code>。checkpoint束が完全一致時だけ</td></tr>
+      <tr><td><code>CreateCsvJobRequest</code></td><td>context / source_run_id / source_result_sha256 / projection / columns / filter / sort</td><td>全必須</td><td>COMMITTED sourceのみ。columnsはallowlist、filter／sortはcanonical化してhash化</td></tr>
+      <tr><td><code>HoldoutReuseRequest</code></td><td>context / source_run_id / proposed_use / rationale_code</td><td>全必須</td><td>proposed_useは表示・比較確認だけ。最良選択、設定変更、自動再実行は拒否</td></tr>
+      <tr><td><code>RunQuery</code></td><td>run_id / include</td><td>run_id必須 / include既定SUMMARY</td><td>includeは<code>SUMMARY</code>、<code>CONFIG</code>、<code>STATE</code>のみ。raw holdoutなし</td></tr>
+      <tr><td><code>PageQuery</code></td><td>cursor / limit / sort / filter</td><td>全nullable、limit既定50</td><td>limitは1〜200。sort／filterはAPIごとのallowlist。offset pagingなし</td></tr>
+      <tr><td><code>ResultRowsQuery</code></td><td>run_id / projection / page</td><td>run_id、projection必須 / page必須</td><td>projection=<code>METRIC</code>、<code>EQUITY</code>、<code>DRAWDOWN</code>、<code>TRADE</code>、<code>SIGNAL</code>。未提供projectionは生成しない</td></tr>
+      <tr><td><code>CompareRunsQuery</code></td><td>left_run_id / right_run_id / comparison_scope</td><td>全必須</td><td>scope=<code>CONDITION</code>又は<code>METRIC</code>。条件差異を順位・採用へ変換しない</td></tr>
+      <tr><td><code>RunView</code></td><td>run_id / kind / state / revision / condition_sha256 / job_id / result_ref / failure / evidence_ref</td><td>全必須、result_ref等nullable</td><td>状態とEvidenceを常に対にする。絶対path、Secret、raw strategy stateなし</td></tr>
+      <tr><td><code>JobView</code></td><td>job_id / run_id / kind / state / revision / queue_position / retry_count / checkpoint_ref / failure</td><td>全必須、ref／failure nullable</td><td>retry_countは0〜3。実行中の予測時間を保証値として返さない</td></tr>
+      <tr><td><code>ResultSummaryView</code></td><td>run_id / publication_state / source_result_sha256 / metrics / condition_summary / holdout_status</td><td>全必須</td><td>publication_state=<code>COMMITTED</code>だけを結果成功として表示。五指標はdefinition version付き</td></tr>
+      <tr><td><code>EvidenceBundleView</code></td><td>run_id / files / manifest_sha256 / audit_sha256 / verification_state</td><td>全必須</td><td>relative evidence refsだけ。P4-H0ではverification_state=<code>DESIGNED_NOT_EXECUTED</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>4.3 固定ダミー例</h3>
+  <pre>{
+  "context": {
+    "request_id": "11111111-1111-4111-8111-111111111111",
+    "correlation_id": "22222222-2222-4222-8222-222222222222",
+    "actor_kind": "LOCAL_UI",
+    "api_version": "p4-v1",
+    "idempotency_key": "ui-run-create-0001"
+  },
+  "run_spec": {
+    "run_kind": "SINGLE",
+    "unit_key": {"logical_instrument_id": "FIXTURE-INST-01", "timeframe": "H5", "strategy_version": "v1", "mode": "BACKTEST"},
+    "data_reference": {"manifest_id": "fixture-manifest-01", "manifest_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "fixture_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "source_mode": "LOCAL_FIXED"},
+    "strategy_reference": {"strategy_id": "fixed-strategy-01", "strategy_version": "v1", "config_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"},
+    "risk_reference": {"policy_id": "reference-only-01", "policy_version": "v1", "policy_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"},
+    "experiment_plan": {"plan_id": "plan-fixture-01", "plan_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "train_end": "2025-01-10T00:00:00Z", "tune_end": "2025-01-20T00:00:00Z", "holdout_end": "2025-01-30T00:00:00Z", "timezone": "UTC"},
+    "core_reference": {"core_baseline_sha256": "f8a25911a2dd4007e9d430f308965c36e9474abb37132d2813c3078d99ac1eeb", "fixture_set_sha256": "6909d2888bd65aac4dcf12a0827bcabab6d8766db39de29b4ef6b3b24ab13377", "engine_identity": "ENGINE_NOT_USED"},
+    "output_policy": {"output_class": "RESULT", "logical_output_key": "fixed-run-0001", "overwrite": false},
+    "config_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "requested_at_utc": "2026-08-11T00:00:00Z"
+  }
+}</pre>
+  <p class="small">この例は固定匿名ダミーであり、実Data、実Risk、実Order、実口座、Secretを表さない。hashは形式確認用の値であり、
+    P4-H0時点でRunを起動する入力ではない。</p>
+
+  <h2>5. 全P4 canonical API inventory</h2>
+  <p>この表がP4のAPI正本一覧である。各APIは次章の個別契約、4章のschema、7〜12章の状態・保存・UI・テストへ接続する。
+    すべて <code>ProductApplicationApi</code> のin-process呼出しが正本で、HTTP欄は未実装のローカル投影である。</p>
+  <div class="wide">
+  <table>
+    <caption>全19件のP4 canonical API。API-ID、transport、状態、副作用、UI追跡を一行で照合する表。</caption>
+    <thead><tr><th>ID / owner</th><th>canonical signature / HTTP投影（未実装）</th><th>request → response</th><th>状態・idempotency・副作用</th><th>UI / REQ / Test / Evidence</th></tr></thead>
+    <tbody>
+      <tr><td><code>API-P4-001</code><br>CapabilityService</td><td><code>get_capability(context)</code><br><code>GET /local/v1/capability</code></td><td><code>RequestContext → CapabilityView</code></td><td>read-only。冪等key不要。P4外能力はUNSUPPORTEDの理由・Phase・Gateを返す</td><td>SCREEN-01/18/19、P4-TR-019/023、TEST-P4-API-001、P4-EV-UI-STATE-CONTRACT</td></tr>
+      <tr><td><code>API-P4-002</code><br>PreflightService</td><td><code>preflight_run(request)</code><br><code>POST /local/v1/runs/preflight</code></td><td><code>PreflightRunRequest → PreflightReport</code></td><td>read-only。Core／Run／Job／file副作用0。report hashをcreate/startの入力に固定</td><td>SCREEN-08/09、P4-TR-001/008/011/012/017/022、TEST-P4-API-002〜005、P4-EV-INPUT-PREFLIGHT</td></tr>
+      <tr><td><code>API-P4-003</code><br>RunService</td><td><code>create_run(request)</code><br><code>POST /local/v1/runs</code></td><td><code>CreateRunRequest → RunView</code></td><td>PASS reportのみ。DRAFTを一度だけ保存。同key・同fingerprintは同じRun、差異は409</td><td>SCREEN-08/09、P4-TR-002/007/008、TEST-P4-API-006〜007、P4-EV-UNIT-AUDIT</td></tr>
+      <tr><td><code>API-P4-004</code><br>SweepService</td><td><code>create_sweep(request)</code><br><code>POST /local/v1/sweeps</code></td><td><code>CreateSweepRequest → SweepView</code></td><td>PASS reportのみ。parent＋candidateごとのDRAFT childを一度だけ保存。開始しない</td><td>SCREEN-08/09/10、P4-TR-011〜014、TEST-P4-API-008〜010、P4-EV-SWEEP-PREFLIGHT</td></tr>
+      <tr><td><code>API-P4-005</code><br>RunQueryService</td><td><code>get_run(context, query)</code><br><code>GET /local/v1/runs/{run_id}</code></td><td><code>RunQuery → RunView</code></td><td>read-only。revision、failure、result/evidence refを同時返却。未commitを成功表示しない</td><td>SCREEN-09/10/12/19、P4-TR-004/007/022、TEST-P4-API-011、P4-EV-FAIL-CLOSED</td></tr>
+      <tr><td><code>API-P4-006</code><br>RunQueryService</td><td><code>list_runs(context, page)</code><br><code>GET /local/v1/runs</code></td><td><code>PageQuery → RunPageView</code></td><td>read-only、cursor paging。condition／state／kind filter allowlist。raw config／holdoutなし</td><td>SCREEN-02/10/19、P4-TR-007/013/020、TEST-P4-API-012、P4-EV-SWEEP-ROWS</td></tr>
+      <tr><td><code>API-P4-007</code><br>JobService</td><td><code>start_job(request)</code><br><code>POST /local/v1/jobs</code></td><td><code>StartJobRequest → JobView</code></td><td>DRAFT／RESUMABLE→QUEUED。Job＋QueueItemを同一metadata transaction。Coreはこの呼出しで動かさない</td><td>SCREEN-09、P4-TR-003/004/009/012、TEST-P4-API-013〜014、P4-EV-JOB-QUEUE</td></tr>
+      <tr><td><code>API-P4-008</code><br>JobQueryService</td><td><code>get_job(context, job_id)</code><br><code>GET /local/v1/jobs/{job_id}</code></td><td><code>JobIdQuery → JobView</code></td><td>read-only。lease、retry、checkpoint、cancel intentを表示。予測時間を保証しない</td><td>SCREEN-09/17/19、P4-TR-004〜006/022、TEST-P4-API-015、P4-EV-JOB-QUEUE</td></tr>
+      <tr><td><code>API-P4-009</code><br>JobQueryService</td><td><code>list_jobs(context, page)</code><br><code>GET /local/v1/jobs</code></td><td><code>PageQuery → JobPageView</code></td><td>read-only。run_id／state／kind filterだけ。cursorはstate snapshot revisionを含む</td><td>SCREEN-02/09/17、P4-TR-003/004/020、TEST-P4-API-016、P4-EV-JOB-QUEUE</td></tr>
+      <tr><td><code>API-P4-010</code><br>JobService</td><td><code>cancel_job(request)</code><br><code>POST /local/v1/jobs/{job_id}/cancel</code></td><td><code>CancelJobRequest → JobView</code></td><td>QUEUEDは即取消、RUNNINGはcancel intent。same key再送は同じview。force killなし</td><td>SCREEN-09/10/17、P4-TR-009/014/022、TEST-P4-API-017〜018、P4-EV-SWEEP-RECOVERY</td></tr>
+      <tr><td><code>API-P4-011</code><br>JobService</td><td><code>resume_job(request)</code><br><code>POST /local/v1/jobs/{job_id}/resume</code></td><td><code>ResumeJobRequest → JobView</code></td><td>STOPPED／RECOVERY_REQUIREDのみ。manifest＋checkpoint＋marker一致時だけ新Job。retry上限3</td><td>SCREEN-09/17、P4-TR-005/006/014/022、TEST-P4-API-019〜021、P4-EV-SWEEP-RECOVERY</td></tr>
+      <tr><td><code>API-P4-012</code><br>QueueQueryService</td><td><code>get_queue_state(context, page)</code><br><code>GET /local/v1/queue</code></td><td><code>PageQuery → QueueStateView</code></td><td>read-only polling。position、wait reason、lease state、resource state。SSE／WebSocketなし</td><td>SCREEN-02/09、P4-TR-003/004/012/020、TEST-P4-API-022、P4-EV-JOB-QUEUE</td></tr>
+      <tr><td><code>API-P4-013</code><br>ResultViewService</td><td><code>get_result_summary(context, run_id)</code><br><code>GET /local/v1/runs/{run_id}/result</code></td><td><code>RunIdQuery → ResultSummaryView</code></td><td>read-only。COMMITTED resultだけ。五指標、definition version、condition summary、holdout status</td><td>SCREEN-10/12/19、P4-TR-010/013/017/018、TEST-P4-API-023〜024、P4-EV-RESULT-METRICS</td></tr>
+      <tr><td><code>API-P4-014</code><br>ResultViewService</td><td><code>list_result_rows(context, query)</code><br><code>GET /local/v1/runs/{run_id}/result-rows</code></td><td><code>ResultRowsQuery → ResultRowsPageView</code></td><td>read-only、cursor paging、projection allowlist。未提供trade／signalを捏造しない</td><td>SCREEN-10/11/12/19、P4-TR-010/013/016/020、TEST-P4-API-025〜027、P4-EV-SWEEP-ROWS</td></tr>
+      <tr><td><code>API-P4-015</code><br>ComparisonService</td><td><code>compare_runs(context, query)</code><br><code>POST /local/v1/run-comparisons</code></td><td><code>CompareRunsQuery → ComparisonView</code></td><td>read-only。比較条件hashを必ず返す。不一致を同一順位・自動採用にしない</td><td>SCREEN-10/12/19、P4-TR-015/018、TEST-P4-API-028〜029、P4-EV-COMPARE-CONDITION</td></tr>
+      <tr><td><code>API-P4-016</code><br>CsvJobService</td><td><code>create_csv_job(request)</code><br><code>POST /local/v1/csv-jobs</code></td><td><code>CreateCsvJobRequest → CsvJobView</code></td><td>COMMITTED sourceだけ。CSV Jobを一度だけqueueへ入れる。ファイル完成を意味しない</td><td>SCREEN-10/12/19、P4-TR-016、TEST-P4-API-030〜031、P4-EV-CSV-JOB</td></tr>
+      <tr><td><code>API-P4-017</code><br>CsvJobQueryService</td><td><code>get_csv_job(context, csv_job_id)</code><br><code>GET /local/v1/csv-jobs/{csv_job_id}</code></td><td><code>CsvJobIdQuery → CsvJobView</code></td><td>read-only。state、progress、relative file ref、output hashのみ。file download routeなし</td><td>SCREEN-10/12/19、P4-TR-016/022、TEST-P4-API-032、P4-EV-CSV-JOB</td></tr>
+      <tr><td><code>API-P4-018</code><br>EvidenceService</td><td><code>get_evidence(context, run_id)</code><br><code>GET /local/v1/runs/{run_id}/evidence</code></td><td><code>RunIdQuery → EvidenceBundleView</code></td><td>read-only。manifest、preflight、transition、result、auditのrelative refとhash。Secret・absolute pathなし</td><td>SCREEN-09/10/12/19、P4-TR-007/010/021/023、TEST-P4-API-033、P4-EV-TRACE-REVIEW</td></tr>
+      <tr><td><code>API-P4-019</code><br>HoldoutGuardService</td><td><code>assess_holdout_reuse(request)</code><br><code>POST /local/v1/holdout-reuse-assessments</code></td><td><code>HoldoutReuseRequest → HoldoutAssessmentView</code></td><td>read-only guard record。自動最良選択・設定変更・再実行はBLOCKED。Human Gateを明示</td><td>SCREEN-10/12/18/19、P4-TR-017/018/023、TEST-P4-API-034〜036、P4-EV-HOLDOUT-GATE</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>6. APIごとの詳細契約</h2>
+  <p>各行は「いつ呼べるか」「何を読む／書くか」「どの状態へ進むか」「何を返すか」を実装単位で確定する。
+    field定義は4章のschema IDを正本とし、ここではAPI固有の前提・処理・失敗・監査・互換性を補う。</p>
+  <div class="wide">
+  <table>
+    <caption>API-P4-001〜006の個別契約。能力表示、Preflight、Run作成、Sweep、Run照会を実装可能な粒度へ下ろす表。</caption>
+    <thead><tr><th>ID</th><th>前提・処理順</th><th>read/write・同期性</th><th>成功応答・失敗</th><th>監査・テスト</th></tr></thead>
+    <tbody>
+      <tr><td><code>001<br>get_capability</code></td><td>1) version検査 2) P4許可能力表を読む 3) P4外能力を理由・Phase・Gate付きで組立てる</td><td>metadata readのみ、同期。idempotency不要。外部参照なし</td><td><code>CapabilityView</code>に<code>BACKTEST_LOCAL=SUPPORTED_DESIGN</code>、PAPER／LIVE／BROKER／RISK_VALUE等=<code>UNSUPPORTED</code>。version違いは501</td><td>起動時画面とauditにrequest/correlationのみ。TEST-001でP4外を疑似成功にしない</td></tr>
+      <tr><td><code>002<br>preflight_run</code></td><td>1) schema 2) reference/hash 3) Data／Manifest 4) Core baseline 5) plan／look-ahead 6) output/idempotency を順に検査。最初の失敗で停止</td><td>read-only、同期。Core、Run、Job、CSV、Evidence fileを作らない</td><td><code>PreflightReport</code>はPASS／FAIL／BLOCKED、check ID、report_sha256、reason。失敗はTYPED_INPUT_INVALID〜OUTPUT_POLICY_INVALID</td><td>request hash、check結果、理由IDをplanned preflight evidenceへ。TEST-002〜005</td></tr>
+      <tr><td><code>003<br>create_run</code></td><td>1) preflight hash再照合 2) config／condition hash再計算 3) idempotency照合 4) Run=DRAFT＋auditを同一transactionで保存</td><td>metadata write、同期。Core／Queue／ResultStore／CSVは呼ばない</td><td>201 <code>RunView(DRAFT)</code>。同key同fingerprintは同じRunView。差異は409。PASS外は403 BLOCKED</td><td>run_id、idempotency key、before/after state、hashをaudit。TEST-006〜007</td></tr>
+      <tr><td><code>004<br>create_sweep</code></td><td>1) base preflight hash 2) range型・endpoint・candidate上限 3) candidate canonical hash 4) parent＋全child DRAFTを一括保存</td><td>metadata write、同期。Core／Queueを開始しない。候補の部分作成は禁止</td><td>201 <code>SweepView</code>にparent、candidate count、invalid count=0、child refs。上限超過／重複／型不正は422</td><td>parent／child／candidate hash、集計をaudit。TEST-008〜010。性能見積りを保証しない</td></tr>
+      <tr><td><code>005<br>get_run</code></td><td>1) run_id型 2) metadata読出し 3) revisionと関連Job／result／failure／evidence refを同一snapshotに整形</td><td>metadata／published result read、同期。idempotency不要</td><td>200 <code>RunView</code>。未存在=404。published marker不整合=423 RECOVERY_REQUIRED。raw holdoutなし</td><td>auditは必要時のアクセスeventだけ。TEST-011は未commit resultの成功表示禁止を確認</td></tr>
+      <tr><td><code>006<br>list_runs</code></td><td>1) PageQuery型 2) filter／sort allowlist 3) stable cursor snapshot 4) next cursorとsummaryを返す</td><td>metadata read、同期。limit 1〜200、offsetなし</td><td>200 <code>RunPageView</code>。未知filter／sort=400、stale cursor=409 <code>CURSOR_SNAPSHOT_CONFLICT</code></td><td>query fingerprint、cursor revisionをaudit可能にする。TEST-012は同条件履歴と最新表示を分離</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="wide">
+  <table>
+    <caption>API-P4-007〜012の個別契約。Job、取消、再開、Queueを状態遷移と共に固定する表。</caption>
+    <thead><tr><th>ID</th><th>前提・処理順</th><th>read/write・同期性</th><th>成功応答・失敗</th><th>監査・テスト</th></tr></thead>
+    <tbody>
+      <tr><td><code>007<br>start_job</code></td><td>1) target Run revision検査 2) preflight PASS／immutable hash再照合 3) idempotency照合 4) Job=QUEUED＋QueueItem=WAITINGを同一transactionで作成</td><td>metadata write、同期で202を返す。Coreはworkerだけが後で一回呼ぶ</td><td><code>JobView(QUEUED)</code>。DRAFT／RESUMABLE以外=409。baseline mismatch等=403。重複は既存Job</td><td>queue position、operation fingerprint、state transitionをaudit。TEST-013〜014</td></tr>
+      <tr><td><code>008<br>get_job</code></td><td>1) job_id型 2) Job／Queue／checkpoint／failureを同じrevisionで読む 3) View整形</td><td>read-only、同期。idempotency不要</td><td>200 <code>JobView</code>。不存在=404。lease／marker不整合=423。内部worker stackは返さない</td><td>必要時のread auditのみ。TEST-015でretry countとcheckpoint refの表示を確認</td></tr>
+      <tr><td><code>009<br>list_jobs</code></td><td>1) PageQuery 2) run_id/state/kind filter検査 3) stable cursor 4) snapshot返却</td><td>read-only、同期。最大200件</td><td>200 <code>JobPageView</code>。未知state/filter=400。cursor競合=409</td><td>TEST-016でQueue待ち、停止、失敗を混同しないことを確認</td></tr>
+      <tr><td><code>010<br>cancel_job</code></td><td>1) revision/idempotency検査 2) QUEUEDならQueueItem取消＋Job=CANCELLED 3) RUNNINGならcancel intent保存 4) terminalは既存View返却</td><td>metadata write、同期。RUNNINGのCore停止はsafe checkpoint到達後のみ</td><td>200 <code>JobView(CANCELLED|CANCEL_REQUESTED)</code>。force kill、未知理由、terminal変更は409／422</td><td>reason code、before/after、actor kindをaudit。TEST-017〜018</td></tr>
+      <tr><td><code>011<br>resume_job</code></td><td>1) terminal/RECOVERY状態 2) checkpoint＋manifest＋commit marker hash束 3) retry&lt;3 4) 新Job＋QueueItemを作成</td><td>metadata write、同期で202。Core.resumeはworker側だけ</td><td><code>JobView(QUEUED)</code>。欠落／不一致=423、retry上限=422、RUNNING再開=409</td><td>旧Job、新Job、checkpoint hash、attemptをaudit。TEST-019〜021</td></tr>
+      <tr><td><code>012<br>get_queue_state</code></td><td>1) PageQuery 2) Queue snapshot 3) position、wait reason、lease、resource stateを算出 4) cursor返却</td><td>read-only polling、同期。SSE／WebSocket／pushなし</td><td>200 <code>QueueStateView</code>。resource unknownはUNKNOWN表示で開始可にしない</td><td>snapshot revisionをEvidenceに結べる。TEST-022で待機理由とresource stateを分離</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="wide">
+  <table>
+    <caption>API-P4-013〜019の個別契約。結果、比較、CSV、Evidence、Holdoutを安全な読出し・非同期操作へ分離する表。</caption>
+    <thead><tr><th>ID</th><th>前提・処理順</th><th>read/write・同期性</th><th>成功応答・失敗</th><th>監査・テスト</th></tr></thead>
+    <tbody>
+      <tr><td><code>013<br>get_result_summary</code></td><td>1) run存在 2) ResultStore commit marker検証 3) 五指標とdefinition version 4) holdout statusのみ組立て</td><td>published result read、同期。未commitを読む副作用なし</td><td>200 <code>ResultSummaryView</code>。未完了=409 <code>RESULT_NOT_COMMITTED</code>、marker不整合=423</td><td>source result hash、metric definition、publication stateをaudit／Evidence。TEST-023〜024</td></tr>
+      <tr><td><code>014<br>list_result_rows</code></td><td>1) ResultRowsQuery 2) commit marker 3) projection allowlist 4) cursor/filter/sort 5) row page返却</td><td>published result read、同期。行の編集、集計の再計算なし</td><td>200 <code>ResultRowsPageView</code>。未提供projection=<code>VIEW_NOT_AVAILABLE</code>、未commit=409、cursor競合=409</td><td>projection、filter hash、source hashをEvidenceに結ぶ。TEST-025〜027</td></tr>
+      <tr><td><code>015<br>compare_runs</code></td><td>1) 両runのcommit状態 2) condition比較 3) differenceとcomparable flag 4) comparison hash返却</td><td>read-only、同期。自動順位、採用、再実行を行わない</td><td>200 <code>ComparisonView</code>。条件差は<code>comparable=false</code>で返し、同一比較に偽装しない</td><td>left/right ID、condition hash、差分をaudit。TEST-028〜029</td></tr>
+      <tr><td><code>016<br>create_csv_job</code></td><td>1) source COMMITTED 2) result hash一致 3) columns/filter/sort canonical化 4) idempotency 5) CsvJob＋QueueItem保存</td><td>metadata write、同期で202。CSVファイル作成はworker側</td><td><code>CsvJobView(CREATED|QUEUED)</code>。source未commit、path不正、hash差=403／422。既存keyは既存Job</td><td>source hash、column/filter hash、output keyをaudit。TEST-030〜031</td></tr>
+      <tr><td><code>017<br>get_csv_job</code></td><td>1) ID型 2) CsvJob state／progress／output hash 3) relative file refを整形</td><td>metadata/file ref read、同期。file bytesを返さない</td><td>200 <code>CsvJobView</code>。未存在=404。file hash不整合=423。download routeなし</td><td>TEST-032で一時fileや絶対pathを露出しないことを確認</td></tr>
+      <tr><td><code>018<br>get_evidence</code></td><td>1) run存在 2) required relative refs・hashを収集 3) verification stateを明示 4) bundle返却</td><td>metadata/evidence index read、同期。証跡を書換えない</td><td>200 <code>EvidenceBundleView</code>。required ref欠落=423 <code>EVIDENCE_INCOMPLETE</code></td><td>アクセスeventとbundle manifest hashを残す。TEST-033</td></tr>
+      <tr><td><code>019<br>assess_holdout_reuse</code></td><td>1) source run／planを読む 2) proposed useをallowlist照合 3) reuse禁止ならGate付きBLOCKED assessmentを保存 4) View返却</td><td>guard/audit metadata write、同期。Strategy／Config／Runを変更しない</td><td>表示・比較確認だけは200。最良選択、設定変更、自動再実行は403 <code>HOLDOUT_REUSE_BLOCKED</code></td><td>rationale code、gate、source run、decisionをaudit。TEST-034〜036</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>7. 状態遷移、処理順、並行性、再試行</h2>
+  <p>状態をAPI結果だけで推測しない。write APIはexpected revisionとidempotency recordを使い、Query APIはsnapshot revisionを返す。
+    worker以外のAPIがCoreを呼んだり、RUNNING Jobを強制終了したりしてはならない。</p>
+  <pre class="mermaid">sequenceDiagram
+    participant UI as UI Adapter
+    participant API as ProductApplicationApi
+    participant PF as Preflight
+    participant RS as Run/Job Service
+    participant DB as Metadata
+    participant W as Local Worker
+    participant C as Frozen Core
+    UI->>API: preflight_run(typed RunSpec)
+    API->>PF: ordered checks
+    PF-->>API: PASS + report_sha256
+    API-->>UI: COMPLETED PreflightReport
+    UI->>API: create_run(preflight_sha256, idempotency_key)
+    API->>RS: validate hash + fingerprint
+    RS->>DB: transaction Run(DRAFT)+audit+idempotency
+    DB-->>RS: RunView
+    API-->>UI: ACCEPTED 201 DRAFT
+    UI->>API: start_job(run_id, expected_revision)
+    API->>RS: enqueue only
+    RS->>DB: transaction Job(QUEUED)+QueueItem(WAITING)
+    API-->>UI: ACCEPTED 202 JobView
+    W->>DB: claim lease
+    W->>C: BacktestRunner.run(request)
+    C-->>W: BacktestRunResult
+    W->>DB: state/result/evidence refs
+    UI->>API: get_run / get_result_summary
+    API-->>UI: COMPLETED committed view</pre>
+  <div class="wide">
+  <table>
+    <caption>正常系シーケンスのhandoff。各段階で誰が何を所有し、どこで止めるかを確認する表。</caption>
+    <thead><tr><th>段階</th><th>入力</th><th>出力</th><th>停止条件</th></tr></thead>
+    <tbody>
+      <tr><td>Preflight</td><td>RunSpec、Context</td><td>report SHA-256、PASS／FAIL／BLOCKED</td><td>FAIL／BLOCKEDならRun／Jobを作らない</td></tr>
+      <tr><td>Run作成</td><td>PASS report、RunSpec fingerprint、idempotency key</td><td>DRAFT Run、audit、evidence planned ref</td><td>hash／key競合なら既存View又は409</td></tr>
+      <tr><td>Job開始</td><td>DRAFT／RESUMABLE Run、expected revision</td><td>QUEUED Job、WAITING QueueItem</td><td>開始APIではCoreを呼ばない</td></tr>
+      <tr><td>Worker</td><td>lease、immutable RunSpec、cancel intent</td><td>COMMITTED result又はSTOPPED／FAILED</td><td>lease／baseline／manifest／checkpoint不整合でRECOVERY_REQUIRED</td></tr>
+      <tr><td>View</td><td>metadata、commit marker、evidence refs</td><td>Run／Result／CSV／Evidence View</td><td>未commit、hash不一致、Unknownを成功Viewにしない</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <pre class="mermaid">flowchart TD
+    A["write API request"] --> B{"schema / version / secret boundary"}
+    B -- invalid --> R1["REJECTED: TYPED_INPUT_INVALID"]
+    B -- valid --> C{"idempotency record"}
+    C -- same fingerprint --> R2["return stored response"]
+    C -- different fingerprint --> R3["CONFLICT: IDEMPOTENCY_FINGERPRINT_CONFLICT"]
+    C -- absent --> D{"preflight / state / revision"}
+    D -- failure --> R4["BLOCKED or REJECTED; no Core/file side effect"]
+    D -- pass --> E["one metadata transaction + audit"]
+    E -- failure --> R5["BLOCKED: PERSISTENCE_INCONSISTENT"]
+    E -- committed --> F["ACCEPTED / COMPLETED View"]
+    F --> G{"worker result / file result"}
+    G -- marker/hash mismatch --> R6["RECOVERY_REQUIRED; no publication"]
+    G -- committed --> H["published result/evidence view"]</pre>
+  <div class="wide">
+  <table>
+    <caption>異常系シーケンスのhandoff。失敗後に副作用を進めないことを確認する表。</caption>
+    <thead><tr><th>失敗箇所</th><th>API応答</th><th>保存・Core・fileへの影響</th><th>次の行動</th></tr></thead>
+    <tbody>
+      <tr><td>schema／version／Secret境界</td><td>400／501、FailureView</td><td>影響なし</td><td>FIX_INPUT又は後続Phaseへ戻る</td></tr>
+      <tr><td>idempotency key衝突</td><td>同fingerprintなら既存Response、差異なら409</td><td>二重Run／Jobを作らない</td><td>既存IDを表示又は新keyで再作成</td></tr>
+      <tr><td>Preflight／state／revision</td><td>403／409／422</td><td>Core、Queue、CSVへ進まない</td><td>入力修正、Gate待ち、Recoveryを選ぶ</td></tr>
+      <tr><td>metadata transaction</td><td>423 <code>PERSISTENCE_INCONSISTENT</code></td><td>rollback。公開状態を作らない</td><td>RECOVER。自動再送なし</td></tr>
+      <tr><td>ResultStore／CSV hash不一致</td><td>423 <code>RECOVERY_REQUIRED</code></td><td>publishせず、参照を成功表示しない</td><td>checkpoint／marker束を検査してresume判断</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>7.1 状態・排他・再試行の規則</h3>
+  <div class="wide">
+  <table>
+    <caption>APIが変更できる状態と並行操作の規則。二重実行・不正な再開を防ぐための表。</caption>
+    <thead><tr><th>対象</th><th>許可遷移</th><th>API</th><th>排他・再試行</th></tr></thead>
+    <tbody>
+      <tr><td>Run</td><td>DRAFT→QUEUED→RUNNING→SUCCEEDED／STOPPED／FAILED／RECOVERY_REQUIRED</td><td>003、007、010、011、worker</td><td>writeはexpected revision必須。terminalからの条件変更は禁止</td></tr>
+      <tr><td>Sweep parent</td><td>DRAFT→QUEUED→RUNNING→SUCCEEDED／PARTIAL_FAILED／STOPPED</td><td>004、007、010、011、worker</td><td>childごとのRunを独立。child失敗を親成功へ丸めない</td></tr>
+      <tr><td>Job</td><td>CREATED／QUEUED→RUNNING→SUCCEEDED／CANCELLED／STOPPED／FAILED／RECOVERY_REQUIRED</td><td>007〜011、worker</td><td>同一operation fingerprintは1 Job。retryは最大3、backoffは10/30/90秒の予定値</td></tr>
+      <tr><td>QueueItem</td><td>WAITING→LEASED→DONE／RELEASED／CANCELLED</td><td>007、010、worker</td><td>leaseとfencing tokenを必須。期限切れ再claim時は旧workerの書込みを拒否</td></tr>
+      <tr><td>CSV Job</td><td>CREATED→QUEUED→RUNNING→SUCCEEDED／FAILED／CANCELLED</td><td>016、017、worker</td><td>source result hash＋columns/filter/sort hashが同じ時だけ同一Job。出力上書き禁止</td></tr>
+      <tr><td>Holdout assessment</td><td>REQUESTED→ALLOWED_FOR_VIEW_ONLY／BLOCKED</td><td>019</td><td>自動採用へ進む遷移なし。BLOCKEDを人手承認なしに変更しない</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>8. 永続化、ファイル、Evidence、監査</h2>
+  <p>APIは保存実装を直接露出しないが、read/write対象と原子性を明記する。P4-H1後のmetadata候補はSQLite WALであり、
+    Core結果は既存 <code>AtomicResultStore</code> を正本とする。APIが任意pathやfile bytesを返すことはない。</p>
+  <div class="wide">
+  <table>
+    <caption>APIと保存物の対応。どのAPIが何を読み書きするかを明確にする表。</caption>
+    <thead><tr><th>保存物</th><th>主な書込みAPI</th><th>主な読出しAPI</th><th>不変条件</th></tr></thead>
+    <tbody>
+      <tr><td><code>run</code>、<code>run_condition</code></td><td>003、004、007、010、011、worker</td><td>005、006、013、015、018、019</td><td>condition hashは作成後immutable。revisionはcompare-and-swap</td></tr>
+      <tr><td><code>job</code>、<code>queue_item</code></td><td>007、010、011、016、worker</td><td>008、009、012、017</td><td>operation fingerprint一意、lease fencing、取消意図をappend audit</td></tr>
+      <tr><td><code>sweep_parent</code>、<code>sweep_member</code></td><td>004、007、010、011、worker</td><td>005、006、013〜015、018</td><td>全candidateのID/hashを保持。失敗childを削除しない</td></tr>
+      <tr><td><code>idempotency_record</code></td><td>003、004、007、010、011、016、019</td><td>同じwrite API</td><td>scope＋key一意。同fingerprintはstored response、差異はCONFLICT</td></tr>
+      <tr><td>既存ResultStore</td><td>workerのみ</td><td>013、014、015、016、018</td><td>append-then-commit、marker last、atomic publish。未commitをViewへ出さない</td></tr>
+      <tr><td><code>csv_job</code>／CSV file</td><td>016、worker</td><td>017、018</td><td>temp→hash→rename。relative refのみ。UNC・absolute・上書きなし</td></tr>
+      <tr><td><code>audit_event</code>／Evidence index</td><td>全write、worker</td><td>018、005、008</td><td>append-only。request/correlation/hash/reasonのみ、Secret・入力本体なし</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>8.1 Evidence bundleと相対参照</h3>
+  <pre>evidence/{phase_id}/{run_id}/
+  application-request.json           # canonical request hash、秘密値なし
+  preflight.json                     # check id、PASS/FAIL/BLOCKED、report hash
+  state-transitions.jsonl            # before/after、reason、revision
+  result-reference.json              # published result ref、commit marker hash
+  metrics.json                       # five metrics、definition version、source result hash
+  checkpoint-summary.json            # checkpoint hash、resume eligibility
+  csv-jobs/{csv_job_id}.json         # CSV spec hash、state、output hash
+  audit.jsonl                        # append-only audit
+  failure.json                       # failure時のみ
+  verification.json                  # P4-H1後の実行検証。P4-H0はDESIGNED_NOT_EXECUTED</pre>
+  <div class="wide">
+  <table>
+    <caption>監査・Secret境界。追跡可能性を保ちつつ秘密情報や実Dataを記録しないための表。</caption>
+    <thead><tr><th>記録するもの</th><th>記録しないもの</th><th>検査規則</th></tr></thead>
+    <tbody>
+      <tr><td>request_id、correlation_id、run/job/csv ID、hash、state、reason_code、revision、retry、relative ref</td><td>token、password、API key、absolute path、実Data本文、実Risk値、口座・注文情報</td><td>serializer前にdenylist検査。検出時は<code>SECRET_OR_SENSITIVE_FIELD_FORBIDDEN</code></td></tr>
+      <tr><td>source mode、manifest／fixture／core／config／result hash、definition version</td><td>Provider URL、Broker credential、external hostname、Cloud bucket</td><td><code>LOCAL_FIXED</code>以外は<code>EXTERNAL_IO_FORBIDDEN</code></td></tr>
+      <tr><td>Holdoutの状態、Gate ID、assessment ID</td><td>最良選択結論、設定自動変更、未解禁raw holdout値</td><td>Gate未承認は<code>HOLDOUT_REUSE_BLOCKED</code>。表示専用もEvidenceへ残す</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>9. 互換性、ページング、ソート、フィルタ、transport</h2>
+  <div class="wide">
+  <table>
+    <caption>一覧・結果APIの読出し規約。大量表を安全に扱い、UIが独自の並び替え意味を作らないための表。</caption>
+    <thead><tr><th>対象API</th><th>cursor</th><th>sort allowlist</th><th>filter allowlist</th><th>互換性・retry</th></tr></thead>
+    <tbody>
+      <tr><td>006 list_runs</td><td>condition snapshot revision＋last sort tupleを署名付き不透明値にする</td><td>created_at、state、kind、logical instrument</td><td>state、kind、condition hash prefix、logical instrument</td><td>stale cursor=409。Query再送可。新field追加はoptionalのみ</td></tr>
+      <tr><td>009 list_jobs</td><td>job snapshot revision＋last tuple</td><td>created_at、state、queue position、retry count</td><td>run_id、state、kind</td><td>terminal stateを並び替えで消さない。Query再送可</td></tr>
+      <tr><td>012 get_queue_state</td><td>queue snapshot revision＋last tuple</td><td>queue position、created_at、priority</td><td>state、wait reason、resource state</td><td>poll間の変化はcursor conflictで可視化。push transportなし</td></tr>
+      <tr><td>014 list_result_rows</td><td>source result hash＋projection＋last row identity</td><td>event time、sequence、metric value（projection別allowlist）</td><td>projection固有のallowlistだけ</td><td>source result hash変化=409。result再計算・丸め変更なし</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>write APIの同期性は「metadataの受理まで」である。<code>start_job</code> と <code>create_csv_job</code> は202を返しても、
+    実行・ファイル完成を意味しない。UIは008／009／012／017のpolling結果で状態を表示する。SSE、WebSocket、long polling、
+    HTTP retry middleware、外部QueueはP4対象外である。</p>
+
+  <h2>10. APIとUIの双方向binding</h2>
+  <p>P4-04Bで全21画面の部品・状態・アクセシビリティ詳細を作る。本章は先行して、各APIを呼ぶ画面と、
+    APIが返す状態をどのUISTATEとして表すかを固定する。UIはAPIを通らずに状態を推測しない。</p>
+  <p>本章の短縮表記は、正本IDではそれぞれ <code>UISTATE-NORMAL</code>、<code>UISTATE-LOADING</code>、
+    <code>UISTATE-EMPTY</code>、<code>UISTATE-REQUIRED</code>、<code>UISTATE-WARNING</code>、
+    <code>UISTATE-STOPPED</code>、<code>UISTATE-FAILED</code>、<code>UISTATE-RECOVERY</code>、
+    <code>UISTATE-HUMAN-GATE</code>、<code>UISTATE-UNAPPROVED</code> を指す。P4-04Bは各画面×各正本IDを
+    <code>SUPPORTED</code>、<code>PROHIBITED</code>、理由付き<code>N/A</code>のいずれかへ展開する。</p>
+  <div class="wide">
+  <table>
+    <caption>API→Screen／Stateのbinding。P4-04Bが全21画面を設計する際の入力となる表。</caption>
+    <thead><tr><th>API</th><th>主Screen</th><th>表示するUISTATE</th><th>禁止するUI動作</th><th>次のAPI／Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>001</td><td>SCREEN-01/18/19</td><td>NORMAL、UNAPPROVED、HUMAN-GATE</td><td>P4外能力を有効操作として見せる</td><td>018／統合台帳</td></tr>
+      <tr><td>002</td><td>SCREEN-08/09</td><td>REQUIRED、WARNING、FAILED、UNAPPROVED</td><td>PASS前の003／004／007</td><td>003／004／P4-EV-INPUT-PREFLIGHT</td></tr>
+      <tr><td>003/004</td><td>SCREEN-08/09/10</td><td>LOADING、NORMAL、FAILED</td><td>DRAFT作成を実行開始と表示する</td><td>007／005／P4-EV-UNIT-AUDIT</td></tr>
+      <tr><td>005/006</td><td>SCREEN-02/09/10/12/19</td><td>NORMAL、EMPTY、FAILED、RECOVERY</td><td>未commit結果を成功カードにする</td><td>007/013/018</td></tr>
+      <tr><td>007〜012</td><td>SCREEN-02/09/17/19</td><td>LOADING、STOPPED、FAILED、RECOVERY、WARNING</td><td>RUNNINGの強制kill、retry上限超過、Queue不明の開始</td><td>008/012/011/018</td></tr>
+      <tr><td>013/014/015</td><td>SCREEN-10/11/12/19</td><td>NORMAL、EMPTY、LOADING、FAILED、UNAPPROVED</td><td>条件差ありを同一順位、未提供projectionを疑似グラフ化</td><td>016/018/019</td></tr>
+      <tr><td>016/017</td><td>SCREEN-10/12/19</td><td>LOADING、NORMAL、FAILED、STOPPED</td><td>CSV受理をダウンロード完了と表示、file URIを公開</td><td>017/018</td></tr>
+      <tr><td>018/019</td><td>SCREEN-10/12/18/19</td><td>HUMAN-GATE、UNAPPROVED、WARNING、FAILED</td><td>Holdout結果の自動採用、Gateなしの再利用</td><td>統合台帳／P4-EV-HOLDOUT-GATE</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>10.1 全21画面のAPI coverage register（API観点）</h3>
+  <p>画面のレイアウト・部品・10状態の個別詳細はP4-04Bの責務である。ただし、APIの呼出元を未定義にしないため、
+    ここでSCREEN-01〜21を一度ずつ登録する。<code>BOUNDARY_ONLY</code>はP4で安全な境界表示だけを設計し、
+    後続Phaseの機能を実装する意味ではない。</p>
+  <div class="wide">
+  <table>
+    <caption>全21画面とAPIの一次対応。P4-04Bはこの表を画面側から更新して双方向参照にする。</caption>
+    <thead><tr><th>Screen / 主目的</th><th>P4判定</th><th>参照・操作するAPI</th><th>P4で禁止する動作 / 後続</th></tr></thead>
+    <tbody>
+      <tr><td>SCREEN-01 システム状態・禁止事項</td><td>BOUNDARY_ONLY</td><td>001、X02、X04</td><td>Provider／Broker接続、Secret設定。P7／Security Gate</td></tr>
+      <tr><td>SCREEN-02 Home Dashboard</td><td>P4_TARGET</td><td>001、006、009、012</td><td>外部Alert通知、実測性能の保証。後続Ops Gate</td></tr>
+      <tr><td>SCREEN-03 運用単位一覧</td><td>P4_TARGET</td><td>006、007、009、012</td><td>Paper／Live開始、実Risk変更。P6/P7</td></tr>
+      <tr><td>SCREEN-04 運用単位作成・編集</td><td>P4_TARGET</td><td>002、003</td><td>RUNNING Runの直接変更、実Risk値入力。P6</td></tr>
+      <tr><td>SCREEN-05 銘柄・Data・Quality</td><td>BOUNDARY_ONLY</td><td>001、002</td><td>Provider取得、実市場Data補完、正式Calendar確定。P5/P7</td></tr>
+      <tr><td>SCREEN-06 Strategy一覧</td><td>BOUNDARY_ONLY</td><td>001、002</td><td>Strategy plugin編集、外部取得。固定参照だけ。後続Strategy Gate</td></tr>
+      <tr><td>SCREEN-07 Strategy設定</td><td>BOUNDARY_ONLY</td><td>001、002</td><td>Core規則の変更、inline source保存。固定version参照だけ</td></tr>
+      <tr><td>SCREEN-08 Backtest設定</td><td>P4_TARGET</td><td>002、003、004</td><td>PASS前のRun作成／開始、実Cost／実Risk入力</td></tr>
+      <tr><td>SCREEN-09 Run・Queue・進捗</td><td>P4_TARGET</td><td>002、005、007〜012、018</td><td>force kill、外部worker、未知resourceでの開始</td></tr>
+      <tr><td>SCREEN-10 結果要約</td><td>P4_TARGET</td><td>005、006、013〜019</td><td>未commit結果の成功表示、Holdout自動採用</td></tr>
+      <tr><td>SCREEN-11 Chart・取引・Signal</td><td>P4_TARGET</td><td>013、014、018</td><td>未提供projectionの生成、外部共有・注文操作</td></tr>
+      <tr><td>SCREEN-12 Run比較・網羅結果</td><td>P4_TARGET</td><td>005、006、013〜019</td><td>条件差Runの同一順位化、CSV file URI公開</td></tr>
+      <tr><td>SCREEN-13 Forward・Shadow Dashboard</td><td>BOUNDARY_ONLY</td><td>001、X01、X04</td><td>実時間Data、Shadow実行。P7／Data Gate</td></tr>
+      <tr><td>SCREEN-14 Paper・Live Dashboard</td><td>BOUNDARY_ONLY</td><td>001、X01、X02</td><td>Paper／Live、Order、Auto-approval。P7／Human Gate</td></tr>
+      <tr><td>SCREEN-15 Portfolio・Account・Risk</td><td>BOUNDARY_ONLY</td><td>001、X03</td><td>Balance、資金配分、Risk実値。P6／Risk Gate</td></tr>
+      <tr><td>SCREEN-16 Order・Fill・Position</td><td>BOUNDARY_ONLY</td><td>001、X02、X03</td><td>Confirm、Cancel、Fill、Broker送信。P6/P7</td></tr>
+      <tr><td>SCREEN-17 Alert・Incident</td><td>P4_BOUNDARY_TARGET</td><td>008〜011、018、X03</td><td>OMS／Broker Incident操作。P4はJob停止・復旧理由だけ</td></tr>
+      <tr><td>SCREEN-18 Human Gate・昇格・復旧</td><td>P4_BOUNDARY_TARGET</td><td>001、019、X01〜X04</td><td>Gateの自動承認、Mode昇格、Risk／Broker再開。明示承認待ち</td></tr>
+      <tr><td>SCREEN-19 履歴・Audit・Evidence</td><td>P4_TARGET</td><td>001、005、006、008、009、013〜019</td><td>Archive／Delete、absolute path／Secretの表示。後続Persistence Gate</td></tr>
+      <tr><td>SCREEN-20 設定・接続・端末</td><td>BOUNDARY_ONLY</td><td>001、X01〜X04</td><td>Provider／Broker／Secret／端末接続、Backup実行。P6/P7</td></tr>
+      <tr><td>SCREEN-21 Help・用語集</td><td>P4_BOUNDARY_TARGET</td><td>001、005、008、018、019</td><td>状態・Gateを成功扱いへ言い換えること。P4外用語は理由・Phase・Gateを併記</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>11. P4外endpoint／操作の明示的なUNSUPPORTED契約</h2>
+  <p>次表はcanonical APIではない。将来の画面・Adapterが誤って外部操作を実装しないよう、P4で明示的に
+    <code>UNSUPPORTED</code>を返す境界を定義する。いずれもin-process handlerは副作用を持たず、HTTP routeも作らない。</p>
+  <div class="wide">
+  <table>
+    <caption>P4外の要求をFail-closedにする契約。理由、後続Phase、Human Gateを返却する表。</caption>
+    <thead><tr><th>boundary ID / 将来の投影例</th><th>Response</th><th>理由・副作用</th><th>後続Phase・Gate</th><th>関連Screen</th></tr></thead>
+    <tbody>
+      <tr><td><code>API-P4-X01</code><br><code>POST /local/v1/modes/paper</code>／<code>live</code></td><td>501 <code>P4_OUT_OF_SCOPE</code></td><td>Paper／Live mode、auto approval、実行昇格はP4外。Run／Job／Core／外部接続なし</td><td>P7、P4-H1とは別のmode承認</td><td>SCREEN-13/14/18</td></tr>
+      <tr><td><code>API-P4-X02</code><br><code>POST /local/v1/broker/*</code></td><td>501 <code>EXTERNAL_IO_FORBIDDEN</code></td><td>Broker、Provider、market data取得、注文、照合、socketを拒否</td><td>P7、Provider／Broker／Secret Gate</td><td>SCREEN-01/14/20</td></tr>
+      <tr><td><code>API-P4-X03</code><br><code>POST /local/v1/risk/*</code>／<code>orders</code></td><td>501 <code>P4_OUT_OF_SCOPE</code></td><td>Risk実値、Account、Portfolio、OMS、Orderを拒否。P4はRiskReferenceだけ</td><td>P6、Risk／Account／OMS Gate</td><td>SCREEN-15/16/17</td></tr>
+      <tr><td><code>API-P4-X04</code><br><code>POST /local/v1/secrets</code>／<code>external-data</code></td><td>501 <code>SECRET_OR_EXTERNAL_INPUT_FORBIDDEN</code></td><td>Secret登録、credential、URL、Cloud、外部Dataを拒否。保存も監査も行わない</td><td>P6/P7以降の個別Security Gate</td><td>SCREEN-18/19/20</td></tr>
+      <tr><td><code>API-P4-X05</code><br><code>GET /local/v1/files/{path}</code></td><td>501 <code>FILE_TRANSFER_NOT_DESIGNED</code></td><td>file bytes、absolute path、browser download routeをP4で提供しない</td><td>P4-H1後の別設計・Security review</td><td>SCREEN-10/12/19</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>12. APIテスト、固定入力、期待結果、Evidence</h2>
+  <p>テストはP4-04CでRED化する。P4-04Aは実行しないが、全APIに少なくとも正常・境界／失敗の固定テストを割り当てる。
+    全テストは固定local fixtureとdummy IDだけを使い、network、実Data、Secret、実Risk、Brokerを使わない。</p>
+  <div class="wide">
+  <table>
+    <caption>API別テスト仕様。実装・P4-04C・P4-05のレビューでcoverageを機械照合できる表。</caption>
+    <thead><tr><th>Test ID</th><th>API</th><th>固定入力・操作</th><th>期待結果</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>TEST-P4-API-001</td><td>001</td><td>p4-v1 capability query</td><td>BACKTEST_LOCALのみ設計対象、P4外は理由・Phase・Gate付きUNSUPPORTED</td><td>P4-EV-UI-STATE-CONTRACT</td></tr>
+      <tr><td>TEST-P4-API-002</td><td>002</td><td>固定RunSpec正常値</td><td>PASS、安定report hash、Run／Job／Core副作用0</td><td>P4-EV-INPUT-PREFLIGHT</td></tr>
+      <tr><td>TEST-P4-API-003</td><td>002</td><td>float、NaN、unknown field、naive datetime</td><td>TYPED_INPUT_INVALID、field error、副作用0</td><td>failure.json</td></tr>
+      <tr><td>TEST-P4-API-004</td><td>002</td><td>manifest／fixture／core baselineのhash差</td><td>MANIFEST_MISMATCH又はCORE_BASELINE_MISMATCH、Core未呼出し</td><td>preflight.json</td></tr>
+      <tr><td>TEST-P4-API-005</td><td>002</td><td>holdout boundary逆順、future event</td><td>LOOKAHEAD_REJECTED、Run未作成</td><td>failure.json</td></tr>
+      <tr><td>TEST-P4-API-006</td><td>003</td><td>PASS report＋同一key／fingerprintを二回送信</td><td>同じDRAFT RunView、Run一件、audit一件</td><td>P4-EV-UNIT-AUDIT</td></tr>
+      <tr><td>TEST-P4-API-007</td><td>003</td><td>同一key＋異なるRunSpec hash</td><td>409 IDEMPOTENCY_FINGERPRINT_CONFLICT、Core／Queue副作用0</td><td>failure.json</td></tr>
+      <tr><td>TEST-P4-API-008</td><td>004</td><td>2×3固定candidate Sweep</td><td>parent一件、child六件、全candidate hash保存、開始なし</td><td>P4-EV-SWEEP-PREFLIGHT</td></tr>
+      <tr><td>TEST-P4-API-009</td><td>004</td><td>endpoint未包含、型不正range</td><td>422 SWEEP_SPEC_INVALID、部分child 0</td><td>failure.json</td></tr>
+      <tr><td>TEST-P4-API-010</td><td>004</td><td>candidate上限超過</td><td>422 SWEEP_LIMIT_EXCEEDED、Run 0</td><td>failure.json</td></tr>
+      <tr><td>TEST-P4-API-011</td><td>005</td><td>未commit result refを持つRun</td><td>RunViewは状態・failureを返し、成功ResultViewを返さない</td><td>P4-EV-FAIL-CLOSED</td></tr>
+      <tr><td>TEST-P4-API-012</td><td>006</td><td>同条件の履歴三件、limit=2</td><td>stable cursor、最新表示と履歴を分離、raw holdoutなし</td><td>P4-EV-SWEEP-ROWS</td></tr>
+      <tr><td>TEST-P4-API-013</td><td>007</td><td>DRAFT Run＋expected revision</td><td>Job=QUEUEDとQueueItem=WAITINGを同一transaction、Core呼出し0</td><td>P4-EV-JOB-QUEUE</td></tr>
+      <tr><td>TEST-P4-API-014</td><td>007</td><td>同一start fingerprintを二回送信</td><td>同一JobView、Job／QueueItem各一件</td><td>audit.jsonl</td></tr>
+      <tr><td>TEST-P4-API-015</td><td>008</td><td>RUNNING Job、checkpoint refあり</td><td>retry、lease、checkpointを区別して返す</td><td>P4-EV-JOB-QUEUE</td></tr>
+      <tr><td>TEST-P4-API-016</td><td>009</td><td>state filter＋stale cursor</td><td>許可filterのみ、staleは409、黙って別snapshotを返さない</td><td>failure.json</td></tr>
+      <tr><td>TEST-P4-API-017</td><td>010</td><td>QUEUED Job cancel</td><td>CANCELLED、QueueItemも取消、同一key再送は同じView</td><td>P4-EV-SWEEP-RECOVERY</td></tr>
+      <tr><td>TEST-P4-API-018</td><td>010</td><td>RUNNING Job cancel</td><td>CANCEL_REQUESTED、force killなし、checkpointまで待つ</td><td>state-transitions.jsonl</td></tr>
+      <tr><td>TEST-P4-API-019</td><td>011</td><td>整合するSTOPPED Job＋checkpoint束</td><td>新Job QUEUED、attempt+1、旧Jobを上書きしない</td><td>checkpoint-summary.json</td></tr>
+      <tr><td>TEST-P4-API-020</td><td>011</td><td>checkpoint／manifest hash差</td><td>423 RECOVERY_REQUIRED、Core.resume未呼出し</td><td>failure.json</td></tr>
+      <tr><td>TEST-P4-API-021</td><td>011</td><td>retry_count=3</td><td>422 RETRY_LIMIT_REACHED、新Job 0</td><td>failure.json</td></tr>
+      <tr><td>TEST-P4-API-022</td><td>012</td><td>WAITING／LEASED／resource unknown</td><td>position、wait reason、resource UNKNOWNを分離、開始可にしない</td><td>P4-EV-JOB-QUEUE</td></tr>
+      <tr><td>TEST-P4-API-023</td><td>013</td><td>COMMITTED result＋五指標</td><td>source hash、definition version、holdout status付きSummary</td><td>P4-EV-RESULT-METRICS</td></tr>
+      <tr><td>TEST-P4-API-024</td><td>013</td><td>commit marker欠落</td><td>RESULT_NOT_COMMITTED又はRECOVERY_REQUIRED、metrics 0</td><td>failure.json</td></tr>
+      <tr><td>TEST-P4-API-025</td><td>014</td><td>TRADE projection、limit=50</td><td>stable cursor、source hash、allowlist sort</td><td>P4-EV-SWEEP-ROWS</td></tr>
+      <tr><td>TEST-P4-API-026</td><td>014</td><td>未提供SIGNAL projection</td><td>VIEW_NOT_AVAILABLE、疑似row 0</td><td>failure.json</td></tr>
+      <tr><td>TEST-P4-API-027</td><td>014</td><td>result hash変更後のcursor</td><td>409 CURSOR_SNAPSHOT_CONFLICT</td><td>failure.json</td></tr>
+      <tr><td>TEST-P4-API-028</td><td>015</td><td>同一条件hashの二Run</td><td>comparable=true、差分とcomparison hash</td><td>P4-EV-COMPARE-CONDITION</td></tr>
+      <tr><td>TEST-P4-API-029</td><td>015</td><td>Data／Calendar差あり二Run</td><td>comparable=false、順位・採用結論なし</td><td>P4-EV-COMPARE-CONDITION</td></tr>
+      <tr><td>TEST-P4-API-030</td><td>016</td><td>COMMITTED source、許可columns/filter</td><td>CsvJob=QUEUED、source／filter／columns hash保存</td><td>P4-EV-CSV-JOB</td></tr>
+      <tr><td>TEST-P4-API-031</td><td>016</td><td>未commit source、absolute path相当値</td><td>BLOCKED／REJECTED、file作成0</td><td>failure.json</td></tr>
+      <tr><td>TEST-P4-API-032</td><td>017</td><td>SUCCEEDED CSV Job</td><td>relative file refとoutput hashだけ、file bytes／absolute pathなし</td><td>P4-EV-CSV-JOB</td></tr>
+      <tr><td>TEST-P4-API-033</td><td>018</td><td>required evidence ref一件欠落</td><td>EVIDENCE_INCOMPLETE、PASS表示なし</td><td>failure.json</td></tr>
+      <tr><td>TEST-P4-API-034</td><td>019</td><td>holdout結果の表示確認</td><td>view-only assessment、Gateとauditを返す</td><td>P4-EV-HOLDOUT-GATE</td></tr>
+      <tr><td>TEST-P4-API-035</td><td>019</td><td>holdoutから最良設定を自動採用</td><td>403 HOLDOUT_REUSE_BLOCKED、Config／Run変更0</td><td>P4-EV-HOLDOUT-GATE</td></tr>
+      <tr><td>TEST-P4-API-036</td><td>019</td><td>Gate IDなしの再利用要求</td><td>403 GATE_REQUIRED、理由・next actionを返す</td><td>failure.json</td></tr>
+      <tr><td>TEST-P4-API-037</td><td>X01〜X05</td><td>Paper、Broker、Risk値、Secret、file transfer呼出し</td><td>501 UNSUPPORTED、外部／file副作用0</td><td>P4-EV-UNKNOWN-GATE</td></tr>
+      <tr><td>TEST-P4-API-038</td><td>全write</td><td>Secretらしいfield／absolute pathを混入</td><td>SECRET_OR_SENSITIVE_FIELD_FORBIDDEN、auditに値を残さない</td><td>P4-EV-FAIL-CLOSED</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>13. 追跡性、ADR、Unknown</h2>
+  <div class="wide">
+  <table>
+    <caption>API設計を要件と設計判断へ戻せるようにする追跡表。</caption>
+    <thead><tr><th>ID</th><th>内容</th><th>本書の反映</th><th>状態</th></tr></thead>
+    <tbody>
+      <tr><td>REQ-V2-0015/0020/0021/0044</td><td>起動状態、型付き入力、Preflight、単一Backtest入力</td><td>001〜003、共通DTO、Preflight順序</td><td class="ok">収容</td></tr>
+      <tr><td>REQ-V2-0036〜0043</td><td>Unit、Run／Job分離、Queue、retry、checkpoint、履歴</td><td>003、005〜012、7章</td><td class="ok">収容</td></tr>
+      <tr><td>REQ-V2-0045〜0050</td><td>単一Backtest／Sweepの開始、五指標、部分失敗</td><td>004、007、010〜015</td><td class="ok">収容</td></tr>
+      <tr><td>REQ-V2-0052〜0055/0090</td><td>比較、CSV、Holdout境界・再利用制限</td><td>015〜019、8〜12章</td><td class="ok">収容</td></tr>
+      <tr><td>REQ-V2-0084〜0086/0098/0100/0102/0105</td><td>21画面追跡、状態、Fail-closed、メッセージ、Unknown</td><td>010〜012、P4-04B入力</td><td class="ok">収容</td></tr>
+      <tr><td>DEC-P4-001〜006</td><td>Application境界、SQLite候補、FastAPI不採用、React候補、local worker、AtomicResultStore</td><td>1〜3、8〜9章。HTTPはprojectionだけ</td><td class="ok">維持</td></tr>
+      <tr><td>UNK-P3-01/05/07、Q-243、RQV2-BLK-001</td><td>実Data、Cost、正式Calendar、性能／Gate、Phase1証跡</td><td>API成功・P4完成に変換しない。Capability／Failure／Evidenceへ保持</td><td class="pending">未解決のまま</td></tr>
+      <tr><td>ART-P4-03 / ART-P4-04</td><td>Backtest詳細設計／API詳細設計</td><td>本書とP4-03を相互参照。P4-04B/C/05へ引渡し</td><td class="ok">設計完了</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>14. Findings first、改訂、専門レビュー</h2>
+  <div class="finding"><strong><span class="ok">P4-04A-R-001　API inventoryの欠落 0</span></strong> P4のRun、Sweep、Job、Queue、Result、Chart／Trade／Signal projection、比較、CSV、Evidence、Holdout guardを19 APIへ分解し、各APIにAPI-P4-IDを付与した。</div>
+  <div class="finding"><strong><span class="ok">P4-04A-R-002　HTTPの実装誤認 0</span></strong> HTTPは無効なlocal投影に限定し、in-process contractを正本とした。server、route、socket、認証、外部通信を設計許可へ含めていない。</div>
+  <div class="finding"><strong><span class="ok">P4-04A-R-003　失敗・副作用境界の欠落 0</span></strong> 全write APIへschema、preflight、idempotency、expected revision、metadata transaction、Core／file非副作用の順序を定義した。</div>
+  <div class="finding"><strong><span class="ok">P4-04A-R-004　UI／APIの追跡孤立 0</span></strong> API→Screen／UISTATE、P4-TR、Test、Evidenceをinventoryとbinding表に記録し、P4-04Bの21画面設計入力を確定した。</div>
+  <div class="finding"><strong><span class="ok">P4-04A-R-005　P4外endpointの曖昧さ 0</span></strong> Paper／Live、Broker／Data、Risk／OMS、Secret、file transferをAPI-P4-X01〜X05としてUNSUPPORTEDに固定した。</div>
+  <div class="finding"><strong><span class="ok">P4-04A-R-006　Critical／High未解決 0</span></strong> A91はfield、型、失敗、保存、状態、並行性、テスト、Evidenceを、A90はREQ／UC／Screen／StateとP4外境界を確認した。未解決Unknownは台帳のまま残し、Passにしない。</div>
+  <p>改訂履歴: v0.1で初版作成。P4-03のApplication設計を変更せず、API正本・DTO・全19 API・P4外拒否・テストを追加した。
+    Critical／High指摘が後続レビューで出た場合は、P4-04Aを改訂してからP4-H1承認対象へ入れる。</p>
+
+  <h2>15. P4-04B／P4-04C／P4-H1への引渡し</h2>
+  <div class="wide">
+  <table>
+    <caption>本書から次Stepへ渡す確定物と、まだ許可しない作業を明確にする表。</caption>
+    <thead><tr><th>宛先</th><th>渡すもの</th><th>受入条件</th><th>禁止事項</th></tr></thead>
+    <tbody>
+      <tr><td>P4-04B</td><td>API-P4-001〜019、X01〜X05、DTO、binding、FailureView、固定ダミー例</td><td>全21 Screenで操作→API→View／Failure／Evidenceを明記し、10 UISTATEセルを扱う</td><td>UIソース変更、API実装、依存導入、実ブラウザ起動</td></tr>
+      <tr><td>P4-04C</td><td>TEST-P4-API-001〜038、idempotency／state／Evidence契約</td><td>RED、Run Manifest、target scope、Core差分0の検査仕様を追加</td><td>テスト実行、fixture変更、WSL Gate</td></tr>
+      <tr><td>P4-05</td><td>本書、P4-04B/C、P4-03</td><td>全API、全Screen、screen×state、REQ／UC／Test／Evidenceの矛盾がなくCritical／High=0</td><td>実装・依存・Runの開始</td></tr>
+      <tr><td>P4-H1</td><td>レビュー済みP4-03、P4-04A/B/C、P4-05、全API inventory、21/21 coverage、RED／Run Manifest</td><td>運用者が明示承認し、target_paths、fixture hash、trusted scope、停止条件を確定</td><td>承認前のP4-06〜09、外部I/O、Core変更、Paper／Live／Broker／Secret</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="small">本書の設計完了はP4-H1承認、API実装、UI実装、RED実行、品質Gate、性能実測、実Data・実Risk・外部接続の承認を意味しない。</p>
+</main>
+</body>
+</html>
