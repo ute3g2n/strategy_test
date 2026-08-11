@@ -214,8 +214,19 @@
   }
 
   async function render() {
+    if (typeof mermaid === "undefined") {
+      return false;
+    }
+
     injectStyles();
     wrapDiagrams();
+
+    const nodes = [...document.querySelectorAll(".mermaid")]
+      .filter((node) => !node.querySelector("svg"));
+
+    if (nodes.length === 0) {
+      return true;
+    }
 
     mermaid.initialize({
       startOnLoad: false,
@@ -228,7 +239,13 @@
       }
     });
 
-    await mermaid.run({ querySelector: ".mermaid" });
+    if (typeof mermaid.run === "function") {
+      await mermaid.run({ nodes });
+    } else if (typeof mermaid.init === "function") {
+      await mermaid.init(undefined, nodes);
+    } else {
+      throw new Error("Mermaid rendering API is unavailable");
+    }
 
     document.querySelectorAll(".mermaid").forEach((node) => {
       const svg = node.querySelector("svg");
@@ -246,13 +263,51 @@
         node._applyDiagramScale();
       }
     });
+
+    return nodes.every((node) => Boolean(node.querySelector("svg")));
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => {
-      render();
-    });
-  } else {
-    render();
+  function scheduleRender() {
+    let attempts = 0;
+    let rendering = false;
+
+    const attempt = () => {
+      if (rendering) {
+        return;
+      }
+
+      const hasUnrendered = [...document.querySelectorAll(".mermaid")]
+        .some((node) => !node.querySelector("svg"));
+
+      if (!hasUnrendered) {
+        return;
+      }
+
+      rendering = true;
+      render().then((complete) => {
+        if (!complete && attempts < 20) {
+          attempts += 1;
+          window.setTimeout(attempt, 250);
+        }
+      }).catch((error) => {
+        console.error("Mermaid diagram rendering failed", error);
+        if (attempts < 20) {
+          attempts += 1;
+          window.setTimeout(attempt, 250);
+        }
+      }).finally(() => {
+        rendering = false;
+      });
+    };
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", attempt, { once: true });
+    } else {
+      attempt();
+    }
+
+    window.addEventListener("load", attempt, { once: true });
   }
+
+  scheduleRender();
 })();
