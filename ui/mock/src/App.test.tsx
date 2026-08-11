@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { axe } from 'vitest-axe'
 import { describe, expect, it } from 'vitest'
 import App from './App'
+import { p4ScreenContracts } from './p4Contract'
 
 describe('RQU-UI-03 component pilot', () => {
   it('renders deterministic mock data and required controls', () => {
@@ -52,6 +53,22 @@ describe('RQU-UI-07 common UI skeleton', () => {
     expect(screen.getAllByRole('heading', { name: 'ヘルプ・用語説明' }).length).toBeGreaterThanOrEqual(2)
   })
 
+  it('binds every screen to the fixed P4 contract and keeps out-of-scope screens fail-closed', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    for (const [screenId, contract] of Object.entries(p4ScreenContracts)) {
+      await user.click(screen.getByTestId(`nav-${screenId}`))
+      const strip = screen.getByTestId(`p4-contract-${screenId}`)
+      expect(strip).toHaveAttribute('data-p4-scope', contract.scope)
+      expect(strip).toHaveAttribute('data-api-p4-ids', contract.apiIds.join(','))
+      expect(strip).toHaveAttribute('data-reason-id', contract.reasonId)
+    }
+    await user.click(screen.getByTestId('nav-SCREEN-14'))
+    expect(screen.getByTestId('screen-SCREEN-14')).toHaveAttribute('data-reason-id', 'P4_OUT_OF_SCOPE')
+    expect(screen.getByText('P4では実行できません')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '移行を確認' })).not.toBeInTheDocument()
+  })
+
   it('opens the safety stop confirmation and exposes the stopped state after confirmation', async () => {
     const user = userEvent.setup()
     render(<App />)
@@ -93,16 +110,15 @@ describe('RQU-UI-08 core operation journeys', () => {
 })
 
 describe('RQU-UI-09 safety and connection journeys', () => {
-  it('does not expose Secret values and requires Risk for Human Gate', async () => {
+  it('keeps Secret and Human Gate screens fail-closed in the P4 boundary', async () => {
     const user = userEvent.setup()
     render(<App />)
 
     await user.click(screen.getByTestId('nav-SCREEN-20'))
-    expect(screen.getByText(/値は非表示/)).toBeInTheDocument()
-    expect(screen.getByText('未設定・未承認')).toBeInTheDocument()
+    expect(screen.getByTestId('screen-SCREEN-20')).toHaveAttribute('data-reason-id', 'P4_OUT_OF_SCOPE')
+    expect(screen.getByText('P4では実行できません')).toBeInTheDocument()
     await user.click(screen.getByTestId('nav-SCREEN-18'))
-    expect(screen.getByRole('button', { name: '移行を確認' })).toBeDisabled()
-    await user.type(screen.getByLabelText('Risk'), '1.0')
-    expect(screen.getByRole('button', { name: '移行を確認' })).toBeEnabled()
+    expect(screen.getByTestId('screen-SCREEN-18')).toHaveAttribute('data-reason-id', 'P4_H2_REQUIRED')
+    expect(screen.queryByRole('button', { name: '移行を確認' })).not.toBeInTheDocument()
   })
 })

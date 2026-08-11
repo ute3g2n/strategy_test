@@ -17,11 +17,11 @@
   - `tests/application`
   - `tests/phase4`
   - `tests/fixtures/phase4`
+  - `ui/mock`（P4-08の固定local UI検証・接続範囲）
 - `excluded_paths`:
   - `src/autotrade/backtest`
   - `src/autotrade/market_data`
   - `src/autotrade/strategy`
-  - `ui/mock`
   - `doc`
   - `plan`
   - `.env`
@@ -36,6 +36,10 @@
 ## 承認後に許可すること
 
 P4-06、P4-07、P4-08、P4-09を、計画書の直接実行プロンプトの順序で実行する。許可範囲は、固定local fixtureを使うProduct/Application、Persistence、Backtest/Sweep/Result/Evidence、P4対象UI、対象scopeのテストと証跡である。実Agent起動は第一選択とし、起動不能時は計画書どおり`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS`へ切り替え、未起動を独立レビュー済みとは扱わない。
+
+## P4-08実行範囲の正規化
+
+承認文言の「P4-06以降」および上記の「P4対象UI」を、P4-08直接実行プロンプトの固定local UI検証へ適用するため、`ui/mock`をこのRunのtarget_pathsへ明示した。Core、外部I/O、Secret、Broker／Paper／Live、実注文、Cloud、依存取得、WSLの許可は増やさない。P4-08のPC／モバイルviewportとbrowser／axe runtimeは実行証跡で確認し、font／OS renderingはUnknownとして残す。
 
 ## 明示的な除外と停止条件
 

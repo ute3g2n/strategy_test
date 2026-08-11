@@ -1,0 +1,8 @@
+3646e9adf97fd9c43d35540a86a08f8b22aaec33aa4bb4688e71c8f984db6d21  tests/evidence/phase4/RUN-P4-04D-001/p4-08-dispatch.md
+bc3d0935587ae038b56c2cf57ed6f5f243e25c8859167a669b64ec5e442c300a  tests/evidence/phase4/RUN-P4-04D-001/p4-08-run-manifest.md
+8c66333b466601f2aa728021d516a3d52a0a3365ca196cc4136b0fcd7e71d0fc  tests/evidence/phase4/RUN-P4-04D-001/p4-08-quality-gate.md
+c3db78f3a9a96cf4c1696c7e065e46730223f837927bbbf9624644d624026fed  tests/evidence/phase4/RUN-P4-04D-001/p4-08-verification.md
+d47096e90dafec8e2a4a0aebe477849ef3620438446fb82b311624343b560edc  tests/evidence/phase4/RUN-P4-04D-001/p4-08-self-review.md
+f96025013268e08f2599caf9ff2b3ca07f46141df717faae9ec3b9d762868aef  tests/evidence/phase4/RUN-P4-04D-001/p4-08-playwright/results.json
+1d07b0413e9c73c302dea6dca35673f271da487aa5a3ca59b3961109b6863c6f  plan/phase4/ログ/P4-08_実装ログ_2026-08-12.md
+d747171d6d9a53d47077c1ccf3648eadb2adfa0d4db01f60060ee160c0bc68c0  doc/phase4/03_品質設計/05_P4-08_UI接続・VisualA11y検証.html

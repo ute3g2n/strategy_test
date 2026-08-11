@@ -1,0 +1,319 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\ute3g\\AppData\\Local\\fnm_multishells\\33804_1786488910224\\node.exe",
+      "C:\\project\\strategy_test\\ui\\mock\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "playwright.p4-08.config.ts"
+    ],
+    "configFile": "C:\\project\\strategy_test\\ui\\mock\\playwright.p4-08.config.ts",
+    "rootDir": "C:/project/strategy_test/ui/mock/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/project/strategy_test/tests/evidence/phase4/RUN-P4-04D-001/p4-08-playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/project/strategy_test/ui/mock/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/p4-08.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/project/strategy_test/tests/evidence/phase4/RUN-P4-04D-001/p4-08-playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/project/strategy_test/ui/mock/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/p4-08.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "C:\\project\\strategy_test\\tests\\evidence\\phase4\\RUN-P4-04D-001\\p4-08-playwright\\playwright-report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\project\\strategy_test\\tests\\evidence\\phase4\\RUN-P4-04D-001\\p4-08-playwright\\results.json"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 16,
+    "webServer": {
+      "command": "npm run preview -- --host 127.0.0.1",
+      "url": "http://127.0.0.1:4173",
+      "reuseExistingServer": false,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "p4-08.spec.ts",
+      "file": "p4-08.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "P4-08: 21 screens bind fixed API contracts and preserve the boundary",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6511,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T22:55:12.417Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7edb375683df738b012c-a531fddb6ba87b000899",
+          "file": "p4-08.spec.ts",
+          "line": 21,
+          "column": 1
+        },
+        {
+          "title": "P4-08: target and boundary screens exercise the ten common states",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8113,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T22:55:19.058Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7edb375683df738b012c-fd7d7e75e1867b88ff73",
+          "file": "p4-08.spec.ts",
+          "line": 50,
+          "column": 1
+        },
+        {
+          "title": "P4-08: axe has no critical or serious violations in the 21 fixed states",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5245,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T22:55:27.180Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7edb375683df738b012c-7a2d9ba3032165d51170",
+          "file": "p4-08.spec.ts",
+          "line": 71,
+          "column": 1
+        },
+        {
+          "title": "P4-08: 21 screens bind fixed API contracts and preserve the boundary",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 14344,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T22:55:12.439Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7edb375683df738b012c-9705d5993d28aed1f759",
+          "file": "p4-08.spec.ts",
+          "line": 21,
+          "column": 1
+        },
+        {
+          "title": "P4-08: target and boundary screens exercise the ten common states",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 15508,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T22:55:26.914Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7edb375683df738b012c-0a11bc84eb703a25b306",
+          "file": "p4-08.spec.ts",
+          "line": 50,
+          "column": 1
+        },
+        {
+          "title": "P4-08: axe has no critical or serious violations in the 21 fixed states",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 10895,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T22:55:42.431Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7edb375683df738b012c-52377a32ac97058d5f8d",
+          "file": "p4-08.spec.ts",
+          "line": 71,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-08-11T22:55:10.840Z",
+    "duration": 42971.388,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

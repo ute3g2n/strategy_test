@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Button as BaseButton, Dialog as BaseDialog } from '@base-ui/react'
 import { allScreens, ConfirmDialog, EmptyState, ErrorState, HelpTip, MetricCard, navGroups, ProgressBar, seedData, StateAlert, StateBadge, type ScreenDefinition, type UiState } from './ui'
+import { p4ScreenContracts, type P4ScreenContract } from './p4Contract'
 import './App.css'
 
 function BaseDialogPilot() {
@@ -113,7 +114,19 @@ function HomeScreen({ onKill, demoState, onStateChange }: { onKill: () => void; 
   )
 }
 
-const coreScreenIds: ScreenDefinition['id'][] = ['SCREEN-03', 'SCREEN-04', 'SCREEN-06', 'SCREEN-07', 'SCREEN-08', 'SCREEN-09', 'SCREEN-10', 'SCREEN-11', 'SCREEN-12']
+const coreScreenIds: ScreenDefinition['id'][] = ['SCREEN-03', 'SCREEN-04', 'SCREEN-08', 'SCREEN-09', 'SCREEN-10', 'SCREEN-11', 'SCREEN-12']
+const p4BoundaryScreenIds: ScreenDefinition['id'][] = ['SCREEN-01', 'SCREEN-18', 'SCREEN-21']
+const boundaryOnlyScreenIds: ScreenDefinition['id'][] = ['SCREEN-05', 'SCREEN-06', 'SCREEN-07', 'SCREEN-13', 'SCREEN-14', 'SCREEN-15', 'SCREEN-16', 'SCREEN-20']
+
+function P4ContractStrip({ screenId, contract }: { screenId: ScreenDefinition['id']; contract: P4ScreenContract }) {
+  return <section className="p4-contract-strip" aria-label={`${screenId} P4 API契約`} data-testid={`p4-contract-${screenId}`} data-p4-scope={contract.scope} data-api-p4-ids={contract.apiIds.join(',')} data-reason-id={contract.reasonId}><strong>P4 UI契約: {contract.scope}</strong><span>API: {contract.apiIds.join(' / ')}</span><span>Reason: {contract.reasonId}</span><span>許可: {contract.allowed}</span><span>禁止: {contract.prohibited}</span></section>
+}
+
+function P4BoundaryScreen({ screen, contract, demoState, onStateChange }: { screen: ScreenDefinition; contract: P4ScreenContract; demoState: UiState; onStateChange: (state: UiState) => void }) {
+  const isBoundaryOnly = contract.scope === 'BOUNDARY_ONLY'
+  const state = isBoundaryOnly ? 'UNAPPROVED' : demoState
+  return <div className="screen-stack" data-testid={`screen-${screen.id}`} data-p4-scope={contract.scope} data-reason-id={contract.reasonId}><section className="welcome-panel compact-panel"><div><p className="eyebrow">{screen.navId} / {screen.id} / {screen.e2eId}</p><h2>{screen.title}</h2><p className="lead">{screen.description}</p></div><StateBadge state={state} /></section><StateAlert state={state} title={isBoundaryOnly ? 'P4では実行できません' : undefined}>Reason ID: {contract.reasonId}。{contract.prohibited}</StateAlert><section className="panel-card"><h3>許可される表示</h3><p>{contract.allowed}</p><p className="muted">API binding: {contract.apiIds.join(' / ')}。固定匿名ダミーだけを表示し、P4-H2または後続Phaseの承認なしに状態変更を行いません。</p></section>{!isBoundaryOnly && <CoreStateControls demoState={demoState} onStateChange={onStateChange} />}</div>
+}
 
 function CoreStateControls({ demoState, onStateChange }: { demoState: UiState; onStateChange: (state: UiState) => void }) {
   const states: UiState[] = ['NORMAL', 'LOADING', 'EMPTY', 'REQUIRED', 'WARNING', 'STOPPED', 'FAILED', 'RECOVERY', 'HUMAN-GATE', 'UNAPPROVED']
@@ -379,7 +392,7 @@ function SafetyScreen({ screen, demoState, onStateChange, onNavigate }: { screen
   const body = screen.id === 'SCREEN-01' ? renderSystem() : screen.id === 'SCREEN-05' ? renderData() : screen.id === 'SCREEN-13' ? renderForward() : screen.id === 'SCREEN-14' ? renderPaperLive() : screen.id === 'SCREEN-15' ? renderPortfolio() : screen.id === 'SCREEN-16' ? renderOrders() : screen.id === 'SCREEN-17' ? renderWarnings() : screen.id === 'SCREEN-18' ? renderGate() : screen.id === 'SCREEN-19' ? renderAudit() : screen.id === 'SCREEN-20' ? renderConnection() : renderHelp()
 
   return (
-    <div className="screen-stack" data-testid={`screen-${screen.id}`}>
+    <div className="screen-stack" data-testid={`screen-${screen.id}`} data-reason-id={p4ScreenContracts[screen.id].scope === 'P4_BOUNDARY_TARGET' ? p4ScreenContracts[screen.id].reasonId : undefined}>
       <section className="welcome-panel compact-panel"><div><p className="eyebrow">{screen.navId} / {screen.id} / {screen.e2eId}</p><h2>{screen.title}</h2><p className="lead">{screen.description}</p></div><StateBadge state={demoState} /></section>
       {body}
       <CoreStateControls demoState={demoState} onStateChange={onStateChange} />
@@ -448,8 +461,9 @@ function App() {
         <header className="topbar"><button className="menu-button" type="button" aria-label="メニューを開く" aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen(true)}>☰</button><div className="breadcrumb"><span>運用者</span><span aria-hidden="true">/</span><strong>{activeScreen.title}</strong></div><div className="topbar-actions"><StateBadge state={killed ? 'STOPPED' : 'UNAPPROVED'} compact /><span className="as-of">基準日時: {seedData.asOf}</span></div></header>
         <main className="app-content">
           <div className="content-heading"><div><p className="eyebrow">RQU-UI-07 / 固定Seed 20260811 / SCREEN-ID追跡</p><h1>{activeScreen.title}</h1></div><div className="content-heading-actions"><span className="small-label">モック状態</span><StateBadge state={killed ? 'STOPPED' : demoState} compact /></div></div>
+          <P4ContractStrip screenId={activeScreen.id} contract={p4ScreenContracts[activeScreen.id]} />
           {killed && <StateAlert state="STOPPED" title="全体Kill Switchが有効です">新規Signal・注文は停止しています。データ・注文・Positionの照合が終わるまで再開できません。</StateAlert>}
-          {activeScreen.id === 'SCREEN-02' ? <HomeScreen onKill={() => setKillOpen(true)} demoState={demoState} onStateChange={setDemoState} /> : coreScreenIds.includes(activeScreen.id) ? <CoreScreen screen={activeScreen} demoState={demoState} onStateChange={setDemoState} onNavigate={navigate} /> : safetyScreenIds.includes(activeScreen.id) ? <SafetyScreen screen={activeScreen} demoState={demoState} onStateChange={setDemoState} onNavigate={navigate} /> : <ScreenPlaceholder screen={activeScreen} demoState={demoState} onStateChange={setDemoState} />}
+          {activeScreen.id === 'SCREEN-02' ? <HomeScreen onKill={() => setKillOpen(true)} demoState={demoState} onStateChange={setDemoState} /> : coreScreenIds.includes(activeScreen.id) ? <CoreScreen screen={activeScreen} demoState={demoState} onStateChange={setDemoState} onNavigate={navigate} /> : p4BoundaryScreenIds.includes(activeScreen.id) || boundaryOnlyScreenIds.includes(activeScreen.id) ? <P4BoundaryScreen screen={activeScreen} contract={p4ScreenContracts[activeScreen.id]} demoState={demoState} onStateChange={setDemoState} /> : safetyScreenIds.includes(activeScreen.id) ? <SafetyScreen screen={activeScreen} demoState={demoState} onStateChange={setDemoState} onNavigate={navigate} /> : <ScreenPlaceholder screen={activeScreen} demoState={demoState} onStateChange={setDemoState} />}
         </main>
       </div>
       <ConfirmDialog open={killOpen} onOpenChange={setKillOpen} title="全体Kill Switchを実行しますか？" description="全運用単位の新規Signal・注文を停止します。解除には照合と運用者の確認が必要です。" confirmLabel="停止する" cancelLabel="取消" danger onConfirm={() => { setKilled(true); setKillOpen(false); setDemoState('STOPPED') }} />

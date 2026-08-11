@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P4-08 UI接続・Visual／a11y検証</title>
+  <style>
+    :root{--ink:#172033;--muted:#5b6475;--line:#ccd4e0;--blue:#1858b8;--warn:#8a4b00;--danger:#a32222;--ok:#12653b}
+    *{box-sizing:border-box} body{margin:0;background:#f2f5f9;color:var(--ink);font-family:"Yu Gothic UI","Meiryo",sans-serif;line-height:1.65}
+    main{max-width:1450px;margin:0 auto;padding:24px} h1,h2,h3{line-height:1.35} h1{font-size:2rem} h2{font-size:1.35rem;border-left:6px solid var(--blue);padding-left:.6rem;margin-top:2.2rem}
+    a{color:var(--blue)} code{font-family:Consolas,"Yu Gothic UI Mono",monospace;background:#eef2f8;padding:.05rem .25rem;border-radius:3px}
+    table{width:100%;border-collapse:collapse;background:#fff;margin:10px 0 22px} caption{text-align:left;font-weight:700;padding:8px 0} th,td{border:1px solid var(--line);padding:8px;vertical-align:top;text-align:left} th{background:#e9eef6}
+    .wide{overflow-x:auto}.finding,.note{background:#fff;border:1px solid var(--line);border-radius:6px;padding:14px;margin:12px 0}.finding{border-left:5px solid var(--ok)}.note.warn{border-left:5px solid #d17b00;background:#fff8e8}
+    .badge{display:inline-block;border-radius:999px;padding:1px 8px;font-size:.86em;font-weight:700;background:#e7edf8}.badge.ok{background:#dff4e8;color:var(--ok)}.badge.warn{background:#fff0cc;color:var(--warn)}.badge.danger{background:#ffe0e0;color:var(--danger)}.small{color:var(--muted);font-size:.9em}
+    pre{overflow:auto;background:#172033;color:#f6f8fb;padding:14px;border-radius:6px}.trace{border-left:4px solid var(--blue);padding-left:12px}
+    @media(max-width:800px){main{padding:14px}h1{font-size:1.55rem}th,td{min-width:140px}}
+  </style>
+  <script src="../../assets/mermaid.min.js"></script>
+  <script src="../../assets/mermaid-init.js"></script>
+</head>
+<body><main>
+  <header>
+    <h1>P4-08 固定ダミーUI接続・Visual／a11y検証</h1>
+    <p><strong>Artifact:</strong> <code>P4-ART-04E-UI-001</code> ／ <strong>Step:</strong> <code>P4-08</code> ／ <strong>版:</strong> v0.1（2026-08-12）</p>
+    <p><strong>Plan:</strong> <code>P4-PLAN-001</code> / <a href="../../../plan/Phase4_実行計画書_v0.1_2026-08-11.md">Phase4実行計画書 改訂4</a><br><strong>状態:</strong> <span class="badge ok">COMPLETED_P4-08_P4-09_PENDING</span> ／ P4-H1=APPROVED ／ P4-H2=WAITING_FOR_USER_APPROVAL</p>
+    <p><strong>実行境界:</strong> 固定匿名dummy、P4-04CのSCREEN-01〜21、P4-07 API契約metadata、Storybook／Vitest／Playwright／axeだけを扱った。Core、外部I/O、Secret、Broker／Paper／Live、実注文、HTTP transport、WSL、依存取得は行っていない。</p>
+    <p><a href="../../../doc/index.html">doc/index.html</a> ／ <a href="../02_実装詳細設計/06_ProductApplication_UI全21画面詳細設計書.html">P4-04C 全21画面UI詳細設計</a> ／ <a href="../02_実装詳細設計/04_ProductApplication_API詳細設計書.html">P4-04A API詳細設計</a> ／ <a href="../02_実装詳細設計/05_ProductApplication_DB_Persistence詳細設計書.html">P4-04B DB詳細設計</a> ／ <a href="../../../plan/phase4/ログ/P4-08_実装ログ_2026-08-12.md">P4-08実装ログ</a></p>
+  </header>
+
+  <h2>1. Findings first</h2>
+  <div class="finding"><strong>FIND-P4-08-001 / CLOSED:</strong> 初回の契約テストが全画面にAPI-P4-001／002を要求していたため、SCREEN-03の正しいAPI inventoryを誤検知した。P4-04Cの画面別API mapを実装側の<code>p4ScreenContracts</code>とテスト側で共有し、PC／mobile再実行で解消した。</div>
+  <div class="finding"><strong>FIND-P4-08-002 / RECORDED:</strong> 指定Coordinatorは起動したが、子Agentのreceipt／完了statusを返さないままbounded waitがタイムアウトし、running状態でshutdownした。独立レビュー済みとは扱わず、<code>LOCAL_FALLBACK_NO_SUBAGENTS</code>と自己レビューへ切り替えた。</div>
+  <div class="note warn"><strong>FIND-P4-08-003 / UNKNOWN:</strong> font／OS renderingと正式pixel baselineの受入基盤は未固定である。実行済みのviewport、Chromium、axe、screenshotsを有効なEvidenceとしつつ、<code>UNK-P4-UI-002</code>をPassへ変換しない。</div>
+
+  <h2>2. 平易なドメイン概要と処理境界</h2>
+  <p>このStepは、利用者が固定の匿名データを使って21画面を移動し、Backtestの条件・進捗・結果・証跡と安全境界を確認できることを試す。画面はP4-07で定義したAPI-P4-IDを契約metadataとして表示するが、未承認HTTP transportや外部データを追加しない。P4対象外は実機能にならず、P4-H2または後続Phaseへ境界を渡す。</p>
+  <pre class="mermaid">flowchart LR
+    DESIGN["P4-04C SCREEN-01..21<br/>状態・API・境界"] --> CONTRACT["p4ScreenContracts<br/>scope／API／reason"]
+    CONTRACT --> UI["ui/mock<br/>fixed anonymous dummy"]
+    API["P4-07 local API contract"] --> CONTRACT
+    UI --> PW["Playwright desktop／mobile"]
+    UI --> AXE["axe WCAG2A／2AA"]
+    UI --> SHOT["42 screenshots／JSON result"]
+    EXT["HTTP／Secret／Broker／Live"] -. "禁止・0 request" .-> UI
+    UNKNOWN["font／OS baseline"] -. "Unknown" .-> SHOT</pre>
+  <div class="wide"><table><caption>画面契約からEvidenceへの受渡し。</caption><thead><tr><th>受渡し</th><th>入力→出力</th><th>正常条件</th><th>失敗／停止条件</th></tr></thead><tbody>
+    <tr><td>P4-04C→contract</td><td>SCREEN／scope／API-P4-ID／reason→<code>p4ScreenContracts</code></td><td>SCREEN-01〜21が一度ずつ存在し、API listが設計と一致</td><td>未定義screen、API不一致、P4外機能の混入は受入不可</td></tr>
+    <tr><td>contract→UI</td><td>fixed Seed／state／allow／prohibit→React view</td><td>P4_TARGET／P4_BOUNDARY_TARGETは10状態、BOUNDARY_ONLYは固定UNAPPROVED</td><td>UNAPPROVED／FAILED／RECOVERYを成功表示へ変換しない</td></tr>
+    <tr><td>UI→browser Evidence</td><td>PC／mobile route→screenshot／JSON／axe result</td><td>21画面、13画面×10状態、axe Critical／Serious 0</td><td>外部request、focus／name／role欠落、Critical／Seriousは停止</td></tr>
+  </tbody></table></div>
+
+  <h2>3. 全21画面coverageとP4判定</h2>
+  <div class="wide"><table><caption>P4-04Cと同じ21画面分類を実行へ引き渡す。</caption><thead><tr><th>P4判定</th><th>画面</th><th>実装／検証</th><th>Reason／後続</th></tr></thead><tbody>
+    <tr><td><span class="badge ok">P4_TARGET</span></td><td>SCREEN-02/03/04/08/09/10/11/12/19</td><td>exact API list、contract strip、10 state、PC／mobile</td><td>固定local API metadata。P4-09で統合品質</td></tr>
+    <tr><td><span class="badge ok">P4_BOUNDARY_TARGET</span></td><td>SCREEN-01/17/18/21</td><td>停止・Gate・Help・failure boundary、10 state、外部副作用なし</td><td>Reason ID、P4-H2／後続Phase境界</td></tr>
+    <tr><td><span class="badge warn">BOUNDARY_ONLY</span></td><td>SCREEN-05/06/07/13/14/15/16/20</td><td>固定UNAPPROVED、P4_OUT_OF_SCOPE、表示のみ</td><td>機能実装なし。後続Phase／Human Gate</td></tr>
+  </tbody></table></div>
+
+  <h2>4. 固定実行環境と検証結果</h2>
+  <div class="wide"><table><caption>固定local UIの品質結果。</caption><thead><tr><th>Gate</th><th>固定条件</th><th>結果</th><th>Evidence</th></tr></thead><tbody>
+    <tr><td>Build</td><td><code>npm run build</code></td><td><span class="badge ok">PASS</span></td><td>quality gate</td></tr>
+    <tr><td>Vitest</td><td>10 tests、jsdom、vitest-axe</td><td><span class="badge ok">PASS</span></td><td>quality gate</td></tr>
+    <tr><td>Storybook</td><td>Storybook 10.5.7 build</td><td><span class="badge ok">PASS</span></td><td>quality gate</td></tr>
+    <tr><td>Playwright contract／state</td><td>Chromium desktop `1280x900`／mobile `390x844`</td><td><span class="badge ok">PASS</span> 4 tests</td><td>42 screenshots／results.json</td></tr>
+    <tr><td>axe</td><td>WCAG2A／WCAG2AA、21画面×2 viewport</td><td><span class="badge ok">PASS</span> Critical／Serious 0</td><td>Playwright result</td></tr>
+    <tr><td>External request</td><td>local preview、data/blob/about以外を監視</td><td><span class="badge ok">PASS</span> 0</td><td>contract test</td></tr>
+    <tr><td>Lint</td><td>oxlint src／.storybook／tests</td><td><span class="badge ok">PASS</span> exit 0</td><td>既存warning 5件、追加warning 0</td></tr>
+  </tbody></table></div>
+  <p class="small">最終Playwright実行はcontract、state、axeの6 test（desktop／mobile）でPASS。13対象画面×10状態を各viewportで操作し、8 Boundary-only画面は固定UNAPPROVEDのままにした。</p>
+
+  <h2>5. a11y／visual／安全境界</h2>
+  <div class="wide"><table><caption>実装・Evidence・未確定事項の対応。</caption><thead><tr><th>観点</th><th>定義／実施</th><th>判定</th></tr></thead><tbody>
+    <tr><td>name／role／label</td><td>既存UIのvisible Japanese label、form label、table heading、role、Dialog境界を維持し、Vitest／Playwrightで確認</td><td>PASS</td></tr>
+    <tr><td>keyboard／focus</td><td>Tab／Shift+Tab／Enter／Space／Escape、mobile navigation、Dialogの既存テストとP4 route test</td><td>PASS（実行環境範囲）</td></tr>
+    <tr><td>responsive</td><td>Chromium desktop `1280x900`、Pixel 5 profile `390x844`、各21画面のscreenshots</td><td>PASS（font／OSはUnknown）</td></tr>
+    <tr><td>color／state meaning</td><td>StateBadge／StateAlertとtext reason IDを併記し、色だけで状態を表さない</td><td>PASS</td></tr>
+    <tr><td>external boundary</td><td>fixed dummy only、HTTP／Secret／Broker／Paper／Live／Cloudなし</td><td>PASS、request 0</td></tr>
+    <tr><td>font／OS／pixel baseline</td><td>受入OS、font rendering、pixel diff基準は未固定</td><td><span class="badge warn">UNKNOWN `UNK-P4-UI-002`</span></td></tr>
+  </tbody></table></div>
+
+  <h2>6. Test／Evidence／Trace</h2>
+  <p class="trace">P4-04C SCREEN coverage → <code>p4ScreenContracts</code> → P4-08 Playwright contract／state／axe → screenshots／JSON → P4-09 integrated quality → P4-H2 candidate。</p>
+  <div class="wide"><table><caption>正式Evidenceへの導線。</caption><thead><tr><th>成果物</th><th>内容</th></tr></thead><tbody>
+    <tr><td><a href="../../../plan/phase4/ログ/P4-08_実装ログ_2026-08-12.md">P4-08実装ログ</a></td><td>Findings、scope、実行結果、Unknown、次Step</td></tr>
+    <tr><td><a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-08-dispatch.md">dispatch</a></td><td>Coordinator起動、shutdown、fallback、Agent非独立性</td></tr>
+    <tr><td><a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-08-run-manifest.md">Run Manifest</a></td><td>Run、target、fixed environment、stop condition</td></tr>
+    <tr><td><a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-08-quality-gate.md">Quality Gate</a></td><td>build／Vitest／Storybook／Playwright／axe／external request</td></tr>
+    <tr><td><a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-08-verification.md">Verification</a></td><td>21 screen、state、a11y、boundary、Unknown</td></tr>
+    <tr><td><a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-08-self-review.md">Fallback Self-Review</a></td><td>A170／A171／A10／A90の責務をrootで確認した記録</td></tr>
+    <tr><td><a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-08-playwright/results.json">Playwright JSON</a> ／ <a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-08-playwright/playwright-report/index.html">report</a></td><td>最終6 testsの機械結果</td></tr>
+  </tbody></table></div>
+
+  <h2>7. 採否と後続Gate</h2>
+  <div class="wide"><table><thead><tr><th>項目</th><th>判定</th><th>後続</th></tr></thead><tbody>
+    <tr><td>固定local UI、21画面contract、13×10 state、Boundary-only、a11y／responsive runtime</td><td><span class="badge ok">採用／P4-08完了</span></td><td>P4-09統合品質</td></tr>
+    <tr><td>Coordinator／child Agent independent review</td><td><span class="badge warn">不採用／未実行</span></td><td>fallback limitationとして記録。P4-09で別レビュー</td></tr>
+    <tr><td>font／OS rendering、正式pixel baseline</td><td><span class="badge warn">Unknown</span></td><td>`UNK-P4-UI-002`、P4-09／後続Gate</td></tr>
+    <tr><td>host outbound isolation、WSL quality gate</td><td><span class="badge warn">Unknown／未起動</span></td><td>`UNK-P4-04D-004`、P4-09</td></tr>
+    <tr><td>P4-H2／P4-10</td><td><span class="badge danger">未承認／実行禁止</span></td><td>ユーザーのP4-H2承認後のみ</td></tr>
+  </tbody></table></div>
+
+  <h2>8. 改訂履歴</h2>
+  <table><thead><tr><th>版</th><th>日付</th><th>変更</th></tr></thead><tbody><tr><td>v0.1</td><td>2026-08-12</td><td>P4-08固定UI契約、PC／mobile、state、axe、screenshots、fallback dispatch、Unknown、P4-09引渡しを記録。</td></tr></tbody></table>
+  <footer class="small">最終更新: 2026-08-12 / Artifact: P4-ART-04E-UI-001 / P4-H2承認前 / 外部I/Oなし。</footer>
+</main></body></html>
