@@ -125,6 +125,9 @@
 
       const viewport = document.createElement("div");
       viewport.className = "diagram-viewport";
+      viewport.tabIndex = 0;
+      viewport.setAttribute("role", "region");
+      viewport.setAttribute("aria-label", "Mermaid図のスクロール領域");
 
       const label = document.createElement("span");
       label.className = "diagram-zoom-label";
@@ -226,6 +229,9 @@
       node._applyDiagramScale = applyScale;
       node._fitDiagramToWidth = fitToWidth;
       node._staticFallback = fallback;
+      node.tabIndex = 0;
+      node.setAttribute("role", "img");
+      node.setAttribute("aria-label", "Mermaid図");
 
       window.addEventListener("resize", () => {
         if (mode === "fit") {
