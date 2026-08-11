@@ -7,13 +7,13 @@
 | 文書ID | `RQU-UI-PLAN-001` |
 | 版 | `v0.1` |
 | 作成日 | 2026-08-11 |
-| 状態 | `EXECUTING_RQU-UI-04 / RQU-UI-H2待ち` |
+| 状態 | `WAITING_RQU-UI-H3` |
 | 計画対象 | 現行要件定義書へのユーザー機能・操作要件追加、UIモックHTML作成、両者の追跡・品質確認 |
 | 現行正式要件 | `doc/requirements/01_自動トレードシステム要件定義書.html`（`AT-REQ-001`、v0.3） |
 | 計画作成基盤 | `AutoTradePhasePlanning_Orchestrator_v0_1` |
 | 計画担当Agent | `AutoTrade_A05_PhaseExecutionPlanner_v0_1` |
 | 主Skill | `autotrade_skill_phase_execution_planning_v0_1` |
-| 実行開始条件 | 運用者が `RQU-UI-H0`（2026-08-11）および `RQU-UI-H1`（2026-08-11）を承認済み。RQU-UI-05開始には別途 `RQU-UI-H2` が必要 |
+| 実行開始条件 | 運用者が `RQU-UI-H0`、`RQU-UI-H1`、`RQU-UI-H2`（いずれも2026-08-11）を承認済み |
 
 ## 1. 結論
 
@@ -79,12 +79,22 @@ UIモックは、操作、状態、警告、画面遷移、表示項目を確認
 |---|---|---|---|
 | `RQUUI-ART-REQ-HTML` | 更新後の自動トレードシステム要件定義書 | `doc/requirements/01_自動トレードシステム要件定義書.html` | 正式HTML正本 |
 | `RQUUI-ART-REQ-MD` | 要件定義書の編集用Markdown | `plan/自動トレードシステム_要件定義書.md` | 編集用・HTMLと同期 |
-| `RQUUI-ART-UI-HTML` | クリック可能なUIモックHTML | `doc/ui_mock/01_自動トレードシステム_UIモック.html` | 正式UI仕様正本 |
+| `RQUUI-ART-REQ-CANDIDATE-MD` | ユーザー機能・操作追加candidate Markdown | `plan/requirements_update/drafts/RQU-UI-06_自動トレードシステム要件定義書_candidate.md` | RQU-UI-06候補 |
+| `RQUUI-ART-REQ-CANDIDATE-HTML` | ユーザー機能・操作追加candidate HTML | `plan/requirements_update/drafts/01_自動トレードシステム要件定義書_candidate.html` | RQU-UI-06候補。正式HTMLではない |
+| `RQUUI-ART-UI-HTML` | クリック可能なUIモックHTML候補 | `doc/ui_mock/01_自動トレードシステム_UIモック.html` | RQU-UI-13 candidate-0.2。RQU-UI-H3後に正式化判定 |
 | `RQUUI-ART-UI-ASSET` | UIモックのローカル資産 | `doc/ui_mock/assets/` | HTML付属・外部CDN禁止 |
 | `RQUUI-ART-TRACE` | 要件・ユースケース・画面・状態・テスト追跡表 | `plan/requirements_update/RQU-UI_要件UIテスト追跡マトリクス_2026-08-11.md` | 追跡正本 |
 | `RQUUI-ART-PREINSTALL` | Frontend・第三者部品の導入前調査記録 | `plan/requirements_update/RQU-UI_導入前調査記録_2026-08-11.md` | RQU-UI-H1承認資料 |
 | `RQUUI-ART-UI03` | 第三者部品導入・Smoke記録 | `plan/requirements_update/RQU-UI-03_第三者部品導入Smoke記録_2026-08-11.md` | RQU-UI-03証跡 |
 | `RQUUI-ART-UI04` | UI専用AI部品作成・AI基盤同期記録 | `plan/requirements_update/RQU-UI-04_AI部品作成・基盤同期記録_2026-08-11.md` | RQU-UI-04証跡・H2提示 |
+| `RQUUI-ART-UI05` | ユースケース・画面・状態仕様記録 | `plan/requirements_update/RQU-UI-05_情報設計・画面状態仕様記録_2026-08-11.md` | RQU-UI-05共通仕様 |
+| `RQUUI-ART-UI07` | UI骨格・Design System実装記録 | `plan/requirements_update/RQU-UI-07_UI骨格DesignSystem実装記録_2026-08-11.md` | RQU-UI-07証跡・Open Finding記録 |
+| `RQUUI-ART-UI08` | 中核画面実装記録 | `plan/requirements_update/RQU-UI-08_中核画面実装記録_2026-08-11.md` | RQU-UI-08証跡・Open Finding記録 |
+| `RQUUI-ART-UI09` | 運用・安全・接続画面実装記録 | `plan/requirements_update/RQU-UI-09_運用安全接続画面実装記録_2026-08-11.md` | RQU-UI-09証跡・Open Finding記録 |
+| `RQUUI-ART-UI10` | 要件・UI文書セット統合記録 | `plan/requirements_update/RQU-UI-10_文書セット統合記録_2026-08-11.md` | RQU-UI-10静的UIモック、相互リンク、ID/Trace、外部境界監査 |
+| `RQUUI-ART-UI11` | Playwright・Visual・a11y検証記録 | `plan/requirements_update/RQU-UI-11_Playwright-Visual-A11y検証記録_2026-08-11.md` | RQU-UI-11のE2E、PC/スマートフォン、axe、外部境界、固定Seed証跡 |
+| `RQUUI-ART-UI12` | 専門Design・Red Teamレビュー記録 | `plan/requirements_update/RQU-UI-12_専門Design_RedTeamレビュー記録_2026-08-11.md` | Findings first、重大度、採否、Q-243分解、RQU-UI-13修正対象 |
+| `RQUUI-ART-UI13` | 改訂統合・再試験・最終候補記録 | `plan/requirements_update/RQU-UI-13_改訂統合・再試験・最終候補記録_2026-08-11.md` | Findings採否、candidate同期、Playwright/Visual/a11y、Q-243、H3提示パッケージ |
 | `RQUUI-ART-ACCEPT` | UI受入確認表 | `plan/requirements_update/RQU-UI_UIモック受入確認表_2026-08-11.md` | Gate判定正本 |
 | `RQUUI-ART-LOG` | 実行ログ | `plan/requirements_update/RQU-UI_実行ログ_2026-08-11.md` | 実行記録 |
 | `RQUUI-ART-EVIDENCE` | E2E、画面比較、a11y、Trace、スクリーンショット証跡 | `tests/evidence/requirements_ui/<run_id>/` | 機械Gate証跡 |
@@ -1046,3 +1056,15 @@ RQU-19-LATER-01以降の実データ、契約、Broker、実数値、実機、Cl
 | `v0.4` | 2026-08-11 | 運用者がRQU-UI-H1を承認したため、RQU-UI-03以降の順次実行を開始する。RQU-UI-05開始前はRQU-UI-H2で停止する。 |
 | `v0.5` | 2026-08-11 | RQU-UI-03で固定版Frontend、Storybook、Vitest/axe、Playwright Chromium、Faker、Base UI/Radix pilotを導入し、Smokeを完了した。RQU-UI-04へ進み、RQU-UI-05開始前はH2で停止する。 |
 | `v0.6` | 2026-08-11 | RQU-UI-04で既存AI部品の再利用調査、新設UI Skill 3件、A170/A171、UI Orchestrator、AI基盤仕様・ルール同期、JSON/HTML相互参照検証を完了した。F-001〜005をOpen/UnknownとしてH2へ提示し、RQU-UI-05開始前で停止する。 |
+| `v0.7` | 2026-08-11 | 運用者のRQU-UI-H2承認を反映し、RQU-UI-05（ユースケース・画面・状態・受入仕様の確定）を開始した。正式要件HTML・UI本体はまだ編集せず、共通仕様を先に固定する。 |
+| `v0.8` | 2026-08-11 | RQU-UI-05の共通仕様を完了し、RQU-UI-06（ユーザー視点の要件定義書candidate）を開始した。正式要件・`doc/index.html`・統合台帳の正式化はH3後まで行わない。 |
+| `v0.9` | 2026-08-11 | RQU-UI-06でユーザー機能・操作、67UC索引、21画面導線、使用シナリオ、段階運用・安全境界をcandidate Markdown/HTMLへ追加した。正式要件とUI本体は未変更のままRQU-UI-07へ進む。 |
+| `v1.0` | 2026-08-11 | RQU-UI-06のcandidate Markdown/HTMLを検証済みとして完了し、RQU-UI-07（UI骨格・Design System・Storybook）を開始した。 |
+| `v1.1` | 2026-08-11 | RQU-UI-07で10ナビ・21画面の共通骨格、10状態、固定Seed、PC/スマホ導線、Storybook、component/E2Eを実装・検証。Open Findingを残し、RQU-UI-08を開始した。 |
+| `v1.2` | 2026-08-11 | RQU-UI-08でNAV-01〜05の中核画面、単一Run/網羅検証、進捗、結果5指標、比較、運用単位、Strategy版を実装・検証。Open Findingを残し、RQU-UI-09を開始した。 |
+| `v1.3` | 2026-08-11 | RQU-UI-09でNAV-06〜10、警告、Human Gate、停止・復旧、Secret非表示、接続境界、用語導線を実装・検証。Open Findingを残し、RQU-UI-10を開始した。 |
+
+| `v1.4` | 2026-08-11 | RQU-UI-10で要件candidate-0.5、21画面のオフライン静的UIモック候補、相互リンク、SCREEN/nav testid、ID・外部境界監査、AC-UI-041〜045、統合記録を作成した。Open Findingを残し、RQU-UI-11へ進む。 |
+| `v1.5` | 2026-08-11 | RQU-UI-11で初回失敗（指定・コントラスト・モバイルスクロール）を検出・修正し、Playwright 14/14、PC/スマートフォン21画面、axe 4条件、外部要求0、Visual baseline再実行を確認した。Open Unknownを保持し、RQU-UI-12へ進む。 |
+| `v1.6` | 2026-08-11 | RQU-UI-12でDesign、Risk/Account、Ops/Security、Visual/a11yをレビューし、High 8件、Medium 4件、Low 1件を記録した。RQU-UI-13で必須修正・再試験を行う。 |
+| `v1.7` | 2026-08-11 | RQU-UI-13でHigh指摘を修正・採否分類し、candidate-0.6／静的candidate-0.2、React安全操作、21画面×10状態、静的重要7画面Visual、追跡・受入・実行ログを同期した。機械Gateを通過し、RQU-UI-H3承認待ちへ停止した。 |

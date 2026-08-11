@@ -13,6 +13,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test:e2e": "playwright test",
+    "test:e2e:rqu-ui-11": "playwright test tests/rqu-ui-11.spec.ts --config playwright.rqu-ui-11.config.ts",
     "test:smoke": "npm run build && npm run test && npm run build-storybook && npm run test:e2e"
   },
   "dependencies": {

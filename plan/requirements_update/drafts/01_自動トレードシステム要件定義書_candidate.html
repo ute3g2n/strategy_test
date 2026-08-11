@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="document-id" content="AT-REQ-001">
-  <meta name="document-version" content="candidate-0.3">
+  <meta name="document-version" content="candidate-0.5">
   <meta name="baseline-date" content="2026-08-10">
   <meta name="requirement-ids" content="REQ-CTX-003 REQ-CTX-004 REQ-DATA-001 REQ-DATA-002 REQ-DATA-003 REQ-DATA-004 REQ-DATA-005 REQ-DATA-006 REQ-DATA-007 REQ-DATA-008 REQ-STR-001 REQ-STR-002 REQ-STR-003 REQ-STR-004 REQ-STR-005 REQ-STR-006 REQ-STR-007 REQ-STR-008 REQ-STR-009 REQ-BT-001 REQ-BT-002 REQ-BT-003 REQ-BT-004 REQ-BT-005 REQ-EXE-001 REQ-EXE-002 REQ-EXE-003 REQ-RISK-001 REQ-RISK-002 REQ-RISK-003 REQ-RISK-005 REQ-RISK-006 REQ-RISK-007 REQ-OPS-001 REQ-OPS-002 REQ-OPS-003 REQ-OPS-004 REQ-OPS-005 REQ-OPS-006 REQ-OPS-007 REQ-QA-001 REQ-QA-002 REQ-QA-003 REQ-QA-004 REQ-GATE-001 REQ-GATE-002 REQ-GATE-003 REQ-GATE-004">
-  <title>自動トレードシステム 要件定義書（C4候補）</title>
+  <title>自動トレードシステム 要件定義書（ユーザー機能・操作候補）</title>
   <style>
     :root { --ink:#1f2937; --muted:#475569; --line:#cbd5e1; --bg:#f8fafc; --blue:#dbeafe; --green:#dcfce7; --yellow:#fef3c7; --purple:#f3e8ff; --red:#fee2e2; }
     * { box-sizing: border-box; }
@@ -46,11 +46,11 @@
 </head>
 <body>
 <header>
-  <p class="eyebrow">AT-REQ-001 / C4候補 / RQU-H3承認前</p>
+  <p class="eyebrow">AT-REQ-001 / ユーザー機能・操作候補 / RQU-UI-H3承認前</p>
   <h1>自動トレードシステム 要件定義書</h1>
-  <p>基準日: 2026-08-10　版: candidate-0.3　状態: 編集用候補</p>
+  <p>基準日: 2026-08-11　版: candidate-0.6　状態: RQU-UI-13統合候補（正式版ではない）</p>
   <p><a href="../../../doc/index.html">正式ドキュメント一覧へ戻る</a> / <a href="../../../doc/00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
-  <p class="small">関連成果物: <a href="../../../doc/phase3/03_Strategy詳細設計/03_Strategy_Turtle実装詳細設計書.html">P3-D04 Strategy詳細設計</a> / <a href="../../../doc/phase3/04_Backtest詳細設計/04_Backtest_Experiment実装詳細設計書.html">P3-D05 Backtest詳細設計</a> / <a href="../../../doc/phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html">P3-D14完了判定</a> / <a href="../RQU-03_要件採否追跡マトリクス_2026-08-10.md">RQU-03追跡表</a> / <a href="../RQU-04_C4章構成図解仕様用語辞書_2026-08-10.md">RQU-04辞書</a></p>
+  <p class="small">関連成果物: <a href="../../../doc/phase3/03_Strategy詳細設計/03_Strategy_Turtle実装詳細設計書.html">P3-D04 Strategy詳細設計</a> / <a href="../../../doc/phase3/04_Backtest詳細設計/04_Backtest_Experiment実装詳細設計書.html">P3-D05 Backtest詳細設計</a> / <a href="../../../doc/phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html">P3-D14完了判定</a> / <a href="../RQU-03_要件採否追跡マトリクス_2026-08-10.md">RQU-03追跡表</a> / <a href="../RQU-04_C4章構成図解仕様用語辞書_2026-08-10.md">RQU-04辞書</a> / <a href="../../../doc/ui_mock/01_自動トレードシステム_UIモック.html">RQU-UI-10 UIモック候補</a></p>
 </header>
 <main>
   <div class="callout">
@@ -62,6 +62,8 @@
     <h2 id="toc">目次</h2>
     <ol>
       <li><a href="#summary">30秒要約と状態</a></li>
+      <li><a href="#user-capabilities">ユーザーができること</a></li>
+      <li><a href="#user-flows">使用イメージ・操作手順</a></li>
       <li><a href="#context">Level 1: System Context</a></li>
       <li><a href="#container">Level 2: Container</a></li>
       <li><a href="#component">Level 3: Component</a></li>
@@ -82,8 +84,117 @@
     <p class="small">色だけで判断せず、図中のラベル、線種、要求ID、証拠IDを併用する。<code>REQ-QA-001</code> <code>REQ-GATE-001</code></p>
   </section>
 
+  <section id="user-capabilities">
+    <h2>2. ユーザーができること（ユースケースの全体像）</h2>
+    <div class="callout">
+      <strong>利用者は一人だけ</strong><br>
+      このシステムを使うのは開発者兼運用者本人だけである。ログイン画面、ユーザー登録、役割切替は作らない。ただし、Live移行、停止解除、自動承認、削除などの危険操作には確認Dialogと記録を必ず出す。認証がないことと、安全確認がないことは同じではない。認証不要は自PCまたは運用者本人のスマートフォンから閉じた運用環境で使う前提であり、誰でも到達できる場所へ公開しない。実システムの端末制限、ネットワーク境界、TLS、公開範囲は実接続を許可する後続Gateで確認する。
+    </div>
+    <table>
+      <thead><tr><th>できること</th><th>具体的な操作・結果</th><th>主な画面</th><th>UC範囲</th></tr></thead>
+      <tbody>
+        <tr><td>現在の状態を知る</td><td>起動状態、禁止事項、未承認、全運用単位、最新データ、Signal、Position、警告、総残高を見る。手動更新と自動更新間隔[s]を切り替える。</td><td><code>SCREEN-01/02/17</code></td><td><code>ADD-UC-001〜006</code>、<code>ADD-UC-070/072</code></td></tr>
+        <tr><td>銘柄と時間足を準備する</td><td>先物・株式・FX・暗号資産の構造を使い、初期候補MCL/M6A/MZC/MZS/MZWから選ぶ。日足、4時間足、1時間足、30分足、15分足を取引対象にする。M1は内部処理用で選ばない。</td><td><code>SCREEN-05/20/21</code></td><td><code>ADD-UC-010〜017</code></td></tr>
+        <tr><td>売買ルールを準備する</td><td>Turtle System 1/2を作成し、Long/Short、Entry、Stop、Exit、追加条件を設定・検証・複製・比較する。稼働中の版を直接書き換えず新版を作る。</td><td><code>SCREEN-06/07</code></td><td><code>ADD-UC-020〜024</code></td></tr>
+        <tr><td>運用単位を作る</td><td>銘柄×時間足×売買ルール×口座×モードを独立単位として登録する。異なる時間足は同時運用できるが、同じ銘柄×時間足の重複は開始不可。</td><td><code>SCREEN-03/04</code></td><td><code>ADD-UC-025〜028</code></td></tr>
+        <tr><td>単一Backtestをする</td><td>1つのパラメータセットを入力し、事前検証、開始、待ち行列、進捗、取消、停止、再Run、5指標、取引・Signal詳細を確認する。</td><td><code>SCREEN-08〜11</code></td><td><code>ADD-UC-030〜038</code></td></tr>
+        <tr><td>網羅検証をする</td><td>設定ファイルまたは画面で各パラメータの下限・上限・ステップを指定し、全組合せを実行する。組合せ数、見積、上限警告、部分失敗、5指標表、比較、CSVを確認する。</td><td><code>SCREEN-08〜12</code></td><td><code>ADD-UC-039〜041</code></td></tr>
+        <tr><td>段階的に運用する</td><td>Backtest→Forward→Shadow→Paper→Live候補→Liveの順で、開始、停止、再開、条件確認を行う。各段階の未承認・未実証は画面で明示する。</td><td><code>SCREEN-13/14/18</code></td><td><code>ADD-UC-050〜054</code></td></tr>
+        <tr><td>稼働中を監視する</td><td>全インスタンスのHeartbeat、次回判断時刻、Signal、仮想/模擬/実注文、約定、Position、想定と実績の差分を見る。</td><td><code>SCREEN-02/11/14〜17</code></td><td><code>ADD-UC-055〜066</code></td></tr>
+        <tr><td>異常時に止めて復旧する</td><td>データ遅延、接続断、競合、拒否を確認し、個別停止または全体Kill Switchを実行する。再起動後はデータ・注文・Positionを照合し、運用者が手動で再開する。</td><td><code>SCREEN-15〜18</code></td><td><code>ADD-UC-070〜077</code></td></tr>
+        <tr><td>記録を探し、整理する</td><td>Run、Result、Manifest、hash、操作、承認、設定版を検索・出力する。同一条件Runは許可する。通常一覧から隠す操作と削除操作を分け、削除は確認・記録する。</td><td><code>SCREEN-10/12/19/20</code></td><td><code>ADD-UC-080〜086</code></td></tr>
+      </tbody>
+    </table>
+    <p class="small">67ユースケースの開始条件、事前確認、手順、結果、例外、取消、停止、復旧、保存、画面の全行は、<a href="../../requirements_update/RQU-UI-05_情報設計・画面状態仕様記録_2026-08-11.md">RQU-UI-05共通仕様</a>§5と<a href="../../requirements_update/RQU-UI_要件UIテスト追跡マトリクス_2026-08-11.md">追跡マトリクス</a>§2/§9で確認できる。ここでは機能の入口を平易に示す。</p>
+  </section>
+
+  <section id="user-flows">
+    <h2>3. 使用イメージ（運用者が実際に行う順番）</h2>
+    <h3>3.1 初回準備</h3>
+    <ol>
+      <li><code>SCREEN-01</code>で現在状態、認証不要、禁止事項、未承認項目を確認する。</li>
+      <li><code>SCREEN-20</code>で提供元名、通知、自動更新を設定する。Secretの値は画面に表示しない。</li>
+      <li><code>SCREEN-05</code>でAsset Classと初期候補5件を選び、D1/H4/H1/M30/M15のデータ時刻と品質を確認する。</li>
+      <li><code>SCREEN-06/07</code>でTurtle System 1/2の版を作成し、必要な条件を入力して検証する。</li>
+      <li><code>SCREEN-04</code>で銘柄×時間足×ルールの運用単位を作る。Risk未入力、実シンボル未確認、重複は開始不可として表示する。</li>
+    </ol>
+    <h3>3.2 Backtest（1つの条件）</h3>
+    <ol>
+      <li><code>SCREEN-08</code>で「単一Run」を選び、銘柄、時間足、Strategy、期間、Risk、コスト等を入力する。設定ファイルも読み込める。</li>
+      <li>「事前検証」を押し、未入力、Manifest、データ品質、Risk未入力、未承認を確認する。不合格なら開始Buttonを押せない。</li>
+      <li>「開始」を押し、<code>SCREEN-09</code>でQueue、進捗、経過、残り見積を確認する。取消、停止、再実行はそれぞれ確認Dialogと操作記録を経て受け付ける。</li>
+      <li><code>SCREEN-10/11</code>で総損益、最大の落ち込み、取引回数、勝率、総残高、資産曲線、取引、Signalを確認する。</li>
+      <li>必要に応じて同一条件を再Runし、最新表示と内部保存を別々に確認する。</li>
+    </ol>
+    <h3>3.3 網羅検証（パラメータを振る）</h3>
+    <ol>
+      <li><code>SCREEN-08</code>で「網羅検証」を選び、設定ファイルまたは画面に各パラメータの下限、上限、ステップを入力する。画面の値は編集でき、設定ファイルはファイル名を確認して読み込み候補にする。</li>
+      <li><code>VIEW-01</code>で全組合せ数、見積時間、資源負荷、上限警告を確認し、開始確認を行う。</li>
+      <li><code>SCREEN-09</code>で組合せごとの進捗、成功、一部失敗、失敗、取消を確認する。</li>
+      <li><code>SCREEN-10/12</code>で全組合せの5指標を表で確認し、検索、絞込、並替、比較、CSV出力を行う。最良の設定をシステムが自動決定することはない。</li>
+    </ol>
+    <h3>3.4 Forward / Shadow / Paper / Live候補 / Live</h3>
+    <ol>
+      <li>Backtest結果と対象単位を確認し、<code>SCREEN-13</code>でForwardまたはShadowを開始する。</li>
+      <li>停止する場合は停止理由を入力し、データ・注文・Positionの照合が終わるまで再開しない。</li>
+      <li><code>SCREEN-14/18</code>でPaper、Live候補、Liveの条件を順に確認する。未承認項目が1つでもあれば実行へ進めない。</li>
+      <li>Live自動承認はHuman Gateの別モードであり、設定画面で明示的にONにしたときだけ使う。確認・取消モードと同じ確認Dialogで、ON/OFF、対象、設定版、Risk、端末、時刻を保存し、再起動後はOFFに戻す。</li>
+      <li>このcandidateとUIモックは実Broker・実注文へ接続しない。実運用は後続Gateと別証拠が必要である。</li>
+    </ol>
+    <h3>3.5 日常監視・異常停止・復旧</h3>
+    <ol>
+      <li><code>SCREEN-02</code>で全運用単位、最新データ、Heartbeat、次回判断、Signal、Position、警告を確認する。</li>
+      <li>遅延・接続断・競合・拒否を<code>SCREEN-17</code>で確認し、10/30/60秒の再試行後に停止する。</li>
+      <li>危険がある場合は個別停止または全体Kill Switchを二段確認で実行する。</li>
+      <li>再起動後は<code>SCREEN-18</code>でSnapshot、データ、注文、Positionを照合し、運用者が手動で再開する。自動再開はしない。</li>
+    </ol>
+    <h3>3.6 記録の確認・削除</h3>
+    <ol>
+      <li><code>SCREEN-19</code>でRun、設定版、hash、操作、承認、停止を検索する。</li>
+      <li>通常一覧から隠す操作は削除ではない。削除する場合は対象、影響、復元可否をDialogで確認し、監査ログを残す。</li>
+      <li>バックアップの実保存先・実復元は後続Gateで決める。画面は未確定状態を隠さず表示する。</li>
+    </ol>
+    <figure aria-label="利用者の操作順序">
+      <figcaption>図3-1 操作の大きな流れ</figcaption>
+      <div class="mermaid">
+flowchart LR
+  A[状態・禁止事項] --> B[銘柄・足・Strategy・Risk]
+  B --> C{事前検証}
+  C -- 不合格 --> D[警告・開始禁止]
+  C -- 単一 --> E[Backtest]
+  C -- 網羅 --> F[下限・上限・ステップ]
+  E --> G[結果・比較]
+  F --> G
+  G --> H[Forward/Shadow]
+  H --> I[Paper]
+  I --> J[Live候補/Live Gate]
+  J --> K[監視]
+  K --> L{異常}
+  L -- あり --> M[Kill・照合・手動再開]
+  L -- なし --> K
+      </div>
+    </figure>
+  </section>
+
+  <section id="ui-mock-integration">
+    <h2>3.5 RQU-UI-10 UIモック統合候補</h2>
+    <div class="callout">
+      <strong>画面で確認できる範囲:</strong> <a href="../../../doc/ui_mock/01_自動トレードシステム_UIモック.html">自動トレードシステム UIモック候補</a>は、RQU-UI-05で定義した21画面と10ナビゲーション群を、固定Seed <code>20260811</code>の匿名ダミーデータで確認するための静的HTMLである。各画面は <code>screen-SCREEN-01</code>〜<code>screen-SCREEN-21</code>、各導線は <code>nav-SCREEN-01</code>〜<code>nav-SCREEN-21</code> のテスト識別子を持つ。
+    </div>
+    <table>
+      <thead><tr><th>確認対象</th><th>UIモック候補での表現</th><th>境界・未実装事項</th></tr></thead>
+      <tbody>
+        <tr><td>全画面と導線</td><td>NAV-01〜10、SCREEN-01〜21をサイドバーと画面内ボタンで相互に移動</td><td>React実装版との挙動差、ブラウザ差、視覚差分はRQU-UI-11〜13で確認する</td></tr>
+        <tr><td>Backtest・網羅検証</td><td>条件、Risk必須、下限・上限・ステップ、進捗、結果5指標、比較、CSV操作を表示</td><td>実計算、ファイル読込、Worker、CSV生成、性能値は実装・実証の対象であり、この候補は表示のみ</td></tr>
+        <tr><td>運用・安全</td><td>Forward/Shadow、Paper/Live、Risk、注文差異、警告、Human Gate、監査、Secret表示境界を表示</td><td>Broker、実市場データ、Secret、通知、実注文、Live自動承認は接続しない。未承認状態をPassにしない</td></tr>
+        <tr><td>追跡</td><td>各SCREENに要求領域とUC-DETAIL-IDを埋め込み、RQU-UI-05追跡表および受入確認表へリンク</td><td>67ユースケースの詳細な開始条件・例外・証拠はRQU-UI-05と追跡マトリクスを正本とする</td></tr>
+      </tbody>
+    </table>
+    <p class="small">この候補HTMLはRQU-UI-H3承認前の統合確認用であり、正式要件HTML、<code>doc/index.html</code>、正式UI正本を更新するものではない。静的HTMLは21画面の情報・リンク・外部通信なし・PC/スマートフォン表示確認に限定し、操作可能性、Dialog、入力値、状態切替はReact実装版で確認する。</p>
+  </section>
+
   <section id="context">
-    <h2>2. C4 Level 1: System Context（街の中の建物）</h2>
+    <h2>4. C4 Level 1: System Context（街の中の建物）</h2>
     <p>Level 1は「この建物は街のどこにあり、誰が使うか」を説明する。利用者が条件を入力し、システムが過去データを再生し、結果または停止理由を返す。人が承認しなければ越えられない境界を明示する。<code>REQ-CTX-003</code> <code>REQ-GATE-001</code></p>
     <figure aria-label="利用者、システム、外部境界の関係図">
       <figcaption>図2-1 Context Diagram：誰が何を渡し、何が返るか</figcaption>
@@ -134,7 +245,7 @@ flowchart LR
   </section>
 
   <section id="container">
-    <h2>3. C4 Level 2: Container（建物の部屋）</h2>
+    <h2>5. C4 Level 2: Container（建物の部屋）</h2>
     <p>Containerは責務を考えるための部屋である。部屋同士は決めた形式の情報だけを交換し、失敗したら安全に停止する。<code>REQ-EXE-002</code> <code>REQ-QA-001</code></p>
     <p>初めて出てくる言葉を先に置き換える。<code>ClosedBar</code>は「値が確定した1本の足」、<code>SignalEvent</code>は「売買ルールが出した判断メモ」、<code>TargetPosition</code>は「持ちたい状態」であり注文そのものではない。<code>Paper</code>は「本物のお金を使わない模擬取引」、<code>OMS</code>は「注文を管理する係」である。<code>REQ-DATA-003</code> <code>REQ-STR-001</code> <code>REQ-RISK-006</code> <code>REQ-EXE-003</code></p>
     <figure aria-label="Container配置図">
@@ -249,7 +360,7 @@ sequenceDiagram
   </section>
 
   <section id="component">
-    <h2>4. C4 Level 3: Component（部屋の専門スタッフ）</h2>
+    <h2>6. C4 Level 3: Component（部屋の専門スタッフ）</h2>
     <p>Level 3では、データを見つける担当、ルールを判断する担当、過去を再生する担当、外部形式を変換する担当、安全停止の担当を説明する。<code>REQ-DATA-001</code> <code>REQ-STR-001</code> <code>REQ-BT-001</code> <code>REQ-EXE-002</code></p>
     <figure aria-label="Level 3主要コンポーネント">
       <figcaption>図4-1 Market Data・Strategy・Backtestの主要フロー</figcaption>
@@ -311,7 +422,7 @@ flowchart TD
   </section>
 
   <section id="detail">
-    <h2>5. C4 Level 4: Code / Detail（データと状態のマニュアル）</h2>
+    <h2>7. C4 Level 4: Code / Detail（データと状態のマニュアル）</h2>
     <p>Level 4は、実装クラスの全フィールドを並べる章ではない。要件を理解し、既存詳細設計、コード、テストへたどれる概念データと状態に絞る。<code>REQ-QA-001</code> <code>REQ-QA-003</code></p>
     <p>状態図は、箱が「いまの状態」、矢印が「状態の変化」を表す。<code>OrderIntent</code>の図はPaper以降の将来候補であり、現在の外部注文を表さない。<code>APPROVED_FOR_PAPER</code>は人の承認があった場合だけ通る境界である。<code>REQ-GATE-001</code> <code>REQ-GATE-003</code> <code>REQ-EXE-003</code></p>
     <figure aria-label="概念データ関係図">
@@ -414,7 +525,7 @@ stateDiagram-v2
   </section>
 
   <section id="cross">
-    <h2>6. 機能・品質・安全・移行要件</h2>
+    <h2>8. 機能・品質・安全・移行要件</h2>
     <h3>6.1 機能</h3>
     <p>Market DataはCatalog、Raw、Normalized、Quality、Manifest、provenanceを扱う。StrategyはClosedBar、Turtle variant、SignalEvent、TargetPosition、Snapshotを扱う。Backtestは決定的Replay、Calendar、Fill、Cost、Roll、Manifest、Result、restoreを扱う。<code>REQ-DATA-001</code> <code>REQ-DATA-002</code> <code>REQ-DATA-003</code> <code>REQ-DATA-004</code> <code>REQ-DATA-005</code> <code>REQ-DATA-006</code> <code>REQ-DATA-007</code> <code>REQ-DATA-008</code> <code>REQ-STR-001</code> <code>REQ-STR-002</code> <code>REQ-STR-003</code> <code>REQ-STR-004</code> <code>REQ-STR-005</code> <code>REQ-STR-006</code> <code>REQ-STR-007</code> <code>REQ-STR-008</code> <code>REQ-STR-009</code> <code>REQ-BT-001</code> <code>REQ-BT-002</code> <code>REQ-BT-003</code> <code>REQ-BT-004</code> <code>REQ-BT-005</code> <code>REQ-EXE-001</code> <code>REQ-EXE-002</code></p>
     <h3>6.2 非機能・安全</h3>
@@ -434,7 +545,7 @@ stateDiagram-v2
   </section>
 
   <section id="trace">
-    <h2>7. Q1〜Q30 / OD-01〜OD-08 / Unknown</h2>
+    <h2>9. Q1〜Q30 / OD-01〜OD-08 / Unknown</h2>
     <p>旧IDは消さず、現在REQ、実装済み範囲、未確定・将来を分ける。HTMLでもQとODを1行ずつ確認できるようにする。<code>REQ-QA-001</code></p>
     <table>
       <thead><tr><th>旧ID</th><th>現行REQ</th><th>現在の意味・状態</th></tr></thead>
@@ -497,7 +608,7 @@ stateDiagram-v2
   </section>
 
   <section id="glossary">
-    <h2>8. 用語集・証拠・変更履歴</h2>
+    <h2>10. 用語集・証拠・変更履歴</h2>
     <table>
       <thead><tr><th>正式語</th><th>たとえ</th><th>このシステムでの意味</th></tr></thead>
       <tbody>
@@ -515,14 +626,14 @@ stateDiagram-v2
     <h3>要求ID凡例</h3>
     <p><code>REQ-CTX-003</code> <code>REQ-CTX-004</code> <code>REQ-DATA-001</code> <code>REQ-DATA-002</code> <code>REQ-DATA-003</code> <code>REQ-DATA-004</code> <code>REQ-DATA-005</code> <code>REQ-DATA-006</code> <code>REQ-DATA-007</code> <code>REQ-DATA-008</code> <code>REQ-STR-001</code> <code>REQ-STR-002</code> <code>REQ-STR-003</code> <code>REQ-STR-004</code> <code>REQ-STR-005</code> <code>REQ-STR-006</code> <code>REQ-STR-007</code> <code>REQ-STR-008</code> <code>REQ-STR-009</code> <code>REQ-BT-001</code> <code>REQ-BT-002</code> <code>REQ-BT-003</code> <code>REQ-BT-004</code> <code>REQ-BT-005</code> <code>REQ-EXE-001</code> <code>REQ-EXE-002</code> <code>REQ-EXE-003</code> <code>REQ-RISK-001</code> <code>REQ-RISK-002</code> <code>REQ-RISK-003</code> <code>REQ-RISK-005</code> <code>REQ-RISK-006</code> <code>REQ-RISK-007</code> <code>REQ-OPS-001</code> <code>REQ-OPS-002</code> <code>REQ-OPS-003</code> <code>REQ-OPS-004</code> <code>REQ-OPS-005</code> <code>REQ-OPS-006</code> <code>REQ-OPS-007</code> <code>REQ-QA-001</code> <code>REQ-QA-002</code> <code>REQ-QA-003</code> <code>REQ-QA-004</code> <code>REQ-GATE-001</code> <code>REQ-GATE-002</code> <code>REQ-GATE-003</code> <code>REQ-GATE-004</code></p>
     <h3>変更履歴</h3>
-    <table><thead><tr><th>版</th><th>日付</th><th>内容</th></tr></thead><tbody><tr><td>candidate-0.1</td><td>2026-08-10</td><td>RQU-05/06をC4 Level 1〜4と横断章へ統合</td></tr><tr><td>candidate-0.2</td><td>2026-08-10</td><td>RQU-06R指摘、Unknown、状態凡例、用語、要求ID同期を反映</td></tr><tr><td>candidate-0.3</td><td>2026-08-10</td><td>RQU-08A〜C指摘、追跡リンク、Q/OD行単位表、可読性補足を反映</td></tr></tbody></table>
+    <table><thead><tr><th>版</th><th>日付</th><th>内容</th></tr></thead><tbody><tr><td>candidate-0.1</td><td>2026-08-10</td><td>RQU-05/06をC4 Level 1〜4と横断章へ統合</td></tr><tr><td>candidate-0.2</td><td>2026-08-10</td><td>RQU-06R指摘、Unknown、状態凡例、用語、要求ID同期を反映</td></tr><tr><td>candidate-0.3</td><td>2026-08-10</td><td>RQU-08A〜C指摘、追跡リンク、Q/OD行単位表、可読性補足を反映</td></tr><tr><td>candidate-0.4</td><td>2026-08-11</td><td>RQU-UI-06で、運用者ができること、使用手順、21画面への導線、5時間足・5候補・運用単位・Backtest網羅検証・Human Gate・停止復旧を追加。正式版へは未昇格。</td></tr><tr><td>candidate-0.5</td><td>2026-08-11</td><td>RQU-UI-10で、21画面の静的UIモック候補、SCREEN/navテスト識別子、固定Seed、外部接続なしの境界、相互リンクと統合確認範囲を追加。正式版へは未昇格。</td></tr><tr><td>candidate-0.6</td><td>2026-08-11</td><td>RQU-UI-13で、Live自動承認とHuman Gateの接続、危険操作の理由・確認・記録、網羅検証の編集可能な下限・上限・ステップ、設定ファイル候補読込、銘柄×時間足重複判定、H1/M30表示、モバイル遷移待ち、React版21画面×10状態、静的版とReact版の検証範囲を反映。正式版へは未昇格。</td></tr></tbody></table>
   </section>
 
   <div class="callout"><strong>関連する正式成果物・追跡先:</strong> <a href="../../../doc/phase3/03_Strategy詳細設計/03_Strategy_Turtle実装詳細設計書.html">P3-D04 Strategy詳細設計</a>、<a href="../../../doc/phase3/04_Backtest詳細設計/04_Backtest_Experiment実装詳細設計書.html">P3-D05 Backtest詳細設計</a>、<a href="../../../doc/phase3/10_完了判定/13_Phase3完了判定とPhase4移行承認書.html">P3-D14完了判定</a>、<a href="../RQU-03_要件採否追跡マトリクス_2026-08-10.md">RQU-03追跡表</a>、<a href="../../../doc/00_全Phase残課題Blocked統合台帳.html">統合台帳</a>。実装の細部や過去の判断は、これらの文書で確認する。</div>
-  <div class="callout warning"><strong>正式化条件:</strong> RQU-08A〜C、RQU-09A、RQU-09Bを完了し、RQU-H3で最終候補の意味・読みやすさ・安全境界を承認した後に、正式Markdown、正式HTML、<code>doc/index.html</code>を同じ版・基準日で更新する。</div>
+  <div class="callout warning"><strong>正式化条件:</strong> RQU-UI-07〜13のUI・E2E・Visual・a11y・専門レビューを完了し、RQU-UI-H3で最終候補の意味・読みやすさ・安全境界を承認した後に、正式Markdown、正式HTML、<code>doc/index.html</code>を同じ版・基準日で更新する。</div>
 </main>
 <footer>
-  <p>候補HTML（candidate-0.3）。正式版への切替前にRQU-H3が必要。ローカルMermaid資産のみ使用。</p>
+  <p>候補HTML（candidate-0.6）。正式版への切替前にRQU-UI-H3が必要。ローカルMermaid資産のみ使用。実Broker・実データ・Secret・実注文へ接続しない。</p>
 </footer>
 <script src="../../../doc/assets/mermaid.min.js"></script>
 <script src="../../../doc/assets/mermaid-init.js"></script>

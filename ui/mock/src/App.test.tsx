@@ -40,3 +40,69 @@ describe('RQU-UI-03 component pilot', () => {
     expect(results.violations).toEqual([])
   })
 })
+
+describe('RQU-UI-07 common UI skeleton', () => {
+  it('renders all 21 navigation targets and changes the active screen', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    expect(screen.getAllByTestId(/nav-SCREEN-/)).toHaveLength(21)
+    await user.click(screen.getByTestId('nav-SCREEN-21'))
+    expect(screen.getByTestId('screen-SCREEN-21')).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { name: 'ヘルプ・用語説明' }).length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('opens the safety stop confirmation and exposes the stopped state after confirmation', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: '全体Kill Switch' }))
+    expect(screen.getByRole('dialog', { name: '全体Kill Switchを実行しますか？' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '停止する' }))
+    expect(screen.getByText('全体Kill Switchが有効です')).toBeInTheDocument()
+    expect(screen.getAllByTestId('state-STOPPED').length).toBeGreaterThan(0)
+  })
+})
+
+describe('RQU-UI-08 core operation journeys', () => {
+  it('keeps exhaustive Backtest disabled until Risk is entered and then moves to progress', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByTestId('nav-SCREEN-08'))
+    await user.click(screen.getByRole('tab', { name: '網羅検証' }))
+    expect(screen.getByRole('button', { name: '開始' })).toBeDisabled()
+    await user.type(screen.getByLabelText('Risk'), '1.0')
+    expect(screen.getByRole('button', { name: '開始' })).toBeEnabled()
+    await user.click(screen.getByRole('button', { name: '開始' }))
+    expect(screen.getByTestId('screen-SCREEN-09')).toBeInTheDocument()
+  })
+
+  it('prevents a duplicate operation unit and saves a distinct combination', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByTestId('nav-SCREEN-04'))
+    await user.type(screen.getByLabelText('運用単位Risk'), '1.0')
+    expect(screen.getByRole('button', { name: '保存' })).toBeDisabled()
+    await user.selectOptions(screen.getByLabelText('銘柄'), 'M6A')
+    expect(screen.getByRole('button', { name: '保存' })).toBeEnabled()
+    await user.click(screen.getByRole('button', { name: '保存' }))
+    expect(screen.getByTestId('screen-SCREEN-03')).toBeInTheDocument()
+  })
+})
+
+describe('RQU-UI-09 safety and connection journeys', () => {
+  it('does not expose Secret values and requires Risk for Human Gate', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByTestId('nav-SCREEN-20'))
+    expect(screen.getByText(/値は非表示/)).toBeInTheDocument()
+    expect(screen.getByText('未設定・未承認')).toBeInTheDocument()
+    await user.click(screen.getByTestId('nav-SCREEN-18'))
+    expect(screen.getByRole('button', { name: '移行を確認' })).toBeDisabled()
+    await user.type(screen.getByLabelText('Risk'), '1.0')
+    expect(screen.getByRole('button', { name: '移行を確認' })).toBeEnabled()
+  })
+})

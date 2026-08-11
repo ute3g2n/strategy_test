@@ -1,0 +1,729 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\ute3g\\AppData\\Local\\fnm_multishells\\40328_1786425762673\\node.exe",
+      "C:\\project\\strategy_test\\ui\\mock\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/rqu-ui-11.spec.ts",
+      "--config",
+      "playwright.rqu-ui-11.config.ts",
+      "--workers=1"
+    ],
+    "configFile": "C:\\project\\strategy_test\\ui\\mock\\playwright.rqu-ui-11.config.ts",
+    "rootDir": "C:/project/strategy_test/ui/mock/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/project/strategy_test/tests/evidence/requirements_ui/RQU-UI-11-20260811-1325/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/project/strategy_test/ui/mock/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/rqu-ui-11.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/project/strategy_test/tests/evidence/requirements_ui/RQU-UI-11-20260811-1325/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/project/strategy_test/ui/mock/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/rqu-ui-11.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "C:\\project\\strategy_test\\tests\\evidence\\requirements_ui\\RQU-UI-11-20260811-1325\\playwright-report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\project\\strategy_test\\tests\\evidence\\requirements_ui\\RQU-UI-11-20260811-1325\\results.json"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run preview -- --host 127.0.0.1",
+      "url": "http://127.0.0.1:4173",
+      "reuseExistingServer": false,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "rqu-ui-11.spec.ts",
+      "file": "rqu-ui-11.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "RQU-UI-11 React PC/mobile critical journeys and safety boundaries",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1519,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:22:45.044Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-870223effd9a1ec91132",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 103,
+          "column": 1
+        },
+        {
+          "title": "RQU-UI-11 React exposes all ten common states with readable operation guidance",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1267,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:22:46.671Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-3dc2442dc5de1ddaeda9",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 147,
+          "column": 1
+        },
+        {
+          "title": "RQU-UI-13 React covers every common state on all 21 screens",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11927,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:22:47.948Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-26c4d91fd5f968872535",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 158,
+          "column": 1
+        },
+        {
+          "title": "RQU-UI-13 safety controls require editable inputs and confirmation records",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1606,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:22:59.883Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-2a0f88fe8629be03e796",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 175,
+          "column": 1
+        },
+        {
+          "title": "RQU-UI-11 React PC/mobile visual baselines and keyboard/Dialog boundaries",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 910,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:23:01.500Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-4f065dd4355d6332e6e7",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 234,
+          "column": 1
+        },
+        {
+          "title": "RQU-UI-11 React all 21 screen routes are reachable on the configured viewport",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1573,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:23:02.419Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-13bb9b23690b4745ca9b",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 248,
+          "column": 1
+        },
+        {
+          "title": "RQU-UI-11 React active screens pass critical/serious axe checks",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5168,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:23:04.000Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-c81613a4fdc17599d045",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 257,
+          "column": 1
+        },
+        {
+          "title": "RQU-UI-11 static HTML reaches all 21 screens with no external requests",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2562,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:23:09.179Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-8ae2faffc4f158737e61",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 271,
+          "column": 1
+        },
+        {
+          "title": "RQU-UI-11 static HTML active screens pass critical/serious axe checks",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3932,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:23:11.752Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-9f93ee0950bdf1e37dd5",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 284,
+          "column": 1
+        },
+        {
+          "title": "RQU-UI-11 React PC/mobile critical journeys and safety boundaries",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4267,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:23:16.264Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-ead69188338ac2a79ced",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 103,
+          "column": 1
+        },
+        {
+          "title": "RQU-UI-11 React exposes all ten common states with readable operation guidance",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1799,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:23:20.640Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-19751c2d97a9aef4d882",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 147,
+          "column": 1
+        },
+        {
+          "title": "RQU-UI-13 React covers every common state on all 21 screens",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 23163,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:23:22.449Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-26feb7d91673d7d14be0",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 158,
+          "column": 1
+        },
+        {
+          "title": "RQU-UI-13 safety controls require editable inputs and confirmation records",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5463,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:23:45.621Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-51dfee7deae3e8cbd482",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 175,
+          "column": 1
+        },
+        {
+          "title": "RQU-UI-11 React PC/mobile visual baselines and keyboard/Dialog boundaries",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1566,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:23:51.094Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-71ccfd6f5e3341f2ebf6",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 234,
+          "column": 1
+        },
+        {
+          "title": "RQU-UI-11 React all 21 screen routes are reachable on the configured viewport",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12988,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:23:52.669Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-fca2c1458d3ee447f135",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 248,
+          "column": 1
+        },
+        {
+          "title": "RQU-UI-11 React active screens pass critical/serious axe checks",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 15756,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:24:05.666Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-7dbdf1e7d72627e5770f",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 257,
+          "column": 1
+        },
+        {
+          "title": "RQU-UI-11 static HTML reaches all 21 screens with no external requests",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14805,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:24:21.431Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-d1c89c00effe445d485b",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 271,
+          "column": 1
+        },
+        {
+          "title": "RQU-UI-11 static HTML active screens pass critical/serious axe checks",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 15658,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-11T05:24:36.246Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0defaf5e5cc95fb0d4fb-30f8d09178d7e17a9ba0",
+          "file": "rqu-ui-11.spec.ts",
+          "line": 284,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-08-11T05:22:43.603Z",
+    "duration": 128984.732,
+    "expected": 18,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

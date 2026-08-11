@@ -1,0 +1,110 @@
+{
+  "screenCount": 21,
+  "results": [
+    {
+      "screenId": "SCREEN-01",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-02",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-03",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-04",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-05",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-06",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-07",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-08",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-09",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-10",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-11",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-12",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-13",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-14",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-15",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-16",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-17",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-18",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-19",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-20",
+      "violations": [],
+      "criticalOrSerious": []
+    },
+    {
+      "screenId": "SCREEN-21",
+      "violations": [],
+      "criticalOrSerious": []
+    }
+  ]
+}

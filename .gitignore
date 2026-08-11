@@ -19,6 +19,12 @@ Thumbs.db
 coverage/
 .coverage
 tests/evidence/phase2/RUN-P2-DP-002/raw/
+tests/evidence/requirements_ui/**/*.png
+tests/evidence/requirements_ui/**/playwright-report/
+tests/evidence/requirements_ui/**/test-results/
+ui/mock/tests/**/*-snapshots/*.png
+ui/mock/test-results/**/*.png
+ui/mock/playwright-report/**/*.png
 *.dbn
 **/raw/
 dist/
