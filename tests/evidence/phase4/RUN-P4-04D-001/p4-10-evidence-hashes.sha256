@@ -1,0 +1,13 @@
+# P4-10 evidence hashes
+# SHA-256 generated 2026-08-12 (Asia/Tokyo); this manifest excludes itself.
+c8004696953c269ffce940272f21b46d3591eedff9e1692ee2a994b31044a8de  doc/phase4/05_完了/07_Phase4完了判定・Phase5計画引渡し.html
+2047480d5a8ab6cfc3e7c4a2ea44ec4993b3f8106ccc7abf885bc9755454df4f  plan/phase4/ログ/P4-10_完了・引渡し_2026-08-12.md
+61c08cf5cd6bd2aef36809d8419ba6ac2db4c04517057b4d01cbdffc374f5efa  plan/phase4/Phase5計画入力一覧_2026-08-12.md
+ec7cbe4d6a5106c1573b466fb6432db27ba958fa7dc8cba25bbcc84d9b79a424  tests/evidence/phase4/RUN-P4-04D-001/p4-10-dispatch.md
+881424caa466fa942f7e2814b78e7b79b15c07db00d909a2cd38269a4c22a09e  tests/evidence/phase4/RUN-P4-04D-001/p4-10-run-manifest.md
+2d84aef5b5f3adf3e1a29659702ae2035bfbe0e9577bf716c06ff5cd22e5ea95  tests/evidence/phase4/RUN-P4-04D-001/p4-10-verification.md
+9b04078eab16d62489440ae5b7ad44073cf6991b7316e2616b3f1d48610948d7  tests/evidence/phase4/RUN-P4-04D-001/p4-10-self-review.md
+4a3756145e21881452f0ab72444f8f88a53e1fd17ce8b8cb6edd805ffd4186e9  tests/evidence/phase4/RUN-P4-04D-001/human-gate-p4-h2.md
+0337e4a57c566c834df82feaf3a24d3c690b644c12950a1a1bed7dd751919b39  doc/index.html
+fc997e0e53642f3f5099f03de3f3faf81032ff55fe8fa2c7e79f709a55fa3112  doc/00_全Phase残課題Blocked統合台帳.html
+9d76a0ae35f6c0faca230c60bd99ad5cc1861c67fa77be33a989377b39da394c  plan/Phase4_実行計画書_v0.1_2026-08-11.md

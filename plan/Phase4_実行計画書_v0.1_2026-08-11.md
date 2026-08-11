@@ -124,7 +124,7 @@ P4-01は開始時にCore source／tests／fixturesのManifestを再照合し、P
 | P4-05 | `doc/phase4/04_レビュー/05_Phase4詳細設計レビュー・改訂記録.html` | `plan/phase4/ログ/P4-05_設計レビュー_YYYY-MM-DD.md` | Review findings／採否表。 |
 | P4-06〜08 | P4-03、P4-04A〜Dの設計書を改訂するときだけ更新。P4-08は `doc/phase4/03_品質設計/05_P4-08_UI接続・VisualA11y検証.html` を正式検証HTMLとして追加。 | `plan/phase4/ログ/P4-0X_実装ログ_YYYY-MM-DD.md` | `tests/evidence/phase4/<RunId>/`。Run ID・target scope・fixture hash・approvalを登録後にだけ作成。 |
 | P4-09 | `doc/phase4/04_レビュー/06_Phase4統合品質・独立レビュー.html` | `plan/phase4/ログ/P4-09_統合品質・独立レビュー_YYYY-MM-DD.md` | `tests/evidence/phase4/<RunId>/dispatch、manifest、verification、self-review、hash、Gate結果。 |
-| P4-10 | `doc/phase4/05_完了/07_Phase4完了判定・Phase5計画引渡し.html` | `plan/phase4/ログ/P4-10_完了・引渡し_YYYY-MM-DD.md` | P4-H2承認記録とPhase 5入力一覧。 |
+| P4-10 | `doc/phase4/05_完了/07_Phase4完了判定・Phase5計画引渡し.html` | `plan/phase4/ログ/P4-10_完了・引渡し_2026-08-12.md` | `tests/evidence/phase4/RUN-P4-04D-001/p4-10-*`、P4-H2承認記録、`plan/phase4/Phase5計画入力一覧_2026-08-12.md`。 |
 
 ## 7. 使用するAI部品
 
@@ -146,7 +146,7 @@ Orchestratorは `gpt-5.6-terra` を使う。各AgentはそのJSON実体に固定
 |---|---|---|---|---|
 | `P4-H0` | `APPROVED（2026-08-11）` | 本計画、P4の固定local scope、Core凍結、P4-01〜05の設計・RED範囲。改訂2でP4-04A（API）→P4-04B（DB／ER）→P4-04C（UI）→P4-04D（RED）へ分割して明文化した。 | P4-01〜05。入力照合、追跡、API詳細設計、DB／Persistence詳細設計・ER図、全21画面UI詳細設計、RED test・Run Manifest設計、レビュー。 | 実装、依存導入、実行Run、外部I/O、Core変更、Broker／Secret／Paper／Live／実資金／Cloud。 |
 | `P4-H1` | `APPROVED（2026-08-12）` | P4-03、P4-04A〜D、P4-05のレビュー済み詳細設計、DB／ER／migration／transaction設計、RED、Core差分0、全P4 API inventory、21画面coverage register、対象Run ID／target_paths／fixture hash／trusted scope、実装範囲。承認記録は `tests/evidence/phase4/RUN-P4-04D-001/human-gate-p4-h1.md`。 | P4-06〜09のローカル実装・固定fixture試験・全P4対象画面のUI検証。対象Runは `RUN-P4-04D-001`、target-onlyで実行する。WSL品質Gateはhost outbound isolation確認後だけ実行する。 | P4-10、未登録Run、外部I/O、未固定依存の取得、Core変更、実市場Data、Broker／Secret／Paper／Live／実資金／Cloud。 |
-| `P4-H2` | `WAITING_FOR_USER_APPROVAL` | P4-09の最終候補、REQ／UC／Test／Evidence追跡、Core差分、品質・レビュー、残Unknown、Phase 5境界 | P4-10の完了記録・台帳同期・Phase 5計画入力引渡し。 | Phase 5実装・外部Data取得、Broker／Secret／Paper／Live／実資金／Cloud。 |
+| `P4-H2` | `APPROVED（2026-08-12）` | P4-09の最終候補、REQ／UC／Test／Evidence追跡、Core差分、品質・レビュー、残Unknown、Phase 5境界。承認記録は `tests/evidence/phase4/RUN-P4-04D-001/human-gate-p4-h2.md`。 | P4-10の完了記録・台帳同期・Phase 5計画入力引渡し。 | Phase 5実装・外部Data取得、Broker／Secret／Paper／Live／実資金／Cloud。 |
 
 各Gateの現在状態、対象、期限、再開条件、証拠先は統合台帳を唯一の正本とする。改訂2は、運用者がP4-04BへDB／Persistence詳細設計とER図を追加し、後続Stepを繰り下げる計画修正を指示したことを記録するものであり、P4-H0の設計・RED以外の権限を増やさない。P4-H1では、実行を許す `RunId` も同じ承認文言または紐付く承認記録に明記する。
 
@@ -530,4 +530,4 @@ Skills: autotrade_skill_traceability_v0_1, autotrade_skill_design_doc_set_writer
 
 ## 15. 現在の次アクション
 
-現在の状態（2026-08-12実行後）は `COMPLETED_P4-09_P4-H2_BLOCKED` である。ユーザー承認を `tests/evidence/phase4/RUN-P4-04D-001/human-gate-p4-h1.md` に記録し、同Runを `scripts/quality_gate/trusted_scopes.json` へtarget-onlyとして登録した。P4-06はP4-03の正式file treeに合わせた `src/autotrade/application` の最小実装、旧RED sentinelの正本名修正、RED→GREEN、formatter／lint／mypy／pytest、Core差分0、Evidence hash、Critical／High 0を確認して完了した。P4-07はtyped Core adapter、単一Backtest／Sweep／Result／Evidence／CSV／checkpoint／Holdout、全19 API、failure injection、formatter／lint／mypy／pytest、Core差分0、Evidence hash、Critical／High 0を確認して完了した。P4-08は`ui/mock`の固定契約、21画面、13×10状態、PC／mobile、Storybook／Vitest／Playwright／axe、screenshots、外部通信0、Critical／High 0を確認して完了した。P4-09は全19 API、15 DB／ER entity、21画面、260 UI state operations、P4-06〜08 hash、Core差分0、target qualityを再照合した。Coordinator子Agentのspawn／wait backend未提供により独立Agent結果は成立しないためfallback self-reviewを記録した。host outbound isolationとfont／OS renderingはUnknownのまま保持し、P4-H2未承認のためP4-10は実行しない。
+現在の状態（2026-08-12 P4-H2承認後）は `COMPLETED_P4-10_PHASE4_COMPLETE_PHASE5_HANDOFF` である。P4-H2承認を `tests/evidence/phase4/RUN-P4-04D-001/human-gate-p4-h2.md` に記録し、P4-09の全19 API、15 DB／ER entity、21画面、260 UI state operations、P4-06〜08 hash、Core差分0、target qualityを引き渡し入力として固定した。P4-10で完了HTML、実行ログ、Phase5計画入力、統合台帳、doc/index、dispatch／manifest／verification／self-reviewを作成・同期した。P4の完了は固定local Product/Application・Backtest範囲に限り、P5実装、外部Data、Broker、Secret、Paper／Live、実資金、Cloud、Core変更、DB作成・migrationは引き続き実行しない。
