@@ -212,7 +212,7 @@ P4-09でP4-H2候補と呼べるのは、次のすべてを満たすときだけ�
 | `P4-PLAN-F-007` | High | 「全画面」をP4対象Subsetだけと誤読すると、対象外画面が無根拠に実装されたり、未設計のまま残る。 | 全21画面をcoverage registerへ入れる。P4対象画面は実装仕様、P4対象外画面は固定`UNAPPROVED`／`OUT_OF_SCOPE`境界、理由、後続Phase、Gateを個別に定義する。 |
 | `P4-PLAN-F-008` | Critical | Orchestrator／Agentの完全名をプロンプトへ列挙するだけでは、Codex実ランタイムのサブエージェント起動、独立レビュー、固定modelの適用を保証できず、ルートAgentの自己適用を誤って完了扱いする危険がある。さらに、Coordinatorから子Agentを起動できない環境では、起動不能だけで設計・実装全体が停止する。 | P4-04C以降の各プロンプトで実ランタイム起動を第一選択として要求し、起動できたAgentだけを実行証跡へ記録する。起動不能時は `DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS` へ切り替え、Agentごとの責務・レビュー観点をルート実行Agentがチェックリストで適用する。未起動を独立レビュー済みと偽らず、起動不能自体は停止条件にしない。一方、Gate、スコープ、Secret／外部I/O、Critical／High、UnknownのPassは従来どおり停止する。 |
 
-判定: `COMPLETED_P4-04B_P4-04C_PENDING`。P4-04Aの全P4 canonical API詳細設計とP4-04BのDB／ER／Persistence詳細設計は完了し、P4-04C（全21画面UI）、P4-04D（RED／Run Manifest）、P4-05以降は未実行である。改訂4のP4-PLAN-F-008は、実ランタイム起動を優先しつつ、Coordinatorまたは子Agentの起動不能時も明示的なローカル・フォールバックで継続する契約へ変更した。P4-H0は承認済みだが、P4-H1前の実装、依存導入、実行Run、外部I/Oは引き続き禁止する。
+判定（2026-08-12実行後）: `COMPLETED_P4-05_P4-H1_PENDING`。P4-04C（全21画面UI）、P4-04D（RED／Run Manifest）、P4-05（統合レビュー・改訂・P4-H1提出候補）まで完了した。実ランタイム起動を優先し、Coordinatorは親rootから起動したが、Coordinator環境では子Agent dispatchが利用できなかったため、各Stepで `DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS` を記録し、root fallbackを適用した。P4-H1は未承認のため、P4-06以降の実装、依存導入、実行Run、WSL、外部I/Oは開始しない。
 
 ## 14. Step別の直接実行プロンプト
 
@@ -530,4 +530,4 @@ Skills: autotrade_skill_traceability_v0_1, autotrade_skill_design_doc_set_writer
 
 ## 15. 現在の次アクション
 
-現在の状態は `COMPLETED_P4-04B_P4-04C_PENDING` である。P4-01〜P4-04Bは完了しており、P4-04Bの正式HTML／実行ログ／doc index／計画・台帳同期を確認した。改訂4で、P4-04C（全21画面UI）、P4-04D（RED／Run Manifest）、P4-05以降の直接実行プロンプトへ、実ランタイム起動を優先しつつ、Coordinatorまたは子Agentを起動できない場合も `DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS` で継続する契約を追加した。P4-04C以降は未実行であり、実Agentが起動できた場合はagent_id・固定model・受付statusを記録し、起動できない場合は未起動を明示してルート実行Agentが責務チェックリストと自己レビューを行う。P4-H1前の実装、依存導入、実行Run、外部I/Oも引き続き禁止する。
+現在の状態（2026-08-12実行後）は `COMPLETED_P4-05_P4-H1_PENDING` である。P4-01〜P4-05の正式成果物、ログ、doc/index導線、P4-04DのRED結果、P4-H1提出候補を確認した。P4-04C以降は実ランタイム起動を第一選択とし、Coordinatorは親rootから起動したが、Coordinator環境の子Agent dispatch不能時は各ログに未起動Agent、`independent=false`、`review_mode=SELF_REVIEW_FALLBACK` を記録して責務チェックリストで継続した。P4-H1は `WAITING_FOR_USER_APPROVAL` のため、次のアクションは対象Run ID／target_paths／fixture hash等を含むP4-H1の承認であり、承認前にP4-06以降の実装、依存導入、実行Run、WSL、外部I/Oは開始しない。
