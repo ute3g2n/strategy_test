@@ -1,4 +1,4 @@
-# Phase 4 実行計画書 v0.1（改訂3）
+# Phase 4 実行計画書 v0.1（改訂4）
 
 ## 0. 文書情報
 
@@ -12,7 +12,7 @@
 | この改訂で実行しないこと | 本改訂は計画の補正だけであり、実装、依存導入、実行Run、外部I/O、Broker／Secret／Paper／Live／実資金／Cloudは発火しない。P4-H0で許可済みの設計・REDは、改訂後の直接実行プロンプトでだけ扱う。 |
 | 起点 | `RQV2-H3` 承認済みの正式要件v2基準線。これはPhase 4実装の承認ではない。 |
 | 正本の置場 | 本計画は `plan/`、将来の正式設計書は `doc/phase4/`、実行ログは `plan/phase4/ログ/`、機械証跡は `tests/evidence/phase4/<RunId>/`。 |
-| 改訂 | 2026-08-11 改訂3。改訂2のDB・Persistence詳細設計追加を継承し、P4-04C以降の各直接実行プロンプトへ、実ランタイムでのOrchestrator／Agent起動、固定model、起動受付、完了status、未起動時のFail-closed停止、個別起動証跡を追加する。 |
+| 改訂 | 2026-08-12 改訂4。改訂3の実ランタイム起動契約を継承し、Coordinatorから子Agentを起動できない環境でも、起動不能を明示したローカル・フォールバック実行へ継続できるよう、P4-04C以降の各直接実行プロンプトを修正する。 |
 
 ## 1. 結論と発火制御
 
@@ -20,7 +20,7 @@ Phase 4 は、既存のReplay／Fill／Cost／Roll／Gap／Calendar／Holdout／
 
 この計画を作成しただけでは、`P4-01` 以降を起動しない。まず運用者が `P4-H0` を承認し、次にレビュー済み詳細設計・RED・対象Runを明記した `P4-H1` を承認し、最後に完了候補を `P4-H2` で承認する。未承認のGate、Unknown、外部I/O、Core差分、Critical／Highは安全側に停止する。
 
-P4-04C以降の直接実行では、プロンプトの `Orchestrator:`、`Agents:`、`Skills:` の列挙、JSON／Skillの読込、ルートAgentによる責務の自己適用を、部品の起動または独立レビューの証拠とみなさない。各プロンプトに埋め込んだ実ランタイム起動契約に従い、実際の起動機能による `orchestrator_agent_id` と全Agentの `agent_id`、固定model、受付statusを取得できるまで、対象成果物・ソースの変更を禁止する。起動機能が利用できない場合は、設計・実装を代行せず、`BLOCKED_RUNTIME_DISPATCH_UNAVAILABLE` として停止する。
+P4-04C以降の直接実行では、プロンプトの `Orchestrator:`、`Agents:`、`Skills:` の列挙、JSON／Skillの読込、ルートAgentによる責務の自己適用を、部品の起動または独立レビューの証拠とみなさない。各プロンプトは実ランタイム起動を第一選択とし、起動できる場合は `orchestrator_agent_id`、全Agentの `agent_id`、固定model、受付・完了status、出力参照を取得する。Coordinatorまたは子Agentを起動できない場合は、`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS` と理由・未起動Agentをログへ記録し、ルート実行Agentが各Agentの責務をチェックリストとして順次適用して作業を継続する。フォールバックで実施した確認を独立Agentの実行結果と偽らず、`independent=false`、`review_mode=SELF_REVIEW_FALLBACK`、`agent_id=N/A` を記録する。起動不能自体は停止条件にしないが、Human Gate未承認、スコープ違反、Secret／外部I/O、Critical／High未解決、UnknownのPassは引き続きFail-closedで停止する。
 
 ```mermaid
 flowchart LR
@@ -210,9 +210,9 @@ P4-09でP4-H2候補と呼べるのは、次のすべてを満たすときだけ�
 | `P4-PLAN-F-005` | Medium | 実行Runの承認範囲が曖昧だと、trusted scope外の品質Gateを起動し得る。 | P4-H1にRun ID・target_paths・fixture hash・trusted scopeの明記を要求した。 |
 | `P4-PLAN-F-006` | High | APIや画面を責務図だけで実装へ渡すと、型、状態、失敗、操作、アクセシビリティ、証跡が実装者ごとに異なる。 | P4-04Aで全APIを、P4-04BでDB／ER／保存契約を、P4-04Cで全21画面を個別設計し、P4-04DでAPI／DB／UIをREDとEvidenceへ結ぶ。P4-05はcoverage不足をCritical／Highとして扱う。 |
 | `P4-PLAN-F-007` | High | 「全画面」をP4対象Subsetだけと誤読すると、対象外画面が無根拠に実装されたり、未設計のまま残る。 | 全21画面をcoverage registerへ入れる。P4対象画面は実装仕様、P4対象外画面は固定`UNAPPROVED`／`OUT_OF_SCOPE`境界、理由、後続Phase、Gateを個別に定義する。 |
-| `P4-PLAN-F-008` | Critical | Orchestrator／Agentの完全名をプロンプトへ列挙するだけでは、Codex実ランタイムのサブエージェント起動、独立レビュー、固定modelの適用を保証できず、ルートAgentの自己適用を誤って完了扱いする危険がある。 | P4-04C以降の各プロンプトに `multi_agent_v1__spawn_agent`／`multi_agent_v1__wait_agent` を使う実ランタイム起動契約を埋め込み、Coordinator 1体とAgents欄の全Agentを個別起動する。`agent_id`、JSON path、固定model、Skill、status、出力参照が揃わない場合は対象ファイルを変更せずBlockedとする。 |
+| `P4-PLAN-F-008` | Critical | Orchestrator／Agentの完全名をプロンプトへ列挙するだけでは、Codex実ランタイムのサブエージェント起動、独立レビュー、固定modelの適用を保証できず、ルートAgentの自己適用を誤って完了扱いする危険がある。さらに、Coordinatorから子Agentを起動できない環境では、起動不能だけで設計・実装全体が停止する。 | P4-04C以降の各プロンプトで実ランタイム起動を第一選択として要求し、起動できたAgentだけを実行証跡へ記録する。起動不能時は `DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS` へ切り替え、Agentごとの責務・レビュー観点をルート実行Agentがチェックリストで適用する。未起動を独立レビュー済みと偽らず、起動不能自体は停止条件にしない。一方、Gate、スコープ、Secret／外部I/O、Critical／High、UnknownのPassは従来どおり停止する。 |
 
-判定: `COMPLETED_P4-04B_P4-04C_PENDING`。P4-04Aの全P4 canonical API詳細設計とP4-04BのDB／ER／Persistence詳細設計は完了し、P4-04C（全21画面UI）、P4-04D（RED／Run Manifest）、P4-05以降は未実行である。改訂3のP4-PLAN-F-008は、P4-04C以降の各Promptに実ランタイム起動契約を追加し、起動証跡がない場合の変更禁止と停止条件を固定した。P4-H0は承認済みだが、P4-H1前の実装、依存導入、実行Run、外部I/Oは引き続き禁止する。
+判定: `COMPLETED_P4-04B_P4-04C_PENDING`。P4-04Aの全P4 canonical API詳細設計とP4-04BのDB／ER／Persistence詳細設計は完了し、P4-04C（全21画面UI）、P4-04D（RED／Run Manifest）、P4-05以降は未実行である。改訂4のP4-PLAN-F-008は、実ランタイム起動を優先しつつ、Coordinatorまたは子Agentの起動不能時も明示的なローカル・フォールバックで継続する契約へ変更した。P4-H0は承認済みだが、P4-H1前の実装、依存導入、実行Run、外部I/Oは引き続き禁止する。
 
 ## 14. Step別の直接実行プロンプト
 
@@ -327,18 +327,18 @@ doc/phase4/02_実装詳細設計/05_ProductApplication_DB_Persistence詳細設�
 Step ID: P4-04C
 Parent Step: P4-04
 Phase ID: PHASE4_PRODUCT_APPLICATION_BACKTEST_2026_08_11
-Plan: P4-PLAN-001 / plan/Phase4_実行計画書_v0.1_2026-08-11.md（改訂3）
+Plan: P4-PLAN-001 / plan/Phase4_実行計画書_v0.1_2026-08-11.md（改訂4）
 Orchestrator: AutoTradeProject_ImplementationDesign_Orchestrator_v0_1
 Agents: AutoTrade_A10_RequirementsCurator_v0_1, AutoTrade_A30_StrategyQaArchitect_v0_1, AutoTrade_A70_OpsSecurityArchitect_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A82_ImplementationDetailDesigner_v0_1, AutoTrade_A91_ImplementationDetailReviewer_v0_1, AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A170_UiMockEngineer_v0_1, AutoTrade_A171_UiVisualQaReviewer_v0_1
-Model: Orchestratorはgpt-5.6-terra。各Agentは定義JSONに固定されたmodelを使い、利用不能なら代替せず停止する。
+Model: Orchestratorはgpt-5.6-terra。実Agentは定義JSONに固定されたmodelを使う。利用不能またはmodel不受理時は代替Agentを起動済みと扱わず、`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS`へ切り替える。
 Skills: autotrade_skill_implementation_detail_design_v0_1, autotrade_skill_implementation_detail_review_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_ui_mock_generation_v0_1, autotrade_skill_ui_visual_validation_v0_1, autotrade_skill_ui_accessibility_validation_v0_1, autotrade_skill_test_strategy_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_ops_security_v0_1, autotrade_skill_design_review_v0_1
-実ランタイム起動契約（必須。名前の列挙・定義読込・ルートAgentの自己適用は起動の代替ではない）:
-1. ルート実行Agentは、実サブエージェント機能 `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を最初に確認する。利用不可、または完全名・JSON path・固定modelを起動メッセージへ渡せない場合は、対象ファイルを変更せず `BLOCKED_RUNTIME_DISPATCH_UNAVAILABLE` をログへ記録して停止する。
-2. 利用可能なら、ルート実行Agentは `multi_agent_v1__spawn_agent` を実際に呼び、このコードブロック全文、Phase／Step、入力・出力境界を `message/items` として渡し、`Orchestrator`欄の完全名に対応するJSONを読む独立Coordinatorを1体起動する。Coordinatorの `model` は `gpt-5.6-terra` を明示し、runtime roleは器でありProject Orchestrator名の代替ではない。
-3. Coordinatorは `Agents`欄の全完全名を1体ずつ同じ起動機能で起動する。Orchestrator JSONの `agents` mapにないが、このPromptで完全名指定されたAgentも省略せず、JSONの存在、固定model、Skillsを検証して起動する。各呼出しにAgent JSONのpath、JSON定義の固定model（`model`引数を省略しない）、Skills完全名、担当範囲、停止条件を渡す。省略、まとめ起動、ルートAgentによる代行、別Agentへの置換を禁止し、map外Agentをランタイムが受理できない場合は対象ファイルを変更せず停止する。
-4. 対象ファイルの変更は、Coordinatorから `orchestrator_agent_id` と全Agentの `agent_id`・受付statusが返るまで禁止する。1件でも欠けたら成果物・ソースを変更せず停止する。A91/A90/A171等の独立レビューは作成担当と別Agentで起動する。
-5. Coordinatorは依存順とレビュー再実行を管理し、全AgentとCoordinatorの完了statusを `multi_agent_v1__wait_agent` で回収する。実行ログにはruntime backend、全agent_id、完全名、JSON path、固定model、Skills、start/end、status、出力参照、再レビュー受付を記録する。名前の列挙や自己判定だけでは完了にしない。
-6. 起動不能、model不一致、出力欠落、Critical/High未解決、UnknownのPassはFail-closedで停止する。
+実ランタイム起動契約（優先実行＋継続フォールバック。名前の列挙・定義読込・ルートAgentの自己適用は起動の代替ではない）:
+1. ルート実行Agentは、実サブエージェント機能 `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を最初に確認する。利用可能なら、`Orchestrator`欄の完全名に対応するJSON、固定model、Phase／Step、入力・出力境界を `message/items` として渡し、`model=gpt-5.6-terra` の独立Coordinatorを起動する。ルートで起動機能を利用できない場合も、`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS`、理由、確認時刻をログへ記録して停止せず次へ進む。
+2. Coordinatorは起動後、`Agents`欄の全完全名を1体ずつ `multi_agent_v1__spawn_agent` で起動する。Orchestrator JSONの `agents` mapにないがPromptで完全名指定されたAgentも省略せず、JSON path、JSON定義の固定model（`model`引数を省略しない）、Skills完全名、担当範囲、停止条件を渡す。個別起動、固定model受理、受付statusが揃ったAgentだけを実Agent実行として扱う。
+3. Coordinatorから子Agentを起動できない、map外Agentを受理できない、固定modelを受理できない、またはCoordinator自身が `multi_agent_v1__spawn_agent`／`multi_agent_v1__wait_agent` を利用できない場合は、`RUNTIME_DISPATCH_FALLBACK_REQUIRED` として未起動Agent、理由、`agent_id=N/A`、`independent=false` を記録する。これは停止条件ではなく、ルート実行Agentが当該Agentの責務をチェックリストとして順次適用する切替指示とする。未起動Agentを起動済み、独立レビュー済み、固定model実行済みとは記載しない。
+4. 実Agentを起動できた場合は、`orchestrator_agent_id`、全Agentの `agent_id`・受付statusを取得してから対象ファイルを変更する。フォールバックの場合は、起動不能の記録を先に残した後、ルート実行AgentがPromptのスコープ内で作業を継続してよい。A91/A90/A171等の独立レビューが未起動の場合は、作成後に同じレビュー観点を別工程の自己レビュー・チェックリストで再確認し、`review_mode=SELF_REVIEW_FALLBACK` と記録する。
+5. Coordinatorは起動できたAgentについて依存順、再レビュー、`multi_agent_v1__wait_agent` による完了statusを管理する。フォールバックでは、各Agentの入力・確認項目・出力・停止条件をルート実行Agentが順次実施し、実行ログにruntime backend、dispatch mode、試行した全agent名、JSON path、固定model、Skills、start/end、status、出力参照、独立性、再レビュー受付を記録する。名前の列挙や自己判定だけで独立Agent完了とはしない。
+6. Coordinator／子Agentの起動不能、model不一致、Agent出力欠落、`wait_agent` 利用不能は、フォールバック記録と責務チェックリスト・自己レビューが完了する限り、単独では停止条件にしない。Human Gate未承認、実装範囲逸脱、Secret／外部I/O、Core変更禁止違反、Critical／High未解決、UnknownのPass、必須成果物・テスト・Evidenceの欠落は、フォールバック中もFail-closedで停止する。
 発火制御: P4-H0=APPROVED、P4-04A/P4-04B完了を確認してから実行する。設計書とログだけを更新する。UIソース、Storybook、Vite、Playwright設定、依存、外部通信、認証、実行Run、Coreは変更しない。A170/A171は画面設計と受入条件の作成・レビューに限定し、クリック可能UIやスクリーンショットをこのStepで作らない。
 入力: P4-02のREQ→UC→Screen／State追跡、P4-03詳細設計、P4-04A API詳細設計、P4-04B DB・Persistence詳細設計、既存21画面UIモックとui/mockの既存設定、正式要件v2、統合台帳、P4-H1の承認要件、固定ダミーデータ・Seed・基準日時・viewportの既存設定。
 実施: SCREEN-01からSCREEN-21までを一画面ずつ扱う「全21画面coverage register」と、各画面の個別詳細設計節を作成する。P4対象画面は、実装者が追加判断なしに実装できる粒度で、画面ID、名称、目的、対象REQ／UC、P4判定、route／入口／出口／戻り先、PC／スマートフォンの情報構造とレイアウト、画面遷移、component tree、各部品の責務・props・event・local／server state、表示データと固定ダミー値、P4-04A API-P4-IDのrequest／response結線、P4-04Bの保存単位・read/write・transaction・Evidence参照、読み込み／空／入力不備／警告／停止／失敗／復旧／Human Gate／未承認の表示、許可・禁止操作、確認Dialog、Cancel／Stop／Retry／Resume、CSV／Evidence導線、表・Chart・Trade明細、エラー文言／reason ID、永続化なしのUI状態、Test ID、Evidence、Unknownを定義する。
@@ -356,18 +356,18 @@ doc/phase4/02_実装詳細設計/06_ProductApplication_UI全21画面詳細設計
 Step ID: P4-04D
 Parent Step: P4-04
 Phase ID: PHASE4_PRODUCT_APPLICATION_BACKTEST_2026_08_11
-Plan: P4-PLAN-001 / plan/Phase4_実行計画書_v0.1_2026-08-11.md（改訂3）
+Plan: P4-PLAN-001 / plan/Phase4_実行計画書_v0.1_2026-08-11.md（改訂4）
 Orchestrator: AutoTradeProject_ImplementationDesign_Orchestrator_v0_1
 Agents: AutoTrade_A30_StrategyQaArchitect_v0_1, AutoTrade_A70_OpsSecurityArchitect_v0_1, AutoTrade_A82_ImplementationDetailDesigner_v0_1, AutoTrade_A91_ImplementationDetailReviewer_v0_1, AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A171_UiVisualQaReviewer_v0_1
-Model: Orchestratorはgpt-5.6-terra。各Agentは定義JSONに固定されたmodelを使い、利用不能なら代替せず停止する。
+Model: Orchestratorはgpt-5.6-terra。実Agentは定義JSONに固定されたmodelを使う。利用不能またはmodel不受理時は代替Agentを起動済みと扱わず、`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS`へ切り替える。
 Skills: autotrade_skill_test_strategy_v0_1, autotrade_skill_golden_test_v0_1, autotrade_skill_python_test_quality_v0_1, autotrade_skill_ops_security_v0_1, autotrade_skill_implementation_detail_review_v0_1, autotrade_skill_ui_visual_validation_v0_1, autotrade_skill_ui_accessibility_validation_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_traceability_v0_1
-実ランタイム起動契約（必須。名前の列挙・定義読込・ルートAgentの自己適用は起動の代替ではない）:
-1. ルート実行Agentは、実サブエージェント機能 `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を最初に確認する。利用不可、または完全名・JSON path・固定modelを起動メッセージへ渡せない場合は、対象ファイルを変更せず `BLOCKED_RUNTIME_DISPATCH_UNAVAILABLE` をログへ記録して停止する。
-2. 利用可能なら、ルート実行Agentは `multi_agent_v1__spawn_agent` を実際に呼び、このコードブロック全文、Phase／Step、入力・出力境界を `message/items` として渡し、`Orchestrator`欄の完全名に対応するJSONを読む独立Coordinatorを1体起動する。Coordinatorの `model` は `gpt-5.6-terra` を明示し、runtime roleは器でありProject Orchestrator名の代替ではない。
-3. Coordinatorは `Agents`欄の全完全名を1体ずつ同じ起動機能で起動する。Orchestrator JSONの `agents` mapにないが、このPromptで完全名指定されたAgentも省略せず、JSONの存在、固定model、Skillsを検証して起動する。各呼出しにAgent JSONのpath、JSON定義の固定model（`model`引数を省略しない）、Skills完全名、担当範囲、停止条件を渡す。省略、まとめ起動、ルートAgentによる代行、別Agentへの置換を禁止し、map外Agentをランタイムが受理できない場合は対象ファイルを変更せず停止する。
-4. 対象ファイルの変更は、Coordinatorから `orchestrator_agent_id` と全Agentの `agent_id`・受付statusが返るまで禁止する。1件でも欠けたら成果物・ソースを変更せず停止する。A91/A90/A171等の独立レビューは作成担当と別Agentで起動する。
-5. Coordinatorは依存順とレビュー再実行を管理し、全AgentとCoordinatorの完了statusを `multi_agent_v1__wait_agent` で回収する。実行ログにはruntime backend、全agent_id、完全名、JSON path、固定model、Skills、start/end、status、出力参照、再レビュー受付を記録する。名前の列挙や自己判定だけでは完了にしない。
-6. 起動不能、model不一致、出力欠落、Critical/High未解決、UnknownのPassはFail-closedで停止する。
+実ランタイム起動契約（優先実行＋継続フォールバック。名前の列挙・定義読込・ルートAgentの自己適用は起動の代替ではない）:
+1. ルート実行Agentは、実サブエージェント機能 `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を最初に確認する。利用可能なら、`Orchestrator`欄の完全名に対応するJSON、固定model、Phase／Step、入力・出力境界を `message/items` として渡し、`model=gpt-5.6-terra` の独立Coordinatorを起動する。ルートで起動機能を利用できない場合も、`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS`、理由、確認時刻をログへ記録して停止せず次へ進む。
+2. Coordinatorは起動後、`Agents`欄の全完全名を1体ずつ `multi_agent_v1__spawn_agent` で起動する。Orchestrator JSONの `agents` mapにないがPromptで完全名指定されたAgentも省略せず、JSON path、JSON定義の固定model（`model`引数を省略しない）、Skills完全名、担当範囲、停止条件を渡す。個別起動、固定model受理、受付statusが揃ったAgentだけを実Agent実行として扱う。
+3. Coordinatorから子Agentを起動できない、map外Agentを受理できない、固定modelを受理できない、またはCoordinator自身が `multi_agent_v1__spawn_agent`／`multi_agent_v1__wait_agent` を利用できない場合は、`RUNTIME_DISPATCH_FALLBACK_REQUIRED` として未起動Agent、理由、`agent_id=N/A`、`independent=false` を記録する。これは停止条件ではなく、ルート実行Agentが当該Agentの責務をチェックリストとして順次適用する切替指示とする。未起動Agentを起動済み、独立レビュー済み、固定model実行済みとは記載しない。
+4. 実Agentを起動できた場合は、`orchestrator_agent_id`、全Agentの `agent_id`・受付statusを取得してから対象ファイルを変更する。フォールバックの場合は、起動不能の記録を先に残した後、ルート実行AgentがPromptのスコープ内で作業を継続してよい。A91/A90/A171等の独立レビューが未起動の場合は、作成後に同じレビュー観点を別工程の自己レビュー・チェックリストで再確認し、`review_mode=SELF_REVIEW_FALLBACK` と記録する。
+5. Coordinatorは起動できたAgentについて依存順、再レビュー、`multi_agent_v1__wait_agent` による完了statusを管理する。フォールバックでは、各Agentの入力・確認項目・出力・停止条件をルート実行Agentが順次実施し、実行ログにruntime backend、dispatch mode、試行した全agent名、JSON path、固定model、Skills、start/end、status、出力参照、独立性、再レビュー受付を記録する。名前の列挙や自己判定だけで独立Agent完了とはしない。
+6. Coordinator／子Agentの起動不能、model不一致、Agent出力欠落、`wait_agent` 利用不能は、フォールバック記録と責務チェックリスト・自己レビューが完了する限り、単独では停止条件にしない。Human Gate未承認、実装範囲逸脱、Secret／外部I/O、Core変更禁止違反、Critical／High未解決、UnknownのPass、必須成果物・テスト・Evidenceの欠落は、フォールバック中もFail-closedで停止する。
 発火制御: P4-H0=APPROVED、P4-04A/P4-04B/P4-04C完了を確認してから実行する。必要最小のRED test追加は許可されるが、実装、依存取得、未登録Run、外部I/O、Core変更、UIソース変更、WSL操作は発火しない。
 入力: P4-02追跡、P4-03詳細設計、P4-04A API詳細設計、P4-04B DB・Persistence詳細設計／ER図、P4-04C UI全21画面詳細設計、Core基準線、scripts/quality_gate/trusted_scopes.json、scripts/wsl_quality_gate/run_test.ps1、ui/mockの既存テスト設定、既存固定fixture/Golden/Replay契約、統合台帳。
 実施: API-P4-ID、SCREEN-01〜21、UISTATE全10種、REQ、UC、P4-03のTEST-P4-APP-001〜045、P4-04BのTEST-P4-DB-IDを、RED、Golden／Replay、API/File契約、schema／migration、FK／unique／check、transaction rollback、Persistence／Idempotency、Cancel／Stop／Retry／Checkpoint、Manifest mismatch、Risk参照欠落、Look-ahead、保存不一致、Sweep部分失敗、CSV非同期、UI主要状態、keyboard／focus／a11y、PC／スマートフォンvisual、Failure injectionへ一対一以上で結ぶ。P4対象外画面・APIは、UNAPPROVED／OUT_OF_SCOPE表示と外部副作用ゼロをテストするだけとし、機能実装を要求しない。
@@ -383,18 +383,18 @@ doc/phase4/03_品質設計/04_Phase4テスト戦略・RunManifest設計.html と
 ```text
 Step ID: P4-05
 Phase ID: PHASE4_PRODUCT_APPLICATION_BACKTEST_2026_08_11
-Plan: P4-PLAN-001 / plan/Phase4_実行計画書_v0.1_2026-08-11.md（改訂3）
+Plan: P4-PLAN-001 / plan/Phase4_実行計画書_v0.1_2026-08-11.md（改訂4）
 Orchestrator: AutoTradeProject_ImplementationDesign_Orchestrator_v0_1
 Agents: AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A82_ImplementationDetailDesigner_v0_1, AutoTrade_A90_DesignReviewer_v0_1, AutoTrade_A91_ImplementationDetailReviewer_v0_1, AutoTrade_A171_UiVisualQaReviewer_v0_1
-Model: Orchestratorはgpt-5.6-terra。各Agentは定義JSONに固定されたmodelを使い、利用不能なら代替せず停止する。
+Model: Orchestratorはgpt-5.6-terra。実Agentは定義JSONに固定されたmodelを使う。利用不能またはmodel不受理時は代替Agentを起動済みと扱わず、`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS`へ切り替える。
 Skills: autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_implementation_detail_review_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_revision_integration_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_ui_visual_validation_v0_1, autotrade_skill_ui_accessibility_validation_v0_1
-実ランタイム起動契約（必須。名前の列挙・定義読込・ルートAgentの自己適用は起動の代替ではない）:
-1. ルート実行Agentは、実サブエージェント機能 `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を最初に確認する。利用不可、または完全名・JSON path・固定modelを起動メッセージへ渡せない場合は、対象ファイルを変更せず `BLOCKED_RUNTIME_DISPATCH_UNAVAILABLE` をログへ記録して停止する。
-2. 利用可能なら、ルート実行Agentは `multi_agent_v1__spawn_agent` を実際に呼び、このコードブロック全文、Phase／Step、入力・出力境界を `message/items` として渡し、`Orchestrator`欄の完全名に対応するJSONを読む独立Coordinatorを1体起動する。Coordinatorの `model` は `gpt-5.6-terra` を明示し、runtime roleは器でありProject Orchestrator名の代替ではない。
-3. Coordinatorは `Agents`欄の全完全名を1体ずつ同じ起動機能で起動する。Orchestrator JSONの `agents` mapにないが、このPromptで完全名指定されたAgentも省略せず、JSONの存在、固定model、Skillsを検証して起動する。各呼出しにAgent JSONのpath、JSON定義の固定model（`model`引数を省略しない）、Skills完全名、担当範囲、停止条件を渡す。省略、まとめ起動、ルートAgentによる代行、別Agentへの置換を禁止し、map外Agentをランタイムが受理できない場合は対象ファイルを変更せず停止する。
-4. 対象ファイルの変更は、Coordinatorから `orchestrator_agent_id` と全Agentの `agent_id`・受付statusが返るまで禁止する。1件でも欠けたら成果物・ソースを変更せず停止する。A91/A90/A171等の独立レビューは作成担当と別Agentで起動する。
-5. Coordinatorは依存順とレビュー再実行を管理し、全AgentとCoordinatorの完了statusを `multi_agent_v1__wait_agent` で回収する。実行ログにはruntime backend、全agent_id、完全名、JSON path、固定model、Skills、start/end、status、出力参照、再レビュー受付を記録する。名前の列挙や自己判定だけでは完了にしない。
-6. 起動不能、model不一致、出力欠落、Critical/High未解決、UnknownのPassはFail-closedで停止する。
+実ランタイム起動契約（優先実行＋継続フォールバック。名前の列挙・定義読込・ルートAgentの自己適用は起動の代替ではない）:
+1. ルート実行Agentは、実サブエージェント機能 `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を最初に確認する。利用可能なら、`Orchestrator`欄の完全名に対応するJSON、固定model、Phase／Step、入力・出力境界を `message/items` として渡し、`model=gpt-5.6-terra` の独立Coordinatorを起動する。ルートで起動機能を利用できない場合も、`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS`、理由、確認時刻をログへ記録して停止せず次へ進む。
+2. Coordinatorは起動後、`Agents`欄の全完全名を1体ずつ `multi_agent_v1__spawn_agent` で起動する。Orchestrator JSONの `agents` mapにないがPromptで完全名指定されたAgentも省略せず、JSON path、JSON定義の固定model（`model`引数を省略しない）、Skills完全名、担当範囲、停止条件を渡す。個別起動、固定model受理、受付statusが揃ったAgentだけを実Agent実行として扱う。
+3. Coordinatorから子Agentを起動できない、map外Agentを受理できない、固定modelを受理できない、またはCoordinator自身が `multi_agent_v1__spawn_agent`／`multi_agent_v1__wait_agent` を利用できない場合は、`RUNTIME_DISPATCH_FALLBACK_REQUIRED` として未起動Agent、理由、`agent_id=N/A`、`independent=false` を記録する。これは停止条件ではなく、ルート実行Agentが当該Agentの責務をチェックリストとして順次適用する切替指示とする。未起動Agentを起動済み、独立レビュー済み、固定model実行済みとは記載しない。
+4. 実Agentを起動できた場合は、`orchestrator_agent_id`、全Agentの `agent_id`・受付statusを取得してから対象ファイルを変更する。フォールバックの場合は、起動不能の記録を先に残した後、ルート実行AgentがPromptのスコープ内で作業を継続してよい。A91/A90/A171等の独立レビューが未起動の場合は、作成後に同じレビュー観点を別工程の自己レビュー・チェックリストで再確認し、`review_mode=SELF_REVIEW_FALLBACK` と記録する。
+5. Coordinatorは起動できたAgentについて依存順、再レビュー、`multi_agent_v1__wait_agent` による完了statusを管理する。フォールバックでは、各Agentの入力・確認項目・出力・停止条件をルート実行Agentが順次実施し、実行ログにruntime backend、dispatch mode、試行した全agent名、JSON path、固定model、Skills、start/end、status、出力参照、独立性、再レビュー受付を記録する。名前の列挙や自己判定だけで独立Agent完了とはしない。
+6. Coordinator／子Agentの起動不能、model不一致、Agent出力欠落、`wait_agent` 利用不能は、フォールバック記録と責務チェックリスト・自己レビューが完了する限り、単独では停止条件にしない。Human Gate未承認、実装範囲逸脱、Secret／外部I/O、Core変更禁止違反、Critical／High未解決、UnknownのPass、必須成果物・テスト・Evidenceの欠落は、フォールバック中もFail-closedで停止する。
 発火制御: P4-H0=APPROVED、P4-02/P4-03/P4-04A/P4-04B/P4-04C/P4-04D完了を確認してから実行する。P4-H1を承認するまで実装・依存取得・実行Run・UIソース変更は発火しない。
 入力: P4-02、P4-03、P4-04A API詳細設計、P4-04B DB・Persistence詳細設計／ER図、P4-04C UI全21画面詳細設計、P4-04D RED／Run Manifestの正式HTML／ログ／RED、Core再照合結果、統合台帳、git差分、P4-H1の承認要件。
 実施: A90/A91/A171/Red TeamのFindings firstレビューを統合し、設計・追跡・全API inventory・全DB／ER／Persistence契約・全21画面coverage register・画面×状態表・API/UI/DB binding・RED・Run Manifest・Core境界・外部I/O境界を改訂して再レビューする。API-P4-IDに無ID、型不足、失敗不足、冪等性不足、UI呼出元不明、保存先不明がないこと、DBのtable／PK／FK／unique／index／transaction／migrationが相互に整合すること、SCREEN-01〜21に個別節、P4判定、入口／出口、操作、状態、a11y、responsive、Test／Evidence、後続Gateがあることを確認する。doc/phase4/04_レビュー/05_Phase4詳細設計レビュー・改訂記録.html とログを作り、doc/index.htmlへ導線を追加する。P4-H1向けに、実装対象、Core差分0、依存固定案、全API inventory、DB／ER／Persistence契約、21/21画面coverage、対象Run ID、target_paths、fixture hash、trusted scope、停止条件、未解決Unknownを一枚で提示する。統合台帳のP4-H1は承認待ちのまま維持する。
@@ -408,18 +408,18 @@ Skills: autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_implementati
 ```text
 Step ID: P4-06
 Phase ID: PHASE4_PRODUCT_APPLICATION_BACKTEST_2026_08_11
-Plan: P4-PLAN-001 / plan/Phase4_実行計画書_v0.1_2026-08-11.md（改訂3）
+Plan: P4-PLAN-001 / plan/Phase4_実行計画書_v0.1_2026-08-11.md（改訂4）
 Orchestrator: AutoTradeProject_ImplementationQuality_Orchestrator_v0_1
 Agents: AutoTrade_A110_PythonTestEngineer_v0_1, AutoTrade_A120_PythonImplementer_v0_1, AutoTrade_A130_VerificationEngineer_v0_1, AutoTrade_A140_DebugEngineer_v0_1, AutoTrade_A150_PythonCodeReviewer_v0_1, AutoTrade_A160_TradingSecurityReviewer_v0_1
-Model: Orchestratorはgpt-5.6-terra。各Agentは定義JSONに固定されたmodelを使い、利用不能なら代替せず停止する。
+Model: Orchestratorはgpt-5.6-terra。実Agentは定義JSONに固定されたmodelを使う。利用不能またはmodel不受理時は代替Agentを起動済みと扱わず、`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS`へ切り替える。
 Skills: autotrade_skill_python_test_quality_v0_1, autotrade_skill_python_implementation_v0_1, autotrade_skill_debug_recovery_v0_1, autotrade_skill_python_code_review_v0_1, autotrade_skill_ops_security_v0_1
-実ランタイム起動契約（必須。名前の列挙・定義読込・ルートAgentの自己適用は起動の代替ではない）:
-1. ルート実行Agentは、実サブエージェント機能 `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を最初に確認する。利用不可、または完全名・JSON path・固定modelを起動メッセージへ渡せない場合は、対象ファイルを変更せず `BLOCKED_RUNTIME_DISPATCH_UNAVAILABLE` をログへ記録して停止する。
-2. 利用可能なら、ルート実行Agentは `multi_agent_v1__spawn_agent` を実際に呼び、このコードブロック全文、Phase／Step、入力・出力境界を `message/items` として渡し、`Orchestrator`欄の完全名に対応するJSONを読む独立Coordinatorを1体起動する。Coordinatorの `model` は `gpt-5.6-terra` を明示し、runtime roleは器でありProject Orchestrator名の代替ではない。
-3. Coordinatorは `Agents`欄の全完全名を1体ずつ同じ起動機能で起動する。Orchestrator JSONの `agents` mapにないが、このPromptで完全名指定されたAgentも省略せず、JSONの存在、固定model、Skillsを検証して起動する。各呼出しにAgent JSONのpath、JSON定義の固定model（`model`引数を省略しない）、Skills完全名、担当範囲、停止条件を渡す。省略、まとめ起動、ルートAgentによる代行、別Agentへの置換を禁止し、map外Agentをランタイムが受理できない場合は対象ファイルを変更せず停止する。
-4. 対象ファイルの変更は、Coordinatorから `orchestrator_agent_id` と全Agentの `agent_id`・受付statusが返るまで禁止する。1件でも欠けたら成果物・ソースを変更せず停止する。A130/A150/A160等の独立レビューは作成担当と別Agentで起動する。
-5. Coordinatorは依存順とレビュー再実行を管理し、全AgentとCoordinatorの完了statusを `multi_agent_v1__wait_agent` で回収する。実行ログにはruntime backend、全agent_id、完全名、JSON path、固定model、Skills、start/end、status、出力参照、再レビュー受付を記録する。名前の列挙や自己判定だけでは完了にしない。
-6. 起動不能、model不一致、出力欠落、Critical/High未解決、UnknownのPassはFail-closedで停止する。
+実ランタイム起動契約（優先実行＋継続フォールバック。名前の列挙・定義読込・ルートAgentの自己適用は起動の代替ではない）:
+1. ルート実行Agentは、実サブエージェント機能 `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を最初に確認する。利用可能なら、`Orchestrator`欄の完全名に対応するJSON、固定model、Phase／Step、入力・出力境界を `message/items` として渡し、`model=gpt-5.6-terra` の独立Coordinatorを起動する。ルートで起動機能を利用できない場合も、`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS`、理由、確認時刻をログへ記録して停止せず次へ進む。
+2. Coordinatorは起動後、`Agents`欄の全完全名を1体ずつ `multi_agent_v1__spawn_agent` で起動する。Orchestrator JSONの `agents` mapにないがPromptで完全名指定されたAgentも省略せず、JSON path、JSON定義の固定model（`model`引数を省略しない）、Skills完全名、担当範囲、停止条件を渡す。個別起動、固定model受理、受付statusが揃ったAgentだけを実Agent実行として扱う。
+3. Coordinatorから子Agentを起動できない、map外Agentを受理できない、固定modelを受理できない、またはCoordinator自身が `multi_agent_v1__spawn_agent`／`multi_agent_v1__wait_agent` を利用できない場合は、`RUNTIME_DISPATCH_FALLBACK_REQUIRED` として未起動Agent、理由、`agent_id=N/A`、`independent=false` を記録する。これは停止条件ではなく、ルート実行Agentが当該Agentの責務をチェックリストとして順次適用する切替指示とする。未起動Agentを起動済み、独立レビュー済み、固定model実行済みとは記載しない。
+4. 実Agentを起動できた場合は、`orchestrator_agent_id`、全Agentの `agent_id`・受付statusを取得してから対象ファイルを変更する。フォールバックの場合は、起動不能の記録を先に残した後、ルート実行AgentがPromptのスコープ内で作業を継続してよい。A130/A150/A160等の独立レビューが未起動の場合は、作成後に同じレビュー観点を別工程の自己レビュー・チェックリストで再確認し、`review_mode=SELF_REVIEW_FALLBACK` と記録する。
+5. Coordinatorは起動できたAgentについて依存順、再レビュー、`multi_agent_v1__wait_agent` による完了statusを管理する。フォールバックでは、各Agentの入力・確認項目・出力・停止条件をルート実行Agentが順次実施し、実行ログにruntime backend、dispatch mode、試行した全agent名、JSON path、固定model、Skills、start/end、status、出力参照、独立性、再レビュー受付を記録する。名前の列挙や自己判定だけで独立Agent完了とはしない。
+6. Coordinator／子Agentの起動不能、model不一致、Agent出力欠落、`wait_agent` 利用不能は、フォールバック記録と責務チェックリスト・自己レビューが完了する限り、単独では停止条件にしない。Human Gate未承認、実装範囲逸脱、Secret／外部I/O、Core変更禁止違反、Critical／High未解決、UnknownのPass、必須成果物・テスト・Evidenceの欠落は、フォールバック中もFail-closedで停止する。
 発火制御: P4-H1=APPROVEDを確認し、承認記録にこのStepで使うRun ID、target_paths、fixture hash、trusted scopeが明記されている場合だけ実行する。P4-05のCritical/High=0とCore差分0も再確認する。
 入力: P4-03詳細設計、P4-04A API詳細設計、P4-04B DB・Persistence詳細設計／ER図、P4-04C UI全21画面詳細設計、P4-04D RED/Run Manifest、P4-05レビュー、承認済みP4-H1、Core基準線、trusted_scopes.json、固定fixture。
 実施: REDを先に実行してから、承認済みのProduct/Application層だけに型付きConfig/Data/Strategy/Risk参照、Preflight、Run/Job/Queue状態、取消/停止/再試行/Checkpoint、P4-04Bで定義したschema／migration／repository／transaction／監査記録／ローカルPersistence、P4-04Aで定義した基底canonical APIのDTO／application service／failure contractを最小実装する。HTTP server／routeは、P4-H1の承認範囲、依存固定案、target_pathsに明示された場合だけ実装し、未承認ならin-process contractで止める。Risk実値・Account・Order・外部Adapterを実装しない。Core source 36件を変更しない。実装ログ、Run Manifest、Evidenceをtests/evidence/phase4/<RunId>/に保存する。
@@ -433,18 +433,18 @@ Skills: autotrade_skill_python_test_quality_v0_1, autotrade_skill_python_impleme
 ```text
 Step ID: P4-07
 Phase ID: PHASE4_PRODUCT_APPLICATION_BACKTEST_2026_08_11
-Plan: P4-PLAN-001 / plan/Phase4_実行計画書_v0.1_2026-08-11.md（改訂3）
+Plan: P4-PLAN-001 / plan/Phase4_実行計画書_v0.1_2026-08-11.md（改訂4）
 Orchestrator: AutoTradeProject_ImplementationQuality_Orchestrator_v0_1
 Agents: AutoTrade_A110_PythonTestEngineer_v0_1, AutoTrade_A120_PythonImplementer_v0_1, AutoTrade_A130_VerificationEngineer_v0_1, AutoTrade_A140_DebugEngineer_v0_1, AutoTrade_A150_PythonCodeReviewer_v0_1, AutoTrade_A160_TradingSecurityReviewer_v0_1
-Model: Orchestratorはgpt-5.6-terra。各Agentは定義JSONに固定されたmodelを使い、利用不能なら代替せず停止する。
+Model: Orchestratorはgpt-5.6-terra。実Agentは定義JSONに固定されたmodelを使う。利用不能またはmodel不受理時は代替Agentを起動済みと扱わず、`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS`へ切り替える。
 Skills: autotrade_skill_python_test_quality_v0_1, autotrade_skill_python_implementation_v0_1, autotrade_skill_golden_test_v0_1, autotrade_skill_debug_recovery_v0_1, autotrade_skill_python_code_review_v0_1, autotrade_skill_execution_model_v0_1
-実ランタイム起動契約（必須。名前の列挙・定義読込・ルートAgentの自己適用は起動の代替ではない）:
-1. ルート実行Agentは、実サブエージェント機能 `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を最初に確認する。利用不可、または完全名・JSON path・固定modelを起動メッセージへ渡せない場合は、対象ファイルを変更せず `BLOCKED_RUNTIME_DISPATCH_UNAVAILABLE` をログへ記録して停止する。
-2. 利用可能なら、ルート実行Agentは `multi_agent_v1__spawn_agent` を実際に呼び、このコードブロック全文、Phase／Step、入力・出力境界を `message/items` として渡し、`Orchestrator`欄の完全名に対応するJSONを読む独立Coordinatorを1体起動する。Coordinatorの `model` は `gpt-5.6-terra` を明示し、runtime roleは器でありProject Orchestrator名の代替ではない。
-3. Coordinatorは `Agents`欄の全完全名を1体ずつ同じ起動機能で起動する。Orchestrator JSONの `agents` mapにないが、このPromptで完全名指定されたAgentも省略せず、JSONの存在、固定model、Skillsを検証して起動する。各呼出しにAgent JSONのpath、JSON定義の固定model（`model`引数を省略しない）、Skills完全名、担当範囲、停止条件を渡す。省略、まとめ起動、ルートAgentによる代行、別Agentへの置換を禁止し、map外Agentをランタイムが受理できない場合は対象ファイルを変更せず停止する。
-4. 対象ファイルの変更は、Coordinatorから `orchestrator_agent_id` と全Agentの `agent_id`・受付statusが返るまで禁止する。1件でも欠けたら成果物・ソースを変更せず停止する。A130/A150/A160等の独立レビューは作成担当と別Agentで起動する。
-5. Coordinatorは依存順とレビュー再実行を管理し、全AgentとCoordinatorの完了statusを `multi_agent_v1__wait_agent` で回収する。実行ログにはruntime backend、全agent_id、完全名、JSON path、固定model、Skills、start/end、status、出力参照、再レビュー受付を記録する。名前の列挙や自己判定だけでは完了にしない。
-6. 起動不能、model不一致、出力欠落、Critical/High未解決、UnknownのPassはFail-closedで停止する。
+実ランタイム起動契約（優先実行＋継続フォールバック。名前の列挙・定義読込・ルートAgentの自己適用は起動の代替ではない）:
+1. ルート実行Agentは、実サブエージェント機能 `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を最初に確認する。利用可能なら、`Orchestrator`欄の完全名に対応するJSON、固定model、Phase／Step、入力・出力境界を `message/items` として渡し、`model=gpt-5.6-terra` の独立Coordinatorを起動する。ルートで起動機能を利用できない場合も、`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS`、理由、確認時刻をログへ記録して停止せず次へ進む。
+2. Coordinatorは起動後、`Agents`欄の全完全名を1体ずつ `multi_agent_v1__spawn_agent` で起動する。Orchestrator JSONの `agents` mapにないがPromptで完全名指定されたAgentも省略せず、JSON path、JSON定義の固定model（`model`引数を省略しない）、Skills完全名、担当範囲、停止条件を渡す。個別起動、固定model受理、受付statusが揃ったAgentだけを実Agent実行として扱う。
+3. Coordinatorから子Agentを起動できない、map外Agentを受理できない、固定modelを受理できない、またはCoordinator自身が `multi_agent_v1__spawn_agent`／`multi_agent_v1__wait_agent` を利用できない場合は、`RUNTIME_DISPATCH_FALLBACK_REQUIRED` として未起動Agent、理由、`agent_id=N/A`、`independent=false` を記録する。これは停止条件ではなく、ルート実行Agentが当該Agentの責務をチェックリストとして順次適用する切替指示とする。未起動Agentを起動済み、独立レビュー済み、固定model実行済みとは記載しない。
+4. 実Agentを起動できた場合は、`orchestrator_agent_id`、全Agentの `agent_id`・受付statusを取得してから対象ファイルを変更する。フォールバックの場合は、起動不能の記録を先に残した後、ルート実行AgentがPromptのスコープ内で作業を継続してよい。A130/A150/A160等の独立レビューが未起動の場合は、作成後に同じレビュー観点を別工程の自己レビュー・チェックリストで再確認し、`review_mode=SELF_REVIEW_FALLBACK` と記録する。
+5. Coordinatorは起動できたAgentについて依存順、再レビュー、`multi_agent_v1__wait_agent` による完了statusを管理する。フォールバックでは、各Agentの入力・確認項目・出力・停止条件をルート実行Agentが順次実施し、実行ログにruntime backend、dispatch mode、試行した全agent名、JSON path、固定model、Skills、start/end、status、出力参照、独立性、再レビュー受付を記録する。名前の列挙や自己判定だけで独立Agent完了とはしない。
+6. Coordinator／子Agentの起動不能、model不一致、Agent出力欠落、`wait_agent` 利用不能は、フォールバック記録と責務チェックリスト・自己レビューが完了する限り、単独では停止条件にしない。Human Gate未承認、実装範囲逸脱、Secret／外部I/O、Core変更禁止違反、Critical／High未解決、UnknownのPass、必須成果物・テスト・Evidenceの欠落は、フォールバック中もFail-closedで停止する。
 発火制御: P4-H1=APPROVED、P4-06完了、対象Run承認、Core差分0を確認してから実行する。外部Data/Broker/Paper/Live/Secret/実資金/Cloudは発火しない。
 入力: P4-03詳細設計、P4-04A API詳細設計、P4-04B DB・Persistence詳細設計／ER図、P4-04C UI全21画面詳細設計、P4-04D RED/Run Manifest、P4-06実装/Evidence、固定Core API、固定fixture、承認済みP4-H1。
 実施: 単一BacktestとSweepを別Runとして接続し、入力固定、Preflight、Queue、進捗、取消、部分失敗、上限付き再試行、checkpoint再開、5指標、Chart/取引明細、全件表/CSV Job、同条件Run履歴、Holdout境界、Result/Evidence hashを設計どおり実装する。P4-04Bのschema／migration／repository／transaction／file境界に従ってPersistenceを実装し、P4-04Aの全API-P4-IDをinventoryとtable／read-write契約へ突合する。P4実装対象のcommand、query、file／CSV、Evidence、Failure contractをすべて実装または設計どおりUNSUPPORTEDにする。固定Coreの出力を利用し、実市場Data・実Cost・正式Calendar・実Risk値を導入しない。必要なRED/GREEN、Golden/Replay、API/File契約、Failure injectionを実行する。
@@ -458,18 +458,18 @@ Skills: autotrade_skill_python_test_quality_v0_1, autotrade_skill_python_impleme
 ```text
 Step ID: P4-08
 Phase ID: PHASE4_PRODUCT_APPLICATION_BACKTEST_2026_08_11
-Plan: P4-PLAN-001 / plan/Phase4_実行計画書_v0.1_2026-08-11.md（改訂3）
+Plan: P4-PLAN-001 / plan/Phase4_実行計画書_v0.1_2026-08-11.md（改訂4）
 Orchestrator: AutoTradeProject_UiMock_Orchestrator_v0_1
 Agents: AutoTrade_A170_UiMockEngineer_v0_1, AutoTrade_A171_UiVisualQaReviewer_v0_1, AutoTrade_A10_RequirementsCurator_v0_1, AutoTrade_A90_DesignReviewer_v0_1
-Model: Orchestratorはgpt-5.6-terra。各Agentは定義JSONに固定されたmodelを使い、利用不能なら代替せず停止する。
+Model: Orchestratorはgpt-5.6-terra。実Agentは定義JSONに固定されたmodelを使う。利用不能またはmodel不受理時は代替Agentを起動済みと扱わず、`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS`へ切り替える。
 Skills: autotrade_skill_ui_mock_generation_v0_1, autotrade_skill_ui_visual_validation_v0_1, autotrade_skill_ui_accessibility_validation_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_design_review_v0_1
-実ランタイム起動契約（必須。名前の列挙・定義読込・ルートAgentの自己適用は起動の代替ではない）:
-1. ルート実行Agentは、実サブエージェント機能 `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を最初に確認する。利用不可、または完全名・JSON path・固定modelを起動メッセージへ渡せない場合は、対象ファイルを変更せず `BLOCKED_RUNTIME_DISPATCH_UNAVAILABLE` をログへ記録して停止する。
-2. 利用可能なら、ルート実行Agentは `multi_agent_v1__spawn_agent` を実際に呼び、このコードブロック全文、Phase／Step、入力・出力境界を `message/items` として渡し、`Orchestrator`欄の完全名に対応するJSONを読む独立Coordinatorを1体起動する。Coordinatorの `model` は `gpt-5.6-terra` を明示し、runtime roleは器でありProject Orchestrator名の代替ではない。
-3. Coordinatorは `Agents`欄の全完全名を1体ずつ同じ起動機能で起動する。Orchestrator JSONの `agents` mapにないが、このPromptで完全名指定されたAgentも省略せず、JSONの存在、固定model、Skillsを検証して起動する。各呼出しにAgent JSONのpath、JSON定義の固定model（`model`引数を省略しない）、Skills完全名、担当範囲、停止条件を渡す。省略、まとめ起動、ルートAgentによる代行、別Agentへの置換を禁止し、map外Agentをランタイムが受理できない場合は対象ファイルを変更せず停止する。
-4. 対象ファイルの変更は、Coordinatorから `orchestrator_agent_id` と全Agentの `agent_id`・受付statusが返るまで禁止する。1件でも欠けたら成果物・ソースを変更せず停止する。A171/A90等の独立レビューは作成担当と別Agentで起動する。
-5. Coordinatorは依存順とレビュー再実行を管理し、全AgentとCoordinatorの完了statusを `multi_agent_v1__wait_agent` で回収する。実行ログにはruntime backend、全agent_id、完全名、JSON path、固定model、Skills、start/end、status、出力参照、再レビュー受付を記録する。名前の列挙や自己判定だけでは完了にしない。
-6. 起動不能、model不一致、出力欠落、Critical/High未解決、UnknownのPassはFail-closedで停止する。
+実ランタイム起動契約（優先実行＋継続フォールバック。名前の列挙・定義読込・ルートAgentの自己適用は起動の代替ではない）:
+1. ルート実行Agentは、実サブエージェント機能 `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を最初に確認する。利用可能なら、`Orchestrator`欄の完全名に対応するJSON、固定model、Phase／Step、入力・出力境界を `message/items` として渡し、`model=gpt-5.6-terra` の独立Coordinatorを起動する。ルートで起動機能を利用できない場合も、`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS`、理由、確認時刻をログへ記録して停止せず次へ進む。
+2. Coordinatorは起動後、`Agents`欄の全完全名を1体ずつ `multi_agent_v1__spawn_agent` で起動する。Orchestrator JSONの `agents` mapにないがPromptで完全名指定されたAgentも省略せず、JSON path、JSON定義の固定model（`model`引数を省略しない）、Skills完全名、担当範囲、停止条件を渡す。個別起動、固定model受理、受付statusが揃ったAgentだけを実Agent実行として扱う。
+3. Coordinatorから子Agentを起動できない、map外Agentを受理できない、固定modelを受理できない、またはCoordinator自身が `multi_agent_v1__spawn_agent`／`multi_agent_v1__wait_agent` を利用できない場合は、`RUNTIME_DISPATCH_FALLBACK_REQUIRED` として未起動Agent、理由、`agent_id=N/A`、`independent=false` を記録する。これは停止条件ではなく、ルート実行Agentが当該Agentの責務をチェックリストとして順次適用する切替指示とする。未起動Agentを起動済み、独立レビュー済み、固定model実行済みとは記載しない。
+4. 実Agentを起動できた場合は、`orchestrator_agent_id`、全Agentの `agent_id`・受付statusを取得してから対象ファイルを変更する。フォールバックの場合は、起動不能の記録を先に残した後、ルート実行AgentがPromptのスコープ内で作業を継続してよい。A171/A90等の独立レビューが未起動の場合は、作成後に同じレビュー観点を別工程の自己レビュー・チェックリストで再確認し、`review_mode=SELF_REVIEW_FALLBACK` と記録する。
+5. Coordinatorは起動できたAgentについて依存順、再レビュー、`multi_agent_v1__wait_agent` による完了statusを管理する。フォールバックでは、各Agentの入力・確認項目・出力・停止条件をルート実行Agentが順次実施し、実行ログにruntime backend、dispatch mode、試行した全agent名、JSON path、固定model、Skills、start/end、status、出力参照、独立性、再レビュー受付を記録する。名前の列挙や自己判定だけで独立Agent完了とはしない。
+6. Coordinator／子Agentの起動不能、model不一致、Agent出力欠落、`wait_agent` 利用不能は、フォールバック記録と責務チェックリスト・自己レビューが完了する限り、単独では停止条件にしない。Human Gate未承認、実装範囲逸脱、Secret／外部I/O、Core変更禁止違反、Critical／High未解決、UnknownのPass、必須成果物・テスト・Evidenceの欠落は、フォールバック中もFail-closedで停止する。
 発火制御: P4-H1=APPROVED、P4-06/P4-07完了、P4-02のScreen/State対象、固定ローカルUI target scopeを確認してから実行する。外部通信、認証、Broker、実注文、実資金、Cloudは発火しない。
 入力: P4-02追跡、P4-04A API詳細設計、P4-04B DB・Persistence詳細設計／ER図、P4-04C UI全21画面詳細設計、P4-04Dテスト設計、P4-07の固定local API契約、既存UIモック、P4-H1承認範囲、固定ダミーデータ。
 実施: P4-04Cで`P4実装対象`とした全画面を、個別詳細設計、API-P4-ID、P4-04Bの保存参照、全状態表どおりに、固定匿名ダミーで操作可能にする。初期、入力不備、Preflight失敗、Queue待機、実行中、停止/取消、成功、部分失敗、復旧、Evidence参照のほか、各画面で許可・禁止された操作とエラー／Reason IDを実装する。21画面coverage registerのP4対象外画面は、P4-04Cで許可された固定`UNAPPROVED`／`OUT_OF_SCOPE`境界表示だけに留め、Broker、Account、Paper、Live、外部Data、Secret、実注文の機能を実装しない。既存UIモックを変更する場合は画面ID、追跡根拠、設計差分を残す。固定@playwright/test、Storybook、Vitest/axeでPC/スマートフォン相当のvisual/a11yを検証し、screenshotsと結果をEvidenceに保存する。
@@ -483,18 +483,18 @@ Skills: autotrade_skill_ui_mock_generation_v0_1, autotrade_skill_ui_visual_valid
 ```text
 Step ID: P4-09
 Phase ID: PHASE4_PRODUCT_APPLICATION_BACKTEST_2026_08_11
-Plan: P4-PLAN-001 / plan/Phase4_実行計画書_v0.1_2026-08-11.md（改訂3）
+Plan: P4-PLAN-001 / plan/Phase4_実行計画書_v0.1_2026-08-11.md（改訂4）
 Orchestrator: AutoTradeProject_ImplementationQuality_Orchestrator_v0_1
 Agents: AutoTrade_A130_VerificationEngineer_v0_1, AutoTrade_A150_PythonCodeReviewer_v0_1, AutoTrade_A160_TradingSecurityReviewer_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A90_DesignReviewer_v0_1
-Model: Orchestratorはgpt-5.6-terra。各Agentは定義JSONに固定されたmodelを使い、利用不能なら代替せず停止する。
+Model: Orchestratorはgpt-5.6-terra。実Agentは定義JSONに固定されたmodelを使う。利用不能またはmodel不受理時は代替Agentを起動済みと扱わず、`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS`へ切り替える。
 Skills: autotrade_skill_python_test_quality_v0_1, autotrade_skill_python_code_review_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_revision_integration_v0_1
-実ランタイム起動契約（必須。名前の列挙・定義読込・ルートAgentの自己適用は起動の代替ではない）:
-1. ルート実行Agentは、実サブエージェント機能 `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を最初に確認する。利用不可、または完全名・JSON path・固定modelを起動メッセージへ渡せない場合は、対象ファイルを変更せず `BLOCKED_RUNTIME_DISPATCH_UNAVAILABLE` をログへ記録して停止する。
-2. 利用可能なら、ルート実行Agentは `multi_agent_v1__spawn_agent` を実際に呼び、このコードブロック全文、Phase／Step、入力・出力境界を `message/items` として渡し、`Orchestrator`欄の完全名に対応するJSONを読む独立Coordinatorを1体起動する。Coordinatorの `model` は `gpt-5.6-terra` を明示し、runtime roleは器でありProject Orchestrator名の代替ではない。
-3. Coordinatorは `Agents`欄の全完全名を1体ずつ同じ起動機能で起動する。Orchestrator JSONの `agents` mapにないが、このPromptで完全名指定されたAgentも省略せず、JSONの存在、固定model、Skillsを検証して起動する。各呼出しにAgent JSONのpath、JSON定義の固定model（`model`引数を省略しない）、Skills完全名、担当範囲、停止条件を渡す。省略、まとめ起動、ルートAgentによる代行、別Agentへの置換を禁止し、map外Agentをランタイムが受理できない場合は対象ファイルを変更せず停止する。
-4. 対象ファイルの変更は、Coordinatorから `orchestrator_agent_id` と全Agentの `agent_id`・受付statusが返るまで禁止する。1件でも欠けたら成果物・ソースを変更せず停止する。A150/A160/A90等の独立レビューは作成担当と別Agentで起動する。
-5. Coordinatorは依存順とレビュー再実行を管理し、全AgentとCoordinatorの完了statusを `multi_agent_v1__wait_agent` で回収する。実行ログにはruntime backend、全agent_id、完全名、JSON path、固定model、Skills、start/end、status、出力参照、再レビュー受付を記録する。名前の列挙や自己判定だけでは完了にしない。
-6. 起動不能、model不一致、出力欠落、Critical/High未解決、UnknownのPassはFail-closedで停止する。
+実ランタイム起動契約（優先実行＋継続フォールバック。名前の列挙・定義読込・ルートAgentの自己適用は起動の代替ではない）:
+1. ルート実行Agentは、実サブエージェント機能 `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を最初に確認する。利用可能なら、`Orchestrator`欄の完全名に対応するJSON、固定model、Phase／Step、入力・出力境界を `message/items` として渡し、`model=gpt-5.6-terra` の独立Coordinatorを起動する。ルートで起動機能を利用できない場合も、`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS`、理由、確認時刻をログへ記録して停止せず次へ進む。
+2. Coordinatorは起動後、`Agents`欄の全完全名を1体ずつ `multi_agent_v1__spawn_agent` で起動する。Orchestrator JSONの `agents` mapにないがPromptで完全名指定されたAgentも省略せず、JSON path、JSON定義の固定model（`model`引数を省略しない）、Skills完全名、担当範囲、停止条件を渡す。個別起動、固定model受理、受付statusが揃ったAgentだけを実Agent実行として扱う。
+3. Coordinatorから子Agentを起動できない、map外Agentを受理できない、固定modelを受理できない、またはCoordinator自身が `multi_agent_v1__spawn_agent`／`multi_agent_v1__wait_agent` を利用できない場合は、`RUNTIME_DISPATCH_FALLBACK_REQUIRED` として未起動Agent、理由、`agent_id=N/A`、`independent=false` を記録する。これは停止条件ではなく、ルート実行Agentが当該Agentの責務をチェックリストとして順次適用する切替指示とする。未起動Agentを起動済み、独立レビュー済み、固定model実行済みとは記載しない。
+4. 実Agentを起動できた場合は、`orchestrator_agent_id`、全Agentの `agent_id`・受付statusを取得してから対象ファイルを変更する。フォールバックの場合は、起動不能の記録を先に残した後、ルート実行AgentがPromptのスコープ内で作業を継続してよい。A150/A160/A90等の独立レビューが未起動の場合は、作成後に同じレビュー観点を別工程の自己レビュー・チェックリストで再確認し、`review_mode=SELF_REVIEW_FALLBACK` と記録する。
+5. Coordinatorは起動できたAgentについて依存順、再レビュー、`multi_agent_v1__wait_agent` による完了statusを管理する。フォールバックでは、各Agentの入力・確認項目・出力・停止条件をルート実行Agentが順次実施し、実行ログにruntime backend、dispatch mode、試行した全agent名、JSON path、固定model、Skills、start/end、status、出力参照、独立性、再レビュー受付を記録する。名前の列挙や自己判定だけで独立Agent完了とはしない。
+6. Coordinator／子Agentの起動不能、model不一致、Agent出力欠落、`wait_agent` 利用不能は、フォールバック記録と責務チェックリスト・自己レビューが完了する限り、単独では停止条件にしない。Human Gate未承認、実装範囲逸脱、Secret／外部I/O、Core変更禁止違反、Critical／High未解決、UnknownのPass、必須成果物・テスト・Evidenceの欠落は、フォールバック中もFail-closedで停止する。
 発火制御: P4-H1=APPROVED、P4-07/P4-08完了、承認済みRun IDとtrusted scopeを確認してから実行する。P4-H2はまだ承認しない。外部I/Oは発火しない。
 入力: P4-01〜08の正式成果物/ログ/Evidence、特にP4-04A API詳細設計・P4-04B DB・Persistence詳細設計／ER図・P4-04C UI全21画面詳細設計・P4-04D品質設計、Core基準線、Git差分、trusted scope、Run Manifest、統合台帳、P4-H2判定基準。
 実施: REQ→UC→Screen/State→Test→Evidence→Gateの全追跡、P4-04Aの全API inventory、P4-04Bの全DB／ER／Persistence coverage、P4-04Cの21/21画面coverage registerと画面×状態表、API/UI/DB binding、単一/Sweep再現、Golden/Replay、API/File契約、Persistence、Worker、UI主要状態、Core差分、fixture/manifest/evidence hash、git diff --check、Secret/鍵/個人情報、外部通信0、レビューFindingを独立に検証する。table／key／transaction／migration／file境界とAPI／画面の保存契約の整合性も確認する。未実装・未試験・P4対象外・Unknownを区別し、未実行をPASSにしない。doc/phase4/04_レビュー/06_Phase4統合品質・独立レビュー.html とログを作り、doc/index.htmlへ導線を追加する。P4-H2へ、合格事項と未解決Unknown/Medium/Low/P5送り先を分離して提出する。
@@ -508,18 +508,18 @@ Skills: autotrade_skill_python_test_quality_v0_1, autotrade_skill_python_code_re
 ```text
 Step ID: P4-10
 Phase ID: PHASE4_PRODUCT_APPLICATION_BACKTEST_2026_08_11
-Plan: P4-PLAN-001 / plan/Phase4_実行計画書_v0.1_2026-08-11.md（改訂3）
+Plan: P4-PLAN-001 / plan/Phase4_実行計画書_v0.1_2026-08-11.md（改訂4）
 Orchestrator: AutoTradeProject_DesignDocSet_Orchestrator_v0_1
 Agents: AutoTrade_A10_RequirementsCurator_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A81_DesignDocSetWriter_v0_1, AutoTrade_A90_DesignReviewer_v0_1
-Model: Orchestratorはgpt-5.6-terra。各Agentは定義JSONに固定されたmodelを使い、利用不能なら代替せず停止する。
+Model: Orchestratorはgpt-5.6-terra。実Agentは定義JSONに固定されたmodelを使う。利用不能またはmodel不受理時は代替Agentを起動済みと扱わず、`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS`へ切り替える。
 Skills: autotrade_skill_traceability_v0_1, autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_revision_integration_v0_1
-実ランタイム起動契約（必須。名前の列挙・定義読込・ルートAgentの自己適用は起動の代替ではない）:
-1. ルート実行Agentは、実サブエージェント機能 `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を最初に確認する。利用不可、または完全名・JSON path・固定modelを起動メッセージへ渡せない場合は、対象ファイルを変更せず `BLOCKED_RUNTIME_DISPATCH_UNAVAILABLE` をログへ記録して停止する。
-2. 利用可能なら、ルート実行Agentは `multi_agent_v1__spawn_agent` を実際に呼び、このコードブロック全文、Phase／Step、入力・出力境界を `message/items` として渡し、`Orchestrator`欄の完全名に対応するJSONを読む独立Coordinatorを1体起動する。Coordinatorの `model` は `gpt-5.6-terra` を明示し、runtime roleは器でありProject Orchestrator名の代替ではない。
-3. Coordinatorは `Agents`欄の全完全名を1体ずつ同じ起動機能で起動する。Orchestrator JSONの `agents` mapにないが、このPromptで完全名指定されたAgentも省略せず、JSONの存在、固定model、Skillsを検証して起動する。各呼出しにAgent JSONのpath、JSON定義の固定model（`model`引数を省略しない）、Skills完全名、担当範囲、停止条件を渡す。省略、まとめ起動、ルートAgentによる代行、別Agentへの置換を禁止し、map外Agentをランタイムが受理できない場合は対象ファイルを変更せず停止する。
-4. 対象ファイルの変更は、Coordinatorから `orchestrator_agent_id` と全Agentの `agent_id`・受付statusが返るまで禁止する。1件でも欠けたら成果物・ソースを変更せず停止する。A90等の独立レビューは作成担当と別Agentで起動する。
-5. Coordinatorは依存順とレビュー再実行を管理し、全AgentとCoordinatorの完了statusを `multi_agent_v1__wait_agent` で回収する。実行ログにはruntime backend、全agent_id、完全名、JSON path、固定model、Skills、start/end、status、出力参照、再レビュー受付を記録する。名前の列挙や自己判定だけでは完了にしない。
-6. 起動不能、model不一致、出力欠落、Critical/High未解決、UnknownのPassはFail-closedで停止する。
+実ランタイム起動契約（優先実行＋継続フォールバック。名前の列挙・定義読込・ルートAgentの自己適用は起動の代替ではない）:
+1. ルート実行Agentは、実サブエージェント機能 `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を最初に確認する。利用可能なら、`Orchestrator`欄の完全名に対応するJSON、固定model、Phase／Step、入力・出力境界を `message/items` として渡し、`model=gpt-5.6-terra` の独立Coordinatorを起動する。ルートで起動機能を利用できない場合も、`DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS`、理由、確認時刻をログへ記録して停止せず次へ進む。
+2. Coordinatorは起動後、`Agents`欄の全完全名を1体ずつ `multi_agent_v1__spawn_agent` で起動する。Orchestrator JSONの `agents` mapにないがPromptで完全名指定されたAgentも省略せず、JSON path、JSON定義の固定model（`model`引数を省略しない）、Skills完全名、担当範囲、停止条件を渡す。個別起動、固定model受理、受付statusが揃ったAgentだけを実Agent実行として扱う。
+3. Coordinatorから子Agentを起動できない、map外Agentを受理できない、固定modelを受理できない、またはCoordinator自身が `multi_agent_v1__spawn_agent`／`multi_agent_v1__wait_agent` を利用できない場合は、`RUNTIME_DISPATCH_FALLBACK_REQUIRED` として未起動Agent、理由、`agent_id=N/A`、`independent=false` を記録する。これは停止条件ではなく、ルート実行Agentが当該Agentの責務をチェックリストとして順次適用する切替指示とする。未起動Agentを起動済み、独立レビュー済み、固定model実行済みとは記載しない。
+4. 実Agentを起動できた場合は、`orchestrator_agent_id`、全Agentの `agent_id`・受付statusを取得してから対象ファイルを変更する。フォールバックの場合は、起動不能の記録を先に残した後、ルート実行AgentがPromptのスコープ内で作業を継続してよい。A90等の独立レビューが未起動の場合は、作成後に同じレビュー観点を別工程の自己レビュー・チェックリストで再確認し、`review_mode=SELF_REVIEW_FALLBACK` と記録する。
+5. Coordinatorは起動できたAgentについて依存順、再レビュー、`multi_agent_v1__wait_agent` による完了statusを管理する。フォールバックでは、各Agentの入力・確認項目・出力・停止条件をルート実行Agentが順次実施し、実行ログにruntime backend、dispatch mode、試行した全agent名、JSON path、固定model、Skills、start/end、status、出力参照、独立性、再レビュー受付を記録する。名前の列挙や自己判定だけで独立Agent完了とはしない。
+6. Coordinator／子Agentの起動不能、model不一致、Agent出力欠落、`wait_agent` 利用不能は、フォールバック記録と責務チェックリスト・自己レビューが完了する限り、単独では停止条件にしない。Human Gate未承認、実装範囲逸脱、Secret／外部I/O、Core変更禁止違反、Critical／High未解決、UnknownのPass、必須成果物・テスト・Evidenceの欠落は、フォールバック中もFail-closedで停止する。
 発火制御: 統合台帳でP4-H2=APPROVEDを確認してから実行する。P5の実装、外部Data取得、Broker/Secret/Paper/Live/実資金/Cloudは発火しない。
 入力: P4-09統合品質候補、P4-H2承認記録、P4-04A API詳細設計、P4-04B DB・Persistence詳細設計／ER図、P4-04C UI全21画面詳細設計、P4-04D品質設計を含むP4全成果物/ログ/Evidence、Core基準線、統合台帳、RQV2 Phase4以降ロードマップ、Phase5に送るUnknown一覧。
 実施: doc/phase4/05_完了/07_Phase4完了判定・Phase5計画引渡し.html、plan/phase4/ログ/P4-10_完了・引渡し_YYYY-MM-DD.md、Phase5計画入力一覧を作成する。完了記録に全API-P4-IDの最終状態、DB／ER／Persistence／migration契約の最終状態、21/21画面coverage、P4対象画面の状態／a11y／visual証跡、P4対象外画面の境界・次Phase・Gateを明記する。doc/index.htmlと統合台帳を同期し、P4-H2を承認済みへ更新する。P4で解消しないUNK-P3-01/05/07、Q-243、RQV2-BLK-001、実Risk値、外部Data/Broker/Secret/Paper/Liveを、状態・責任・再開条件・Evidence先付きでP5以降へ送る。
@@ -530,4 +530,4 @@ Skills: autotrade_skill_traceability_v0_1, autotrade_skill_design_doc_set_writer
 
 ## 15. 現在の次アクション
 
-現在の状態は `COMPLETED_P4-04B_P4-04C_PENDING` である。P4-01〜P4-04Bは完了しており、P4-04Bの正式HTML／実行ログ／doc index／計画・台帳同期を確認した。改訂3で、P4-04C（全21画面UI）、P4-04D（RED／Run Manifest）、P4-05以降の直接実行プロンプトへ、実ランタイム起動契約と起動証跡の必須条件を追加した。P4-04C以降は未実行であり、次のStepを開始するときは、指定OrchestratorとAgents欄の全Agentが実際に起動され、`agent_id`・固定model・受付statusが返るまで成果物・ソースを変更しない。P4-H1前の実装、依存導入、実行Run、外部I/Oも引き続き禁止する。
+現在の状態は `COMPLETED_P4-04B_P4-04C_PENDING` である。P4-01〜P4-04Bは完了しており、P4-04Bの正式HTML／実行ログ／doc index／計画・台帳同期を確認した。改訂4で、P4-04C（全21画面UI）、P4-04D（RED／Run Manifest）、P4-05以降の直接実行プロンプトへ、実ランタイム起動を優先しつつ、Coordinatorまたは子Agentを起動できない場合も `DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS` で継続する契約を追加した。P4-04C以降は未実行であり、実Agentが起動できた場合はagent_id・固定model・受付statusを記録し、起動できない場合は未起動を明示してルート実行Agentが責務チェックリストと自己レビューを行う。P4-H1前の実装、依存導入、実行Run、外部I/Oも引き続き禁止する。
