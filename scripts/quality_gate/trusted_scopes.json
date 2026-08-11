@@ -482,6 +482,54 @@
         {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p3_poc", "--mode", "prepare"]}
       ]
     },
+    "RUN-P4-04D-001": {
+      "phase_id": "phase4",
+      "step_id": "P4-06",
+      "design": "P4-03-P4-04A-P4-04B-P4-04C-P4-04D-P4-05",
+      "requirements": ["P4-REQ-V2-0015", "P4-REQ-V2-0055", "P4-TR-001", "P4-TR-023"],
+      "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "target_paths": [
+        "src/autotrade/application",
+        "tests/application",
+        "tests/phase4",
+        "tests/fixtures/phase4"
+      ],
+      "excluded_paths": [
+        "src/autotrade/backtest",
+        "src/autotrade/market_data",
+        "src/autotrade/strategy",
+        "ui/mock",
+        "doc",
+        "plan",
+        ".env",
+        "research",
+        "third_party",
+        "tests/evidence"
+      ],
+      "fixture": {
+        "path": "tests/fixtures/phase3/run_p3_backtest_fixture_manifest_v1.json",
+        "name": "run_p3_backtest_fixture_manifest_v1.json",
+        "version": "p3-backtest-fixture-manifest-v1",
+        "checksum": "sha256:aeb03df1eef3ea836d176a8b0443c45b6bc7f6d01e455fd6026cabf16c536fa4"
+      },
+      "baseline_ref": "2ce571e",
+      "scope_mode": "target_only",
+      "unknowns": ["UNK-P4-04D-004 host outbound isolation evidence", "UNK-P4-04D-005 viewport/browser/axe runtime"],
+      "network_isolation_required": true,
+      "execution_allowed": true,
+      "approval": {
+        "gate": "P4-H1",
+        "status": "APPROVED",
+        "approved_at": "2026-08-12",
+        "evidence": "tests/evidence/phase4/RUN-P4-04D-001/human-gate-p4-h1.md"
+      },
+      "checks": [
+        {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/application", "tests/application", "tests/phase4", "tests/fixtures/phase4"]},
+        {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/application", "tests/application", "tests/phase4", "tests/fixtures/phase4"]},
+        {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/application"]},
+        {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "pytest", "tests/application", "tests/phase4", "-q"]}
+      ]
+    },
     "RUN-P3-INT-001": {
       "phase_id": "phase3",
       "step_id": "P3-12",

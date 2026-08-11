@@ -145,7 +145,7 @@ Orchestratorは `gpt-5.6-terra` を使う。各AgentはそのJSON実体に固定
 | Gate | 現在状態 | 承認対象 | 承認後に許可される範囲 | 明示的に許可しないこと |
 |---|---|---|---|---|
 | `P4-H0` | `APPROVED（2026-08-11）` | 本計画、P4の固定local scope、Core凍結、P4-01〜05の設計・RED範囲。改訂2でP4-04A（API）→P4-04B（DB／ER）→P4-04C（UI）→P4-04D（RED）へ分割して明文化した。 | P4-01〜05。入力照合、追跡、API詳細設計、DB／Persistence詳細設計・ER図、全21画面UI詳細設計、RED test・Run Manifest設計、レビュー。 | 実装、依存導入、実行Run、外部I/O、Core変更、Broker／Secret／Paper／Live／実資金／Cloud。 |
-| `P4-H1` | `WAITING_FOR_USER_APPROVAL` | P4-03、P4-04A〜D、P4-05のレビュー済み詳細設計、DB／ER／migration／transaction設計、RED、Core差分0、全P4 API inventory、21画面coverage register、対象Run ID／target_paths／fixture hash／trusted scope、実装範囲 | P4-06〜09のローカル実装・固定fixture試験・全P4対象画面のUI検証。WSL品質Gateは承認文言が対象Run IDを明示した場合だけ実行。 | 未登録Run、外部I/O、未固定依存の取得、Core変更、実市場Data、Broker／Secret／Paper／Live／実資金／Cloud。 |
+| `P4-H1` | `APPROVED（2026-08-12）` | P4-03、P4-04A〜D、P4-05のレビュー済み詳細設計、DB／ER／migration／transaction設計、RED、Core差分0、全P4 API inventory、21画面coverage register、対象Run ID／target_paths／fixture hash／trusted scope、実装範囲。承認記録は `tests/evidence/phase4/RUN-P4-04D-001/human-gate-p4-h1.md`。 | P4-06〜09のローカル実装・固定fixture試験・全P4対象画面のUI検証。対象Runは `RUN-P4-04D-001`、target-onlyで実行する。WSL品質Gateはhost outbound isolation確認後だけ実行する。 | P4-10、未登録Run、外部I/O、未固定依存の取得、Core変更、実市場Data、Broker／Secret／Paper／Live／実資金／Cloud。 |
 | `P4-H2` | `WAITING_FOR_USER_APPROVAL` | P4-09の最終候補、REQ／UC／Test／Evidence追跡、Core差分、品質・レビュー、残Unknown、Phase 5境界 | P4-10の完了記録・台帳同期・Phase 5計画入力引渡し。 | Phase 5実装・外部Data取得、Broker／Secret／Paper／Live／実資金／Cloud。 |
 
 各Gateの現在状態、対象、期限、再開条件、証拠先は統合台帳を唯一の正本とする。改訂2は、運用者がP4-04BへDB／Persistence詳細設計とER図を追加し、後続Stepを繰り下げる計画修正を指示したことを記録するものであり、P4-H0の設計・RED以外の権限を増やさない。P4-H1では、実行を許す `RunId` も同じ承認文言または紐付く承認記録に明記する。
@@ -212,7 +212,7 @@ P4-09でP4-H2候補と呼べるのは、次のすべてを満たすときだけ�
 | `P4-PLAN-F-007` | High | 「全画面」をP4対象Subsetだけと誤読すると、対象外画面が無根拠に実装されたり、未設計のまま残る。 | 全21画面をcoverage registerへ入れる。P4対象画面は実装仕様、P4対象外画面は固定`UNAPPROVED`／`OUT_OF_SCOPE`境界、理由、後続Phase、Gateを個別に定義する。 |
 | `P4-PLAN-F-008` | Critical | Orchestrator／Agentの完全名をプロンプトへ列挙するだけでは、Codex実ランタイムのサブエージェント起動、独立レビュー、固定modelの適用を保証できず、ルートAgentの自己適用を誤って完了扱いする危険がある。さらに、Coordinatorから子Agentを起動できない環境では、起動不能だけで設計・実装全体が停止する。 | P4-04C以降の各プロンプトで実ランタイム起動を第一選択として要求し、起動できたAgentだけを実行証跡へ記録する。起動不能時は `DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS` へ切り替え、Agentごとの責務・レビュー観点をルート実行Agentがチェックリストで適用する。未起動を独立レビュー済みと偽らず、起動不能自体は停止条件にしない。一方、Gate、スコープ、Secret／外部I/O、Critical／High、UnknownのPassは従来どおり停止する。 |
 
-判定（2026-08-12実行後）: `COMPLETED_P4-05_P4-H1_PENDING`。P4-04C（全21画面UI）、P4-04D（RED／Run Manifest）、P4-05（統合レビュー・改訂・P4-H1提出候補）まで完了した。実ランタイム起動を優先し、Coordinatorは親rootから起動したが、Coordinator環境では子Agent dispatchが利用できなかったため、各Stepで `DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS` を記録し、root fallbackを適用した。P4-H1は未承認のため、P4-06以降の実装、依存導入、実行Run、WSL、外部I/Oは開始しない。
+判定（2026-08-12実行後）: `COMPLETED_P4-06_P4-07_IN_PROGRESS`。ユーザーの「P4-H1を承認します。P4-06以降のプロンプトを順番に実行して下さい。」を受領し、P4-05で提示済みの `RUN-P4-04D-001`、target_paths、fixture hash、trusted scopeを承認記録へ固定した。P4-04C（全21画面UI）、P4-04D（RED／Run Manifest）、P4-05（統合レビュー・改訂・P4-H1提出候補）、P4-06（typed Application／Persistence／Run／Job／Queue、RED→GREEN、target quality）が完了し、P4-07を開始する。実ランタイム起動を優先し、Coordinatorまたは子Agentが起動できない場合は `DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS` を記録し、未起動を独立実行と偽らず、root fallbackで継続する。P4-H2未承認のため、P4-10は実行しない。
 
 ## 14. Step別の直接実行プロンプト
 
@@ -530,4 +530,4 @@ Skills: autotrade_skill_traceability_v0_1, autotrade_skill_design_doc_set_writer
 
 ## 15. 現在の次アクション
 
-現在の状態（2026-08-12実行後）は `COMPLETED_P4-05_P4-H1_PENDING` である。P4-01〜P4-05の正式成果物、ログ、doc/index導線、P4-04DのRED結果、P4-H1提出候補を確認した。P4-04C以降は実ランタイム起動を第一選択とし、Coordinatorは親rootから起動したが、Coordinator環境の子Agent dispatch不能時は各ログに未起動Agent、`independent=false`、`review_mode=SELF_REVIEW_FALLBACK` を記録して責務チェックリストで継続した。P4-H1は `WAITING_FOR_USER_APPROVAL` のため、次のアクションは対象Run ID／target_paths／fixture hash等を含むP4-H1の承認であり、承認前にP4-06以降の実装、依存導入、実行Run、WSL、外部I/Oは開始しない。
+現在の状態（2026-08-12実行後）は `COMPLETED_P4-06_P4-07_IN_PROGRESS` である。ユーザー承認を `tests/evidence/phase4/RUN-P4-04D-001/human-gate-p4-h1.md` に記録し、同Runを `scripts/quality_gate/trusted_scopes.json` へtarget-onlyとして登録した。P4-06はP4-03の正式file treeに合わせた `src/autotrade/application` の最小実装、旧RED sentinelの正本名修正、RED→GREEN、formatter／lint／mypy／pytest、Core差分0、Evidence hash、Critical／High 0を確認して完了した。host outbound isolationとP4-08 UI runtimeのUnknownはPassへ変換していない。次はP4-07を実行し、完了後にP4-08、P4-09を順番に実行する。P4-10はP4-H2承認後まで実行しない。
