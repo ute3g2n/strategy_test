@@ -1,0 +1,1020 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P4-ART-04 Product/Application DB・Persistence詳細設計書</title>
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; background: #f3f4f6; color: #111827; font-family: "Yu Gothic UI", "Meiryo", sans-serif; line-height: 1.65; }
+    main { max-width: 1700px; margin: 0 auto; padding: 28px; background: #fff; }
+    h1 { border-bottom: 3px solid #111827; padding-bottom: 8px; }
+    h2 { margin-top: 34px; border-bottom: 1px solid #d1d5db; padding-bottom: 4px; }
+    h3 { margin-top: 25px; color: #1f2937; }
+    h4 { margin-top: 18px; color: #374151; }
+    a { color: #1d4ed8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; }
+    th, td { border: 1px solid #cbd5e1; padding: 7px 9px; vertical-align: top; text-align: left; }
+    th { background: #e5e7eb; }
+    code, pre { font-family: Consolas, "ＭＳ ゴシック", monospace; }
+    code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; }
+    pre { overflow-x: auto; padding: 14px; background: #111827; color: #f9fafb; border-radius: 5px; }
+    .mermaid { background: #fff; color: #111827; border: 1px solid #cbd5e1; }
+    .note { border-left: 4px solid #2563eb; padding: 10px 14px; background: #eff6ff; margin: 14px 0; }
+    .hold { border-left: 4px solid #b45309; padding: 10px 14px; background: #fffbeb; margin: 14px 0; }
+    .danger { border-left: 4px solid #b91c1c; padding: 10px 14px; background: #fef2f2; margin: 14px 0; }
+    .ok { color: #166534; font-weight: 700; }
+    .pending { color: #92400e; font-weight: 700; }
+    .small { font-size: .9em; color: #4b5563; }
+    .wide { overflow-x: auto; }
+    .nowrap { white-space: nowrap; }
+    .finding { border: 1px solid #bbf7d0; background: #f0fdf4; padding: 10px 14px; margin: 10px 0; }
+    @media print { body { background: #fff; } main { max-width: none; padding: 0; } .wide { overflow: visible; } a { color: #111827; } }
+  </style>
+  <script src="../../assets/mermaid.min.js"></script>
+  <script src="../../assets/mermaid-init.js"></script>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックス</a> /
+    <a href="../01_要件追跡/01_Phase4入力・Core再利用確認.html">P4-01</a> /
+    <a href="../01_要件追跡/02_Phase4要件・UC・UI・Test追跡マトリクス.html">P4-02</a> /
+    <a href="./03_ProductApplication_Backtest実装詳細設計書.html">P4-03</a> /
+    <a href="./04_ProductApplication_API詳細設計書.html">P4-04A API</a> /
+    <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
+
+  <h1>P4-ART-04 Product/Application DB・Persistence詳細設計書</h1>
+  <p><strong>成果物ID:</strong> <code>P4-ART-04-DB-001</code><br>
+    <strong>文書セット:</strong> <code>P4-APP-DOCSET-001</code><br>
+    <strong>Phase / Step:</strong> Phase 4 / P4-04B<br>
+    <strong>版:</strong> v0.1（2026-08-11）<br>
+    <strong>現在状態:</strong> <span class="ok">P4-04B設計完了・Critical/High 0・P4-04C待ち</span><br>
+    <strong>設計責任:</strong> AutoTrade_A10 / A20 / A30 / A70 / A80 / A82 / A91 / A90</p>
+
+  <div class="hold">
+    <strong>効力範囲:</strong>
+    本書はP4-H0承認後に作成したProduct/Application metadata DB、既存Core ResultStore、
+    Evidence、CSV fileの責務境界と保存契約である。P4-H1で承認されるまで、DB schema、
+    migration、repository、fixture、Applicationソース、UIソース、依存、trusted scope、
+    実行Runを作成・変更・起動しない。ここでいうSQLite schemaは候補physical schemaであり、
+    実DBを作成またはmigrationした結果ではない。
+  </div>
+  <div class="danger">
+    <strong>安全境界:</strong>
+    外部Data、Provider、Broker、Account、Portfolio、OMS、実Risk値、注文、Paper、Live、
+    Secret、Cloud、外部DB、外部通信、任意path、UNC path、reparse point、実資金を受け付けない。
+    Result本文は既存Core ResultStoreが正本であり、metadata DBへ複製しない。失敗、hash不一致、
+    stale revision、lease不一致、migration不整合、重複requestはFail-closedで停止する。
+  </div>
+
+  <h2>0. 読み方、入力、詳細設計の合否</h2>
+  <p>実装者は、まず1〜3章でドメイン境界と予定構造を、4〜6章でモジュール入出力とAPI保存契約を、
+    7〜8章でER図と全table／column契約を、9〜13章で受渡し・transaction・migration・復旧を、
+    14〜19章でテスト・追跡・レビュー・次Step引渡しを読む。各表の目的を表の直前に示す。
+    「設計済み」と「実行済み」を混同しない。</p>
+  <div class="wide">
+  <table>
+    <caption>AF-D16 DD-01〜12の充足状況。DB詳細設計の抜けを実装前に検出するための表。</caption>
+    <thead><tr><th>ID</th><th>実装者が判断できる内容</th><th>本書の章</th><th>状態</th></tr></thead>
+    <tbody>
+      <tr><td>DD-01</td><td>Product/Application metadata DBの目的、P4境界、Core／fileとの責務</td><td>1、5、9</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-02</td><td>予定file tree、依存方向、所有module、DBを直接触る箇所</td><td>2、3、4</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-03</td><td>Run、RunCondition、Job、Queue、Checkpoint、参照、監査の保存単位</td><td>5、7、8</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-04</td><td>全API-P4-IDのread/write table、read-only、N/A理由、transaction</td><td>6</td><td class="ok">19/19接続済み</td></tr>
+      <tr><td>DD-05</td><td>logical schemaとSQLite候補physical schemaの分離</td><td>8、11</td><td class="ok">設計済み、実行なし</td></tr>
+      <tr><td>DD-06</td><td>正常／失敗transaction、commit順、rollback、Core／file handoff</td><td>9、10</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-07</td><td>冪等性、expected revision、optimistic lock、lease／fencing、retry</td><td>6、10、12</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-08</td><td>監査、Evidence hash、Secret境界、path境界、保持・削除境界</td><td>10、13</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-09</td><td>schema、migration、rollback、concurrency、crashを含む固定テスト</td><td>14</td><td class="ok">設計済み、実行なし</td></tr>
+      <tr><td>DD-10</td><td>Core baseline、fixture、Manifest、ResultStore markerとの互換性</td><td>9、15</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-11</td><td>REQ／DEC／UNK／ART、P4-04A／C／Dへの追跡性</td><td>16、18</td><td class="ok">設計済み</td></tr>
+      <tr><td>DD-12</td><td>A91/A90観点、Findings first、採否、改訂、Critical/High判定</td><td>17</td><td class="ok">確認済み</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>0.1 入力と前提</h3>
+  <p>入力正本はP4-01〜P4-03、P4-04A、正式要件v2、統合台帳、P4-03のSQLite WAL／Migration、
+    AtomicResultStore、CSV、Evidence、状態、冪等性ADR、AF-D14／AF-D16／AF-D17、
+    <code>doc/index.html</code>である。P4-03の条件付きADRは候補として引き継ぎ、P4-04Bだけで
+    実装確定へ変換しない。未確定事項は16章のUNKとして停止条件を持たせる。</p>
+  <div class="wide">
+  <table>
+    <caption>このStepが固定した設計入力。後続Stepが参照する入力の目的と扱いを明示する表。</caption>
+    <thead><tr><th>入力</th><th>用途</th><th>本書での扱い</th></tr></thead>
+    <tbody>
+      <tr><td>P4-03実装詳細設計書</td><td>Run／Job／Queue／Checkpoint、ResultStore、CSV、Evidence、状態、冪等性</td><td>公開契約を保存単位へ展開する。Core source／fixtureは変更しない。</td></tr>
+      <tr><td>P4-04A API詳細設計書</td><td>API-P4-001〜019、DTO、failure、API/UI coverage、保存の入口</td><td>6章で全19 APIをtable／read-only／N/Aへ一対一以上で接続する。</td></tr>
+      <tr><td>正式要件v2／P4-02</td><td>REQ、UC、Screen、State、Test、Evidenceの追跡</td><td>14章と16章でDBテスト・Unknownへ接続する。</td></tr>
+      <tr><td>P4-03条件付きADR</td><td>SQLite WAL、migration、atomic publishの候補</td><td>候補physical schemaとUnknownを分け、実装確定しない。</td></tr>
+      <tr><td>P4-H0／統合台帳</td><td>設計だけを許可し、P4-H1前の実装・Runを禁止</td><td>本書の全操作をDESIGN_ONLY／NOT_EXECUTEDとする。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>1. ドメイン概要と保存境界</h2>
+  <p>Product/Applicationは、固定local入力をもとにBacktestのRunを受付け、Jobをキューへ入れ、
+    Workerへ引き渡し、既存Coreの結果とEvidenceを利用者へ表示可能にする協調層である。
+    metadata DBは「何を、どの条件で、どの状態で、どのJobが扱い、どの外部成果物を参照するか」を
+    保存する。一方、数値結果本文・取引明細本文は既存Core ResultStoreの正本であり、
+    metadata DBにはURI、commit marker、hash、versionだけを保存する。</p>
+  <div class="wide">
+  <table>
+    <caption>ドメインの責務を保存対象と非対象に分離し、結果本文やSecretの複製を防ぐための表。</caption>
+    <thead><tr><th>領域</th><th>保存・提供するもの</th><th>保存しないもの</th><th>所有者</th><th>不整合時</th></tr></thead>
+    <tbody>
+      <tr><td>Product/Application metadata</td><td>Run、条件hash、状態履歴、Job、Queue、Checkpoint参照、結果／Evidence／CSV参照、監査、冪等性、migration記録</td><td>Result本文、Secret、実Risk値、外部Data本文、認証情報</td><td>Application Persistence</td><td>APIをFail-closed、対象RunをRECOVERY_REQUIREDまたはBLOCKED</td></tr>
+      <tr><td>Frozen Backtest Core</td><td>既存CoreのBacktest計算、公開されたResultStore、commit marker</td><td>UI状態、metadata DBの業務状態、画面用CSV</td><td>既存Core／ResultStore</td><td>Core契約違反、marker／hash不一致は公開しない</td></tr>
+      <tr><td>Evidence file</td><td>Manifest、Preflight、状態履歴、audit、result／CSVの相対参照とhash</td><td>Secret、絶対path、任意の入力本文、外部送信</td><td>Evidence Service／file adapter</td><td>検証不能ならEvidence不成立、成功表示を停止</td></tr>
+      <tr><td>CSV file</td><td>COMMITTED ResultStoreから生成した固定projectionのatomic file、relative ref、output hash</td><td>未commit結果、任意path、download server、秘密情報</td><td>CsvJob worker</td><td>tempを廃棄対象として扱い、完成済みと表示しない</td></tr>
+      <tr><td>UI／API</td><td>型付きCommand／Query、状態・参照・failureの表示</td><td>DB／Core／fileの直接操作、HTTP serverの起動</td><td>Application API／将来UI</td><td>既知のFailure封筒を返し、副作用を増やさない</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note"><strong>DB責務の一文:</strong> metadata DBはcoordination stateとimmutable referenceを保存する。
+    Core ResultStore、Evidence file、CSV fileをmetadata DB内へ取り込む設計ではない。DBの行が
+    <code>SUCCEEDED</code>でも、ResultStoreのcommit marker、hash、Evidence検証が揃わなければ利用者へ成功結果を公開しない。</div>
+
+  <h2>2. 予定ファイル構成</h2>
+  <p>この表の目的は、P4-H1後に実装される所有moduleと、P4-04Bで作成した設計成果物を区別することである。
+    下記のsource／test fileは予定であり、このStepでは作成していない。</p>
+  <pre>doc/
+  phase4/
+    02_実装詳細設計/
+      03_ProductApplication_Backtest実装詳細設計書.html   # 既存P4-03
+      04_ProductApplication_API詳細設計書.html             # 既存P4-04A
+      05_ProductApplication_DB_Persistence詳細設計書.html  # 本Stepの正式成果物
+plan/
+  phase4/ログ/
+    P4-04B_DB・ER詳細設計_2026-08-11.md                    # 本Stepの実行ログ
+src/                                                    # P4-H1後に実装する予定、未作成
+  autotrade/application/
+    api.py
+    preflight.py
+    run_service.py
+    job_service.py
+    persistence.py             # metadata repositoryの唯一のDB入口
+    queue.py                   # lease／fencing
+    worker.py
+    result_view.py
+    core_adapter.py            # 既存Core公開契約だけを呼ぶ
+    csv_job.py                 # temp→hash→rename
+    evidence.py
+    migration.py
+tests/                                                  # P4-H1後に作成する予定、未作成
+  phase4/
+    test_metadata_schema.py
+    test_persistence_transactions.py
+    test_resultstore_boundary.py
+    test_csv_evidence_boundary.py
+    test_api_p4_db_contract.py</pre>
+  <p class="small">予定file treeにあるmodule間の依存方向は、API → Service → Persistence／Core Adapter／File Adapterである。
+    UIからSQLite、ResultStore、Evidence、CSVへ直接依存させない。ORM、migration library、外部DB clientの追加は本書の設計許可に含めない。</p>
+
+  <h2>3. 構造図とモジュール間データ受渡し</h2>
+  <p>この図の目的は、metadata transactionとCore／fileのatomic publishを別の責務として追跡することである。
+    矢印のデータは本文ではなく、型付きcommand、reference、hash、状態、Evidenceである。</p>
+  <pre class="mermaid">flowchart LR
+  UI["UI Adapter<br/>固定dummy"] --> API["ProductApplication API"]
+  API --> PF["Preflight Service"]
+  PF --> RS["Run Service"]
+  RS --> JS["Job Service"]
+  RS --> MD["Metadata Repository"]
+  JS --> MD
+  MD --> DB[("Application Metadata DB<br/>SQLite候補")]
+  JS --> Q["Local Queue<br/>lease / fencing"]
+  Q --> W["Local Worker"]
+  W --> CA["Core Adapter"]
+  CA --> CORE["Frozen Backtest Core"]
+  CORE --> STORE["Existing AtomicResultStore<br/>result body source of truth"]
+  W --> REF["ResultReference Gateway"]
+  REF --> MD
+  STORE --> RV["Result View Service"]
+  RV --> CSV["CsvJob Service"]
+  CSV --> CSVF["CSV file<br/>temp → hash → rename"]
+  CSVF --> ER["Evidence / Audit Index"]
+  MD --> ER
+  ER --> EVF["Evidence files<br/>relative refs + hash"]
+  API --> RV
+  API --> ER
+  API -. "拒否・停止" .-> STOP["Fail-closed / RECOVERY_REQUIRED"]</pre>
+  <p>表の目的は、各矢印の所有者、受渡し型、許可される副作用、停止条件を一度に確認することである。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>送信元</th><th>受信先</th><th>受渡し</th><th>所有者・副作用</th><th>停止条件</th></tr></thead>
+    <tbody>
+      <tr><td>UI Adapter</td><td>API</td><td>型付きCommand／Query、RequestContext、Correlation、Idempotency</td><td>APIがschemaと安全境界を検査する。UIはDBを呼ばない。</td><td>型不正、Secret、外部I/O、絶対pathは処理を開始しない。</td></tr>
+      <tr><td>API</td><td>Preflight</td><td>PreflightRequest、固定local reference、Core／fixture hash</td><td>Preflightはread-onlyでreport hashを返す。</td><td>最初の検査失敗でFAIL／BLOCKED。Run／Job／fileを作らない。</td></tr>
+      <tr><td>Run／Job Service</td><td>Metadata Repository</td><td>RunSpec、JobSpec、expected revision、idempotency record、AuditEvent</td><td>Applicationがmetadata transactionを所有する。</td><td>revision不一致、unique競合、FK／check違反はrollbackする。</td></tr>
+      <tr><td>Job Service</td><td>Local Queue</td><td>QueueItem、lease_id、fencing_token、available_at</td><td>Queueがlease／fencingを所有し、古いworkerを拒否する。</td><td>lease期限切れ、token不一致、terminal stateは実行を拒否する。</td></tr>
+      <tr><td>Worker</td><td>Core Adapter</td><td>ValidatedBacktestCommand、Run Manifest、Checkpoint参照</td><td>Adapterは既存Core公開契約だけを呼ぶ。</td><td>Core baseline／fixture／manifest不一致、外部Data要求は停止する。</td></tr>
+      <tr><td>Core／ResultStore</td><td>ResultReference Gateway</td><td>COMMITTED result reference、commit marker、result hash</td><td>Result本文はCore ResultStoreが所有し、metadataは参照だけを保存する。</td><td>marker、hash、version、relative ref不一致は公開しない。</td></tr>
+      <tr><td>Result／CSV Service</td><td>CSV file／Evidence</td><td>allowlist projection、relative output key、output hash、Evidence manifest</td><td>CSV workerとEvidence Serviceがfileを所有する。</td><td>root外、UNC、reparse、temp未hash、rename失敗は完成扱いにしない。</td></tr>
+      <tr><td>Metadata／Evidence</td><td>API／UI</td><td>View、state、reference、hash、failure、Evidence status</td><td>APIがDB／Core／fileの検証済みsnapshotを封筒にする。</td><td>未commit、検証中、破損、secret混入はSUCCESS表示しない。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>4. モジュール仕様と型付きI/O</h2>
+  <p>この表の目的は、DB、Core ResultStore、CSV、Evidenceを操作できるmoduleを限定し、実装者が
+    repositoryの責務やtransaction境界を追加判断しなくて済むようにすることである。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>module</th><th>入力</th><th>出力</th><th>保存・transaction責務</th><th>禁止事項</th></tr></thead>
+    <tbody>
+      <tr><td><code>MetadataRepository</code></td><td>typed persistence command、expected revision、transaction context</td><td>row snapshot、new revision、commit receipt</td><td>metadata DBのBEGIN／COMMIT／ROLLBACK、FK／unique／check、append-only履歴</td><td>Core計算、file bytes、Secret、任意SQLを上位へ公開しない。</td></tr>
+      <tr><td><code>RunService</code></td><td>CreateRunRequest、PreflightReport hash、RunCondition</td><td>RunView、RunId、Audit／Evidence receipt</td><td>Run＋RunCondition＋IdempotencyRecord＋AuditEventを一つのmetadata transactionで保存</td><td>Preflight未PASS、同条件重複、Risk実値、Core起動を許可しない。</td></tr>
+      <tr><td><code>JobService</code></td><td>Start／Cancel／Resume command、Run snapshot、expected revision</td><td>JobView、Queue receipt、new JobId</td><td>Job、QueueItem、RunStateTransition、IdempotencyRecord、AuditEventを順序付きで保存</td><td>stale revision、古いlease、terminal stateへの直接遷移を許可しない。</td></tr>
+      <tr><td><code>QueueLease</code></td><td>QueueItemId、worker identity、lease duration、fencing token</td><td>LeaseReceipt、renew／release result</td><td>QueueItemのCAS更新、fencing token増分、期限切れ回収</td><td>workerの強制kill、二重実行、tokenなしの更新を許可しない。</td></tr>
+      <tr><td><code>WorkerPersistenceGateway</code></td><td>lease receipt、checkpoint／result receipt、state command</td><td>Checkpoint、transition、recovery receipt</td><td>WorkerのDB更新をCore処理と分離し、handoff markerを検証してから保存</td><td>Core結果本文をDBへ写像、未検証成果物の成功保存をしない。</td></tr>
+      <tr><td><code>ResultReferenceGateway</code></td><td>Core ResultStore receipt、relative ref、marker、hash、version</td><td>ResultReference、published view</td><td>COMMITTEDかつhash一致の参照だけをmetadata transactionで公開</td><td>Result本文の複製、absolute path、markerなしの公開をしない。</td></tr>
+      <tr><td><code>CsvJobService</code></td><td>CreateCsvJobRequest、ResultReference、projection／sort／filter hash</td><td>CsvJobView、output reference</td><td>CsvJobをmetadata transactionでqueueへ登録し、workerのfile publish receiptを後から反映</td><td>未commit結果、任意column、temp fileの完成表示、download serverを許可しない。</td></tr>
+      <tr><td><code>EvidenceIndex</code></td><td>manifest／audit／result／CSV reference、hash、verification result</td><td>EvidenceReference、EvidenceBundleView</td><td>relative referenceとhashをappend-only indexへ登録</td><td>Secret、raw input、absolute／UNC／reparse refを保存しない。</td></tr>
+      <tr><td><code>MigrationRegistry</code></td><td>schema version、migration checksum、candidate direction</td><td>SchemaMigration receipt</td><td>適用済みversionとchecksumを管理する設計境界。実行方式はUNKとして承認待ち。</td><td>未承認migration、downの暗黙実行、外部ORM依存を導入しない。</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>表の目的は、I/Oの値型と秘密境界を固定することである。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>型</th><th>論理表現</th><th>必須性</th><th>不変条件</th></tr></thead>
+    <tbody>
+      <tr><td><code>EntityId</code></td><td>安全な文字列ID、最大128文字</td><td>PK／参照先では必須</td><td>英数字、<code>-_.:</code>のallowlist。pathやSecretを兼ねない。</td></tr>
+      <tr><td><code>Revision</code></td><td>非負整数</td><td>集約の更新対象で必須</td><td>成功更新ごとに1増分し、expected revisionとCASで検証する。</td></tr>
+      <tr><td><code>OperationFingerprint</code></td><td>canonical inputのSHA-256</td><td>write commandで必須</td><td>same idempotency scopeで同key異fingerprintを409にする。</td></tr>
+      <tr><td><code>StorageRef</code></td><td>configured rootからの相対参照</td><td>Result／Evidence／CSVで必須</td><td>絶対path、UNC、dot-dot脱出、reparse、外部schemeを拒否する。</td></tr>
+      <tr><td><code>Hash</code></td><td>小文字hex SHA-256</td><td>commit marker、manifest、fileで必須</td><td>計算対象とalgorithmを固定し、不一致は公開しない。</td></tr>
+      <tr><td><code>AuditEvent</code></td><td>append-onlyのevent envelope</td><td>metadata writeで必須</td><td>payload本文ではなくpayload hash、reason、revision、correlationを残す。</td></tr>
+      <tr><td><code>EvidenceReference</code></td><td>相対file refsのimmutable bundle</td><td>完了・失敗・復旧結果で必須</td><td>verification stateを持ち、未検証をSUCCESSの根拠にしない。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>5. 保存単位、所有module、source of truth</h2>
+  <p>この表の目的は、同じ概念を複数moduleが所有することと、Core ResultStoreのresult本文を
+    metadata DBへ重複保存することを防ぐことである。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>概念</th><th>metadata table</th><th>所有module</th><th>正本</th><th>許可操作</th><th>禁止・不整合時</th></tr></thead>
+    <tbody>
+      <tr><td>Run identity／状態</td><td><code>run</code>、<code>run_state_transition</code></td><td>RunService</td><td>Application metadata DB</td><td>create、CAS state transition、read snapshot</td><td>状態履歴の上書き、revision飛び、terminal再実行は禁止。</td></tr>
+      <tr><td>Run条件</td><td><code>run_condition</code></td><td>RunService</td><td>canonical condition hashと参照契約</td><td>create once、hash照合、read</td><td>条件本文のSecret化、途中変更、同一Runへの差替えは禁止。</td></tr>
+      <tr><td>Job／Queue</td><td><code>job</code>、<code>queue_item</code></td><td>JobService／QueueLease</td><td>Application metadata DB</td><td>enqueue、lease、cancel intent、retry、read</td><td>leaseなし更新、二重claim、force killは禁止。</td></tr>
+      <tr><td>Checkpoint</td><td><code>checkpoint</code></td><td>CheckpointStore</td><td>Checkpoint file／Core契約とmetadata reference</td><td>sequence append、hash verify、read</td><td>hash不一致、異なるManifestへの再利用、上書きは禁止。</td></tr>
+      <tr><td>Backtest result本文</td><td><code>result_reference</code>は参照のみ</td><td>ResultView／ResultReferenceGateway</td><td>既存Core ResultStore</td><td>COMMITTED参照、marker／hash検証、read projection</td><td>本文のDB複製、未commit表示、Core source変更は禁止。</td></tr>
+      <tr><td>Evidence</td><td><code>evidence_reference</code></td><td>EvidenceIndex</td><td>Evidence file bundle</td><td>相対ref、bundle hash、verification stateの登録・照会</td><td>Secret／raw input／absolute pathの保存は禁止。</td></tr>
+      <tr><td>Sweep</td><td><code>sweep_parent</code>、<code>sweep_member</code></td><td>SweepService</td><td>parent／member metadataと各child Run</td><td>一括candidate保存、partial failureの親状態管理、read</td><td>childだけの孤立作成、candidate重複、勝者自動採用は禁止。</td></tr>
+      <tr><td>CSV</td><td><code>csv_job</code></td><td>CsvJobService／CSV worker</td><td>CSV fileとoutput hash</td><td>Job受付、atomic publish receipt、read status</td><td>未commit source、temp公開、任意path、上書きは禁止。</td></tr>
+      <tr><td>監査／冪等性</td><td><code>audit_event</code>、<code>idempotency_record</code></td><td>横断Persistence</td><td>metadata DB append-only log</td><td>write transaction内append、同key照合、read</td><td>payload secret、履歴削除、同key異fingerprintの上書きは禁止。</td></tr>
+      <tr><td>Holdout判定</td><td><code>holdout_assessment</code></td><td>HoldoutGuardService</td><td>判定recordとEvidence ref</td><td>guard判定、read、Gate提出</td><td>最良自動選択、設定変更、再実行許可への直接変換は禁止。</td></tr>
+      <tr><td>schema version</td><td><code>schema_migration</code></td><td>MigrationRegistry</td><td>metadata DBのmigration履歴</td><td>version／checksumの記録・照会</td><td>未承認の物理migration、checksum差替えは禁止。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>6. 全API-P4-IDのDB coverage</h2>
+  <p>この表の目的は、P4-04Aの全19 canonical APIが、read/write tableまたはread-only／N/A理由、
+    transaction境界、commit順、冪等性、revision、lease／fencing、retry／recovery、監査、
+    Evidence hashへ接続されていることを一対一以上で確認することである。<code>N/A</code>は
+    保存漏れではなく、副作用を持たない理由を明記した設計上の非該当である。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>API-P4-ID／操作</th><th>read／write table・source</th><th>transaction境界・commit順</th><th>idempotency・revision</th><th>lease／lock・retry・recovery</th><th>audit・Evidence hash・停止条件</th></tr></thead>
+    <tbody>
+      <tr><td><code>API-P4-001</code><br>get_capability</td><td>read-only：<code>schema_migration</code>のversion候補と固定capability設定。write tableはN/A。</td><td>read transactionのみ。DB read → capability view。commit不要。N/A理由は能力照会で状態を変更しないため。</td><td>idempotency N/A、expected revision N/A。viewにschema versionを含める。</td><td>lease N/A、optimistic lock N/A、retryはread retry一回まで。migration不整合はBLOCKED。</td><td>request／correlationのaudit envelopeはplanned。Evidence hashはcapability report hash。外部能力をSUPPORTEDにしない。</td></tr>
+      <tr><td><code>API-P4-002</code><br>preflight_run</td><td>read-only：<code>run_condition</code>候補、Core／fixture／manifest refを検証。Run／Job／fileは書かない。</td><td>read-only snapshot。schema／ref／hash／plan検査 → report hash返却。commitなし。N/A理由は事前検査を副作用なしに保つため。</td><td>idempotency N/A。report hashを後続APIのexpected inputとして固定する。</td><td>lease N/A。検査失敗はretryせずFAIL／BLOCKED。recoveryは入力修正後に新reportを作る。</td><td>planned preflight Evidenceのreport hashとcheck IDs。Core起動、metadata write、外部I/Oを検出したら停止。</td></tr>
+      <tr><td><code>API-P4-003</code><br>create_run</td><td>write：<code>run</code>、<code>run_condition</code>、<code>idempotency_record</code>、<code>audit_event</code>。</td><td>BEGIN → idempotency照合 → RunCondition → Run(DRAFT) → AuditEvent → commit。Core／Queue／ResultStoreは境界外。</td><td>scope＋key＋fingerprintをunique。Run revision=0。same key／same fingerprintはreceipt再返却、差異は409。</td><td>aggregate optimistic lockはcreate時N/A。unique競合はretryせず既存照合。recoveryは新keyで再受付。</td><td>Audit payload hash、condition hash、preflight report hash、planned Evidence refを保存。PASS外、Secret、duplicate条件はrollback／BLOCKED。</td></tr>
+      <tr><td><code>API-P4-004</code><br>create_sweep</td><td>write：<code>sweep_parent</code>、<code>sweep_member</code>、child <code>run</code>／<code>run_condition</code>、idempotency、audit。</td><td>BEGIN → parent idempotency → parent →全candidate child／condition →各transition／audit → commit。candidate partial commit禁止。</td><td>parent operation fingerprint、candidate hash unique、child revision=0。同key同fingerprintは同parent receipt。</td><td>lease N/A。制限超過・重複・途中FK失敗は全rollback。recoveryは新しいsweep requestで行う。</td><td>parent／candidate hashと件数をaudit／Evidenceへ。child孤立、auto winner、Core開始、partial writeは停止。</td></tr>
+      <tr><td><code>API-P4-005</code><br>get_run</td><td>read-only：<code>run</code>、<code>run_condition</code>、<code>run_state_transition</code>、<code>result_reference</code>、<code>evidence_reference</code>。</td><td>read snapshot → ResultStore／Evidence marker検証 → view。writeなし、commit不要。</td><td>query cursorにsnapshot revision。idempotency N/A。revision不一致の古いviewは返さない。</td><td>leaseは表示用read。read retry一回。未commit／破損はRECOVERY_REQUIRED view。</td><td>viewにcondition／result／Evidence hashを付与。未検証結果をSUCCEEDED表示しない。</td></tr>
+      <tr><td><code>API-P4-006</code><br>list_runs</td><td>read-only：<code>run</code>＋許可された<code>run_condition</code> summary。Result本文は読まない。</td><td>read transaction → allowlist filter／cursor → page。commitなし。</td><td>cursorはsnapshot revision。idempotency／expected revision N/A。</td><td>lease N/A。busyは限定read retry。ページ境界不整合はページを返さず再取得要求。</td><td>query correlationのみ。Evidence hashは各rowの参照hashを表示、raw config／holdout本文は返さない。</td></tr>
+      <tr><td><code>API-P4-007</code><br>start_job</td><td>write：<code>job</code>、<code>queue_item</code>、<code>run_state_transition</code>、idempotency、audit。</td><td>BEGIN → idempotency → Run CAS → Job(QUEUED) → QueueItem(WAITING) → transition → AuditEvent → commit。Workerはcommit後。</td><td>request key＋operation fingerprint unique。Run／Job revisionをexpected revisionでCAS。</td><td>enqueue時lease N/A。worker claim後はfencing token。duplicateはreceipt、busyは限定retry、staleは409。</td><td>job／queue／revision／correlationをauditし、planned job Evidence hashへ接続。commit前Core起動、queue孤立はrollback／停止。</td></tr>
+      <tr><td><code>API-P4-008</code><br>get_job</td><td>read-only：<code>job</code>、<code>queue_item</code>、<code>checkpoint</code>、state transition。</td><td>read snapshot → lease／checkpoint／cancel intent view。commitなし。</td><td>view revisionを返す。idempotency N/A。stale viewは表示を拒否または再取得。</td><td>leaseはread-only表示。read retry一回。checkpoint hash不一致はRECOVERY_REQUIRED。</td><td>queue／checkpoint／marker hashをEvidence viewへ付与。予測時間を保証しない。</td></tr>
+      <tr><td><code>API-P4-009</code><br>list_jobs</td><td>read-only：<code>job</code>、<code>queue_item</code>のallowlist projection。</td><td>read snapshot → filter／cursor → page。commitなし。</td><td>cursorにstate snapshot revision。idempotency N/A。</td><td>lease N/A。busyはread retry一回。queue state矛盾はpageを返さず停止。</td><td>correlationのみ。各jobのEvidence／result ref hashはsummaryに限定し、本文を返さない。</td></tr>
+      <tr><td><code>API-P4-010</code><br>cancel_job</td><td>write：<code>job</code>、<code>queue_item</code>、<code>run_state_transition</code>、idempotency、audit。</td><td>BEGIN → idempotency → Job／Run CAS → QUEUEDならQueue cancel、RUNNINGならcancel intent → transition → AuditEvent → commit。</td><td>key＋fingerprint unique。Job／Run expected revision必須。same keyは既存view。</td><td>worker leaseはforce revokeしない。busyは限定retry、stale fenceは拒否。crash後はreconcileしてSTOPPED／RECOVERY_REQUIRED。</td><td>cancel reason、before／after revision、lease state、Evidence hashをaudit。terminal direct cancel、force kill、二重cancelは停止。</td></tr>
+      <tr><td><code>API-P4-011</code><br>resume_job</td><td>read：旧Job／Checkpoint／Result／Evidence ref。write：新<code>job</code>、<code>queue_item</code>、transition、idempotency、audit。</td><td>BEGIN →旧状態CAS → checkpoint／manifest／marker／hash検証 → new Job → QueueItem → transition／audit → commit。Coreはcommit後。</td><td>resume key＋bundle fingerprint unique。旧Job revisionと新Job revision=0。</td><td>lease／fencingを新Jobへ発行。max retry=3。hash不一致、stale revisionはrecoveryではなくBLOCKED。</td><td>checkpoint／manifest／marker／Evidence hash bundleを保存。古いJob再利用、result本文複製、部分作成はrollback。</td></tr>
+      <tr><td><code>API-P4-012</code><br>get_queue_state</td><td>read-only：<code>queue_item</code>、<code>job</code>。ResultStore／fileは参照しない。</td><td>read snapshot → position／lease state → page。commitなし。</td><td>cursorにqueue revision。idempotency N/A。</td><td>lease N/A。read retry一回。fencing tokenの不一致をRUNNINGとして表示しない。</td><td>queue Evidence hashはplanned summary。SSE／WebSocket、worker起動、lease延長は行わない。</td></tr>
+      <tr><td><code>API-P4-013</code><br>get_result_summary</td><td>read-only：<code>run</code>、<code>result_reference</code>、既存Core ResultStore、<code>evidence_reference</code>。</td><td>metadata read → COMMITTED marker／hash verify → ResultStore summary read → view。writeなし。</td><td>result definition version、source hash、Run revisionをsnapshotに含める。idempotency N/A。</td><td>lease N/A。store read retry一回。marker／hash mismatchは公開せずRECOVERY_REQUIRED。</td><td>result hash、definition version、Evidence hashをviewへ。Result本文のDB保存、未commit五指標、推測値は停止。</td></tr>
+      <tr><td><code>API-P4-014</code><br>list_result_rows</td><td>read-only：<code>result_reference</code>＋既存ResultStoreのallowlist projection。metadataへrowを書かない。</td><td>ref verify → ResultStore cursor read → page。commitなし。</td><td>cursorとsource result hashを固定。idempotency N/A。</td><td>lease N/A。read retry一回。source hashが変わればpageを返さず再検証。</td><td>result／Evidence hashをpage envelopeへ。未提供trade／signalを捏造、row cacheをDBへ書くことを禁止。</td></tr>
+      <tr><td><code>API-P4-015</code><br>compare_runs</td><td>read-only：複数<code>run</code>、<code>run_condition</code>、<code>result_reference</code>、Core ResultStore。</td><td>各Run snapshot → condition／result hash verify → compare projection。commitなし。</td><td>compare request hashをviewへ。idempotency／expected revisionはread-onlyのためN/A。</td><td>lease N/A。partial sourceは比較を成立させず再取得。recoveryは元Runの状態修復。</td><td>入力Run／condition／result hashをEvidence／audit envelopeへ。自動winner／設定変更は行わない。</td></tr>
+      <tr><td><code>API-P4-016</code><br>create_csv_job</td><td>read：<code>result_reference</code>、write：<code>csv_job</code>、idempotency、audit。CSV bytesはworker file。</td><td>BEGIN → source COMMITTED／hash verify → CsvJob(QUEUED) → idempotency／audit → commit。file writeは別transaction。</td><td>source hash＋projection／filter／sort fingerprintをunique。CsvJob revision=0。</td><td>CSV worker claim時にlease／fencing。duplicateは既存job、file失敗はCSV_FAILED／recovery。source変更は拒否。</td><td>request／source／spec hashとplanned Evidence refをaudit。未commit、任意column、DBへのbytes保存は停止。</td></tr>
+      <tr><td><code>API-P4-017</code><br>get_csv_job</td><td>read-only：<code>csv_job</code>、optional <code>evidence_reference</code>、CSV file metadata。bytesは返さない。</td><td>read snapshot → relative ref／output hash verify → view。commitなし。</td><td>CsvJob revisionを返す。idempotency N/A。</td><td>leaseはstatus表示のみ。read retry一回。output hash／marker不一致はCOMPLETEDにしない。</td><td>output／Evidence hashとverification stateを返す。download route、absolute path、未完成fileの表示を禁止。</td></tr>
+      <tr><td><code>API-P4-018</code><br>get_evidence</td><td>read-only：<code>evidence_reference</code>、<code>audit_event</code>、Result／CSV／manifest file refs。</td><td>metadata snapshot → all relative ref／hash verify → bundle view。commitなし。</td><td>bundle hashをsnapshotへ。idempotency N/A。</td><td>lease N/A。検証retry一回。missing／tamperはverification failed。</td><td>Evidence自身のbundle hashと各source hashを返す。Secret、raw input、絶対pathは返さず停止。</td></tr>
+      <tr><td><code>API-P4-019</code><br>assess_holdout_reuse</td><td>read：source <code>run</code>／<code>run_condition</code>／<code>result_reference</code>。write：<code>holdout_assessment</code>、audit。</td><td>BEGIN → source snapshot／hash verify → assessment → AuditEvent → commit。Run／Strategy設定は更新しない。</td><td>source run revision＋holdout plan hashでidempotent。Assessment revisionは不要、immutable。</td><td>lease N/A。source changedは409／BLOCKED。recoveryは新assessmentで再判定。</td><td>assessment／plan／source／result hashをEvidenceへ。自動最良採用、再実行、設定変更は停止。</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>6.1 P4外API</h3>
+  <p><code>API-P4-X01</code> Broker、<code>X02</code> Provider／external data、<code>X03</code> Paper／Live、
+    <code>X04</code> Cloud、<code>X05</code> Secret／credential操作はmetadata tableへ保存しない。
+    受付前に<code>UNSUPPORTED</code>または<code>BLOCKED</code>を返し、idempotency record、Job、
+    Queue、Result、CSV、Evidenceの副作用を作らない。これらをP4 API coverageの欠落と解釈しない。</p>
+
+  <h2>7. ER図</h2>
+  <p>この図の目的は、保存単位の親子関係、optional参照、append-only履歴、file reference、
+    既存Core ResultStoreとの境界を一つのモデルで確認することである。ER図中の
+    <code>RESULT_REFERENCE</code>はresult本文を持たず、Coreの外部正本を参照する。</p>
+  <pre class="mermaid">erDiagram
+  RUN ||--|| RUN_CONDITION : "固定条件"
+  RUN ||--o{ RUN_STATE_TRANSITION : "状態履歴"
+  RUN ||--o{ JOB : "操作"
+  JOB ||--o| QUEUE_ITEM : "待機項目"
+  JOB ||--o{ CHECKPOINT : "再開点"
+  RUN ||--o| RESULT_REFERENCE : "公開結果"
+  RUN ||--o{ EVIDENCE_REFERENCE : "証跡束"
+  RUN ||--o| SWEEP_PARENT : "Sweep親"
+  SWEEP_PARENT ||--o{ SWEEP_MEMBER : "候補"
+  SWEEP_MEMBER }o--|| RUN : "子Run"
+  RUN ||--o{ CSV_JOB : "CSV要求"
+  CSV_JOB ||--o| EVIDENCE_REFERENCE : "出力証跡"
+  RUN ||--o{ AUDIT_EVENT : "監査"
+  RUN ||--o{ HOLDOUT_ASSESSMENT : "再利用判定"
+  JOB ||--o{ IDEMPOTENCY_RECORD : "受付指紋"
+  SCHEMA_MIGRATION ||--o{ AUDIT_EVENT : "変更監査"
+
+  RUN {
+    string run_id PK
+    string run_kind
+    string status
+    integer revision
+    string sweep_parent_id FK
+    string condition_hash
+    string manifest_hash
+    string created_at
+    string updated_at
+  }
+  RUN_CONDITION {
+    string run_id PK, FK
+    string condition_hash UK
+    string core_baseline_hash
+    string fixture_hash
+    string strategy_reference_hash
+    string holdout_plan_hash
+    string created_at
+  }
+  RUN_STATE_TRANSITION {
+    string transition_id PK
+    string run_id FK
+    string from_status
+    string to_status
+    integer expected_revision
+    integer resulting_revision
+    string reason_id
+    string occurred_at
+  }
+  JOB {
+    string job_id PK
+    string run_id FK
+    string job_kind
+    string status
+    string operation_fingerprint
+    string idempotency_key
+    integer attempt
+    integer revision
+    string created_at
+    string updated_at
+  }
+  QUEUE_ITEM {
+    string queue_item_id PK
+    string job_id FK, UK
+    string state
+    string lease_id
+    integer fencing_token
+    string leased_until
+    string available_at
+    integer revision
+  }
+  CHECKPOINT {
+    string checkpoint_id PK
+    string job_id FK
+    string run_id FK
+    integer sequence
+    string snapshot_ref
+    string manifest_hash
+    string commit_marker_hash
+    string created_at
+  }
+  RESULT_REFERENCE {
+    string result_ref_id PK
+    string run_id FK, UK
+    string store_type
+    string relative_ref
+    string commit_marker
+    string result_hash
+    string verification_state
+    string created_at
+  }
+  EVIDENCE_REFERENCE {
+    string evidence_ref_id PK
+    string run_id FK
+    string job_id FK
+    string relative_manifest_ref
+    string bundle_hash
+    string verification_state
+    string created_at
+  }
+  SWEEP_PARENT {
+    string sweep_parent_id PK
+    string parent_run_id FK, UK
+    string spec_hash
+    integer candidate_count
+    string status
+    string created_at
+  }
+  SWEEP_MEMBER {
+    string sweep_member_id PK
+    string sweep_parent_id FK
+    string child_run_id FK, UK
+    string candidate_hash
+    integer ordinal
+    string status
+  }
+  CSV_JOB {
+    string csv_job_id PK
+    string source_run_id FK
+    string source_result_hash
+    string projection_hash
+    string filter_hash
+    string sort_hash
+    string status
+    string relative_output_ref
+    string output_hash
+    integer revision
+  }
+  IDEMPOTENCY_RECORD {
+    string idempotency_id PK
+    string scope
+    string idempotency_key
+    string operation_fingerprint
+    string target_kind
+    string target_id
+    string response_hash
+    string status
+    string first_seen_at
+  }
+  AUDIT_EVENT {
+    string audit_event_id PK
+    string aggregate_kind
+    string aggregate_id
+    string event_kind
+    string actor_kind
+    string correlation_id
+    integer before_revision
+    integer after_revision
+    string payload_hash
+    string occurred_at
+  }
+  HOLDOUT_ASSESSMENT {
+    string assessment_id PK
+    string source_run_id FK
+    string holdout_plan_hash
+    string decision
+    string gate_id
+    string rationale_id
+    string created_at
+  }
+  SCHEMA_MIGRATION {
+    string migration_id PK
+    string version UK
+    string checksum
+    string direction
+    string status
+    string applied_at
+    string actor_kind
+  }</pre>
+  <p>表の目的は、ER図の各relationshipの意味、FK所有者、更新者、不変条件、破損時停止を本文へ展開することである。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>関係</th><th>意味</th><th>FK</th><th>作成／更新者</th><th>状態不変条件</th><th>破損時の停止</th></tr></thead>
+    <tbody>
+      <tr><td>RUN 1対1 RUN_CONDITION</td><td>Runの固定条件を一度だけ持つ。</td><td><code>run_condition.run_id</code></td><td>RunServiceが作成、以後read-only</td><td>condition hash、Core／fixture hashはRunの寿命中不変。</td><td>欠落、hash差異、二重条件はRunを公開せずBLOCKED。</td></tr>
+      <tr><td>RUN 1対多 RUN_STATE_TRANSITION</td><td>状態のappend-only履歴。</td><td><code>run_state_transition.run_id</code></td><td>Run／Job Service</td><td>expected revision＝直前revision、resulting revisionは1増分。</td><td>飛び番、逆遷移、上書きはtransaction rollback。</td></tr>
+      <tr><td>RUN 1対多 JOB</td><td>再開・再試行を含む操作単位。</td><td><code>job.run_id</code></td><td>JobService</td><td>terminal Jobは再利用せず、新Jobを作る。</td><td>孤立Job、同一operationの重複は停止。</td></tr>
+      <tr><td>JOB 1対0/1 QUEUE_ITEM</td><td>現在キューにある待機・lease情報。</td><td><code>queue_item.job_id</code> unique</td><td>JobService／QueueLease</td><td>WAITING／CLAIMED／RUNNING／CANCELLEDの許可遷移だけ。</td><td>二重QueueItem、fencing token逆行はworkerを停止。</td></tr>
+      <tr><td>JOB 1対多 CHECKPOINT</td><td>再開可能なimmutable snapshot reference。</td><td><code>checkpoint.job_id</code>、<code>checkpoint.run_id</code></td><td>Worker／CheckpointStore</td><td>sequence増分、Manifest／marker hashが同一bundle。</td><td>hash不一致、sequence重複、別Run参照はRECOVERY_REQUIRED。</td></tr>
+      <tr><td>RUN 1対0/1 RESULT_REFERENCE</td><td>公開可能なCore resultへの参照。</td><td><code>result_reference.run_id</code> unique</td><td>ResultReferenceGateway</td><td>COMMITTED marker、source hash、versionの組が一致。</td><td>未commit／破損／重複参照はSUCCESS表示を停止。</td></tr>
+      <tr><td>RUN 1対多 EVIDENCE_REFERENCE</td><td>Run、Job、CSVの証跡bundleを参照。</td><td><code>evidence_reference.run_id</code>、optional job_id</td><td>EvidenceIndex</td><td>bundle hashごとにimmutable、verification stateを持つ。</td><td>missing／tamper／Secret検出はEvidenceを不成立にする。</td></tr>
+      <tr><td>SWEEP_PARENT 1対多 SWEEP_MEMBER</td><td>一つのSweep受付とcandidateの関係。</td><td><code>sweep_member.sweep_parent_id</code></td><td>SweepService</td><td>candidate hash／ordinalはparent内でunique。</td><td>partial parent、孤立member、重複candidateは全体をrollback。</td></tr>
+      <tr><td>SWEEP_MEMBER 多対1 RUN</td><td>candidateごとに一つのchild Runを持つ。</td><td><code>sweep_member.child_run_id</code> unique</td><td>SweepService</td><td>child Runはparent条件を参照し、勝者自動採用しない。</td><td>別parent、条件差異、child欠落はSweepをBLOCKED。</td></tr>
+      <tr><td>RUN 1対多 CSV_JOB</td><td>同じCOMMITTED resultから異なるprojectionのCSV要求。</td><td><code>csv_job.source_run_id</code></td><td>CsvJobService／CSV worker</td><td>source result hashが作成時とpublish時に一致。</td><td>hash不一致、任意projection、temp公開はCSV_FAILED。</td></tr>
+      <tr><td>JOB 1対多 IDEMPOTENCY_RECORD</td><td>受付操作と再送結果の指紋。</td><td>target_kind／target_idの論理参照</td><td>横断Persistence</td><td>scope＋key unique、fingerprintは不変。</td><td>同key異fingerprintは409、record上書きは禁止。</td></tr>
+      <tr><td>RUN 1対多 AUDIT_EVENT</td><td>状態・保存・拒否の監査履歴。</td><td>aggregate_kind／aggregate_idの論理参照</td><td>各write service</td><td>append-only、payload hash、correlation、revisionを持つ。</td><td>payload欠落、revision不整合、Secret混入はcommit禁止。</td></tr>
+      <tr><td>SCHEMA_MIGRATION 1対多 AUDIT_EVENT</td><td>schema変更の監査への論理接続。</td><td>audit payloadのmigration version</td><td>MigrationRegistry／監査</td><td>version／checksum／directionの組を変更しない。</td><td>checksum不一致、未承認versionはDB利用を停止。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>8. 論理スキーマと全table詳細</h2>
+  <p>この表の目的は、各保存単位の所有者、全column、型、required／nullable、default、
+    key、constraint、index、version、保持、削除／archive、Secret境界、設計根拠を固定することである。
+    論理型は<code>TEXT</code>相当の安全なID／hash／UTC文字列、<code>INTEGER</code>相当の非負整数、
+    <code>0/1</code>相当のbooleanを基本とする。物理SQLite候補への写像は11章で分離する。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>table／所有module</th><th>column／型／必須・nullable／default</th><th>PK／FK／unique／check／index</th><th>version・保持・削除／archive</th><th>Secret／path境界・根拠</th></tr></thead>
+    <tbody>
+      <tr><td><code>run</code><br>RunService</td><td><code>run_id:EntityId</code> required、<code>run_kind:enum</code> required、<code>status:enum</code> required、<code>revision:Revision</code> required default 0、<code>sweep_parent_id:EntityId</code> nullable、<code>condition_hash:Hash</code> required、<code>manifest_hash:Hash</code> nullable until start、<code>created_at／updated_at:UtcText</code> required、<code>terminal_at:UtcText</code> nullable。</td><td>PK <code>run_id</code>。optional FK <code>sweep_parent_id→sweep_parent</code>。checkはstatus／run_kind／revision≥0。indexはstatus＋updated_at、condition_hash。</td><td>row revisionはCASで増分。Run履歴はtransitionへappend。P4-04Bでは削除・archiveを実施しない。retentionはUNK-P4-04B-001。</td><td>条件本文・Secret・実Risk値を置かずhash／参照のみ。Run／Job／Queueの一貫性をP4-03の状態契約から根拠化。</td></tr>
+      <tr><td><code>run_condition</code><br>RunService</td><td><code>run_id:EntityId</code> required、<code>condition_hash:Hash</code> required、<code>core_baseline_hash:Hash</code> required、<code>fixture_hash:Hash</code> required、<code>strategy_reference_hash:Hash</code> required、<code>holdout_plan_hash:Hash</code> nullable、<code>data_version:SafeText</code> required、<code>created_at:UtcText</code> required。</td><td>PK／FK <code>run_id→run</code>。unique condition_hashは同scope条件の重複検出用（重複拒否のscopeはAPI契約）。checkはhash形式。indexはcore／fixture hash。</td><td>Run作成時一度だけ。更新・削除禁止。保存期間はUNK。archive時もhashとRun参照の整合を壊さない。</td><td>raw config、credential、Risk実値、任意pathは保存しない。P4-03 RunConditionとREQの固定条件根拠。</td></tr>
+      <tr><td><code>run_state_transition</code><br>Run／Job Service</td><td><code>transition_id:EntityId</code> required、<code>run_id:EntityId</code> required、<code>from_status／to_status:enum</code> required、<code>expected_revision／resulting_revision:Revision</code> required、<code>reason_id:SafeText</code> required、<code>actor_kind:enum</code> required、<code>correlation_id:EntityId</code> required、<code>occurred_at:UtcText</code> required。</td><td>PK <code>transition_id</code>。FK run。unique(run_id,resulting_revision)。checkはallowed transition、resulting=expected+1。index run＋occurred_at、correlation。</td><td>append-only。履歴のdelete／update不可。retention／archiveはUNK。terminal履歴を保持する。</td><td>reason／actor／hashのみ。状態の説明文にSecret／入力本文を含めない。P4-03状態ADRの監査要件を根拠化。</td></tr>
+      <tr><td><code>job</code><br>JobService</td><td><code>job_id:EntityId</code> required、<code>run_id:EntityId</code> required、<code>job_kind:enum</code> required、<code>status:enum</code> required、<code>operation_fingerprint:Hash</code> required、<code>idempotency_key:SafeText</code> required、<code>attempt:NonNegativeInteger</code> required default 0、<code>revision:Revision</code> required default 0、<code>cancel_requested:Bool</code> required default 0、<code>created_at／updated_at</code> required、<code>terminal_at</code> nullable。</td><td>PK job_id、FK run。unique(run_id,operation_fingerprint,idempotency_key)を論理制約。check attempt≤3、status／bool。index run＋status、status＋updated_at。</td><td>新規attemptは新Job。terminal Jobの更新はterminal_at等の限定項目以外不可。retention／archiveはUNK。</td><td>command本文・Secret・実Risk値を保存しない。P4-04A start／cancel／resumeとP4-03 retry契約を根拠化。</td></tr>
+      <tr><td><code>queue_item</code><br>QueueLease</td><td><code>queue_item_id:EntityId</code> required、<code>job_id:EntityId</code> required、<code>state:enum</code> required、<code>priority:Integer</code> required default 0、<code>lease_id:EntityId</code> nullable、<code>fencing_token:NonNegativeInteger</code> required default 0、<code>leased_until:UtcText</code> nullable、<code>available_at:UtcText</code> required、<code>revision:Revision</code> required default 0。</td><td>PK queue_item_id。FK job。unique job_id。check state／priority／revision≥0、CLAIMED/RUNNING時lease必須。index state＋available_at、lease expiry。</td><td>Queue itemはJobごとに一つ。再試行時は既存itemの許可更新または設計された新itemだけ。保持／削除はUNK。</td><td>worker identityはsafe ID、credential不可。lease／fencingはP4-03のstale worker停止根拠。</td></tr>
+      <tr><td><code>checkpoint</code><br>CheckpointStore</td><td><code>checkpoint_id:EntityId</code> required、<code>job_id／run_id:EntityId</code> required、<code>sequence:NonNegativeInteger</code> required、<code>snapshot_ref:StorageRef</code> required、<code>manifest_hash:Hash</code> required、<code>commit_marker_hash:Hash</code> nullable、<code>state:enum</code> required、<code>created_at</code> required。</td><td>PK checkpoint_id。FK job／run。unique(job_id,sequence)。check ref relative、sequence≥0。index job＋sequence、run＋created_at。</td><td>immutable append-only。ファイルretentionはUNK。marker検証前のcheckpointはREJECTED相当で再開に使わない。</td><td>StorageRefはconfigured root相対、UNC／reparse拒否。snapshot本文はDBへ複製しない。</td></tr>
+      <tr><td><code>result_reference</code><br>ResultReferenceGateway</td><td><code>result_ref_id:EntityId</code> required、<code>run_id:EntityId</code> required、<code>store_type:enum</code> required default CORE_RESULT_STORE、<code>relative_ref:StorageRef</code> required、<code>commit_marker:SafeText</code> required、<code>result_hash:Hash</code> required、<code>definition_version:SafeText</code> required、<code>verification_state:enum</code> required、<code>created_at</code> required。</td><td>PK result_ref_id。FK run。unique run_id。check store_type=existing Core、verification／hash形式。index run＋verification_state、result_hash。</td><td>COMMITTED参照はimmutable。差替えは新Run／新result refで行い、削除・archiveはUNK。</td><td>result body、absolute path、Core内部stateは保存しない。AtomicResultStoreのmarker-last／hash根拠。</td></tr>
+      <tr><td><code>evidence_reference</code><br>EvidenceIndex</td><td><code>evidence_ref_id:EntityId</code> required、<code>run_id:EntityId</code> required、<code>job_id:EntityId</code> nullable、<code>relative_manifest_ref:StorageRef</code> required、<code>bundle_hash:Hash</code> required、<code>verification_state:enum</code> required、<code>evidence_kind:enum</code> required、<code>created_at</code> required。</td><td>PK evidence_ref_id。FK run、optional job。unique(run_id,bundle_hash)。check relative ref／verification。index run＋kind、bundle_hash。</td><td>append-only bundle ref。file retention／archiveはUNK。verification failedを削除して成功だけ残さない。</td><td>manifest／audit／result／CSVのrefとhashだけ。Secret、raw input、absolute pathを拒否。</td></tr>
+      <tr><td><code>sweep_parent</code><br>SweepService</td><td><code>sweep_parent_id:EntityId</code> required、<code>parent_run_id:EntityId</code> required、<code>spec_hash:Hash</code> required、<code>candidate_count:NonNegativeInteger</code> required、<code>status:enum</code> required、<code>created_at／updated_at</code> required。</td><td>PK sweep_parent_id。FK parent_run_id→run、unique parent_run_id。check count≥0／status。index status＋created_at。</td><td>parentはchild登録完了後にimmutable spec。partial作成はrollback。retention／archiveはUNK。</td><td>range本文・Secret・実Risk値は保存せずspec hash。P4-04A sweep一括作成根拠。</td></tr>
+      <tr><td><code>sweep_member</code><br>SweepService</td><td><code>sweep_member_id:EntityId</code> required、<code>sweep_parent_id:EntityId</code> required、<code>child_run_id:EntityId</code> required、<code>candidate_hash:Hash</code> required、<code>ordinal:NonNegativeInteger</code> required、<code>status:enum</code> required。</td><td>PK member_id。FK parent／child run。unique child_run_id、unique(parent,candidate_hash)、unique(parent,ordinal)。check ordinal≥0/status。index parent＋status。</td><td>candidate immutable。child Runの状態はRun tableが所有し、member statusは集計用。delete／archiveはUNK。</td><td>candidate raw valueは保存しない。孤立child／勝者自動採用を禁止する。</td></tr>
+      <tr><td><code>csv_job</code><br>CsvJobService</td><td><code>csv_job_id:EntityId</code> required、<code>source_run_id:EntityId</code> required、<code>source_result_hash:Hash</code> required、<code>projection_hash／filter_hash／sort_hash:Hash</code> required、<code>status:enum</code> required、<code>relative_output_ref:StorageRef</code> nullable until publish、<code>output_hash:Hash</code> nullable、<code>revision:Revision</code> required default 0、<code>created_at／updated_at</code> required。</td><td>PK csv_job_id。FK source_run_id。unique(source_run_id,source_result_hash,projection_hash,filter_hash,sort_hash)。check status／hash/ref pairing。index source run＋status、updated_at。</td><td>Job状態はCAS。output完成後はref／hashをimmutable。file retention／archiveはUNK。</td><td>CSV bytes、arbitrary columns、absolute／UNC pathを保存しない。temp→hash→renameのatomic output根拠。</td></tr>
+      <tr><td><code>idempotency_record</code><br>横断Persistence</td><td><code>idempotency_id:EntityId</code> required、<code>scope:SafeText</code> required、<code>idempotency_key:SafeText</code> required、<code>operation_fingerprint:Hash</code> required、<code>target_kind／target_id</code> required、<code>response_hash:Hash</code> nullable until commit、<code>status:enum</code> required、<code>first_seen_at／completed_at</code> required／nullable。</td><td>PK idempotency_id。unique(scope,idempotency_key)。logical FK target_kind／target_id。check key allowlist、status、hash pairing。index target。</td><td>append-once／fingerprint immutable。retention／archiveはUNK。削除して再実行可能にしない。</td><td>request body／Secretを保存せずcanonical fingerprintとreceipt hashだけ。duplicate拒否根拠。</td></tr>
+      <tr><td><code>audit_event</code><br>横断Persistence</td><td><code>audit_event_id:EntityId</code> required、<code>aggregate_kind／aggregate_id</code> required、<code>event_kind／actor_kind／reason_id／correlation_id</code> required、<code>before_revision／after_revision:Revision</code> nullable、<code>payload_hash:Hash</code> required、<code>occurred_at</code> required。</td><td>PK audit_event_id。logical aggregate ref。unique(correlation_id,event_kind,after_revision)は重複検出用。check after≥before／hash。index aggregate＋occurred_at、correlation。</td><td>append-only。update／delete不可。retention／archiveはUNK。監査を成功行だけに絞らない。</td><td>payload本文、Secret、credential、raw inputを保存しない。状態／拒否／hashを追跡する。</td></tr>
+      <tr><td><code>holdout_assessment</code><br>HoldoutGuardService</td><td><code>assessment_id:EntityId</code> required、<code>source_run_id:EntityId</code> required、<code>holdout_plan_hash:Hash</code> required、<code>decision:enum</code> required、<code>gate_id／rationale_id</code> required、<code>created_at</code> required。</td><td>PK assessment_id。FK source run。unique(source_run_id,holdout_plan_hash,decision)。check decision／hash。index source＋created_at。</td><td>immutable assessment。判定の削除・上書き禁止。retention／archiveはUNK。</td><td>holdout raw values、利益性、実Risk値を保存しない。Gate提出用の判定recordに限定。</td></tr>
+      <tr><td><code>schema_migration</code><br>MigrationRegistry</td><td><code>migration_id:EntityId</code> required、<code>version:SafeText</code> required、<code>checksum:Hash</code> required、<code>direction:enum</code> required、<code>status:enum</code> required、<code>applied_at:UtcText</code> nullable、<code>actor_kind:enum</code> required。</td><td>PK migration_id。unique version。check version／checksum／direction／status。index status＋version。</td><td>適用履歴はappend-only候補。direction、down、backup／restore、retentionはUNK-P4-04B-002〜004。</td><td>migration file pathやSecretを保存しない。DB起動前にversion／checksumをfail-closed検査する。</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note"><strong>論理schemaの読み方:</strong> FKは孤立rowを防ぐ論理契約、uniqueは重複操作・二重公開を防ぐ契約、
+    checkは不正状態をDB境界で拒否する契約である。これらをSQLiteで実現する具体的DDLは11章の候補であり、
+    P4-04Bでは実行していない。</div>
+
+  <h2>9. metadata／Core／file／Evidence境界</h2>
+  <p>この図の目的は、別々の正本を一つのDB transactionへ誤って混ぜないことである。metadata DBの
+    commitはCore ResultStoreやfileのcommitを代替しない。公開には各境界のreceipt、marker、hashが必要である。</p>
+  <pre class="mermaid">flowchart TB
+  subgraph M["Product/Application metadata境界"]
+    M1["Run / Condition / State"]
+    M2["Job / Queue / Checkpoint ref"]
+    M3["Idempotency / Audit / SchemaMigration"]
+  end
+  subgraph C["Frozen Core境界"]
+    C1["Backtest Core"]
+    C2["Existing ResultStore"]
+    C3["COMMITTED marker + result hash"]
+  end
+  subgraph F["file境界"]
+    F1["CSV temp"]
+    F2["CSV final relative ref"]
+    F3["Evidence bundle"]
+  end
+  M -->|"typed reference only"| C
+  C -->|"marker / hash receipt"| M
+  M -->|"CsvJob specification"| F
+  F -->|"relative ref / file hash"| M
+  C -->|"source hash"| F
+  M -. "不一致は公開停止" .-> X["Fail-closed"]</pre>
+  <p>表の目的は、各境界で誰がcommitを所有し、どのreceiptを次の境界が検証するかを確認することである。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>境界</th><th>入口</th><th>commit／公開条件</th><th>次へ渡すもの</th><th>rollback／復旧</th></tr></thead>
+    <tbody>
+      <tr><td>metadata DB</td><td>API／Serviceのtyped write</td><td>FK／unique／check、expected revision、idempotency、AuditEventが同一transactionで成功</td><td>revision、receipt、relative reference、operation fingerprint</td><td>DB errorは全rollback。commit後の外部境界失敗はRECOVERY_REQUIREDへ記録する。</td></tr>
+      <tr><td>Core ResultStore</td><td>Workerのvalidated command</td><td>既存AtomicResultStoreがresult本文、manifest、marker、hashを原子的にCOMMITTED</td><td>store ref、commit marker、result hash、definition version</td><td>markerなし／hash不一致はResultReferenceを公開しない。Core本文をDBへ戻さない。</td></tr>
+      <tr><td>CSV file</td><td>COMMITTED ResultReferenceとallowlist projection</td><td>configured root内でtemp write → hash → fsync相当の設計確認 → rename → output hash</td><td>relative output ref、output hash、CSV state</td><td>tempは完成扱いにしない。rename／hash失敗はCSV_FAILED、再試行は新leaseで行う。</td></tr>
+      <tr><td>Evidence file</td><td>metadata／Result／CSVのreference</td><td>全相対refとhashをmanifestへ束ね、verification stateを記録</td><td>bundle ref、bundle hash、verification state</td><td>missing／tamper／SecretはEvidence不成立。成功viewを返さない。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>10. transaction、lock、retry、recovery</h2>
+  <h3>10.1 正常transaction sequence</h3>
+  <p>このsequenceの目的は、API受付、metadata commit、Worker lease、Core result publish、CSV／Evidence
+    publishを時系列で分離することである。</p>
+  <pre class="mermaid">sequenceDiagram
+  participant A as API
+  participant D as Metadata DB
+  participant Q as Queue/Lease
+  participant W as Worker
+  participant C as Core/ResultStore
+  participant F as CSV/Evidence file
+  A->>D: BEGIN: validate idempotency + expected revision
+  D-->>A: metadata receipt on COMMIT
+  A->>Q: enqueue only after metadata commit
+  Q-->>W: claim with lease_id + fencing_token
+  W->>C: validated command + manifest
+  C-->>W: COMMITTED ref + marker + result hash
+  W->>D: BEGIN: verify receipt + write ResultReference/transition/audit
+  D-->>W: COMMIT published metadata
+  W->>F: CSV temp write / hash / rename
+  F-->>W: relative ref + output hash
+  W->>D: BEGIN: verify file hash + write CsvJob/Evidence
+  D-->>W: COMMIT final reference</pre>
+  <p>表の目的は、sequenceの各commit順、参照の検証、失敗時の所有者を固定することである。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>順序</th><th>transaction／操作</th><th>commit条件</th><th>失敗時</th><th>Evidence／audit</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>API metadata受付</td><td>idempotency、FK／check、expected revision、Run／Job／Queueの整合</td><td>rollback、receiptなし。Core／fileを呼ばない。</td><td>commit時にpayload hash、correlation、revisionをAuditEventへappend。</td></tr>
+      <tr><td>2</td><td>Queue claim</td><td>WAITINGかつlease未保持、fencing tokenを増分しCAS成功</td><td>stale workerを拒否。Queue itemをRUNNINGと表示しない。</td><td>lease／fencing receiptをJob Evidenceへ予定接続。</td></tr>
+      <tr><td>3</td><td>Core ResultStore publish</td><td>既存CoreがCOMMITTED markerとresult hashを返す</td><td>metadata ResultReferenceを作らない。再起動後はRECONCILE。</td><td>marker／result／manifest hashをworker receiptへ。</td></tr>
+      <tr><td>4</td><td>ResultReference metadata publish</td><td>receipt全hash一致、Run／Jobのexpected revision一致</td><td>DB rollback。Core本文は残る可能性があるためRECOVERY_REQUIREDで参照を再検証する。</td><td>ResultReference、transition、AuditEvent、Evidence hashを同一metadata transactionで保存。</td></tr>
+      <tr><td>5</td><td>CSV／Evidence file publish</td><td>configured root内、temp hash、atomic rename、manifest hash生成</td><td>final refを作らない。CSV_FAILEDまたはEvidence verification failed。</td><td>output／bundle hash、relative refを次のmetadata transactionへ。</td></tr>
+      <tr><td>6</td><td>CSV／Evidence metadata publish</td><td>file receiptのhashとCsvJob／Evidence rowが一致</td><td>metadata rollback。fileは未参照孤立候補としてreconcile対象。</td><td>AuditEvent、EvidenceReference、after revisionをappend。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>10.2 失敗transaction flow</h3>
+  <p>このflowの目的は、partial write、crash、marker／hash不一致、migration不整合、
+    stale revision、duplicate requestを成功へ変換しないFail-closedの順序を固定することである。</p>
+  <pre class="mermaid">flowchart TD
+  S["write request"] --> V{"schema / boundary valid?"}
+  V -- "no" --> B["BLOCKED; no side effect"]
+  V -- "yes" --> I{"idempotency record exists?"}
+  I -- "same fingerprint" --> R["return original receipt"]
+  I -- "different fingerprint" --> C["409 conflict; no overwrite"]
+  I -- "none" --> T["BEGIN metadata transaction"]
+  T --> L{"expected revision / FK / check valid?"}
+  L -- "no" --> RB["ROLLBACK; stale or invalid"]
+  L -- "yes" --> M["write rows + transition + audit"]
+  M --> K{"commit succeeds?"}
+  K -- "no" --> RB
+  K -- "yes" --> X{"Core/file marker and hash valid?"}
+  X -- "no" --> REC["RECOVERY_REQUIRED / FAILED; no SUCCESS view"]
+  X -- "yes" --> P["publish reference in a new verified transaction"]
+  P --> Q{"partial crash or verification mismatch?"}
+  Q -- "yes" --> REC
+  Q -- "no" --> OK["COMMITTED / visible with Evidence hash"]</pre>
+  <p>表の目的は、失敗原因ごとの停止状態、rollback範囲、再開方法、Evidence条件を一つに結ぶことである。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>失敗</th><th>検出地点</th><th>DB rollback／状態</th><th>retry／recovery</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>partial metadata write</td><td>FK／unique／check、DB error、commit error</td><td>同一transaction全rollback。既存rowを推測で補完しない。</td><td>同じkeyのrecordを再照合し、commit receiptがなければ新規判定。最大3回の限定retry。</td><td>failure reason、request hash、correlationをappendできる範囲で安全に記録。成功hashは作らない。</td></tr>
+      <tr><td>process crash</td><td>transaction途中、Core後、file rename前後</td><td>未commit DB rowは消える。Core／file receiptの有無をreconcileし、未検証はRECOVERY_REQUIRED。</td><td>lease expiry後にfencingを更新し、新Jobまたは既存receipt検証を行う。古いworkerは更新不可。</td><td>crash boundary、marker、file hash、recovery decisionをEvidenceへ。</td></tr>
+      <tr><td>marker／hash mismatch</td><td>ResultReference／CSV／Evidence publish前</td><td>公開参照のtransactionをrollback。Run／Jobを成功表示しない。</td><td>入力・Core baseline・fileを再検証。自動修復、本文複製、無検証再publishは禁止。</td><td>期待hash／実hash／対象ref／reasonを記録し、verification failed。</td></tr>
+      <tr><td>migration inconsistency</td><td>起動時version／checksum検査</td><td>metadata DBをread／writeとも停止。migrationを暗黙実行しない。</td><td>決定者が承認した手順とbackup境界が揃うまで停止。</td><td>SchemaMigrationのversion／checksum／statusをEvidenceへ。</td></tr>
+      <tr><td>stale revision</td><td>CAS update、state transition、publish</td><td>transaction rollback、409／STATE_CONFLICT。相手の変更を上書きしない。</td><td>最新snapshot再取得後、利用者またはJobServiceが新commandを作る。</td><td>expected／actual revision、aggregate、correlationをaudit。</td></tr>
+      <tr><td>duplicate request</td><td>idempotency unique／fingerprint照合</td><td>same fingerprintは既存receipt、異fingerprintは409。target rowを増やさない。</td><td>same keyの無制限retryは行わず、receiptのverificationへ進む。</td><td>idempotency record、response hash、conflict reasonを監査。</td></tr>
+      <tr><td>lease／fencing mismatch</td><td>Worker claim、heartbeat、結果publish</td><td>古いworkerのDB更新を拒否。JobをRUNNINGのまま成功扱いにしない。</td><td>lease expiry、reconcile、new fencing token。force killはしない。</td><td>lease／token／worker id／reasonをJob Evidenceへ。</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>10.3 共通commit、lock、retry規則</h3>
+  <div class="wide">
+  <table>
+    <thead><tr><th>規則</th><th>設計契約</th></tr></thead>
+    <tbody>
+      <tr><td>metadata transaction</td><td>一つのaggregate更新に必要なrow、IdempotencyRecord、RunStateTransition、AuditEventを同一transactionに入れる。外部Core／file I/Oをtransaction中に実行しない。</td></tr>
+      <tr><td>commit順</td><td>入力検証 → idempotency照合 → parent row → child row → state／queue → audit → COMMIT。Core／fileのreceiptは別transactionで検証してからreferenceをcommitする。</td></tr>
+      <tr><td>optimistic lock</td><td>expected revisionとcurrent revisionを比較し、成功時だけresulting revisionを1増やす。DBのlast-write-winsは使わない。</td></tr>
+      <tr><td>lease／fencing</td><td>claim時にlease_idと単調増加fencing_tokenを発行し、更新・publishごとに照合する。期限切れworkerは書けない。</td></tr>
+      <tr><td>retry</td><td>一時的DB／file read failureは設計上最大3回、backoff候補10／30／90秒。決定的なvalidation／hash／duplicate／staleはretryせず停止する。</td></tr>
+      <tr><td>recovery</td><td>crash後は未commit、Core committed、file renamed、Evidence verifiedを個別に照合し、再利用可能なreceiptだけを採用する。不明な状態はRECOVERY_REQUIRED。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>11. logical schemaとSQLite候補physical schema</h2>
+  <p>この章の目的は、論理契約を候補SQLiteへ写像する際の型、index、constraint、migration境界を
+    分けて記録することである。P4-03のSQLite WAL／Migration ADRは条件付きであり、本章の候補を
+    実装確定・実DB作成・migration実行の許可へ変換しない。</p>
+  <h3>11.1 SQLite候補の写像</h3>
+  <div class="wide">
+  <table>
+    <thead><tr><th>logical type</th><th>SQLite候補</th><th>適用条件</th><th>不採用時の停止</th></tr></thead>
+    <tbody>
+      <tr><td>EntityId／SafeText／Hash／StorageRef／UtcText</td><td><code>TEXT NOT NULL</code>またはnullable</td><td>文字数、allowlist、hash形式、relative path検査をApplicationとcheck候補で二重化する。</td><td>型・allowlistを担保できないなら実装開始を停止。</td></tr>
+      <tr><td>Revision／sequence／attempt／fencing token／count</td><td><code>INTEGER NOT NULL DEFAULT 0</code></td><td>非負check、CAS predicate、attempt≤3候補。</td><td>負値、overflow、CAS非原子なら停止。</td></tr>
+      <tr><td>Bool</td><td><code>INTEGER NOT NULL DEFAULT 0 CHECK (value IN (0,1))</code>候補</td><td>cancel_requested等だけに使用。</td><td>任意truthy値を許す場合は停止。</td></tr>
+      <tr><td>enum／state</td><td><code>TEXT NOT NULL</code>＋allowlist check候補</td><td>Run／Job／Queue／verificationごとに許可遷移をApplicationとDBで一致させる。</td><td>未定義stateを保存可能なら停止。</td></tr>
+      <tr><td>PK／FK／unique</td><td><code>PRIMARY KEY</code>、<code>FOREIGN KEY</code>、<code>UNIQUE</code>候補</td><td>FK enforcement、transaction isolation、index計画が承認された場合。</td><td>FKを無効化したまま運用する設計は停止。</td></tr>
+      <tr><td>datetime</td><td>UTC ISO-8601 <code>TEXT</code>候補</td><td>timezoneを値に含め、比較順をcanonical化する。</td><td>local timezone混在を許す場合は停止。</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>11.2 candidate DDL（実行しない設計擬似コード）</h3>
+  <pre>-- P4-04B design candidate only. Do not execute in this Step.
+PRAGMA foreign_keys = ON;        -- candidate, scope/approval is Unknown
+PRAGMA journal_mode = WAL;       -- candidate for metadata DB only
+
+CREATE TABLE run (
+  run_id TEXT PRIMARY KEY,
+  run_kind TEXT NOT NULL,
+  status TEXT NOT NULL,
+  revision INTEGER NOT NULL DEFAULT 0 CHECK (revision &gt;= 0),
+  sweep_parent_id TEXT NULL,
+  condition_hash TEXT NOT NULL,
+  manifest_hash TEXT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  terminal_at TEXT NULL
+);
+
+CREATE TABLE run_state_transition (
+  transition_id TEXT PRIMARY KEY,
+  run_id TEXT NOT NULL REFERENCES run(run_id),
+  from_status TEXT NOT NULL,
+  to_status TEXT NOT NULL,
+  expected_revision INTEGER NOT NULL CHECK (expected_revision &gt;= 0),
+  resulting_revision INTEGER NOT NULL CHECK (resulting_revision = expected_revision + 1),
+  reason_id TEXT NOT NULL,
+  actor_kind TEXT NOT NULL,
+  correlation_id TEXT NOT NULL,
+  occurred_at TEXT NOT NULL,
+  UNIQUE (run_id, resulting_revision)
+);
+
+CREATE TABLE idempotency_record (
+  idempotency_id TEXT PRIMARY KEY,
+  scope TEXT NOT NULL,
+  idempotency_key TEXT NOT NULL,
+  operation_fingerprint TEXT NOT NULL,
+  target_kind TEXT NOT NULL,
+  target_id TEXT NOT NULL,
+  response_hash TEXT NULL,
+  status TEXT NOT NULL,
+  first_seen_at TEXT NOT NULL,
+  completed_at TEXT NULL,
+  UNIQUE (scope, idempotency_key)
+);
+
+-- Other tables use the column/key/check/index contract in chapter 8.
+-- Result body, CSV bytes, Evidence bytes, Secret, and external data are never columns.</pre>
+  <h3>11.3 migration、WAL、isolation、backupの扱い</h3>
+  <div class="wide">
+  <table>
+    <thead><tr><th>項目</th><th>P4-04Bの設計記録</th><th>確定条件／Unknown</th></tr></thead>
+    <tbody>
+      <tr><td>migration version</td><td><code>schema_migration.version</code>、checksum、direction、statusを保存し、起動時に期待versionと照合する。</td><td>具体的version番号は物理schema確定後。未一致はDB read／writeをFail-closed。</td></tr>
+      <tr><td>up/downまたはforward-only</td><td>候補はforward-onlyで履歴をappendし、production downを暗黙実行しない。復旧は承認済みbackup境界の外部手順候補。</td><td><code>UNK-P4-04B-003</code>。決定者、期限、Gate、未決時停止は16章。</td></tr>
+      <tr><td>transaction isolation</td><td>metadata writeは一つの短いtransaction、CAS predicate、FK／uniqueを使う。Core／file I/Oを同transactionに含めない。</td><td>SQLite version／busy timeout／同時writer数は<code>UNK-P4-04B-002</code>。確定前は実装・Run停止。</td></tr>
+      <tr><td>WAL</td><td>候補としてProduct/Application metadata DBだけへ適用する。Core ResultStore、CSV、Evidence fileへWALを拡張しない。</td><td>P4-03条件付きADRの再承認が必要。DB作成・PRAGMA実行はP4-H1後。</td></tr>
+      <tr><td>backup／restore</td><td>P4-04Bでは運用手順、backup先、暗号化、復元Runを作らない。復旧境界はP4外の運用設計候補。</td><td><code>UNK-P4-04B-002</code>。決定者、期限、後続Gateを記録し、仮値でPassにしない。</td></tr>
+      <tr><td>retention／archive</td><td>append-only履歴と参照整合性を壊す削除は設計しない。期限・archive trigger・file cleanupは未決。</td><td><code>UNK-P4-04B-001</code>。保持方針未承認なら削除／archive実装を停止。</td></tr>
+      <tr><td>ORM／migration dependency</td><td>使用しない。候補DDLとMigrationRegistryを設計境界として記録するだけ。</td><td>ORM／外部migration library導入はP4-04Bの許可外。必要なら計画変更とGateが必要。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>12. transaction擬似コードと処理順</h2>
+  <p>この章の目的は、実装者がmetadata write、result publish、CSV publishを一つのtransactionとして
+    誤実装しないように、入力検証、commit順、rollback、receipt検証の処理順を固定することである。
+    下記は設計擬似コードであり、P4-04Bでは実行していない。</p>
+  <pre>function create_or_replay_write(command):
+    validate_safe_boundary(command)
+    fingerprint = canonical_hash(command)
+    begin_metadata_transaction()
+    record = find_idempotency(scope=command.scope, key=command.key)
+    if record exists:
+        if record.fingerprint == fingerprint:
+            rollback_or_close_read_only()
+            return verify_and_replay_receipt(record)
+        rollback()
+        return CONFLICT_IDEMPOTENCY_FINGERPRINT
+
+    aggregate = lock_by_expected_revision(command.target_id, command.expected_revision)
+    if aggregate is missing or aggregate.revision != command.expected_revision:
+        rollback()
+        return STATE_CONFLICT
+    insert_idempotency(fingerprint)
+    write_domain_rows_in_fk_order(command)
+    append_state_transition_if_required(command)
+    append_audit_event(payload_hash, before_revision, after_revision)
+    commit_metadata_transaction()
+    return receipt_with_revision_and_evidence_reference()
+
+function publish_result_reference(receipt):
+    verify_configured_relative_ref(receipt.relative_ref)
+    verify_core_baseline_fixture_manifest(receipt)
+    verify_existing_resultstore_commit_marker(receipt.marker)
+    verify_sha256(receipt.result_ref, receipt.result_hash)
+    begin_metadata_transaction()
+    verify_run_and_job_expected_revision()
+    insert_result_reference_without_result_body()
+    append_transition_and_audit()
+    commit_metadata_transaction()
+    return published_view</pre>
+  <div class="wide">
+  <table>
+    <thead><tr><th>処理順</th><th>入力</th><th>成功条件</th><th>失敗時の動作</th></tr></thead>
+    <tbody>
+      <tr><td>1. safe boundary</td><td>typed command、ID、hash、relative ref</td><td>allowlist、length、Secret／external／path境界を通過</td><td>transaction前に拒否し、row／file／Core副作用を作らない。</td></tr>
+      <tr><td>2. idempotency</td><td>scope、key、fingerprint</td><td>未登録または同fingerprintの既存receipt</td><td>異fingerprintは409。同fingerprintは同一receiptの検証に限定。</td></tr>
+      <tr><td>3. expected revision</td><td>aggregate id、expected revision</td><td>current＝expected、FK／checkも有効</td><td>rollback、相手の更新を上書きしない。</td></tr>
+      <tr><td>4. domain rows</td><td>parent／child、queue、reference</td><td>FK順、unique、check、state transitionが成立</td><td>全rowをrollback。孤立rowを残さない。</td></tr>
+      <tr><td>5. audit／commit</td><td>before／after revision、payload hash、correlation</td><td>AuditEvent append後にmetadata commit</td><td>commit失敗は全rollback。成功receiptを返さない。</td></tr>
+      <tr><td>6. external receipt</td><td>Core marker、file hash、Evidence bundle hash</td><td>全hash一致、relative ref、verification state=VERIFIED</td><td>参照publishを停止し、RECOVERY_REQUIRED／FAILEDへ。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>13. 監査、Evidence、path、Secret、保持</h2>
+  <p>この章の目的は、DBが便利なログやfile catalogとしてSecret・入力本文・任意pathを受け入れない
+    ことを明確にすることである。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>観点</th><th>記録するもの</th><th>記録しないもの</th><th>Fail-closed条件</th></tr></thead>
+    <tbody>
+      <tr><td>監査</td><td>event kind、aggregate、actor kind、reason ID、correlation、before／after revision、payload hash、source／output hash</td><td>request本文、token、password、credential、raw strategy state</td><td>payload hashなし、revision不整合、Secret pattern検出ならcommitしない。</td></tr>
+      <tr><td>Evidence</td><td>相対manifest／result／CSV／transition／audit refs、各hash、bundle hash、verification state</td><td>absolute／UNC path、任意URL、外部送信先、raw input</td><td>missing／tamper／未検証をSUCCESSのEvidenceにしない。</td></tr>
+      <tr><td>path</td><td>configured rootから正規化した相対key</td><td>drive root、UNC、dot-dot脱出、symbolic／reparse point、任意user path</td><td>root外、reparse、予期しないschemeは書込み前に停止。</td></tr>
+      <tr><td>Secret</td><td>Secretの存在／拒否理由IDだけ（必要な場合）</td><td>Secret値、credential、環境変数値、認証ヘッダ</td><td>入力検査、DB row、audit、Evidenceのどこでも値を保存しない。</td></tr>
+      <tr><td>保持</td><td>現在はimmutable referenceと履歴を削除しない設計</td><td>勝手なpurge、履歴上書き、Evidenceだけの選択削除</td><td>retention／archiveが未承認の間はdelete／archiveを実装しない。</td></tr>
+      <tr><td>観測</td><td>安全なcount、state、latency、retry count、failure reason、hash ID</td><td>利益性の評価、実Risk、個人情報、秘密値</td><td>観測データが外部I/OやSecretを要求したらP4範囲を停止。</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="hold"><strong>保持期間のUnknown:</strong> P4-04Bでは期間を仮決定しない。
+    table／file／Evidenceの参照を壊さず、監査・法務・運用者が決定した後続GateでRetention Policyを
+    追加する。未決のまま削除処理やarchive jobを作成した場合は本Stepの完了条件を満たさない。</div>
+
+  <h2>14. DB詳細設計テスト仕様</h2>
+  <p>この表の目的は、schema／migration、key／constraint、transaction、状態、lease、checkpoint、
+    Sweep、ResultStore、CSV、Evidence、concurrency、crash、Secret／path境界、および全API-P4-IDを
+    固定local dummyで検証できるようにすることである。すべて設計テストであり、P4-04Bでは
+    DB作成、migration実行、pytest実行、実行Runを行っていない。各Evidenceは
+    <code>tests/evidence/phase4/&lt;RunId&gt;/</code>の承認済みtarget scopeへ、P4-H1後に保存する。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>Test ID</th><th>目的</th><th>固定条件・入力</th><th>操作</th><th>期待結果・停止条件</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td><code>TEST-P4-DB-001</code></td><td>logical table coverage</td><td>本書8章の15保存単位一覧</td><td>table／column／owner／FKをcoverage registerと照合する。</td><td>15単位が漏れなく一意のownerを持つ。孤立または重複所有ならBLOCKED。</td><td>DB coverage report hash</td></tr>
+      <tr><td><code>TEST-P4-DB-002</code></td><td>PK／FK契約</td><td>Run＋Condition＋Jobの固定dummy ID</td><td>親を先に、子を後に登録し、存在しないparentを登録する。</td><td>正しい順序だけ成功し、孤立FKはrollback／rejectされる。</td><td>schema constraint evidence</td></tr>
+      <tr><td><code>TEST-P4-DB-003</code></td><td>unique契約</td><td>同じidempotency key、candidate hash、run result ref</td><td>同一値を二度writeし、異fingerprintも同keyで送る。</td><td>same fingerprintは同receipt、異fingerprintは409、二重rowは0。</td><td>duplicate conflict audit hash</td></tr>
+      <tr><td><code>TEST-P4-DB-004</code></td><td>check／state allowlist</td><td>未知status、負revision、attempt=4、invalid bool</td><td>各不正値をmetadata writeへ投入する。</td><td>DB／Application境界で拒否し、既存row／revisionを変更しない。</td><td>rejection Evidence</td></tr>
+      <tr><td><code>TEST-P4-DB-005</code></td><td>migration version／checksum</td><td>expected version、正しいchecksum、差替えchecksum</td><td>起動時検査を設計テストする。</td><td>一致だけ利用可能。不一致はread／writeともFail-closed。</td><td>SchemaMigration verification</td></tr>
+      <tr><td><code>TEST-P4-DB-006</code></td><td>migration direction未決停止</td><td>forward-only候補、down未承認</td><td>未承認migrationを実行しようとする。</td><td>migrationは起動せず、UNK-P4-04B-003をPASSに変換しない。</td><td>Unknown stop record</td></tr>
+      <tr><td><code>TEST-P4-DB-007</code></td><td>Run作成transaction</td><td>Preflight PASS、固定condition hash、key=ui-run-0001</td><td>Run、Condition、Idempotency、Auditを一つのtransactionで作る。</td><td>DRAFT、revision=0、4種rowが整合し、Core／Queueは未起動。</td><td>transaction receipt＋audit hash</td></tr>
+      <tr><td><code>TEST-P4-DB-008</code></td><td>transaction rollback</td><td>Run作成途中にFK／uniqueエラーを注入</td><td>parent write後にchild／auditを失敗させる。</td><td>全metadata rowがrollbackし、孤立parent／idempotencyが残らない。</td><td>rollback evidence</td></tr>
+      <tr><td><code>TEST-P4-DB-009</code></td><td>idempotency replay</td><td>同scope／key／fingerprintを2回送る</td><td>create_runまたはstart_jobを再送する。</td><td>同じRun／Job／receiptを返し、row／state／auditを二重作成しない。</td><td>replay response hash</td></tr>
+      <tr><td><code>TEST-P4-DB-010</code></td><td>idempotency conflict</td><td>同key、fingerprintだけ異なるcommand</td><td>同じkeyで条件hashを変更して再送する。</td><td>409、既存row不変、後続Job／Queue／Core副作用0。</td><td>conflict audit／Evidence</td></tr>
+      <tr><td><code>TEST-P4-DB-011</code></td><td>expected revision CAS</td><td>Run revision=2、command expected=1</td><td>state transitionを競合させる。</td><td>STATE_CONFLICT、rollback、last-write-winsなし。</td><td>expected／actual revision record</td></tr>
+      <tr><td><code>TEST-P4-DB-012</code></td><td>state transition append</td><td>DRAFT→QUEUEDの固定遷移</td><td>Run、Job、Transitionをcommitする。</td><td>resulting revisionが1増え、履歴はappend-onlyで残る。</td><td>transition table hash</td></tr>
+      <tr><td><code>TEST-P4-DB-013</code></td><td>terminal state保護</td><td>SUCCEEDEDまたはFAILEDのRun／Job</td><td>直接RUNNING、直接再実行、履歴updateを試す。</td><td>全て拒否し、新Job＋明示resume条件以外の副作用を作らない。</td><td>terminal guard evidence</td></tr>
+      <tr><td><code>TEST-P4-DB-014</code></td><td>lease取得</td><td>WAITING QueueItem、worker-A、token=7</td><td>claimしてlease／fencingをCAS更新する。</td><td>一つのworkerだけCLAIMED。tokenは単調増加。</td><td>lease receipt</td></tr>
+      <tr><td><code>TEST-P4-DB-015</code></td><td>stale fencing拒否</td><td>current token=8、worker-A token=7</td><td>古いworkerがheartbeat／publishする。</td><td>更新を拒否し、成功結果やRUNNING確定を作らない。</td><td>stale fencing evidence</td></tr>
+      <tr><td><code>TEST-P4-DB-016</code></td><td>retry上限</td><td>同Job attempt=3、決定的hash failure</td><td>4回目のretry要求を送る。</td><td>新しい実行を作らずFAILED／RECOVERY_REQUIREDへ。自動無限retryなし。</td><td>retry cap audit</td></tr>
+      <tr><td><code>TEST-P4-DB-017</code></td><td>checkpoint整合</td><td>sequence=1、Manifest／marker hash一致</td><td>checkpointをappendし、別Manifestでresumeする。</td><td>一致だけ再開候補。不一致はBLOCKED、checkpointを上書きしない。</td><td>checkpoint hash bundle</td></tr>
+      <tr><td><code>TEST-P4-DB-018</code></td><td>Core／metadata crash回復</td><td>Core COMMITTED直後、ResultReference commit前にcrash</td><td>再起動後にmarker／hash／Run revisionをreconcileする。</td><td>未検証参照は公開せず、RECOVERY_REQUIREDまたは安全なreceipt再利用になる。</td><td>crash recovery evidence</td></tr>
+      <tr><td><code>TEST-P4-DB-019</code></td><td>Result marker mismatch</td><td>expected hash=A、実hash=B</td><td>ResultReference publishを試す。</td><td>metadata transaction rollback、result本文複製なし、SUCCESS表示なし。</td><td>marker mismatch record</td></tr>
+      <tr><td><code>TEST-P4-DB-020</code></td><td>Result本文非複製</td><td>固定ResultStore bodyとreference</td><td>summary／rowsをreadし、metadata columnsを点検する。</td><td>DBにbody／row cacheがなく、relative ref／marker／hashだけがある。</td><td>boundary inspection hash</td></tr>
+      <tr><td><code>TEST-P4-DB-021</code></td><td>Sweep partial failure</td><td>parent＋3 candidate、2番目にunique errorを注入</td><td>parent／member／childを一括作成する。</td><td>parent、全child、member、auditをrollbackし、孤立candidate=0。</td><td>sweep rollback Evidence</td></tr>
+      <tr><td><code>TEST-P4-DB-022</code></td><td>CSV Job受付</td><td>COMMITTED result、projection／filter／sort hash</td><td>CsvJob、Idempotency、Auditをcommitする。</td><td>QUEUED表示のみ。CSV bytesや完成refを先に作らない。</td><td>CSV job receipt</td></tr>
+      <tr><td><code>TEST-P4-DB-023</code></td><td>CSV atomic output</td><td>configured root内temp、expected output hash</td><td>temp write→hash→rename後にmetadata publishする。</td><td>全hash一致のfinalだけCOMPLETED。rename／hash不一致はFAILED。</td><td>file／output hash Evidence</td></tr>
+      <tr><td><code>TEST-P4-DB-024</code></td><td>Evidence欠落</td><td>result refはあるがmanifest fileが欠落</td><td>get_evidenceとsuccess viewを呼ぶ。</td><td>verification failed、SUCCESS／P4-H1合格根拠にしない。</td><td>Evidence failure record</td></tr>
+      <tr><td><code>TEST-P4-DB-025</code></td><td>audit secret-free</td><td>Secret pattern、credential、raw inputを含むdummy</td><td>API／DB／Evidence／auditへの混入を検査する。</td><td>値を保存せず拒否理由だけを安全に記録する。</td><td>secret boundary scan</td></tr>
+      <tr><td><code>TEST-P4-DB-026</code></td><td>path／reparse境界</td><td>relative path、absolute path、UNC、dot-dot、reparse候補</td><td>Result／CSV／Evidence refを検証する。</td><td>relative configured rootだけ通過し、それ以外はwrite前に停止。</td><td>path boundary Evidence</td></tr>
+      <tr><td><code>TEST-P4-DB-027</code></td><td>concurrent writer</td><td>同じRun revision=4へwriter-A／B</td><td>同時CAS更新を設計テストする。</td><td>一方だけcommit、他方はSTATE_CONFLICT／retry条件へ。二重transition=0。</td><td>concurrency result</td></tr>
+      <tr><td><code>TEST-P4-DB-028</code></td><td>holdout assessment</td><td>source Run、holdout plan hash、reuse候補</td><td>assessmentを作り、Run／strategyを変更しないことを検査する。</td><td>判定recordとGate／Evidence hashだけ保存し、自動winner／再実行を許可しない。</td><td>holdout assessment Evidence</td></tr>
+      <tr><td><code>TEST-P4-DB-029</code></td><td>API-001／002</td><td>capability、preflightの固定dummy</td><td>read-only処理を行い、DB／Core／file writeを監視する。</td><td>write table N/Aの理由が守られ、report／capability hashだけが返る。</td><td>API-P4-001/002 coverage</td></tr>
+      <tr><td><code>TEST-P4-DB-030</code></td><td>API-003／004</td><td>Run create、Sweep parent＋3 candidate</td><td>idempotency、FK、all-or-nothing transactionを検査する。</td><td>Run／Condition／parent／member／Auditが整合し、Core／Queueは未起動。</td><td>API-P4-003/004 coverage</td></tr>
+      <tr><td><code>TEST-P4-DB-031</code></td><td>API-005／006</td><td>Run snapshot、cursor、filter allowlist</td><td>get／listをread transactionで呼ぶ。</td><td>result／Evidence refのhashを含む安全なview。raw config／bodyなし。</td><td>API-P4-005/006 coverage</td></tr>
+      <tr><td><code>TEST-P4-DB-032</code></td><td>API-007／008／009</td><td>Job、Queue、Checkpointの固定状態</td><td>start、get、listのtransaction／read境界を検査する。</td><td>Job＋Queueは同時commit、queryはread-only、lease／checkpoint mismatchは停止。</td><td>API-P4-007/008/009 coverage</td></tr>
+      <tr><td><code>TEST-P4-DB-033</code></td><td>API-010／011／012</td><td>cancel、resume、queue state</td><td>cancel intent、checkpoint検証、新Job、queue readを検査する。</td><td>force killなし、new Jobのみresume、stale／hash mismatchはFail-closed。</td><td>API-P4-010/011/012 coverage</td></tr>
+      <tr><td><code>TEST-P4-DB-034</code></td><td>API-013／014／015</td><td>COMMITTED ResultStore、rows projection、比較Run</td><td>summary／rows／compareをread-onlyで呼ぶ。</td><td>DBへResult本文を書かず、source／condition／Evidence hashを固定する。</td><td>API-P4-013/014/015 coverage</td></tr>
+      <tr><td><code>TEST-P4-DB-035</code></td><td>API-016／017</td><td>CSV request、queued／completed／failed state</td><td>create／getとfile receiptを別境界で検査する。</td><td>source hash一致のfinalだけCOMPLETED。bytes／download routeはDB／APIに出さない。</td><td>API-P4-016/017 coverage</td></tr>
+      <tr><td><code>TEST-P4-DB-036</code></td><td>API-018／019</td><td>Evidence bundle、holdout source Run</td><td>evidence readとassessment writeを検査する。</td><td>hash検証不能は失敗。holdoutは判定を保存するだけで採用操作をしない。</td><td>API-P4-018/019 coverage</td></tr>
+      <tr><td><code>TEST-P4-DB-037</code></td><td>全API coverage completeness</td><td>P4-04A API inventory 19件、X01〜X05</td><td>API ID、read/write table、transaction、Evidence rowを機械照合する。</td><td>19/19が一意に存在し、Xは副作用なしのN/A理由を持つ。</td><td>API／DB coverage hash</td></tr>
+      <tr><td><code>TEST-P4-DB-038</code></td><td>Core／file transaction separation</td><td>Core、CSV、Evidence、metadataの境界図</td><td>各commit順と失敗時rollback ownerを照合する。</td><td>外部境界をDB transactionへ混ぜず、receipt／hashなしの公開を拒否する。</td><td>boundary sequence Evidence</td></tr>
+      <tr><td><code>TEST-P4-DB-039</code></td><td>Unknown fail-closed</td><td>retention、backup、SQLite version、migration方式を未決にする</td><td>未決項目を仮値で実装・Passできる入口がないことを確認する。</td><td>UNK ID、決定者、期限、Gate、停止条件が全て存在する。</td><td>Unknown ledger hash</td></tr>
+      <tr><td><code>TEST-P4-DB-040</code></td><td>design-only guard</td><td>P4-04B作業ツリー、DB／migration未作成</td><td>変更一覧と実行ログを照合する。</td><td>正式HTML、Markdown log、index、計画／台帳以外のDB／source変更が0。</td><td>git status／diff Evidence</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>15. Run Manifest、互換性、P4-04C／D受渡し</h2>
+  <p>この章の目的は、後続の実装・RED・Runがどのmetadata／Core／file契約を使うかを固定し、
+    P4-04Bで実行していないものを実行済みと誤認しないことである。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>Manifest field</th><th>必須性</th><th>用途</th><th>P4-04B状態</th></tr></thead>
+    <tbody>
+      <tr><td><code>run_id</code>／<code>job_id</code></td><td>Run時必須</td><td>metadata aggregateとEvidenceを結ぶ</td><td>型とFKを設計、実値なし</td></tr>
+      <tr><td><code>data_version</code>／<code>core_baseline_hash</code></td><td>Run時必須</td><td>固定local入力とFrozen Coreの互換性</td><td>P4-03契約を参照、実Runなし</td></tr>
+      <tr><td><code>fixture_hash</code></td><td>Run時必須</td><td>fixture差替え検出</td><td>P4-01／P4-03基準線を参照、実Runなし</td></tr>
+      <tr><td><code>condition_hash</code>／<code>manifest_hash</code></td><td>Run／Job必須</td><td>条件固定、Checkpoint／Result／Evidence照合</td><td>columnとtransactionを設計</td></tr>
+      <tr><td><code>schema_version</code>／<code>migration_version</code></td><td>metadata起動時必須</td><td>物理schemaとの互換性、未承認migration停止</td><td>候補とUnknown、実行なし</td></tr>
+      <tr><td><code>result_ref</code>／<code>commit_marker</code>／<code>result_hash</code></td><td>COMMITTED時必須</td><td>Core ResultStoreを正本として公開する</td><td>参照契約を設計、Core起動なし</td></tr>
+      <tr><td><code>evidence_bundle_hash</code>／<code>relative_refs</code></td><td>完了・失敗・復旧時必須</td><td>Evidenceの検証可能性</td><td>file契約を設計、file作成なし</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="wide">
+  <table>
+    <caption>後続Stepへの受渡し契約。各StepがDB設計のどの表を参照するかを固定する表。</caption>
+    <thead><tr><th>後続Step</th><th>受渡すもの</th><th>受入条件</th><th>未実行・停止条件</th></tr></thead>
+    <tbody>
+      <tr><td>P4-04C（全21画面UI詳細設計・未実行）</td><td>API-P4-001〜019のread／write／state／error、Run／Job／Queue／Result／CSV／Evidence view、DB／Core／file boundary</td><td>各画面のactionがAPI ID、保存状態、Evidence hash、Fail-closed viewへ接続される。</td><td>本書とAPI docの保存契約不一致、画面actionの直接DB／Core操作は開始条件を満たさない。</td></tr>
+      <tr><td>P4-04D（RED／Run Manifest・未実行）</td><td>TEST-P4-DB-001〜040、Manifest field、schema／migration／transaction／recovery条件</td><td>固定dummy、対象Run、Evidence、停止条件が承認済みscopeへ接続される。</td><td>実DB作成、migration、pytest、RunはP4-H1／P4-04Dの承認前に開始しない。</td></tr>
+      <tr><td>P4-05（レビュー・未実行）</td><td>DB coverage、ER、API binding、Unknown、Critical/High判定</td><td>A91/A90の再レビューでCritical/High=0、ERと本文が一致する。</td><td>table／FK／transaction／boundary／Unknownに未定義があればP4-H1へ進まない。</td></tr>
+      <tr><td>P4-H1（運用者承認待ち）</td><td>P4-03、P4-04A〜D、P4-05の正式HTML／ログ／Evidence、Core差分0、Run scope</td><td>DB／ER／Persistence／migration契約と停止条件を承認記録へ明記する。</td><td>本書だけで実装、依存、trusted scope、実行Runを許可しない。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>16. 追跡、判断、Unknown、成果物</h2>
+  <h3>16.1 REQ／UC／Test／Evidence追跡</h3>
+  <p>この表の目的は、DB詳細設計の判断を、P4-02の要求・ユースケース・テスト・Evidenceへ戻せるようにすることである。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>追跡ID</th><th>要求・利用場面</th><th>P4-04Bの設計箇所</th><th>Test／Evidence</th></tr></thead>
+    <tbody>
+      <tr><td><code>REQ-V2-0015</code>／<code>REQ-V2-0020</code></td><td>再現可能な固定入力、Run条件、実行履歴</td><td>run、run_condition、Manifest、condition hash</td><td>TEST-P4-DB-007／011／012、Run／Condition Evidence</td></tr>
+      <tr><td><code>REQ-V2-0021</code>／<code>REQ-V2-0036</code></td><td>状態、取消、停止、再開、checkpoint、復旧</td><td>run_state_transition、job、queue_item、checkpoint、lease</td><td>TEST-P4-DB-013〜018、Job／Recovery Evidence</td></tr>
+      <tr><td><code>REQ-V2-0044</code>〜<code>REQ-V2-0055</code></td><td>Result、metrics、rows、CSV、Evidenceの追跡</td><td>result_reference、csv_job、evidence_reference、audit_event</td><td>TEST-P4-DB-019〜026、Result／CSV／Evidence hash</td></tr>
+      <tr><td><code>REQ-V2-0084</code>／<code>REQ-V2-0090</code></td><td>Fail-closed、外部I/O／Secret／Broker境界</td><td>boundary、path／Secret、X API N/A、recovery</td><td>TEST-P4-DB-024〜026／039、boundary scan</td></tr>
+      <tr><td><code>UC-P4-001</code>〜<code>UC-P4-019</code></td><td>P4 canonical APIの受付、照会、Job、Result、CSV、Holdout</td><td>6章のAPI-P4-ID coverage</td><td>TEST-P4-DB-029〜037</td></tr>
+      <tr><td><code>SCREEN-02</code>／<code>SCREEN-09</code>〜<code>SCREEN-19</code></td><td>後続UIの状態、action、error、Evidence表示</td><td>15章P4-04C handoff、API／View／DB table binding</td><td>P4-04Cで画面×状態×API×DBを作成する。</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>16.2 DEC／UNK／ART台帳</h3>
+  <p>この表の目的は、設計判断、未確定事項、成果物の正本を一箇所で参照できるようにし、
+    Unknownを仮値でPassにしないことである。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>ID</th><th>種別</th><th>内容</th><th>決定者・期限</th><th>後続Phase／Gate</th><th>未決時停止条件</th></tr></thead>
+    <tbody>
+      <tr><td><code>P4-DB-DEC-001</code></td><td>DEC</td><td>metadata DBはcoordination stateとreferenceだけを所有し、Core ResultStoreのresult本文を複製しない。</td><td>本Step設計、P4-H1で運用者再承認</td><td>P4-04C／D／P4-05</td><td>所有境界が変わるならER／API／Testを全改訂し、勝手に実装しない。</td></tr>
+      <tr><td><code>P4-DB-DEC-002</code></td><td>DEC</td><td>metadata writeはidempotency、expected revision、AuditEventを含むtransactionとし、Core／file I/Oを混ぜない。</td><td>本Step設計、P4-H1で承認</td><td>P4-04D／P4-05</td><td>commit順、rollback、crash recoveryが定義できない場合は停止。</td></tr>
+      <tr><td><code>P4-DB-DEC-003</code></td><td>DEC候補</td><td>SQLite WAL、candidate DDL、forward-only migrationを候補として記録するが、P4-03条件付きADRを実装確定へ変換しない。</td><td>Migration／Ops owner、P4-H1前後のGateで決定</td><td>P4-04D／P4-05／後続実装</td><td>未承認のPRAGMA、DDL、migration、dependency導入を停止。</td></tr>
+      <tr><td><code>P4-04B-UNK-001</code></td><td>UNK</td><td>metadata table、Evidence、CSV、Checkpointの保持期間とarchive／delete trigger。</td><td>Ops／運用者、P4-05まで</td><td>P4-05／P4-H1</td><td>期限未決のままdelete／archive jobを実装しない。</td></tr>
+      <tr><td><code>P4-04B-UNK-002</code></td><td>UNK</td><td>SQLite version、同時writer数、busy timeout、backup／restoreの運用境界。</td><td>Architecture／Ops owner、P4-05まで</td><td>P4-04D／P4-H1</td><td>concurrency／restoreのEvidence条件が決まるまでDB作成・Runを停止。</td></tr>
+      <tr><td><code>P4-04B-UNK-003</code></td><td>UNK</td><td>migration direction、up/downまたはforward-onlyの正式方針と失敗時の復旧。</td><td>Architecture／Ops owner、P4-H1前</td><td>P4-04D／P4-05／P4-H1</td><td>未承認migration、down実行、checksum差替えを停止。</td></tr>
+      <tr><td><code>P4-04B-UNK-004</code></td><td>UNK</td><td>physical schemaのSQLite機能差、FK／WAL／isolationの確定。</td><td>Architecture owner、P4-05まで</td><td>P4-04D／後続実装</td><td>candidateを固定実装へ変換せず、物理DDL／依存導入を停止。</td></tr>
+      <tr><td><code>P4-04B-UNK-005</code></td><td>UNK</td><td>configured storage root、file permission、reparse禁止を実機で確認する運用設定。</td><td>Ops／Security owner、P4-H1前</td><td>P4-04D／P4-H1</td><td>root、権限、path boundaryが証明できない場合はfile／DB publishを停止。</td></tr>
+      <tr><td><code>P4-ART-03-IMPL-001</code></td><td>ART</td><td>P4-03 Product/Application・Backtest実装詳細設計書。</td><td>既存正式成果物</td><td>P4-04B入力</td><td>hash／契約差異があれば本書を改訂する。</td></tr>
+      <tr><td><code>P4-ART-04-API-001</code></td><td>ART</td><td>P4-04A Product/Application API詳細設計書、全19 API-P4-ID。</td><td>既存正式成果物</td><td>P4-04C／D入力</td><td>API inventory差異があれば6章とテストを改訂する。</td></tr>
+      <tr><td><code>P4-ART-04-DB-001</code></td><td>ART</td><td>本書。DB／Persistence、ER、transaction、migration候補、test coverage。</td><td>P4-04B正式成果物</td><td>P4-04C／D／P4-05</td><td>Critical／High、ER不一致、保存先不明があれば完了にしない。</td></tr>
+      <tr><td><code>P4-LOG-04B-001</code></td><td>ART</td><td>P4-04B実行ログ、入力hash、review、静的検証、変更範囲。</td><td>本Stepログ</td><td>統合台帳／P4-H1</td><td>ログとHTML／indexの状態が不一致なら停止。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>17. Findings first、レビュー、採否、改訂履歴</h2>
+  <h3>17.1 Findings first</h3>
+  <p>この表の目的は、先に危険な不整合を明示し、解消できないものを完了扱いにしないことである。
+    A91は実装詳細（column／key／transaction／migration／lock／retry／recovery／test／Evidence）を、
+    A90はREQ／UC／API／Core／file／外部I/O／Unknownを監査する観点として適用した。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>Finding ID</th><th>Severity</th><th>観点</th><th>対応</th><th>状態</th></tr></thead>
+    <tbody>
+      <tr><td><code>P4-04B-R-001</code></td><td>High（初回点検）</td><td>Result本文、metadata、CSV、Evidenceの所有が混ざると、APIが未commit結果を成功表示する危険がある。</td><td>1章、5章、6章、9章、10章でsource of truth、reference、marker／hash、別transaction、Fail-closedを明記し、ERのResultReferenceを参照専用にした。</td><td class="ok">解消・再点検済み</td></tr>
+      <tr><td><code>P4-04B-R-002</code></td><td>High（初回点検）</td><td>API-P4-IDにread/write tableだけを付けると、commit順、lease、revision、Evidenceが漏れる。</td><td>6章の全19行へtransaction、idempotency、revision、lease／lock、retry／recovery、audit／Evidenceを追加し、14章のAPI testへ一対一接続した。</td><td class="ok">解消・再点検済み</td></tr>
+      <tr><td><code>P4-04B-R-003</code></td><td>High（初回点検）</td><td>SQLite候補をP4-03条件付きADRの実装確定と誤読する危険がある。</td><td>11章と16章でlogical／physicalを分離し、WAL、migration、version、backup、retention、concurrencyを候補またはUNKとして停止条件付きで記録した。</td><td class="ok">解消・再点検済み</td></tr>
+      <tr><td><code>P4-04B-R-004</code></td><td>Medium</td><td>ER図だけではrelationshipのowner、FK、破損時停止が判断できない。</td><td>7章の直後にentity handoff tableを置き、全relationshipのFK、owner、作成／更新者、不変条件、停止条件を列挙した。</td><td class="ok">解消・再点検済み</td></tr>
+      <tr><td><code>P4-04B-R-005</code></td><td>Medium</td><td>保持・backup・SQLite version・migration方向を仮値でPassにする危険がある。</td><td>11章、13章、16章のUNK-P4-04B-001〜005へ決定者、期限、後続Gate、未決時停止を記録した。</td><td class="ok">Unknownとして保持</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="finding"><strong>レビュー判定:</strong> A91観点のCritical=0、High未解決=0。A90観点のREQ／UC／API-P4-ID／Core ResultStore／file境界／外部I/O／Unknownに未定義のCritical／High=0。
+    Mediumの保持・physical候補はUnknown／後続Gateとして明示し、仮Passにはしていない。</p>
+  <h3>17.2 採否表</h3>
+  <p>表の目的は、P4-04B prompt、P4-03／P4-04A契約、設計標準の要求を採用・保留・不採用へ明示することである。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>要求・候補</th><th>判定</th><th>理由・反映先</th></tr></thead>
+    <tbody>
+      <tr><td>metadata DBとCore ResultStore／Evidence／CSVの分離</td><td class="ok">採用</td><td>1、5、9、10章。Result本文のDB複製を禁止。</td></tr>
+      <tr><td>15保存単位のtable／column／key／index／保持境界</td><td class="ok">採用</td><td>7、8、13章。Unknownを除き全項目を明示。</td></tr>
+      <tr><td>全19 API-P4-IDの保存／read-only／N/A、transaction、Evidence接続</td><td class="ok">採用</td><td>6、14章。X01〜X05は副作用なしで不採用。</td></tr>
+      <tr><td>SQLite WAL／Migrationの候補</td><td>条件付き採用</td><td>11、16章。P4-03 ADRと後続Gateの再承認が必要。</td></tr>
+      <tr><td>ORM／external DB／Cloud／migration dependency</td><td>不採用</td><td>P4-04Bの許可外。設計・依存・I/Oを増やすため。</td></tr>
+      <tr><td>実DB作成、migration、repository、fixture、pytest、Run</td><td>不採用</td><td>発火制御に反する。本Stepは正式HTML／ログ／index／計画／台帳だけを更新。</td></tr>
+      <tr><td>retention、backup／restore、SQLite versionの仮決定</td><td>保留</td><td>UNK-P4-04B-001〜004として後続Gateへ送る。仮値でPassにしない。</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>17.3 改訂履歴</h3>
+  <div class="wide">
+  <table>
+    <thead><tr><th>版</th><th>日付</th><th>変更</th><th>根拠</th></tr></thead>
+    <tbody>
+      <tr><td>v0.1</td><td>2026-08-11</td><td>P4-04BのDB／Persistence詳細設計、ER、API保存coverage、transaction／recovery、SQLite候補、test／traceability／Unknown／reviewを新規作成した。実DB・migration・source・Runは作成・実行していない。</td><td>P4-04B direct execution prompt、P4-03、P4-04A、AF-D14／D16／D17</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>18. 関連成果物と相互リンク</h2>
+  <p>本Step時点で作成済みの正式成果物にはリンクを付け、P4-04C／P4-04Dは未作成であることを
+    明示する。存在しないファイルを完了リンクとして扱わない。</p>
+  <div class="wide">
+  <table>
+    <thead><tr><th>成果物</th><th>状態</th><th>役割</th></tr></thead>
+    <tbody>
+      <tr><td><a href="./03_ProductApplication_Backtest実装詳細設計書.html">P4-03 Product/Application・Backtest実装詳細設計書</a></td><td>完了・入力</td><td>Run／Job／Queue／Core／ResultStore／CSV／Evidenceの上位契約。</td></tr>
+      <tr><td><a href="./04_ProductApplication_API詳細設計書.html">P4-04A Product/Application API詳細設計書</a></td><td>完了・入力</td><td>全19 API-P4-ID、DTO、failure、UI coverageの正本。</td></tr>
+      <tr><td><a href="../01_要件追跡/02_Phase4要件・UC・UI・Test追跡マトリクス.html">P4-02要件・UC・UI・Test追跡</a></td><td>完了・入力</td><td>REQ／UC／Screen／State／Test／Evidenceの追跡。</td></tr>
+      <tr><td><a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></td><td>更新対象</td><td>P4-04B完了、P4-04C以降、P4-H1、Unknownの現在状態。</td></tr>
+      <tr><td><a href="../../../plan/Phase4_実行計画書_v0.1_2026-08-11.md">P4-PLAN-001 改訂2</a></td><td>更新対象</td><td>Step順、直接実行prompt、P4-04B完了、次Step停止。</td></tr>
+      <tr><td><a href="../../../plan/phase4/ログ/P4-04B_DB・ER詳細設計_2026-08-11.md">P4-04B実行ログ</a></td><td>作成対象</td><td>入力hash、変更範囲、review、静的検証、未実行境界。</td></tr>
+      <tr><td>P4-04C全21画面UI詳細設計</td><td class="pending">未作成・次Step</td><td>本書6章、15章のDB／API／state／Evidence contractを入力とする。</td></tr>
+      <tr><td>P4-04D RED／Run Manifest設計</td><td class="pending">未作成・後続Step</td><td>本書14章のTEST-P4-DB-IDと15章Manifestを入力とする。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>19. P4-04B完了条件と停止条件</h2>
+  <p><strong>完了判定:</strong> P4-04Aの全19 API-P4-IDにread/write tableまたはread-only／N/A理由があり、
+    ER図と8章のtable定義が一致し、孤立table・未定義FK・重複所有がない。全metadata writeと
+    Core／file publishについてtransaction、rollback、idempotency、expected revision、lease／fencing、
+    audit、Evidence hash、retry／recoveryが定義され、TEST-P4-DB-001〜040とREQ／UC／API／Evidenceへ
+    接続されている。A91／A90観点のCritical/High未解決は0である。</p>
+  <p><strong>停止判定:</strong> table／column／key／index／transaction／migration／Core／file境界が
+    未定義、ER図と本文が不一致、APIの保存先が不明、Secret／実Risk／外部I/Oが混入、実DB作成・
+    migration・依存導入が必要、Unknownを仮決定、Critical/High未解決のいずれかが発生した場合は、
+    P4-04Bを完了扱いにせずP4-05またはP4-H1へ進めない。</p>
+  <div class="ok"><strong>現在のStep状態:</strong> P4-04Bの正式HTML設計とDB／ER coverageを完了。
+    設計ログ・doc/index・計画書・統合台帳を同期後、P4-04C以降は実行せず停止する。</div>
+  <p class="small">最終更新: 2026-08-11 / Artifact: P4-ART-04-DB-001 / Design-only、実DB・migration・pytest・Runなし。</p>
+</main>
+</body>
+</html>

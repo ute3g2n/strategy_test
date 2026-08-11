@@ -7,7 +7,7 @@
 | 計画ID | `P4-PLAN-001` |
 | Phase ID | `PHASE4_PRODUCT_APPLICATION_BACKTEST_2026_08_11` |
 | 作成日 | 2026-08-11 |
-| 状態 | `STOPPED_AFTER_P4-04A_BY_USER` |
+| 状態 | `COMPLETED_P4-04B_P4-04C_PENDING` |
 | 目的 | 固定・再現可能な入力だけを使い、既存Python Coreを原則無改変で Product/Application 境界へ接続し、単一Backtest／Sweep／結果／Evidence を利用者が追跡できる形へ製品化する。 |
 | この改訂で実行しないこと | 本改訂は計画の補正だけであり、実装、依存導入、実行Run、外部I/O、Broker／Secret／Paper／Live／実資金／Cloudは発火しない。P4-H0で許可済みの設計・REDは、改訂後の直接実行プロンプトでだけ扱う。 |
 | 起点 | `RQV2-H3` 承認済みの正式要件v2基準線。これはPhase 4実装の承認ではない。 |
@@ -116,7 +116,7 @@ P4-01は開始時にCore source／tests／fixturesのManifestを再照合し、P
 | P4-02 | `doc/phase4/01_要件追跡/02_Phase4要件・UC・UI・Test追跡マトリクス.html` | `plan/phase4/ログ/P4-02_追跡範囲確定_YYYY-MM-DD.md` | 対象外。 |
 | P4-03 | `doc/phase4/02_実装詳細設計/03_ProductApplication_Backtest実装詳細設計書.html` | `plan/phase4/ログ/P4-03_詳細設計_YYYY-MM-DD.md` | 対象外。 |
 | P4-04A | `doc/phase4/02_実装詳細設計/04_ProductApplication_API詳細設計書.html` | `plan/phase4/ログ/P4-04A_API詳細設計_YYYY-MM-DD.md` | 対象Runなし。API契約、失敗、冪等性、UI結線、テストIDを設計する。 |
-| P4-04B | `doc/phase4/02_実装詳細設計/05_ProductApplication_DB_Persistence詳細設計書.html` | `plan/phase4/ログ/P4-04B_DB・ER詳細設計_YYYY-MM-DD.md` | 対象Runなし。metadata DB、Persistence、ER図、migration、transaction、保存境界を設計する。 |
+| P4-04B | `doc/phase4/02_実装詳細設計/05_ProductApplication_DB_Persistence詳細設計書.html` | `plan/phase4/ログ/P4-04B_DB・ER詳細設計_YYYY-MM-DD.md` | 完了（対象Runなし）。metadata DB、Persistence、ER図、migration、transaction、保存境界を設計した。 |
 | P4-04C | `doc/phase4/02_実装詳細設計/06_ProductApplication_UI全21画面詳細設計書.html` | `plan/phase4/ログ/P4-04C_UI全21画面詳細設計_YYYY-MM-DD.md` | 対象Runなし。21画面と10 UI状態の扱い、P4対象・境界・後続Gateを設計する。 |
 | P4-04D | `doc/phase4/03_品質設計/04_Phase4テスト戦略・RunManifest設計.html` | `plan/phase4/ログ/P4-04D_RED・品質設計_YYYY-MM-DD.md` | `tests/evidence/phase4/<設計済みRunId>/` の構造だけを設計し、最小REDだけを追加する。 |
 | P4-05 | `doc/phase4/04_レビュー/05_Phase4詳細設計レビュー・改訂記録.html` | `plan/phase4/ログ/P4-05_設計レビュー_YYYY-MM-DD.md` | Review findings／採否表。 |
@@ -156,7 +156,7 @@ Orchestratorは `gpt-5.6-terra` を使う。各AgentはそのJSON実体に固定
 | P4-02 | REQ→UC→Screen／State→Test→Evidence→Gate のP4対象追跡を確定する | P4-01 | P4-H0 | P4-03と並行可。ただしP4-04A前に完了。 |
 | P4-03 | 型付きRunモデル、API／UI、Worker、Persistence、停止／復旧の詳細設計を作る | P4-01 | P4-H0 | P4-02と並行可。 |
 | P4-04A | 全P4 canonical APIの詳細設計を作る | P4-02, P4-03 | P4-H0 | P4-04の親Step内。完了済み。 |
-| P4-04B | DB・Persistence詳細設計、ER図、migration、transaction、保存境界を作る | P4-02, P4-03, P4-04A | P4-H0 | P4-04の親Step内。P4-04A後に逐次実行する。 |
+| P4-04B | DB・Persistence詳細設計、ER図、migration、transaction、保存境界を作る | P4-02, P4-03, P4-04A | P4-H0 | P4-04の親Step内。完了済み。P4-04Cへ引き渡す。 |
 | P4-04C | 既存21画面の全画面UI詳細設計を作る | P4-02, P4-03, P4-04A, P4-04B | P4-H0 | P4-04の親Step内。APIとDB保存契約を確定後に逐次実行する。 |
 | P4-04D | API／DB／UIに接続するRED契約、Run Manifest、trusted scope、証跡構造を設計する | P4-04A, P4-04B, P4-04C | P4-H0 | P4-04の親Step内。全設計IDをテストへ接続して逐次実行する。 |
 | P4-05 | API／DB／UI詳細設計の専門レビュー、改訂、再レビュー、P4-H1提出候補を作る | P4-02, P4-03, P4-04A〜D | P4-H0 | 逐次 |
@@ -209,7 +209,7 @@ P4-09でP4-H2候補と呼べるのは、次のすべてを満たすときだけ�
 | `P4-PLAN-F-006` | High | APIや画面を責務図だけで実装へ渡すと、型、状態、失敗、操作、アクセシビリティ、証跡が実装者ごとに異なる。 | P4-04Aで全APIを、P4-04BでDB／ER／保存契約を、P4-04Cで全21画面を個別設計し、P4-04DでAPI／DB／UIをREDとEvidenceへ結ぶ。P4-05はcoverage不足をCritical／Highとして扱う。 |
 | `P4-PLAN-F-007` | High | 「全画面」をP4対象Subsetだけと誤読すると、対象外画面が無根拠に実装されたり、未設計のまま残る。 | 全21画面をcoverage registerへ入れる。P4対象画面は実装仕様、P4対象外画面は固定`UNAPPROVED`／`OUT_OF_SCOPE`境界、理由、後続Phase、Gateを個別に定義する。 |
 
-判定: `STOPPED_AFTER_P4-04A_BY_USER`。P4-04Aの全P4 canonical API詳細設計は完了し、運用者の指示によりP4-04B以降は開始しない。改訂2に関するCritical／Highは、P4-04A（API）、P4-04B（DB／ER）、P4-04C（UI）、P4-04D（RED）とP4-05の明示的な受入条件で閉鎖する計画である。P4-H0は承認済みだが、P4-H1前の実装、依存導入、実行Run、外部I/Oは引き続き禁止する。
+判定: `COMPLETED_P4-04B_P4-04C_PENDING`。P4-04Aの全P4 canonical API詳細設計とP4-04BのDB／ER／Persistence詳細設計は完了し、P4-04C（全21画面UI）、P4-04D（RED／Run Manifest）、P4-05以降は未実行である。改訂2に関するCritical／Highは、P4-04A（API）、P4-04B（DB／ER）、P4-04C（UI）、P4-04D（RED）とP4-05の明示的な受入条件で閉鎖する計画である。P4-H0は承認済みだが、P4-H1前の実装、依存導入、実行Run、外部I/Oは引き続き禁止する。
 
 ## 14. Step別の直接実行プロンプト
 
@@ -471,4 +471,4 @@ Skills: autotrade_skill_traceability_v0_1, autotrade_skill_design_doc_set_writer
 
 ## 15. 現在の次アクション
 
-現在の状態は `STOPPED_AFTER_P4-04A_BY_USER` である。P4-01〜P4-04Aは完了しており、改訂2のP4-04B（DB／ER）、P4-04C（全21画面UI）、P4-04D（RED／Run Manifest）、P4-05以降は未実行である。運用者の停止指示により、次のStepはP4-04Bとして計画済みだが、再開指示があるまで発火しない。P4-H1前の実装、依存導入、実行Run、外部I/Oも引き続き禁止する。
+現在の状態は `COMPLETED_P4-04B_P4-04C_PENDING` である。P4-01〜P4-04Bは完了しており、P4-04Bの正式HTML／実行ログ／doc index／計画・台帳同期を確認した。改訂2のP4-04C（全21画面UI）、P4-04D（RED／Run Manifest）、P4-05以降は未実行である。P4-04Cの直接実行プロンプトを次のStepとして引き渡すが、本Stepでは発火しない。P4-H1前の実装、依存導入、実行Run、外部I/Oも引き続き禁止する。

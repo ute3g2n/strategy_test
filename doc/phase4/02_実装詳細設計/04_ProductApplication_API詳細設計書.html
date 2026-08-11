@@ -694,7 +694,7 @@
   <div class="finding"><strong><span class="ok">P4-04A-R-001　API inventoryの欠落 0</span></strong> P4のRun、Sweep、Job、Queue、Result、Chart／Trade／Signal projection、比較、CSV、Evidence、Holdout guardを19 APIへ分解し、各APIにAPI-P4-IDを付与した。</div>
   <div class="finding"><strong><span class="ok">P4-04A-R-002　HTTPの実装誤認 0</span></strong> HTTPは無効なlocal投影に限定し、in-process contractを正本とした。server、route、socket、認証、外部通信を設計許可へ含めていない。</div>
   <div class="finding"><strong><span class="ok">P4-04A-R-003　失敗・副作用境界の欠落 0</span></strong> 全write APIへschema、preflight、idempotency、expected revision、metadata transaction、Core／file非副作用の順序を定義した。</div>
-  <div class="finding"><strong><span class="ok">P4-04A-R-004　UI／APIの追跡孤立 0</span></strong> API→Screen／UISTATE、P4-TR、Test、Evidenceをinventoryとbinding表に記録し、P4-04Cの21画面設計入力を確定した。DB／ER／Persistenceの保存契約はP4-04Bで後続確定する。</div>
+  <div class="finding"><strong><span class="ok">P4-04A-R-004　UI／APIの追跡孤立 0</span></strong> API→Screen／UISTATE、P4-TR、Test、Evidenceをinventoryとbinding表に記録し、P4-04Cの21画面設計入力を確定した。DB／ER／Persistenceの保存契約はP4-04B（<a href="./05_ProductApplication_DB_Persistence詳細設計書.html">P4-ART-04-DB-001</a>）で確定し、P4-04Cへ引き渡す。</div>
   <div class="finding"><strong><span class="ok">P4-04A-R-005　P4外endpointの曖昧さ 0</span></strong> Paper／Live、Broker／Data、Risk／OMS、Secret、file transferをAPI-P4-X01〜X05としてUNSUPPORTEDに固定した。</div>
   <div class="finding"><strong><span class="ok">P4-04A-R-006　Critical／High未解決 0</span></strong> A91はfield、型、失敗、保存、状態、並行性、テスト、Evidenceを、A90はREQ／UC／Screen／StateとP4外境界を確認した。未解決Unknownは台帳のまま残し、Passにしない。</div>
   <p>改訂履歴: v0.1で初版作成。P4-03のApplication設計を変更せず、API正本・DTO・全19 API・P4外拒否・テストを追加した。
@@ -706,7 +706,7 @@
     <caption>本書から次Stepへ渡す確定物と、まだ許可しない作業を明確にする表。</caption>
     <thead><tr><th>宛先</th><th>渡すもの</th><th>受入条件</th><th>禁止事項</th></tr></thead>
     <tbody>
-      <tr><td>P4-04B</td><td>API-P4-001〜019、X01〜X05、全APIのread/write対象、DB／file／Evidence境界</td><td>全APIに保存先またはread-only／N/A理由、ER図、PK／FK／unique／index、transaction／migration／rollback／idempotency契約を明記</td><td>DB作成、migration実行、repository実装、依存導入</td></tr>
+      <tr><td>P4-04B</td><td>完了。<a href="./05_ProductApplication_DB_Persistence詳細設計書.html">P4-ART-04-DB-001</a>、API-P4-001〜019、X01〜X05、全APIのread/write対象、DB／file／Evidence境界</td><td>全APIに保存先またはread-only／N/A理由、ER図、PK／FK／unique／index、transaction／migration／rollback／idempotency契約を明記し、Critical／High未解決0</td><td>DB作成、migration実行、repository実装、依存導入、P4-04C以降の先行実行</td></tr>
       <tr><td>P4-04C</td><td>API-P4-001〜019、X01〜X05、DTO、binding、FailureView、固定ダミー例、P4-04B保存契約</td><td>全21 Screenで操作→API→View／Failure／Evidenceを明記し、10 UISTATEセルとDB read/writeを扱う</td><td>UIソース変更、API実装、依存導入、実ブラウザ起動</td></tr>
       <tr><td>P4-04D</td><td>TEST-P4-API-001〜038、P4-04B DB Test、idempotency／state／Evidence契約</td><td>RED、Run Manifest、target scope、Core差分0の検査仕様を追加</td><td>テスト実行、fixture変更、WSL Gate</td></tr>
       <tr><td>P4-05</td><td>本書、P4-04B/C/D、P4-03</td><td>全API、DB／ER／Persistence、全Screen、screen×state、REQ／UC／Test／Evidenceの矛盾がなくCritical／High=0</td><td>実装・依存・Runの開始</td></tr>
