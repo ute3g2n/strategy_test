@@ -161,7 +161,7 @@
   </section>
   <section class="note" id="phase4-plan-current-20260811">
     <h2>Phase 4 Product/Application・Backtest 実行計画（2026-08-12現在）</h2>
-    <p><strong><code>P4-PLAN-001 v0.1（改訂2）</code>について、運用者の「P4-H0を承認します。」を2026-08-11に受領し、P4-04以降の計画修正指示を反映した。P4-01〜P4-06を完了し、運用者の「P4-H1を承認します。P4-06以降のプロンプトを順番に実行して下さい。」を2026-08-12に受領したため、現在状態は<code>COMPLETED_P4-06_P4-07_IN_PROGRESS</code>である。</strong> P4-04Aでは全19件のP4 canonical API、P4-04Bではmetadata DB／Persistence詳細設計・ER図、P4-04Cでは全21画面UI、P4-04DではRED／Run Manifest、P4-05ではレビュー・改訂・P4-H1提出候補、P4-06ではtyped Application／Persistence／Run／Job／Queue、RED→GREEN、target qualityを確定した。P4-07〜09は、承認済みの<code>RUN-P4-04D-001</code>、target-only scope、固定fixture hash、Core凍結範囲に限定して順番に実行する。P4-10はP4-H2承認後まで実行しない。</p>
+    <p><strong><code>P4-PLAN-001 v0.1（改訂2）</code>について、運用者の「P4-H0を承認します。」を2026-08-11に受領し、P4-04以降の計画修正指示を反映した。P4-01〜P4-07を完了し、運用者の「P4-H1を承認します。P4-06以降のプロンプトを順番に実行して下さい。」を2026-08-12に受領したため、現在状態は<code>COMPLETED_P4-07_P4-08_PENDING</code>である。</strong> P4-04Aでは全19件のP4 canonical API、P4-04Bではmetadata DB／Persistence詳細設計・ER図、P4-04Cでは全21画面UI、P4-04DではRED／Run Manifest、P4-05ではレビュー・改訂・P4-H1提出候補、P4-06ではtyped Application／Persistence／Run／Job／Queue、P4-07ではtyped Core adapter、単一Backtest／Sweep／Result／Evidence／CSV／checkpoint／Holdout、全19 API接続、RED→GREEN、target qualityを確定した。P4-07〜09は、承認済みの<code>RUN-P4-04D-001</code>、target-only scope、固定fixture hash、Core凍結範囲に限定して順番に実行する。P4-08へ進み、P4-10はP4-H2承認後まで実行しない。</p>
     <p>既存Coreの36 source filesは凍結し、Core Manifest SHA-256 <code>f8a25911a2dd4007e9d430f308965c36e9474abb37132d2813c3078d99ac1eeb</code>をP4開始・終了に再照合する。固定fixture以外の外部Data、Broker、Secret、Paper、Live、実資金、Cloud、実Risk値・Account・OMSはP4の非対象である。<code>UNK-P3-01</code>、<code>UNK-P3-05</code>、<code>UNK-P3-07</code>、Q-243、<code>RQV2-BLK-001</code>をPASSへ変換しない。P4-H1承認のRun ID、target_paths、fixture hash、Evidence先は<a href="../tests/evidence/phase4/RUN-P4-04D-001/human-gate-p4-h1.md">承認記録</a>に固定する。</p>
     <table>
       <thead><tr><th>ID</th><th>対象</th><th>現在状態</th><th>期限・再開条件</th><th>証拠先</th></tr></thead>
@@ -322,8 +322,8 @@
     <p><strong>文書ID:</strong> AT-BLOCKER-LEDGER-01<br>
     <strong>正本:</strong> このHTMLが、Phase 0から今後の全Phaseまでの残課題を管理する唯一の台帳です。<br>
     <strong>初回集約日:</strong> 2026-08-06<br>
-    <strong>最終更新日:</strong> 2026-08-11<br>
-    <strong>集約範囲:</strong> Phase 0、Phase 1、Phase 2、Phase 3計画・P3-01〜P3-11、P3-D01〜P3-D12、AI実行基盤、個別Run。P3-05Rで30分足の設計・v2固定fixture・通常REDを完了し、H3-0/H3-1/H3-1R/H3-2は承認済みです。H3-1R改訂により、v2を履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する方針を採用した。P3-06のStrategy実装・固定4 Gate・独立レビュー、P3-07R-05のCore受入、P3-08の契約Gate、P3-08AのLEAN固定依存、P3-09のローカルBacktest PoC、P3-10の契約Runは各時点のPASS証跡として保持する。P3-11ではHigh 2件・Medium 2件を検出したが、H3-3/H3-4は承認済みでPhase 3の固定契約範囲は完了している。RQU-UI-H0〜H3は承認済みでAT-REQ-001 v0.4とUIモックv1.0を正式化した。要件定義書v2再作成はRQV2-PLAN-001 v0.1を登録し、RQV2-H0〜H3は2026-08-11に承認済みである。RQV2-01は物理的な <code>tests/evidence/phase1/</code> 欠落を保持したまま、運用者の権限による <code>RQV2-BLK-001</code> PASS指示で <code>PASS_WITH_OPERATOR_OVERRIDE</code> とし、RQV2-02〜18を完了している。RQV2-03ではUI-GAP 18件を追跡可能な形で残し、RQV2-08〜09ではBroker、Secret、実資金・実注文、未実証性能を未提供・後続Gateとして固定した。<code>P4-PLAN-001</code>は改訂2へ更新済みで、<code>P4-H0</code>は承認済み、P4-01〜P4-04Bを完了している。P4-04Aは全19 canonical API、P4外UNSUPPORTED境界、DTO、Failure、全21画面のAPI coverage register、Test／Evidenceを設計し、P4-04Bはmetadata DB、Persistence、ER、transaction、migration候補、全API保存coverageを設計した。P4-04C（全21画面UI）、P4-04D（RED／Run Manifest）、P4-05以降は未開始である。P4-04A／BはCore差分0、外部I/O設計0、実Risk値0、Critical／High未解決0である。P4-H1、P4-H2は運用者承認待ちであり、外部依存の本番利用、Broker、Paper、Live、Secret、Cloud、実資金、Phase 4の実装・実行Runは別Gate待ちとして管理する。</p>
+    <strong>最終更新日:</strong> 2026-08-12<br>
+    <strong>集約範囲:</strong> Phase 0、Phase 1、Phase 2、Phase 3計画・P3-01〜P3-11、P3-D01〜P3-D12、AI実行基盤、個別Run。P3-05Rで30分足の設計・v2固定fixture・通常REDを完了し、H3-0/H3-1/H3-1R/H3-2は承認済みです。H3-1R改訂により、v2を履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する方針を採用した。P3-06のStrategy実装・固定4 Gate・独立レビュー、P3-07R-05のCore受入、P3-08の契約Gate、P3-08AのLEAN固定依存、P3-09のローカルBacktest PoC、P3-10の契約Runは各時点のPASS証跡として保持する。P3-11ではHigh 2件・Medium 2件を検出したが、H3-3/H3-4は承認済みでPhase 3の固定契約範囲は完了している。RQU-UI-H0〜H3は承認済みでAT-REQ-001 v0.4とUIモックv1.0を正式化した。要件定義書v2再作成はRQV2-PLAN-001 v0.1を登録し、RQV2-H0〜H3は2026-08-11に承認済みである。RQV2-01は物理的な <code>tests/evidence/phase1/</code> 欠落を保持したまま、運用者の権限による <code>RQV2-BLK-001</code> PASS指示で <code>PASS_WITH_OPERATOR_OVERRIDE</code> とし、RQV2-02〜18を完了している。RQV2-03ではUI-GAP 18件を追跡可能な形で残し、RQV2-08〜09ではBroker、Secret、実資金・実注文、未実証性能を未提供・後続Gateとして固定した。<code>P4-PLAN-001</code>は改訂2へ更新済みで、<code>P4-H0</code>と<code>P4-H1</code>は承認済み、P4-01〜P4-07を完了し、P4-08を次Stepとしている。P4-04Aは全19 canonical API、P4外UNSUPPORTED境界、DTO、Failure、全21画面のAPI coverage register、Test／Evidenceを設計し、P4-04Bはmetadata DB、Persistence、ER、transaction、migration候補、全API保存coverageを設計した。P4-04C（全21画面UI）、P4-04D（RED／Run Manifest）、P4-05、P4-06、P4-07の正式成果物・実装・Evidenceは各リンク先に記録する。P4-07はCore差分0、外部I/O実行0、実Risk値0、Critical／High未解決0である。P4-H2は運用者承認待ちであり、外部依存の本番利用、Broker、Paper、Live、Secret、Cloud、実資金、P4-10は別Gate待ちとして管理する。</p>
   </section>
 
   <div class="important">
@@ -336,7 +336,7 @@
     <div class="card done"><strong>0件</strong>P3-12を止めているHuman Gate（H3-3/H3-4承認済み）</div>
     <div class="card wait"><strong>28件</strong>期限までは安全に保留できる根本課題</div>
     <div class="card done"><strong>15組</strong>解決済みとして確認できた主な課題</div>
-    <div class="card phase"><strong>P4</strong><code>P4-PLAN-001</code>改訂2。P4-04A（全19 API詳細設計）とP4-04B（DB／ER／Persistence詳細設計）は完了。次はP4-04C（全21画面UI）、P4-04D（RED／Run Manifest）、P4-05の順であり、P4-H1承認前の実装・実行Run、外部Data、Broker、Paper、Liveは引き続き禁止</div>
+    <div class="card phase"><strong>P4</strong><code>P4-PLAN-001</code>改訂2。P4-04A〜D、P4-05、P4-06、P4-07（全19 API接続・固定local Backtest／Sweep／Result／Evidence）は完了。次はP4-08（固定ダミーUI／visual／a11y）、続いてP4-09。P4-H2承認前のP4-10、外部Data、Broker、Paper、Live、Secretは引き続き禁止</div>
   </div>
   <p class="small">件数は、同じ原因を別の文書が違う名前で書いている場合に一つへまとめた「根本課題」の数です。たとえば、同じロール規則の問題を Phase 1 と Phase 2 が別IDで書いていても、一件として数えます。</p>
 
@@ -905,8 +905,15 @@ firewall=true</pre></li>
   <section class="ok-note" id="phase4-h1-approval-20260812">
     <h2>Phase 4 P4-H1承認とP4-06開始（2026-08-12）</h2>
     <p>運用者の「P4-H1を承認します。P4-06以降のプロンプトを順番に実行して下さい。」を受領した。P4-05で提出した <code>RUN-P4-04D-001</code>、target-onlyの対象範囲、既存Phase3 fixtureのSHA-256、trusted scopeを承認記録へ固定し、P4-06を完了してP4-07を開始した。</p>
-    <p><strong>現在状態:</strong> <code>COMPLETED_P4-06_P4-07_IN_PROGRESS</code>。P4-06のRED→GREEN、formatter／lint／mypy／pytest、Core差分0、Evidence hash、Critical／High 0を確認した。P4-07〜P4-09は承認済みのlocal scopeだけを順番に実行し、P4-H2承認前のP4-10は実行しない。実Agent起動不能は停止理由にせず、未起動を独立実行と偽らないfallback記録へ切り替える。</p>
-    <p><strong>証拠:</strong> <a href="../tests/evidence/phase4/RUN-P4-04D-001/human-gate-p4-h1.md">P4-H1承認記録</a> / <a href="../scripts/quality_gate/trusted_scopes.json">trusted scope</a> / <a href="../plan/Phase4_実行計画書_v0.1_2026-08-11.md">P4-PLAN-001</a>。<code>UNK-P4-04D-004</code>（host outbound isolation）と<code>UNK-P4-04D-005</code>（viewport／browser／axe runtime）は未解消のまま保持する。</p>
+    <p><strong>現在状態:</strong> <code>COMPLETED_P4-07_P4-08_PENDING</code>。P4-06とP4-07のRED→GREEN、formatter／lint／mypy／pytest、Core差分0、Evidence hash、Critical／High 0を確認した。P4-07は全19 API、単一Backtest／Sweep、Result／Evidence／CSV、checkpoint／Holdout、failure injectionを固定localで完了した。P4-08〜P4-09は承認済みのlocal scopeだけを順番に実行し、P4-H2承認前のP4-10は実行しない。実Agent起動不能は停止理由にせず、未起動を独立実行と偽らないfallback記録へ切り替える。</p>
+    <p><strong>証拠:</strong> <a href="../tests/evidence/phase4/RUN-P4-04D-001/human-gate-p4-h1.md">P4-H1承認記録</a> / <a href="../scripts/quality_gate/trusted_scopes.json">trusted scope</a> / <a href="../plan/Phase4_実行計画書_v0.1_2026-08-11.md">P4-PLAN-001</a> / <a href="../plan/phase4/ログ/P4-07_実装ログ_2026-08-12.md">P4-07実装ログ</a> / <a href="../tests/evidence/phase4/RUN-P4-04D-001/p4-07-quality-gate.md">P4-07 quality Evidence</a>。<code>UNK-P4-04D-004</code>（host outbound isolation）と<code>UNK-P4-04D-005</code>（viewport／browser／axe runtime）は未解消のまま保持する。</p>
+  </section>
+  <section class="ok-note" id="phase4-p4-07-complete-20260812">
+    <h2>Phase 4 P4-07完了（2026-08-12）</h2>
+    <p>P4-07を、承認済みの<code>RUN-P4-04D-001</code>とtarget-only local scopeで完了した。typed <code>BacktestCoreAdapter</code>、単一Backtest、atomic Sweep、Result／Evidence参照、CSV Job、checkpoint hash検証付きresume、Holdout blocked assessment、全19件の<code>API-P4-001〜019</code>をApplication層へ接続し、result本文をmetadata DBへ複製しない境界を維持した。</p>
+    <p><strong>判定:</strong> RED→GREEN、formatter／lint／mypy／pytest（17 passed）、<code>git diff --check</code>、Core差分0、fixture hash一致、Critical／High 0。Coordinator／子Agentはruntime未提供のため、<code>DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS</code>、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を記録した。これは独立Agent完了の代替表示ではない。</p>
+    <p><strong>次のStep:</strong> P4-08（固定ダミーUI、visual／a11y）を実行する。<code>UNK-P4-04D-004</code>（host outbound isolation）と<code>UNK-P4-04D-005</code>（viewport／browser／axe runtime）は未解消であり、Passへ変換しない。P4-09、P4-H2、P4-10は順序と承認条件を維持する。</p>
+    <p><strong>証拠:</strong> <a href="../plan/phase4/ログ/P4-07_実装ログ_2026-08-12.md">P4-07実装ログ</a> / <a href="../tests/evidence/phase4/RUN-P4-04D-001/p4-07-run-manifest.md">Run Manifest</a> / <a href="../tests/evidence/phase4/RUN-P4-04D-001/p4-07-verification.md">Verification</a> / <a href="../tests/evidence/phase4/RUN-P4-04D-001/p4-07-quality-gate.md">Quality Gate</a> / <a href="../tests/evidence/phase4/RUN-P4-04D-001/p4-07-self-review.md">Fallback Self-Review</a>。</p>
   </section>
 </main>
 </body>

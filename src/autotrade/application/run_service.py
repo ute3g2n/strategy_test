@@ -16,8 +16,6 @@ class RunService:
     ) -> ApplicationResponse[RunView]:
         if preflight.status != "PASS" or command.preflight_report_sha256 != preflight.report_sha256:
             return failure_response("PREFLIGHT_REQUIRED", "P4-MSG-PREFLIGHT_REQUIRED", status_code=403)
-        if command.config.config_sha256 != command.config.config_sha256:
-            return failure_response("CONFIG_HASH_MISMATCH", "P4-MSG-CONFIG_HASH_MISMATCH", status_code=422)
         try:
             view, _ = self.store.create_run(command, correlation_id)
         except PersistenceConflict as error:

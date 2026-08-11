@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import uuid
 from dataclasses import dataclass
 from typing import Any
 
@@ -39,10 +38,9 @@ class SweepService:
         if len(set(candidate_hashes)) != len(candidate_hashes):
             raise PersistenceConflict("SWEEP_DUPLICATE_CANDIDATE")
         parent_command = CreateRunCommand(
-            client_request_id, "SINGLE_BACKTEST", base_config, utc_now(), preflight.report_sha256
+            f"{client_request_id}-parent", "SINGLE_BACKTEST", base_config, utc_now(), preflight.report_sha256
         )
-        parent, _ = self.store.create_run(parent_command, correlation_id)
-        members: list[RunView] = []
+        child_commands: list[CreateRunCommand] = []
         for ordinal, candidate in enumerate(candidates):
             config = BacktestConfig(
                 unit_key=base_config.unit_key,
@@ -59,35 +57,12 @@ class SweepService:
             child_command = CreateRunCommand(
                 f"{client_request_id}-{ordinal}", "SWEEP_CHILD", config, utc_now(), preflight.report_sha256
             )
-            child, _ = self.store.create_run(child_command, correlation_id)
-            members.append(child)
-        parent_id = f"sweep-{uuid.uuid4().hex}"
-        candidate_set_hash = canonical_hash(candidate_hashes)
-        with self.store.transaction():
-            self.store.connection.execute(
-                "INSERT INTO sweep_parent("
-                "sweep_parent_id, parent_run_id, candidate_count, candidate_set_sha256, created_at) "
-                "VALUES (?, ?, ?, ?, ?)",
-                (
-                    parent_id,
-                    parent.run_id,
-                    len(members),
-                    candidate_set_hash,
-                    utc_now().isoformat().replace("+00:00", "Z"),
-                ),
-            )
-            for ordinal, member in enumerate(members):
-                self.store.connection.execute(
-                    "INSERT INTO sweep_member("
-                    "sweep_member_id, sweep_parent_id, child_run_id, ordinal, candidate_sha256, created_at) "
-                    "VALUES (?, ?, ?, ?, ?, ?)",
-                    (
-                        f"member-{uuid.uuid4().hex}",
-                        parent_id,
-                        member.run_id,
-                        ordinal,
-                        candidate_hashes[ordinal],
-                        utc_now().isoformat().replace("+00:00", "Z"),
-                    ),
-                )
+            child_commands.append(child_command)
+        parent_id, parent, members, candidate_set_hash, _ = self.store.create_sweep(
+            client_request_id,
+            parent_command,
+            tuple(child_commands),
+            candidate_hashes,
+            correlation_id,
+        )
         return SweepView(parent_id, parent, tuple(members), candidate_set_hash)

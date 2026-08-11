@@ -12,7 +12,19 @@ class InvalidTransition(ValueError):
 
 
 RUN_TRANSITIONS: Mapping[RunStatus, frozenset[RunStatus]] = {
-    RunStatus.DRAFT: frozenset({RunStatus.REJECTED, RunStatus.QUEUED}),
+    # SUCCEEDED/FAILED/STOPPED/PARTIAL_FAILED are available from DRAFT only
+    # for the read-only aggregate projection of an unqueued Sweep parent.
+    RunStatus.DRAFT: frozenset(
+        {
+            RunStatus.REJECTED,
+            RunStatus.QUEUED,
+            RunStatus.SUCCEEDED,
+            RunStatus.FAILED,
+            RunStatus.STOPPED,
+            RunStatus.PARTIAL_FAILED,
+            RunStatus.RECOVERY_REQUIRED,
+        }
+    ),
     RunStatus.QUEUED: frozenset({RunStatus.RUNNING, RunStatus.CANCELLED, RunStatus.STOP_REQUESTED}),
     RunStatus.RUNNING: frozenset(
         {
