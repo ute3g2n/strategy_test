@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase4統合品質・独立レビュー</title>
+  <style>
+    :root{--ink:#172033;--muted:#5b6475;--line:#ccd4e0;--blue:#1858b8;--warn:#8a4b00;--danger:#a32222;--ok:#12653b}
+    *{box-sizing:border-box}body{margin:0;background:#f2f5f9;color:var(--ink);font-family:"Yu Gothic UI","Meiryo",sans-serif;line-height:1.65}
+    main{max-width:1500px;margin:0 auto;padding:24px}h1,h2,h3{line-height:1.35}h1{font-size:2rem}h2{font-size:1.35rem;border-left:6px solid var(--blue);padding-left:.6rem;margin-top:2.2rem}h3{font-size:1.08rem;margin-top:1.5rem}
+    a{color:var(--blue)}code{font-family:Consolas,"Yu Gothic UI Mono",monospace;background:#eef2f8;padding:.05rem .25rem;border-radius:3px}pre{overflow:auto;background:#172033;color:#f6f8fb;padding:14px;border-radius:6px}
+    table{width:100%;border-collapse:collapse;background:#fff;margin:10px 0 22px}caption{text-align:left;font-weight:700;padding:8px 0}th,td{border:1px solid var(--line);padding:8px;vertical-align:top;text-align:left}th{background:#e9eef6}
+    .wide{overflow-x:auto}.finding,.notice{background:#fff;border:1px solid var(--line);border-radius:6px;padding:14px;margin:12px 0}.finding{border-left:5px solid var(--ok)}.finding.high{border-left-color:#d17b00}.notice.warn{border-left:5px solid #d17b00;background:#fff8e8}.notice.stop{border-left:5px solid var(--danger);background:#fff0f0}
+    .badge{display:inline-block;border-radius:999px;padding:1px 8px;font-size:.86em;font-weight:700;background:#e7edf8}.badge.ok{background:#dff4e8;color:var(--ok)}.badge.warn{background:#fff0cc;color:var(--warn)}.badge.danger{background:#ffe0e0;color:var(--danger)}.small{color:var(--muted);font-size:.9em}
+    @media(max-width:800px){main{padding:14px}h1{font-size:1.55rem}th,td{min-width:150px}}
+  </style>
+  <script src="../../assets/mermaid.min.js"></script>
+  <script src="../../assets/mermaid-init.js"></script>
+</head>
+<body><main>
+  <header>
+    <h1>Phase4統合品質・独立レビュー</h1>
+    <p><strong>Artifact:</strong> <code>P4-ART-09-REVIEW-001</code> ／ <strong>Step:</strong> <code>P4-09</code> ／ <strong>版:</strong> v0.1（2026-08-12）</p>
+    <p><strong>Plan:</strong> <code>P4-PLAN-001</code> / <a href="../../../plan/Phase4_実行計画書_v0.1_2026-08-11.md">Phase4実行計画書 改訂4</a><br><strong>状態:</strong> <span class="badge warn">COMPLETED_P4-09_P4-H2_BLOCKED</span> ／ P4-H1=APPROVED ／ P4-H2=WAITING_FOR_USER_APPROVAL</p>
+    <p><strong>境界:</strong> P4-06〜P4-08とP4-04A〜Dをread-onlyで統合監査した。P4-10、DB作成・migration、依存導入、Core変更、WSL実行、外部I/O、Secret、Broker／Paper／Live、実Risk／Account／OMSは発火していない。</p>
+    <p><a href="../../../doc/index.html">doc/index.html</a> ／ <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a> ／ <a href="../02_実装詳細設計/04_ProductApplication_API詳細設計書.html">P4-04A API</a> ／ <a href="../02_実装詳細設計/05_ProductApplication_DB_Persistence詳細設計書.html">P4-04B DB／ER</a> ／ <a href="../02_実装詳細設計/06_ProductApplication_UI全21画面詳細設計書.html">P4-04C UI</a> ／ <a href="../03_品質設計/04_Phase4テスト戦略・RunManifest設計.html">P4-04D品質</a> ／ <a href="05_Phase4詳細設計レビュー・改訂記録.html">P4-05レビュー</a></p>
+  </header>
+
+  <h2>1. Findings first</h2>
+  <div class="finding high"><strong>FIND-P4-09-001 / Medium・process / RECORDED:</strong> Coordinatorは実ランタイムで起動したが、Coordinator内の子Agent <code>spawn/wait</code> backendが未提供だった。Agentを起動済み・独立レビュー済みとは扱わず、<code>LOCAL_FALLBACK_NO_SUBAGENTS</code>、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を証跡へ固定した。</div>
+  <div class="finding"><strong>FIND-P4-09-002 / Medium・evidence integrity / CLOSED:</strong> P4-08のHuman Gate scope正規化で共有記録が更新され、P4-06 hash manifestの1行が古くなった。現在の承認記録のhashへ更新し、P4-06／P4-07／P4-08全manifestを再照合してPASSとした。</div>
+  <div class="notice warn"><strong>UNK-P4-04D-004 / Gate blocker / OPEN:</strong> host outbound isolationの独立証拠がない。local browserの外部request 0だけではhost isolationを証明しないため、WSL quality gateを起動せずUnknownを保持する。P4-H2候補をブロックする。</div>
+  <div class="notice warn"><strong>UNK-P4-UI-002 / Unknown / OPEN:</strong> font／OS renderingと正式pixel baselineは未固定である。42 screenshotsはruntime evidenceとして採用するが、formal pixel PASSへ変換しない。</div>
+  <div class="notice stop"><strong>結論:</strong> localの実装・設計・coverage品質に未解決Critical／Highはない。ただし、上記UnknownとP4-H2未承認が残るため、P4-09はレビュー作業を完了し、P4-H2承認待ちのblocked状態で停止する。P4-10は実行しない。</div>
+
+  <h2>2. 平易な概要と統合境界</h2>
+  <p>このStepは、固定local Backtest Product/Applicationの設計、実装、API、metadata DB契約、21画面、テスト、Evidenceが一つの安全な流れになっているかを確認する。結果本文は既存Core ResultStoreに残し、metadata DBは状態・参照・hash・監査だけを持つ。UIはAPI契約を通じて検証済みviewを表示し、外部機能や未承認モードを開始しない。</p>
+  <pre class="mermaid">flowchart LR
+    REQ["REQ／UC／Trace"] --> API["P4-04A\n19 API"]
+    API --> DB["P4-04B\n15 logical tables／ER"]
+    DB --> UI["P4-04C\n21 screens×10 states"]
+    UI --> Q["P4-04D\nTest／Gate／Evidence"]
+    Q --> IMPL["P4-06／07\nApplication／Worker／Result"]
+    IMPL --> V["P4-08\nUI runtime evidence"]
+    V --> R["P4-09\nIntegrated review"]
+    R --> H2["P4-H2 approval"]
+    R -. "host isolation／font baseline Unknown" .-> STOP["Fail-closed stop"]</pre>
+  <div class="wide"><table><caption>正常／失敗時の受渡し。</caption><thead><tr><th>受渡し</th><th>確認対象</th><th>正常条件</th><th>失敗・停止条件</th></tr></thead><tbody>
+    <tr><td>REQ→API</td><td>REQ／UC／Screen／StateとAPI-P4-ID</td><td>19 canonical APIが型、失敗、冪等性、状態、Testへ接続する。</td><td>孤立API、P4外APIの実装、未定義状態は停止。</td></tr>
+    <tr><td>API→metadata／Core／file</td><td>read/write、transaction、revision、lease、marker／hash</td><td>metadataは参照と状態、Coreはresult本文、fileはatomic outputを所有する。</td><td>partial write、stale revision、marker不一致、Core本文複製は停止。</td></tr>
+    <tr><td>API→UI</td><td>Screen／State／操作／reason／Evidence</td><td>21/21画面、P4対象13画面×10状態、境界8画面がfail-closedで表示される。</td><td>UNAPPROVEDを成功、外部I/O、Secret表示、未定義stateへ変換しない。</td></tr>
+    <tr><td>quality→Gate</td><td>Test／Evidence hash／Core diff／scope／Unknown</td><td>local gates PASS、hash一致、Core差分0、Unknownは未解消として提示。</td><td>host isolation未確認、H2未承認、Critical／High、証跡不一致はP4-H2を停止。</td></tr>
+  </tbody></table></div>
+
+  <h2>3. 発火・実行範囲とAgent dispatch</h2>
+  <div class="wide"><table><caption>P4-09のruntime dispatch状態。</caption><thead><tr><th>項目</th><th>記録</th><th>判定</th></tr></thead><tbody>
+    <tr><td>Orchestrator</td><td><code>AutoTradeProject_ImplementationQuality_Orchestrator_v0_1</code>／<code>gpt-5.6-terra</code>／agent id <code>019ff316-8d41-71a2-ad2a-6636eae8015e</code></td><td>Coordinator起動済み</td></tr>
+    <tr><td>Child Agents</td><td>A130、A150、A160、A80、A90</td><td>Coordinator内spawn/wait未提供、全員NOT_STARTED。独立レビュー済みとは扱わない。</td></tr>
+    <tr><td>Fallback</td><td><code>LOCAL_FALLBACK_NO_SUBAGENTS</code>／<code>SELF_REVIEW_FALLBACK</code></td><td>root責務チェックリストを適用。起動不能だけでは停止しない。</td></tr>
+    <tr><td>承認</td><td>Run <code>RUN-P4-04D-001</code>、target-only、fixture hash、P4-H1 APPROVED</td><td>範囲内で実行</td></tr>
+    <tr><td>禁止</td><td>Core、DB実作成、migration、外部I/O、Secret、Broker／Paper／Live、WSL、P4-10</td><td>実行なし</td></tr>
+  </tbody></table></div>
+  <p>dispatchの詳細は<a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-09-dispatch.md">p4-09-dispatch.md</a>、責務チェックリストは<a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-09-self-review.md">p4-09-self-review.md</a>に記録する。</p>
+
+  <h2>4. 全API-P4-ID coverage</h2>
+  <p>API inventoryはP4-04Aを正本とし、DB／UI／Test／Evidenceへの受渡しを再照合した。次表は全19件を省略せず、read/write境界と統合確認対象を示す。</p>
+  <div class="wide"><table><caption>API／保存単位／Testの統合表。</caption><thead><tr><th>ID</th><th>操作</th><th>read/write境界</th><th>metadata／file／Core</th><th>Test／Evidenceの代表</th></tr></thead><tbody>
+    <tr><td><code>API-P4-001</code></td><td>get_capability</td><td>read-only</td><td>capability／schema migration候補。commitなし。</td><td>TEST-P4-API-001／UI state contract</td></tr>
+    <tr><td><code>API-P4-002</code></td><td>preflight_run</td><td>read-only</td><td>manifest／Core baseline／report hash。開始副作用なし。</td><td>TEST-P4-API-002〜005／preflight</td></tr>
+    <tr><td><code>API-P4-003</code></td><td>create_run</td><td>write</td><td>run、run_condition、idempotency、audit。DRAFTを一transaction。</td><td>TEST-P4-API-006〜007／unit audit</td></tr>
+    <tr><td><code>API-P4-004</code></td><td>create_sweep</td><td>write</td><td>sweep parent/member、child run／condition、rollback。</td><td>TEST-P4-API-008〜010／sweep preflight</td></tr>
+    <tr><td><code>API-P4-005</code></td><td>get_run</td><td>read-only</td><td>run／transition／result／evidence reference。revision検証。</td><td>TEST-P4-API-011／fail-closed</td></tr>
+    <tr><td><code>API-P4-006</code></td><td>list_runs</td><td>read-only</td><td>run＋condition summary。cursor／snapshot。</td><td>TEST-P4-API-012／sweep rows</td></tr>
+    <tr><td><code>API-P4-007</code></td><td>start_job</td><td>write</td><td>job、queue_item、transition、idempotency、audit。commit後にworker。</td><td>TEST-P4-API-013〜014／job queue</td></tr>
+    <tr><td><code>API-P4-008</code></td><td>get_job</td><td>read-only</td><td>job／queue／checkpoint／lease表示。</td><td>TEST-P4-API-015／job queue</td></tr>
+    <tr><td><code>API-P4-009</code></td><td>list_jobs</td><td>read-only</td><td>job／queue projection。cursor state revision。</td><td>TEST-P4-API-016／job queue</td></tr>
+    <tr><td><code>API-P4-010</code></td><td>cancel_job</td><td>write</td><td>cancel intent／queue／transition／audit。force killなし。</td><td>TEST-P4-API-017〜018／recovery</td></tr>
+    <tr><td><code>API-P4-011</code></td><td>resume_job</td><td>write</td><td>checkpoint／marker／manifest hash一致時のみ新Job。</td><td>TEST-P4-API-019〜021／recovery</td></tr>
+    <tr><td><code>API-P4-012</code></td><td>get_queue_state</td><td>read-only</td><td>queue state／lease／resource表示。SSE／WebSocketなし。</td><td>TEST-P4-API-022／job queue</td></tr>
+    <tr><td><code>API-P4-013</code></td><td>get_result_summary</td><td>read-only</td><td>COMMITTED result referenceから5指標。本文はCore。</td><td>TEST-P4-API-023〜024／result metrics</td></tr>
+    <tr><td><code>API-P4-014</code></td><td>list_result_rows</td><td>read-only</td><td>projection allowlist／cursor。trade／signalを捏造しない。</td><td>TEST-P4-API-025〜027／sweep rows</td></tr>
+    <tr><td><code>API-P4-015</code></td><td>compare_runs</td><td>read-only</td><td>comparison condition hash。自動winnerなし。</td><td>TEST-P4-API-028〜029／compare</td></tr>
+    <tr><td><code>API-P4-016</code></td><td>create_csv_job</td><td>write</td><td>csv_job／queue。sourceがCOMMITTEDの場合だけ受付。</td><td>TEST-P4-API-030〜031／CSV Job</td></tr>
+    <tr><td><code>API-P4-017</code></td><td>get_csv_job</td><td>read-only</td><td>relative file ref／output hash。download routeなし。</td><td>TEST-P4-API-032／CSV Job</td></tr>
+    <tr><td><code>API-P4-018</code></td><td>get_evidence</td><td>read-only</td><td>manifest／transition／result／auditのrelative ref＋hash。</td><td>TEST-P4-API-033／trace review</td></tr>
+    <tr><td><code>API-P4-019</code></td><td>assess_holdout_reuse</td><td>write record／no promotion</td><td>holdout_assessment＋audit。Run／Strategyを更新しない。</td><td>TEST-P4-API-034〜036／Holdout Gate</td></tr>
+  </tbody></table></div>
+  <p class="small">P4外X01〜X05はunsupported response、理由、担当Phase、Human Gateを持つ境界であり、P4 canonical API数19へ混入していない。</p>
+
+  <h2>5. DB／ER／Persistence coverage</h2>
+  <p>P4-04Bのlogical schemaとSQLite候補physical schemaを混同せずに照合した。DBは実作成・migration実行をしていない。Core ResultStoreのresult本文はmetadata DBへ複製しない。</p>
+  <div class="wide"><table><caption>15 logical tableの統合確認。</caption><thead><tr><th>保存単位</th><th>主責務</th><th>主キー／関係・不変条件</th><th>API／失敗時の確認</th></tr></thead><tbody>
+    <tr><td><code>run</code></td><td>Run状態とrevision</td><td>run_id PK、sweep parent optional、CAS revision</td><td>003/005/006/019。staleは拒否。</td></tr>
+    <tr><td><code>run_condition</code></td><td>固定条件hash</td><td>run_id PK/FK、condition／fixture／Core hash</td><td>002〜004。raw config／Secretなし。</td></tr>
+    <tr><td><code>run_state_transition</code></td><td>append-only履歴</td><td>run FK、revision／reason／actor</td><td>005/007/010/011。履歴上書きなし。</td></tr>
+    <tr><td><code>job</code></td><td>非同期Job</td><td>job_id PK、run FK、lease／fencing</td><td>007〜011。terminal直接遷移禁止。</td></tr>
+    <tr><td><code>queue_item</code></td><td>待機・lease</td><td>job FK、unique queue sequence</td><td>007/009/012。stale leaseは停止。</td></tr>
+    <tr><td><code>checkpoint</code></td><td>再開点</td><td>job FK、marker／hash／revision</td><td>008/011。hash不一致はRECOVERY_REQUIRED。</td></tr>
+    <tr><td><code>result_reference</code></td><td>Core結果参照</td><td>run FK、relative ref／marker／hash</td><td>005/013/014。本文複製なし。</td></tr>
+    <tr><td><code>evidence_reference</code></td><td>証跡参照束</td><td>run／CSV Job optional FK、hash</td><td>005/018。検証不能は表示停止。</td></tr>
+    <tr><td><code>sweep_parent</code></td><td>Sweep親</td><td>parent run FK、candidate count／status</td><td>004。partial parentはrollback。</td></tr>
+    <tr><td><code>sweep_member</code></td><td>候補とchild Run</td><td>parent／child FK、candidate hash／ordinal unique</td><td>004/014。孤立child・winner自動採用なし。</td></tr>
+    <tr><td><code>csv_job</code></td><td>CSV要求と出力参照</td><td>run FK、relative output／hash</td><td>016/017。atomic file未完成は失敗。</td></tr>
+    <tr><td><code>idempotency_record</code></td><td>重複受付防止</td><td>operation／key／fingerprint unique</td><td>003/004/007/010/011/016。差異は409。</td></tr>
+    <tr><td><code>audit_event</code></td><td>監査append-only</td><td>actor／operation／correlation／hash</td><td>全write。監査欠落はcommit不可。</td></tr>
+    <tr><td><code>holdout_assessment</code></td><td>再利用判定</td><td>source run FK、plan hash、immutable decision</td><td>019。自動promotion／設定変更なし。</td></tr>
+    <tr><td><code>schema_migration</code></td><td>schema version候補</td><td>version unique、audit参照</td><td>001／migration設計。方式・versionはUnknownを仮決定しない。</td></tr>
+  </tbody></table></div>
+  <pre class="mermaid">erDiagram
+  RUN ||--|| RUN_CONDITION : "固定条件"
+  RUN ||--o{ RUN_STATE_TRANSITION : "append-only"
+  RUN ||--o{ JOB : "操作"
+  JOB ||--o| QUEUE_ITEM : "待機"
+  JOB ||--o{ CHECKPOINT : "再開点"
+  RUN ||--o| RESULT_REFERENCE : "Core参照"
+  RUN ||--o{ EVIDENCE_REFERENCE : "証跡"
+  RUN ||--o| SWEEP_PARENT : "親"
+  SWEEP_PARENT ||--o{ SWEEP_MEMBER : "候補"
+  SWEEP_MEMBER }o--|| RUN : "child Run"
+  RUN ||--o{ CSV_JOB : "CSV"
+  RUN ||--o{ AUDIT_EVENT : "監査"
+  JOB ||--o{ IDEMPOTENCY_RECORD : "受付"
+  RUN ||--o{ HOLDOUT_ASSESSMENT : "判定"
+  SCHEMA_MIGRATION ||--o{ AUDIT_EVENT : "変更監査"</pre>
+  <div class="wide"><table><caption>ER／boundary受渡し。</caption><thead><tr><th>境界</th><th>所有者</th><th>不変条件</th><th>破損時</th></tr></thead><tbody>
+    <tr><td>metadata DB</td><td>Application Persistence</td><td>FK／unique／check、transaction、revision、idempotency</td><td>rollback、RECOVERY_REQUIRED、成功表示禁止</td></tr>
+    <tr><td>Core ResultStore</td><td>既存Core</td><td>result本文とCore markerの正本</td><td>marker／hash不一致はResult参照停止</td></tr>
+    <tr><td>file／CSV</td><td>Atomic output／CsvJob</td><td>relative ref、temp→rename、output hash</td><td>partial／path boundary／hash不一致は未完成</td></tr>
+    <tr><td>Evidence</td><td>Evidence bundle</td><td>manifest／transition／result／audit hash</td><td>検証不能はGate提出不可</td></tr>
+  </tbody></table></div>
+
+  <h2>6. 全21画面と10状態</h2>
+  <div class="wide"><table><caption>画面判定と実行結果。</caption><thead><tr><th>P4判定</th><th>画面ID</th><th>統合確認</th><th>後続／停止</th></tr></thead><tbody>
+    <tr><td><span class="badge ok">P4_TARGET</span></td><td>SCREEN-02、SCREEN-03、SCREEN-04、SCREEN-08、SCREEN-09、SCREEN-10、SCREEN-11、SCREEN-12、SCREEN-19</td><td>canonical API、DB read/write、10状態、PC／mobile、Playwright</td><td>local target。P4-H2候補へ提出。</td></tr>
+    <tr><td><span class="badge ok">P4_BOUNDARY_TARGET</span></td><td>SCREEN-01、SCREEN-17、SCREEN-18、SCREEN-21</td><td>state／failure／Human Gate／Help境界、reason、10状態</td><td>外部機能・自動承認は不可。</td></tr>
+    <tr><td><span class="badge warn">BOUNDARY_ONLY</span></td><td>SCREEN-05、SCREEN-06、SCREEN-07、SCREEN-13、SCREEN-14、SCREEN-15、SCREEN-16、SCREEN-20</td><td>固定UNAPPROVED／P4_OUT_OF_SCOPE、操作なし</td><td>後続Phase／個別Gate。P4機能へ昇格不可。</td></tr>
+  </tbody></table></div>
+  <p>SCREEN-01〜21は設計と<code>p4ScreenContracts</code>の双方で21/21。実行した13画面×10状態×2 viewport = 260 state operations、Boundary-only 8画面は固定禁止表示のままである。</p>
+  <div class="wide"><table><caption>10 UI stateの統合不変条件。</caption><thead><tr><th>State</th><th>表示／操作契約</th><th>停止条件</th></tr></thead><tbody>
+    <tr><td>NORMAL</td><td>検証済みviewとallowlist操作</td><td>revision／capability不一致は操作不可</td></tr>
+    <tr><td>LOADING</td><td>skeleton／status、二重送信防止</td><td>危険操作を有効化しない</td></tr>
+    <tr><td>EMPTY</td><td>空理由と安全な次操作</td><td>成功／失敗と混同しない</td></tr>
+    <tr><td>REQUIRED</td><td>field error、label、aria-describedby</td><td>不備のまま送信しない</td></tr>
+    <tr><td>WARNING</td><td>reason、影響範囲、停止／確認</td><td>警告を成功扱いしない</td></tr>
+    <tr><td>STOPPED</td><td>停止理由、再開条件</td><td>許可されたresume以外を拒否</td></tr>
+    <tr><td>FAILED</td><td>Error ID、Evidence、retry可否</td><td>成功表示・force retry禁止</td></tr>
+    <tr><td>RECOVERY</td><td>marker／hash／revision再検証</td><td>不一致時は復旧完了にしない</td></tr>
+    <tr><td>HUMAN-GATE</td><td>対象、影響、Evidence、承認／取消</td><td>自動承認しない</td></tr>
+    <tr><td>UNAPPROVED</td><td>後続Phase、Gate、再開条件</td><td>実行操作をdisabled</td></tr>
+  </tbody></table></div>
+
+  <h2>7. Test／Evidence／Gate再照合</h2>
+  <div class="wide"><table><caption>品質結果。</caption><thead><tr><th>対象</th><th>結果</th><th>Evidence</th></tr></thead><tbody>
+    <tr><td>Application formatter／lint／mypy</td><td><span class="badge ok">PASS</span></td><td><a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-09-quality-gate.md">p4-09-quality-gate.md</a></td></tr>
+    <tr><td>Application／Phase4 pytest</td><td><span class="badge ok">17 passed</span></td><td>同上</td></tr>
+    <tr><td>P4-06／P4-07／P4-08 evidence hashes</td><td><span class="badge ok">PASS</span></td><td><a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-09-verification.md">p4-09-verification.md</a></td></tr>
+    <tr><td>Fixture／Run scope</td><td><span class="badge ok">PASS</span></td><td><a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-09-run-manifest.md">p4-09-run-manifest.md</a></td></tr>
+    <tr><td>UI contract／state／axe</td><td><span class="badge ok">6 expected／0 unexpected／0 skipped; 42 screenshots</span></td><td>P4-08 results／screenshots</td></tr>
+    <tr><td>Core差分</td><td><span class="badge ok">0</span></td><td>target baselineから再照合</td></tr>
+    <tr><td>外部request</td><td><span class="badge ok">0</span>（browser boundary）</td><td>P4-08 verification</td></tr>
+    <tr><td>host isolation</td><td><span class="badge warn">UNKNOWN</span></td><td><code>UNK-P4-04D-004</code>。host証明ではない。</td></tr>
+    <tr><td>font／OS formal baseline</td><td><span class="badge warn">UNKNOWN</span></td><td><code>UNK-P4-UI-002</code>。</td></tr>
+  </tbody></table></div>
+  <p>全テストを「実行済み」とは扱わず、P4-08で実行したもの、P4-06／07で実行したもの、P4-04Dで設計のみのものをEvidence欄で分離した。P4-09はDBを実際に作成せず、DB詳細設計テストは設計coverageの再照合として扱った。</p>
+
+  <h2>8. REQ／DEC／UNK／ARTと採否</h2>
+  <div class="wide"><table><caption>追跡と判断。</caption><thead><tr><th>分類</th><th>対象</th><th>判定</th><th>送り先</th></tr></thead><tbody>
+    <tr><td>REQ／UC</td><td>P4-02 trace、P4-04A〜Dの設計・実装・Test binding</td><td>採用。孤立API／Screenなし。</td><td>P4-H2 review packet</td></tr>
+    <tr><td>DEC</td><td>fixed local、Core freeze、metadata／Core／file／Evidence境界、fallback</td><td>採用。未承認外部機能は除外。</td><td>P4-10後続記録</td></tr>
+    <tr><td>UNK</td><td><code>UNK-P4-04D-004</code>、<code>UNK-P4-UI-002</code></td><td>未解消。PASSへ変換しない。</td><td>担当者・期限・再開条件を統合台帳へ保持</td></tr>
+    <tr><td>ART</td><td>P4-09 HTML、log、dispatch、manifest、quality、verification、self-review、hash</td><td>相互リンク・hash確認後に採用。</td><td>doc/index／統合台帳</td></tr>
+  </tbody></table></div>
+  <div class="wide"><table><caption>採否表。</caption><thead><tr><th>項目</th><th>採否</th><th>理由</th></tr></thead><tbody>
+    <tr><td>Local Application／API／DB契約／UI coverage</td><td><span class="badge ok">採用</span></td><td>19 API、15 DB/ER entity、21画面、local quality evidenceが一致。</td></tr>
+    <tr><td>独立Agentレビュー結果</td><td><span class="badge warn">不採用・未実行</span></td><td>child dispatch backend未提供。fallback責務結果だけを記録。</td></tr>
+    <tr><td>Host isolation</td><td><span class="badge warn">Unknown</span></td><td>browser request 0ではhost isolationを証明できない。</td></tr>
+    <tr><td>Formal font／OS pixel baseline</td><td><span class="badge warn">Unknown</span></td><td>受入OS／font／diff基準未固定。</td></tr>
+    <tr><td>P4-H2／P4-10</td><td><span class="badge danger">未承認・実行禁止</span></td><td>ユーザー承認とstop condition解消が必要。</td></tr>
+  </tbody></table></div>
+
+  <h2>9. Evidence・改訂履歴・次Gate</h2>
+  <p><a href="../../../plan/phase4/ログ/P4-09_統合品質・独立レビュー_2026-08-12.md">P4-09実行ログ</a> ／ <a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-09-dispatch.md">dispatch</a> ／ <a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-09-run-manifest.md">Run Manifest</a> ／ <a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-09-quality-gate.md">Quality Gate</a> ／ <a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-09-verification.md">Verification</a> ／ <a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-09-self-review.md">Fallback Self-Review</a> ／ <a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-09-evidence-hashes.sha256">Evidence hashes</a></p>
+  <table><thead><tr><th>版</th><th>日付</th><th>変更</th></tr></thead><tbody><tr><td>v0.1</td><td>2026-08-12</td><td>P4-09統合品質、全API／DB／UI coverage、fallback dispatch、Evidence再照合、Unknown、P4-H2停止条件を記録。</td></tr></tbody></table>
+  <footer class="small">最終更新: 2026-08-12 / Artifact: P4-ART-09-REVIEW-001 / review_mode=SELF_REVIEW_FALLBACK / P4-H2承認前。</footer>
+</main></body></html>
