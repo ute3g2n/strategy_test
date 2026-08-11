@@ -1,8 +1,4 @@
 (() => {
-  if (typeof mermaid === "undefined") {
-    return;
-  }
-
   function injectStyles() {
     if (document.getElementById("mermaid-zoom-styles")) {
       return;
@@ -59,6 +55,29 @@
         max-width: none !important;
         height: auto;
       }
+      .mermaid:not(.diagram-rendered) {
+        color: transparent;
+        font-size: 0;
+        line-height: 0;
+      }
+      .mermaid.diagram-rendered {
+        color: inherit;
+        font-size: inherit;
+        line-height: inherit;
+      }
+      .mermaid-fallback {
+        overflow: auto;
+        max-width: 100%;
+        padding: 16px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+      }
+      .mermaid-fallback svg {
+        display: block;
+        width: auto;
+        max-width: none;
+        height: auto;
+      }
       .diagram-shell.diagram-expanded {
         position: fixed;
         inset: 16px;
@@ -96,6 +115,10 @@
 
       const shell = document.createElement("div");
       shell.className = "diagram-shell";
+
+      const fallback = node.previousElementSibling?.classList.contains("mermaid-fallback")
+        ? node.previousElementSibling
+        : null;
 
       const toolbar = document.createElement("div");
       toolbar.className = "diagram-toolbar";
@@ -202,6 +225,7 @@
 
       node._applyDiagramScale = applyScale;
       node._fitDiagramToWidth = fitToWidth;
+      node._staticFallback = fallback;
 
       window.addEventListener("resize", () => {
         if (mode === "fit") {
@@ -213,6 +237,17 @@
     });
   }
 
+  function hydrateSources() {
+    document.querySelectorAll(".mermaid[data-mermaid-source]").forEach((node) => {
+      if (node.dataset.mermaidHydrated === "true") {
+        return;
+      }
+
+      node.textContent = node.getAttribute("data-mermaid-source") || "";
+      node.dataset.mermaidHydrated = "true";
+    });
+  }
+
   async function render() {
     if (typeof mermaid === "undefined") {
       return false;
@@ -220,31 +255,32 @@
 
     injectStyles();
     wrapDiagrams();
+    hydrateSources();
 
     const nodes = [...document.querySelectorAll(".mermaid")]
       .filter((node) => !node.querySelector("svg"));
 
-    if (nodes.length === 0) {
-      return true;
-    }
+    if (nodes.length > 0) {
+      nodes.forEach((node) => node.removeAttribute("data-processed"));
 
-    mermaid.initialize({
-      startOnLoad: false,
-      securityLevel: "loose",
-      theme: "default",
-      flowchart: {
-        htmlLabels: true,
-        curve: "basis",
-        useMaxWidth: false
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: "loose",
+        theme: "default",
+        flowchart: {
+          htmlLabels: true,
+          curve: "basis",
+          useMaxWidth: false
+        }
+      });
+
+      if (typeof mermaid.run === "function") {
+        await mermaid.run({ nodes });
+      } else if (typeof mermaid.init === "function") {
+        await mermaid.init(undefined, nodes);
+      } else {
+        throw new Error("Mermaid rendering API is unavailable");
       }
-    });
-
-    if (typeof mermaid.run === "function") {
-      await mermaid.run({ nodes });
-    } else if (typeof mermaid.init === "function") {
-      await mermaid.init(undefined, nodes);
-    } else {
-      throw new Error("Mermaid rendering API is unavailable");
     }
 
     document.querySelectorAll(".mermaid").forEach((node) => {
@@ -261,6 +297,12 @@
         node._fitDiagramToWidth();
       } else if (typeof node._applyDiagramScale === "function") {
         node._applyDiagramScale();
+      }
+
+      node.classList.add("diagram-rendered");
+      if (node._staticFallback) {
+        node._staticFallback.hidden = true;
+        node._staticFallback.setAttribute("aria-hidden", "true");
       }
     });
 
@@ -280,6 +322,10 @@
         .some((node) => !node.querySelector("svg"));
 
       if (!hasUnrendered) {
+        return;
+      }
+
+      if (typeof mermaid === "undefined" && attempts >= 20) {
         return;
       }
 
