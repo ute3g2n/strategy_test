@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P5-07 Phase5外部Data Gate申請・範囲表</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic",sans-serif;line-height:1.7;margin:32px auto;max-width:1280px;color:#172033;background:#f8fafc}
+    main{background:#fff;border:1px solid #d9e2ec;padding:28px}
+    h1{border-bottom:3px solid #1f2937;padding-bottom:10px} h2{border-bottom:1px solid #cbd5e1;margin-top:32px;padding-bottom:6px}
+    a{color:#0f5db8} table{border-collapse:collapse;width:100%;margin:14px 0;font-size:.9rem} th,td{border:1px solid #cbd5e1;padding:8px;vertical-align:top} th{background:#eef2f7;text-align:left}
+    .box{border-left:4px solid #2563eb;background:#eff6ff;padding:14px;margin:16px 0}.stop{border-left-color:#dc2626;background:#fef2f2}.warn{border-left-color:#b45309;background:#fffbeb}.ok{border-left-color:#059669;background:#ecfdf5}
+    .badge{border-radius:999px;padding:2px 8px;font-weight:700;background:#ffedd5;color:#9a3412}.small{font-size:.86rem;color:#475569}code{background:#f1f5f9;padding:1px 4px;border-radius:3px}
+  </style>
+</head>
+<body><main>
+  <p><a href="../../index.html">doc/index.html</a> ／ <a href="../00_実行計画/01_Phase5実行計画書.html">Phase5計画</a> ／ <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a> ／ <a href="../01_要件追跡/01_Phase5入力・Data対象・REQ追跡.html">P5-01追跡</a></p>
+  <h1>P5-07 Phase5外部Data Gate申請・範囲表</h1>
+  <section class="box warn">
+    <strong>成果物ID:</strong> P5-ART-07-EXTERNAL-DATA-GATE-001<br>
+    <strong>Phase / Step:</strong> PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12 / P5-07<br>
+    <strong>Plan:</strong> P5-PLAN-001 ／ 2026-08-12 Asia/Tokyo<br>
+    <strong>状態:</strong> <span class="badge">P5-07_COMPLETE_GATE_PREP_HUMAN_GATE_REQUIRED</span><br>
+    <strong>境界:</strong> 申請表、停止条件、Evidence構造、台帳同期のみ。外部I/O=0、Provider接続=0、Secret参照=0、費用発生=0、実Data取得=0。
+  </section>
+  <section class="box stop"><h2>Findings first</h2>
+    <table><thead><tr><th>ID</th><th>重大度</th><th>状態</th><th>内容・処置</th></tr></thead><tbody>
+      <tr><td>P5-07-F-001</td><td>Medium</td><td>OPEN / UNKNOWN</td><td>Provider、取得Runner、固定command、target scope、Evidence rootが未承認・未定義。<code>P5-EXTERNAL-WORKER-UNKNOWN</code>として台帳に保持し、P5-08を開始しない。</td></tr>
+      <tr><td>P5-07-F-002</td><td>Medium</td><td>RECORDED</td><td>Coordinatorの実spawnは<code>collab spawn failed: agent thread limit reached</code>で失敗。childは全員未起動としてreceiptに記録し、独立実行・独立レビューを主張しない。</td></tr>
+      <tr><td>P5-07-F-003</td><td>Medium</td><td>CLOSED</td><td>P5-H1／P5-06の固定local範囲を外部Data承認へ一般化していない。外部I/O、Secret、費用、Provider接続、実Data取得は実行していない。</td></tr>
+    </tbody></table>
+    <p><strong>判定:</strong> Critical=0、High=0。UnknownとHuman Gate未承認はPassへ変換していない。</p>
+  </section>
+  <section><h2>1. 発火制御と開始条件</h2>
+    <ul>
+      <li>P5-H0=APPROVED、P5-H1=APPROVED（固定local dummy品質Gateのみ）、P5-06正式PASSを確認した。</li>
+      <li>P5-DATA-G1は未承認であり、P4-H2／P5-H0／P5-H1では代用しない。</li>
+      <li>Providerが特定されていないため、公式一次情報調査は未実施。Provider承認後に公式URLと確認日を記録する。</li>
+      <li>P5-07では設計・読み取り・HTML・ログ・receiptだけを更新し、外部Data、Provider、Secret、費用、外部I/O、取得Runner起動、実Run、Broker、Paper、Live、実資金、実Risk、Cloud、Core、P4 DB、migration、repositoryを変更・実行しない。</li>
+    </ul>
+  </section>
+  <section><h2>2. P5-DATA-G1申請対象表</h2>
+    <p>空欄や仮値で承認を誘導しないため、未確定項目は明示的な状態と停止コードで示す。ここに記載された候補は、承認済みの実対象・実測値ではない。</p>
+    <table><thead><tr><th>項目</th><th>現在の状態</th><th>運用者が承認時に固定する内容</th><th>必須Evidence／未確定時の停止</th></tr></thead><tbody>
+      <tr><td>対象Symbol／論理市場ID</td><td>未承認・未確定。P5-01の候補を実対象へ一般化しない</td><td>Symbol、論理市場ID、取引所・契約識別子、対象除外</td><td>対象一覧・hash。欠落は<code>SCOPE_UNKNOWN</code></td></tr>
+      <tr><td>対象期間／as-of</td><td>未承認・未確定</td><td>UTC開始・終了、as-of時点、取得日、再取得可否</td><td>Calendar／期間Evidence。欠落は<code>PERIOD_UNKNOWN</code></td></tr>
+      <tr><td>時間足</td><td>候補はD1／H4／H1／M30／M15だが、実対象として未承認</td><td>対象時間足、bar境界、timezone、DST、as-of</td><td>Calendar version/hash。欠落は<code>CALENDAR_UNKNOWN</code></td></tr>
+      <tr><td>資産種類</td><td>P5-01の4資産種類は追跡上の候補であり、実Data範囲では未承認</td><td>資産種類、契約、単位、通貨</td><td>Catalog／Contract Evidence。欠落は<code>ASSET_SCOPE_UNKNOWN</code></td></tr>
+      <tr><td>Provider／契約／権限</td><td>未承認・Provider名なし</td><td>Provider名、契約版、利用権限、再配布可否、利用期限</td><td>公式契約・権限Evidence。欠落は<code>PROVIDER_GATE_REQUIRED</code></td></tr>
+      <tr><td>endpoint／rate／通信方式</td><td>未承認・未定義</td><td>endpoint、TLS、rate limit、allowlist、egress、retry、timeout</td><td>sanitized通信監査。欠落は<code>NETWORK_SCOPE_UNKNOWN</code></td></tr>
+      <tr><td>費用上限</td><td>未承認・費用発生なし</td><td>予算上限、単位、課金期間、超過時停止、費用Evidence</td><td>費用承認・請求Evidence。欠落は<code>COST_GATE_REQUIRED</code></td></tr>
+      <tr><td>Secret参照／mask／失効</td><td>Secret値は未参照・未出力</td><td>Secret ID、保管場所、mask、expiry、rotation、監査者</td><td>Secret metadataのみ。平文・鍵・Account IDは保存禁止</td></tr>
+      <tr><td>Raw／Normalized／Quality保存</td><td>未取得</td><td>承認済みRun ID配下の相対Evidence root、schema、immutable保存、content hash、provenance</td><td>各manifest／hash。欠落は<code>RAW_EVIDENCE_UNKNOWN</code>／<code>QUALITY_STOP</code></td></tr>
+      <tr><td>保持／再配布</td><td>未承認・未定義</td><td>保持期間、削除方法、バックアップ、再配布先、アクセス権</td><td>retention／redistribution承認。欠落は<code>RETENTION_GATE_REQUIRED</code></td></tr>
+      <tr><td>停止条件</td><td>本表で固定</td><td>scope外、hash不一致、Calendar不一致、欠損補完、未来Data、通信異常、費用超過、Secret異常、Unknown</td><td>fail-closedのStopDecision</td></tr>
+      <tr><td>取得Runner／固定command</td><td><code>P5-EXTERNAL-WORKER-UNKNOWN</code></td><td>実在Runner、固定command、version、依存、sandbox、network境界、再現手順</td><td>Runner登録・実行前検証。未定義ならP5-08を開始しない</td></tr>
+      <tr><td>host isolation</td><td>P5-06は固定local harnessでCONFIRMED。外部Data実行へ一般化しない</td><td>承認済み外部取得Runごとのhost isolation、execution ID、通信監査</td><td>host Evidence。Unknownは<code>QUALITY_STOP</code></td></tr>
+      <tr><td>Run ID／target_paths／再現手順</td><td>外部取得Runは未発行・未登録</td><td>固定Run ID、target_paths、checkout、環境、command、HEAD／change／data hash、sanitizedログ、restore</td><td>manifestと再現Run Evidence。欠落は<code>MANIFEST_UNKNOWN</code>／<code>REPRODUCTION_UNKNOWN</code></td></tr>
+    </tbody></table>
+  </section>
+  <section><h2>3. Gate状態と後続停止</h2>
+    <table><thead><tr><th>Gate／Step</th><th>状態</th><th>根拠</th><th>次の処置</th></tr></thead><tbody>
+      <tr><td>P5-DATA-G1</td><td><code>HUMAN_GATE_REQUIRED</code></td><td>Provider、対象範囲、契約、費用、Secret、通信、保存、Runnerが未承認または未定義</td><td>運用者が本表の範囲を明示承認するまで停止</td></tr>
+      <tr><td>P5-EXTERNAL-WORKER-UNKNOWN</td><td><code>OPEN / UNKNOWN</code></td><td>実在する固定Runner、command、target scope、Evidence rootがない</td><td>推測起動しない。承認後に実在Runnerを登録</td></tr>
+      <tr><td>P5-08</td><td><code>BLOCKED</code></td><td>P5-DATA-G1未承認かつRunner不明</td><td>外部I/O／Secret／費用／Data取得を開始しない</td></tr>
+      <tr><td>P5-09</td><td><code>BLOCKED</code></td><td>P5-08 Evidenceなし、P5-DATA-G1未承認</td><td>Quality／Calendar／Cost／Gap／Holdoutを実証しない</td></tr>
+      <tr><td>P5-10</td><td><code>NOT_STARTED</code></td><td>P5-09 Evidenceなし</td><td>UnknownをPassにせず、P5-H2候補を作らない</td></tr>
+      <tr><td>P5-11</td><td><code>NOT_STARTED</code></td><td>P5-H2未承認</td><td>完了記録・P6引渡しを作らない</td></tr>
+    </tbody></table>
+  </section>
+  <section><h2>4. REQ／UC／Test／Data object／Evidence／Gate接続</h2>
+    <table><thead><tr><th>REQ／UC／Test</th><th>Data object／判断</th><th>Evidence</th><th>Gate／停止</th></tr></thead><tbody>
+      <tr><td><code>REQ-V2-0027/0028</code>、<code>UC-V2-009〜014</code></td><td>DataRequest、対象期間、時間足、CalendarVersionRef</td><td>申請表、承認範囲、Calendar hash</td><td>P5-DATA-G1、<code>CALENDAR_UNKNOWN</code></td></tr>
+      <tr><td><code>REQ-V2-0029/0030/0032</code>、<code>UC-V2-014/034</code></td><td>RawDatasetRef、NormalizedDatasetRef、DataManifest、Provenance</td><td>Raw／Normalized／Manifest hash</td><td>P5-DATA-G1、<code>MANIFEST_UNKNOWN</code></td></tr>
+      <tr><td><code>REQ-V2-0031</code>、<code>UC-V2-015/016</code></td><td>QualityReport、StopDecision、通信／費用監査</td><td>Quality／Stop Evidence</td><td>P5-DATA-G1、<code>QUALITY_STOP</code></td></tr>
+      <tr><td><code>TEST-P5-DATA-GATE-001〜014</code></td><td>契約、Secret、Cost、Gap、Calendar、Runner、host isolationのGate行</td><td>本申請表、dispatch receipt</td><td>未承認／UnknownはPass不可</td></tr>
+      <tr><td><code>P5-TR-001〜005</code></td><td>Catalog／Contract／Raw／Quality／Cost／Holdoutの後続接続</td><td><a href="../01_要件追跡/01_Phase5入力・Data対象・REQ追跡.html">P5-01追跡表</a>、P5-02〜04</td><td>P5-08/09はGate後のみ</td></tr>
+    </tbody></table>
+  </section>
+  <section><h2>5. P5対象外</h2>
+    <p>Broker接続、Paper、Live、注文、実資金、実Risk、Account／OMS、Cloud、P4 DB、migration、Core変更、Application／UI変更、Provider以外の外部I/OはP5-07の対象外である。これらをP5-DATA-G1の承認対象へ混入させない。</p>
+  </section>
+  <section class="box"><h2>6. Runtime receipt</h2>
+    <p><a href="../../../tests/evidence/phase5/RUN-P5-07-GATE-PREP-001/dispatch-receipts.md">P5-07 dispatch receipt</a> ／ <a href="../../../tests/evidence/phase5/RUN-P5-07-GATE-PREP-001/dispatch-receipt.json">machine-readable receipt</a></p>
+    <p>指定Coordinatorのspawnはランタイムのagent thread limitで失敗した。全childを未起動、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>SELF_REVIEW_FALLBACK</code>として記録しており、独立実行・独立レビュー済みとは扱わない。</p>
+  </section>
+  <section><h2>7. 完了条件</h2>
+    <ul><li>P5-DATA-G1の判断項目を空欄・仮値なしの状態表として列挙。</li><li><code>P5-EXTERNAL-WORKER-UNKNOWN</code>を明示。</li><li>外部I/O／Secret／費用／実Data取得を実行していない。</li><li>REQ／UC／Test／Data object／Evidence／Gateを接続。</li><li>対象外のBroker／Paper／Live等を固定。</li><li>dispatch receiptを保存し、未起動Agentを独立実行済みと記載していない。</li></ul>
+    <p><strong>Critical=0、High=0。</strong> P5-08以降は、P5-DATA-G1と実在・固定・承認済みRunnerが揃うまで開始しない。</p>
+  </section>
+  <p class="small">作成日: 2026-08-12 ／ 状態更新: P5-07完了、P5-DATA-G1待ち。P5-H1はP5-DATA-G1の代替承認ではない。</p>
+</main></body></html>

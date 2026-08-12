@@ -41,4 +41,4 @@ The final native-Windows `run_test.ps1` execution completed with wrapper exit co
 
 Self-review fallback records for A150 and A160 are under `tests/evidence/phase5/RUN-P5-06-LOCAL-001/reviews/`; both record Critical=0 and High=0. Runtime dispatch remains fallback and is not claimed as independent review; the host-isolation finding was resolved by the final execution Evidence.
 
-`P5-07` was **not started**. P5-06 is formally PASS for the approved fixed-local scope. P5-DATA-G1 and P5-H2 remain unapproved; external Data, Provider, Secret, Broker, Paper, Live, real funds, and Cloud remain out of scope.
+P5-06 is formally PASS for the approved fixed-local scope. P5-07 subsequently prepared the external Data Gate application table, but P5-DATA-G1 and P5-H2 remain unapproved; external Data, Provider, Secret, Broker, Paper, Live, real funds, and Cloud remain out of scope.

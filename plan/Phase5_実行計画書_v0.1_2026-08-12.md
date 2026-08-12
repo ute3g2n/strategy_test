@@ -4,7 +4,7 @@
 - Phase ID: `PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12`
 - 対象Phase: Phase 5 市場データ運用化と実証
 - 作成日: 2026-08-12（Asia/Tokyo）
-- 状態: `P5-06_BLOCKED_HOST_OUTBOUND_ISOLATION_UNKNOWN`
+- 状態: `P5-07_COMPLETE_GATE_PREP_HUMAN_GATE_REQUIRED`
 - 前Phase: Phase 4 Product/Application・Backtest（`P4-PLAN-001`）
 - 前Phase承認: `P4-H2=APPROVED`。P4-H2はPhase 5の実装、外部Data取得、Secret投入、外部I/Oを承認しない。
 - 計画作成標準: `AutoTradePhasePlanning_Orchestrator_v0_1`、`AutoTrade_A05_PhaseExecutionPlanner_v0_1`、`autotrade_skill_phase_execution_planning_v0_1`
@@ -97,14 +97,14 @@ Phase 5は、P4で作成したProduct/ApplicationのData接続点を引き継ぎ
 | P5-04 | Cost／Slippage／Gap／長期／Holdout／Walk-forward／Test設計 | P5-02、P5-03 | P5-H0 | 不可 | 品質・Run Manifest設計HTML、ログ |
 | P5-05 | 詳細設計レビュー、改訂、再レビュー、P5-H1候補 | P5-01〜04 | P5-H0 | 不可 | 統合レビューHTML、ログ |
 | P5-H1 | ローカル固定ダミー実装・品質の開始承認 | P5-05 | 人間承認 | 不可 | 承認記録 |
-| P5-06 | 固定local Data contract／QualityのRED→GREEN・品質Gate | P5-H1 | `BLOCKED` | 不可 | RED/GREEN direct Evidenceはあり。`UNK-P4-04D-004` host outbound isolation未証明のため正式GateはBLOCKED |
-| P5-07 | 外部Data Gate準備、承認対象表、台帳同期 | P5-06 | 未開始 | 不可 | P5-06_BLOCKEDの解消後のみ開始 |
+| P5-06 | 固定local Data contract／QualityのRED→GREEN・品質Gate | P5-H1 | `PASS` | 不可 | 正式4 Gate、host isolation、fixture pre/post hash一致、wrapper exit 0 |
+| P5-07 | 外部Data Gate準備、承認対象表、台帳同期 | P5-06 | 申請表完了・P5-DATA-G1待ち | 不可 | `P5-EXTERNAL-WORKER-UNKNOWN`を保持。外部I/OはP5-DATA-G1承認まで開始しない |
 | P5-DATA-G1 | Provider専用の外部Data Gate | P5-07 | 人間承認 | 承認前不可 | 承認記録、台帳同期 |
-| P5-08 | 承認範囲内の限定Data取得・Raw／Normalized Evidence | P5-DATA-G1 | P5-DATA-G1 | 条件付き可 | Data取得Evidence |
-| P5-09 | Quality／Calendar／Cost／Gap／期間分割／Holdout実証 | P5-08 | P5-DATA-G1 | 条件付き可 | 実証Report、Evidence |
-| P5-10 | 統合・独立レビュー、Unknown再分類、P5-H2候補 | P5-06、P5-09 | P5-DATA-G1 | 不可 | 完了候補HTML、ログ |
+| P5-08 | 承認範囲内の限定Data取得・Raw／Normalized Evidence | P5-DATA-G1 | `BLOCKED` | 不可 | P5-DATA-G1未承認、`P5-EXTERNAL-WORKER-UNKNOWN`。外部I/O／Secret／費用／Data取得なし |
+| P5-09 | Quality／Calendar／Cost／Gap／期間分割／Holdout実証 | P5-08 | `BLOCKED` | 不可 | P5-DATA-G1未承認、P5-08 Evidenceなし。実証・実測・Holdout操作なし |
+| P5-10 | 統合・独立レビュー、Unknown再分類、P5-H2候補 | P5-06、P5-09 | `NOT_STARTED` | 不可 | P5-08／09 Evidenceなし。UnknownをPassにせず、P5-H2候補を作成しない |
 | P5-H2 | P5完了・P6引渡し承認 | P5-10 | 人間承認 | 不可 | 承認記録 |
-| P5-11 | 完了記録、台帳同期、P6入力引渡し | P5-H2 | P5-H2 | 不可 | 完了HTML、引渡し一覧、ログ |
+| P5-11 | 完了記録、台帳同期、P6入力引渡し | P5-H2 | `BLOCKED` | 不可 | P5-H2未承認、P5-10候補なし。完了HTML・P6入力・完了宣言なし |
 
 P5-01とP5-02はP5-01完了後にP5-02を開始する。P5-03、P5-04はP5-02の契約骨子を前提に逐次実行する。P5-05でレビューを閉じるまでP5-H1へ進まない。P5-08／09はP5-DATA-G1承認後だけ発火する。P5-10は実証Evidenceが不足している場合、UnknownをPassにせずP5-H2候補を作らない。
 
@@ -145,8 +145,8 @@ P5-08の外部Data取得用に、既存の実行可能な外部I/O Worker／Runn
 | `Q-243` | 後続Gate | Product／Architecture／運用者 | 安全境界、初期候補、実行可能性、性能 | 4項目を分離し、未決をPassにしない |
 | `RQV2-BLK-001` | operator override履歴 | Requirements／Document control | `tests/evidence/phase1/`欠落と適用範囲 | 機械PASSへ一般化しない |
 | `UNK-P4-04B-001〜005` | 未解消 | Persistence／Ops／DB Gate前 | retention、backup、SQLite version、concurrency、migration | P5 DB作成・migrationへ流用しない |
-| `UNK-P4-04D-004` | 未解消 | Ops／Security | host outbound isolation | 外部Data実証前に方式とEvidenceをGateで固定 |
-| `P5-06_BLOCKED` | BLOCKED | Ops／Security／Human Gate | `UNK-P4-04D-004`により正式4 Gate未実行 | 承認済みhost harnessによるoutbound isolation Evidenceを固定し、同一Run Manifestで再実行 |
+| `UNK-P4-04D-004` | 解消済み（P5-06 formal local host Evidence） | Ops／Security | 固定local harnessのhost outbound isolation | 外部Data実行へ一般化せず、P5-DATA-G1後の外部Runで再確認 |
+| `P5-06_BLOCKED` | 解消 | Ops／Security／Human Gate | P5-06正式WSL隔離品質Gateでhost isolation CONFIRMED、4 Gate PASS | P5-06正式EvidenceをP5-07へ引き渡し |
 | `UNK-P4-UI-002` | 未解消 | UI QA／Ops | font／OS／DPR／browser baseline | P5 UI表示をformal pixel PASSにしない |
 | `EXTERNAL-DATA-PROVIDER-SECRET` | 未承認 | 運用者／Data／Security | 契約、費用、Secret mask、通信、保存境界 | P5-DATA-G1未承認なら外部I/O禁止 |
 | `P5-EXTERNAL-WORKER-UNKNOWN` | 未定義 | Architecture／Ops／期限はP5-DATA-G1前 | 取得Runner、固定command、scope、hash、Evidence | 推測起動せず、実証完了を宣言しない |
