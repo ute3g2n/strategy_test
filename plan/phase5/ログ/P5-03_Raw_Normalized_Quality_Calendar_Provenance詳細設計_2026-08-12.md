@@ -11,11 +11,11 @@
 
 ## Runtime dispatch receipt
 
-`multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` は現在のruntime toolsに存在しない。Orchestrator実spawn及び各childの順次spawn/waitは不可能である。名前やJSON読込を起動証跡として扱っていない。
+rootでは `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の実起動を確認した。Orchestratorは実spawn・wait完了した。一方、Coordinator内のchild runtimeは利用不能で、各childの個別spawn/waitはfallbackとなった。名前やJSON読込を起動証跡として扱っていない。
 
 | orchestrator | JSON path | model | spawn | wait | agent_id | output_ref | fallback_reason | independent | review_mode |
 |---|---|---|---|---|---|---|---|---|---|
-| AutoTradeProject_ImplementationDesign_Orchestrator_v0_1 | `C:/project/strategy_test/.codex/orchestrators/AutoTradeProject_ImplementationDesign_Orchestrator_v0_1.json` | gpt-5.6-terra | UNAVAILABLE | UNAVAILABLE | N/A | N/A | RUNTIME_DISPATCH_FALLBACK_REQUIRED; root spawn/wait unavailable | false | SELF_REVIEW_FALLBACK |
+| AutoTradeProject_ImplementationDesign_Orchestrator_v0_1 | `C:/project/strategy_test/.codex/orchestrators/AutoTradeProject_ImplementationDesign_Orchestrator_v0_1.json` | gpt-5.6-terra | SPAWNED | COMPLETED | `019ff5a5-e463-7101-ae54-5441b098f192` | `agent://019ff5a5-e463-7101-ae54-5441b098f192/final` | Coordinator child runtime unavailable; child fallback recorded below | false | COORDINATOR_RECEIPT_WITH_CHILD_FALLBACK |
 
 ### Complete child receipt (exact required order)
 
