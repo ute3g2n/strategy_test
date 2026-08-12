@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P5-02 Data Catalog / Provider / Data Contract 詳細設計書</title>
+  <style>
+    body{font-family:"Segoe UI","Yu Gothic",Meiryo,sans-serif;line-height:1.7;margin:28px auto;max-width:1240px;color:#172033;background:#f8fafc}main{background:#fff;border:1px solid #d9e2ec;padding:28px}h1{border-bottom:3px solid #1f2937;padding-bottom:10px}h2{border-bottom:1px solid #cbd5e1;margin-top:34px;padding-bottom:6px}table{border-collapse:collapse;width:100%;margin:14px 0}th,td{border:1px solid #cbd5e1;padding:8px 10px;vertical-align:top;text-align:left}th{background:#eef2f7}code{overflow-wrap:anywhere}.meta,.note,.stop{border-left:4px solid #2563eb;background:#eff6ff;padding:12px 14px;margin:16px 0}.stop{border-color:#dc2626;background:#fef2f2}.ok{border-left:4px solid #059669;background:#ecfdf5;padding:12px 14px;margin:16px 0}.small{color:#526174;font-size:.92em}a{color:#0f5db8}
+  </style>
+</head>
+<body><main>
+  <p><a href="../../index.html">doc/index.html</a> / <a href="../00_実行計画/01_Phase5実行計画書.html">Phase 5 実行計画</a> / <a href="../01_要件追跡/01_Phase5入力・Data対象・REQ追跡.html">P5-01</a> / <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
+  <h1>P5-02 Data Catalog / Provider / Data Contract 詳細設計書</h1>
+  <div class="meta"><strong>文書ID:</strong> P5-ART-02-DATA-CONTRACT-001<br><strong>Phase / Step:</strong> PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12 / P5-02<br><strong>Plan:</strong> P5-PLAN-001　<strong>作成日:</strong> 2026-08-12 (Asia/Tokyo)<br><strong>状態:</strong> COMPLETED_WITH_LOCAL_FALLBACK_SELF_REVIEW。実Agentの独立実行・独立レビューは行っていない。</div>
+  <div class="stop"><strong>発火禁止:</strong> 本書は設計だけである。Provider、endpoint、Secret、外部Data、費用、Cloud、依存、実Run、Core、P4 DB、実装を一切開始・接続・変更しない。実Symbol、取引所、限月、Roll、単位、Provider、契約・権限・保持・再配布条件、費用、通信値は未確認であり推測しない。</div>
+
+  <h2>1. 設計目的と後続接続</h2>
+  <p>論理的な市場対象を、将来の確認済み外部識別子に安全に結び付けるためのCatalogと、取得前・取得後のData contract境界を定義する。P5-03は本書の識別子・版・path/hash契約を使いRaw/Normalized/Quality/Calendar/Provenanceを詳細化し、P5-04はQuality、Cost/Gap、期間分割、Holdoutのテストを詳細化する。P5-DATA-G1では未確認欄を埋める人間判断を要求する。</p>
+  <table><thead><tr><th>受渡ID</th><th>受渡物</th><th>宛先</th><th>未確認時の扱い</th></tr></thead><tbody>
+    <tr><td>P5-02-OUT-01</td><td>CatalogVersion、LogicalInstrumentId、AssetType、TimeframeId</td><td>P5-03 / P5-04</td><td>UNCONFIRMEDのまま。Data requestを作らない。</td></tr>
+    <tr><td>P5-02-OUT-02</td><td>ProviderCapability / DataRequest / 通信・Secret境界</td><td>P5-DATA-G1</td><td>人間承認対象として列挙し、接続禁止。</td></tr>
+    <tr><td>P5-02-OUT-03</td><td>relative path、hash、再生成、保持・削除・再配布の契約</td><td>P5-03 / P5-DATA-G1</td><td>保持期間・権利が未確認なら保存・再配布しない。</td></tr>
+  </tbody></table>
+
+  <h2>2. ドメイン構造</h2>
+  <p>論理IDは戦略・テストが参照する安定キーであり、現実のSymbolそのものではない。外部識別子への対応付けはCatalog versionで履歴化し、未確認の対応付けを解決済みへ変更しない。</p>
+  <pre>LogicalInstrumentId + CatalogVersion
+  └─ LogicalInstrumentMapping (UNCONFIRMED | CONFIRMED | RETIRED)
+       ├─ real_symbol / exchange / expiry / roll_rule / unit_ref (確認後のみ値を格納)
+       ├─ ProviderCapabilityRef (確認後のみ)
+       └─ EvidenceRef + approved_gate_ref
+
+DataRequest --(承認済み mapping と capability が必須)--> RawDatasetRef
+RawDatasetRef -> NormalizedDatasetRef -> QualityReportRef -> DataManifestRef -> EvidenceRef</pre>
+  <table><thead><tr><th>型 / 識別子</th><th>必須フィールド</th><th>禁止・不変条件</th></tr></thead><tbody>
+    <tr><td>CatalogVersion</td><td>catalog_version_id、created_at、source_evidence_ref、status</td><td>実DataなしでCONFIRMEDにしない。既存版を書換えず新版を発行。</td></tr>
+    <tr><td>LogicalInstrument</td><td>logical_instrument_id、asset_type、display_label、mapping_status</td><td>real_symbolを必須にしない。未確認値をplaceholder実値にしない。</td></tr>
+    <tr><td>LogicalInstrumentMapping</td><td>mapping_id、logical_instrument_id、catalog_version_id、mapping_status、evidence_ref</td><td>exchange/expiry/roll_rule/unit_ref/provider_refはCONFIRMED時のみ記録可能。</td></tr>
+    <tr><td>TimeframeBinding</td><td>logical_instrument_id、timeframe_id、calendar_version_ref、status</td><td>D1/H4/H1/M30/M15以外をP5 scopeへ追加しない。</td></tr>
+    <tr><td>ProviderCapability</td><td>provider_capability_id、provider_status、contract_status、permission_status、evidence_ref</td><td>provider名、endpoint、rate、料金、権限を推測・仮値化しない。</td></tr>
+    <tr><td>DataRequest</td><td>request_id、catalog_version_ref、mapping_ref、timeframe_id、period_ref、purpose、gate_ref、status</td><td>gate_ref=P5-DATA-G1 APPROVEDでなければ送信不可。</td></tr>
+  </tbody></table>
+
+  <h2>3. 対象範囲と未確認の外部対応</h2>
+  <table><thead><tr><th>区分</th><th>固定する論理範囲</th><th>外部対応の状態</th><th>確認Evidence / 決定者</th></tr></thead><tbody>
+    <tr><td>初期候補</td><td>MCL, M6A, MZC, MZS, MZW（論理ID）</td><td>real_symbol、exchange、expiry、roll、unit、ProviderはUNCONFIRMED</td><td>P5-DATA-G1の承認対象。Data ownerが一次情報・契約を確認。</td></tr>
+    <tr><td>資産種類</td><td>futures、stocks、FX、crypto</td><td>各論理IDへの分類・対象可否はUNCONFIRMED</td><td>Catalog evidenceでのみ確定。</td></tr>
+    <tr><td>時間足</td><td>D1、H4、H1、M30、M15</td><td>各Data sourceの提供可否・timezone・sessionはUNCONFIRMED</td><td>Provider capabilityとCalendar evidenceで確認。</td></tr>
+  </tbody></table>
+  <div class="note"><strong>Catalog登録条件:</strong> LogicalInstrumentは外部値なしで登録できる。LogicalInstrumentMappingをCONFIRMEDへ遷移するには、承認済みP5-DATA-G1、対応するProvider/契約/権限Evidence、実Symbol・取引所・限月・Roll・単位の根拠、CatalogVersionをすべて必要とする。欠ける場合はUNCONFIRMEDでFail-closedとする。</div>
+
+  <h2>4. Provider・Data request境界</h2>
+  <p>Provider adapterは契約を表現するだけで、SDK、HTTP client、認証、endpoint接続、費用発生を含まない。P4 DBへRaw/Normalized/Quality本文を保存しない。将来の実装はP5-H1後の別Stepとし、外部取得はP5-DATA-G1後に承認済みRunnerが存在する場合だけ検討できる。</p>
+  <table><thead><tr><th>境界</th><th>入力</th><th>出力</th><th>Fail-closed</th></tr></thead><tbody>
+    <tr><td>Catalog resolver</td><td>LogicalInstrumentId、CatalogVersion</td><td>MappingRefまたはUNCONFIRMED</td><td>CONFIRMED Evidence不在、版不一致、asset/timeframe scope外。</td></tr>
+    <tr><td>Provider capability resolver</td><td>ProviderCapabilityRef</td><td>権限・契約・再配布・retention確認結果</td><td>Provider/契約/費用/権限/通信値のいずれか不明。</td></tr>
+    <tr><td>Data request validator</td><td>DataRequest、MappingRef、CapabilityRef、GateRef</td><td>REQUEST_ALLOWED または拒否理由</td><td>P5-DATA-G1未承認、対象・期間・時間足・Runner・Secret参照・host isolationが未登録。</td></tr>
+    <tr><td>Data object pipeline</td><td>RawDatasetRef</td><td>Normalized/Quality/Manifest/Evidenceの参照</td><td>hash、relative path、provenance、Calendar、schema版の不整合。</td></tr>
+  </tbody></table>
+
+  <h2>5. 保存・hash・再生成の契約</h2>
+  <table><thead><tr><th>オブジェクト</th><th>許可する内容</th><th>参照・完全性</th><th>保存 / 再生成の規則</th></tr></thead><tbody>
+    <tr><td>Raw</td><td>承認後にのみ取得した不変の受信内容</td><td>request hash、content hash、received_at、source provenance</td><td>相対pathのみをManifestへ記録。保持・削除・再配布は契約確認後のみ。</td></tr>
+    <tr><td>Normalized</td><td>Rawから決定的に変換したData</td><td>raw hash、schema version、transform version、content hash</td><td>再生成はRaw hashと固定変換版が一致する場合だけ。補完禁止。</td></tr>
+    <tr><td>Quality</td><td>検査結果と停止決定</td><td>normalized hash、calendar version、rule version、report hash</td><td>失敗報告を上書きしない。P5-03/04が検査内容を定義。</td></tr>
+    <tr><td>Manifest</td><td>Dataset間の参照、版、hash、相対path</td><td>Catalog/Calendar/schema/quality/transform hash</td><td>絶対path、Secret、未mask識別子を含めない。</td></tr>
+    <tr><td>Evidence</td><td>sanitized decision、hash、Gate、監査参照</td><td>manifest hash、approved gate ref、audit event ref</td><td>Secret値・受信本文・無断再配布物を含めない。</td></tr>
+  </tbody></table>
+  <p class="small">relative pathは将来の承認済みEvidence rootからの相対指定だけを許可する。root、保持期間、削除手順、再配布可否、暗号化・アクセス権はP5-DATA-G1で契約Evidenceに基づき確定するまでUNCONFIRMEDである。</p>
+
+  <h2>6. Secret・通信・監査境界</h2>
+  <table><thead><tr><th>領域</th><th>設計規則</th><th>拒否条件</th></tr></thead><tbody>
+    <tr><td>Secret reference</td><td>値でなくsecret_reference_id、owner、purpose、expiry_at、mask_policy、audit_refだけを扱う。</td><td>平文、token/API key、URI内credential、未承認用途、失効・期限不明。</td></tr>
+    <tr><td>通信許可</td><td>P5-DATA-G1で対象Provider、endpoint、method、rate、egress、Runner、host isolationを明示承認した単位だけ。</td><td>現時点の通信は全拒否。別Provider、redirect、DNS/endpoint変更、Cloud、Broker/Paper/Liveは拒否。</td></tr>
+    <tr><td>費用・契約</td><td>contract_ref、permission_ref、cost_limit_ref、redistribution_refをDataRequestに必須化する。</td><td>値・上限・契約・利用権限のいずれか未確認。</td></tr>
+    <tr><td>監査</td><td>request decision、mask結果、expiry判定、通信決定、hash、停止理由をEvidence参照として記録。</td><td>Secret値、外部Data本文、認証情報を監査ログに残すこと。</td></tr>
+  </tbody></table>
+
+  <h2>7. 失敗処理・テスト設計入口</h2>
+  <table><thead><tr><th>TEST-P5-DATA-ID</th><th>固定入力 / 操作</th><th>期待結果 / Evidence</th><th>後続</th></tr></thead><tbody>
+    <tr><td>TEST-P5-02-CATALOG-001</td><td>実外部値なしのLogicalInstrument</td><td>UNCONFIRMEDを返しDataRequestを拒否。decision Evidence。</td><td>P5-03, P5-06</td></tr>
+    <tr><td>TEST-P5-02-CATALOG-002</td><td>CatalogVersionまたはmapping Evidence不一致</td><td>resolver拒否、hash/版不一致を記録。</td><td>P5-03, P5-04</td></tr>
+    <tr><td>TEST-P5-02-REQUEST-001</td><td>P5-DATA-G1未承認のDataRequest</td><td>通信なし、REQUEST_DENIED、Gate不足Evidence。</td><td>P5-06, P5-DATA-G1</td></tr>
+    <tr><td>TEST-P5-02-SECRET-001</td><td>平文・期限不明・mask失敗のSecret参照</td><td>処理停止、値を出力せず監査参照だけを記録。</td><td>P5-04, P5-06</td></tr>
+    <tr><td>TEST-P5-02-MANIFEST-001</td><td>absolute path / hash欠落 / 再配布不明</td><td>Manifest生成・再生成を拒否し停止理由を記録。</td><td>P5-03, P5-04</td></tr>
+  </tbody></table>
+
+  <h2>8. REQ・Unknown・Gate追跡</h2>
+  <table><thead><tr><th>追跡ID</th><th>設計決定</th><th>Evidence / Gate</th><th>状態</th></tr></thead><tbody>
+    <tr><td>P5-TR-001</td><td>論理IDと実外部IDをCatalogVersionで分離</td><td>Catalog evidence → P5-DATA-G1</td><td>設計済み / 外部値未確認</td></tr>
+    <tr><td>P5-TR-002</td><td>4資産種類・5時間足を論理scopeに固定</td><td>P5-01 → P5-03/04 Test → P5-DATA-G1</td><td>設計済み / 提供可否未確認</td></tr>
+    <tr><td>P5-TR-003</td><td>Raw/Normalized/Quality/Manifest/Evidenceのhash参照境界</td><td>P5-03/04 → P5-06/08 Evidence</td><td>設計済み / 実Data未取得</td></tr>
+    <tr><td>P5-TR-004</td><td>Secret、通信、費用、再配布をDataRequestの必須Gate項目にする</td><td>P5-DATA-G1</td><td>HUMAN_GATE_REQUIRED</td></tr>
+  </tbody></table>
+  <div class="stop"><strong>未解消:</strong> UNK-P3-01（長期Data）、UNK-P3-05（Cost/Slippage/Gap）、UNK-P3-07（正規Calendar）およびProvider、契約、権限、endpoint、費用、Secret、retention、redistribution、外部Runnerは未確定である。いずれも本書でPass化しない。P5-03/P5-04はこの状態を入力として設計を続けられるが、P5-08以降の外部Data実行はP5-DATA-G1まで禁止する。</div>
+
+  <h2>9. レビュー結果・改訂履歴</h2>
+  <div class="ok"><strong>LOCAL SELF-REVIEW 結果:</strong> Critical=0、High=0。未確認外部値はすべてUNCONFIRMED/HUMAN_GATE_REQUIREDとして扱い、外部接続・Secret・費用・実装・DB変更を含めていない。これは独立レビューではない。</div>
+  <table><thead><tr><th>版</th><th>日付</th><th>変更</th></tr></thead><tbody><tr><td>v0.1</td><td>2026-08-12</td><td>P5-02初版。Catalog、Provider、Data contract、保存、Secret/通信、Fail-closed、P5-03/04/G1接続を定義。</td></tr></tbody></table>
+</main></body></html>
