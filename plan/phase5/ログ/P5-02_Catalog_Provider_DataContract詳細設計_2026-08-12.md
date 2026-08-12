@@ -4,7 +4,7 @@
 - Phase: `PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12`
 - Plan: `P5-PLAN-001`
 - Scope: design/read/HTML/log only
-- 状態: `COMPLETED_WITH_LOCAL_FALLBACK_SELF_REVIEW`
+ - 状態: `P5-02_COMPLETE_WITH_FALLBACK_REVIEW`
 
 ## 発火制御
 
@@ -12,13 +12,13 @@
 
 ## Runtime dispatch receipt
 
-`multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` は、この実行環境の公開ツール一覧に存在しなかった。そのため作業前に `RUNTIME_DISPATCH_FALLBACK_REQUIRED` と `LOCAL_FALLBACK_NO_SUBAGENTS` を判定した。Agent名・JSON読込・自己レビューを起動証跡として扱っていない。
+rootでは `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の可用性を確認し、指定Orchestratorを実spawnした。初回waitは複数回timeoutしたが、同じagent_idへ再waitし、Coordinatorの完了出力を取得した。Coordinator内部ではchild runtimeが利用できず、10 Agentは未起動だったため、そのfallbackを子receiptへ記録した。Agent名・JSON読込・自己レビューを独立起動の証拠として扱っていない。
 
 ### Root receipt
 
 | orchestrator | JSON path | model | spawn | wait | agent_id | output_ref | fallback_reason | independent | review_mode |
 |---|---|---|---|---|---|---|---|---|---|
-| AutoTradeProject_ImplementationDesign_Orchestrator_v0_1 | `C:/project/strategy_test/.codex/orchestrators/AutoTradeProject_ImplementationDesign_Orchestrator_v0_1.json` | gpt-5.6-terra | UNAVAILABLE | UNAVAILABLE | N/A | `doc/phase5/02_データ詳細設計/02_Data_Catalog_Provider_DataContract詳細設計書.html` | RUNTIME_DISPATCH_FALLBACK_REQUIRED; runtime tool unavailable | false | SELF_REVIEW_FALLBACK |
+| AutoTradeProject_ImplementationDesign_Orchestrator_v0_1 | `C:/project/strategy_test/.codex/orchestrators/AutoTradeProject_ImplementationDesign_Orchestrator_v0_1.json` | gpt-5.6-terra | SPAWNED | COMPLETED | `019ff59c-6ada-7352-9f09-bf5401af5611` | `agent://019ff59c-6ada-7352-9f09-bf5401af5611/final` | Coordinator child runtime unavailable; child fallback recorded | false | COORDINATOR_RECEIPT_WITH_CHILD_FALLBACK |
 
 ### Complete child receipt (required order)
 
@@ -48,9 +48,13 @@
 
 ## 成果物と検証
 
-- `doc/phase5/02_データ詳細設計/02_Data_Catalog_Provider_DataContract詳細設計書.html`
-- `doc/index.html` のP5-02導線
-- `doc/00_全Phase残課題Blocked統合台帳.html` のP5現在状態
-- `git diff --check`: PASS
+ - `doc/phase5/02_データ詳細設計/02_Data_Catalog_Provider_DataContract詳細設計書.html`（AF-D16のDD-01〜DD-12、Mermaid、受渡し表、型付き契約、失敗系、全15テストを反映）
+ - `doc/index.html` のP5-02導線
+ - `doc/00_全Phase残課題Blocked統合台帳.html` のP5現在状態
+ - `git diff --check`: PASS
+ - `LINKS_PASS`: P5-01、計画、台帳、P5-03／04／05予定リンクを静的確認。
+ - `BOUNDARY_SCAN_PASS`: 外部scriptはローカルMermaid資産のみ。外部URL、Secret値、Bearer token、API key形式、UNC pathなし。
+ - `AF-D16_COVERAGE_PASS`: 先頭六節、DD-01〜DD-12、Mermaid受渡し図・表、型・エラー・冪等性・保存・失敗・全テストを確認。
+ - `STATE_SYNC_PASS`: P5-02状態、P5-H1／P5-DATA-G1未承認、Unknown未解消をHTML／ログ／index／台帳で同期。
 
 P5-03/P5-04は本書のCatalog、DataRequest、hash/path、Fail-closed境界を入力とする。P5-DATA-G1は未承認であり、Provider、Secret、外部Data、費用、通信、Runnerを開始しない。
