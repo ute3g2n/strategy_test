@@ -177,7 +177,7 @@ try {
     $runnerArguments.AddRange([string[]]("-d", $Distro))
     if ($RunAsRoot) { $runnerArguments.AddRange([string[]]("-u", "root")) }
     $shellScript = if ($EvidencePhase -eq "phase3") { "run_isolated_p3.sh" } else { "run_isolated_p2.sh" }
-    $runnerArguments.AddRange([string[]]("--", "bash", "-lc", "cd / && cd '$RepositoryPath' && exec bash scripts/wsl_quality_gate/$shellScript '$RepositoryPath' '$RunId' '$executionId'"))
+    $runnerArguments.AddRange([string[]]("--", "bash", "-lc", "cd / && cd '$RepositoryPath' && exec bash scripts/wsl_quality_gate/$shellScript '$RepositoryPath' '$RunId' '$executionId' '$EvidencePhase'"))
     $runner = Invoke-WslCapture $runnerArguments
     $verificationPathInWsl = "$RepositoryPath/tests/evidence/$EvidencePhase/$RunId/verification.json"
     $verificationArguments = [string[]]("-d", $Distro, "--", "bash", "-lc", "cd / && base64 -w0 '$verificationPathInWsl'")

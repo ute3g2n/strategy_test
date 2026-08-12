@@ -4,8 +4,13 @@ set -Eeuo pipefail
 repository_path="${1:?repository path is required}"
 run_id="${2:-RUN-P2-IC-001-WSL}"
 host_execution_id="${WSL_HOST_WRAPPER_EXECUTION_ID:-${3:?host wrapper execution id is required}}"
+evidence_phase="${4:-phase2}"
 distro="${WSL_DISTRO_NAME:-unknown}"
-evidence_root="$repository_path/tests/evidence/phase2/$run_id"
+if [[ ! "$evidence_phase" =~ ^phase[0-9]+$ ]]; then
+  printf 'invalid evidence phase: %s\n' "$evidence_phase" >&2
+  exit 20
+fi
+evidence_root="$repository_path/tests/evidence/$evidence_phase/$run_id"
 manifest="$evidence_root/run-manifest.json"
 python_bin="$repository_path/.venv/bin/python"
 
