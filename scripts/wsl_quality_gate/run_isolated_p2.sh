@@ -110,9 +110,9 @@ fi
 if [[ "$input_kind" == "dbn" ]]; then
   dbn_imports="$(grep -RIlE '^[[:space:]]*(import|from)[[:space:]]+databento([[:space:]]|$)' "$repository_path/src/autotrade/market_data" || true)"
   [[ "$dbn_imports" == "$repository_path/src/autotrade/market_data/databento_dbn_decoder.py" ]] || blocked "databento import is allowed only in the DBN decoder adapter"
-elif grep -RInE '^[[:space:]]*(import|from)[[:space:]]+databento([[:space:]]|$)' \
-  "$repository_path/src/autotrade/market_data"; then
-  blocked "databento import is outside the DBN trusted scope"
+else
+  dbn_imports="$(grep -RIlE '^[[:space:]]*(import|from)[[:space:]]+databento([[:space:]]|$)' "$repository_path/src/autotrade/market_data" || true)"
+  [[ -z "$dbn_imports" || "$dbn_imports" == "$repository_path/src/autotrade/market_data/databento_dbn_decoder.py" ]] || blocked "databento import is outside the DBN trusted scope"
 fi
 
 addr_summary="$(ip addr show up 2>/dev/null || true)"
