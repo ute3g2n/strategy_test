@@ -19,6 +19,8 @@ _BLOCKING_FLAGS = frozenset(
         "INSTRUMENT_ID_INVALID",
         "RAW_OBJECT_ID_INVALID",
         "CHECKSUM_MISMATCH",
+        "CALENDAR_MISMATCH",
+        "FUTURE_DATA",
     }
 )
 _WARNING_FLAGS = frozenset({"DEGRADED", "PRICE_INVALID", "VOLUME_INVALID"})
@@ -34,8 +36,19 @@ class QualityChecker:
         *,
         injected_flags: tuple[str, ...] = (),
         excluded_ranges: tuple[str, ...] = (),
+        as_of_utc: datetime | None = None,
+        calendar_hash: str | None = None,
+        expected_calendar_hash: str | None = None,
     ) -> QualityReport:
         flags = set(injected_flags)
+        if calendar_hash != expected_calendar_hash and (
+            calendar_hash is not None or expected_calendar_hash is not None
+        ):
+            flags.add("CALENDAR_MISMATCH")
+        if as_of_utc is not None and (
+            as_of_utc.tzinfo is None or as_of_utc.utcoffset() is None or as_of_utc.utcoffset() != timedelta(0)
+        ):
+            flags.add("TIMESTAMP_INVALID")
         if not bars:
             flags.add("MISSING_DATA")
         deduplicated_count = 0
@@ -68,6 +81,8 @@ class QualityChecker:
             if previous_time is not None and bar.event_time_utc < previous_time:
                 flags.add("OUT_OF_ORDER")
             last_event_time[bar.instrument_id] = bar.event_time_utc
+            if as_of_utc is not None and bar.event_time_utc > as_of_utc:
+                flags.add("FUTURE_DATA")
             if not _valid_prices(bar):
                 flags.add("PRICE_INVALID")
             if not isinstance(bar.volume, int) or isinstance(bar.volume, bool) or bar.volume < 0:

@@ -583,7 +583,7 @@ def _validate_gate_command(
         }
         paths = (
             ("tests/market_data",)
-            if python_module == "scripts.quality_gate.local_p2_pytest"
+            if python_module in {"pytest", "scripts.quality_gate.local_p2_pytest"}
             else ("tests/strategy", "tests/backtest")
             if python_module == "scripts.quality_gate.local_p3_pytest"
             else ("scripts/quality_gate", "tests/engine_poc")
@@ -598,6 +598,9 @@ def _validate_gate_command(
             if python_module == "scripts.quality_gate.local_p3_integration"
             else ("tests/quality_gate",)
         )
+        if python_module == "pytest":
+            valid = _is_project_python(command[0]) and args[2:] == ("tests/market_data", "-q")
+            paths = ("tests/market_data",)
     if not valid or not paths:
         raise ManifestValidationError(
             f"{gate} は target_paths を含む allowlist の固定ローカル検査テンプレートに一致しません"

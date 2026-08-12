@@ -1,0 +1,28 @@
+{
+  "run_id": "RUN-P5-06-LOCAL-001",
+  "phase_id": "phase5",
+  "step_id": "P5-06",
+  "design": "P5-ART-02-P5-ART-03-P5-ART-04-P5-ART-05",
+  "requirements": ["REQ-V2-0027", "REQ-V2-0028", "REQ-V2-0029", "REQ-V2-0030", "REQ-V2-0032", "REQ-V2-0044", "REQ-V2-0096"],
+  "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+  "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+  "agents": ["AutoTrade_A110_PythonTestEngineer_v0_1", "AutoTrade_A120_PythonImplementer_v0_1", "AutoTrade_A130_VerificationEngineer_v0_1", "AutoTrade_A140_DebugEngineer_v0_1", "AutoTrade_A150_PythonCodeReviewer_v0_1", "AutoTrade_A160_TradingSecurityReviewer_v0_1"],
+  "skills": ["autotrade_skill_python_test_quality_v0_1", "autotrade_skill_python_implementation_v0_1", "autotrade_skill_debug_recovery_v0_1", "autotrade_skill_python_code_review_v0_1", "autotrade_skill_test_strategy_v0_1", "autotrade_skill_ops_security_v0_1", "autotrade_skill_orchestration_v0_1"],
+  "data_version": "p5-fixed-local-dummy-v1",
+  "change_hash": "sha256:d6fc34272ce7a7c48b921edeae86d666de3c8742ea6c12a6dd1fd108000f74e5",
+  "baseline_ref": "f911013220884fdde6a8aa94b914cb7a4c563a1f",
+  "scope_mode": "target_only",
+  "target_paths": ["src/autotrade/market_data", "scripts/quality_gate", "tests/market_data", "tests/fixtures/market_data", "tests/evidence/phase5/RUN-P5-06-LOCAL-001"],
+  "excluded_paths": ["src/autotrade/application", "src/autotrade/backtest", "src/autotrade/strategy", "doc", "plan", ".env", "research", "third_party/everything-claude-code", "tests/evidence/phase5"],
+  "evidence_root": "tests/evidence/phase5/RUN-P5-06-LOCAL-001",
+  "input_fixture": {"name": "data_quality_replay_fixture.json", "version": "p2-dqr-fixture-v1", "checksum": "sha256:c19d1c165f0214c2f64218208684e01c1f6b08b838d2821a2b6f172750637a99"},
+  "human_gate_policy": "P5-H1=APPROVED; P5-DATA-G1 and P5-H2 remain unapproved.",
+  "unknowns": ["UNK-P4-04D-004 host outbound isolation evidence"],
+  "checks": [
+    {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "scripts/quality_gate", "tests/market_data", "tests/fixtures/market_data"]},
+    {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/market_data", "scripts/quality_gate", "tests/market_data", "tests/fixtures/market_data"]},
+    {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/market_data"]},
+    {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "pytest", "tests/market_data", "-q"]}
+  ],
+  "review": {"critical": 0, "high": 0}
+}

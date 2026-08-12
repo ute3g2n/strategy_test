@@ -4,7 +4,7 @@
 - Phase ID: `PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12`
 - 対象Phase: Phase 5 市場データ運用化と実証
 - 作成日: 2026-08-12（Asia/Tokyo）
-- 状態: `P5-H1_APPROVED_P5-06_READY`
+- 状態: `P5-06_BLOCKED_HOST_OUTBOUND_ISOLATION_UNKNOWN`
 - 前Phase: Phase 4 Product/Application・Backtest（`P4-PLAN-001`）
 - 前Phase承認: `P4-H2=APPROVED`。P4-H2はPhase 5の実装、外部Data取得、Secret投入、外部I/Oを承認しない。
 - 計画作成標準: `AutoTradePhasePlanning_Orchestrator_v0_1`、`AutoTrade_A05_PhaseExecutionPlanner_v0_1`、`autotrade_skill_phase_execution_planning_v0_1`
@@ -97,8 +97,8 @@ Phase 5は、P4で作成したProduct/ApplicationのData接続点を引き継ぎ
 | P5-04 | Cost／Slippage／Gap／長期／Holdout／Walk-forward／Test設計 | P5-02、P5-03 | P5-H0 | 不可 | 品質・Run Manifest設計HTML、ログ |
 | P5-05 | 詳細設計レビュー、改訂、再レビュー、P5-H1候補 | P5-01〜04 | P5-H0 | 不可 | 統合レビューHTML、ログ |
 | P5-H1 | ローカル固定ダミー実装・品質の開始承認 | P5-05 | 人間承認 | 不可 | 承認記録 |
-| P5-06 | 固定local Data contract／QualityのRED→GREEN・品質Gate | P5-H1 | P5-H1 | 不可 | 実装ログ、local Evidence |
-| P5-07 | 外部Data Gate準備、承認対象表、台帳同期 | P5-06 | P5-H1 | 不可 | Data Gate申請HTML、ログ |
+| P5-06 | 固定local Data contract／QualityのRED→GREEN・品質Gate | P5-H1 | `BLOCKED` | 不可 | RED/GREEN direct Evidenceはあり。`UNK-P4-04D-004` host outbound isolation未証明のため正式GateはBLOCKED |
+| P5-07 | 外部Data Gate準備、承認対象表、台帳同期 | P5-06 | 未開始 | 不可 | P5-06_BLOCKEDの解消後のみ開始 |
 | P5-DATA-G1 | Provider専用の外部Data Gate | P5-07 | 人間承認 | 承認前不可 | 承認記録、台帳同期 |
 | P5-08 | 承認範囲内の限定Data取得・Raw／Normalized Evidence | P5-DATA-G1 | P5-DATA-G1 | 条件付き可 | Data取得Evidence |
 | P5-09 | Quality／Calendar／Cost／Gap／期間分割／Holdout実証 | P5-08 | P5-DATA-G1 | 条件付き可 | 実証Report、Evidence |
@@ -146,6 +146,7 @@ P5-08の外部Data取得用に、既存の実行可能な外部I/O Worker／Runn
 | `RQV2-BLK-001` | operator override履歴 | Requirements／Document control | `tests/evidence/phase1/`欠落と適用範囲 | 機械PASSへ一般化しない |
 | `UNK-P4-04B-001〜005` | 未解消 | Persistence／Ops／DB Gate前 | retention、backup、SQLite version、concurrency、migration | P5 DB作成・migrationへ流用しない |
 | `UNK-P4-04D-004` | 未解消 | Ops／Security | host outbound isolation | 外部Data実証前に方式とEvidenceをGateで固定 |
+| `P5-06_BLOCKED` | BLOCKED | Ops／Security／Human Gate | `UNK-P4-04D-004`により正式4 Gate未実行 | 承認済みhost harnessによるoutbound isolation Evidenceを固定し、同一Run Manifestで再実行 |
 | `UNK-P4-UI-002` | 未解消 | UI QA／Ops | font／OS／DPR／browser baseline | P5 UI表示をformal pixel PASSにしない |
 | `EXTERNAL-DATA-PROVIDER-SECRET` | 未承認 | 運用者／Data／Security | 契約、費用、Secret mask、通信、保存境界 | P5-DATA-G1未承認なら外部I/O禁止 |
 | `P5-EXTERNAL-WORKER-UNKNOWN` | 未定義 | Architecture／Ops／期限はP5-DATA-G1前 | 取得Runner、固定command、scope、hash、Evidence | 推測起動せず、実証完了を宣言しない |

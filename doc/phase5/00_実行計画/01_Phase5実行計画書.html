@@ -25,13 +25,13 @@
     <strong>計画ID:</strong> P5-PLAN-001<br>
     <strong>Phase ID:</strong> PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12<br>
     <strong>作成日:</strong> 2026-08-12（Asia/Tokyo）<br>
-    <strong>状態:</strong> P5-H1_APPROVED_P5-06_READY<br>
+    <strong>状態:</strong> P5-06_BLOCKED_HOST_OUTBOUND_ISOLATION_UNKNOWN<br>
     <strong>正本:</strong> <a href="../../../plan/Phase5_実行計画書_v0.1_2026-08-12.md">plan/Phase5_実行計画書_v0.1_2026-08-12.md</a></p>
   </div>
 
   <section class="note">
     <h2>1. この計画の効力</h2>
-    <p>P4-H2はP5の計画入力引渡しだけを承認しており、外部Data取得、Provider、Secret、費用、外部I/Oを承認していない。P5-05でP5-02〜04を統合レビュー・再レビューしCritical/High=0を確認した。運用者のP5-H1承認を受領し、固定local dummy・RED→GREEN・Run Manifest・target-only品質GateのP5-06を開始可能とした。P5-DATA-G1、P5-H2、外部Data、Provider、Secret、費用、Broker、Paper、Live、実資金、実Risk、Cloudは未承認・対象外のまま保持する。</p>
+    <p>P4-H2はP5の計画入力引渡しだけを承認しており、外部Data取得、Provider、Secret、費用、外部I/Oを承認していない。P5-H1承認範囲で固定local dummyのRED→GREENと直接ローカル検査を完了したが、<code>UNK-P4-04D-004</code> host outbound isolationが未証明のためP5-06正式品質Gateは<code>BLOCKED</code>である。P5-07は開始しない。P5-DATA-G1、P5-H2、外部Data、Provider、Secret、費用、Broker、Paper、Live、実資金、実Risk、Cloudは未承認・対象外のまま保持する。</p>
     <p>初期5候補、4資産種類、D1／H4／H1／M30／M15、Data Quality、Calendar、Cost／Slippage／Gap、長期、Holdout／Walk-forwardを、固定仮定と実測値を分けた再現可能なEvidenceへ整理する。利益性、Broker、Paper、Live、実資金はP5の完了判定に含めない。</p>
   </section>
 
@@ -44,8 +44,8 @@
         <tr><td>P5-02〜04</td><td>Catalog／Data contract、Raw／Normalized／Quality／Calendar、Cost／Gap／Holdout／Test詳細設計</td><td>P5-01〜03、P5-H0</td><td>不可</td></tr>
         <tr><td>P5-05</td><td>詳細設計レビュー、改訂、再レビュー、P5-H1候補</td><td>P5-01〜04</td><td>不可</td></tr>
         <tr><td>P5-H1</td><td>固定local Data contract品質の開始承認</td><td>人間の明示承認</td><td>不可</td></tr>
-        <tr><td>P5-06</td><td>固定local dummyのRED→GREEN、品質Gate</td><td>P5-H1</td><td>不可</td></tr>
-        <tr><td>P5-07</td><td>外部Data Gate申請と台帳同期</td><td>P5-06</td><td>不可</td></tr>
+        <tr><td>P5-06</td><td>固定local dummyのRED→GREEN、品質Gate</td><td>P5-H1</td><td>BLOCKED（host outbound isolation Unknown）</td></tr>
+        <tr><td>P5-07</td><td>外部Data Gate申請と台帳同期</td><td>P5-06解消</td><td>未開始</td></tr>
         <tr><td>P5-DATA-G1</td><td>市場Data Provider専用Gate</td><td>人間の明示承認</td><td>承認前不可</td></tr>
         <tr><td>P5-08〜09</td><td>承認範囲内の限定取得、Quality／Calendar／Cost／Gap／Holdout実証</td><td>P5-DATA-G1</td><td>条件付き可</td></tr>
         <tr><td>P5-10</td><td>統合レビュー、Unknown再分類、P5-H2候補</td><td>P5-08〜09</td><td>不可</td></tr>
