@@ -1,7 +1,7 @@
 # P5-06 固定local DataContract / Quality RED→GREEN
 
 - Step / Run: `P5-06` / `RUN-P5-06-LOCAL-001`
-- Result: `P5-06_BLOCKED_HOST_OUTBOUND_ISOLATION_UNKNOWN`
+- Result: `P5-06_PASS_FIXED_LOCAL_FORMAL_GATE`
 - Approval: `P5-H1=APPROVED` for fixed local dummy only. `P5-DATA-G1` and `P5-H2` remain unapproved.
 - Scope: target-only `src/autotrade/market_data`, `scripts/quality_gate`, `tests/market_data`, read-only fixture, and this Evidence root. P4 Application/Backtest/Strategy were not changed.
 
@@ -20,25 +20,25 @@ Root `multi_agent_v1__spawn_agent` / `multi_agent_v1__wait_agent` was executed a
 
 | Check | Result | Status |
 |---|---|---|
-| formatter | exit 0 | direct local, non-final |
-| lint | exit 0 | direct local, non-final |
-| type | exit 0 (`12 source files`) | direct local, non-final |
-| test | exit 0 (`102 passed`) | direct local, non-final |
-| quality-gate regression | exit 0 (`58 passed`) | direct local, non-final |
-| registered formal Gate | `BLOCKED`, no gates run | final status |
+| formatter | exit 0 | formal isolated Gate PASS |
+| lint | exit 0 | formal isolated Gate PASS |
+| type | exit 0 (`12 source files`) | formal isolated Gate PASS |
+| test | exit 0 (`tests/market_data`) | formal isolated Gate PASS |
+| quality-gate regression | exit 0 (`58 passed`) | local regression PASS |
+| registered formal Gate | `PASS` | final status |
 
-The registered formal runner rejected the first P5 manifest because its allowlist lacked the already-registered fixed command `python -m pytest tests/market_data -q`. The runner was minimally extended to allow exactly that command, without accepting arbitrary pytest arguments. Re-running the formal runner then returned `BLOCKED: Unknown が未解決です`, because `UNK-P4-04D-004 host outbound isolation evidence` is registered. No quality Gate PASS is claimed.
+The final native-Windows `run_test.ps1` execution completed with wrapper exit code `0`. The registered four fixed Linux commands ran inside the approved WSL host harness. Earlier attempts were retained as debugging history and corrected without bypassing Unknowns, changing thresholds, or adding external I/O.
 
 ## Hashes and isolation
 
 - Baseline: `f911013220884fdde6a8aa94b914cb7a4c563a1f`
-- Fixture: `sha256:c19d1c165f0214c2f64218208684e01c1f6b08b838d2821a2b6f172750637a99` (verified unchanged)
-- Actual target-only change hash after P5-06 changes: `sha256:dfda1a82aa4c9570eac18a372a0623c74e07238aac4e867d6b0bc8ea16b22386`（baselineからtarget-only範囲を再計算。Evidence rootはhash対象外）
-- Host outbound isolation: `UNKNOWN`; required formal Evidence absent.
-- External communication: `0` attempted. No Provider, endpoint, Secret, cost, external Data, Broker, Paper, Live, Cloud, or dependency installation occurred.
+- Fixture: `sha256:c19d1c165f0214c2f64218208684e01c1f6b08b838d2821a2b6f172750637a99` (verified unchanged before and after the run)
+- Actual target-only change hash: `sha256:92d6223459056eeff446bfe3dbc6dfc4023596e07c1fe8a42a744f0d0f1287fb`（Evidence root is excluded from the change hash）
+- Host outbound isolation: `CONFIRMED`; Evidence: `tests/evidence/phase5/RUN-P5-06-LOCAL-001/host-isolation.json`; wrapper execution ID `f4e85f745e6f4a79909361a360c0e4ae`; `networking_mode=none`; loopback only; no default route.
+- External communication: `0` attempted. No Provider, endpoint, Secret, cost, external Data, Broker, Paper, Live, Cloud, or real-funds activity occurred.
 
 ## Reviews and next gate
 
-Self-review fallback records for A150 and A160 are under `tests/evidence/phase5/RUN-P5-06-LOCAL-001/reviews/`; both record Critical=0 and High=0, while preserving the runtime and isolation limitations as Medium/Unknown. Debugging did not bypass the isolation stop condition.
+Self-review fallback records for A150 and A160 are under `tests/evidence/phase5/RUN-P5-06-LOCAL-001/reviews/`; both record Critical=0 and High=0. Runtime dispatch remains fallback and is not claimed as independent review; the host-isolation finding was resolved by the final execution Evidence.
 
-`P5-07` was **not started**. Restart P5-06 only after the approved host harness supplies and records outbound-isolation Evidence for `UNK-P4-04D-004`; then execute the unchanged registered four gates with the fixed fixture and target-only scope.
+`P5-07` was **not started**. P5-06 is formally PASS for the approved fixed-local scope. P5-DATA-G1 and P5-H2 remain unapproved; external Data, Provider, Secret, Broker, Paper, Live, real funds, and Cloud remain out of scope.

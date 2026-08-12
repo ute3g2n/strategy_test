@@ -1,0 +1,6 @@
+﻿{
+    "output":  "{\"state\": \"PASS\", \"reason\": \"繝ｦ繝ｼ繧ｶ繝ｼ縺梧・遉ｺ逧・↓謇ｿ隱阪＠縺ｾ縺励◆\", \"gates\": [{\"gate\": \"formatter\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"ruff\", \"format\", \"--check\", \"src/autotrade/market_data\", \"scripts/quality_gate\", \"tests/market_data\", \"tests/fixtures/market_data\"], \"exit_code\": 0, \"duration_ms\": 264}, {\"gate\": \"lint\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"ruff\", \"check\", \"src/autotrade/market_data\", \"scripts/quality_gate\", \"tests/market_data\", \"tests/fixtures/market_data\"], \"exit_code\": 0, \"duration_ms\": 214}, {\"gate\": \"type\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"mypy\", \"src/autotrade/market_data\"], \"exit_code\": 0, \"duration_ms\": 465}, {\"gate\": \"test\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"pytest\", \"tests/market_data\", \"-q\"], \"exit_code\": 0, \"duration_ms\": 1673}], \"generated_at\": \"2026-08-12T12:29:39.981044+00:00\"}",
+    "exit_code":  0,
+    "execution_id":  "f4e85f745e6f4a79909361a360c0e4ae",
+    "state":  "RUNNER_COMPLETED"
+}

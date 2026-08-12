@@ -1,17 +1,17 @@
 # P5-06 self-evaluation
 
-Summary: The approved local RED→GREEN work and direct checks are evidenced, while the formal Gate is accurately retained as BLOCKED.
+Summary: The approved local RED→GREEN work and the formal isolated Gate PASS are evidenced. The dispatch limitation remains explicitly recorded as fallback rather than independent Agent review.
 
 | Axis | Score | Evidence / improvement |
 |---|---:|---|
-| Accuracy | 4 | Fixture hash was recomputed; formal runner produced `BLOCKED`; 160 local tests passed. Formal host isolation remains unverified, so no formal PASS claim is made. |
-| Completeness | 4 | Required RED/GREEN, receipts, reviews, Evidence index, log, and state synchronization are present. Runtime dispatch could not occur because the required tools are absent; every missing dispatch is explicitly recorded. |
-| Clarity | 5 | Evidence separates direct non-final checks from the formal BLOCKED result and names the exact restart condition. |
-| Actionability | 5 | The next action is concrete: establish approved host outbound-isolation Evidence and rerun the unchanged registered manifest. |
-| Conciseness | 4 | The evidence is intentionally detailed for auditability; repeated safety status appears in the log and index to allow either file to stand alone. |
+| Accuracy | 5 | Fixture hash was recomputed; final formal runner produced `PASS`; all four fixed Gates passed; host isolation is execution-ID matched and confirmed. |
+| Completeness | 5 | RED/GREEN, receipts, reviews, formal verification, host isolation, wrapper summary, Evidence index, log, and state synchronization are present. Runtime dispatch fallback remains explicitly recorded. |
+| Clarity | 5 | Evidence separates historical debugging attempts from the final formal PASS and states the remaining P5-DATA-G1/P5-H2 boundary. |
+| Actionability | 5 | The next action is to proceed only under the next P5 step's own scope and approval conditions; P5-DATA-G1 and P5-H2 are not inferred. |
+| Conciseness | 4 | The Evidence is intentionally detailed for auditability; historical failures remain traceable without changing the final status. |
 
-Overall: **4.4 / 5.0**.
+Overall: **4.8 / 5.0**.
 
-Highest-impact improvement: make the real multi-agent runtime and approved host-isolation harness available; that would replace the fallback receipts and permit a formal Gate rerun without altering the fixed local contract.
+Highest-impact remaining limitation: make the real multi-agent child runtime available if independent Agent review is required; the formal technical Gate itself is PASS.
 
-Self-check: a reviewer should agree that the result is BLOCKED, not formally passed, despite the local GREEN evidence.
+Self-check: the final result is PASS for the fixed-local approved scope. The fallback dispatch is not presented as independent review, and broader P5 approvals remain absent.

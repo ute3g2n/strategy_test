@@ -1,6 +1,82 @@
-{
-  "state": "BLOCKED",
-  "reason": "Unknown が未解決です",
-  "gates": [],
-  "generated_at": "2026-08-12T11:38:54.222800+00:00"
+﻿{
+    "state":  "PASS",
+    "reason":  "ユーザーが明示的に承認しました",
+    "gates":  [
+                  {
+                      "gate":  "formatter",
+                      "status":  "PASS",
+                      "command":  [
+                                      ".venv/bin/python",
+                                      "-m",
+                                      "ruff",
+                                      "format",
+                                      "--check",
+                                      "src/autotrade/market_data",
+                                      "scripts/quality_gate",
+                                      "tests/market_data",
+                                      "tests/fixtures/market_data"
+                                  ],
+                      "exit_code":  0,
+                      "duration_ms":  264
+                  },
+                  {
+                      "gate":  "lint",
+                      "status":  "PASS",
+                      "command":  [
+                                      ".venv/bin/python",
+                                      "-m",
+                                      "ruff",
+                                      "check",
+                                      "src/autotrade/market_data",
+                                      "scripts/quality_gate",
+                                      "tests/market_data",
+                                      "tests/fixtures/market_data"
+                                  ],
+                      "exit_code":  0,
+                      "duration_ms":  214
+                  },
+                  {
+                      "gate":  "type",
+                      "status":  "PASS",
+                      "command":  [
+                                      ".venv/bin/python",
+                                      "-m",
+                                      "mypy",
+                                      "src/autotrade/market_data"
+                                  ],
+                      "exit_code":  0,
+                      "duration_ms":  465
+                  },
+                  {
+                      "gate":  "test",
+                      "status":  "PASS",
+                      "command":  [
+                                      ".venv/bin/python",
+                                      "-m",
+                                      "pytest",
+                                      "tests/market_data",
+                                      "-q"
+                                  ],
+                      "exit_code":  0,
+                      "duration_ms":  1673
+                  }
+              ],
+    "generated_at":  "2026-08-12T12:29:39.980141+00:00",
+    "exit_code":  0,
+    "tool_versions":  {
+                          "python":  "Python 3.12.13",
+                          "ruff":  "ruff 0.16.1",
+                          "mypy":  "mypy 2.3.0 (compiled: yes)",
+                          "pytest":  "pytest 9.1.1",
+                          "pytest_cov":  "7.1.0"
+                      },
+    "scope":  "target_only",
+    "input_sha256":  "sha256:c19d1c165f0214c2f64218208684e01c1f6b08b838d2821a2b6f172750637a99",
+    "post_input_sha256":  "sha256:c19d1c165f0214c2f64218208684e01c1f6b08b838d2821a2b6f172750637a99",
+    "target_only_change_sha256":  "sha256:92d6223459056eeff446bfe3dbc6dfc4023596e07c1fe8a42a744f0d0f1287fb",
+    "host_wrapper_execution_id":  "f4e85f745e6f4a79909361a360c0e4ae",
+    "restore_pending":  true,
+    "dbn_decoder_probe":  null,
+    "execution_user":  "oue",
+    "execution_uid":  1000
 }
