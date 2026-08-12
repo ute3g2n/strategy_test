@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P5-DATA-G1推奨入力値・やさしい説明</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic",sans-serif;line-height:1.75;margin:32px auto;max-width:1440px;color:#172033;background:#f8fafc}
+    main{background:#fff;border:1px solid #d9e2ec;padding:28px}
+    h1{border-bottom:3px solid #1f2937;padding-bottom:10px} h2{border-bottom:1px solid #cbd5e1;margin-top:34px;padding-bottom:6px} h3{margin-top:24px}
+    a{color:#0f5db8} table{border-collapse:collapse;width:100%;margin:14px 0;font-size:.89rem} th,td{border:1px solid #cbd5e1;padding:8px;vertical-align:top} th{background:#eef2f7;text-align:left}
+    .box{border-left:4px solid #2563eb;background:#eff6ff;padding:14px;margin:16px 0}.stop{border-left-color:#dc2626;background:#fef2f2}.warn{border-left-color:#b45309;background:#fffbeb}.ok{border-left-color:#059669;background:#ecfdf5}.plain{border-left-color:#64748b;background:#f8fafc}
+    .badge{border-radius:999px;padding:2px 8px;font-weight:700;background:#ffedd5;color:#9a3412}.done{background:#dcfce7;color:#166534}.proposal{background:#dbeafe;color:#1e40af}.unknown{background:#fef3c7;color:#92400e}
+    .small{font-size:.86rem;color:#475569}.tiny{font-size:.78rem;color:#475569}code{background:#f1f5f9;padding:1px 4px;border-radius:3px;word-break:break-word} pre{white-space:pre-wrap;background:#0f172a;color:#e2e8f0;border-radius:6px;padding:14px;overflow:auto}
+    ul,ol{padding-left:1.5rem}.key{font-weight:700;color:#0f172a}.nowrap{white-space:nowrap}
+  </style>
+</head>
+<body><main>
+  <p><a href="../../index.html">doc/index.html</a> ／ <a href="06_Phase5外部Data_Gate申請・範囲表.html">P5-07申請表</a> ／ <a href="../01_要件追跡/01_Phase5入力・Data対象・REQ追跡.html">P5-01追跡</a> ／ <a href="../02_データ詳細設計/02_Data_Catalog_Provider_DataContract詳細設計書.html">P5-02 Data contract</a> ／ <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
+  <h1>P5-DATA-G1申請表の推奨入力値・やさしい説明</h1>
+
+  <section class="box warn">
+    <strong>成果物ID:</strong> P5-ART-07-DATA-G1-RECOMMENDATION-001<br>
+    <strong>Phase / Step:</strong> PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12 / P5-07<br>
+    <strong>作成日:</strong> 2026-08-12（Asia/Tokyo）<br>
+    <strong>文書状態:</strong> <span class="badge proposal">PROPOSAL_NOT_APPROVAL</span><br>
+    <strong>一番大切な注意:</strong> これは、P5-DATA-G1の申請表を埋めるための「推奨案」である。P5-DATA-G1の承認記録、Provider契約、Secret、実在Runner、実Data取得、費用発生を意味しない。外部I/Oは0件である。
+  </section>
+
+  <section class="box ok">
+    <h2>0. 先に結論：今回の推奨案</h2>
+    <p>既存のPhase 2決定、P5のData contract、現在のAdapter境界、公式一次情報を合わせると、最初の実取得は<strong>Databento Historical APIのCME系先物データだけ</strong>に絞る案が最も安全である。</p>
+    <ol>
+      <li><strong>Provider:</strong> Databento Historical API</li>
+      <li><strong>Dataset:</strong> <code>GLBX.MDP3</code>（CME、CBOT、NYMEX、COMEXのCME Globex MDP 3.0）</li>
+      <li><strong>実取得対象:</strong> MCL、M6A、MZC、MZS、MZWの5つ。5つとも資産種類は<strong>futures</strong>である。</li>
+      <li><strong>Provider入力:</strong> <code>MCL.FUT</code>、<code>M6A.FUT</code>、<code>MZC.FUT</code>、<code>MZS.FUT</code>、<code>MZW.FUT</code>をparent symbologyで解決し、spreadを除外した現物の先物契約だけを採用する。</li>
+      <li><strong>共通期間:</strong> <code>2025-02-24T00:00:00Z</code>以上、<code>2026-08-01T00:00:00Z</code>未満。これは5候補のMicro契約を同じ条件で比較するための限定期間である。</li>
+      <li><strong>時間足:</strong> 元データは<code>ohlcv-1m</code>。そこからD1／H4／H1／M30／M15をシステム側で作る。</li>
+      <li><strong>費用:</strong> 実行前の見積りが1 Runあたり25 USD以下、チームのHistorical月額上限50 USD以下でなければ停止する。</li>
+      <li><strong>Broker／Paper／Live／実資金／実Risk／Cloud:</strong> 今回の承認対象から除外する。</li>
+    </ol>
+    <p><strong>4資産種類について:</strong> futures／stocks／FX／cryptoはシステムが扱える構造上の4分類である。今回の5候補はすべてfuturesなので、stocks・FXスポット・cryptoの実Dataまで取得済みとは扱わない。これを広げる場合は別のData Gateが必要である。</p>
+  </section>
+
+  <section>
+    <h2>1. P5-DATA-G1とは何か</h2>
+    <p>一言で言うと、<strong>「外部の市場Dataを、どの会社から、何を、いつ、いくらまで、どこへ保存してよいかを、人間が事前に許可するチェックポイント」</strong>である。</p>
+    <p>たとえば「MCLを取ってください」だけでは不十分である。同じMCLでも、どの契約月か、どの期間か、どの時間足か、どの会社のDataか、費用はいくらか、保存してよいかが決まっていないと、あとから同じ結果を再現できない。</p>
+    <table>
+      <thead><tr><th>Gate</th><th>やさしい意味</th><th>今回の範囲</th></tr></thead>
+      <tbody>
+        <tr><td>P5-H1</td><td>固定したダミーData contractを安全に扱えるかの確認。</td><td>外部Provider、Secret、費用、実Dataは含まない。</td></tr>
+        <tr><td>P5-DATA-G1</td><td>外部Providerから実Dataを取得してよいかの許可。</td><td>Provider、対象、期間、通信、費用、Secret、保存、Runnerをまとめて固定する。</td></tr>
+        <tr><td>P5-H2</td><td>P5の実証結果を確認し、P6へData contractを渡してよいかの許可。</td><td>外部Dataの取得後。P5-DATA-G1の代わりにはならない。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>2. 申請項目を、誰でも分かる言葉にすると</h2>
+    <p>この表は「その項目は何を決めるものか」「なぜ必要か」「空欄だと何が危ないか」を説明する。右端の停止コードが出たら、推測で埋めずに止める。</p>
+    <table>
+      <thead><tr><th>申請項目</th><th>ひとことで言うと</th><th>なぜ必要か</th><th>空欄のまま進むと何が起きるか</th></tr></thead>
+      <tbody>
+        <tr><td>対象Symbol／論理市場ID</td><td>どの商品を取るか。</td><td>「MCLという名前」だけでなく、システム内のIDとProvider側の名前を対応付けるため。</td><td>別の商品を取っても気づけない。<code>SCOPE_UNKNOWN</code>で停止。</td></tr>
+        <tr><td>取引所／限月／契約</td><td>どの市場の、いつ期限が来る契約か。</td><td>先物は契約月が変わるため、銘柄名だけでは同じDataにならない。</td><td>期限切れ契約やspreadを混ぜる。Catalogを確定できない。</td></tr>
+        <tr><td>対象期間／as-of</td><td>いつからいつまでのDataか、未来をどこで切るか。</td><td>未来の値を過去の判定に混ぜないため。</td><td>Look-aheadが起き、検証結果を信用できない。<code>PERIOD_UNKNOWN</code>。</td></tr>
+        <tr><td>時間足／bar境界</td><td>何分ごとに1本の棒を作るか、1日の区切りをどこに置くか。</td><td>同じ1分Dataでも、集計の区切り方が違えば別の足になる。</td><td>ProviderのUTC日足を取引所の営業日足と誤認する。<code>CALENDAR_UNKNOWN</code>。</td></tr>
+        <tr><td>資産種類</td><td>先物、株式、FX、暗号資産のどれか。</td><td>単位、取引時間、休場、契約の扱いが変わるため。</td><td>先物Dataを株式やFXのDataのように扱う。</td></tr>
+        <tr><td>Provider</td><td>Dataを持っている会社。</td><td>Dataの仕様、品質、費用、利用条件を確認する起点になる。</td><td>どのDataを使ったか説明できない。<code>PROVIDER_GATE_REQUIRED</code>。</td></tr>
+        <tr><td>契約／権限／再配布</td><td>買ったDataを、誰が、何に使ってよいか。</td><td>取得できても、保存・社内利用・再配布の許可が別の場合がある。</td><td>規約違反や意図しない公開につながる。</td></tr>
+        <tr><td>endpoint／通信／rate</td><td>どこへ、どの通信で、どれくらいの速さで接続するか。</td><td>外部I/Oの範囲と過剰取得を制限するため。</td><td>想定外の接続、rate制限、追加費用が起きる。</td></tr>
+        <tr><td>費用上限</td><td>いくらまでなら実行してよいか。</td><td>Data取得は量に応じて課金されるため。</td><td>大量取得で予算を超える。<code>COST_GATE_REQUIRED</code>。</td></tr>
+        <tr><td>Secret参照／mask／失効</td><td>鍵をどこから読み、いつ使えなくするか。</td><td>API keyをHTML、ログ、コマンド履歴へ出さないため。</td><td>認証情報が漏れる。漏洩時に止められない。</td></tr>
+        <tr><td>Raw保存</td><td>Providerから届いた元のDataを、そのまま残す場所。</td><td>後から「何を受け取ったか」を確認するため。上書きしない。</td><td>加工後のDataしか残らず、再現できない。</td></tr>
+        <tr><td>Normalized保存</td><td>システム共通の形へ変換したDataの場所。</td><td>Provider固有の記号や形式をCoreへ漏らさずに使うため。</td><td>Provider依存がCoreへ入り、別Providerへ変更しにくくなる。</td></tr>
+        <tr><td>Quality／Calendar</td><td>欠損や異常、取引時間を確認した記録。</td><td>Dataがあるだけでなく、使ってよい状態かを判断するため。</td><td>欠損・休場・DST・Rollを正常Dataと誤認する。</td></tr>
+        <tr><td>Manifest／Evidence root</td><td>取得条件と証拠をまとめる台帳と保存場所。</td><td>Run、HEAD、対象、hash、変換版を一つにつなぐため。</td><td>同じ条件で取り直せず、Evidenceが孤立する。</td></tr>
+        <tr><td>保持／再配布</td><td>いつまで持ち、誰へ渡してよいか。</td><td>Providerの利用条件と、プロジェクトの保存境界を守るため。</td><td>期限切れのDataを残す、または無断共有する。</td></tr>
+        <tr><td>停止条件</td><td>何が起きたら必ず止めるか。</td><td>失敗を「たぶん大丈夫」で通さないため。</td><td>Unknownや部分取得をPassにしてしまう。</td></tr>
+        <tr><td>Runner／固定command</td><td>実際に取得する人・機械・手順。</td><td>誰がやっても同じ範囲で同じ処理をするため。</td><td>未登録のWorkerを推測起動する。<code>P5-EXTERNAL-WORKER-UNKNOWN</code>。</td></tr>
+        <tr><td>host isolation</td><td>外部へ出られる道を必要最小限に絞った証拠。</td><td>Provider以外へDataやSecretを送らないため。</td><td>外部通信の範囲が証明できず、品質Gateを通せない。</td></tr>
+        <tr><td>Run ID／target paths／再現</td><td>今回の作業番号、書いてよい場所、やり直し方。</td><td>CoreやP4 DBを誤って変更せず、同じ結果を再現するため。</td><td>対象外ファイルを変更しても分からない。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>3. 推奨する具体値：申請表へ入れる案</h2>
+    <p>以下は「この値で申請すると、現在の設計と衝突しにくい」という提案である。<span class="badge proposal">PROPOSED</span>はまだ人間承認・アカウント確認・実行前検証が必要である。</p>
+    <table>
+      <thead><tr><th>項目</th><th>推奨入力値</th><th>根拠・システムとの相性</th><th>承認前に必要な証拠</th></tr></thead>
+      <tbody>
+        <tr><td>申請の目的</td><td><code>P5-DATA-G1-R1</code>：Historical Dataの限定取得とRaw／Normalized／Quality Evidence作成。Live配信・注文・Broker接続は含めない。</td><td>P5-08が求める限定Data取得に合い、P5-H1の固定local範囲を外部実行へ誤拡張しない。</td><td>範囲付きのHuman Gate記録。</td></tr>
+        <tr><td>Provider</td><td><strong>Databento Historical API</strong></td><td>Phase 2で既に公式仕様とAdapter境界を整理済み。Python／HTTP、symbology、definition、OHLCV、statistics、TBBO、費用見積りAPIがあり、既存のRaw／Normalized／Catalog設計に接続しやすい。</td><td>運用者のProvider選択、アカウント契約・権限の確認。</td></tr>
+        <tr><td>契約プラン</td><td><strong>Usage-based Historical only</strong>。Live、Plus／Unlimited、外部配布、Broker利用は今回選ばない。</td><td>最初は必要な歴史Dataだけを取得し、固定月額やLive権限を増やさない。外部配布なしのローカル研究用途に合う。</td><td>Databentoの契約・ライセンス同意、利用者区分、再配布不可の確認。</td></tr>
+        <tr><td>Dataset</td><td><code>GLBX.MDP3</code></td><td>CME、CBOT、NYMEX、COMEXのCME Globex MDP 3.0を一つのDatasetとして扱える。5候補の取引所を一つのProvider境界へ閉じ込められる。</td><td>実アカウントでDatasetが利用可能であること、対象期間のavailable確認。</td></tr>
+        <tr><td>論理対象</td><td><code>MCL</code>、<code>M6A</code>、<code>MZC</code>、<code>MZS</code>、<code>MZW</code></td><td>既存P5-01の初期5候補をそのまま使用する。ただし、これは論理IDであり、Provider側の個別契約月を直接意味しない。</td><td>対象一覧の版とhash。</td></tr>
+        <tr><td>Provider入力Symbol</td><td><code>MCL.FUT</code>、<code>M6A.FUT</code>、<code>MZC.FUT</code>、<code>MZS.FUT</code>、<code>MZW.FUT</code><br><code>stype_in=parent</code>、<code>stype_out=instrument_id</code></td><td>parentは同一商品に属する契約をまとめて解決できる。definitionの<code>instrument_class</code>でoutright futureだけを残し、spreadを除外する。固定の契約月を推測して書かない。</td><td>definition結果、raw_symbol、instrument_id、expiration、listing／expiration範囲のCatalog。</td></tr>
+        <tr><td>取引所</td><td><code>MCL=NYMEX</code>、<code>M6A=CME</code>、<code>MZC/MZS/MZW=CBOT</code></td><td>CME公式の商品コードと取引所情報に一致する。Dataset名のGLBXは、内部論理IDの取引所名の代わりにはしない。</td><td>各definitionとCME公式商品ページの対応表。</td></tr>
+        <tr><td>資産種類</td><td><strong>実取得は futures のみ</strong>。<code>stocks</code>、<code>FXスポット</code>、<code>crypto</code>は今回の対象外。</td><td>初期5候補がすべて先物であり、先物の契約月・Roll・限月を先に実証する方が現在のP5/P2設計に合う。4資産種類は構造上の対応範囲として残す。</td><td>申請表に対象外3分類を明記。4分類の実Data PASSと混同しない。</td></tr>
+        <tr><td>契約形態</td><td><strong>outright futuresのみ</strong>。calendar spread、option、swap、spotは除外。</td><td>既存Catalogが先物契約とspreadを分離する設計。spread混入は価格・Roll・品質判定を壊す。</td><td>definitionのinstrument classフィルタと除外件数。</td></tr>
+        <tr><td>Raw schema</td><td>全期間：<code>definition</code>、<code>ohlcv-1m</code>、<code>statistics</code>。<br>TBBOパイロット：<code>tbbo</code>、<code>2026-07-01T00:00:00Z</code>以上<code>2026-08-01T00:00:00Z</code>未満。</td><td>1分を元に5時間足を再生成できる。definitionは契約、statisticsは日次統計・建玉・Settlement等、TBBOは売買時点直前のBBOを確認するため。ただしTBBOは実約定Slippageそのものではない。</td><td>schema一覧、各schemaのcost quote、source／schema別hash。</td></tr>
+        <tr><td>Raw encoding／保存</td><td><code>DBN</code>、<code>zstd</code>、日単位分割、<code>.dbn.zst</code>。相対path：<code>tests/evidence/phase5/RUN-P5-08-DATABENTO-001/raw/{schema}/{date}/</code></td><td>Databento公式がDBNとzstdを推奨している。Rawは受信バイト列と取得メタデータを残し、上書きしない。</td><td>Raw manifest、SHA-256、ファイルサイズ、取得request fingerprint。</td></tr>
+        <tr><td>対象期間</td><td><code>start=2025-02-24T00:00:00Z</code><br><code>end=2026-08-01T00:00:00Z</code>（endは排他的）<br><code>as_of=2026-07-31T23:59:59Z</code></td><td>Micro Agの取引開始が2025-02-24であるため、5候補の実Micro契約を同じ期間で比較できる共通下限を採用。現在日付に近い未確定セッションを除き、2026年7月末までの完了月を対象にする。</td><td>対象期間一覧、Providerのavailable／condition、取得時点。</td></tr>
+        <tr><td>長期評価</td><td>このG1では<strong>実Micro契約の共通期間だけ</strong>。2010年以降の標準契約をProxyにする場合は、<code>CL</code>／<code>6A</code>／<code>ZC</code>／<code>ZS</code>／<code>ZW</code>を別Data version・別Gateで扱う。</td><td>MCLは2021年、Micro Agは2025年開始なので、標準契約をMicro契約の実績と混ぜると契約サイズ・Settlement・Rollの意味が変わる。長期要件を未解消のままPassにしない。</td><td>長期proxyを使うかどうかの別判断と、同一商品扱いしない比較表。</td></tr>
+        <tr><td>時間足</td><td><code>D1</code>、<code>H4</code>、<code>H1</code>、<code>M30</code>、<code>M15</code>を生成。保存時刻はUTC、営業日判定は<code>America/Chicago</code>。</td><td>内部の時刻はUTCで統一し、CMEの取引所セッション・DSTをCalendarで処理する。ProviderのUTC日足をそのままD1とは呼ばない。</td><td>Calendar version／hash、bar boundary表、DST・休場・maintenance breakの確認。</td></tr>
+        <tr><td>bar境界／欠損</td><td>商品別CMEセッション開始を基準に集計。予定休場・maintenance breakは「市場が閉じていた」と記録し、売買がなかった1分をゼロ埋めしない。</td><td>DatabentoのOHLCVは取引がない区間を出力しない。欠損と予定休場を別分類するP5 Quality設計に合う。</td><td>QualityReport、CalendarClassification、補間0件の証拠。</td></tr>
+        <tr><td>Roll rule</td><td>Rawは個別契約を保持。派生continuousは<strong>前日出来高の最大契約をfront monthとするvolume-based rule</strong>を初期案とし、価格はback-adjustしない。Roll時の価格差はGapとして別記録。</td><td>Databentoのcontinuousはvolume／calendar等の規則で実契約へ写像できるが、価格は未調整。Rawと派生を混ぜない既存境界に合う。</td><td>RollRuleVersion、契約切替日、調整なしフラグ、Gap report。</td></tr>
+        <tr><td>endpoint／通信</td><td><code>https://hist.databento.com/v0/</code>のみ。HTTPS/TLS。allowlistは<code>hist.databento.com:443</code>のみ。Live endpoint、portal操作、Broker endpointは使わない。</td><td>Historical APIの公式入口とP5のProvider専用外部I/O境界に一致する。接続先を一つに絞ると通信監査が簡単になる。</td><td>実行時のsanitized connection audit、DNS／接続先、終了後の復旧記録。</td></tr>
+        <tr><td>rate／retry</td><td>アプリ側は同時接続1、最大1 request／秒。429は<code>Retry-After</code>に従い最大2回まで。401／402／403／404／422、206 partial、hash不一致は即停止。</td><td>Provider公式の上限より保守的に運用し、過剰取得と部分解決を成功扱いしない既存fail-closed方針に合う。</td><td>request log、HTTP status、Retry-After、停止理由。</td></tr>
+        <tr><td>費用上限</td><td><strong>1 Run上限 25 USD、Historicalチーム月額上限 50 USD</strong>。実行前の<code>get_billable_size</code>／<code>get_cost</code>見積りが上限超過なら実行しない。80%で警告、100%で停止。</td><td>DatabentoはHistoricalを使用量で課金し、公式APIで見積りを取得できる。具体的なProvider見積りなしに金額を断定せず、上限を先に置く。</td><td>事前見積り、Human Gateの予算承認、実請求／usage画面、超過なしの監査。</td></tr>
+        <tr><td>Secret</td><td>参照名は<code>DATABENTO_API_KEY</code>のみ。プロセス開始時の環境変数または承認済みSecret保管庫から読む。CLI引数、<code>.env</code>、HTML、ログ、Evidenceへ値を出さない。用途はP5-08 Historical限定。失効期限は<strong>2026-08-31</strong>を上限とし、Run後にrotate／revoke。</td><td>公式clientが<code>DATABENTO_API_KEY</code>環境変数を利用でき、既存設計もSecret値ではなく参照名だけを許可する。短い期限で漏洩時の影響を限定する。</td><td>Secret metadata（参照名、用途、expiry、mask、audit ref）のみ。秘密値の非出力検査。</td></tr>
+        <tr><td>Normalized schema</td><td><code>P5-NORMALIZED-BAR-v1.0.0</code>案。<code>instrument_id</code>、<code>logical_instrument_id</code>、<code>timeframe_id</code>、<code>bar_start_utc</code>、<code>bar_end_utc</code>、OHLCV、Calendar／Roll／Quality／Raw hash参照を必須にする。</td><td>Providerのraw_symbolやDBN型をCoreへ漏らさず、P2のNormalizedDatasetRefとP5のData contractへ接続できる。</td><td>schema version、変換コードのhash、Raw→Normalized件数対応、provenance。</td></tr>
+        <tr><td>Quality／Calendar</td><td>相対path：<code>tests/evidence/phase5/RUN-P5-08-DATABENTO-001/quality/</code>。<code>CalendarVersion=CME-CALENDAR-2026-08-12-PROPOSED-001</code>、<code>RollRuleVersion=P5-ROLL-VOLUME-FRONT-UNADJUSTED-001</code>案。</td><td>欠損・重複・逆行・未来Data・DST・休場・Roll・価格調整を別々に追跡できる。未確認はUnknownのまま止める。</td><td>QualityReport、Calendar source／version／hash、StopDecision。</td></tr>
+        <tr><td>Evidence root／Run ID</td><td><code>RUN-P5-08-DATABENTO-001</code><br><code>tests/evidence/phase5/RUN-P5-08-DATABENTO-001/</code></td><td>現在のP5-08 blocked Runと混ぜず、承認後の実取得Runを新しいIDに分ける。Raw、Normalized、Quality、Manifestを同じRunへ束ねる。</td><td>Run manifest、承認記録、HEAD／change hash、Data hash、sanitized log。</td></tr>
+        <tr><td>target_paths</td><td>書込み許可は上記Evidence rootと、承認済みのRunner作業用一時ディレクトリだけ。<code>src/</code>、Core、P4 DB／migration、既存P4 Evidence、Broker／Cloud領域は対象外。</td><td>外部Dataの取得がCoreやP4成果物を変更しないようにする。target-onlyで範囲を機械的に狭める。</td><td>pre／post status、対象path一覧、変更差分、対象外変更0件。</td></tr>
+        <tr><td>保持／再配布</td><td>Raw／Normalized本体はP5-H2後180日を上限に承認済みローカルrootだけで保持。Manifest、Quality、Provenance、hash、StopDecisionは3年保持案。外部再配布、公開、第三者共有、Cloudバックアップは禁止。</td><td>最小限のローカル保持で再検証期間を確保し、外部配布権限を追加しない。Provider契約がより短い場合は契約を優先する。</td><td>契約・ライセンスの保持条件、削除ログ、アクセス権、バックアップなしの確認。</td></tr>
+        <tr><td>停止条件</td><td>対象外Symbol、spread混入、期間外、partial resolution、available以外、欠損・重複・逆行、未来Data、Calendar不一致、hash不一致、費用超過、401／402／403／404／422、Secret異常、通信先逸脱、Runner未登録のいずれかで即停止。</td><td>既存P5のfail-closed、Databentoのpartial／condition／error、P4からのUnknown引継ぎに一致する。</td><td>StopDecisionを作成し、該当Dataを下流へ渡さない。</td></tr>
+        <tr><td>Runner／固定command</td><td>Runner ID案：<code>P5-EXT-DATABENTO-HIST-001</code>、version案：<code>0.1.0</code>。実体配置案：<code>scripts/phase5_external_data/run_databento_historical.ps1</code>。固定command案：<br><code>powershell.exe -NoProfile -File scripts/phase5_external_data/run_databento_historical.ps1 -Request tests/evidence/phase5/RUN-P5-08-DATABENTO-001/request.json -RunId RUN-P5-08-DATABENTO-001 -EvidenceRoot tests/evidence/phase5/RUN-P5-08-DATABENTO-001 -MaxCostUsd 25 -NoLive</code></td><td>現在はこのRunner実体が登録済みではないため、名称・commandは予約案である。存在しないWorkerを起動しない既存ルールを守る。</td><td>Runner実体、依存lock、固定Python 3.11、実行前dry-run、通信監査、再現手順。登録できるまで<code>P5-EXTERNAL-WORKER-UNKNOWN</code>はOPEN。</td></tr>
+        <tr><td>host isolation</td><td>外部取得Run専用のexecution IDを発行し、allowlist以外の外部接続を拒否。接続監査を保存し、終了後に外部通信を閉じる。P5-06のlocal isolation Evidenceは外部Runへ流用しない。</td><td>External Dataは通信が必要だが、Provider以外への送信は禁止する。P5-06は外部通信0のlocal Gateなので、別証拠が必要。</td><td>外部Run専用host isolation／egress監査、execution ID一致、終了後状態。</td></tr>
+        <tr><td>再現手順</td><td>Windows側checkout、Python 3.11、Runner依存lock、request.json、scope／期間、endpoint、environment flag、command、Raw／Normalized hashをManifestへ固定。再取得は上書きせず新しいattempt IDで行う。</td><td>同じ入力から同じ結果を検証でき、再取得差分を隠さない。P4 DBやCoreに依存しない。</td><td>再現Run、Manifest、hash比較、差分説明。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="box plain">
+    <h2>4. 商品コードの根拠</h2>
+    <p>ここは「MCLなどの名前を勝手に作っていないか」を確認するための表である。契約サイズやtickは、売買を許可するための値ではなく、Catalogで取り違えを防ぐための識別情報として扱う。</p>
+    <table>
+      <thead><tr><th>論理ID</th><th>推奨する実商品</th><th>公式確認値</th><th>今回の扱い</th></tr></thead>
+      <tbody>
+        <tr><td><code>MCL</code></td><td>Micro WTI Crude Oil futures</td><td>NYMEX、CME Globex code <code>MCL</code>、100 barrels、financial settlement。CMEの初回上場は2021-07-12。</td><td>2025-02-24以降の共通期間で取得。2021年からの長期は別扱い。</td></tr>
+        <tr><td><code>M6A</code></td><td>Micro AUD/USD futures</td><td>CME、Globex／ClearPort code <code>M6A</code>、10,000 AUD、tick 0.0001 USD/AUD、physical settlement。</td><td>5先物のFX futures枠として取得。FXスポットDataとは呼ばない。</td></tr>
+        <tr><td><code>MZC</code></td><td>Micro Corn futures</td><td>CBOT、code <code>MZC</code>。Micro Agは標準契約の1/10。公式FAQでは2025-02-24開始。</td><td>2025-02-24以降のみ。標準Corn <code>ZC</code>との混同禁止。</td></tr>
+        <tr><td><code>MZS</code></td><td>Micro Soybean futures</td><td>CBOT、code <code>MZS</code>。Micro Agは標準契約の1/10。公式FAQでは2025-02-24開始。</td><td>2025-02-24以降のみ。標準Soybean <code>ZS</code>との混同禁止。</td></tr>
+        <tr><td><code>MZW</code></td><td>Micro Chicago Wheat futures</td><td>CBOT、code <code>MZW</code>。Micro Agは標準契約の1/10。公式FAQでは2025-02-24開始。</td><td>2025-02-24以降のみ。標準Chicago Wheat <code>ZW</code>との混同禁止。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>5. システムとの相性を、流れで説明すると</h2>
+    <pre>申請範囲（P5-DATA-G1）
+  ↓ Provider境界で確認
+Databento Historical API / GLBX.MDP3
+  ↓ parent symbolをdefinitionで解決、spreadを除外
+Raw DBN.zst（上書き禁止・SHA-256）
+  ↓ P5-NORMALIZED-BAR-v1.0.0へ変換
+Normalized UTC bar + Catalog／Calendar／Roll／Quality参照
+  ↓ Qualityで欠損・重複・未来・Calendar不一致を確認
+P5 Evidence index / Manifest / StopDecision
+  ↓ P5-09以降で実証
+Backtest／Coreへ渡す前にDataGateDecisionを再確認</pre>
+    <p>この流れなら、Provider固有の<code>raw_symbol</code>、DBN、HTTP status、API keyをCoreやStrategyへ漏らさずに済む。P4 DBやCoreを変更せず、P5のEvidenceだけを増やす現在の境界にも合う。</p>
+  </section>
+
+  <section class="box stop">
+    <h2>6. この推奨案だけでは、まだPASSにならないもの</h2>
+    <p>公式Webを読んで推奨値を作ることと、実際のアカウントで取得できることは別である。次の項目は、推奨案を書いた後に人間と実行環境で確認しなければならない。</p>
+    <ol>
+      <li>Databentoの実アカウントで、<code>GLBX.MDP3</code>、対象schema、対象期間が有効であること。</li>
+      <li>契約・利用権限・保持・再配布条件が、今回の「内部利用・再配布なし」と一致すること。</li>
+      <li><code>get_cost</code>等の事前見積りが、1 Run 25 USD以内・月額50 USD以内であること。</li>
+      <li><code>DATABENTO_API_KEY</code>を安全に参照できること。値をログや文書へ出さないこと。</li>
+      <li><code>P5-EXT-DATABENTO-HIST-001</code>のRunner実体、依存lock、固定command、target scope、外部通信監査が作成・検証済みであること。</li>
+      <li>5候補のparent解決結果と、必要期間の個別契約一覧がそろうこと。<code>206 Partial Content</code>や<code>available</code>以外は成功にしないこと。</li>
+      <li>外部Run専用のhost isolation Evidenceが、P5-06のlocal Evidenceとは別に存在すること。</li>
+    </ol>
+    <p><strong>したがって、この文書の作成後の状態は、P5-DATA-G1 <code>HUMAN_GATE_REQUIRED</code>、<code>P5-EXTERNAL-WORKER-UNKNOWN</code> OPENのままである。</strong> 未確認の項目をPassへ変換していない。</p>
+  </section>
+
+  <section>
+    <h2>7. REQ／DEC／UNK／ARTの追跡</h2>
+    <table>
+      <thead><tr><th>ID</th><th>この文書での意味</th><th>接続先</th><th>状態</th></tr></thead>
+      <tbody>
+        <tr><td><code>REQ-V2-0025〜0032</code>、<code>REQ-V2-0044</code>、<code>REQ-V2-0091/0096</code></td><td>Catalog、DataRequest、Raw／Normalized、Quality、Cost／Gap、外部境界。</td><td><a href="../01_要件追跡/01_Phase5入力・Data対象・REQ追跡.html">P5-01追跡表</a>、P5-02〜04。</td><td><span class="badge done">追跡済み</span></td></tr>
+        <tr><td><code>DEC-P5-G1-REC-001〜008</code></td><td>Provider、対象、期間、schema、費用、Secret、保存、Runnerに対する今回の推奨判断。</td><td>本書の3章、P5-07申請表、P5-08再開条件。</td><td><span class="badge proposal">提案</span></td></tr>
+        <tr><td><code>EXTERNAL-DATA-PROVIDER-SECRET</code></td><td>Provider契約、費用、Secret、外部通信が未承認。</td><td><a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a>。</td><td><span class="badge unknown">OPEN</span></td></tr>
+        <tr><td><code>P5-EXTERNAL-WORKER-UNKNOWN</code></td><td>推奨Runnerの名称は書いたが、実体・依存・監査は未登録。</td><td>P5-07申請表、P5-08 blocked log。</td><td><span class="badge unknown">OPEN</span></td></tr>
+        <tr><td><code>UNK-P3-01/05/07</code></td><td>長期Data、Cost／Slippage／Gap、正式Calendarが未実証。</td><td>P5-09でEvidenceを取得後に再分類する。</td><td><span class="badge unknown">未解消</span></td></tr>
+        <tr><td><code>P5-ART-07-DATA-G1-RECOMMENDATION-001</code></td><td>申請項目の説明と推奨値・根拠。</td><td>本HTML、<a href="../../../plan/phase5/ログ/P5-07_外部Data_Gate申請・範囲表_2026-08-12.md">P5-07ログ</a>、<a href="../../index.html">doc/index</a>。</td><td><span class="badge proposal">作成済み・承認前</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>8. 公式一次情報と確認日</h2>
+    <p>以下は2026-08-12にWebで確認した公式ページである。Providerの一般仕様は、個別アカウントのentitlement・費用・契約条件を保証しないため、実行前にアカウント単位で再確認する。</p>
+    <table>
+      <thead><tr><th>確認対象</th><th>公式URL</th><th>今回の根拠</th></tr></thead>
+      <tbody>
+        <tr><td>Databento Dataset</td><td><a href="https://databento.com/docs/knowledge-base/datasets">https://databento.com/docs/knowledge-base/datasets</a></td><td><code>GLBX.MDP3</code>がCME、CBOT、NYMEX、COMEXを対象とし、先物・先物オプションの履歴を提供すること。</td></tr>
+        <tr><td>Databento Symbology</td><td><a href="https://databento.com/docs/standards-and-conventions/symbology">https://databento.com/docs/standards-and-conventions/symbology</a></td><td>parent、instrument_id、continuous、instrument_class、volume-based roll、未調整価格の扱い。</td></tr>
+        <tr><td>Databento Historical API</td><td><a href="https://databento.com/docs/reference-historical/basics/symbology">https://databento.com/docs/reference-historical/basics/symbology</a></td><td><code>stype_in</code>／<code>stype_out</code>、UTC start/end、cost／billable sizeの公式API。</td></tr>
+        <tr><td>Databento OHLCV</td><td><a href="https://databento.com/docs/schemas-and-data-formats/ohlcv">https://databento.com/docs/schemas-and-data-formats/ohlcv</a></td><td>1分足、区間開始時刻、取引がない区間はレコードがないこと。日足を自前集計する理由。</td></tr>
+        <tr><td>Databento schema一覧</td><td><a href="https://databento.com/docs/schemas-and-data-formats/whats-a-schema">https://databento.com/docs/schemas-and-data-formats/whats-a-schema</a></td><td>definition、statistics、TBBO、trades、OHLCVの役割と派生関係。</td></tr>
+        <tr><td>Databento Data condition</td><td><a href="https://databento.com/docs/api-reference-historical/metadata/metadata-get-dataset">https://databento.com/docs/api-reference-historical/metadata/metadata-get-dataset</a></td><td>available／degraded／pending／missingをQuality Gateで区別すること。</td></tr>
+        <tr><td>Databento Errors／Rate limits</td><td><a href="https://databento.com/docs/api-reference-historical/basics/errors">https://databento.com/docs/api-reference-historical/basics/errors</a></td><td>206、401、402、403、404、422、429などを成功扱いしないこと。Retry-Afterを使うこと。</td></tr>
+        <tr><td>Databento Pricing</td><td><a href="https://databento.com/pricing">https://databento.com/pricing</a> ／ <a href="https://databento.com/docs/faqs/usage-pricing-and-data-credits">usage pricing</a></td><td>Historicalの使用量課金、usage-based、見積り、data credits、利用・配布プランの考え方。</td></tr>
+        <tr><td>CME Micro WTI</td><td><a href="https://www.cmegroup.com/markets/energy/crude-oil/micro-wti-crude-oil.contractSpecs.html">CME Micro WTI contract specs</a> ／ <a href="https://www.cmegroup.com/notices/clearing/2021/06/Chadv21-191.html">initial listing</a></td><td>MCL、NYMEX、100 barrels、financial settlement、2021-07-12の初回上場。</td></tr>
+        <tr><td>CME Micro AUD/USD</td><td><a href="https://www.cmegroup.com/markets/fx/fx-product-guide.html">CME FX Product Guide 2026</a></td><td>M6A、10,000 AUD、tick 0.0001 USD/AUD、physical settlement。</td></tr>
+        <tr><td>CME Micro Ag</td><td><a href="https://www.cmegroup.com/markets/agriculture/micro-ag-futures">CME Micro Ag futures</a> ／ <a href="https://www.cmegroup.com/articles/faqs/faq-micro-agriculture-futures.html">FAQ</a></td><td>MZC、MZS、MZW、CBOT、1/10契約、2025-02-24開始、契約コード。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="box">
+    <h2>9. 次に承認者が確認する短いチェックリスト</h2>
+    <ul>
+      <li>ProviderをDatabento Historical APIにするか。</li>
+      <li>対象を5つのfuturesだけに限定し、stocks／FXスポット／cryptoを今回の対象外にするか。</li>
+      <li>共通期間を2025-02-24〜2026-07-31（UTC）とするか。</li>
+      <li>1 Run 25 USD、Historical月額50 USDの上限を承認するか。</li>
+      <li>内部利用のみ・再配布なし・Liveなしでよいか。</li>
+      <li>推奨Runnerを実体化・検証する担当と期限を決めるか。</li>
+    </ul>
+    <p>すべてに同意しても、Runner実体、契約・権限、事前見積り、Secret境界、外部Runのhost isolation Evidenceが揃うまでは、P5-DATA-G1を機械的にPASSへ変更しない。</p>
+  </section>
+
+  <section>
+    <h2>10. レビュー履歴・採否</h2>
+    <table>
+      <thead><tr><th>日付</th><th>観点</th><th>判断</th><th>理由</th></tr></thead>
+      <tbody>
+        <tr><td>2026-08-12</td><td>既存P5／P2設計との整合</td><td>採用</td><td>Databento、GLBX.MDP3、parent／definition、Raw／Normalized、UTC、Catalog／Calendar境界を既存設計へ接続した。</td></tr>
+        <tr><td>2026-08-12</td><td>公式一次情報</td><td>採用</td><td>DatabentoとCMEの公式ページを確認し、URLと確認日を保存した。</td></tr>
+        <tr><td>2026-08-12</td><td>長期Dataの一般化</td><td>保留</td><td>Micro Agの開始時期とMCLの開始時期が異なるため、標準契約proxyを実Micro契約のEvidenceへ一般化しない。</td></tr>
+        <tr><td>2026-08-12</td><td>Runner／外部host isolation</td><td>保留</td><td>推奨名とcommandは示したが、実体・依存・外部通信監査は未作成。<code>P5-EXTERNAL-WORKER-UNKNOWN</code>を保持する。</td></tr>
+        <tr><td>2026-08-12</td><td>Human Gate</td><td>未承認</td><td>本書は推奨案であり、P5-DATA-G1の承認や外部I/Oの許可ではない。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <p class="small">関連ログ：<a href="../../../plan/phase5/ログ/P5-07_外部Data_Gate申請・範囲表_2026-08-12.md">P5-07 外部Data Gate申請・範囲表ログ</a> ／ 既存申請表：<a href="06_Phase5外部Data_Gate申請・範囲表.html">06_Phase5外部Data_Gate申請・範囲表.html</a> ／ P5-08はP5-DATA-G1承認とRunner登録まで開始しない。</p>
+</main></body></html>
