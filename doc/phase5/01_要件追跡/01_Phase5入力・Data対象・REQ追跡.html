@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P5-01 Phase5入力・Data対象・REQ追跡</title>
+  <style>
+    :root { --ink:#172033; --muted:#526174; --line:#cbd5e1; --blue:#0f5db8; --pale:#eff6ff; --green:#ecfdf5; --red:#fef2f2; --amber:#fffbeb; }
+    body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic",Meiryo,sans-serif; line-height:1.7; margin:28px auto; max-width:1260px; color:var(--ink); background:#f8fafc; }
+    main { background:#fff; border:1px solid #d9e2ec; padding:28px; }
+    h1,h2,h3 { color:#111827; } h1 { border-bottom:3px solid #1f2937; padding-bottom:10px; } h2 { border-bottom:1px solid var(--line); margin-top:34px; padding-bottom:6px; }
+    h3 { margin-top:24px; } a { color:var(--blue); text-decoration:none; } a:hover { text-decoration:underline; }
+    table { border-collapse:collapse; width:100%; margin:14px 0; font-size:0.94rem; } th,td { border:1px solid var(--line); padding:8px 10px; vertical-align:top; } th { background:#eef2f7; text-align:left; }
+    code,pre { font-family:Consolas,"Courier New",monospace; } code { overflow-wrap:anywhere; } pre { background:#0f172a; color:#e5e7eb; padding:16px; overflow-x:auto; white-space:pre-wrap; }
+    .meta,.note,.ok,.stop,.warn { border-left:4px solid #2563eb; background:var(--pale); padding:12px 14px; margin:16px 0; } .ok { border-left-color:#059669; background:var(--green); } .stop { border-left-color:#dc2626; background:var(--red); } .warn { border-left-color:#d97706; background:var(--amber); }
+    .badge { display:inline-block; border-radius:999px; padding:2px 9px; font-size:0.82rem; font-weight:700; white-space:nowrap; } .done { background:#d1fae5; color:#065f46; } .wait { background:#fef3c7; color:#92400e; } .blocked { background:#fee2e2; color:#991b1b; } .info { background:#dbeafe; color:#1e40af; }
+    .small { color:var(--muted); font-size:0.9rem; } .nowrap { white-space:nowrap; } .critical { color:#991b1b; font-weight:700; } .center { text-align:center; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:12px; } .card { border:1px solid var(--line); padding:12px; background:#fff; } .card h3 { margin-top:0; }
+    ul { margin-top:6px; } li { margin:3px 0; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">doc/index.htmlへ戻る</a> ／ <a href="../00_実行計画/01_Phase5実行計画書.html">Phase5実行計画書</a> ／ <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
+  <h1>P5-01 Phase5入力・Data対象・REQ追跡</h1>
+
+  <div class="meta">
+    <p><strong>文書ID:</strong> P5-ART-01-REQ-DATA-TRACE-001<br>
+    <strong>Document Set:</strong> P5-DOCSET-001<br>
+    <strong>Step:</strong> P5-01 ／ <strong>Phase:</strong> PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12<br>
+    <strong>計画:</strong> P5-PLAN-001 ／ <strong>作成日:</strong> 2026-08-12（Asia/Tokyo）<br>
+    <strong>状態:</strong> <span class="badge done">P5-01_COMPLETE_WITH_FALLBACK_REVIEW</span><br>
+    <strong>発火状態:</strong> P5-H0はユーザー明示承認済み。P5-01の設計・読取・HTML・ログだけを完了。P5-H1、P5-DATA-G1、P5-H2は未承認。</p>
+  </div>
+
+  <section class="stop">
+    <h2>1. Findings first（先に結論）</h2>
+    <table>
+      <thead><tr><th>ID</th><th>重要度・状態</th><th>Finding</th><th>処置・参照</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>P5-01-F-001</code></td>
+          <td><span class="badge info">Medium / RECORDED</span></td>
+          <td>rootからOrchestratorのspawn／waitは成功したが、Coordinatorランタイムから子Agentのspawn／waitが利用できず、A10／A20／A80／A81／A90は未起動。</td>
+          <td><code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、<code>LOCAL_FALLBACK_NO_SUBAGENTS</code>としてreceiptへ記録。独立実行・独立レビューとは表記せず、責務チェックリストをSELF_REVIEW_FALLBACKで適用した。<a href="../../../plan/phase5/ログ/P5-01_入力・Data対象・REQ追跡_2026-08-12.md#dispatch-receipt">実行ログ</a></td>
+        </tr>
+        <tr>
+          <td><code>P5-01-F-002</code></td>
+          <td><span class="badge done">High / CLOSED</span></td>
+          <td>P4のfixed synthetic／fixture Evidenceを、実市場Data、正式Calendar、実測Cost／Slippage／Gapへ一般化するとP5の停止条件に該当する。</td>
+          <td>本書の全P4接続点に「固定範囲」「未実証」「後続Gate」を併記し、P4-Evidenceを実市場Evidenceとして扱わない。<code>P4-OUT-EXTERNAL-DATA</code>、<code>UNK-P3-01</code>、<code>UNK-P3-05</code>、<code>UNK-P3-07</code>を継承。</td>
+        </tr>
+        <tr>
+          <td><code>P5-01-F-003</code></td>
+          <td><span class="badge done">High / CLOSED</span></td>
+          <td>Unknown、未承認Gate、対象外のBroker／Paper／Live／実資金／実Risk／CloudをPassと誤認しない必要がある。</td>
+          <td>Unknownは未解消のまま一覧化し、P5-H0だけを承認済みとして表示。P5-H1／P5-DATA-G1／P5-H2は待機。対象外表と停止条件を固定した。</td>
+        </tr>
+        <tr>
+          <td><code>P5-01-F-004</code></td>
+          <td><span class="badge done">High / CLOSED</span></td>
+          <td>REQ、UC、Data object、Test、Evidence、Gateのいずれかが欠けると、P5の開始条件と後続Evidenceが追跡不能になる。</td>
+          <td>第8節の行単位マトリクスでCatalog／Calendar／Quality／Cost／Gap／Holdoutと共通境界を追跡し、Data objectは「設計上の型」であり未実装・未取得と明記した。</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>判定:</strong> Critical=0、High=0（Critical/High=0）。P5-01の対象整理・P4接続点・追跡表は完了。実Data取得、Provider接続、Secret、Cost発生、外部I/O、Core／P4 DB変更は0件。A90の独立レビューは未起動であり、完了状態は独立承認ではなくfallback reviewである。</p>
+  </section>
+
+  <section>
+    <h2>2. 入力と効力</h2>
+    <p>このStepは、P4から引き渡された接続点をP5の要件追跡へ変換する読取・設計作業である。P4-H2はP5計画入力の引渡しを承認しただけで、P5の実装・実Data・Provider・Secret・費用・外部I/Oを承認しない。P5-H0の承認はP5-01を開始する承認であり、後続Gateの承認を含まない。</p>
+    <table>
+      <thead><tr><th>入力</th><th>役割</th><th>このStepでの扱い</th><th>状態</th></tr></thead>
+      <tbody>
+        <tr><td><a href="../../../plan/phase4/Phase5計画入力一覧_2026-08-12.md">plan/phase4/Phase5計画入力一覧_2026-08-12.md</a></td><td>P4-10 handoff、開始・停止条件、P5対象</td><td>P5入力の正本。P4-H2とP5-H0を分離。</td><td><span class="badge done">読取済み</span></td></tr>
+        <tr><td><a href="../../../plan/requirements_update/01_自動トレードシステム要件定義書_v2.md">RQV2正式要件（Markdown）</a> ／ <a href="../../requirements/01_自動トレードシステム要件定義書_v2.html">RQV2正式要件（HTML）</a></td><td>REQ、UC、Data／時系列／Holdout／Unknownの正本</td><td>REQ-V2-0025〜0032、0044、0054〜0055、0091、0096、0105〜0106を行単位で使用。</td><td><span class="badge done">読取済み</span></td></tr>
+        <tr><td><a href="../../../plan/requirements_update/RQV2_Phase4以降再編ロードマップ_2026-08-11.md">RQV2_Phase4以降再編ロードマップ_2026-08-11.md</a></td><td>Phase5目的、候補、4資産、5時間足、成果物、Gate</td><td>設計対象と非対象の境界を固定。</td><td><span class="badge done">読取済み</span></td></tr>
+        <tr><td><a href="../../phase4/05_完了/07_Phase4完了判定・Phase5計画引渡し.html">P4-10完了・Phase5計画引渡し</a> ／ <a href="../../../plan/phase4/ログ/P4-10_完了・引渡し_2026-08-12.md">P4-10ログ</a></td><td>P4-H2、Core凍結、P5へ渡す範囲</td><td>固定local品質のEvidenceとP5未開始を確認。</td><td><span class="badge done">読取済み</span></td></tr>
+        <tr><td><a href="../../phase4/01_要件追跡/01_Phase4入力・Core再利用確認.html">P4-01 Core再利用確認</a> ／ <a href="../../phase4/01_要件追跡/02_Phase4要件・UC・UI・Test追跡マトリクス.html">P4-02追跡マトリクス</a></td><td>P4 Data／Manifest／Replay／Quality接続点</td><td>P4契約の再利用可能範囲だけをP5へ継承。</td><td><span class="badge done">読取済み</span></td></tr>
+        <tr><td><a href="../../phase4/02_実装詳細設計/03_ProductApplication_Backtest実装詳細設計書.html">P4-03 Backtest設計</a> ／ <a href="../../phase4/02_実装詳細設計/04_ProductApplication_API詳細設計書.html">P4-04A API</a></td><td>DataReference、Preflight、Evidence、Holdout、外部境界</td><td>Data body、Provider、Secret、Broker APIはP4対象外として固定。</td><td><span class="badge done">読取済み</span></td></tr>
+        <tr><td><a href="../../phase4/02_実装詳細設計/05_ProductApplication_DB_Persistence詳細設計書.html">P4-04B DB</a> ／ <a href="../../phase4/02_実装詳細設計/06_ProductApplication_UI全21画面詳細設計書.html">P4-04C UI</a> ／ <a href="../../phase4/03_品質設計/04_Phase4テスト戦略・RunManifest設計.html">P4-04D品質</a></td><td>Metadata DB非重複、boundary-only UI、Run Manifest／品質契約</td><td>P5-01ではDB／migration／UI／Runを変更・実行しない。</td><td><span class="badge done">読取済み</span></td></tr>
+        <tr><td><a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-10-run-manifest.md">P4 Run Manifest</a> ／ <a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-10-verification.md">P4 Verification</a> ／ <a href="../../../tests/evidence/phase4/RUN-P4-04D-001/human-gate-p4-h2.md">P4-H2記録</a></td><td>既存P4 Evidence、hash、fallback、承認範囲</td><td>synthetic／fixtureの固定local証拠として引用し、実市場証拠に昇格しない。</td><td><span class="badge done">参照済み</span></td></tr>
+        <tr><td><a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a> ／ <a href="../../index.html">doc/index.html</a> ／ AI部品JSON／SKILL.md</td><td>Unknown／Gateの現在状態、導線、実行契約</td><td>本書とログを導線へ追加。JSON／Skillは読み取りのみ。</td><td><span class="badge done">参照・更新対象</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>3. P4から受け取ったData接続点の再照合</h2>
+    <p>以下はP4の実装・EvidenceをP5の入力契約へ写像した表である。右端の「一般化禁止」は、P4の固定fixtureやsyntheticを実市場の取得・品質・費用・Calendarの証拠と誤読しないための停止境界である。</p>
+    <table>
+      <thead><tr><th>P4接続点</th><th>P4で確認した契約</th><th>P5-01でのData object候補</th><th>一般化禁止・後続Gate</th></tr></thead>
+      <tbody>
+        <tr><td>Catalog／Manifest／Normalized／Replay入力</td><td><code>DataVersionManifest</code>、固定local <code>ReplayInput</code>、Normalized input、Quality stop、fixture hash。Core 36ファイルは凍結。</td><td><code>CatalogRecord</code>、<code>DataManifest</code>、<code>NormalizedDatasetRef</code>、<code>ReplayInputRef</code></td><td>Provider API、連続取得、実市場の期間・本数・欠落を表さない。P5-DATA-G1前は取得不可。</td></tr>
+        <tr><td>DataReference → Preflight</td><td>Data／Strategy／Risk referenceのversion、hash、source_mode、DataGateDecisionを検査し、失敗時はCoreへ進まない。</td><td><code>DataReference</code>、<code>DataGateDecision</code>、<code>ManifestHashRef</code></td><td>RiskはP4でpolicy id／version／hashの参照だけ。実Risk値、Account、Portfolio、OMSはP5対象外。</td></tr>
+        <tr><td>Quality stop／Manifest整合</td><td>欠損・重複・時刻逆行・未来・型・単位・OHLC不整合を理由・件数・停止状態へ記録。Calendar closureとは別分類。</td><td><code>QualityReport</code>、<code>QualityFinding</code>、<code>StopDecision</code>、<code>CalendarClassification</code></td><td>P4 M30固定Evidenceは正式Calendarの確認ではない。補間・推測・未来Dataで穴埋めしない。</td></tr>
+        <tr><td>ResultStore／Evidence／CSV</td><td>Core result bodyは既存ResultStore、Metadata DBは参照・状態、Evidenceは相対参照とhash。P4-04B DB／migrationは未実行。</td><td><code>EvidenceManifest</code>、<code>ProvenanceRef</code>、<code>HashRef</code>、<code>ResultReference</code></td><td>P5-01でP4 DB、Core、Evidence body、CSV、migrationを変更しない。P5外部証跡は後続承認Runだけ。</td></tr>
+        <tr><td>Holdout API／境界</td><td><code>read_holdout(finalized=true)</code>は一回限り。HoldoutをSweep選択・Config更新・次Runへ自動流用しない。</td><td><code>PeriodSplitManifest</code>、<code>HoldoutAssessment</code>、<code>WalkForwardWindow</code></td><td>固定synthetic Holdout契約を長期実市場Holdoutの合格としない。再利用は理由・運用者判断・新Run・Gateが必要。</td></tr>
+        <tr><td>P4 API／UI外部境界</td><td>canonical APIは19件。X02 Provider／Market Data／Order／socket、X04 Secret／external data／Cloud、SCREEN-05／20はboundary-only。</td><td><code>ExternalAcquisitionRequest</code>、<code>ProviderCapability</code>、<code>SecretGateDecision</code></td><td>P5-01は型とGateを追跡するだけ。Provider接続、Secret投入、Broker／Order、Cloud接続は開始しない。</td></tr>
+        <tr><td>P4 Run Manifest／品質設計</td><td>target_only、fixture hash、Evidence root、Human Gate、host isolationをRunへ記録する設計。P4 Evidenceはlocal固定範囲。</td><td><code>RunScopeRef</code>、<code>FixtureHashRef</code>、<code>HostIsolationEvidenceRef</code></td><td><code>UNK-P4-04D-004</code>はOPEN。P5の実Runは別のtrusted scope、hash、host isolation、Gateが必要。</td></tr>
+      </tbody>
+    </table>
+    <div class="ok"><strong>再照合結果:</strong> P4接続点は、P5のCatalog／Manifest／Quality／Provenance／Holdout設計の入力契約としては利用できる。ただし、実市場Data、正式Calendar、実測Cost／Slippage／Gap、長期本数、Provider契約を証明するEvidenceはP4に存在しない。</div>
+  </section>
+
+  <section>
+    <h2>4. P5-01の対象範囲と非対象</h2>
+    <div class="grid">
+      <div class="card"><h3>対象</h3><ul><li>MCL／M6A／MZC／MZS／MZWの論理候補IDとCatalog追跡</li><li>4資産種類、D1／H4／H1／M30／M15の契約追跡</li><li>Raw／Normalized／Quality／Calendar／Manifest／Provenance／Hashの設計上の接続点</li><li>Cost／Slippage／Gap、長期、Holdout／Walk-forwardのEvidence要求</li><li>REQ → UC → Data object → Test → Evidence → Gateの行単位追跡</li><li>Unknown、停止条件、後続Human Gate、dispatch receipt</li></ul></div>
+      <div class="card"><h3>このStepの実施</h3><ul><li>ローカル文書とJSON／SKILL.mdの読取</li><li>P4成果物との境界・リンク・ID再照合</li><li>正式HTML、計画ログ、doc/index導線の更新</li><li>静的なリンク・表・境界・Secret混入の検査</li><li>固定local値を設計トレースの例として表示</li></ul></div>
+      <div class="card"><h3>非対象・変更禁止</h3><ul><li>Broker、Paper、Live、実資金、実Risk</li><li>Provider接続、外部Data取得、Secret、費用発生</li><li>Cloud、外部I/O、実Run、依存パッケージ</li><li>Core、P4 DB／migration、P4 fixture／Evidence</li><li>実Dataの補間・推定・未来Data・Calendarの仮承認</li></ul></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>5. Data対象の固定</h2>
+    <h3>5.1 4資産種類</h3>
+    <table>
+      <thead><tr><th>資産種類</th><th>P5-01で固定する構造</th><th>未実証・Gate待ち</th></tr></thead>
+      <tbody>
+        <tr><td>Futures</td><td><code>asset_type=futures</code>をCatalog／Roll／Expiry／Unitの分離対象とする。</td><td>実Symbol、取引所、限月、Roll、契約単位、Provider／Broker、実Data</td></tr>
+        <tr><td>Stocks</td><td><code>asset_type=stocks</code>をCatalog／Calendar／Unitの分離対象とする。</td><td>実Symbol、取引所、公式Calendar、Corporate action、Provider、実Data</td></tr>
+        <tr><td>FX</td><td><code>asset_type=fx</code>をCatalog／Calendar／Timezone／Unitの分離対象とする。</td><td>実Symbol、venue、休日・DST、Provider、実Data</td></tr>
+        <tr><td>Crypto</td><td><code>asset_type=crypto</code>をCatalog／venue／Calendar／Unitの分離対象とする。</td><td>実Symbol、venue、24/7扱い、Provider、実Data</td></tr>
+      </tbody>
+    </table>
+    <p class="small">4資産種類はRQV2の構造的サポートを表す。実市場の証明、利益性、注文可能性、Broker接続の証明ではない。</p>
+
+    <h3>5.2 初期5候補</h3>
+    <table>
+      <thead><tr><th>論理候補</th><th>Catalog状態</th><th>必須未確定項目</th><th>P5-01の扱い</th></tr></thead>
+      <tbody>
+        <tr><td><code>MCL</code></td><td><span class="badge info">LOGICAL_ID_ONLY</span></td><td>実Symbol／取引所／限月／Roll／単位／Provider／Broker</td><td>構造の追跡対象。未確認の値を補わない。</td></tr>
+        <tr><td><code>M6A</code></td><td><span class="badge info">LOGICAL_ID_ONLY</span></td><td>実Symbol／取引所／限月／Roll／単位／Provider／Broker</td><td>構造の追跡対象。旧変換記録を候補値として再利用しない。</td></tr>
+        <tr><td><code>MZC</code></td><td><span class="badge info">LOGICAL_ID_ONLY</span></td><td>実Symbol／取引所／限月／Roll／単位／Provider／Broker</td><td>構造の追跡対象。未確認の値を補わない。</td></tr>
+        <tr><td><code>MZS</code></td><td><span class="badge info">LOGICAL_ID_ONLY</span></td><td>実Symbol／取引所／限月／Roll／単位／Provider／Broker</td><td>構造の追跡対象。未確認の値を補わない。</td></tr>
+        <tr><td><code>MZW</code></td><td><span class="badge info">LOGICAL_ID_ONLY</span></td><td>実Symbol／取引所／限月／Roll／単位／Provider／Broker</td><td>構造の追跡対象。未確認の値を補わない。</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.3 時間足、境界時刻、Quality</h3>
+    <table>
+      <thead><tr><th>時間足</th><th>Manifest／Data objectで必須の境界</th><th>初期欠損閾値</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr><td><code>D1</code></td><td>bar boundary、Close、Decision／Order time、Timezone、Calendar version</td><td>2</td><td>初期設計値。実市場の合格値ではない。</td></tr>
+        <tr><td><code>H4</code></td><td>bar boundary、Close、Decision／Order time、Timezone、Calendar version</td><td>2</td><td>同上。休日・短縮日・DSTを欠損へ混同しない。</td></tr>
+        <tr><td><code>H1</code></td><td>bar boundary、Close、Decision／Order time、Timezone、Calendar version</td><td>2</td><td>同上。未来参照・時刻逆行を停止対象とする。</td></tr>
+        <tr><td><code>M30</code></td><td>bar boundary、Close、Decision／Order time、Timezone、Calendar version、provenance</td><td>3</td><td>P4固定M30 provenanceは実市場Calendarの証拠ではない。</td></tr>
+        <tr><td><code>M15</code></td><td>bar boundary、Close、Decision／Order time、Timezone、Calendar version</td><td>4</td><td>同上。短い時間足の遅延・欠損・重複を別Evidenceへ記録。</td></tr>
+      </tbody>
+    </table>
+    <p>欠損、重複、時間逆行、未来Data、型・単位・OHLC不整合はQuality stopへ分類する。休日、臨時休場、短縮日、DST、Provider遅延はCalendar／arrival分類とし、欠損の自動補間で解決しない。</p>
+  </section>
+
+  <section>
+    <h2>6. P5のData object境界</h2>
+    <p>以下の名称はP5の追跡に用いる設計上のData objectであり、P5-01で実装・永続化・取得したものではない。各objectは版、hash、provenance、source_mode、対象、期間、時間足、timezone、Calendar versionを参照できなければならない。</p>
+    <table>
+      <thead><tr><th>層</th><th>Data object候補</th><th>保持する意味</th><th>このStepの状態</th></tr></thead>
+      <tbody>
+        <tr><td>Catalog／対象</td><td><code>CatalogRecord</code>、<code>LogicalInstrumentMapping</code>、<code>AssetCapabilityState</code></td><td>論理ID、資産種類、実識別子の確認状態、Expiry／Roll／Unitの状態、Provider契約参照</td><td><span class="badge info">DESIGN_TRACE_ONLY</span></td></tr>
+        <tr><td>Raw／Normalized</td><td><code>RawDatasetRef</code>、<code>NormalizedDatasetRef</code>、<code>NormalizedBar</code></td><td>取得元、元Data hash、schema／unit、変換版、期間、時間足、再生成関係</td><td><span class="badge info">DESIGN_TRACE_ONLY</span></td></tr>
+        <tr><td>Quality</td><td><code>QualityReport</code>、<code>QualityFinding</code>、<code>StopDecision</code></td><td>欠損・重複・逆行・未来・型・単位・OHLC、理由、件数、対象、停止／回復状態</td><td><span class="badge info">DESIGN_TRACE_ONLY</span></td></tr>
+        <tr><td>Calendar／Roll</td><td><code>CalendarVersionRef</code>、<code>CalendarClassification</code>、<code>RollRuleVersionRef</code></td><td>公式Calendar版、休日・短縮日・DST・臨時休場、Rollルール版と根拠</td><td><span class="badge wait">LATER_GATE</span></td></tr>
+        <tr><td>Manifest／Provenance</td><td><code>DataManifest</code>、<code>ProvenanceRef</code>、<code>HashRef</code>、<code>RunScopeRef</code></td><td>対象・期間・時間足・Data／Calendar／Cost／Configの版・hash・境界・Evidence</td><td><span class="badge info">DESIGN_TRACE_ONLY</span></td></tr>
+        <tr><td>Cost／Gap</td><td><code>CostAssumptionSet</code>、<code>SlippageObservation</code>、<code>GapRuleVersion</code></td><td>固定仮定、実測観測、Gap規則、単位、根拠、測定条件を分離</td><td><span class="badge wait">LATER_GATE</span></td></tr>
+        <tr><td>期間分割</td><td><code>PeriodSplitManifest</code>、<code>HoldoutAssessment</code>、<code>WalkForwardWindow</code></td><td>Train／Tune／Holdout境界、window、timezone、重複・gap・future検査、再利用判断</td><td><span class="badge info">DESIGN_TRACE_ONLY</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>7. 追跡の読み方とEvidenceの種別</h2>
+    <p>本書のTest IDはP5-01の設計トレース確認を表す。ここでのEvidenceは正式HTML、実行ログ、P4接続点、静的リンク検査の参照であり、実市場Dataの収集Evidenceではない。後続のP5-H1、P5-DATA-G1、P5-H2が承認されるまで、実測値や外部取得をPassにしない。追跡の正式な連結表記は <code>REQ→UC→Data object→Test→Evidence→Gate</code> とする。</p>
+    <div class="grid">
+      <div class="card"><h3>設計Evidence</h3><p><code>P5-EV-01-INPUT-TRACE-001</code>（本書とログ）</p><p>入力、P4接続点、対象、非対象、Unknown、Gateの読み取り結果。</p></div>
+      <div class="card"><h3>P4引継ぎEvidence</h3><p><code>P4-EV-INPUT-PREFLIGHT</code>、P4-10 Run Manifest／Verification</p><p>固定localの既存契約。実市場・外部Providerの証拠ではない。</p></div>
+      <div class="card"><h3>後続実証Evidence</h3><p><code>tests/evidence/phase5/&lt;RunId&gt;/</code></p><p>P5-DATA-G1承認後に、対象・hash・host isolation・外部通信・Qualityを別Runで記録する。</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>8. REQ → UC → Data object → Test → Evidence → Gate</h2>
+    <p>各行は後続のData contract／Quality／実証設計へ引き継ぐ最小追跡単位である。UCの範囲表記はRQV2正式要件のUC群を指す。Gate欄の「P5-01」は設計トレースを許可する現在Gate、「later」はその要件を実証・承認する未到来Gateである。</p>
+    <table>
+      <thead><tr><th>追跡ID・対象</th><th>REQ</th><th>UC</th><th>Data object</th><th>Test</th><th>Evidence</th><th>Gate</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>P5-TR-001</code><br>Catalog／候補／4資産</td>
+          <td><code>REQ-V2-0025</code> 構造対応と証明状態を分離<br><code>REQ-V2-0026</code> 論理ID登録・実識別子未確定を明示</td>
+          <td><code>UC-V2-007</code>、<code>UC-V2-011</code>、<code>UC-V2-014</code></td>
+          <td><code>CatalogRecord</code><br><code>LogicalInstrumentMapping</code><br><code>AssetCapabilityState</code></td>
+          <td><code>TEST-P5-01-CATALOG-001</code><br>5候補・4資産・未確認項目・旧変換記録の非再利用を静的確認</td>
+          <td><code>P5-EV-01-CATALOG-TRACE-001</code><br>本書5節、ログ、RQV2／roadmap</td>
+          <td>P5-H0：設計追跡のみ<br>P5-DATA-G1：実識別子・契約・取得の承認</td>
+        </tr>
+        <tr>
+          <td><code>P5-TR-002</code><br>時間足／境界</td>
+          <td><code>REQ-V2-0027</code> 時間足・Manifest・確定足時刻<br><code>REQ-V2-0028</code> 欠損／休日／DST／遅延の分類</td>
+          <td><code>UC-V2-008</code>、<code>UC-V2-011</code>〜<code>UC-V2-014</code></td>
+          <td><code>TimeframeBinding</code><br><code>ManifestTimeframeEntry</code><br><code>CalendarVersionRef</code></td>
+          <td><code>TEST-P5-01-TIMEFRAME-001</code> 必須5時間足と初期閾値<br><code>TEST-P5-01-TIMEFRAME-002</code> Calendar closureと欠損の分離</td>
+          <td><code>P5-EV-01-TIMEFRAME-TRACE-001</code><br>本書5.3、P4 M30境界注記</td>
+          <td>P5-H0：設計追跡のみ<br>P5-DATA-G1：公式Calendar・実Dataの承認</td>
+        </tr>
+        <tr>
+          <td><code>P5-TR-003</code><br>Raw／Normalized／Quality</td>
+          <td><code>REQ-V2-0029</code> 層別版・hash・provenance<br><code>REQ-V2-0032</code> 不良Dataの停止と理由表示</td>
+          <td><code>UC-V2-009</code>〜<code>UC-V2-014</code>、<code>UC-V2-054</code></td>
+          <td><code>RawDatasetRef</code>、<code>NormalizedDatasetRef</code>、<code>QualityReport</code>、<code>QualityFinding</code>、<code>StopDecision</code></td>
+          <td><code>TEST-P5-01-QUALITY-001</code> 層別hash／provenance<br><code>TEST-P5-01-QUALITY-002</code> 不良分類・停止<br><code>TEST-P5-01-QUALITY-003</code> 未来・補間・混在禁止</td>
+          <td><code>P5-EV-01-QUALITY-TRACE-001</code><br>本書3、6、8節。P4 fixed quality stopを接続点として引用。</td>
+          <td>P5-H0：設計追跡のみ<br>P5-H1：固定local contract<br>P5-DATA-G1：実Data Quality</td>
+        </tr>
+        <tr>
+          <td><code>P5-TR-004</code><br>Catalog／Calendar／Roll／Manifest</td>
+          <td><code>REQ-V2-0030</code> Run固定、版・hash・sequence・不変参照</td>
+          <td><code>UC-V2-014</code>、<code>UC-V2-034</code></td>
+          <td><code>DataManifest</code>、<code>CatalogVersionRef</code>、<code>CalendarVersionRef</code>、<code>RollRuleVersionRef</code>、<code>ProvenanceRef</code></td>
+          <td><code>TEST-P5-01-MANIFEST-001</code><br>対象・期間・時間足・version／hash／timezone／Calendar／Rollの必須項目を確認</td>
+          <td><code>P5-EV-01-MANIFEST-TRACE-001</code><br>P4-03 DataVersionManifest／Preflight、P4-04D Run Manifest設計</td>
+          <td>P5-H0：P4契約の読取<br>P5-H1／G1：P5 Manifest実証</td>
+        </tr>
+        <tr>
+          <td><code>P5-TR-005</code><br>取得／Provider境界</td>
+          <td><code>REQ-V2-0031</code> 外部取得とstored importの分離<br><code>REQ-V2-0091</code> Provider／Broker／Engine adapter境界</td>
+          <td><code>UC-V2-003</code>、<code>UC-V2-009</code>、<code>UC-V2-013</code>、<code>UC-V2-041</code>〜<code>UC-V2-050</code>、<code>UC-V2-067</code></td>
+          <td><code>ExternalAcquisitionRequest</code>、<code>ProviderCapability</code>、<code>AcquisitionMode</code>、<code>ExternalGateDecision</code></td>
+          <td><code>TEST-P5-01-EXTERNAL-BOUNDARY-001</code><br>外部接続・Secret・費用・権限・保存・再配布の未承認を開始禁止として確認</td>
+          <td><code>P5-EV-01-EXTERNAL-BOUNDARY-001</code><br>P4-04A X02／X04、P4-04C SCREEN-20、統合台帳</td>
+          <td>P5-H0：未承認の境界のみ<br>P5-DATA-G1：別Human Gate。承認前は実行不可</td>
+        </tr>
+        <tr>
+          <td><code>P5-TR-006</code><br>Cost／Slippage／Gap</td>
+          <td><code>REQ-V2-0044</code> 費用・滑り・GapをRun入力へ固定<br><code>REQ-V2-0096</code> target／measured／unknownを分離<br><code>UNK-P3-05</code> 実測根拠未解消</td>
+          <td><code>UC-V2-024</code>、<code>UC-V2-025</code>、<code>UC-V2-030</code>〜<code>UC-V2-032</code></td>
+          <td><code>CostAssumptionSet</code>、<code>SlippageObservation</code>、<code>GapRuleVersion</code>、<code>MeasurementCondition</code></td>
+          <td><code>TEST-P5-01-COST-GAP-BOUNDARY-001</code><br>固定仮定・実測観測・未確定を混ぜず、未測定をPassにしない</td>
+          <td><code>P5-EV-01-COST-GAP-TRACE-001</code><br>P4 fixed Cost／Gap契約、RQV2 roadmap、Unknown台帳</td>
+          <td>P5-H0：固定／実測分離の設計<br>P5-DATA-G1／P5-H2：実測Evidenceと承認</td>
+        </tr>
+        <tr>
+          <td><code>P5-TR-007</code><br>長期／Holdout／Walk-forward</td>
+          <td><code>REQ-V2-0054</code> 期間・window・境界・Data／Manifestを保存<br><code>REQ-V2-0055</code> Holdout再利用禁止と判断記録</td>
+          <td><code>UC-V2-032</code>、<code>UC-V2-033</code>、<code>UC-V2-035</code></td>
+          <td><code>PeriodSplitManifest</code>、<code>HoldoutAssessment</code>、<code>WalkForwardWindow</code>、<code>BoundaryCheck</code></td>
+          <td><code>TEST-P5-01-HOLDOUT-001</code> Train／Tune／Holdoutの重複・gap・future<br><code>TEST-P5-01-HOLDOUT-002</code> 再利用時の理由・新Run・Human Gate</td>
+          <td><code>P5-EV-01-HOLDOUT-TRACE-001</code><br>P4-03 Holdout API／P4-04A API-P4-019、RQV2</td>
+          <td>P5-H0：契約追跡のみ<br>P5-DATA-G1：実Data期間<br>P5-H2：長期Evidenceの完了承認</td>
+        </tr>
+        <tr>
+          <td><code>P5-TR-008</code><br>Unknown／双方向追跡</td>
+          <td><code>REQ-V2-0105</code> Unknown／Gate／Evidence管理<br><code>REQ-V2-0106</code> REQの双方向追跡・孤児禁止</td>
+          <td><code>UC-V2-036</code>〜<code>UC-V2-068</code>、関連Q／Screen／Test／Gate</td>
+          <td><code>UnknownRegisterEntry</code>、<code>TraceLink</code>、<code>GateDecisionRef</code>、<code>EvidenceRef</code></td>
+          <td><code>TEST-P5-01-TRACE-001</code><br>各行のREQ／UC／object／Test／Evidence／Gateと未解消理由を確認</td>
+          <td><code>P5-EV-01-TRACE-CLOSURE-001</code><br>本書、ログ、統合台帳、doc/index</td>
+          <td>P5-H0：本Step完了<br>後続Gate未承認のUnknownはPassにしない</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>9. Mermaidで見る境界</h2>
+    <pre>flowchart LR
+  R[REQ-V2 / RQV2 Roadmap] --> U[UC]
+  U --> O[Data object design]
+  O --> T[P5-01 trace test contract]
+  T --> E[P5-EV-01 document evidence]
+  E --> G[P5-H0 / later Gate]
+  P4[P4 DataVersionManifest<br/>ReplayInput / Quality stop] --> O
+  P4E[P4 fixed synthetic Evidence] -. not real-market proof .-> E
+  X[Provider / Secret / external I/O] -. STOP before G1 .-> G
+  B[Broker / Paper / Live / real funds / real Risk / Cloud] -. OUT OF SCOPE .-> G</pre>
+    <p class="small">Mermaidは関係を示す設計図であり、この文書から外部スクリプトや通信を行わない。</p>
+  </section>
+
+  <section class="warn">
+    <h2>10. Unknownと停止条件</h2>
+    <table>
+      <thead><tr><th>Unknown／境界ID</th><th>現在状態</th><th>止める対象</th><th>再開条件・Evidence</th></tr></thead>
+      <tbody>
+        <tr><td><code>UNK-P3-01</code></td><td><span class="badge wait">OPEN / NOT PASS</span> 長期Data、provenance、市場数</td><td>長期実Data、長期Holdout、完了判定</td><td>対象・期間・本数・欠落・Manifest・Quality・hashをP5-DATA-G1後のEvidenceへ記録。</td></tr>
+        <tr><td><code>UNK-P3-05</code></td><td><span class="badge wait">OPEN / NOT PASS</span> Cost／Slippage／Gap</td><td>実測Cost／Slippage／Gap、Live適合</td><td>市場別測定条件、保守値、Gap規則、根拠、感度を別Evidenceへ記録。</td></tr>
+        <tr><td><code>UNK-P3-07</code></td><td><span class="badge wait">OPEN / NOT PASS</span> 正式Calendar</td><td>Calendarを使う実Data品質判定</td><td>公式Provider、版、短縮日・臨時休場、更新監視とtimezone／DSTを承認。</td></tr>
+        <tr><td><code>Q-243</code> ／ <code>RQV2-BLK-001</code></td><td><span class="badge wait">OPEN / NOT PASS</span> 後続Gateの実証範囲</td><td>構造Evidenceから実運用判断への昇格</td><td>対象範囲、実証、決定者、期限、Gate、反映先を統合台帳で同期。</td></tr>
+        <tr><td><code>UNK-P4-04B-001</code>〜<code>005</code></td><td><span class="badge wait">OPEN / NOT PASS</span> DB／migration等</td><td>P4 DB、P5 DB永続化、migration</td><td>P4/P5の別設計と専門レビュー、実行承認。P5-01では変更しない。</td></tr>
+        <tr><td><code>UNK-P4-04D-004</code> ／ <code>UNK-P4-UI-002</code></td><td><span class="badge wait">OPEN / NOT PASS</span> host isolation／font・OS</td><td>実Runの外部通信なしを機械的に証明すること</td><td>trusted scope、host outbound isolation、固定環境の別Evidence。P4 browser request 0だけでは代替しない。</td></tr>
+        <tr><td><code>EXTERNAL-DATA-PROVIDER-SECRET</code></td><td><span class="badge wait">NOT APPROVED</span></td><td>Provider接続、Secret投入、Data取得、費用発生</td><td>契約・権限・費用・Secret方法・mask・retention・expiry・通信・削除をHuman Gateで承認。</td></tr>
+        <tr><td><code>BROKER-PAPER-LIVE</code> ／ <code>REAL-RISK-VALUES</code></td><td><span class="badge wait">OUT OF SCOPE / NOT PASS</span></td><td>Broker、Paper、Live、実資金、実Risk</td><td>別Phase・別Gate・別Evidence。P5-01から参照して開始しない。</td></tr>
+      </tbody>
+    </table>
+    <p class="critical">停止条件: P4接続点不明、候補／時間足不明、P4 syntheticの実市場一般化、P5-H0未承認、外部I/O／Secret混入、必須receipt欠落、Critical／High未解決、UnknownのPass化、P4 Core／DB／fixture変更。</p>
+  </section>
+
+  <section>
+    <h2>11. Gateと段階的な効力</h2>
+    <table>
+      <thead><tr><th>Gate</th><th>状態</th><th>このStepで許可された効力</th><th>まだ許可されないこと</th></tr></thead>
+      <tbody>
+        <tr><td><code>P4-H2</code></td><td><span class="badge done">APPROVED / 2026-08-12</span></td><td>P4完了とP5計画入力の引渡し。</td><td>P5実装、外部Data、Provider、Secret、Broker、Paper、Live、実資金、実Risk、P4 DB変更。</td></tr>
+        <tr><td><code>P5-H0</code></td><td><span class="badge done">APPROVED / 2026-08-12</span></td><td>ユーザー明示文「P5-H0 を承認します。」によりP5-01の順次実行を開始。</td><td>P5-H1、P5-DATA-G1、P5-H2の代替承認。実Data／外部I/Oの発火。</td></tr>
+        <tr><td><code>P5-H1</code></td><td><span class="badge wait">WAITING</span></td><td>後続設計レビュー後に固定local Data contract品質を開始するための候補。</td><td>P5-06、外部Data、Provider、Secret。</td></tr>
+        <tr><td><code>P5-DATA-G1</code></td><td><span class="badge wait">WAITING</span></td><td>後続でData契約、対象、費用、Secret、通信、保存、Evidenceの専用承認を行う。</td><td>承認前のProvider接続、実Data取得、費用発生。</td></tr>
+        <tr><td><code>P5-H2</code></td><td><span class="badge wait">WAITING</span></td><td>P5-08〜10の実証を完了した後の完了承認候補。</td><td>P5-01からの自動昇格、P6引渡し。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2 id="dispatch-receipt">12. 実ランタイムdispatch receipt</h2>
+    <p>rootでは指定Orchestratorの実spawn／waitを実行した。Coordinatorの最終receiptは、内部の <code>multi_agent_v1__spawn_agent</code>／<code>multi_agent_v1__wait_agent</code> が利用不能だったため、5 Agentを未起動として明示した。したがって、下表の子Agentには独立実行・独立レビューの意味を与えない。</p>
+    <table>
+      <thead><tr><th>役割／名前</th><th>JSON path</th><th>固定model</th><th>agent_id</th><th>spawn / wait</th><th>output_ref</th><th>fallback_reason</th><th>independent</th><th>review_mode</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Orchestrator<br><code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code></td>
+          <td><code>C:/project/strategy_test/.codex/orchestrators/AutoTradeProject_DesignDocSet_Orchestrator_v0_1.json</code></td>
+          <td><code>gpt-5.6-terra</code></td>
+          <td><code>019ff586-341e-7f70-9cbd-8be5b8e002dd</code></td>
+          <td><code>SPAWNED / COMPLETED</code></td>
+          <td><code>agent://019ff586-341e-7f70-9cbd-8be5b8e002dd/final</code></td>
+          <td>Coordinatorから子Agent runtime unavailableの報告</td>
+          <td><code>false</code></td>
+          <td><code>COORDINATOR_RECEIPT_WITH_CHILD_FALLBACK</code></td>
+        </tr>
+        <tr><td>Agent A10<br><code>AutoTrade_A10_RequirementsCurator_v0_1</code></td><td><code>C:/project/strategy_test/.codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json</code></td><td><code>gpt-5.6-luna</code></td><td><code>N/A</code></td><td><code>NOT_STARTED / NOT_STARTED</code></td><td><code>N/A</code></td><td><code>RUNTIME_DISPATCH_FALLBACK_REQUIRED; LOCAL_FALLBACK_NO_SUBAGENTS; child runtime unavailable</code></td><td><code>false</code></td><td><code>SELF_REVIEW_FALLBACK</code></td></tr>
+        <tr><td>Agent A20<br><code>AutoTrade_A20_ArchitectureDomainArchitect_v0_1</code></td><td><code>C:/project/strategy_test/.codex/agents/AutoTrade_A20_ArchitectureDomainArchitect_v0_1.json</code></td><td><code>gpt-5.6-luna</code></td><td><code>N/A</code></td><td><code>NOT_STARTED / NOT_STARTED</code></td><td><code>N/A</code></td><td><code>RUNTIME_DISPATCH_FALLBACK_REQUIRED; LOCAL_FALLBACK_NO_SUBAGENTS; child runtime unavailable。Orchestrator agents map外だが必須指定済み。</code></td><td><code>false</code></td><td><code>SELF_REVIEW_FALLBACK</code></td></tr>
+        <tr><td>Agent A80<br><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td><code>C:/project/strategy_test/.codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json</code></td><td><code>gpt-5.1</code></td><td><code>N/A</code></td><td><code>NOT_STARTED / NOT_STARTED</code></td><td><code>N/A</code></td><td><code>RUNTIME_DISPATCH_FALLBACK_REQUIRED; LOCAL_FALLBACK_NO_SUBAGENTS; child runtime unavailable</code></td><td><code>false</code></td><td><code>SELF_REVIEW_FALLBACK</code></td></tr>
+        <tr><td>Agent A81<br><code>AutoTrade_A81_DesignDocSetWriter_v0_1</code></td><td><code>C:/project/strategy_test/.codex/agents/AutoTrade_A81_DesignDocSetWriter_v0_1.json</code></td><td><code>gpt-5.6-luna</code></td><td><code>N/A</code></td><td><code>NOT_STARTED / NOT_STARTED</code></td><td><code>N/A</code></td><td><code>RUNTIME_DISPATCH_FALLBACK_REQUIRED; LOCAL_FALLBACK_NO_SUBAGENTS; child runtime unavailable</code></td><td><code>false</code></td><td><code>SELF_REVIEW_FALLBACK</code></td></tr>
+        <tr><td>Agent A90<br><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td><code>C:/project/strategy_test/.codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json</code></td><td><code>gpt-5.6-luna</code></td><td><code>N/A</code></td><td><code>NOT_STARTED / NOT_STARTED</code></td><td><code>N/A</code></td><td><code>RUNTIME_DISPATCH_FALLBACK_REQUIRED; LOCAL_FALLBACK_NO_SUBAGENTS; child runtime unavailable</code></td><td><code>false</code></td><td><code>SELF_REVIEW_FALLBACK</code></td></tr>
+      </tbody>
+    </table>
+    <p class="small">root receiptの待機は一度timeout後、同じagent_idへwaitして完了を取得した。Coordinatorが報告した子Agentのoutputは全てN/Aであり、ローカルの本書・ログがfallback時の成果物である。</p>
+  </section>
+
+  <section>
+    <h2>13. Skills適用と責務チェックリスト</h2>
+    <p>指定Skillはすべて読み取り、子Agent未起動のため以下の責務をrootがSELF_REVIEW_FALLBACKとして適用した。これはAgentの独立実行済みを意味しない。</p>
+    <table>
+      <thead><tr><th>責務</th><th>適用Skill</th><th>チェック結果</th><th>review_mode</th></tr></thead>
+      <tbody>
+        <tr><td>A10 Requirements Curator</td><td><code>autotrade_skill_source_reader_v0_1</code>、<code>autotrade_skill_traceability_v0_1</code></td><td>入力ファイルとIDを列挙し、推測で補わず、Unknown・未承認・P4限定を分離。REQ／UCの孤児がないよう8行を作成。</td><td><code>SELF_REVIEW_FALLBACK</code></td></tr>
+        <tr><td>A20 Architecture／Domain</td><td><code>autotrade_skill_architecture_writer_v0_1</code></td><td>P4接続点、P5 Data object、依存方向、非対象を分離。Provider／Secret／Broker／CloudをP5-01へ漏らさない。</td><td><code>SELF_REVIEW_FALLBACK</code></td></tr>
+        <tr><td>A80 Document Integrator</td><td><code>autotrade_skill_design_doc_set_writer_v0_1</code>、<code>autotrade_skill_html_doc_writer_v0_1</code></td><td>共通metadata、Document Set、関連リンク、Unknown、レビュー履歴、doc/index導線、inline CSSを確認。CDN・Secret値なし。</td><td><code>SELF_REVIEW_FALLBACK</code></td></tr>
+        <tr><td>A81 Design Doc Set Writer</td><td><code>autotrade_skill_design_doc_set_writer_v0_1</code>、<code>autotrade_skill_html_doc_writer_v0_1</code></td><td>正式HTML、P5-01ログ、計画／台帳／indexとの相互参照、P5-01 Artifact ID、状態、変更履歴を整合。</td><td><code>SELF_REVIEW_FALLBACK</code></td></tr>
+        <tr><td>A90 Design Reviewer</td><td><code>autotrade_skill_design_review_v0_1</code></td><td>Findings firstで、入力欠落、P4契約の誤一般化、UnknownのPass化、Gate漏れ、リンク不足、Critical／Highを確認。独立レビューではない。</td><td><code>SELF_REVIEW_FALLBACK</code></td></tr>
+        <tr><td>Orchestration</td><td><code>autotrade_skill_orchestration_v0_1</code></td><td>P5-H0のみ発火、P5-01順序、child receipt、fallback、後続Gate待機、外部I/O禁止を確認。</td><td><code>ROOT_RECEIPT_WITH_FALLBACK</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>14. レビュー採否と変更履歴</h2>
+    <table>
+      <thead><tr><th>確認項目</th><th>判定</th><th>反映</th></tr></thead>
+      <tbody>
+        <tr><td>入力欠落</td><td><span class="badge done">CLOSED</span></td><td>P4-10 handoff、RQV2正式要件／roadmap、P4-01〜04D、Evidence、ledger、JSON／Skillを入力表へ追加。</td></tr>
+        <tr><td>P4契約の誤一般化</td><td><span class="badge done">CLOSED</span></td><td>固定fixture／M30／synthetic／P4 local Evidenceを実Data／正式Calendar／実測値の証明から分離。</td></tr>
+        <tr><td>UnknownのPass化</td><td><span class="badge done">CLOSED</span></td><td>UnknownはOPEN／NOT PASS、未承認GateはWAITING、対象外はOUT OF SCOPEとして保持。</td></tr>
+        <tr><td>Gate漏れ・停止条件</td><td><span class="badge done">CLOSED</span></td><td>P5-H0、P5-H1、P5-DATA-G1、P5-H2を分離し、外部I/O／Secret／Core／P4 DBを禁止。</td></tr>
+        <tr><td>リンク不足</td><td><span class="badge done">CLOSED</span></td><td>doc/index、P5計画、P5ログ、統合台帳、P4正式HTML、P4 Evidenceへ相対リンクを付与。</td></tr>
+        <tr><td>dispatch receipt</td><td><span class="badge done">RECORDED</span></td><td>root spawn／waitとCoordinator child fallbackを本書12節・ログへ記録。独立レビュー済みとは記載しない。</td></tr>
+        <tr><td>Critical／High</td><td><span class="badge done">0 OPEN</span></td><td>High findingsは境界明示・追跡表・Gate分離で閉じ、Mediumのruntime fallbackは記録したまま残す。</td></tr>
+      </tbody>
+    </table>
+    <p><strong>履歴:</strong> 2026-08-12 P5-01 v0.1作成。P5-H0ユーザー承認、P4接続点再照合、Data対象、REQ追跡、Unknown／Gate、runtime receipt、fallback責務チェックリストを反映。P5-01完了後もP5-H1／P5-DATA-G1／P5-H2は未承認。</p>
+  </section>
+
+  <section>
+    <h2>15. 関連成果物</h2>
+    <ul>
+      <li><a href="../../../plan/phase5/ログ/P5-01_入力・Data対象・REQ追跡_2026-08-12.md">P5-01実行ログ（dispatch receipt・自己責務チェック・検証結果）</a></li>
+      <li><a href="../../../plan/Phase5_実行計画書_v0.1_2026-08-12.md">P5-PLAN-001 実行計画Markdown</a> ／ <a href="../00_実行計画/01_Phase5実行計画書.html">P5実行計画HTML</a></li>
+      <li><a href="../../phase4/01_要件追跡/01_Phase4入力・Core再利用確認.html">P4-01 Core再利用確認</a> ／ <a href="../../phase4/01_要件追跡/02_Phase4要件・UC・UI・Test追跡マトリクス.html">P4-02追跡</a></li>
+      <li><a href="../../phase4/02_実装詳細設計/03_ProductApplication_Backtest実装詳細設計書.html">P4-03 Backtest</a> ／ <a href="../../phase4/02_実装詳細設計/04_ProductApplication_API詳細設計書.html">P4-04A API</a> ／ <a href="../../phase4/02_実装詳細設計/05_ProductApplication_DB_Persistence詳細設計書.html">P4-04B DB</a> ／ <a href="../../phase4/02_実装詳細設計/06_ProductApplication_UI全21画面詳細設計書.html">P4-04C UI</a> ／ <a href="../../phase4/03_品質設計/04_Phase4テスト戦略・RunManifest設計.html">P4-04D品質</a></li>
+      <li><a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-10-run-manifest.md">P4-10 Run Manifest</a> ／ <a href="../../../tests/evidence/phase4/RUN-P4-04D-001/p4-10-verification.md">P4-10 Verification</a> ／ <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>
