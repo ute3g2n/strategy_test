@@ -9,7 +9,7 @@
   "agents": ["AutoTrade_A110_PythonTestEngineer_v0_1", "AutoTrade_A120_PythonImplementer_v0_1", "AutoTrade_A130_VerificationEngineer_v0_1", "AutoTrade_A140_DebugEngineer_v0_1", "AutoTrade_A150_PythonCodeReviewer_v0_1", "AutoTrade_A160_TradingSecurityReviewer_v0_1"],
   "skills": ["autotrade_skill_python_test_quality_v0_1", "autotrade_skill_python_implementation_v0_1", "autotrade_skill_debug_recovery_v0_1", "autotrade_skill_python_code_review_v0_1", "autotrade_skill_test_strategy_v0_1", "autotrade_skill_ops_security_v0_1", "autotrade_skill_orchestration_v0_1"],
   "data_version": "p5-fixed-local-dummy-v1",
-  "change_hash": "sha256:fb59ec502f03b9f9712110041e9c3ed7351658be348980a0cde6ed166365b1aa",
+  "change_hash": "sha256:92d6223459056eeff446bfe3dbc6dfc4023596e07c1fe8a42a744f0d0f1287fb",
   "baseline_ref": "f911013220884fdde6a8aa94b914cb7a4c563a1f",
   "scope_mode": "target_only",
   "target_paths": ["src/autotrade/market_data", "scripts/quality_gate", "tests/market_data", "tests/fixtures/market_data", "tests/evidence/phase5/RUN-P5-06-LOCAL-001"],
@@ -19,10 +19,10 @@
   "human_gate_policy": "P5-H1=APPROVED; P5-DATA-G1 and P5-H2 remain unapproved.",
   "unknowns": [],
   "checks": [
-    {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "scripts/quality_gate", "tests/market_data", "tests/fixtures/market_data"]},
-    {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/market_data", "scripts/quality_gate", "tests/market_data", "tests/fixtures/market_data"]},
-    {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/market_data"]},
-    {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "pytest", "tests/market_data", "-q"]}
+    {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "scripts/quality_gate", "tests/market_data", "tests/fixtures/market_data"]},
+    {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/market_data", "scripts/quality_gate", "tests/market_data", "tests/fixtures/market_data"]},
+    {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/market_data"]},
+    {"gate": "test", "command": [".venv/bin/python", "-m", "pytest", "tests/market_data", "-q"]}
   ],
   "review": {"critical": 0, "high": 0}
 }

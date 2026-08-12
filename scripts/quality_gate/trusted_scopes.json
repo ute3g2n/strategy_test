@@ -606,10 +606,10 @@
         "evidence": "tests/evidence/phase5/RUN-P5-06-LOCAL-001/human-gate-p5-h1.md"
       },
       "checks": [
-        {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "scripts/quality_gate", "tests/market_data", "tests/fixtures/market_data"]},
-        {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/market_data", "scripts/quality_gate", "tests/market_data", "tests/fixtures/market_data"]},
-        {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/market_data"]},
-        {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "pytest", "tests/market_data", "-q"]}
+        {"gate": "formatter", "command": [".venv/bin/python", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "scripts/quality_gate", "tests/market_data", "tests/fixtures/market_data"]},
+        {"gate": "lint", "command": [".venv/bin/python", "-m", "ruff", "check", "src/autotrade/market_data", "scripts/quality_gate", "tests/market_data", "tests/fixtures/market_data"]},
+        {"gate": "type", "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/market_data"]},
+        {"gate": "test", "command": [".venv/bin/python", "-m", "pytest", "tests/market_data", "-q"]}
       ],
       "execution_allowed": true
     }
