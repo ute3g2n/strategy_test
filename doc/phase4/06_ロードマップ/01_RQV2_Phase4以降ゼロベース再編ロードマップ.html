@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="document-id" content="RQV2-ART-11-ROADMAP-001">
+  <meta name="step-id" content="RQV2-11">
+  <meta name="phase-id" content="REQUIREMENTS_V2_REBUILD_2026_08_11">
+  <title>RQV2 Phase 4以降ゼロベース再編ロードマップ</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #536274;
+      --line: #d7e0ea;
+      --paper: #ffffff;
+      --canvas: #f4f7fb;
+      --blue: #1559a6;
+      --blue-soft: #eaf3ff;
+      --green: #087443;
+      --green-soft: #e9f8f0;
+      --amber: #915d00;
+      --amber-soft: #fff6df;
+      --red: #a42d2d;
+      --red-soft: #fff0f0;
+      --purple: #5c3b92;
+      --purple-soft: #f3edff;
+      --shadow: 0 10px 28px rgba(27, 52, 84, .08);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      line-height: 1.78;
+      letter-spacing: .01em;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover, a:focus-visible { text-decoration: underline; }
+    a:focus-visible, summary:focus-visible { outline: 3px solid #f59e0b; outline-offset: 3px; }
+    code, pre, .mono { font-family: Consolas, "Cascadia Mono", "Yu Gothic", monospace; }
+    code { padding: .1em .35em; border-radius: 4px; background: #eef2f7; overflow-wrap: anywhere; }
+    .skip-link {
+      position: absolute; left: 12px; top: 10px; z-index: 10;
+      padding: 8px 12px; color: #fff; background: #111827; border-radius: 6px;
+      transform: translateY(-160%);
+    }
+    .skip-link:focus { transform: translateY(0); }
+    .page { width: min(1480px, calc(100% - 32px)); margin: 0 auto; }
+    .hero {
+      margin-top: 28px; padding: clamp(24px, 4vw, 52px);
+      color: #f8fbff; background: linear-gradient(135deg, #123c70 0%, #1559a6 52%, #2474b8 100%);
+      border-radius: 18px; box-shadow: var(--shadow);
+    }
+    .hero .eyebrow { margin: 0 0 8px; color: #d9ecff; font-weight: 700; letter-spacing: .08em; }
+    h1, h2, h3, h4 { line-height: 1.35; letter-spacing: 0; }
+    h1 { margin: 0 0 16px; font-size: clamp(2rem, 4vw, 3.55rem); }
+    h2 { margin: 58px 0 18px; padding-bottom: 8px; border-bottom: 2px solid var(--line); font-size: clamp(1.55rem, 2.3vw, 2.15rem); }
+    h3 { margin: 30px 0 12px; font-size: clamp(1.18rem, 1.7vw, 1.5rem); }
+    h4 { margin: 22px 0 8px; font-size: 1.08rem; }
+    p { margin: 10px 0; }
+    ul, ol { padding-left: 1.45em; }
+    li { margin: 5px 0; }
+    .lead { max-width: 1050px; margin: 0; font-size: clamp(1.08rem, 1.7vw, 1.35rem); font-weight: 700; }
+    .hero-links { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 20px; }
+    .hero-links a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+    .meta-grid, .grid-2, .grid-3, .grid-4 { display: grid; gap: 16px; }
+    .meta-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 28px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .meta-item { min-height: 76px; padding: 13px 15px; color: #eaf4ff; background: rgba(0, 18, 50, .26); border: 1px solid rgba(255,255,255,.22); border-radius: 10px; }
+    .meta-item strong { display: block; margin-bottom: 3px; color: #fff; font-size: .86rem; }
+    .surface { margin-top: 24px; padding: clamp(18px, 3vw, 32px); background: var(--paper); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+    .toc { position: sticky; top: 10px; z-index: 5; margin-top: 18px; padding: 12px 16px; background: rgba(255,255,255,.96); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 5px 16px rgba(27,52,84,.06); }
+    .toc summary { cursor: pointer; font-weight: 800; }
+    .toc ul { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 10px 0 0; padding-left: 1.2em; }
+    .callout { margin: 18px 0; padding: 16px 18px; border-left: 6px solid var(--blue); background: var(--blue-soft); border-radius: 8px; }
+    .callout h3, .callout h4 { margin-top: 0; }
+    .callout.danger { border-left-color: var(--red); background: var(--red-soft); }
+    .callout.warning { border-left-color: var(--amber); background: var(--amber-soft); }
+    .callout.success { border-left-color: var(--green); background: var(--green-soft); }
+    .callout.purple { border-left-color: var(--purple); background: var(--purple-soft); }
+    .small { color: var(--muted); font-size: .92rem; }
+    .tiny { color: var(--muted); font-size: .82rem; }
+    .strong { font-weight: 800; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .82rem; font-weight: 800; white-space: nowrap; }
+    .badge.blue { color: #0e4e99; background: #dbeafe; }
+    .badge.green { color: #05613b; background: #ccefdc; }
+    .badge.amber { color: #774900; background: #ffe8a8; }
+    .badge.red { color: #8b1e1e; background: #ffd4d4; }
+    .badge.purple { color: #543281; background: #e4d8ff; }
+    .section-intro { max-width: 1050px; color: var(--muted); }
+    .pipeline { display: grid; grid-template-columns: repeat(8, minmax(120px, 1fr)); gap: 9px; margin: 24px 0 10px; padding: 0; list-style: none; }
+    .pipeline li { position: relative; min-height: 132px; margin: 0; padding: 15px 12px 12px; color: #143253; background: #eef6ff; border: 1px solid #bfd8f5; border-radius: 12px; }
+    .pipeline li:not(:last-child)::after { content: "→"; position: absolute; top: 42px; right: -15px; z-index: 2; color: #4e83b9; font-size: 1.35rem; font-weight: 900; }
+    .pipeline .phase-no { display: block; color: var(--blue); font-size: 1.25rem; font-weight: 900; }
+    .pipeline .phase-name { display: block; margin-top: 5px; font-weight: 800; line-height: 1.4; }
+    .pipeline .phase-gate { display: block; margin-top: 9px; color: var(--muted); font-size: .78rem; line-height: 1.45; }
+    .legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 14px 0; }
+    .table-wrap { margin: 14px 0; overflow-x: auto; border: 1px solid var(--line); border-radius: 9px; }
+    table { width: 100%; min-width: 720px; border-collapse: collapse; background: #fff; }
+    th, td { padding: 10px 12px; border: 1px solid var(--line); vertical-align: top; text-align: left; }
+    th { color: #203c5d; background: #edf3f9; font-weight: 800; }
+    tr:nth-child(even) td { background: #fbfdff; }
+    .phase-section { scroll-margin-top: 92px; margin-top: 30px; padding: clamp(20px, 3vw, 34px); background: #fff; border: 1px solid var(--line); border-top: 7px solid var(--blue); border-radius: 14px; box-shadow: var(--shadow); }
+    .phase-section.phase-5 { border-top-color: #0a8f74; }
+    .phase-section.phase-6 { border-top-color: #7856bd; }
+    .phase-section.phase-7 { border-top-color: #b06c00; }
+    .phase-section.phase-8 { border-top-color: #bf4d56; }
+    .phase-section.phase-9 { border-top-color: #924f9f; }
+    .phase-section.phase-10 { border-top-color: #b33434; }
+    .phase-section.phase-11 { border-top-color: #2f3742; }
+    .phase-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 16px; margin: 0; }
+    .phase-title .number { color: var(--blue); font-size: 1.55rem; font-weight: 900; }
+    .phase-title .name { font-size: clamp(1.45rem, 2.5vw, 2.15rem); }
+    .phase-tagline { margin: 10px 0 20px; padding: 14px 16px; color: #153b62; background: #eff7ff; border-radius: 8px; font-size: 1.08rem; font-weight: 800; }
+    .build-card { height: 100%; padding: 16px; border: 1px solid var(--line); border-radius: 10px; }
+    .build-card h3 { margin-top: 0; font-size: 1.12rem; }
+    .build-card.make { background: #effaf4; border-color: #b9e5cb; }
+    .build-card.can { background: #eff7ff; border-color: #c6dcf5; }
+    .build-card.not { background: #fff5f5; border-color: #f1c5c5; }
+    .build-card .card-label { display: inline-block; margin-bottom: 6px; font-size: .8rem; font-weight: 900; letter-spacing: .08em; }
+    .artifact-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; padding: 0; list-style: none; }
+    .artifact-list li { margin: 0; padding: 12px 14px; background: #f8fafc; border: 1px solid var(--line); border-radius: 8px; }
+    .artifact-list strong { display: block; color: #203c5d; }
+    .sequence { counter-reset: sequence; display: grid; gap: 9px; padding: 0; list-style: none; }
+    .sequence li { counter-increment: sequence; position: relative; min-height: 48px; margin: 0; padding: 10px 14px 10px 56px; background: #f8fafc; border: 1px solid var(--line); border-radius: 8px; }
+    .sequence li::before { content: counter(sequence); position: absolute; left: 14px; top: 9px; display: grid; width: 28px; height: 28px; place-items: center; color: #fff; background: var(--blue); border-radius: 50%; font-weight: 900; }
+    .two-column-list { columns: 2 300px; column-gap: 28px; }
+    .two-column-list li { break-inside: avoid; }
+    .mini-flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; margin: 14px 0; }
+    .mini-flow .node { flex: 1 1 150px; min-width: 130px; padding: 11px 12px; color: #173d62; background: #edf6ff; border: 1px solid #c6dcf5; border-radius: 8px; font-weight: 800; text-align: center; }
+    .mini-flow .arrow { display: grid; place-items: center; padding: 0 3px; color: var(--blue); font-size: 1.4rem; font-weight: 900; }
+    .checklist { padding-left: 0; list-style: none; }
+    .checklist li { position: relative; padding-left: 29px; }
+    .checklist li::before { content: "✓"; position: absolute; left: 0; top: 0; color: var(--green); font-weight: 900; }
+    details { margin: 12px 0; padding: 0 14px; background: #fbfdff; border: 1px solid var(--line); border-radius: 8px; }
+    summary { padding: 12px 0; cursor: pointer; font-weight: 800; }
+    details > :not(summary) { margin-left: 4px; margin-right: 4px; }
+    .footer { margin: 40px 0 70px; padding: 22px; color: var(--muted); background: #eef3f8; border: 1px solid var(--line); border-radius: 12px; }
+    .back-top { display: inline-block; margin-top: 20px; font-weight: 800; }
+    @media (max-width: 1050px) {
+      .pipeline { grid-template-columns: repeat(4, minmax(130px, 1fr)); }
+      .pipeline li:nth-child(4)::after, .pipeline li:nth-child(8)::after { content: ""; }
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 760px) {
+      .page { width: min(100% - 18px, 1480px); }
+      .hero { margin-top: 10px; padding: 22px 18px; border-radius: 12px; }
+      .surface { padding: 18px 14px; border-radius: 10px; }
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .pipeline { grid-template-columns: repeat(2, minmax(130px, 1fr)); gap: 8px; }
+      .pipeline li:nth-child(odd)::after { content: "→"; right: -13px; top: 42px; }
+      .pipeline li:nth-child(even)::after { content: "↓"; right: 50%; top: auto; bottom: -25px; }
+      .pipeline li:last-child::after { content: ""; }
+      .toc { position: static; }
+      .toc ul { display: block; }
+      .toc li { margin: 5px 0; }
+      th, td { padding: 8px 9px; }
+      .mini-flow .arrow { flex: 0 0 100%; height: 8px; transform: rotate(90deg); }
+    }
+    @media print {
+      body { background: #fff; }
+      .page { width: 100%; }
+      .hero, .surface, .phase-section { box-shadow: none; }
+      .toc { position: static; }
+      a { color: #000; text-decoration: underline; }
+      .phase-section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<a class="skip-link" href="#main">本文へ移動</a>
+<div class="page">
+  <header class="hero" id="top">
+    <p class="eyebrow">RQV2-11 / Phase 4〜11 / 説明拡充版</p>
+    <h1>Phase 4以降ゼロベース再編ロードマップ</h1>
+    <p class="lead">この文書は、「どのPhaseで、何を作り、何ができるようになり、どこまで進んだら次へ行けるのか」を、初めて読む人でも追えるように説明するためのロードマップです。</p>
+    <div class="meta-grid" aria-label="文書メタ情報">
+      <div class="meta-item"><strong>成果物ID</strong><code>RQV2-ART-11-ROADMAP-001</code></div>
+      <div class="meta-item"><strong>Step ID</strong><code>RQV2-11</code></div>
+      <div class="meta-item"><strong>Phase ID</strong><code>REQUIREMENTS_V2_REBUILD_2026_08_11</code></div>
+      <div class="meta-item"><strong>Plan</strong><code>RQV2-PLAN-001 v0.1</code></div>
+      <div class="meta-item"><strong>作成日</strong>2026-08-12（Asia/Tokyo）</div>
+      <div class="meta-item"><strong>文書の状態</strong>HTML化・説明拡充版。実装開始承認書ではない。</div>
+    </div>
+    <div class="hero-links">
+      <a href="../../index.html">ドキュメントインデックスへ戻る</a>
+      <a href="../../requirements/01_自動トレードシステム要件定義書_v2.html">正式要件定義書 v2</a>
+      <a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題・Blocked統合台帳</a>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="この文書の目次">
+    <details open>
+      <summary>目次を開閉する</summary>
+      <ul>
+        <li><a href="#read-first">最初に読む説明</a></li>
+        <li><a href="#one-page">1枚で分かる全体像</a></li>
+        <li><a href="#at-a-glance">Phase一覧</a></li>
+        <li><a href="#phase-4">Phase 4</a></li>
+        <li><a href="#phase-5">Phase 5</a></li>
+        <li><a href="#phase-6">Phase 6</a></li>
+        <li><a href="#phase-7">Phase 7</a></li>
+        <li><a href="#phase-8">Phase 8</a></li>
+        <li><a href="#phase-9">Phase 9</a></li>
+        <li><a href="#phase-10">Phase 10</a></li>
+        <li><a href="#phase-11">Phase 11</a></li>
+        <li><a href="#gates">Gateと開始手順</a></li>
+        <li><a href="#unknowns">Unknown解消先</a></li>
+        <li><a href="#old-new">旧Phaseとの対応</a></li>
+        <li><a href="#glossary">用語集</a></li>
+        <li><a href="#sources">参照元・履歴</a></li>
+      </ul>
+    </details>
+  </nav>
+
+  <main id="main">
+    <section id="read-first" class="surface">
+      <h2>最初に読む説明：このロードマップが決めること</h2>
+      <div class="callout danger">
+        <h3>最重要：これは実装開始・外部接続・実注文の許可ではありません</h3>
+        <p>この文書は、Phase 4〜11をどの順番で分け、各Phaseで何を作るかを説明する候補ロードマップです。各Phaseを実際に始めるには、別途、そのPhase専用の複数Step実行計画書、詳細設計、REDテスト、機械品質Gate、レビュー、Human Gateが必要です。</p>
+        <p><strong>Broker、Paper、Secret、実注文、実資金、Cloud、外部Data取得は、必要なPhaseの独立Human Gateが承認するまで行いません。</strong></p>
+      </div>
+      <h3>30秒で分かる結論</h3>
+      <ol>
+        <li><strong>Phase 4：</strong>既存のPython Coreを使い、利用者が画面や型付き入力から動かせるローカルBacktest製品の土台を作る。</li>
+        <li><strong>Phase 5：</strong>市場Dataの銘柄、期間、品質、Calendar、Cost、Gapなどを、実証できる形にする。</li>
+        <li><strong>Phase 6：</strong>実注文を出さずに、複数Unit、Portfolio、Risk、OMS、Kill、照合、復旧を作る。</li>
+        <li><strong>Phase 7：</strong>Risk・OMS・停止・照合ができた後で、Broker AdapterとPaper Tradingを検証する。</li>
+        <li><strong>Phase 8：</strong>長期Paper、20〜40 Unit、容量、Backup／Restore、端末・中継、障害復旧を実証する。</li>
+        <li><strong>Phase 9：</strong>まだ実資金を使わず、Live候補のEngine、契約、Risk値、費用、法務、Kill訓練を確認する。</li>
+        <li><strong>Phase 10：</strong>別Human Gateで明示承認された、少額・少数・限定期間だけを初めて実運用する。</li>
+        <li><strong>Phase 11：</strong>Small Liveの結果を基に、対象とRiskを段階的に拡大し、継続運用する。</li>
+      </ol>
+      <div class="callout warning">
+        <h3>計画上の完了と、実運用上の安全は同じではありません</h3>
+        <p>Phase 1〜3の固定Coreや固定fixtureが合格していても、それだけで実市場の長期性能、利益性、Broker接続、Paper、Liveが合格したことにはなりません。未確認のものは<code>UNKNOWN</code>、後で決めるものは<code>LATER_GATE</code>として残し、仮の値でPassにしません。</p>
+      </div>
+    </section>
+
+    <section id="one-page" class="surface">
+      <h2>1枚で分かる全体像</h2>
+      <p class="section-intro">下の流れは、Phaseを「機能の種類」ではなく「安全に次へ進むための依存順」で並べたものです。左から右へ進みます。途中のGateを飛ばして右へ進むことはできません。</p>
+      <ol class="pipeline" aria-label="Phase 4からPhase 11までの依存順">
+        <li><span class="phase-no">P4</span><span class="phase-name">操作できるBacktest製品</span><span class="phase-gate">UI・API・保存・再現</span></li>
+        <li><span class="phase-no">P5</span><span class="phase-name">市場Dataの実証</span><span class="phase-gate">品質・Calendar・Cost</span></li>
+        <li><span class="phase-no">P6</span><span class="phase-name">Risk・OMS・復旧</span><span class="phase-gate">実注文なしのSimulation</span></li>
+        <li><span class="phase-no">P7</span><span class="phase-name">Broker Adapter・Paper</span><span class="phase-gate">接続・Secret・Paper Gate</span></li>
+        <li><span class="phase-no">P8</span><span class="phase-name">長期Paper・運用堅牢化</span><span class="phase-gate">Soak・Backup・端末</span></li>
+        <li><span class="phase-no">P9</span><span class="phase-name">Live候補の審査</span><span class="phase-gate">実資金なし</span></li>
+        <li><span class="phase-no">P10</span><span class="phase-name">小規模Live</span><span class="phase-gate">限定実資金・別Gate</span></li>
+        <li><span class="phase-no">P11</span><span class="phase-name">通常Live・継続運用</span><span class="phase-gate">段階拡大・再承認</span></li>
+      </ol>
+      <div class="legend" aria-label="状態の凡例">
+        <span class="badge blue">計画</span><span>このロードマップで作る対象</span>
+        <span class="badge green">Evidence</span><span>証拠を残して判定する対象</span>
+        <span class="badge amber">Human Gate</span><span>人の承認が必要な境界</span>
+        <span class="badge red">停止</span><span>条件が足りない場合に進まない境界</span>
+      </div>
+      <h3>読者別の読み方</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>読者</th><th>まず読む場所</th><th>読み終わった時に判断できること</th></tr></thead>
+          <tbody>
+            <tr><td>初めて読む人</td><td>この章、Phase一覧、用語集</td><td>Phaseの順番と、「実注文がいつからか」を説明できる。</td></tr>
+            <tr><td>実装担当者</td><td>各Phaseの「作る成果物」「開始条件」「完了条件」</td><td>何を作れば、そのPhaseの成果物として受け入れられるか分かる。</td></tr>
+            <tr><td>運用者</td><td>「できること」「作らないもの」「停止条件」「Human Gate」</td><td>自分が操作できる範囲と、止めるべき条件が分かる。</td></tr>
+            <tr><td>レビュー担当者</td><td>Gate、Unknown、Evidence、旧新対応</td><td>固定Coreの合格と実運用の合格が混ざっていないか確認できる。</td></tr>
+            <tr><td>承認者</td><td>各PhaseのHuman Gate欄、Unknown解消先</td><td>何を承認し、何を承認していないかを範囲付きで判断できる。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="at-a-glance" class="surface">
+      <h2>Phase 4〜11の一覧：各Phaseで何を作るのか</h2>
+      <p class="section-intro">この表は、詳細を読む前の答えです。「作るもの」は成果物や仕組み、「できること」は利用者の操作や確認、「まだしないこと」は安全境界、「次Phase」は引渡し先を示します。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Phase</th><th>やさしい名前</th><th>このPhaseで作るもの</th><th>終了後にできること</th><th>まだしないこと</th><th>次のPhase</th></tr></thead>
+          <tbody>
+            <tr><td><strong>P4</strong><br>Product／Application</td><td>操作できるBacktest製品</td><td>型付き設定、Run／Job／Queue、API、UI、Persistence、Single／Sweep、Result、Chart、取引明細、Evidence。</td><td>固定Data・Strategy・Config・Riskを指定して、再現可能なBacktestを実行・停止・再開・比較できる。</td><td>外部Data、Broker、Paper、Live、Secret、実資金、Cloud。</td><td>P5へData／Manifest／保存／Qualityの接続点を渡す。</td></tr>
+            <tr><td><strong>P5</strong><br>Market Data</td><td>市場Dataの実証</td><td>5候補のCatalog、Data contract、Raw／Normalized、Quality、Calendar、Provenance、Cost／Gap、長期・Holdout Evidence。</td><td>どのDataを、どの期間、どの品質、どの仮定でBacktestへ渡すか確認できる。</td><td>利益性の確定、Broker注文、Paper、Live。外部取得は別Gate内だけ。</td><td>P6へData品質・Calendar・Costの対象範囲を渡す。</td></tr>
+            <tr><td><strong>P6</strong><br>Portfolio／Risk／OMS</td><td>実注文前の安全中枢</td><td>複数Unit、Portfolio／Account、Risk、Order状態、Idempotency、競合、Kill、照合、Restart／Recovery、Forward／Shadow Simulation。</td><td>実注文なしで、注文前にRiskを判定し、異常・重複・差異を止め、手動復旧できる。</td><td>Broker送信、Secret、Paper注文、実Account、実資金、Live。</td><td>P7へ安全な注文LifecycleとAdapter接続条件を渡す。</td></tr>
+            <tr><td><strong>P7</strong><br>Broker／Paper</td><td>承認範囲内のPaper接続</td><td>Broker Adapter、Account／Order／Fill／Position同期、Partial／Reject／Cancel、再接続、照合、Paper Ledger、Runbook。</td><td>承認されたPaper環境で、外部状態と仮想状態の差異を見ながら停止・照合・復旧できる。</td><td>Live注文、実資金、通常Live、未承認Broker。</td><td>P8へPaperのLifecycle、停止、照合、運用Evidenceを渡す。</td></tr>
+            <tr><td><strong>P8</strong><br>Operations</td><td>長期Paperと運用堅牢化</td><td>Dashboard、通知、Incident、Kill、Soak／Load、20〜40 Unit、Backup／Restore、端末・HTTPS中継、Visual／a11y。</td><td>長く動かし、容量・障害・復旧・端末境界を確認し、運用者が日次・週次・月次で点検できる。</td><td>実資金Live、無制限Remote公開、Cloud移行。</td><td>P9へLive候補の審査に必要な長期・復旧・運用Evidenceを渡す。</td></tr>
+            <tr><td><strong>P9</strong><br>Candidate</td><td>実資金なしのLive候補審査</td><td>最終Engine、実Symbol／契約、Risk実値、1N、Limit、費用、法務、Kill drill、Candidate checklist。</td><td>Small Liveを始めてよい候補か、未達項目が何かを実注文なしで判断できる。</td><td>実資金、実注文、Candidateからの自動昇格。</td><td>P10の別Human Gateへ対象・資金・期間・Limit案を渡す。</td></tr>
+            <tr><td><strong>P10</strong><br>Small Live</td><td>限定された初回実運用</td><td>Small Live計画、開始・日次・停止・照合Runbook、実運用Evidence、Incident／損失報告、拡大判定。</td><td>明示承認された少額・少数・限定期間で、実注文と資金・Risk・照合を監視できる。</td><td>通常Live、対象拡大、未承認Auto-approval、別Broker／Engine。</td><td>P11の通常Live継続・拡大判定へ結果を渡す。</td></tr>
+            <tr><td><strong>P11</strong><br>Normal Live</td><td>段階拡大と継続運用</td><td>継続監視、SLO／SLA候補、定期再検証、Audit、Backup、Incident、Rollback、降格、変更・再承認、Cloud／VM判断。</td><td>Scope・Risk・資金を変更単位で再承認しながら、安全に段階拡大・継続・降格できる。</td><td>一度の承認による無制限拡大、未検証環境への暗黙移行。</td><td>次期計画・運用台帳・別Human Gateへ期限とEvidenceを渡す。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="phase-4" class="phase-section phase-4">
+      <h2 class="phase-title"><span class="number">Phase 4</span><span class="name">Product／Application基盤とBacktest製品化</span></h2>
+      <p class="phase-tagline">一言でいうと：既存Coreを、利用者が安全に操作・再現・確認できるローカルBacktest製品へつなぐPhaseです。</p>
+      <div class="grid-3">
+        <div class="build-card make"><span class="card-label">作る</span><h3>製品の土台</h3><p>型付き設定、Run／Job／Queue、Worker、API、UI、Persistenceをつなぎ、Backtestを「コードを直接呼ぶもの」から「利用者が操作する製品境界」へします。</p></div>
+        <div class="build-card can"><span class="card-label">できる</span><h3>再現可能な検証操作</h3><p>Data、Strategy、Config、Riskを指定し、Single／Sweep、Result、Chart、取引明細、Evidenceを確認できます。Cancel／Stop、履歴確認、checkpointからの再開も対象です。</p></div>
+        <div class="build-card not"><span class="card-label">まだしない</span><h3>外部副作用</h3><p>外部Dataの継続取得、Broker、Paper、Live、Secret、実資金、Cloud公開はこのPhaseの対象外です。</p></div>
+      </div>
+      <h3>なぜこのPhaseが必要か</h3>
+      <p>Phase 1〜3で固定したReplay、Fill、Cost、Roll、Gap、Calendar、Holdout、Turtle Strategy、Manifestなどを、利用者が同じ条件で実行し、結果とEvidenceを残せる境界にする必要があるためです。Coreの固定契約と、後続のData・Risk・Broker・UIの接続点を先に作ることで、後のPhaseが「何を受け取り、何を保存し、どこで止めるか」を判断できます。</p>
+      <p class="small"><strong>上流計画での主な候補：</strong><code>FastAPI</code>候補、型付き設定、<code>SQLite WAL／Migration</code>候補、ローカル<code>Job Queue／Worker</code>、<code>React UI</code>接続、単一Backtest、網羅検証、結果閲覧。候補技術の最終確定は、このロードマップではなくPhase 4の詳細設計・Gateで行います。</p>
+      <p class="small"><strong>主な要求範囲：</strong>F01の基礎・起動／停止、F02のData／Strategy／Unit／Run、F03のBacktest／Sweep／Holdout、F05のAPI／UI／保存／Test要求。</p>
+      <h3>このPhaseで作る成果物</h3>
+      <ul class="artifact-list">
+        <li><strong>Phase 4実行計画書</strong>複数Step、依存、Gate、停止条件、Evidence配置を定める。</li>
+        <li><strong>型付きRunモデル</strong>設定、Run、Job、Queue、状態、結果、履歴を扱う契約。</li>
+        <li><strong>API／UI境界</strong>利用者の入力、検査、開始、停止、結果閲覧をつなぐ境界。</li>
+        <li><strong>Persistence設計</strong>Run、Result、履歴、Evidenceを再現可能に保存する設計。</li>
+        <li><strong>Backtest／Sweep実装</strong>Singleと複数条件の検証を固定条件で実行する仕組み。</li>
+        <li><strong>Test／Evidence</strong>Golden／Replay、API／File契約、UI主要状態、差分hashなどの証拠。</li>
+        <li><strong>Runbook</strong>開始、停止、失敗、再開、証拠確認の運用手順。</li>
+      </ul>
+      <h3>前のPhaseから受け取るもの</h3>
+      <ul>
+        <li>RQV2-H3承認後の正式v2基準線。</li>
+        <li>RQV2-01の既存Core再利用範囲、Core Manifest、既存tests／fixture／Evidence。</li>
+        <li>F01〜F06のREQ、UC、Screen、State、Testへの追跡骨格。</li>
+        <li>Coreを無改変で使える範囲、または変更する場合の別設計・RED・影響レビューが必要であるという制約。</li>
+      </ul>
+      <h3>開始するための条件</h3>
+      <div class="table-wrap"><table><thead><tr><th>確認すること</th><th>開始可能な状態</th><th>不足時の停止</th></tr></thead><tbody>
+        <tr><td>承認</td><td>RQV2-H3、Phase 4実行計画、Phase 4の開始Human Gateが確認できる。</td><td>H3未承認のままP4実装へ進まない。</td></tr>
+        <tr><td>設計</td><td>Run、API、UI、Persistence、停止・復旧、Evidenceの詳細設計とREDテストがある。</td><td>入力範囲や保存契約が不明なら開始しない。</td></tr>
+        <tr><td>Core</td><td>Core差分が0、または変更内容・影響・承認が明示されている。</td><td>無承認Core改変、固定fixtureの意味の拡張は停止。</td></tr>
+        <tr><td>外部境界</td><td>外部Data、Broker、Secret、実資金、Cloudを呼ばない範囲が固定されている。</td><td>外部I/Oが混入したら停止。</td></tr>
+      </tbody></table></div>
+      <h3>作業のまとまり</h3>
+      <ol class="sequence">
+        <li>入力、Core再利用範囲、REQ／UC／UI／Test追跡を固定する。</li>
+        <li>Run／Job／Queue、API、UI、Persistenceの詳細設計とデータ受渡しを確定する。</li>
+        <li>Single／Sweep、Result、Chart、取引明細、Evidenceの操作契約を作る。</li>
+        <li>固定条件のREDテスト、実装、API／UI／保存の品質Gateを行う。</li>
+        <li>停止・失敗・再開・履歴・証拠のRunbookを作り、次のPhaseへData接続点を引き渡す。</li>
+      </ol>
+      <p class="small">正式なStep IDや実装順は、Phase 4専用の実行計画書で確定します。このロードマップは、作る成果物のまとまりを説明するものです。</p>
+      <h3>品質Gate、Human Gate、完了条件</h3>
+      <div class="grid-3">
+        <div class="callout success"><h4>品質Gate</h4><p>REQ／UC／Test追跡、Golden／Replay、API／File契約、UI主要状態、Critical／High 0、`git diff --check`、証跡hashを確認します。</p></div>
+        <div class="callout warning"><h4>Human Gate</h4><p>Product基盤、Core無改変範囲、Backtest製品化範囲、P5へ渡すData境界を承認します。外部Dataや実注文は承認しません。</p></div>
+        <div class="callout"><h4>完了</h4><p>Single／Sweepの入力、状態、結果、Evidenceを再現でき、UI・API・Worker・Persistenceの境界が機械検証されている状態です。</p></div>
+      </div>
+      <h3>Unknownと次Phaseへの引渡し</h3>
+      <p><code>UNK-P3-01</code>（長期Data）、<code>UNK-P3-05</code>（Cost／Slippage／Gap）、<code>UNK-P3-07</code>（正式Calendar）、実市場のProviderや契約はP4の固定local検証だけでは解消しません。P4は、P5が実証できるようにData／Manifest／保存／Quality接続点を渡します。UI／Worker性能の測定設計はP4で行い、実測や20〜40 Unitの運用負荷はP8へ残します。</p>
+      <h3>関連資料</h3>
+      <ul><li><a href="../01_要件追跡/01_Phase4入力・Core再利用確認.html">Phase 4入力・Core再利用確認</a></li><li><a href="../05_完了/07_Phase4完了判定・Phase5計画引渡し.html">Phase 4完了判定・Phase 5計画引渡し</a></li><li><a href="../../../plan/requirements_update/RQV2_既存Core再利用基準線_2026-08-11.md">RQV2-01 既存Core再利用基準線</a></li><li><a href="../../../plan/requirements_update/RQV2_要件UIテスト追跡マトリクス_2026-08-11.md">RQV2-02 要件・UI・テスト追跡マトリクス</a></li></ul>
+      <a class="back-top" href="#top">この文書の先頭へ戻る</a>
+    </section>
+
+    <section id="phase-5" class="phase-section phase-5">
+      <h2 class="phase-title"><span class="number">Phase 5</span><span class="name">市場Data運用化と実証</span></h2>
+      <p class="phase-tagline">一言でいうと：Backtestへ渡す市場Dataが、本当に何を表し、どの期間・品質・費用・Calendar条件を持つかを証拠付きで確認するPhaseです。</p>
+      <div class="grid-3">
+        <div class="build-card make"><span class="card-label">作る</span><h3>Dataの説明書と証拠</h3><p>Catalog、Data contract、Raw／Normalized、Quality、Calendar、Provenance、Manifest、hash、Cost／Gap、長期・HoldoutのEvidenceを作ります。</p></div>
+        <div class="build-card can"><span class="card-label">できる</span><h3>Dataを使ってよい範囲の判断</h3><p>MCL、M6A、MZC、MZS、MZWの5候補について、対象、期間、欠損、時刻、Calendar、費用、仮定を確認し、Backtest入力として扱える範囲を判断できます。</p></div>
+        <div class="build-card not"><span class="card-label">まだしない</span><h3>利益性・Live適合の断定</h3><p>Data品質を確認しても、利益性、Broker、Paper、Live適合が自動的に証明されたことにはしません。</p></div>
+      </div>
+      <h3>なぜこのPhaseが必要か</h3>
+      <p>固定fixtureやsynthetic DataでReplayが動いても、実市場Dataの期間、銘柄、契約、Calendar、欠損、Cost、Slippage、Gapが正しいとは限りません。P5では、Dataを「取得した」だけで終わらせず、どこから来たか、何を含むか、どこが欠けているか、どの仮定を置いたかを再現可能に記録します。</p>
+      <p class="small"><strong>主な要求範囲：</strong>F02 §13〜15、F03 §22、F05 §43／47／55、<code>UNK-P3-01</code>、<code>UNK-P3-05</code>、<code>UNK-P3-07</code>。</p>
+      <h3>このPhaseで作る成果物</h3>
+      <ul class="artifact-list">
+        <li><strong>Data source／費用／Secret Gate記録</strong>Provider、entitlement、費用、外部I/O、Secret範囲を承認単位で記録する。</li>
+        <li><strong>Instrument Catalog</strong>5候補の論理ID、実Symbol、取引所、限月、Roll、単位、対応関係を整理する。</li>
+        <li><strong>Raw／Normalized／Quality report</strong>取得物、正規化、欠損、重複、時刻逆行、範囲外値を分けて検査する。</li>
+        <li><strong>Provenance／Manifest／hash</strong>Dataの出所、版、対象期間、生成条件、同一性を追跡する。</li>
+        <li><strong>Calendar監視</strong>公式版、短縮日、臨時休場、更新監視を確認する。</li>
+        <li><strong>Cost／Slippage／Gap report</strong>固定仮定と実測値を分け、感度と根拠を残す。</li>
+        <li><strong>期間分割Evidence</strong>長期、Holdout、Walk-forwardの範囲と境界を保存する。</li>
+      </ul>
+      <h3>対象範囲</h3>
+      <div class="table-wrap"><table><thead><tr><th>対象</th><th>確認すること</th><th>未確認ならどうするか</th></tr></thead><tbody>
+        <tr><td>初期5候補</td><td><code>MCL</code>、<code>M6A</code>、<code>MZC</code>、<code>MZS</code>、<code>MZW</code>の実Symbol、取引所、限月、Roll、単位、Provider／Broker対応。</td><td>論理IDを実契約と混同せず、未確定としてP5のGateに戻す。</td></tr>
+        <tr><td>時間足</td><td>D1、H4、H1、M30、M15の生成方法、元Data、provenance、M30の実M1連続性。</td><td>不足する時間足を推測で補わず停止する。</td></tr>
+        <tr><td>品質</td><td>欠損、重複、時刻逆行、範囲外、Calendar不一致、未来Data混入。</td><td>Quality reportに記録し、Backtest入力へ渡さない。</td></tr>
+        <tr><td>費用・契約</td><td>Provider、entitlement、費用上限、再配布、Secret、外部接続方式。</td><td>別のData専用Human Gateが通るまで外部取得を開始しない。</td></tr>
+      </tbody></table></div>
+      <h3>前のPhaseから受け取るもの</h3>
+      <ul><li>P4で固定されたData／Manifest／保存／Qualityの接続点。</li><li>Dataを再現可能に登録・検査・停止できるRun／Evidence形式。</li><li>RQV2-01のCore契約と、`UNK-P3-01`、`UNK-P3-05`、`UNK-P3-07`の未解消状態。</li></ul>
+      <h3>開始するための条件</h3>
+      <div class="callout warning"><p>対象Symbol、期間、Data source、費用、Secret範囲、取得方法、停止条件、Evidence配置が、Data Provider専用Gateで承認されるまで、実Data取得や外部I/Oを開始しません。P4の固定fixtureから実Dataの値を推定しません。</p></div>
+      <h3>作業のまとまり</h3>
+      <ol class="sequence">
+        <li>P4接続点、対象5候補、4資産種類、D1／H4／H1／M30／M15、REQ追跡を固定する。</li>
+        <li>Catalog、Provider、Data contract、費用、Secret、保存・再配布条件を設計する。</li>
+        <li>Raw／Normalized／Quality／Calendar／Provenance／Manifestの検査と再生成契約を作る。</li>
+        <li>Cost／Slippage／Gap、長期、Holdout／Walk-forward、期間分割の判定条件を固定する。</li>
+        <li>承認範囲内で限定取得し、Quality、Calendar、Cost、Gap、HoldoutのEvidenceを残す。</li>
+        <li>Unknownを解消または未解消のまま再分類し、P6へ渡す範囲を確定する。</li>
+      </ol>
+      <h3>品質Gate、Human Gate、完了条件</h3>
+      <div class="grid-3">
+        <div class="callout success"><h4>品質Gate</h4><p>Data contract、再現、Look-ahead／Survivorship防止、固定値・実測値の分離、外部通信・Secret監査、未確認範囲の明示を確認します。</p></div>
+        <div class="callout warning"><h4>Human Gate</h4><p>Data契約、費用、保存・再配布、対象範囲、外部接続方式を承認します。利益性やLive適合を承認するGateではありません。</p></div>
+        <div class="callout"><h4>完了</h4><p>対象ごとにprovenance、hash、Quality、Calendar、Cost／Slippage／Gap、期間分割、欠落・停止・再生成の証拠があり、未確認範囲が明示されている状態です。</p></div>
+      </div>
+      <h3>次Phaseへの引渡し</h3>
+      <p>P5は、P6がRisk／OMSのSimulationへ入力できるData品質、Calendar、Cost、Gapの範囲を渡します。`UNK-P3-01`、`UNK-P3-05`、`UNK-P3-07`が完全に閉じない場合でも、Passへ変換せず、未解消の理由、次の確認時期、停止条件、Evidence先を統合台帳へ戻します。</p>
+      <h3>関連資料</h3>
+      <ul><li><a href="../../phase5/00_実行計画/01_Phase5実行計画書.html">Phase 5実行計画書（現在のStep・Gate・停止状態）</a></li><li><a href="../../phase5/01_要件追跡/01_Phase5入力・Data対象・REQ追跡.html">Phase 5入力・Data対象・REQ追跡</a></li><li><a href="../../../plan/requirements_update/RQV2_既存Core再利用基準線_2026-08-11.md">RQV2-01 Core再利用基準線</a></li><li><a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳の現在状態</a></li></ul>
+      <a class="back-top" href="#top">この文書の先頭へ戻る</a>
+    </section>
+
+    <section id="phase-6" class="phase-section phase-6">
+      <h2 class="phase-title"><span class="number">Phase 6</span><span class="name">複数運用単位・Portfolio／Risk／OMS・Forward／Shadow</span></h2>
+      <p class="phase-tagline">一言でいうと：Brokerへ注文を送る前に、複数Unitの資金・Risk・注文状態・停止・照合・復旧を、外部注文なしで完成させるPhaseです。</p>
+      <div class="grid-3">
+        <div class="build-card make"><span class="card-label">作る</span><h3>実注文前の安全中枢</h3><p>Portfolio／Account、資金配分、Risk、OMS、Order状態、Idempotency、競合、Kill、照合、Restart／Recoveryを作ります。</p></div>
+        <div class="build-card can"><span class="card-label">できる</span><h3>仮想注文の安全確認</h3><p>SignalからPositionまでの流れを固定Simulationで動かし、Risk拒否、Partial、Reject、Expire、差異、Incident、手動再開を確認できます。</p></div>
+        <div class="build-card not"><span class="card-label">まだしない</span><h3>Brokerへの外部送信</h3><p>Broker送信、Secret、Paper注文、実Account、実資金、Live、Cloudは行いません。</p></div>
+      </div>
+      <h3>なぜPhase 7より前なのか</h3>
+      <p>Brokerを先に接続すると、Risk bypass、重複注文、部分約定の扱い、照合不能、再接続後の誤再開などが、外部副作用を伴ったまま発生します。そのため、まずP6で「注文を送ってよいか」「送ったことになっているか」「Fillが不明なときに止まるか」「差異を直ちに解消できるか」を外部注文なしで固定Simulationします。</p>
+      <p class="small"><strong>主な要求範囲：</strong>F02 §17〜18、F04 §23〜30、F05 §31〜34／44／48。</p>
+      <h3>このPhaseで作る成果物</h3>
+      <ul class="artifact-list">
+        <li><strong>Portfolio／Risk／OMS詳細設計</strong>責務、入力、判定、状態、限度、停止、復旧を決める。</li>
+        <li><strong>State／Event schema</strong>Signal、Target Position、OrderIntent、Order、Fill、Positionの状態・イベント契約。</li>
+        <li><strong>複数Unit Simulation</strong>20〜40候補の資源制御、競合、同時処理を外部注文なしで再現する。</li>
+        <li><strong>Failure injection</strong>Partial、Reject、Expire、Duplicate、Unknown Fill、再接続、再起動を意図的に起こす。</li>
+        <li><strong>Restart／Reconcile report</strong>Snapshotと状態を突き合わせ、差異があるときに停止する証拠。</li>
+        <li><strong>UI／API接続</strong>Risk拒否、Incident、Kill、停止・再開・照合状態を運用者が確認する。</li>
+        <li><strong>Runbook</strong>異常時の停止、調査、照合、手動介入、再開条件を手順化する。</li>
+      </ul>
+      <h3>処理の中心となる流れ</h3>
+      <div class="mini-flow" aria-label="P6の仮想注文処理の流れ"><div class="node">Signal<br><span class="small">戦略が出す合図</span></div><div class="arrow">→</div><div class="node">Target Position<br><span class="small">目標ポジション</span></div><div class="arrow">→</div><div class="node">OrderIntent<br><span class="small">注文したい意図</span></div><div class="arrow">→</div><div class="node">Order／Fill<br><span class="small">仮想注文と約定</span></div><div class="arrow">→</div><div class="node">Position<br><span class="small">現在ポジション</span></div></div>
+      <p class="small">この流れは、P6では外部Brokerへ送らず、固定Simulationで検証します。各段階でRisk、Idempotency、停止、照合が効くことを証拠にします。</p>
+      <h3>前のPhaseから受け取るもの</h3>
+      <ul><li>P4のProduct／Application基盤とRun／Job／Queue／Evidence接続点。</li><li>P5のData品質、Manifest、Calendar、Cost／Gapの対象範囲。</li><li>Risk必須、Order前Risk、Idempotency、Kill、照合、Fail-closed、既存Positionを自動処分しないという設計条件。</li></ul>
+      <h3>開始するための条件</h3>
+      <div class="table-wrap"><table><thead><tr><th>必須条件</th><th>確認内容</th><th>停止条件</th></tr></thead><tbody>
+        <tr><td>Risk</td><td>Risk設定が必須で、注文前に判定し、拒否理由を保存できる。</td><td>Risk bypass、欠落時の暗黙許可、限度不明。</td></tr>
+        <tr><td>OMS</td><td>OrderIntent、Order、Fill、Positionの状態とIdempotencyが固定されている。</td><td>Duplicate、Unknown Fill、状態飛び、Mode混同。</td></tr>
+        <tr><td>停止・復旧</td><td>Kill、照合、Snapshot、Restart、手動Resumeの条件がある。</td><td>差異を無視したResume、自動Resume、照合前の再開。</td></tr>
+        <tr><td>外部境界</td><td>外部Order、Secret、実Accountを使わない。</td><td>外部副作用が混入したら直ちに停止。</td></tr>
+      </tbody></table></div>
+      <h3>作業のまとまり</h3>
+      <ol class="sequence"><li>複数Unit、Portfolio、Account、資金配分、Riskの責務と入力を決める。</li><li>Order状態、Event schema、Idempotency、競合、部分約定、Reject、Expireを決める。</li><li>SignalからPositionまでの固定Simulationと、Failure injectionを作る。</li><li>Kill、Snapshot、Reconcile、Restart、手動ResumeのRunbookとEvidenceを作る。</li><li>UI／APIで状態・拒否・Incident・停止理由を確認し、P7のAdapter契約へ渡す。</li></ol>
+      <h3>品質Gate、Human Gate、完了条件</h3>
+      <div class="grid-3"><div class="callout success"><h4>品質Gate</h4><p>Unit／Portfolio／Risk／OMS契約、状態遷移、Failure injection、Contract／Integration／Recovery、Critical／High 0を確認します。</p></div><div class="callout warning"><h4>Human Gate</h4><p>Portfolio／Risk／OMSの責務・限度・Simulation範囲を承認します。外部Order権限は承認しません。</p></div><div class="callout"><h4>完了</h4><p>複数Unit、競合、Restart、Idempotency、Risk限度、Forward／Shadow、照合・復旧が固定条件で合格する状態です。</p></div></div>
+      <h3>次Phaseへ持ち越すもの</h3>
+      <p>実Risk値、1N、Kill待ち時間、初回Order上限はP9、Broker照合・PaperはP7、長期・実機負荷はP8で確認します。P6のSimulation合格を、Brokerや実資金の合格へ読み替えません。</p>
+      <a class="back-top" href="#top">この文書の先頭へ戻る</a>
+    </section>
+
+    <section id="phase-7" class="phase-section phase-7">
+      <h2 class="phase-title"><span class="number">Phase 7</span><span class="name">Broker AdapterとPaper Trading</span></h2>
+      <p class="phase-tagline">一言でいうと：P6で安全中枢ができた後、Broker固有の違いをAdapterに閉じ込め、承認範囲内のPaper環境で注文Lifecycleを検証するPhaseです。</p>
+      <div class="grid-3"><div class="build-card make"><span class="card-label">作る</span><h3>Broker境界とPaper運用</h3><p>Account同期、Order／Fill／Position同期、注文Lifecycle、再接続、照合、Paper Ledger、停止・復旧を作ります。</p></div><div class="build-card can"><span class="card-label">できる</span><h3>外部状態を見たPaper確認</h3><p>仮想状態とBroker側状態を区別し、Partial、Reject、Cancel、Expire、差異、再接続を確認できます。</p></div><div class="build-card not"><span class="card-label">まだしない</span><h3>Live・実資金</h3><p>Live注文、実資金、通常Live、未承認Broker、無制限Account利用、Cloudは対象外です。</p></div></div>
+      <h3>このPhaseで作る成果物</h3>
+      <ul class="artifact-list"><li><strong>Broker Adapter詳細設計</strong>Broker固有仕様を共通契約の外側へ閉じ込める。</li><li><strong>Contract／Sandbox Test</strong>Account、Order、Fill、Position、応答、Rate Limit、エラーを確認する。</li><li><strong>Paper Runbook</strong>開始Review、接続状態、停止、照合、手動再開、終了を手順化する。</li><li><strong>注文Lifecycle Evidence</strong>Partial、Reject、Cancel、Expire、再接続、重複防止、差異を保存する。</li><li><strong>Secret境界Evidence</strong>Secret参照・Mask・保存禁止・権限範囲を確認する。</li></ul>
+      <p class="small"><strong>主な要求範囲：</strong>F04 §30、F05 §43〜46／48／51、F06 Gate。</p>
+      <h3>前のPhaseから受け取るもの</h3>
+      <ul><li>P6で合格したRisk、OMS、Kill、Reconcile、Failure injection、Restart／Recovery。</li><li>Adapter共通契約、Paper状態モデル、固定FixtureとEvidence形式。</li><li>対象Broker候補と、Broker採否、Secret、Sandbox／Paper、費用、外部I/Oを別々に承認するルール。</li></ul>
+      <h3>開始するための条件</h3>
+      <div class="callout warning"><p>Adapter契約、Secretの参照・Mask方法、Sandbox範囲、注文上限、費用、停止・照合・再接続、Evidence配置が承認されるまで、Broker接続を開始しません。未知の応答を成功扱いせず、Secretを平文で保存しません。</p></div>
+      <h3>作業のまとまり</h3>
+      <ol class="sequence"><li>Broker固有のAccount／Order／Fill／Positionと、共通Adapter契約の差分を調べる。</li><li>Sandbox／Paper契約、Secret境界、費用、Rate Limit、外部I/O範囲をGate化する。</li><li>注文Lifecycle、Partial、Reject、Cancel、Expire、再接続、重複防止、照合を実装・検証する。</li><li>Paper Ledger、仮想状態と外部状態の表示、差異一覧、停止・手動再開を作る。</li><li>Paperの限定Evidenceを統合し、P8の長期運用へ引き渡す。</li></ol>
+      <h3>品質Gate、Human Gate、完了条件</h3>
+      <div class="grid-3"><div class="callout success"><h4>品質Gate</h4><p>Adapter Contract、Sandbox／Paper、Security、Secret Mask、Idempotency、Recovery、Audit、外部通信範囲を確認します。</p></div><div class="callout warning"><h4>Human Gate</h4><p>Broker採用、Secret保管、Paper環境、費用、接続、注文上限、停止・再開を承認します。Liveは別Gateです。</p></div><div class="callout"><h4>完了</h4><p>承認範囲内Paperで注文Lifecycle、再接続、Account／Order／Fill／Position照合、停止・復旧がEvidence付きで合格する状態です。</p></div></div>
+      <h3>停止条件と次Phaseへの引渡し</h3>
+      <ul class="checklist"><li>未知応答を成功扱いしない。成功・失敗・不明を分ける。</li><li>Secret平文、照合前Resume、Duplicate、Broker差異の無視を許可しない。</li><li>PaperからLiveへ自動昇格しない。</li><li>P8へ、注文Lifecycle、停止、照合、再接続、Paper長期化の前提を渡す。</li></ul>
+      <a class="back-top" href="#top">この文書の先頭へ戻る</a>
+    </section>
+
+    <section id="phase-8" class="phase-section phase-8">
+      <h2 class="phase-title"><span class="number">Phase 8</span><span class="name">運用堅牢化・長期Paper</span></h2>
+      <p class="phase-tagline">一言でいうと：Paperが一度動くだけでなく、長時間・複数Unit・障害・復旧・端末境界を含めて運用できるかを確認するPhaseです。</p>
+      <div class="grid-3"><div class="build-card make"><span class="card-label">作る</span><h3>長期運用の仕組み</h3><p>Dashboard、通知、Incident、Kill、Backup／Restore、容量制御、Soak／Load、運用Checklist、Device／Relay境界を作ります。</p></div><div class="build-card can"><span class="card-label">できる</span><h3>日常運用と障害復旧</h3><p>日次・週次・月次確認、遅延・Health・容量、Alert、停止、復旧、Backup／Restore、端末失効、長期Paper Reportを扱えます。</p></div><div class="build-card not"><span class="card-label">まだしない</span><h3>通常Live・無制限公開</h3><p>実資金Live、通常Live、無制限Remote公開、Cloud移行、未承認の外部Push採用は対象外です。</p></div></div>
+      <h3>このPhaseで作る成果物</h3>
+      <ul class="artifact-list"><li><strong>Operations Runbook</strong>日次・週次・月次、Alert、Incident、Kill、再開を手順化する。</li><li><strong>Soak／Load report</strong>長期連続、20〜40 Unit、容量、遅延、再試行、負荷を実機条件で測る。</li><li><strong>Backup／Restore Evidence</strong>保存、世代、復元、復元後hash、RPO／RTOを証明する。</li><li><strong>Device／Relay Gate</strong>PC、スマートフォン、HTTPS中継、Pairing、失効、Direct Port禁止を確認する。</li><li><strong>SLO候補</strong>監視、遅延、復旧、容量、確認頻度の候補を測定する。</li><li><strong>Incident catalog</strong>異常の種類、検知、停止、調査、復旧、再発防止を整理する。</li></ul>
+      <p class="small"><strong>主な要求範囲：</strong>F05 §31〜55とP7のPaper証拠。</p>
+      <h3>前のPhaseから受け取るもの</h3>
+      <ul><li>P7のPaper契約、注文Lifecycle、停止、照合、再接続、Paper Evidence。</li><li>P6のSafety／OMS、P5のData期間・Quality、P4の性能計測枠。</li><li>端末・中継・Backup・長期運用を、実機条件で確認する必要性。</li></ul>
+      <h3>開始するための条件</h3>
+      <div class="table-wrap"><table><thead><tr><th>対象</th><th>先に決めること</th><th>不足時の停止</th></tr></thead><tbody><tr><td>長期範囲</td><td>期間、Unit数、対象Data、負荷、監視、停止条件。</td><td>長期中の自動Resumeや、未確認の負荷結果で進めない。</td></tr><tr><td>復旧</td><td>Backup対象、保存先、世代、RPO／RTO、Restore確認。</td><td>復元不一致、Audit破壊、容量不足があれば停止。</td></tr><tr><td>端末</td><td>PC／スマホ、HTTPS中継、Pairing、失効、証明書、Direct Port禁止。</td><td>端末未登録、実到達不明、無保護公開は停止。</td></tr></tbody></table></div>
+      <h3>作業のまとまり</h3>
+      <ol class="sequence"><li>Paperの長期運用範囲、20〜40 Unit、PC・Network・Browser・端末条件を固定する。</li><li>Dashboard、通知、Incident、Kill、容量、再試行、手動復旧を作る。</li><li>Soak／Load、Backup／Restore、RPO／RTO、障害復旧を実機条件で検証する。</li><li>PC／スマホVisual／a11y、HTTPS中継、Pairing／失効、Direct Port禁止を確認する。</li><li>P9のCandidate審査へ、長期Paper・運用・復旧・端末・Backup Evidenceを引き渡す。</li></ol>
+      <h3>品質Gate、Human Gate、完了条件</h3>
+      <div class="grid-3"><div class="callout success"><h4>品質Gate</h4><p>Soak、Load、Recovery、Security、Backup、Visual／a11y、容量、Audit、Runbook drillを確認します。</p></div><div class="callout warning"><h4>Human Gate</h4><p>Paper継続、端末・中継、Backup／Restore、SLO候補、Live候補へ進む条件を承認します。実資金は承認しません。</p></div><div class="callout"><h4>完了</h4><p>長期Paper、20〜40 Unit、障害復旧、Backup／Restore、容量制御、端末境界、主要操作がEvidence付きで合格する状態です。</p></div></div>
+      <h3>次Phaseへの引渡し</h3><p>実PC、20〜40 Unit、RPO／RTO、中継実到達、Backup実装の未確認事項は、解消するかP9のCandidate Gateへ明示的に継承します。未実測の性能や安定性を「運用可能」と書きません。</p>
+      <a class="back-top" href="#top">この文書の先頭へ戻る</a>
+    </section>
+
+    <section id="phase-9" class="phase-section phase-9">
+      <h2 class="phase-title"><span class="number">Phase 9</span><span class="name">Live候補・小規模Live準備</span></h2>
+      <p class="phase-tagline">一言でいうと：実注文を出さずに、「この範囲ならSmall Liveを審査に出せる」と言える候補を作るPhaseです。</p>
+      <div class="grid-3"><div class="build-card make"><span class="card-label">作る</span><h3>Candidateの審査材料</h3><p>最終Engine、実Symbol／契約、Risk実値、1N、Limit、費用、法務、運用Runbook、Kill drill、Candidate checklistを作ります。</p></div><div class="build-card can"><span class="card-label">できる</span><h3>開始前の未達確認</h3><p>Candidateを作り、差分・未達・未承認項目を一覧化し、Small Liveの対象・資金・期間・停止条件を審査に出せます。</p></div><div class="build-card not"><span class="card-label">まだしない</span><h3>実資金・実注文</h3><p>Candidateが完成してもLive承認ではありません。実資金、実注文、Auto-approvalの実運用は開始しません。</p></div></div>
+      <h3>このPhaseで作る成果物</h3>
+      <ul class="artifact-list"><li><strong>Engine選定記録</strong>候補、固定条件、PoC／Paper証拠、License、費用、未決定を比較する。</li><li><strong>実契約・Risk台帳</strong>実Symbol、契約、Risk実値、1N、Limit、費用、法務を対象ごとに記録する。</li><li><strong>Live候補Checklist</strong>開始前に確認すべきData、Adapter、Risk、Kill、照合、Backup、運用項目。</li><li><strong>Kill drill</strong>停止、損失上限、Exposure、初回Order上限、手動介入を訓練する。</li><li><strong>運用Runbook</strong>開始Review、Cancel、停止、照合、復旧、降格条件を作る。</li><li><strong>法務・費用・限度Evidence</strong>承認対象を明示し、対象外を混ぜない。</li></ul>
+      <p class="small"><strong>主な要求範囲：</strong>F04 §26／28〜30、F05 §46／49／53〜55、P5〜P8のEvidence。</p>
+      <h3>前のPhaseから受け取るもの</h3><ul><li>P8の長期Paper、運用、復旧、端末、Backup Evidence。</li><li>P5の実Data、Calendar、Costの確認結果。</li><li>P7のAdapter、Paper、注文Lifecycle、照合結果。</li><li>P6のRisk／OMS／Kill／Reconcile契約。</li></ul>
+      <h3>開始するための条件</h3><div class="callout warning"><p>Candidate対象、Engine、実Symbol／契約、Risk実値、費用、法務、Kill／損失上限、停止・照合・再開条件がEvidence付きで確認できる範囲だけを扱います。実Account接続や実Orderを、候補作成の名目で先行させません。</p></div>
+      <h3>作業のまとまり</h3><ol class="sequence"><li>P4〜P8のEvidence、未解消Unknown、対象範囲を再確認する。</li><li>Engine、実Symbol／契約、Risk実値、1N、費用、法務、Limitを対象単位で固定する。</li><li>Candidate checklist、未達一覧、Kill drill、損失・Exposure・初回Order上限を作る。</li><li>Small Live開始・停止・照合・復旧・降格のRunbookを作る。</li><li>別Human Gateへ、対象・資金・期間・Order上限・Auto-approval設定・停止条件を申請する。</li></ol>
+      <h3>品質Gate、Human Gate、完了条件</h3><div class="grid-3"><div class="callout success"><h4>品質Gate</h4><p>Candidate、Risk、Engine、Legal、Security、Kill、Reconcile、Audit、Runbookを確認し、未解決Critical／Highを0にします。</p></div><div class="callout warning"><h4>Human Gate</h4><p>Small Liveの対象、資金、期間、Order上限、Auto-approval設定、停止条件を別途承認します。承認前に実注文しません。</p></div><div class="callout"><h4>完了</h4><p>全差分、実値、Kill訓練、限度、費用、法務、開始・停止・復旧条件が、承認判断に使えるEvidenceになった状態です。</p></div></div>
+      <h3>Unknownの扱い</h3><p>未解消事項は統合台帳へ戻し、P10開始条件を満たさない理由として残します。「Candidateだから安全」「Paperが合格だからLiveも合格」とは書きません。</p>
+      <a class="back-top" href="#top">この文書の先頭へ戻る</a>
+    </section>
+
+    <section id="phase-10" class="phase-section phase-10">
+      <h2 class="phase-title"><span class="number">Phase 10</span><span class="name">小規模Live</span></h2>
+      <p class="phase-tagline">一言でいうと：ここで初めて、別Human Gateで明示された、少額・少数・限定期間・限定対象だけを実資金で運用します。</p>
+      <div class="grid-3"><div class="build-card make"><span class="card-label">作る</span><h3>限定実運用のRunbookと証拠</h3><p>Small Live実行計画、開始・日次・停止・照合Runbook、実運用Evidence、Incident／損失報告、拡大判定を作ります。</p></div><div class="build-card can"><span class="card-label">できる</span><h3>限定範囲の実注文監視</h3><p>承認されたAccount、Instrument、Unit、期間、Limitの範囲で、Order、Fill、Position、資金、Risk、Auditを確認できます。</p></div><div class="build-card not"><span class="card-label">まだしない</span><h3>通常Live・対象拡大</h3><p>別途承認されていない対象・資金・期間・Broker・Engine・Riskへの拡大はしません。</p></div></div>
+      <h3>このPhaseで作る成果物</h3><ul class="artifact-list"><li><strong>Small Live実行計画</strong>対象、資金、数量、期間、Limit、責任者、開始・終了条件。</li><li><strong>開始・日次・停止・照合Runbook</strong>毎日の確認、異常時の停止、Broker照合、手動介入。</li><li><strong>実運用Evidence</strong>Order、Fill、Position、資金、Risk、Audit、通信、停止の再現可能な記録。</li><li><strong>Incident／損失報告</strong>異常、損失、Limit、対応、復旧、再発防止を記録する。</li><li><strong>拡大判定</strong>通常Liveへ進めるか、停止・降格・Paperへ戻すかを判断する。</li></ul>
+      <h3>開始条件</h3><div class="table-wrap"><table><thead><tr><th>承認対象</th><th>明示する内容</th><th>承認がない場合</th></tr></thead><tbody><tr><td>範囲</td><td>Account、Instrument、Unit、期間、資金、数量、Order上限。</td><td>実注文しない。</td></tr><tr><td>安全</td><td>損失、Exposure、Risk、Kill、停止、照合、手動介入。</td><td>開始を停止する。</td></tr><tr><td>運用</td><td>責任者、日次確認、証跡、Incident、Backup、Secret境界。</td><td>準備不足としてGateへ戻す。</td></tr></tbody></table></div>
+      <h3>作業のまとまり</h3><ol class="sequence"><li>P9のCandidateとSmall Live Human Gateの承認記録を確認する。</li><li>開始前Snapshot、資金・Limit・Risk・対象・期間・責任者を固定する。</li><li>承認範囲内で実運用し、毎日のOrder／Fill／Position／資金／Riskを照合する。</li><li>異常、損失、Limit、通信、Broker差異、手動介入をIncidentとして記録する。</li><li>限定期間の終了後、継続・停止・降格・Paper復帰・P11申請を判定する。</li></ol>
+      <h3>品質Gate、Human Gate、完了条件</h3><div class="grid-3"><div class="callout success"><h4>品質Gate</h4><p>実運用監視、Risk／OMS、Broker Reconcile、Kill、Backup、日次確認、Incident、Secret／Access監査を確認します。</p></div><div class="callout warning"><h4>Human Gate</h4><p>通常Liveへの拡大可否を承認します。Passしない場合は停止・降格・Paperへ戻します。</p></div><div class="callout"><h4>完了</h4><p>限定期間内に、損失・異常・照合・停止基準を守り、全Order／Fill／Position／資金／Audit／Incidentを再現可能に保存した状態です。</p></div></div>
+      <h3>停止条件</h3><ul class="checklist"><li>損失、Exposure、Risk、Order上限の超過または判定不能。</li><li>通信・Broker応答・Fill・Position・資金の照合差異。</li><li>Secret境界の異常、手動介入不能、Kill不成立。</li><li>日次確認、証跡保存、Backup、責任者確認の欠落。</li></ul>
+      <a class="back-top" href="#top">この文書の先頭へ戻る</a>
+    </section>
+
+    <section id="phase-11" class="phase-section phase-11">
+      <h2 class="phase-title"><span class="number">Phase 11</span><span class="name">通常Live・継続運用</span></h2>
+      <p class="phase-tagline">一言でいうと：Small Liveで承認された範囲を基準に、ScopeとRiskを変更単位で再承認しながら、段階拡大と継続運用を行うPhaseです。</p>
+      <div class="grid-3"><div class="build-card make"><span class="card-label">作る</span><h3>継続運用の統制</h3><p>通常Live計画、SLO／SLA候補、定期再検証、Audit、Backup、Incident、変更・Rollback、拡大・降格Runbookを作ります。</p></div><div class="build-card can"><span class="card-label">できる</span><h3>段階的な拡大と復旧</h3><p>対象、Unit、資金、Riskを段階的に広げ、監視・再検証・再承認・降格を継続できます。</p></div><div class="build-card not"><span class="card-label">まだしない</span><h3>無制限の自動拡大</h3><p>一度の承認で無制限に拡大したり、未検証Cloud／VMへ暗黙移行したりしません。</p></div></div>
+      <h3>このPhaseで作る成果物</h3><ul class="artifact-list"><li><strong>通常Live実行計画</strong>対象、Risk、資金、SLO、監視、変更、復旧、再承認。</li><li><strong>SLO／SLA候補</strong>遅延、可用性、照合、復旧、監視、Auditの判定基準。</li><li><strong>定期再検証</strong>Data、Strategy、Risk、OMS、Broker、Backup、Securityの再確認。</li><li><strong>変更・Migration計画</strong>Version、Rollback、環境変更、Cloud／VMの別Gate。</li><li><strong>継続監視・拡大／降格Runbook</strong>継続、拡大、停止、Paper復帰、Live候補への降格。</li></ul>
+      <h3>前のPhaseから受け取るもの</h3><ul><li>P10のSmall Live完了判定、実運用Evidence、Incident、損失、照合、停止結果。</li><li>P4〜P9のCore契約、Data、Strategy、Risk、OMS、Adapter、Ops、Security、Quality Evidence。</li><li>対象・Risk・資金・監視・復旧・監査を、変更単位で再承認する方針。</li></ul>
+      <h3>開始するための条件</h3><div class="callout warning"><p>拡大対象、Risk・Limit、SLO、日次・月次再検証、Backup／Restore、Incident、変更・降格・Killが確定し、通常LiveのHuman Gateが承認されるまで、対象や資金を増やしません。</p></div>
+      <h3>作業のまとまり</h3><ol class="sequence"><li>P10のSmall Live結果、未解消事項、実運用Limit、復旧時間、Broker差異を評価する。</li><li>拡大対象、資金、Unit、Risk、SLO、再検証周期、監視、Auditを決める。</li><li>変更、Rollback、Backup／Restore、Incident、Kill、降格、Paper復帰を訓練する。</li><li>変更単位ごとに再承認し、拡大後も同じEvidenceを保存する。</li><li>Cloud／VM移行は、必要性・安全境界・費用・運用責任を別Gateで判断する。</li></ol>
+      <h3>品質Gate、Human Gate、完了条件</h3><div class="grid-3"><div class="callout success"><h4>品質Gate</h4><p>SLO、監査、復旧、Security、Data／Strategy再検証、Risk、Broker Reconcile、Backup、変更・Rollbackを確認します。</p></div><div class="callout warning"><h4>Human Gate</h4><p>通常Liveの継続、Scope拡大、Risk変更、Cloud／VM移行を別々に承認します。承認なしの変更は停止します。</p></div><div class="callout"><h4>完了</h4><p>段階拡大、継続監視、定期再検証、Audit、Backup、復旧、変更管理、再承認、降格を継続できる状態です。</p></div></div>
+      <h3>停止条件</h3><ul class="checklist"><li>SLO逸脱、Risk／Limit超過、照合差異、監査欠落。</li><li>変更Version不一致、Rollback不能、復旧不能。</li><li>承認期限切れ、承認範囲外の対象・資金・環境変更。</li><li>未検証Cloud／VMや無制限Auto-approvalへの暗黙移行。</li></ul>
+      <a class="back-top" href="#top">この文書の先頭へ戻る</a>
+    </section>
+
+    <section id="gates" class="surface">
+      <h2>Gateと開始手順：Phase名だけでは始められない</h2>
+      <p class="section-intro">Phaseの名前や目的が決まっても、実装・外部接続・実注文が自動的に許可されるわけではありません。各Phaseは、入力、設計、品質、承認、Evidenceを順番に確認します。</p>
+      <h3>Phase間の開始条件</h3>
+      <div class="table-wrap"><table><thead><tr><th>進む先</th><th>開始できる条件</th><th>進まない条件</th></tr></thead><tbody>
+        <tr><td>Phase 4</td><td>RQV2-H3、P4計画、詳細設計、Core再利用確認、RED、開始Human Gate。</td><td>H3未承認、Core差分不明、Critical／High、入力範囲不明。</td></tr>
+        <tr><td>Phase 5</td><td>P4のData／Manifest／保存／Evidence接続点、Data Provider専用Gate。</td><td>Provider、費用、Secret、対象範囲、取得方法不明。</td></tr>
+        <tr><td>Phase 6</td><td>Data品質・Calendar・Costの対象範囲、Risk／OMS詳細設計、RED。</td><td>Order前Risk、Kill、照合、復旧、Fail-closedが未設計。</td></tr>
+        <tr><td>Phase 7</td><td>P6 Simulation合格、Adapter詳細設計、Broker／Secret／Paper Gate。</td><td>実注文、照合、部分約定、再接続、重複防止が未検証。</td></tr>
+        <tr><td>Phase 8</td><td>P7 Paper Lifecycle、停止、照合、運用Runbook。</td><td>長期、負荷、Backup／Restore、端末境界、復旧未検証。</td></tr>
+        <tr><td>Phase 9</td><td>長期Paper、実値、法務・費用・Risk・Kill訓練、Candidate Gate。</td><td>未解決Critical／High、実値不明、実Account接続。</td></tr>
+        <tr><td>Phase 10</td><td>P9完了、Small Liveの対象・資金・期間・Limit・停止条件の別Human Gate。</td><td>Phase 9未完、照合・日次監視・損失停止不明。</td></tr>
+        <tr><td>Phase 11</td><td>Small Live評価、通常Liveの別Human Gate、段階拡大条件。</td><td>変更・Risk・SLO・監査・復旧・再承認が不十分。</td></tr>
+      </tbody></table></div>
+      <h3>共通の7段階手順</h3>
+      <ol class="sequence"><li><strong>統合台帳を確認する。</strong>Blocked、Unknown、Human Gate、期限、再開条件、Evidenceを確認する。</li><li><strong>入力を固定する。</strong>前Phaseの成果物、Core範囲、対象Scope、Fixture、Manifest、hashを固定する。</li><li><strong>Phase専用計画を作る。</strong><code>plan/</code>へ複数Step、担当、成果物、Gate、停止条件、Evidence配置を記録する。</li><li><strong>詳細設計とREDを作る。</strong>実装者が判断なく進められる契約と、失敗を先に固定する。</li><li><strong>機械Gateとレビューを行う。</strong>品質、Security、Red Team、独立レビューの指摘を閉じる。</li><li><strong>Human Gateの範囲を確認する。</strong>承認されたものだけを発火し、未承認の外部I/Oや実資金を行わない。</li><li><strong>完了と引渡しを同期する。</strong>成果物、Evidence、Unknown、台帳、次Phase入力、<code>doc/index.html</code>を更新する。</li></ol>
+      <div class="callout danger"><h3>Fail-closedの考え方</h3><p>「確認できないが、とりあえず進める」は採用しません。Provider、Secret、費用、実Data、Order状態、照合、復旧、承認範囲が不明なら、止めてUnknownまたはBlockedとして記録します。</p></div>
+    </section>
+
+    <section id="unknowns" class="surface">
+      <h2>Unknown／LATER_GATEの解消先</h2>
+      <p class="section-intro">未決定事項を「後で考える」だけにせず、どのPhaseで、何のEvidenceを使い、足りなければどこで止めるかを決めます。解消できない場合は、統合台帳で未解消のまま管理します。</p>
+      <div class="table-wrap"><table><thead><tr><th>ID・分類</th><th>やさしい意味</th><th>主な解消・決定Phase</th><th>必要Evidence</th><th>足りない場合</th></tr></thead><tbody>
+        <tr><td><code>UNK-P3-01</code><br>長期Data・市場数・Holdout</td><td>長期間・十分な市場数・検証境界がまだ実証されていない。</td><td>P5。必要ならP8へ継承。</td><td>期間、本数、欠落、Manifest、Quality、長期Evidence。</td><td>開始を止め、利益性・Live適合を承認しない。</td></tr>
+        <tr><td><code>UNK-P3-05</code><br>Cost／Slippage／Gap</td><td>手数料、滑り、Gapを実測・保守値として確定していない。</td><td>P5。</td><td>市場別実測、保守値、Gap規則、感度、根拠。</td><td>結果を実運用の予測と扱わない。</td></tr>
+        <tr><td><code>UNK-P3-07</code><br>正式Calendar</td><td>取引日、短縮日、臨時休場の正式な出所と更新が未確認。</td><td>P5。</td><td>公式Provider、版、休場情報、更新監視。</td><td>未確認DataをBacktest入力へ渡さない。</td></tr>
+        <tr><td>Q-243</td><td>安全境界、初期候補、実行可能性、性能の4領域をいつ閉じるか。</td><td>P5〜P8で構造と実証を分ける。</td><td>要件、実測、実機、運用、Gate記録。</td><td>方針回答だけで実証済みと書かない。</td></tr>
+        <tr><td>実Risk／1N／Kill待ち／初回Order上限</td><td>実際に使うRisk値と最初の注文の安全上限が未確定。</td><td>P9。</td><td>Risk台帳、Limit、Kill drill、停止・解除、初回Order承認。</td><td>P10を開始しない。</td></tr>
+        <tr><td>Provider／Broker／Secret／Paper</td><td>どの外部サービスを、どの契約・費用・Secret範囲で使うか未確定。</td><td>P7。</td><td>Adapter、契約、Secret保管、Sandbox／Paper、Reconcile、外部I/O承認。</td><td>接続・取得・注文を開始しない。</td></tr>
+        <tr><td>端末／HTTPS中継／実到達</td><td>スマートフォンから安全に到達し、端末を登録・失効できるか未実証。</td><td>P8。</td><td>Pairing、失効、証明書、Direct Port禁止、実到達、障害復旧。</td><td>無保護Remote公開をしない。</td></tr>
+        <tr><td>性能／容量／20〜40 Unit／RPO／RTO</td><td>実PCで長く動かせるか、復元にどれだけ時間がかかるか未測定。</td><td>P4で測定設計、P8で実証。</td><td>固定条件、実PC、Soak、Load、Backup／Restore、実測値。</td><td>未実測を運用可能と判定しない。</td></tr>
+        <tr><td>Engine最終選定／法務／費用</td><td>最終Engineとライセンス、契約、費用を決め切っていない。</td><td>P7／P9。</td><td>比較、License、費用、PoC／Paper、実契約、Candidate Gate。</td><td>Live候補または実運用へ進めない。</td></tr>
+        <tr><td>実資金／Small Live</td><td>実資金で使う対象、金額、期間、Limitがまだ承認されていない。</td><td>P10。</td><td>別Human Gate、対象、資金、期間、Limit、日次確認、Kill。</td><td>実注文をしない。</td></tr>
+        <tr><td>通常Live／Cloud／VM</td><td>通常運用の拡大と将来環境移行の条件が未確定。</td><td>P11または別計画。</td><td>Small Live実績、SLO、再承認、変更、Rollback、移行Gate。</td><td>暗黙の拡大・移行をしない。</td></tr>
+        <tr><td><code>RQV2-BLK-001</code></td><td>過去Evidenceの物理欠落を、運用者Overrideで記録上通過した状態。</td><td>解消ではなく継承。</td><td><code>tests/evidence/phase1/</code>の欠落事実、Override記録、機械証拠の不足。</td><td>機械的な実証Passへ変換しない。</td></tr>
+      </tbody></table></div>
+      <h3>状態の読み方</h3>
+      <div class="table-wrap"><table><thead><tr><th>状態</th><th>やさしい意味</th><th>この文書での扱い</th></tr></thead><tbody><tr><td><span class="badge blue">UNKNOWN</span></td><td>まだ事実確認ができていない。</td><td>ID、決定時期、Evidence、停止条件を残し、仮値でPassにしない。</td></tr><tr><td><span class="badge amber">LATER_GATE</span></td><td>今は決めず、後の承認点で決める。</td><td>解消Phase、承認範囲、再開条件を明示する。</td></tr><tr><td><span class="badge red">BLOCKED</span></td><td>安全に進めるために足りないものがあり停止中。</td><td>根本原因、再開条件、証拠先を統合台帳で管理する。</td></tr><tr><td><span class="badge purple">HISTORY／SUPERSEDED</span></td><td>過去には使ったが現在の基準線ではない。</td><td>削除せず、現在状態と混同しない。</td></tr><tr><td><span class="badge green">CONFIRMED</span></td><td>方針として採用した。</td><td>実装済み、実証済み、利益性の確認とは書かない。</td></tr></tbody></table></div>
+    </section>
+
+    <section id="old-new" class="surface">
+      <h2>旧Phase 4〜8から新Phase 4〜11への変更</h2>
+      <p class="section-intro">旧計画は削除・上書きせず、変更理由と過去の承認範囲を履歴として残します。新しい順序は、実注文より先に安全中枢、Paperより先に長期運用、Liveより先に候補審査を置くことが中心です。</p>
+      <div class="table-wrap"><table><thead><tr><th>旧計画の対象</th><th>新Phase</th><th>何が変わったか</th><th>安全上の理由</th></tr></thead><tbody>
+        <tr><td>旧Phase 2 Market Data</td><td>新P5</td><td>Product基盤をP4で先に作り、実Data、Calendar、Cost、QualityをP5で実証する。</td><td>Dataを渡す先のRun／Manifest／Quality境界を先に固定できる。</td></tr>
+        <tr><td>旧Phase 3 Strategy／Backtest</td><td>新P4</td><td>既存Coreの固定契約を再利用し、UI／API／Worker／Persistenceへ製品化する。</td><td>固定Coreの合格と、利用者が操作する製品境界を分けられる。</td></tr>
+        <tr><td>旧Phase 4 Broker／Paper</td><td>新P7</td><td>Broker／Paperより前にP6でRisk／OMS／Kill／Reconcileを完成させる。</td><td>Risk bypass、重複注文、照合不能のまま外部副作用へ進むことを防ぐ。</td></tr>
+        <tr><td>旧Phase 5 Portfolio／Risk／Account</td><td>新P6</td><td>Broker注文前の責務境界、Risk、OMS、複数Unitを固定Simulationする。</td><td>外部注文なしで失敗、停止、復旧を繰り返し検証できる。</td></tr>
+        <tr><td>旧Phase 6 Forward Test</td><td>新P6／P8</td><td>Forward／Shadowの意味・OMSはP6、長期Paper・監視・SoakはP8へ分ける。</td><td>短期の仮想実行と長期の運用堅牢性を混ぜない。</td></tr>
+        <tr><td>旧Phase 7 Live移行準備</td><td>新P9</td><td>Live候補、Engine、Risk実値、Kill訓練、法務、費用を実資金なしで確定する。</td><td>候補審査と実資金の承認を分ける。</td></tr>
+        <tr><td>旧Phase 8 Live運用</td><td>新P10／P11</td><td>小規模Liveと通常Liveを別Human Gate、別Evidence、段階拡大へ分割する。</td><td>初回実運用の結果を見ずに通常Liveへ拡大しない。</td></tr>
+      </tbody></table></div>
+      <h3>変更理由を一言でいうと</h3>
+      <ol><li>Broker／Paperを先行させず、Risk／OMS／Kill／照合を先に置いた。</li><li>UI、API、Persistence、Job Queue、BacktestをP4にまとめ、利用者が操作できる境界を先に作った。</li><li>固定synthetic／PoCの合格と、実市場・長期・Cost・Calendar・Paper／Liveの実証を分けた。</li><li>Paper直後にLiveへ進まず、P8で長期Paper、負荷、Backup／Restore、端末・中継を確認する。</li><li>LiveをCandidate、Small、Normalの3段階に分け、それぞれ別のScope、Risk、実資金、Auto-approval Gateにした。</li></ol>
+    </section>
+
+    <section id="common-rules" class="surface">
+      <h2>全Phase共通の成果物・保存先・安全ルール</h2>
+      <div class="grid-3"><div class="callout"><h3>計画</h3><p>各Phase開始前に、Phase目的、入力、再利用Core、複数Step、直接実行プロンプト、Agent／Skill／Model完全名、発火制御、Gate、停止条件、Evidence配置を<code>plan/</code>へ保存します。</p></div><div class="callout"><h3>正式HTML</h3><p>Phaseごとの設計書・品質・レビュー・完了記録は<code>doc/phaseX/</code>へ保存し、<code>doc/index.html</code>から到達できるようにします。</p></div><div class="callout"><h3>機械Evidence</h3><p>Run、Snapshot、Manifest、環境、対象Scope、Fixture hash、Git差分、判定、Reviewを<code>tests/evidence/{phase_id}/{run_id}/</code>へ保存します。Secret値は保存しません。</p></div></div>
+      <h3>共通の禁止事項</h3><ul class="checklist"><li>UnknownをPassに変換しない。</li><li>固定Coreの合格を、実市場・利益性・Broker・Paper・Liveの合格へ一般化しない。</li><li>Human Gate未承認の外部I/O、Secret、費用、実注文、実資金、Cloud公開をしない。</li><li>旧計画や過去証跡を削除せず、現在状態と履歴を分けて表示する。</li><li>Phase名や候補ロードマップだけを根拠に、実装開始や外部接続を発火しない。</li></ul>
+    </section>
+
+    <section id="glossary" class="surface">
+      <h2>用語集：専門用語を普通の言葉にすると</h2>
+      <p class="section-intro">このロードマップでは、IDや正式名称の追跡性を保つため英語の用語を残します。ただし、英語だけでは判断できないため、意味と具体例を併記します。</p>
+      <div class="table-wrap"><table><thead><tr><th>用語</th><th>一言の意味</th><th>このロードマップでの具体例</th></tr></thead><tbody>
+        <tr><td><strong>Core</strong></td><td>すでに検証・固定された計算の中核。</td><td>Replay、Fill、Turtle Strategy、Cost、Rollなど。P4以降は原則再利用する。</td></tr>
+        <tr><td><strong>Product／Application</strong></td><td>利用者が画面やAPIから使う製品の外側。</td><td>P4でCoreをUI、API、Worker、Persistenceへつなぐ。</td></tr>
+        <tr><td><strong>Data contract</strong></td><td>Dataの形、意味、必須条件を決めた約束。</td><td>どの時間足・銘柄・時刻・品質ならBacktest入力にできるかを定める。</td></tr>
+        <tr><td><strong>Catalog</strong></td><td>銘柄やData対象の一覧表。</td><td>5候補の論理ID、実Symbol、取引所、限月、単位を記録する。</td></tr>
+        <tr><td><strong>Raw／Normalized</strong></td><td>取得したままのData／使いやすい形に整えたData。</td><td>P5で元Dataと変換後Dataを分け、変換の証拠を残す。</td></tr>
+        <tr><td><strong>Manifest</strong></td><td>実行やDataの内容を固定する目録。</td><td>対象、期間、版、Fixture hash、設定を記録し、同じRunを再現する。</td></tr>
+        <tr><td><strong>Provenance</strong></td><td>どこから来て、どう変わったかという来歴。</td><td>Provider、取得時点、変換、生成条件、hashを追跡する。</td></tr>
+        <tr><td><strong>Quality</strong></td><td>欠損や重複など、Dataが使える状態かの検査。</td><td>欠損、時刻逆行、Calendar不一致、未来Dataを検査し、問題なら止める。</td></tr>
+        <tr><td><strong>Calendar</strong></td><td>取引できる日・時間の公式な予定表。</td><td>短縮日、臨時休場、更新版をP5で確認する。</td></tr>
+        <tr><td><strong>Portfolio</strong></td><td>複数の運用単位をまとめた資金・ポジションの全体。</td><td>P6でUnit間の資金配分やExposureを集約する。</td></tr>
+        <tr><td><strong>Risk</strong></td><td>注文や運用を許可してよいかの安全判定。</td><td>Risk値・Limit・未入力時の開始不可、注文前判定を扱う。</td></tr>
+        <tr><td><strong>OMS</strong></td><td>注文の意図、注文、約定、ポジションを管理する仕組み。</td><td>P6でOrderLifecycle、Duplicate防止、照合、復旧を作る。</td></tr>
+        <tr><td><strong>OrderIntent</strong></td><td>「この注文をしたい」という記録。</td><td>Signalと実際のOrderを分け、Risk判定とIdempotencyの基準にする。</td></tr>
+        <tr><td><strong>Adapter</strong></td><td>外部サービスの違いを内部へ直接漏らさない変換境界。</td><td>P7でBroker固有の状態・エラー・認証をAdapterへ閉じ込める。</td></tr>
+        <tr><td><strong>Paper</strong></td><td>実資金を使わず、実運用に近い注文Lifecycleを試す段階。</td><td>外部Paper環境を使う場合も、別Gate、Secret、照合、停止が必要。</td></tr>
+        <tr><td><strong>Forward／Shadow</strong></td><td>将来時点に向けた仮想実行／本番をまねた観測実行。</td><td>P6で外部注文なしのSignal、Order、Fill、Positionを確認する。</td></tr>
+        <tr><td><strong>Candidate</strong></td><td>次の段階へ申請できる候補。承認済みとは限らない。</td><td>P9でLive候補Checklistを作るが、実資金は使わない。</td></tr>
+        <tr><td><strong>Small Live</strong></td><td>少額・少数・限定期間で行う初回実資金運用。</td><td>P10で別Human Gateの承認範囲だけを実行する。</td></tr>
+        <tr><td><strong>Normal Live</strong></td><td>Small Live後の段階的な通常運用。</td><td>P11でScope・Risk変更ごとに再承認し、継続監視する。</td></tr>
+        <tr><td><strong>Human Gate</strong></td><td>人が範囲を確認して、次の作業を許可する関門。</td><td>「P7を承認」しても、P10の実資金まで許可したことにはならない。</td></tr>
+        <tr><td><strong>Evidence</strong></td><td>本当に確認したことを後から再現できる証拠。</td><td>Run、hash、ログ、レビュー、Screenshot、判定、承認記録を保存する。</td></tr>
+        <tr><td><strong>Idempotency</strong></td><td>同じ依頼を二度処理しても、二重の副作用を起こさない性質。</td><td>P6／P7で再送や再起動による重複注文を防ぐ。</td></tr>
+        <tr><td><strong>Reconcile</strong></td><td>内部の記録と外部・実際の状態を照合すること。</td><td>Order、Fill、Position、Accountを照合し、差異があれば止める。</td></tr>
+        <tr><td><strong>Kill Switch</strong></td><td>危険時に注文や処理を止める仕組み。</td><td>Limit超過、Unknown Fill、通信異常、手動介入時にFail-closedで止める。</td></tr>
+        <tr><td><strong>Holdout／Walk-forward</strong></td><td>学習・調整に使わない期間／時間を進めながら検証する方法。</td><td>P5で期間境界とData漏れをEvidence付きで固定する。</td></tr>
+        <tr><td><strong>Runbook</strong></td><td>開始、確認、停止、復旧を人が迷わず行う手順書。</td><td>P7以降で日次確認、Incident、Backup、Kill、Resumeを具体化する。</td></tr>
+        <tr><td><strong>SLO</strong></td><td>遅延や復旧など、守りたいサービス水準の目標。</td><td>P8で候補を測り、P11で継続監視と再承認に使う。</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section id="sources" class="surface">
+      <h2>参照元・現在状態・変更履歴</h2>
+      <div class="callout purple"><h3>このHTMLの位置づけ</h3><p>本HTMLは、2026-08-11作成の元Markdown <code>DRAFT_ROADMAP</code>（<code>RQV2-H2／H3</code>前の候補）を、Phaseごとの作成物が分かるように説明拡充したものです。RQV2入力台帳には、物理Evidence欠落を保持したままの <code>PASS_WITH_OPERATOR_OVERRIDE</code> が記録されています。元Markdownの計画事実や欠落事実は変更していません。現在の承認状態、実行済み／Blocked状態は、常に統合台帳とPhase別の最新正式HTMLを確認してください。</p></div>
+      <h3>正本入力</h3>
+      <ul><li><a href="../../../plan/requirements_update/RQV2_Phase4以降再編ロードマップ_2026-08-11.md">RQV2 Phase 4以降ゼロベース再編ロードマップ（元Markdown）</a></li><li><a href="../../../plan/requirements_update/RQV2-PLAN-001_自動トレードシステム要件定義書v2再作成実行計画_2026-08-11.md">RQV2-PLAN-001 自動トレードシステム要件定義書v2再作成実行計画</a>（§13 新しいPhase 4以降の開発ロードマップ）</li></ul>
+      <h3>現在状態を確認する資料</h3>
+      <ul><li><a href="../../00_全Phase残課題Blocked統合台帳.html">全Phase残課題・Blocked統合台帳</a>：Blocked、Unknown、残リスク、Human Gateの現在状態の正本。</li><li><a href="../05_完了/07_Phase4完了判定・Phase5計画引渡し.html">Phase 4完了判定・Phase 5計画引渡し</a>：Phase 4の現在の完了・引渡し状態。</li><li><a href="../../phase5/00_実行計画/01_Phase5実行計画書.html">Phase 5実行計画書</a>：Phase 5の現在のStep、Gate、停止条件。</li><li><a href="../../requirements/01_自動トレードシステム要件定義書_v2.html">正式要件定義書 v2</a>：RQV2の上流要件基準線。</li></ul>
+      <h3>入力整理と追跡</h3>
+      <ul><li><a href="../../../plan/requirements_update/RQV2_入力台帳_2026-08-11.md">RQV2-01 入力台帳</a></li><li><a href="../../../plan/requirements_update/RQV2_既存Core再利用基準線_2026-08-11.md">RQV2-01 既存Core再利用基準線</a></li><li><a href="../../../plan/requirements_update/RQV2_要件UIテスト追跡マトリクス_2026-08-11.md">RQV2-02 要件・UI・テスト追跡マトリクス</a></li><li><a href="../../../plan/requirements_update/RQV2_03_UIモック抽出記録_2026-08-11.md">RQV2-03 UIモック抽出記録</a></li><li><a href="../../../plan/requirements_update/RQV2_専門レビュー記録_2026-08-11.md">RQV2-14 専門レビュー記録</a></li><li><a href="../../../plan/requirements_update/RQV2_最終受入確認_2026-08-11.md">RQV2-17 最終受入確認</a></li></ul>
+      <h3>変更履歴</h3>
+      <div class="table-wrap"><table><thead><tr><th>日付</th><th>版</th><th>内容</th></tr></thead><tbody><tr><td>2026-08-11</td><td>v0.1</td><td>元Markdownで、旧Phase 4〜8を履歴として保持し、新Phase 4〜11をProduct、Data、Risk／OMS、Broker／Paper、堅牢化、Candidate、Small、NormalのDAGへ再編した。</td></tr><tr><td>2026-08-12</td><td>HTML説明拡充版</td><td>Step1の超詳細プロンプトに基づき、30秒要約、Phase一覧、各Phaseの作る物・できること・作らない物・Gate・Evidence・引渡し、Unknown解消先、旧新対応、用語集、参照導線を追加した。元Markdownは変更していない。</td></tr></tbody></table></div>
+      <p class="small"><strong>安全境界：</strong>このHTMLの作成自体は外部I/O、Secret、Broker、Paper注文、Live注文、実資金、Cloud公開を行っていません。</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p><strong>RQV2-11判定：</strong><code>COMPLETE_WITH_PHASE4_TO_PHASE11_DAG_AND_GATE_MAP</code>の内容を、初見読者がPhaseごとの作成物まで追える説明形式へ再構成した文書です。</p>
+    <p>正式な実装開始・外部接続・実注文の可否は、この文書ではなく、統合台帳、各Phaseの実行計画、詳細設計、機械品質Gate、Human Gateの現在状態で判断します。</p>
+    <a class="back-top" href="#top">この文書の先頭へ戻る</a>
+  </footer>
+</div>
+</body>
+</html>
