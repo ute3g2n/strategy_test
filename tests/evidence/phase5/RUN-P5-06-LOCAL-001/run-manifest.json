@@ -9,7 +9,7 @@
   "agents": ["AutoTrade_A110_PythonTestEngineer_v0_1", "AutoTrade_A120_PythonImplementer_v0_1", "AutoTrade_A130_VerificationEngineer_v0_1", "AutoTrade_A140_DebugEngineer_v0_1", "AutoTrade_A150_PythonCodeReviewer_v0_1", "AutoTrade_A160_TradingSecurityReviewer_v0_1"],
   "skills": ["autotrade_skill_python_test_quality_v0_1", "autotrade_skill_python_implementation_v0_1", "autotrade_skill_debug_recovery_v0_1", "autotrade_skill_python_code_review_v0_1", "autotrade_skill_test_strategy_v0_1", "autotrade_skill_ops_security_v0_1", "autotrade_skill_orchestration_v0_1"],
   "data_version": "p5-fixed-local-dummy-v1",
-  "change_hash": "sha256:d6fc34272ce7a7c48b921edeae86d666de3c8742ea6c12a6dd1fd108000f74e5",
+  "change_hash": "sha256:dfda1a82aa4c9570eac18a372a0623c74e07238aac4e867d6b0bc8ea16b22386",
   "baseline_ref": "f911013220884fdde6a8aa94b914cb7a4c563a1f",
   "scope_mode": "target_only",
   "target_paths": ["src/autotrade/market_data", "scripts/quality_gate", "tests/market_data", "tests/fixtures/market_data", "tests/evidence/phase5/RUN-P5-06-LOCAL-001"],

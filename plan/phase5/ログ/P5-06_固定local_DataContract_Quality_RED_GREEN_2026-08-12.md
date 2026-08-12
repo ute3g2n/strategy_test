@@ -7,7 +7,7 @@
 
 ## Runtime receipt and fallback
 
-The required `multi_agent_v1__spawn_agent` / `multi_agent_v1__wait_agent` runtime is not exposed in this environment. Before work, the root and every ordered child were recorded as `NOT_STARTED`, `agent_id=N/A`, `independent=false`, `review_mode=SELF_REVIEW_FALLBACK`; see `tests/evidence/phase5/RUN-P5-06-LOCAL-001/dispatch-receipts.md`. No unstarted participant is claimed as independently executed or reviewed.
+Root `multi_agent_v1__spawn_agent` / `multi_agent_v1__wait_agent` was executed and completed with agent ID `019ff5c0-5620-7881-b7b3-5b6473319164`. The Coordinator child runtime was unavailable; all six child rows therefore remain `UNAVAILABLE`, `agent_id=N/A`, `independent=false`, `review_mode=SELF_REVIEW_FALLBACK` in `tests/evidence/phase5/RUN-P5-06-LOCAL-001/dispatch-receipts.md`. No unstarted participant is claimed as independently executed or reviewed.
 
 ## RED → GREEN
 
@@ -33,7 +33,7 @@ The registered formal runner rejected the first P5 manifest because its allowlis
 
 - Baseline: `f911013220884fdde6a8aa94b914cb7a4c563a1f`
 - Fixture: `sha256:c19d1c165f0214c2f64218208684e01c1f6b08b838d2821a2b6f172750637a99` (verified unchanged)
-- Actual target-only change hash before formal run: `sha256:d6fc34272ce7a7c48b921edeae86d666de3c8742ea6c12a6dd1fd108000f74e5`
+- Actual target-only change hash after P5-06 changes: `sha256:dfda1a82aa4c9570eac18a372a0623c74e07238aac4e867d6b0bc8ea16b22386`（baselineからtarget-only範囲を再計算。Evidence rootはhash対象外）
 - Host outbound isolation: `UNKNOWN`; required formal Evidence absent.
 - External communication: `0` attempted. No Provider, endpoint, Secret, cost, external Data, Broker, Paper, Live, Cloud, or dependency installation occurred.
 

@@ -8,7 +8,7 @@
 
 | Evidence | Result |
 |---|---|
-| `dispatch-receipts.md` | Runtime fallback recorded; root and all six children unstarted, `independent=false`. |
+| `dispatch-receipts.md` | Root receipt is actual (`019ff5c0-5620-7881-b7b3-5b6473319164`); all six children use runtime fallback, `independent=false`. |
 | `run-manifest.json` | Registered Run, fixed commands, target-only scope, fixture binding, and actual pre-formal-run change hash. |
 | `red-command.md` | RED: `5 passed, 2 failed`; missing Calendar/as-of contract. |
 | `direct-local-checks.md` | Non-final direct checks: formatter PASS, lint PASS, type PASS, `102 passed`. |
@@ -17,3 +17,4 @@
 | `reviews/trading-security-review.md` | Self-review fallback; Critical=0, High=0, host isolation UNKNOWN. |
 
 Fixture SHA-256: `sha256:c19d1c165f0214c2f64218208684e01c1f6b08b838d2821a2b6f172750637a99`.
+Target-only change hash: `sha256:dfda1a82aa4c9570eac18a372a0623c74e07238aac4e867d6b0bc8ea16b22386`.
