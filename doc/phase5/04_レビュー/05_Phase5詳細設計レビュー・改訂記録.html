@@ -3,7 +3,7 @@
 <body><main>
 <p><a href="../../index.html">doc/index.html</a> ／ <a href="../00_実行計画/01_Phase5実行計画書.html">Phase5計画</a> ／ <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
 <h1>P5-05 詳細設計レビュー・改訂記録</h1>
-<section class="box"><strong>成果物ID:</strong> P5-ART-05-INTEGRATED-REVIEW-001<br><strong>Phase / Step:</strong> PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12 / P5-05<br><strong>状態:</strong> P5-05_COMPLETE_WITH_LOCAL_FALLBACK_SELF_REVIEW<br><strong>境界:</strong> 設計書・レビュー・ログ・導線のみ。外部I/O=0、Secret=0、依存追加=0、実装=0、実Run=0、Core/P4 DB/fixture/Application/UI/repository/migration変更=0。P5-H0=APPROVED、P5-H1/P5-DATA-G1/P5-H2=未承認。</section>
+<section class="box"><strong>成果物ID:</strong> P5-ART-05-INTEGRATED-REVIEW-001<br><strong>Phase / Step:</strong> PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12 / P5-05<br><strong>状態:</strong> P5-05_COMPLETE_WITH_LOCAL_FALLBACK_SELF_REVIEW<br><strong>境界:</strong> 設計書・レビュー・ログ・導線のみ。外部I/O=0、Secret=0、依存追加=0、実装=0、実Run=0、Core/P4 DB/fixture/Application/UI/repository/migration変更=0。P5-H0=APPROVED、P5-H1=APPROVED（固定local dummy品質Gateのみ）、P5-DATA-G1/P5-H2=未承認。</section>
 <section class="box stop"><h2>Findings first（再レビュー後）</h2><table><thead><tr><th>ID</th><th>重要度</th><th>判定</th><th>確認・改訂結果</th></tr></thead><tbody>
 <tr><td>P5-05-F-001</td><td>Medium</td><td>CLOSED</td><td>実装詳細の型付きI/O、immutable Raw、version/hash、相対path、fail-closed、Run Manifest、正常/失敗/再試行と全テストをP5-02〜04で横断確認した。未定義値はUNKNOWN/HUMAN_GATE_REQUIREDで停止する。</td></tr>
 <tr><td>P5-05-F-002</td><td>Medium</td><td>CLOSED</td><td>Cost/Slippage/Gapの固定仮定と実測Evidence、Calendar/DST/Roll、look-ahead/survivorship、holdout再利用を混同しないことを確認。実測・実市場の主張はP5-DATA-G1後のEvidenceまで禁止する。</td></tr>
@@ -26,7 +26,7 @@
 <tr><td>UNK</td><td>UNK-P3-01 / UNK-P3-05 / UNK-P3-07 / UNK-P4-04D-004 / P5-EXTERNAL-WORKER-UNKNOWN</td><td>OPEN / NOT PASS。実Data、Cost、Calendar、host isolation、取得Runnerは未確定のまま台帳へ保持。</td></tr>
 <tr><td>ART</td><td>P5-ART-02/03/04/05</td><td>各正式HTML、P5-02〜05ログ、計画、index、統合台帳で相互リンクする。</td></tr>
 </tbody></table></section>
-<section class="box"><h2>P5-H1 承認候補（承認済みではない）</h2><p><strong>状態:</strong> HUMAN_GATE_REQUIRED / WAITING。これは運用者が判断する候補表であり、P5-H1の承認、P5-06開始、外部Data取得を意味しない。</p><table><thead><tr><th>確認項目</th><th>候補の固定条件</th></tr></thead><tbody>
+<section class="box"><h2>P5-H1 承認候補（2026-08-12承認済み）</h2><p><strong>状態:</strong> APPROVED。運用者の「P5-H1を承認します。」を受領し、固定local dummy・RED→GREEN・Run Manifest・target-only品質Gateに限定してP5-06を開始する。外部Data取得、Provider、Secret、費用は含まない。</p><table><thead><tr><th>確認項目</th><th>候補の固定条件</th></tr></thead><tbody>
 <tr><td>対象path / trusted scope</td><td>将来の承認済みRun IDと<code>scripts/quality_gate/trusted_scopes.json</code>登録済みtarget_pathsだけ。scope_mode=target_only。</td></tr>
 <tr><td>fixed local dummy / RED</td><td>固定local dummyのみ。TEST-P5-DATA-* のREDを先行させ、外部値・実市場値・Provider SDKを持ち込まない。</td></tr>
 <tr><td>Run Manifest / fixture hash</td><td>contract/calendar/cost/split/fixture hash、相対Evidence path、DataVersion、as-of、停止理由をManifestに固定し、一致しなければfail-closed。</td></tr>
@@ -42,6 +42,6 @@
 <tr><td>5</td><td>AutoTrade_A91_ImplementationDetailReviewer_v0_1</td><td>gpt-5.6-luna</td><td>UNAVAILABLE / UNAVAILABLE</td><td>agent_id=N/A; independent=false; SELF_REVIEW_FALLBACK</td></tr>
 <tr><td>6</td><td>AutoTrade_A70_OpsSecurityArchitect_v0_1</td><td>gpt-5.6-luna</td><td>UNAVAILABLE / UNAVAILABLE</td><td>agent_id=N/A; independent=false; SELF_REVIEW_FALLBACK</td></tr>
 </tbody></table><p>fallback理由: <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED; LOCAL_FALLBACK_NO_SUBAGENTS</code>。rootのmulti_agent_v1__spawn_agent / wait_agentは実行済みだが、Coordinator内のchild runtimeが利用不能だった。JSON/Skill読込や自己レビューをchild spawn証拠とは扱わない。</p><p>改訂: 2026-08-12にP5-02〜04を統合し、Critical/Highの未解決なしを再確認。正式HTML/ログのP5-05導線、index、計画、統合台帳を同期した。</p></section>
-<section class="box stop"><h2>P5-H1による停止</h2><p><strong>HUMAN_GATE_REQUIRED / WAITING:</strong> P5-H1は固定local dummy、RED、Run Manifest、trusted scope、fixture hash、host outbound isolation確認、外部I/O=0に限定した承認候補であり、未承認である。P5-06〜P5-11は開始していない。P5-DATA-G1とP5-H2も未承認である。</p></section>
+<section class="box stop"><h2>P5-06の開始境界</h2><p><strong>P5-H1=APPROVED:</strong> P5-06はRun ID <code>RUN-P5-06-LOCAL-001</code>のtarget-only固定local範囲で開始する。host outbound isolation未確認、fixture hash不一致、target外変更、Secret、外部通信、UnknownのPass化はfail-closedで停止する。P5-DATA-G1とP5-H2は未承認であり、P5-07以降の外部Data・Provider・Secret・費用は開始しない。</p></section>
 <p><a href="../../../plan/phase5/ログ/P5-05_Phase5詳細設計レビュー・改訂記録_2026-08-12.md">P5-05実行ログ</a></p>
 </main></body></html>

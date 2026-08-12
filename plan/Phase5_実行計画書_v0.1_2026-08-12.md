@@ -4,7 +4,7 @@
 - Phase ID: `PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12`
 - 対象Phase: Phase 5 市場データ運用化と実証
 - 作成日: 2026-08-12（Asia/Tokyo）
-- 状態: `P5-05_COMPLETE_WITH_LOCAL_FALLBACK_SELF_REVIEW`
+- 状態: `P5-H1_APPROVED_P5-06_READY`
 - 前Phase: Phase 4 Product/Application・Backtest（`P4-PLAN-001`）
 - 前Phase承認: `P4-H2=APPROVED`。P4-H2はPhase 5の実装、外部Data取得、Secret投入、外部I/Oを承認しない。
 - 計画作成標準: `AutoTradePhasePlanning_Orchestrator_v0_1`、`AutoTrade_A05_PhaseExecutionPlanner_v0_1`、`autotrade_skill_phase_execution_planning_v0_1`

@@ -563,6 +563,55 @@
         {"gate": "test", "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p3_integration"]}
       ],
       "execution_allowed": true
+    },
+    "RUN-P5-06-LOCAL-001": {
+      "phase_id": "phase5",
+      "step_id": "P5-06",
+      "design": "P5-ART-02-P5-ART-03-P5-ART-04-P5-ART-05",
+      "requirements": ["REQ-V2-0027", "REQ-V2-0028", "REQ-V2-0029", "REQ-V2-0030", "REQ-V2-0032", "REQ-V2-0044", "REQ-V2-0096"],
+      "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+      "target_paths": [
+        "src/autotrade/market_data",
+        "scripts/quality_gate",
+        "tests/market_data",
+        "tests/fixtures/market_data",
+        "tests/evidence/phase5/RUN-P5-06-LOCAL-001"
+      ],
+      "excluded_paths": [
+        "src/autotrade/application",
+        "src/autotrade/backtest",
+        "src/autotrade/strategy",
+        "doc",
+        "plan",
+        ".env",
+        "research",
+        "third_party/everything-claude-code",
+        "tests/evidence/phase5"
+      ],
+      "fixture": {
+        "path": "tests/fixtures/market_data/data_quality_replay_fixture.json",
+        "name": "data_quality_replay_fixture.json",
+        "version": "p2-dqr-fixture-v1",
+        "checksum": "sha256:c19d1c165f0214c2f64218208684e01c1f6b08b838d2821a2b6f172750637a99"
+      },
+      "baseline_ref": "f911013220884fdde6a8aa94b914cb7a4c563a1f",
+      "scope_mode": "target_only",
+      "unknowns": ["UNK-P4-04D-004 host outbound isolation evidence"],
+      "network_isolation_required": true,
+      "approval": {
+        "gate": "P5-H1",
+        "status": "APPROVED",
+        "approved_at": "2026-08-12",
+        "evidence": "tests/evidence/phase5/RUN-P5-06-LOCAL-001/human-gate-p5-h1.md"
+      },
+      "checks": [
+        {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/market_data", "scripts/quality_gate", "tests/market_data", "tests/fixtures/market_data"]},
+        {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/market_data", "scripts/quality_gate", "tests/market_data", "tests/fixtures/market_data"]},
+        {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/market_data"]},
+        {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "pytest", "tests/market_data", "-q"]}
+      ],
+      "execution_allowed": true
     }
   }
 }
