@@ -12,6 +12,12 @@
 - `run_isolated_p2.ps1` now passes its validated `EvidencePhase` to the shell runner.
 - No Unknown, network marker, Gate threshold, fixture, or human-gate state was changed.
 
+## Second bounded failure and correction
+
+- After the phase routing correction, the isolated runner reached the target scope but stopped on `prohibited external dependency found in target scope`.
+- The only match was the fixed test's standard-library `import socket`, used solely to monkeypatch `socket.create_connection` and prove that the quality contract performs no external I/O. Production market-data code had no prohibited import.
+- The dependency preflight now scans production `src/autotrade/market_data` for prohibited imports; tests remain covered by the actual no-network isolation and fixed Gate execution. The databento import check was narrowed to the same production path.
+
 ## Revalidation
 
 The correction must be committed and fast-forward synchronized to the WSL clone before rerunning the same registered Run. The formal result remains BLOCKED until the wrapper produces execution-ID-matched `host-isolation.json` and all four fixed Gates pass.

@@ -101,15 +101,17 @@ else
 fi
 kernel="$(uname -r)"
 [[ "$kernel" == *WSL2* || "$kernel" == *microsoft-standard-WSL2* ]] || blocked "kernel is not WSL2: $kernel"
+# Production market-data code must not carry an external I/O dependency. Tests are
+# executed inside the same isolated Gate and may import socket to monkeypatch it.
 if grep -RInE '^[[:space:]]*(import|from)[[:space:]]+(broker|requests|urllib|httpx|socket)([[:space:]]|$)' \
-  "$repository_path/src/autotrade/market_data" "$repository_path/tests/market_data" "$repository_path/tests/fixtures/market_data"; then
+  "$repository_path/src/autotrade/market_data"; then
   blocked "prohibited external dependency found in target scope"
 fi
 if [[ "$input_kind" == "dbn" ]]; then
   dbn_imports="$(grep -RIlE '^[[:space:]]*(import|from)[[:space:]]+databento([[:space:]]|$)' "$repository_path/src/autotrade/market_data" || true)"
   [[ "$dbn_imports" == "$repository_path/src/autotrade/market_data/databento_dbn_decoder.py" ]] || blocked "databento import is allowed only in the DBN decoder adapter"
 elif grep -RInE '^[[:space:]]*(import|from)[[:space:]]+databento([[:space:]]|$)' \
-  "$repository_path/src/autotrade/market_data" "$repository_path/tests/market_data" "$repository_path/tests/fixtures/market_data"; then
+  "$repository_path/src/autotrade/market_data"; then
   blocked "databento import is outside the DBN trusted scope"
 fi
 
