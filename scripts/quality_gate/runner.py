@@ -151,7 +151,10 @@ class GitChangeInspector:
         return False
 
     def change_hash(self, project_root: Path, baseline_ref: str, paths: tuple[str, ...] | None = None) -> str:
-        pathspecs = list(paths) if paths else [".", f":(exclude){HASH_EXCLUDED_PATH}/**"]
+        pathspecs = list(paths) if paths else ["."]
+        evidence_exclusion = f":(exclude){HASH_EXCLUDED_PATH}/**"
+        if evidence_exclusion not in pathspecs:
+            pathspecs.append(evidence_exclusion)
         diff = _git(project_root, ["diff", "--binary", baseline_ref, "--", *pathspecs])
         untracked = _git_paths(project_root, pathspecs)
         if diff.returncode or untracked is None:

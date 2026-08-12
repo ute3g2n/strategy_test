@@ -597,7 +597,7 @@
       },
       "baseline_ref": "f911013220884fdde6a8aa94b914cb7a4c563a1f",
       "scope_mode": "target_only",
-      "unknowns": ["UNK-P4-04D-004 host outbound isolation evidence"],
+      "unknowns": [],
       "network_isolation_required": true,
       "approval": {
         "gate": "P5-H1",

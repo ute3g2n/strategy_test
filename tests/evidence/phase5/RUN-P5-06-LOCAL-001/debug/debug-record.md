@@ -18,6 +18,7 @@
 - The only match was the fixed test's standard-library `import socket`, used solely to monkeypatch `socket.create_connection` and prove that the quality contract performs no external I/O. Production market-data code had no prohibited import.
 - The dependency preflight now scans production `src/autotrade/market_data` for prohibited imports; tests remain covered by the actual no-network isolation and fixed Gate execution. The databento import check was narrowed to the same production path.
 - The next isolated attempt then found the existing `databento` import in the canonical `databento_dbn_decoder.py` while the run used the fixed-fixture branch. The preflight now permits that single canonical adapter path in both DBN and fixed-fixture branches, while continuing to reject any other production import location.
+- After host isolation was confirmed, resolving the Unknown exposed a hash defect: tracked Evidence under `tests/evidence` was still included in `change_hash` despite `HASH_EXCLUDED_PATH`. The hash implementation now applies the Evidence exclusion to tracked diffs as well; the P5-06 manifest hash was recalculated and verified against the current target-only scope.
 
 ## Revalidation
 
