@@ -21,13 +21,45 @@
     "phase_execution_plan": "Markdown execution plan under plan/.",
     "runnable_step_prompts": "Prompts that can be executed directly in later steps.",
     "component_mapping": "Selected orchestrator, agents, skills, models, and fallback/stop conditions.",
-    "gate_and_dependency_map": "Sequential/parallel execution order, Human Gates, and dependency rules."
+    "gate_and_dependency_map": "Sequential/parallel execution order, Human Gates, and dependency rules.",
+    "dispatch_receipt_template": "A per-step receipt schema recording real orchestrator/agent spawn, fixed-model acceptance, wait completion, or an explicit fallback.",
+    "fallback_review_checklist": "A responsibility-by-responsibility checklist for continuing without child agents, clearly marked as non-independent review."
+  },
+  "runtime_dispatch_contract": {
+    "version": "RDC-PHASE-PLAN-0.2",
+    "required_tools": [
+      "multi_agent_v1__spawn_agent",
+      "multi_agent_v1__wait_agent"
+    ],
+    "prompt_generation": [
+      "各Stepの直接実行プロンプトへ、ルートAgentによる指定Orchestratorの実spawn、CoordinatorによるPrompt指定Agent全件の個別spawn、固定model受理、wait完了、receipt保存を埋め込む。",
+      "Promptに列挙されたAgentがOrchestrator JSONのagents map外でも、省略せずJSON path・定義model・Skill・責務を渡して起動試行する。",
+      "spawn／waitが使えない場合のRUNTIME_DISPATCH_FALLBACK_REQUIRED、未起動Agent、理由、agent_id=N/A、independent=false、review_mode=SELF_REVIEW_FALLBACK、自己適用チェックリストを必ず生成する。",
+      "名前の列挙、JSON読込、Skill適用、ルートAgentの自己レビューを、起動済みまたは独立レビュー済みの証拠と書かない。"
+    ],
+    "fixed_model_policy": "Orchestratorは定義JSONのmodelを明示し、各Agentは定義JSONのmodelを明示する。利用不能時に代替model、代替Agent、default_orchestratorへ置換しない。",
+    "receipt_fields": [
+      "runtime_backend",
+      "dispatch_mode",
+      "orchestrator_agent_id",
+      "agent_id",
+      "json_path",
+      "model",
+      "skills",
+      "accepted_status",
+      "completion_status",
+      "output_reference",
+      "independent",
+      "review_mode"
+    ]
   },
   "boundaries": [
     "Do not create a single-step plan.",
     "Do not omit explicit AI component full names in prompts.",
     "Do not use phase-specific components unless the plan records the reason and freeze condition.",
     "Do not change default_orchestrator.",
-    "Do not treat Unknown items as Pass."
+    "Do not treat Unknown items as Pass.",
+    "Do not claim a named Agent or independent review ran without a matching dispatch receipt.",
+    "Do not omit the fallback disclosure and responsibility checklist when the nested runtime cannot spawn children."
   ]
 }

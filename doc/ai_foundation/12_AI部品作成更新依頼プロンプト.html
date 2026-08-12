@@ -21,16 +21,17 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D12<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.1 / 標準雛形<br>
+    <strong>文書状態:</strong> v0.2 / 実ランタイム起動・Fallback契約を追加した標準雛形<br>
     <strong>用途:</strong> Skill、サブエージェント、オーケストレータの作成・変更依頼</p>
   </section>
 
-  <h2>1. 標準プロンプト</h2>
+  <h2>1. 標準プロンプト（実ランタイム起動契約 RDC-AI-COMPONENT-0.2）</h2>
   <pre>ステップID: AC-01
 ロール: AI部品ライフサイクル管理者
 使用オーケストレータ完全名: AutoTradeComponentLifecycle_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A06_AiComponentEngineer_v0_1, AutoTrade_A10_RequirementsCurator_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A90_DesignReviewer_v0_1
 使用モデル: gpt-5.6-terra
+モデル割当: Orchestratorはgpt-5.6-terra。Agentは各Agent JSONのmodelを再読してmodel引数へ明示する。利用不能時に代替model・代替Agent・default_orchestratorへ置換しない。
 使用Skill完全名: autotrade_skill_ai_component_lifecycle_v0_1, autotrade_skill_source_reader_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_orchestration_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_revision_integration_v0_1
 
 発火制御:
@@ -39,6 +40,9 @@
 - 新規作成時に既存名と衝突する場合は上書きせず、衝突として報告する。
 - 変更対象として明示されていない部品は変更しない。
 - default_orchestrator は変更しない。
+- 変更前にmulti_agent_v1__spawn_agent／multi_agent_v1__wait_agentを確認し、指定Orchestratorを実spawnする。CoordinatorはPromptのAgents全件を個別spawnし、固定modelでwaitする。Orchestratorのagents map外の明示Agentも省略しない。
+- 起動ごとにorchestrator_agent_id、agent_id、JSON path、model、Skills、受付／完了status、出力参照、independent、review_mode、hashを記録する。
+- nested spawn／waitが利用できない場合はRUNTIME_DISPATCH_FALLBACK_REQUIRED、未起動Agent、理由、agent_id=N/A、independent=false、review_mode=SELF_REVIEW_FALLBACKを先に記録し、ルート責務チェックリストで継続する。起動不能を独立実行済みと書かない。
 
 タスク:
 AI部品の作成または変更を行ってください。作業は必ず、
@@ -70,6 +74,7 @@ AI部品の作成または変更を行ってください。作業は必ず、
 - 実体ファイル更新だけで終わらせず、関連仕様書と共通ルールを追従更新する。
 - 正式HTMLはすべて doc/ 配下に置き、doc/index.html から到達可能にする。
 - UnknownはPassにしない。
+- 文字列上の完全名、JSON読込、Skill適用、自己レビューを起動証拠にしない。
 
 レビュー:
 - A90が、統合しすぎ、分割しすぎ、発火制御漏れ、仕様追従漏れ、名前衝突漏れを確認する。
@@ -77,6 +82,7 @@ AI部品の作成または変更を行ってください。作業は必ず、
 
 完了条件:
 - 追加または変更したAI部品が実体・仕様・ルール・導線で一致していること。
+- 各起動のreceipt、またはFallbackの非独立記録が残っていること。
 - 次回のAI部品変更依頼で、この基盤をそのまま再利用できること。</pre>
 
   <h2>2. 使いどころ</h2>

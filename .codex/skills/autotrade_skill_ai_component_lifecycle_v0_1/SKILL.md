@@ -27,6 +27,12 @@ AI実行基盤の部品追加や変更を、実体ファイルだけで終わら
 4. `doc/ai_foundation/03` から `08`、`doc/index.html`、必要に応じて `AGENTS.md` と `README.md` を追従更新する。
 5. JSON整合、リンク整合、参照整合を確認し、残課題があれば明記する。
 
+## 実ランタイム起動契約（RDC-AI-COMPONENT-0.2）
+
+AI部品の作成・変更依頼も、完全名を列挙するだけでは実行証拠にならない。ルート実行Agentは変更前に `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` を確認し、`AutoTradeComponentLifecycle_Orchestrator_v0_1` のJSON path、`model=gpt-5.6-terra`、変更範囲、入力、出力、明示されたAgents／Skillsを渡してCoordinatorを実spawnする。CoordinatorはPromptの全Agentを一体ずつspawnし、Agent JSONの固定modelをmodel引数へ渡してwaitする。
+
+Orchestratorの `agents` map外でもPromptで完全名指定されたAgentを省略しない。各起動について、runtime backend、dispatch mode、親／子ID、JSON path、model、Skills、受付／完了status、出力参照、`independent`、`review_mode`をログへ保存する。spawn／waitや固定model受理ができない場合は、`RUNTIME_DISPATCH_FALLBACK_REQUIRED`、未起動Agent、理由、`agent_id=N/A`、`independent=false`、`review_mode=SELF_REVIEW_FALLBACK`を先に記録し、ルートが責務チェックリストを適用して継続する。起動不能を独立実行済みと表現しない。UnknownのPass、仕様追従欠落、Secret、default変更、Critical／High未解決は別のFail-closed停止条件である。
+
 ## 禁止事項
 - 既存部品を推測で流用しない。
 - 明示されていない部品名へ勝手にリネームしない。

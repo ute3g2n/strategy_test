@@ -35,6 +35,14 @@
 - 作成ステップでない場合は、既存部品で代替せず、不足部品名を報告して停止する。
 - `default_orchestrator` は明示承認なしに変更しない。
 
+### 実ランタイム起動・待機・Fallback契約
+
+- 完全名の列挙、JSONの読込、Skillの適用、ルートAgentの自己レビューは、Orchestrator／Agentの起動証跡ではない。
+- 直接実行プロンプトは、変更前に `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を確認し、指定Orchestratorを固定modelで実spawnする。CoordinatorはPromptで明示された全Agentを一体ずつ、各Agent JSONの固定modelを `model` 引数へ渡してspawnし、waitする。Orchestratorの `agents` map外の明示Agentも省略しない。
+- 起動証跡には `runtime_backend`、`dispatch_mode`、`orchestrator_agent_id`、AgentごとのJSON path、model、Skills、`agent_id`、受付／完了status、出力参照、`independent`、`review_mode`を含める。
+- spawn／wait、固定model受理、子出力取得ができない場合は `RUNTIME_DISPATCH_FALLBACK_REQUIRED`、未起動Agent、理由、`agent_id=N/A`、`independent=false`、`review_mode=SELF_REVIEW_FALLBACK`を先に記録し、ルートの責務チェックリストで継続する。起動不能は単独の停止条件にしないが、未起動を独立実行済みと偽らない。
+- Human Gate未承認、外部I/O／Secret／費用／実資金の範囲逸脱、UnknownのPass、Critical／High未解決、必須Evidence欠落、`default_orchestrator`変更はFallback中もFail-closedで停止する。
+
 ## モデル割当ルール
 
 - 現行の汎用AutoTrade Orchestratorである `AutoTradeProject_Orchestrator_v0_1`、`AutoTradePhasePlanning_Orchestrator_v0_1`、`AutoTradeComponentLifecycle_Orchestrator_v0_1`、`AutoTradeProject_UiMock_Orchestrator_v0_1`、`AutoTradeProject_DesignDocSet_Orchestrator_v0_1`、`AutoTradeProject_ImplementationDesign_Orchestrator_v0_1` の `model` は `gpt-5.6-terra` とする。

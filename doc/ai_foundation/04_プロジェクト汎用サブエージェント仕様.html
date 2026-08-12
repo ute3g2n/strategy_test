@@ -25,7 +25,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D04<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.7 / UIモック生成・視覚／アクセシビリティQA Agentを追加<br>
+    <strong>文書状態:</strong> v0.8 / UIモック生成・視覚／アクセシビリティQA Agent、実ランタイム起動・Fallback契約を反映<br>
     <strong>ステップID:</strong> AF-02</p>
   </section>
 
@@ -43,6 +43,9 @@
       <tr><td>共通境界</td><td>投資助言をしない。UnknownをPassにしない。Secretを出力しない。正式HTMLは <code>doc/index.html</code> へ到達可能にする。</td></tr>
     </tbody>
   </table>
+
+  <h2>3.1 起動・待機・独立性の証跡</h2>
+  <p>AgentはPromptの完全名指定だけでは起動済みと扱わない。Coordinatorは指定された全Agentを個別spawnし、定義JSONの固定modelを渡してwaitし、agent_id、受付／完了status、JSON path、Skills、出力参照を保存する。Orchestratorのagents map外でもPromptで明示されたAgentは起動試行する。spawn／waitまたは固定model受理ができない場合は、未起動Agent、理由、<code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を記録し、起動不能を独立Agent実行と偽らない。</p>
 
   <h2>3. サブエージェント仕様</h2>
   <table>

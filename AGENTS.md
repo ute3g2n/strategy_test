@@ -85,6 +85,9 @@ WSL隔離品質ゲートの実行入口は `scripts/wsl_quality_gate/run_test.ps
   `autotrade_phase1_skill_*_v0_1`
   これらは `frozen / legacy / phase1証跡` として扱い、新規Phase実行の標準部品には使わない。
 
+- 実ランタイム起動契約:
+  Phase計画とAI部品変更の直接プロンプトは、完全名の列挙だけで完了扱いにせず、`multi_agent_v1__spawn_agent`／`multi_agent_v1__wait_agent` によるOrchestrator実起動、指定Agent全件の個別起動、定義JSON固定model、wait完了、受領証跡を要求する。起動不能時は `RUNTIME_DISPATCH_FALLBACK_REQUIRED`、未起動Agent、`agent_id=N/A`、`independent=false`、`review_mode=SELF_REVIEW_FALLBACK`を記録し、ルート責務チェックリストで継続する。未起動を独立実行済みと偽らない。Human Gate、外部I/O、Secret、UnknownのPass、Critical／Highは従来どおり停止する。
+
 ## 読み取り順の目安
 
 AI部品の作成、設計、レビュー、Phase実行に入る前は、原則として次の順で確認する。

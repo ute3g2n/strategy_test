@@ -338,7 +338,7 @@
     <div class="card done"><strong>0件</strong>P3-12を止めているHuman Gate（H3-3/H3-4承認済み）</div>
     <div class="card wait"><strong>28件</strong>期限までは安全に保留できる根本課題</div>
     <div class="card done"><strong>15組</strong>解決済みとして確認できた主な課題</div>
-    <div class="card phase"><strong>P4</strong><code>P4-PLAN-001</code>改訂2。P4-04A〜D、P4-05、P4-06、P4-07、P4-08、P4-09（全19 API接続・15 DB／ER entity・固定local Backtest／Sweep／Result／Evidence・21画面UI／visual／a11y・統合品質）は完了。P4-H2承認前のP4-10、外部Data、Broker、Paper、Live、Secretは引き続き禁止</div>
+    <div class="card phase"><strong>P4→P5</strong><code>P4-PLAN-001</code>改訂2のP4-10は完了。<code>P5-PLAN-001 v0.1</code>は作成済みだがP5-H0未承認。P5実装、外部Data、Provider、Broker、Paper、Live、Secret、外部I/Oは引き続き禁止</div>
   </div>
   <p class="small">件数は、同じ原因を別の文書が違う名前で書いている場合に一つへまとめた「根本課題」の数です。たとえば、同じロール規則の問題を Phase 1 と Phase 2 が別IDで書いていても、一件として数えます。</p>
 
@@ -938,6 +938,22 @@ firewall=true</pre></li>
     <p><strong>Unknown／残課題:</strong> <code>UNK-P3-01/05/07</code>、Q-243、<code>RQV2-BLK-001</code>、<code>UNK-P4-04B-001〜005</code>、<code>UNK-P4-04D-004</code>、<code>UNK-P4-UI-002</code>、実Risk値、外部Data／Broker／Secret／Paper／Liveは未解消・未承認のまま、owner、再開条件、停止条件、Evidence先付きでPhase 5以降へ引き渡した。UnknownはPASSにしていない。</p>
     <p><strong>境界:</strong> P5実装、外部Data取得、Provider／Broker、Secret、Paper／Live、実資金、Cloud、DB作成・migration、repository、Core、WSL新規Run、外部I/Oは開始していない。</p>
     <p><strong>証拠:</strong> <a href="./phase4/05_完了/07_Phase4完了判定・Phase5計画引渡し.html">P4-10完了HTML</a> / <a href="../plan/phase4/ログ/P4-10_完了・引渡し_2026-08-12.md">P4-10ログ</a> / <a href="../plan/phase4/Phase5計画入力一覧_2026-08-12.md">Phase5計画入力</a> / <a href="../tests/evidence/phase4/RUN-P4-04D-001/p4-10-dispatch.md">dispatch</a> / <a href="../tests/evidence/phase4/RUN-P4-04D-001/p4-10-verification.md">verification</a> / <a href="../tests/evidence/phase4/RUN-P4-04D-001/p4-10-evidence-hashes.sha256">Evidence hashes</a> / <a href="../doc/index.html">doc/index</a>。</p>
+  </section>
+  <section class="note" id="phase5-plan-current-20260812">
+    <h2>Phase 5 市場Data運用化・実証計画（2026-08-12）</h2>
+    <p><strong><code>P5-PLAN-001 v0.1</code>を作成した。現在状態は<code>PLAN_CREATED_PENDING_P5-H0</code>であり、P4-H2の承認だけではP5実装、外部Data取得、Provider、Secret、費用、外部I/Oを開始しない。</strong> P5は入力・Data対象追跡、Catalog／Data contract、Raw／Normalized／Quality／Calendar、Cost／Gap／長期／Holdout、詳細設計レビュー、固定local品質、Data Provider専用Gate、承認範囲内の限定Data実証、統合レビュー、P6引渡しへ分割した。Broker／Paper用のGateはP7以降と分離する。</p>
+    <table>
+      <thead><tr><th>ID</th><th>対象</th><th>現在状態</th><th>再開条件・証拠</th></tr></thead>
+      <tbody>
+        <tr><td><code>P5-H0</code></td><td>Phase5計画・設計開始</td><td><span class="badge wait">未承認</span></td><td>P5-PLAN-001、P4-10引渡し、Step、成果物、停止条件、Unknown、AI部品起動契約を確認し、運用者が明示承認する。<a href="../plan/Phase5_実行計画書_v0.1_2026-08-12.md">計画書</a></td></tr>
+        <tr><td><code>P5-H1</code></td><td>固定local Data contract品質</td><td><span class="badge wait">P5-05後の承認待ち</span></td><td>レビュー済みData詳細設計、RED、Run Manifest、target scope、fixture hash、外部I/O=0、Critical／High=0、承認Evidence。外部Dataは含めない。</td></tr>
+        <tr><td><code>P5-DATA-G1</code></td><td>市場Data Provider専用外部Data Gate</td><td><span class="badge wait">未承認</span></td><td>対象Symbol／期間／時間足、契約・権限、費用、endpoint／rate、Secret mask／失効、通信、保存・保持・再配布、取得Runner、Run ID、hash、host isolationを承認し、<a href="../plan/Phase5_実行計画書_v0.1_2026-08-12.md">P5-07</a>とGate Evidenceを同期する。Broker／Paperは対象外。</td></tr>
+        <tr><td><code>P5-H2</code></td><td>P5完了・P6引渡し</td><td><span class="badge wait">P5-10後の承認待ち</span></td><td>Data contract、Quality／Calendar／Cost／Gap、期間分割、Holdout、Evidence hash、Unknown再分類、P6入力、Critical／High=0。利益性・Broker・Paper・Liveは含めない。</td></tr>
+        <tr><td><code>P5-EXTERNAL-WORKER-UNKNOWN</code></td><td>外部Data取得Runner</td><td><span class="badge wait">未定義・未承認</span></td><td>実在する固定Runner、command、target scope、Secret境界、通信監査、Evidence root、再現手順をP5-DATA-G1前に確定する。未確定ならP5-08を開始しない。</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Unknown:</strong> <code>UNK-P3-01/05/07</code>、<code>UNK-P4-04D-004</code>、<code>UNK-P4-UI-002</code>、Provider／Secret、取得Runnerを未解消・未承認のまま保持する。起動不能Fallbackは独立レビュー済みと扱わず、P5直接Promptのdispatch receiptと責務チェックリストを要求する。</p>
+    <p><strong>証拠:</strong> <a href="../plan/Phase5_実行計画書_v0.1_2026-08-12.md">P5-PLAN-001</a> / <a href="../doc/phase5/00_実行計画/01_Phase5実行計画書.html">P5計画HTML</a> / <a href="../plan/phase5/ログ/P5-PLAN-001_計画作成・起動契約検証_2026-08-12.md">計画作成ログ</a> / <a href="../plan/phase4/Phase5計画入力一覧_2026-08-12.md">P4-10 Phase5計画入力</a></p>
   </section>
 </main>
 </body>

@@ -20,6 +20,16 @@
     "doc_index_must_be_updated": true,
     "phase_specific_components_require_reason": true
   },
+  "runtime_dispatch_contract": {
+    "version": "RDC-GENERIC-0.2",
+    "preferred_backend": "multi_agent_v1",
+    "required_tools": ["multi_agent_v1__spawn_agent", "multi_agent_v1__wait_agent"],
+    "root_dispatch": "The root runtime must spawn the named Orchestrator from its exact JSON path with the fixed model, wait for completion, and persist the root receipt before any work is accepted.",
+    "coordinator_dispatch": "The Orchestrator must spawn every explicitly named Agent one by one, including Agents outside its static map, using the model declared by each Agent JSON, wait for every child, and persist each child receipt.",
+    "fixed_model_policy": "Prompt model labels are constraints: the runtime must resolve the exact Orchestrator and Agent JSON and reject silent model substitution.",
+    "fallback_policy": "If spawn or wait is unavailable, record RUNTIME_DISPATCH_FALLBACK_REQUIRED and LOCAL_FALLBACK_NO_SUBAGENTS with every unstarted Agent, reason, timestamp, agent_id=N/A, independent=false, and review_mode=SELF_REVIEW_FALLBACK; continue only with the explicit responsibility checklist and never claim independent execution.",
+    "receipt_required": ["orchestrator_name", "orchestrator_json_path", "orchestrator_model", "orchestrator_agent_id", "agent_name", "agent_json_path", "agent_model", "agent_id", "spawn_status", "wait_status", "output_ref", "fallback_reason", "independent", "review_mode"]
+  },
   "runbook_schema": {
     "required_fields": [
       "phase_id",

@@ -16,6 +16,45 @@
     "unknown_must_not_pass": true,
     "do_not_change_default_orchestrator": true
   },
+  "runtime_dispatch_contract": {
+    "version": "RDC-PHASE-PLAN-0.2",
+    "preferred_backend": "multi_agent_v1",
+    "required_tools": [
+      "multi_agent_v1__spawn_agent",
+      "multi_agent_v1__wait_agent"
+    ],
+    "root_dispatch": "実行依頼を受けたルートAgentは、ファイル変更より前にrequired_toolsの利用可否を確認し、AutoTradePhasePlanning_Orchestrator_v0_1のJSON path、model=gpt-5.6-terra、phase_id、step_id、入力、出力境界、Agents一覧、Skills一覧を渡してCoordinatorを1体spawnする。orchestrator_agent_id、受付status、開始時刻を記録する。",
+    "coordinator_dispatch": "CoordinatorはPromptのAgents欄を正本として全Agentを一体ずつspawnし、各Agent JSON pathと定義JSONのmodelをmodel引数へ明示して渡す。Orchestrator JSONのagents mapにない名前も省略せず、Prompt指定の全件を起動試行する。各agent_id、受付status、start、end、完了status、出力参照をwaitで記録する。",
+    "fixed_model_policy": "Agentのmodelは各Agent JSONを正本とし、利用不能・不受理時に別modelや別Agentへ置換しない。Orchestratorはgpt-5.6-terra固定とする。",
+    "receipt_required": [
+      "runtime_backend",
+      "dispatch_mode",
+      "orchestrator_agent_id",
+      "orchestrator_json_path",
+      "orchestrator_model",
+      "agent_name",
+      "agent_json_path",
+      "agent_model",
+      "skills",
+      "agent_id",
+      "start_time",
+      "end_time",
+      "accepted_status",
+      "completion_status",
+      "output_reference",
+      "independent",
+      "review_mode"
+    ],
+    "fallback_policy": "rootまたはCoordinatorがspawn／waitを利用できない、固定modelを受理できない、またはAgent出力を取得できない場合は、RUNTIME_DISPATCH_FALLBACK_REQUIREDとして理由・未起動Agent・確認時刻・agent_id=N/A・independent=falseを先に記録する。未起動を起動済み、独立レビュー済み、固定model実行済みと表現せず、ルート実行Agentが各Agentの責務をチェックリストとして順次適用し、review_mode=SELF_REVIEW_FALLBACKで継続する。",
+    "hard_stop_exceptions": [
+      "Human Gate未承認",
+      "外部I/O・Secret・費用・実資金の範囲逸脱",
+      "UnknownのPass化",
+      "Critical／High未解決",
+      "必須成果物・証拠・追跡表の欠落",
+      "default_orchestratorの無断変更"
+    ]
+  },
   "agents": {
     "A05": {
       "file": ".codex/agents/AutoTrade_A05_PhaseExecutionPlanner_v0_1.json",
@@ -46,6 +85,9 @@
   ],
   "workflow_policy": [
     "Validate that all named components exist.",
+    "Apply the runtime dispatch contract before any file mutation and persist the dispatch receipt in the plan log.",
+    "Treat a component name, JSON read, skill application, or root self-review as neither a spawn receipt nor independent-agent completion.",
+    "Generate every direct step prompt with the complete runtime dispatch contract, including the non-blocking fallback and false-claim prohibition.",
     "Read requirement definition, previous phase outputs, backlog, current component inventory, and project rules.",
     "Draft the phase execution plan with multiple runnable steps.",
     "Review the plan for missing dependencies, over/under decomposition, unsafe phase scope, missing Human Gates, and missing doc/index.html rules.",
@@ -57,6 +99,7 @@
     "The requested phase scope cannot be inferred from available inputs.",
     "The plan would require treating Unknown as Pass.",
     "A name collision would require overwriting an existing component.",
-    "Changing default_orchestrator would be required without explicit approval."
+    "Changing default_orchestrator would be required without explicit approval.",
+    "The prompt cannot include a verifiable runtime dispatch receipt schema and fallback disclosure rule."
   ]
 }

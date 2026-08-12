@@ -70,6 +70,9 @@
     <li>Phase専用部品を使う場合は、理由、利用期限、凍結条件をプロンプトまたは仕様書に明記する。</li>
     <li>現行の汎用AutoTrade Orchestrator 6件は <code>gpt-5.6-terra</code> を使用する。サブエージェントのモデルはAgent JSONの個別定義を維持し、オーケストレータのモデル変更で変更してはならない。</li>
     <li>Phase 1の凍結済みOrchestratorと <code>default_orchestrator</code> は、このモデル割当ルールの変更対象外とする。</li>
+    <li>完全名の列挙、JSON読込、Skill適用、ルートAgentの自己レビューは起動証跡ではない。直接PromptはOrchestrator実spawn、指定Agent全件の個別spawn、固定model、wait完了、receipt保存を要求する。</li>
+    <li>spawn／waitまたは固定model受理ができない場合は、<code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、未起動Agent、理由、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を記録して継続する。起動不能を独立実行済みと偽らない。</li>
+    <li>Human Gate未承認、外部I/O、Secret、UnknownのPass、Critical／High、必須Evidence欠落はFallback中も停止する。</li>
   </ul>
 
   <h2>4.1 AI部品ライフサイクル標準部品</h2>

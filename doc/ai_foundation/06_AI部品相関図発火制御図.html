@@ -25,7 +25,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D06<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.9 / UIモック専用AI基盤の相関・発火制御を追加</p>
+    <strong>文書状態:</strong> v1.0 / UIモック専用AI基盤、実ランタイム起動・待機・Fallbackの相関・発火制御を追加</p>
   </section>
 
   <h2>1. 目的</h2>
@@ -229,6 +229,9 @@ Rules:
 
   <h2>4.1 モデル割当</h2>
   <p>図中の汎用AutoTrade Orchestratorはすべて <code>gpt-5.6-terra</code> を使用する。図中のサブエージェントは、それぞれのAgent JSONに定義されたモデルを維持する。Phase 1の凍結証跡と <code>default_orchestrator</code> は、このモデル割当変更の対象外である。</p>
+
+  <h2>4.2 実ランタイム発火の相関</h2>
+  <p>直接Prompt → root実行Agent → <code>multi_agent_v1__spawn_agent</code> → 指定Orchestrator → Coordinator → 指定Agent全件の個別spawn → <code>multi_agent_v1__wait_agent</code> → receipt／成果物、という順を正本とする。完全名・JSON・Skill・自己レビューは起動の代替ではない。子起動不能時は <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、未起動Agent、理由、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を保存してルート責務チェックリストへ継続する。</p>
 
   <h2>5. 利用判断フロー</h2>
   <pre>Need a component?

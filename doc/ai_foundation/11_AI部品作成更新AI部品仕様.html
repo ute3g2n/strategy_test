@@ -25,7 +25,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D11<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.1 / AI部品ライフサイクル基盤 反映済み<br>
+    <strong>文書状態:</strong> v0.2 / AI部品ライフサイクル基盤・実ランタイム起動契約 反映済み<br>
     <strong>対象:</strong> <code>autotrade_skill_ai_component_lifecycle_v0_1</code>, <code>AutoTrade_A06_AiComponentEngineer_v0_1</code>, <code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code></p>
   </section>
 
@@ -61,6 +61,10 @@
 5. Review sync integrity and name control
 6. Record residual risks and handoff</pre>
 
+  <h2>4.1 実ランタイム起動・Fallback</h2>
+  <p>変更前に <code>multi_agent_v1__spawn_agent</code> と <code>multi_agent_v1__wait_agent</code> を確認し、<code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code> を固定modelで実spawnする。Coordinatorは依頼Promptの全Agentを個別spawnし、各Agent JSONのmodelを明示してwaitする。Orchestratorのagents map外の明示Agentも省略しない。</p>
+  <p>起動ごとにruntime backend、dispatch mode、orchestrator_agent_id、agent_id、JSON path、model、Skills、受付／完了status、出力参照、<code>independent</code>、<code>review_mode</code>、hashを保存する。nested spawn／waitが利用できない場合は <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、未起動Agent、理由、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を記録し、ルート責務チェックリストで継続する。未起動を独立実行済みと書かない。</p>
+
   <h2>5. 相関図</h2>
   <pre>AutoTradeComponentLifecycle_Orchestrator_v0_1
   |
@@ -81,6 +85,7 @@
     <li>変更要求なのに対象部品が存在しない。</li>
     <li>関連仕様書の追従更新を同じ変更セット内で完了できない。</li>
     <li><code>default_orchestrator</code> を変更しないと成立しない。</li>
+    <li>起動証跡とFallback開示を同一変更セットで保存できない。</li>
     <li>UnknownをPassにしないと先へ進めない。</li>
   </ul>
 

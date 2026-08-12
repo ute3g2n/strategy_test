@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase5実行計画書</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.75; margin: 32px auto; max-width: 1180px; color: #172033; background: #f8fafc; }
+    main { background: #fff; border: 1px solid #d9e2ec; padding: 28px; }
+    h1, h2, h3 { color: #111827; } h1 { border-bottom: 3px solid #1f2937; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 34px; padding-bottom: 6px; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; } th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; } th { background: #eef2f7; }
+    code, pre { font-family: Consolas, "Courier New", monospace; } pre { background: #0f172a; color: #e5e7eb; padding: 16px; overflow-x: auto; white-space: pre-wrap; }
+    .meta, .note { border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 14px; margin: 16px 0; }
+    .stop { border-left-color: #dc2626; background: #fef2f2; } .ok { border-left-color: #059669; background: #ecfdf5; }
+    a { color: #0f5db8; text-decoration: none; } a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>Phase 5 実行計画書</h1>
+  <div class="meta">
+    <p><strong>文書ID:</strong> P5-PLAN-HTML-001<br>
+    <strong>計画ID:</strong> P5-PLAN-001<br>
+    <strong>Phase ID:</strong> PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12<br>
+    <strong>作成日:</strong> 2026-08-12（Asia/Tokyo）<br>
+    <strong>状態:</strong> PLAN_CREATED_PENDING_P5-H0<br>
+    <strong>正本:</strong> <a href="../../../plan/Phase5_実行計画書_v0.1_2026-08-12.md">plan/Phase5_実行計画書_v0.1_2026-08-12.md</a></p>
+  </div>
+
+  <section class="note">
+    <h2>1. この計画の効力</h2>
+    <p>P4-H2はP5の計画入力引渡しだけを承認しており、P5の実装、外部Data取得、Provider、Secret、費用、外部I/Oを承認していない。本計画はP5-H0、P5-H1、P5-DATA-G1、P5-H2を分離し、承認範囲外を発火しない。</p>
+    <p>初期5候補、4資産種類、D1／H4／H1／M30／M15、Data Quality、Calendar、Cost／Slippage／Gap、長期、Holdout／Walk-forwardを、固定仮定と実測値を分けた再現可能なEvidenceへ整理する。利益性、Broker、Paper、Live、実資金はP5の完了判定に含めない。</p>
+  </section>
+
+  <section>
+    <h2>2. Phase5のStepとGate</h2>
+    <table>
+      <thead><tr><th>Step</th><th>内容</th><th>前提・Gate</th><th>外部I/O</th></tr></thead>
+      <tbody>
+        <tr><td>P5-01</td><td>入力、P4接続点、Data対象、REQ追跡</td><td>P5-H0</td><td>不可</td></tr>
+        <tr><td>P5-02〜04</td><td>Catalog／Data contract、Raw／Normalized／Quality／Calendar、Cost／Gap／Holdout／Test詳細設計</td><td>P5-01〜03、P5-H0</td><td>不可</td></tr>
+        <tr><td>P5-05</td><td>詳細設計レビュー、改訂、再レビュー、P5-H1候補</td><td>P5-01〜04</td><td>不可</td></tr>
+        <tr><td>P5-H1</td><td>固定local Data contract品質の開始承認</td><td>人間の明示承認</td><td>不可</td></tr>
+        <tr><td>P5-06</td><td>固定local dummyのRED→GREEN、品質Gate</td><td>P5-H1</td><td>不可</td></tr>
+        <tr><td>P5-07</td><td>外部Data Gate申請と台帳同期</td><td>P5-06</td><td>不可</td></tr>
+        <tr><td>P5-DATA-G1</td><td>市場Data Provider専用Gate</td><td>人間の明示承認</td><td>承認前不可</td></tr>
+        <tr><td>P5-08〜09</td><td>承認範囲内の限定取得、Quality／Calendar／Cost／Gap／Holdout実証</td><td>P5-DATA-G1</td><td>条件付き可</td></tr>
+        <tr><td>P5-10</td><td>統合レビュー、Unknown再分類、P5-H2候補</td><td>P5-08〜09</td><td>不可</td></tr>
+        <tr><td>P5-H2→P5-11</td><td>完了承認、完了記録、P6引渡し</td><td>人間の明示承認</td><td>不可</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="ok">
+    <h2>3. 実ランタイム起動契約</h2>
+    <p>直接Promptは、完全名の列挙だけで完了扱いにしない。root実行Agentが <code>multi_agent_v1__spawn_agent</code> で指定Orchestratorを実spawnし、CoordinatorがPrompt記載の全Agentを一体ずつspawnし、各Agent JSONの固定modelを明示して <code>multi_agent_v1__wait_agent</code> で完了を取得する。</p>
+    <p>起動証跡はruntime backend、dispatch mode、orchestrator_agent_id、agent_id、JSON path、model、Skills、受付／完了status、出力参照、入力hash、成果物／finding hash、<code>independent</code>、<code>review_mode</code>を含む。Orchestratorのagents map外でもPromptで明示されたAgentは省略しない。</p>
+    <p>spawn／waitが使えない場合は <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、<code>LOCAL_FALLBACK_NO_SUBAGENTS</code>、未起動Agent、理由、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を先に記録し、ルート責務チェックリストで継続する。起動不能は単独停止条件ではないが、未起動を独立レビュー済みと書かない。Human Gate未承認、外部I/O／Secret逸脱、UnknownのPass、Critical／High、Evidence欠落は停止する。</p>
+  </section>
+
+  <section>
+    <h2>4. 主な成果物</h2>
+    <ul>
+      <li>正式HTML: <code>doc/phase5/</code>、本書および各Stepの詳細設計・品質・レビュー・完了書。</li>
+      <li>計画・ログ: <code>plan/Phase5_実行計画書_v0.1_2026-08-12.md</code>、<code>plan/phase5/ログ/</code>。</li>
+      <li>機械Evidence: <code>tests/evidence/phase5/&lt;RunId&gt;/</code>。Secret値を保存しない。</li>
+      <li>現在状態: <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a>。すべての正式HTMLは<a href="../../index.html">doc/index.html</a>から到達可能にする。</li>
+    </ul>
+  </section>
+
+  <section class="stop">
+    <h2>5. Unknownと停止</h2>
+    <p><code>UNK-P3-01</code>（長期Data）、<code>UNK-P3-05</code>（Cost／Slippage／Gap）、<code>UNK-P3-07</code>（正式Calendar）、<code>UNK-P4-04D-004</code>（host outbound isolation）、<code>UNK-P4-UI-002</code>（font／OS baseline）、Provider／Secret、P5取得Runnerは未解消・未承認として扱う。</p>
+    <p>対象、契約、費用、Secret、通信、保存、Calendar、期間、hash、取得Runnerが未確定の場合、P5-DATA-G1またはP5-08を開始しない。P4固定fixtureから実Data値を推定しない。Unknownを仮値でPassにしない。</p>
+  </section>
+
+  <section>
+    <h2>6. 関連文書</h2>
+    <ul>
+      <li><a href="../../../plan/phase4/Phase5計画入力一覧_2026-08-12.md">P4-10 Phase5計画入力一覧</a></li>
+      <li><a href="../../../plan/requirements_update/RQV2_Phase4以降再編ロードマップ_2026-08-11.md">RQV2 Phase4以降再編ロードマップ</a></li>
+      <li><a href="../../phase4/05_完了/07_Phase4完了判定・Phase5計画引渡し.html">P4完了・P5引渡し</a></li>
+      <li><a href="../../ai_foundation/09_Phase実行計画作成AI部品仕様.html">Phase実行計画作成AI部品仕様</a> / <a href="../../ai_foundation/10_Phase実行計画書作成依頼プロンプト.html">標準依頼Prompt</a></li>
+    </ul>
+  </section>
+
+  <p><strong>改訂履歴:</strong> 2026-08-12 v0.1作成。P5のStep、Gate、外部Data境界、Unknown、実ランタイム起動・Fallback契約を反映。</p>
+</main>
+</body>
+</html>

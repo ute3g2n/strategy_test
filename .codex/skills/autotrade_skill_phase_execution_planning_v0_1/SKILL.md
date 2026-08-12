@@ -38,6 +38,19 @@ description: Phase開始時の実行計画書を作成する。要件定義書�
 7. `doc/index.html` から正式HTML成果物へ到達できる更新ルールを計画に含める。
 8. UnknownをPassにせず、決定タイミングと担当Phaseを明記する。
 
+## 実ランタイム起動契約（RDC-PHASE-PLAN-0.2）
+
+各Stepの直接実行プロンプトは、AI部品名を列挙するだけでなく、実行時の起動と待機を要求する。これは「起動できた」と「定義を読んだだけ」を区別するための契約である。
+
+1. ルート実行Agentは、ファイル変更より前に `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を確認し、指定OrchestratorのJSON path、定義JSONの固定model、Phase／Step、入力・出力境界、Agents、Skillsを渡してCoordinatorをspawnする。`orchestrator_agent_id`、受付status、開始時刻を記録する。
+2. Coordinatorは、直接実行プロンプトのAgents欄にある全Agentを一体ずつspawnする。Orchestrator JSONの `agents` mapにないAgentも省略せず、Agent JSON path、Agent JSONの `model`、Skills、責務、停止条件を渡す。各 `agent_id`、受付status、完了status、出力参照を `wait_agent` で記録する。
+3. 固定modelはOrchestrator／Agentの定義JSONを正本とし、利用不能・不受理でも代替model、代替Agent、`default_orchestrator`へ置換しない。
+4. ルートまたはCoordinatorがspawn／waitを利用できない、固定modelを受理できない、または出力を取得できない場合は、`RUNTIME_DISPATCH_FALLBACK_REQUIRED` として理由、未起動Agent、確認時刻、`agent_id=N/A`、`independent=false` を先に記録する。その後、ルート実行Agentが各Agentの入力・確認項目・出力・停止条件をチェックリストとして順次適用し、`review_mode=SELF_REVIEW_FALLBACK` と記録して継続する。
+5. 名前の列挙、JSON／Skillの読込、Skillの自己適用、ルートAgentの自己レビューは、spawn receipt、独立Agent実行、独立レビューの代替ではない。起動不能時に独立実行済みと記載してはならない。
+6. Human Gate未承認、外部I/O／Secret／費用／実資金の範囲逸脱、Core境界違反、UnknownのPass、必須成果物・Evidence欠落、Critical／High未解決は、起動不能とは無関係にFail-closedで停止する。
+
+直接実行プロンプトには最低限、`runtime_backend`、`dispatch_mode`、`orchestrator_agent_id`、Agentごとの `agent_id`、JSON path、model、Skills、受付／完了status、出力参照、`independent`、`review_mode` を含む受領証跡の保存先を指定する。child-run ledger、親Run ID、入力hash、成果物／finding hashを記録できない場合は、正式な独立実行の証拠として扱わない。
+
 ## 必須ルール
 
 - 実行計画書は必ず複数ステップに分ける。

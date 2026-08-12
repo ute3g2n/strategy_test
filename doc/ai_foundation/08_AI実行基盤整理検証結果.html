@@ -24,7 +24,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D08<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.9 / RQU-UI-04のUIモックAI基盤と相互参照検証を反映<br>
+    <strong>文書状態:</strong> v1.0 / RQU-UI-04のUIモックAI基盤、Phase計画・AI部品変更の実ランタイム起動契約を反映<br>
     <strong>ステップID:</strong> AF-04<br>
     <strong>対象:</strong> 汎用AI部品、プロジェクトルール、導線、相互参照</p>
   </section>
@@ -73,6 +73,7 @@
       <tr><td>AF-VR-21</td><td>UI安全境界</td><td class="pass">PASS</td><td>固定Seed・匿名ダミー、外部I/O禁止、Secret・実注文禁止、正式 <code>@playwright/test</code> と探索CLIの境界、Unknown must not passを実体と仕様へ反映した。</td></tr>
       <tr><td>AF-VR-22</td><td>UI独立レビュー責務</td><td class="pass">PASS</td><td>A170の生成責務とA171の視覚・アクセシビリティ独立レビューを分離し、A171が自分で修正して合否を隠さない境界を確認した。</td></tr>
       <tr><td>AF-VR-23</td><td>UI仕様同期</td><td class="pass">PASS</td><td>AF-D03からAF-D08、<code>settings/ai_component_rules.md</code>、<code>doc/index.html</code>の導線を点検し、RQU-UI-04の新設部品名・責務・停止条件を反映した。</td></tr>
+      <tr><td>AF-VR-24</td><td>実ランタイム起動契約</td><td class="pass">PASS（定義・Prompt契約）</td><td>Phase計画とAI部品変更のOrchestrator／Agent／Skill実体、標準Prompt、settings、AF-D03〜AF-D08へ、root実spawn、指定Agent全件spawn、固定model、wait、receipt、Fallback開示、独立性表示を反映した。実行環境のnested spawn／wait能力そのものは各Runで再確認する。</td></tr>
     </tbody>
   </table>
 
@@ -98,6 +99,7 @@
       <tr><td>AF-UNK-05</td><td>A82/A91の初回適用で、DD-01からDD-12の追加粒度が過剰または不足になる可能性。</td><td>Phase 2 P2-03Rの再レビュー後に、実装担当者の追加質問数とCritical/High指摘で見直す。</td></tr>
       <tr><td>AF-UNK-06</td><td>AI向け <code>playwright-cli</code> を正式な合否入口にせず、匿名ローカル探索の補助として採用できるか。</td><td>RQU-UI-05以降で、外部送信・Storage・Secretなしの範囲を確認してから判断する。未確認のまま正式Passにしない。</td></tr>
       <tr><td>AF-UNK-07</td><td>RQU-UI-03でshadcn initが設定ファイル書込み後に終了したため、registryコンポーネントの追加手順に補正が必要。</td><td>RQU-UI-05またはRQU-UI-07でローカル設定を再確認する。RQU-UI-03-F-001を解消扱いにしない。</td></tr>
+      <tr><td>AF-UNK-08</td><td>Coordinatorのnested runtimeが、Prompt指定の子Agentを実際にspawn／waitし、固定modelと出力を返せるかは環境ごとに異なる。</td><td>各Phase Runのdispatch receiptで確認する。未提供時はFallbackを記録し、独立実行済みと扱わない。</td></tr>
     </tbody>
   </table>
 

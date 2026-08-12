@@ -26,9 +26,14 @@
   <p><a href="../index.html">ドキュメントインデックスへ戻る</a></p>
   <h1>09 Phase実行計画作成AI部品仕様</h1>
   <div class="meta">
-    <p><strong>文書状態:</strong> v0.1 / <strong>作成日:</strong> 2026-08-04 / <strong>対象:</strong> Phase開始時の実行計画作成基盤</p>
+    <p><strong>文書状態:</strong> v0.2 / <strong>作成日:</strong> 2026-08-12 / <strong>対象:</strong> Phase開始時の実行計画作成基盤、実ランタイム起動・待機・Fallback契約</p>
   </div>
 
+  <section>
+    <h2>実ランタイム起動・待機・Fallback契約</h2>
+    <p>完全名の列挙、JSONの読込、Skillの適用、ルートAgentの自己レビューは、OrchestratorまたはAgentの起動証跡ではない。直接実行Promptは、変更前に <code>multi_agent_v1__spawn_agent</code> と <code>multi_agent_v1__wait_agent</code> を確認し、指定Orchestratorを定義JSONの固定modelで実spawnする。CoordinatorはPromptのAgents欄にある全Agentを一体ずつspawnし、各Agent JSONの固定modelを明示してwaitする。Orchestratorのagents map外の明示Agentも省略しない。</p>
+    <p>起動ごとにruntime backend、dispatch mode、orchestrator_agent_id、AgentのJSON path・model・Skills・agent_id、受付／完了status、出力参照、<code>independent</code>、<code>review_mode</code>、入力hash、成果物／finding hashを保存する。spawn／waitが使えない場合は <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、未起動Agent、理由、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を先に記録し、ルート責務チェックリストで継続する。未起動を独立実行済みと表現しない。</p>
+  </section>
   <section>
     <h2>目的</h2>
     <p>各Phaseの最初に、実行計画書を作成するための汎用AI部品を定義する。実行計画書は必ず複数ステップに分割し、各ステップにそのまま実行できるプロンプトを含める。</p>
@@ -101,6 +106,8 @@ flowchart LR
       <li>指定されていないAI部品を推測で起動しない。</li>
       <li>Phase専用部品を作る場合は、理由、利用期限、凍結条件を計画書に書く。</li>
       <li><code>default_orchestrator</code> は変更しない。</li>
+      <li>Orchestratorは実spawn、指定Agentは全件個別spawn、固定model受理、wait完了までを確認する。</li>
+      <li>起動不能は単独停止条件にせず、明示Fallbackと非独立チェックリストへ切り替える。ただしHuman Gate未承認、外部I/O、Secret、UnknownのPass、Critical/High、必須Evidence欠落は停止する。</li>
     </ul>
   </section>
 
@@ -108,7 +115,8 @@ flowchart LR
     <h2>レビュー履歴</h2>
     <table>
       <tr><th>日付</th><th>観点</th><th>結果</th></tr>
-      <tr><td>2026-08-04</td><td>粒度、発火制御、既存部品流用、保存先ルール</td><td>v0.1作成。既存汎用部品にPhase計画専用部品を追加する方針。</td></tr>
+      <tr><td>2026-08-12</td><td>実ランタイム起動、固定model、child wait、Fallback、受領証跡</td><td>v0.2へ改訂。各直接PromptへRDC-PHASE-PLAN-0.2を埋め込み、起動不能を隠さず継続できる契約を追加。</td></tr>
+      <tr><td>2026-08-04</td><td>粒度、発火制御、既存部品流用、保存先ルール</td><td>履歴。v0.1作成。</td></tr>
     </table>
   </section>
 </main>

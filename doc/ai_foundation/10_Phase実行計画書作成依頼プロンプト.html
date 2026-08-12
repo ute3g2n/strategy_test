@@ -22,9 +22,19 @@
   <p><a href="../index.html">ドキュメントインデックスへ戻る</a></p>
   <h1>10 Phase実行計画書作成依頼プロンプト</h1>
   <div class="meta">
-    <p><strong>文書状態:</strong> v0.1 / <strong>作成日:</strong> 2026-08-04 / <strong>用途:</strong> 各Phase開始時に実行計画書を作成するための依頼プロンプト</p>
+    <p><strong>文書状態:</strong> v0.2 / <strong>作成日:</strong> 2026-08-12 / <strong>用途:</strong> 各Phase開始時に実行計画書を作成するための依頼プロンプト</p>
   </div>
 
+  <section>
+    <h2>実ランタイム起動契約（RDC-PHASE-PLAN-0.2）</h2>
+    <p>この契約は、AI部品の完全名を記載するだけでなく、実際にOrchestratorとAgentを起動し、起動できない場合も事実を隠さず計画作成を継続するためのものです。計画Promptへ必ず埋め込んでください。</p>
+    <ol>
+      <li>ルートAgentは、<code>multi_agent_v1__spawn_agent</code> と <code>multi_agent_v1__wait_agent</code> の利用可否を最初に確認し、指定OrchestratorのJSON path、固定model、Phase／Step、入力・出力境界、Agents、Skillsを渡してCoordinatorを実spawnする。</li>
+      <li>CoordinatorはPromptのAgents欄にある全Agentを一体ずつspawnし、各Agent JSON pathと定義JSONの固定modelをmodel引数へ明示してwaitする。Orchestratorのagents map外の明示Agentも省略しない。</li>
+      <li>受付status、完了status、orchestrator_agent_id、agent_id、JSON path、model、Skills、出力参照、入力hash、成果物／finding hash、<code>independent</code>、<code>review_mode</code>をログへ保存する。</li>
+      <li>spawn／waitが使えない場合は、<code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、<code>LOCAL_FALLBACK_NO_SUBAGENTS</code>、未起動Agent、理由、確認時刻、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を先に記録し、ルートが責務チェックリストで継続する。未起動を独立実行済みと書かない。</li>
+    </ol>
+  </section>
   <section>
     <h2>使い方</h2>
     <p>次のプロンプトの <code>&lt;...&gt;</code> を対象Phaseに合わせて置き換え、Codexへ投入する。作成される実行計画書は <code>plan/</code> 配下に保存し、正式HTML成果物は <code>doc/phaseX/</code> 配下へ保存する。</p>
@@ -37,6 +47,7 @@
 使用オーケストレータ完全名: AutoTradePhasePlanning_Orchestrator_v0_1
 担当サブエージェント完全名: AutoTrade_A05_PhaseExecutionPlanner_v0_1, AutoTrade_A10_RequirementsCurator_v0_1, AutoTrade_A80_DocumentIntegrator_v0_1, AutoTrade_A90_DesignReviewer_v0_1
 使用モデル: gpt-5.6-terra
+モデル割当: Orchestratorはgpt-5.6-terra。Agentは各Agent JSONのmodelを再読し、model引数へ明示する。利用不能時に代替model・代替Agent・default_orchestratorへ置換しない。
 使用Skill完全名: autotrade_skill_phase_execution_planning_v0_1, autotrade_skill_source_reader_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_orchestration_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1, autotrade_skill_red_team_review_v0_1, autotrade_skill_revision_integration_v0_1
 
 発火制御:
@@ -45,6 +56,8 @@
 - Phase専用部品が必要な場合は、汎用部品では不足する理由、利用期限、凍結条件を計画書に明記する。
 - 既存のAutoTradePhase1_* または autotrade_phase1_skill_* は、参照対象として読むだけにする。実行部品として起動しない。
 - default_orchestrator は変更しない。
+- 発火制御にRDC-PHASE-PLAN-0.2を適用し、root→Orchestrator→Agents全件→waitの実起動を要求する。名前の列挙、JSON読込、Skill適用、自己レビューは起動証拠にしない。
+- 子Agentを起動できない場合も、RUNTIME_DISPATCH_FALLBACK_REQUIREDと未起動Agent、理由、agent_id=N/A、independent=false、review_mode=SELF_REVIEW_FALLBACKを先に記録して停止せず継続する。独立実行済みと偽らない。
 
 タスク:
 &lt;Phase X&gt; の実行計画書を作成してください。
@@ -73,6 +86,8 @@
 8. 実行計画書、プロンプト、ログ、台帳は plan/ 配下へ保存するルールを含める。
 9. UnknownをPassにせず、Unknown台帳、決定タイミング、担当ステップを明記する。
 10. Human Gateを必要な位置に置く。
+11. 各StepのPromptへ実ランタイム起動契約、固定model、receipt項目、Fallback、独立性表示、継続条件をそのまま埋め込む。
+12. 起動不能FallbackとHuman Gate／外部I/O停止を混同せず、前者は継続、後者はFail-closedとする。
 
 レビュー:
 - AutoTrade_A90_DesignReviewer_v0_1 が、ステップ粒度、依存関係、発火制御、AI部品指定漏れ、Human Gate漏れ、Unknown扱い、Phaseスコープ逸脱をレビューする。
@@ -87,6 +102,7 @@
 完了条件:
 - 対象Phaseの後続ステップを、実行計画書内のプロンプトだけで開始できること。
 - 各ステップのAI部品完全名が明示されていること。
+- 各ステップがOrchestrator実起動、Agent全件spawn、固定model、wait、完了statusまたはFallback receiptを要求していること。
 - 複数ステップ、レビュー、レビュー反映、Human Gate、doc/index.html更新ルールが含まれていること。</code></pre>
   </section>
 </main>

@@ -25,7 +25,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D03<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.7 / UIモック生成・視覚検証・アクセシビリティ検証Skillを追加<br>
+    <strong>文書状態:</strong> v0.8 / UIモック生成・視覚検証・アクセシビリティ検証Skill、実ランタイム起動契約を反映<br>
     <strong>ステップID:</strong> AF-02<br>
     <strong>作成モード:</strong> 既存汎用Skillを正本とし、RQU-UI-04でUIモック専用Skill 3件を追加。Phase 1専用Skillは参照元としてのみ使用。</p>
   </section>
@@ -45,6 +45,9 @@
       <tr><td>安全制約</td><td>投資助言、売買推奨、特定商品の推奨をしない。UnknownをPassにしない。</td></tr>
     </tbody>
   </table>
+
+  <h2>3.1 実ランタイム起動契約</h2>
+  <p>Phase計画およびAI部品変更に使うSkillは、完全名の列挙や自己適用だけをAgent実行の証拠にしない。直接Promptは <code>multi_agent_v1__spawn_agent</code> と <code>multi_agent_v1__wait_agent</code> を使ったOrchestrator実spawn、Prompt指定Agent全件の個別spawn、Agent JSON固定model、wait完了、receipt保存を要求する。nested runtimeが利用できない場合は <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を記録し、責務チェックリストで継続する。起動不能を独立レビュー済みと表現せず、Human Gate、外部I/O、Secret、UnknownのPass、Critical／HighはFail-closedで扱う。</p>
 
   <h2>3. Skill一覧</h2>
   <table>

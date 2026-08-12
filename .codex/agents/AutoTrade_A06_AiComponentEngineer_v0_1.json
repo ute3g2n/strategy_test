@@ -20,13 +20,42 @@
     "reuse_assessment": "What can be reused as-is, what needs composition, and what must be added or changed.",
     "component_changes": "Created or modified skill, agent, orchestrator, and config updates.",
     "doc_updates": "Updated AI foundation HTML docs, rules, and entry-point links.",
-    "verification_notes": "JSON validity, link integrity, and residual risks."
+    "verification_notes": "JSON validity, link integrity, runtime dispatch receipts, fallback disclosure, and residual risks.",
+    "dispatch_receipt": "Per-agent spawn/accept/wait records or an explicit fallback record with independent=false."
+  },
+  "runtime_dispatch_contract": {
+    "version": "RDC-AI-COMPONENT-0.2",
+    "required_tools": [
+      "multi_agent_v1__spawn_agent",
+      "multi_agent_v1__wait_agent"
+    ],
+    "rules": [
+      "The root executor must spawn AutoTradeComponentLifecycle_Orchestrator_v0_1 before mutation.",
+      "The Coordinator must spawn every explicitly named Agent one by one using the model from that Agent JSON and wait for completion.",
+      "Agents outside the Orchestrator agents map must still be attempted when explicitly named in the prompt.",
+      "If nested spawn/wait is unavailable, record RUNTIME_DISPATCH_FALLBACK_REQUIRED, agent_id=N/A, independent=false, and review_mode=SELF_REVIEW_FALLBACK before continuing.",
+      "Never claim independent execution or review without a matching receipt."
+    ],
+    "receipt_fields": [
+      "runtime_backend",
+      "dispatch_mode",
+      "orchestrator_agent_id",
+      "agent_id",
+      "json_path",
+      "model",
+      "accepted_status",
+      "completion_status",
+      "output_reference",
+      "independent",
+      "review_mode"
+    ]
   },
   "boundaries": [
     "Do not overwrite an existing component name during creation.",
     "Do not change a component that is not explicitly in scope.",
     "Do not skip doc or rule updates after component changes.",
     "Do not create phase-specific components when a generic component is sufficient.",
-    "Do not change default_orchestrator."
+    "Do not change default_orchestrator.",
+    "Do not claim a named Agent ran or independently reviewed without a dispatch receipt."
   ]
 }

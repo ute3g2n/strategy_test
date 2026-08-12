@@ -25,7 +25,7 @@
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D05<br>
     <strong>作成日:</strong> 2026-08-03<br>
-    <strong>文書状態:</strong> v0.8 / UIモック専用オーケストレータを追加<br>
+    <strong>文書状態:</strong> v0.9 / UIモック専用オーケストレータ、実ランタイム起動・Fallback契約を反映<br>
     <strong>対象:</strong> <code>AutoTradeProject_Orchestrator_v0_1</code>, <code>AutoTradePhasePlanning_Orchestrator_v0_1</code>, <code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code>, <code>AutoTradeProject_UiMock_Orchestrator_v0_1</code>, <code>AutoTradeProject_DesignDocSet_Orchestrator_v0_1</code>, <code>AutoTradeProject_ImplementationDesign_Orchestrator_v0_1</code></p>
   </section>
 
@@ -146,6 +146,9 @@
 
   <h2>3.1 モデル割当</h2>
   <p>本書の6つの汎用オーケストレータはすべて <code>gpt-5.6-terra</code> を使用する。サブエージェントのモデルは各Agent JSONの個別定義を正本とし、本オーケストレータの変更によって書き換えない。Phase 1の凍結済み <code>AutoTradePhase1_Orchestrator_v0_1</code> と <code>default_orchestrator</code> は対象外である。</p>
+
+  <h2>4.1 実ランタイム起動契約</h2>
+  <p>Orchestratorは、Promptの完全名を読んだだけではAgentを実行したと扱わない。ルート実行AgentがOrchestratorを <code>multi_agent_v1__spawn_agent</code> で起動し、CoordinatorがPrompt指定の全Agentを個別spawnしてwaitする。各Agent JSONの固定modelをmodel引数へ明示し、orchestrator_agent_id、agent_id、JSON path、model、Skills、受付／完了status、出力参照、独立性、review modeを保存する。nested runtimeが利用できない場合は <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code> と <code>SELF_REVIEW_FALLBACK</code>を開示してルート責務チェックリストへ継続し、未起動を独立レビュー済みと書かない。Gate未承認、外部I/O、Secret、UnknownのPass、Critical／Highは別途停止する。</p>
 
   <h2>4. 管理責務</h2>
   <table>
