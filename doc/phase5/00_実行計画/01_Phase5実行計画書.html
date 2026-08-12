@@ -25,13 +25,13 @@
     <strong>計画ID:</strong> P5-PLAN-001<br>
     <strong>Phase ID:</strong> PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12<br>
     <strong>作成日:</strong> 2026-08-12（Asia/Tokyo）<br>
-    <strong>状態:</strong> P5-07_COMPLETE_GATE_PREP_HUMAN_GATE_REQUIRED<br>
+    <strong>状態:</strong> P5-11_BLOCKED_P5_H2_NOT_APPROVED<br>
     <strong>正本:</strong> <a href="../../../plan/Phase5_実行計画書_v0.1_2026-08-12.md">plan/Phase5_実行計画書_v0.1_2026-08-12.md</a></p>
   </div>
 
   <section class="note">
     <h2>1. この計画の効力</h2>
-    <p>P4-H2はP5の計画入力引渡しだけを承認しており、外部Data取得、Provider、Secret、費用、外部I/Oを承認していない。P5-H1承認範囲で固定local dummyのRED→GREENと正式WSL隔離品質Gateを完了し、P5-07で外部Data Gate申請表と停止条件を固定した。P5-DATA-G1、P5-H2、外部Data、Provider、Secret、費用、Broker、Paper、Live、実資金、実Risk、Cloudは未承認・対象外のまま保持する。</p>
+    <p>P4-H2はP5の計画入力引渡しだけを承認しており、外部Data取得、Provider、Secret、費用、外部I/Oを承認していない。P5-H1承認範囲で固定local dummyのRED→GREENと正式WSL隔離品質Gateを完了し、P5-07で外部Data Gate申請表と停止条件を固定した。P5-08／09はP5-DATA-G1未承認でBLOCKED、P5-10は実証Evidence不足で未開始、P5-11はP5-H2未承認でBLOCKEDである。P5-DATA-G1、P5-H2、外部Data、Provider、Secret、費用、Broker、Paper、Live、実資金、実Risk、Cloudは未承認・対象外のまま保持する。</p>
     <p>初期5候補、4資産種類、D1／H4／H1／M30／M15、Data Quality、Calendar、Cost／Slippage／Gap、長期、Holdout／Walk-forwardを、固定仮定と実測値を分けた再現可能なEvidenceへ整理する。利益性、Broker、Paper、Live、実資金はP5の完了判定に含めない。</p>
   </section>
 
@@ -48,8 +48,8 @@
         <tr><td>P5-07</td><td>外部Data Gate申請と台帳同期</td><td>P5-06解消</td><td>申請表完了・P5-DATA-G1待ち</td></tr>
         <tr><td>P5-DATA-G1</td><td>市場Data Provider専用Gate</td><td>人間の明示承認</td><td>承認前不可</td></tr>
         <tr><td>P5-08〜09</td><td>承認範囲内の限定取得、Quality／Calendar／Cost／Gap／Holdout実証</td><td>P5-DATA-G1</td><td>未承認のためBLOCKED</td></tr>
-        <tr><td>P5-10</td><td>統合レビュー、Unknown再分類、P5-H2候補</td><td>P5-08〜09</td><td>不可</td></tr>
-        <tr><td>P5-H2→P5-11</td><td>完了承認、完了記録、P6引渡し</td><td>人間の明示承認</td><td>不可</td></tr>
+        <tr><td>P5-10</td><td>統合レビュー、Unknown再分類、P5-H2候補</td><td>P5-08〜09</td><td>未開始（Evidence不足）</td></tr>
+        <tr><td>P5-H2→P5-11</td><td>完了承認、完了記録、P6引渡し</td><td>人間の明示承認</td><td>P5-H2未承認のためBLOCKED</td></tr>
       </tbody>
     </table>
   </section>

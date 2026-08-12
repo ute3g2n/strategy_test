@@ -4,7 +4,7 @@
 - Phase ID: `PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12`
 - 対象Phase: Phase 5 市場データ運用化と実証
 - 作成日: 2026-08-12（Asia/Tokyo）
-- 状態: `P5-07_COMPLETE_GATE_PREP_HUMAN_GATE_REQUIRED`
+- 状態: `P5-11_BLOCKED_P5_H2_NOT_APPROVED`
 - 前Phase: Phase 4 Product/Application・Backtest（`P4-PLAN-001`）
 - 前Phase承認: `P4-H2=APPROVED`。P4-H2はPhase 5の実装、外部Data取得、Secret投入、外部I/Oを承認しない。
 - 計画作成標準: `AutoTradePhasePlanning_Orchestrator_v0_1`、`AutoTrade_A05_PhaseExecutionPlanner_v0_1`、`autotrade_skill_phase_execution_planning_v0_1`
@@ -103,7 +103,7 @@ Phase 5は、P4で作成したProduct/ApplicationのData接続点を引き継ぎ
 | P5-08 | 承認範囲内の限定Data取得・Raw／Normalized Evidence | P5-DATA-G1 | `BLOCKED` | 不可 | P5-DATA-G1未承認、`P5-EXTERNAL-WORKER-UNKNOWN`。外部I/O／Secret／費用／Data取得なし |
 | P5-09 | Quality／Calendar／Cost／Gap／期間分割／Holdout実証 | P5-08 | `BLOCKED` | 不可 | P5-DATA-G1未承認、P5-08 Evidenceなし。実証・実測・Holdout操作なし |
 | P5-10 | 統合・独立レビュー、Unknown再分類、P5-H2候補 | P5-06、P5-09 | `NOT_STARTED` | 不可 | P5-08／09 Evidenceなし。UnknownをPassにせず、P5-H2候補を作成しない |
-| P5-H2 | P5完了・P6引渡し承認 | P5-10 | 人間承認 | 不可 | 承認記録 |
+| P5-H2 | P5完了・P6引渡し承認 | P5-10 | `HUMAN_GATE_REQUIRED` | 不可 | P5-10候補と実証Evidenceがなく、承認対象未成立 |
 | P5-11 | 完了記録、台帳同期、P6入力引渡し | P5-H2 | `BLOCKED` | 不可 | P5-H2未承認、P5-10候補なし。完了HTML・P6入力・完了宣言なし |
 
 P5-01とP5-02はP5-01完了後にP5-02を開始する。P5-03、P5-04はP5-02の契約骨子を前提に逐次実行する。P5-05でレビューを閉じるまでP5-H1へ進まない。P5-08／09はP5-DATA-G1承認後だけ発火する。P5-10は実証Evidenceが不足している場合、UnknownをPassにせずP5-H2候補を作らない。
