@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>P5-05 Phase5詳細設計レビュー・改訂記録</title></head>
+<body><main>
+<p><a href="../../index.html">doc/index.html</a> ／ <a href="../00_実行計画/01_Phase5実行計画書.html">Phase5計画</a> ／ <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
+<h1>P5-05 詳細設計レビュー・改訂記録</h1>
+<section class="box"><strong>成果物ID:</strong> P5-ART-05-INTEGRATED-REVIEW-001<br><strong>Phase / Step:</strong> PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12 / P5-05<br><strong>状態:</strong> P5-05_COMPLETE_WITH_LOCAL_FALLBACK_SELF_REVIEW<br><strong>境界:</strong> 設計書・レビュー・ログ・導線のみ。外部I/O=0、Secret=0、依存追加=0、実装=0、実Run=0、Core/P4 DB/fixture/Application/UI/repository/migration変更=0。P5-H0=APPROVED、P5-H1/P5-DATA-G1/P5-H2=未承認。</section>
+<section class="box stop"><h2>Findings first（再レビュー後）</h2><table><thead><tr><th>ID</th><th>重要度</th><th>判定</th><th>確認・改訂結果</th></tr></thead><tbody>
+<tr><td>P5-05-F-001</td><td>Medium</td><td>CLOSED</td><td>実装詳細の型付きI/O、immutable Raw、version/hash、相対path、fail-closed、Run Manifest、正常/失敗/再試行と全テストをP5-02〜04で横断確認した。未定義値はUNKNOWN/HUMAN_GATE_REQUIREDで停止する。</td></tr>
+<tr><td>P5-05-F-002</td><td>Medium</td><td>CLOSED</td><td>Cost/Slippage/Gapの固定仮定と実測Evidence、Calendar/DST/Roll、look-ahead/survivorship、holdout再利用を混同しないことを確認。実測・実市場の主張はP5-DATA-G1後のEvidenceまで禁止する。</td></tr>
+<tr><td>P5-05-F-003</td><td>Medium</td><td>CLOSED</td><td>A70観点でSecret値・endpoint・Provider SDK・外部通信を文書/ログへ含めず、相対path/hashとhost outbound isolation未確認時BLOCKEDを固定した。</td></tr>
+<tr><td>P5-05-F-004</td><td>Medium</td><td>RECORDED</td><td>child runtimeが公開されていない。指定6 Agentは未起動であり、独立実行・独立レビューを主張しない。下記receiptのSELF_REVIEW_FALLBACKで代替した。</td></tr>
+</tbody></table><p><strong>再レビュー判定:</strong> Critical=0、High=0。Mediumは上記の設計上の閉鎖/記録済み事項のみ。未解決Critical/High=0。</p></section>
+<section><h2>統合対象・採否表</h2><table><thead><tr><th>ART</th><th>対象</th><th>レビュー結果</th><th>採否</th></tr></thead><tbody>
+<tr><td>P5-ART-02-DATA-CONTRACT-001</td><td><a href="../02_データ詳細設計/02_Data_Catalog_Provider_DataContract詳細設計書.html">P5-02 Catalog/Provider/Data contract</a></td><td>Catalog、DataRequest、Provider/Secret境界、PathHashContract、REQ/DEC/UNK/ART、Gateを確認。</td><td>採用</td></tr>
+<tr><td>P5-ART-03-DATA-OPERATIONS-001</td><td><a href="../02_データ詳細設計/03_Data_Raw_Normalized_Quality_Calendar_Provenance詳細設計書.html">P5-03 Raw/Normalized/Quality/Calendar/Provenance</a></td><td>不変Raw、変換版、Quality stop、DST/Roll、provenance、再生成を確認。</td><td>採用</td></tr>
+<tr><td>P5-ART-04-QUALITY-COST-HOLDOUT-001</td><td><a href="../03_品質設計/04_Phase5_DataQuality_Cost_Holdout_Test_RunManifest設計.html">P5-04 Quality/Cost/Holdout/Test/Run Manifest</a></td><td>ASSUMPTION/MEASURED分離、holdout再利用拒否、RED、manifest/hash、host isolation停止を確認。</td><td>採用</td></tr>
+</tbody></table></section>
+<section><h2>A91/A90/A70 観点の再レビュー</h2><table><thead><tr><th>観点</th><th>結果</th><th>停止条件</th></tr></thead><tbody>
+<tr><td>A91 実装詳細</td><td>予定モジュール、型付き参照、永続化境界、処理順、例外・retry・fail-closed、擬似コード、Config/Secret/観測、Run Manifest、TEST-P5-DATA-IDが相互追跡できる。</td><td>hash/version/path/schema/timezone/unit/Calendar/Roll/Quality/manifestの不一致は停止。</td></tr>
+<tr><td>A90 横断/Red Team</td><td>P4 syntheticを実市場へ一般化しない。look-ahead、survivorship、future、holdout再利用、Cost/Gap実測偽装を拒否する。対象外は別表へ隔離した。</td><td>Unknown、Evidence不足、未承認Gate、Critical/HighはPassにしない。</td></tr>
+<tr><td>A70 Ops/Security</td><td>Secretは参照ID・mask・expiry・監査だけを将来契約化し、絶対/UNC/parent pathを拒否。host outbound isolation=UNKNOWNならtest subprocess/EvidenceをBLOCKEDとする。</td><td>外部通信、Provider、endpoint、Secret参照、費用、取得RunnerはP5-DATA-G1前に禁止。</td></tr>
+</tbody></table></section>
+<section><h2>REQ / DEC / UNK / ART 追跡</h2><table><thead><tr><th>分類</th><th>ID</th><th>P5-05での扱い</th></tr></thead><tbody>
+<tr><td>REQ</td><td>REQ-V2-0027〜0032 / P5-TR-002〜004</td><td>Catalog、品質、Calendar、Manifest、外部境界、Cost/Holdout Testへ接続済み。実市場証明には使わない。</td></tr>
+<tr><td>DEC</td><td>immutable Raw、versioned Normalized、relative path+hash、fail-closed、ASSUMPTION/MEASURED分離</td><td>P5-02〜04を採用。P5-06以降は承認済みscope内でのみ検証する。</td></tr>
+<tr><td>UNK</td><td>UNK-P3-01 / UNK-P3-05 / UNK-P3-07 / UNK-P4-04D-004 / P5-EXTERNAL-WORKER-UNKNOWN</td><td>OPEN / NOT PASS。実Data、Cost、Calendar、host isolation、取得Runnerは未確定のまま台帳へ保持。</td></tr>
+<tr><td>ART</td><td>P5-ART-02/03/04/05</td><td>各正式HTML、P5-02〜05ログ、計画、index、統合台帳で相互リンクする。</td></tr>
+</tbody></table></section>
+<section class="box"><h2>P5-H1 承認候補（承認済みではない）</h2><p><strong>状態:</strong> HUMAN_GATE_REQUIRED / WAITING。これは運用者が判断する候補表であり、P5-H1の承認、P5-06開始、外部Data取得を意味しない。</p><table><thead><tr><th>確認項目</th><th>候補の固定条件</th></tr></thead><tbody>
+<tr><td>対象path / trusted scope</td><td>将来の承認済みRun IDと<code>scripts/quality_gate/trusted_scopes.json</code>登録済みtarget_pathsだけ。scope_mode=target_only。</td></tr>
+<tr><td>fixed local dummy / RED</td><td>固定local dummyのみ。TEST-P5-DATA-* のREDを先行させ、外部値・実市場値・Provider SDKを持ち込まない。</td></tr>
+<tr><td>Run Manifest / fixture hash</td><td>contract/calendar/cost/split/fixture hash、相対Evidence path、DataVersion、as-of、停止理由をManifestに固定し、一致しなければfail-closed。</td></tr>
+<tr><td>host isolation / 外部I/O</td><td>host outbound isolation=VERIFIEDがEvidenceで確認できること。外部I/O=0、Secret=0、endpoint=0。UNKNOWNならBLOCKED。</td></tr>
+<tr><td>除外範囲</td><td>Provider、外部Data、費用、Secret、Broker、Paper、Live、実資金、実Risk、Cloud、P4 DB/Core/migrationは含まない。</td></tr>
+</tbody></table><p>P5-DATA-G1およびP5-H2は未承認のまま。P5-H1はP5-DATA-G1の代替承認ではない。</p></section>
+<section><h2>対象外固定表</h2><table><thead><tr><th>対象外</th><th>理由・再開Gate</th></tr></thead><tbody><tr><td>Broker / Paper / Live / 実資金 / 実Risk</td><td>P5対象外。別Phase・別Gate・別Evidence。</td></tr><tr><td>Provider / 外部Data / Secret / 費用 / endpoint / 外部I/O</td><td>P5-DATA-G1の人間承認まで禁止。</td></tr><tr><td>Cloud / 実Run / 依存追加 / 実装 / Core / P4 DB / fixture / Application / UI / repository / migration</td><td>P5-05の発火範囲外。変更しない。</td></tr></tbody></table></section>
+<section><h2>Runtime receipt と改訂履歴</h2><p><strong>Root receipt:</strong> この環境のroot Orchestrator実spawn/wait証跡は本Coordinatorに提供されていないため <code>agent_id=N/A</code>、<code>output_ref=N/A</code>。rootの実receiptを推測・偽造しない。</p><table><thead><tr><th>順序</th><th>child</th><th>model</th><th>spawn/wait</th><th>receipt</th></tr></thead><tbody>
+<tr><td>1</td><td>AutoTrade_A80_DocumentIntegrator_v0_1</td><td>gpt-5.1</td><td>UNAVAILABLE / UNAVAILABLE</td><td>agent_id=N/A; independent=false; SELF_REVIEW_FALLBACK</td></tr>
+<tr><td>2</td><td>AutoTrade_A81_DesignDocSetWriter_v0_1</td><td>gpt-5.6-luna</td><td>UNAVAILABLE / UNAVAILABLE</td><td>agent_id=N/A; independent=false; SELF_REVIEW_FALLBACK</td></tr>
+<tr><td>3</td><td>AutoTrade_A82_ImplementationDetailDesigner_v0_1</td><td>gpt-5.6-luna</td><td>UNAVAILABLE / UNAVAILABLE</td><td>agent_id=N/A; independent=false; SELF_REVIEW_FALLBACK</td></tr>
+<tr><td>4</td><td>AutoTrade_A90_DesignReviewer_v0_1</td><td>gpt-5.6-luna</td><td>UNAVAILABLE / UNAVAILABLE</td><td>agent_id=N/A; independent=false; SELF_REVIEW_FALLBACK</td></tr>
+<tr><td>5</td><td>AutoTrade_A91_ImplementationDetailReviewer_v0_1</td><td>gpt-5.6-luna</td><td>UNAVAILABLE / UNAVAILABLE</td><td>agent_id=N/A; independent=false; SELF_REVIEW_FALLBACK</td></tr>
+<tr><td>6</td><td>AutoTrade_A70_OpsSecurityArchitect_v0_1</td><td>gpt-5.6-luna</td><td>UNAVAILABLE / UNAVAILABLE</td><td>agent_id=N/A; independent=false; SELF_REVIEW_FALLBACK</td></tr>
+</tbody></table><p>fallback理由: <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED; LOCAL_FALLBACK_NO_SUBAGENTS</code>。multi_agent_v1__spawn_agent / wait_agent が本環境に公開されず、JSON/Skill読込や自己レビューをspawn証拠とは扱わない。</p><p>改訂: 2026-08-12にP5-02〜04を統合し、Critical/Highの未解決なしを再確認。正式HTML/ログのP5-05導線、index、計画、統合台帳を同期した。</p></section>
+<p><a href="../../../plan/phase5/ログ/P5-05_Phase5詳細設計レビュー・改訂記録_2026-08-12.md">P5-05実行ログ</a></p>
+</main></body></html>
