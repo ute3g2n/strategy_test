@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>P5-03 Raw・Normalized・Quality・Calendar・Provenance 詳細設計書</title>
+<style>body{font-family:"Segoe UI","Yu Gothic",sans-serif;line-height:1.7;margin:28px auto;max-width:1260px;color:#172033;background:#f8fafc}main{background:#fff;border:1px solid #d9e2ec;padding:28px}h1{border-bottom:3px solid #1f2937;padding-bottom:10px}h2{border-bottom:1px solid #cbd5e1;margin-top:32px;padding-bottom:6px}a{color:#0f5db8}table{border-collapse:collapse;width:100%;margin:14px 0;font-size:.91rem}th,td{border:1px solid #cbd5e1;padding:8px;vertical-align:top}th{background:#eef2f7;text-align:left}pre{background:#0f172a;color:#e5e7eb;padding:14px;overflow:auto;white-space:pre-wrap}.box{border-left:4px solid #2563eb;background:#eff6ff;padding:12px;margin:16px 0}.stop{border-left-color:#dc2626;background:#fef2f2}.ok{border-left-color:#059669;background:#ecfdf5}.warn{border-left-color:#b45309;background:#fffbeb}.badge{border-radius:999px;padding:2px 8px;font-weight:bold;background:#d1fae5;color:#065f46}</style></head><body><main>
+<p><a href="../../index.html">doc/index.html</a> ／ <a href="02_Data_Catalog_Provider_DataContract詳細設計書.html">P5-02</a> ／ <a href="../00_実行計画/01_Phase5実行計画書.html">Phase5計画</a> ／ <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
+<h1>P5-03 Raw・Normalized・Quality・Calendar・Provenance 詳細設計書</h1>
+<section class="box"><strong>成果物ID:</strong> P5-ART-03-DATA-OPERATIONS-001<br><strong>Phase / Step:</strong> PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12 / P5-03 ／ <strong>Plan:</strong> P5-PLAN-001 ／ 2026-08-12 Asia/Tokyo<br><strong>状態:</strong> <span class="badge">P5-03_COMPLETE_WITH_LOCAL_FALLBACK_SELF_REVIEW</span><br><strong>範囲:</strong> design/read/HTML/logのみ。DB、migration、repository、fixture、Application、UI、依存、real Run、external I/O、Provider、Secret、external Data、cost、Core変更は0件。P5-H0=APPROVED、P5-02完了。P5-H1/P5-DATA-G1/P5-H2は未承認。</section>
+<section class="box stop"><h2>Findings first</h2><table><tr><th>ID</th><th>状態</th><th>内容・処置</th></tr><tr><td>P5-03-F-001</td><td>Medium / RECORDED</td><td>child spawn/wait runtimeは利用不能。A10,A20,A30,A40,A50,A70,A80,A82,A90,A91は未起動で、完全receiptをログに記録。独立実行/独立レビューを主張しない。</td></tr><tr><td>P5-03-F-002</td><td>High / CLOSED</td><td>Rawはcontent hash付きimmutable object、Normalizedは入力hash・変換版付き別object。P4 metadata DBはData bodyを保存しない。</td></tr><tr><td>P5-03-F-003</td><td>High / CLOSED</td><td>実市場値、Calendar、Roll、unit、DSTを推測しない。EvidenceなしはHUMAN_GATE_REQUIREDまたはQUALITY_STOP。</td></tr></table><strong>判定:</strong> Critical=0、High=0。local fallback self-reviewであり、A90/A91独立レビューではない。</section>
+<section><h2>0. 詳細設計カバレッジ（DD-01〜DD-12）</h2><table><tr><th>項目</th><th>章</th><th>判定</th></tr><tr><td>DD-01 境界</td><td>1,9,14</td><td>設計のみ、外部取得/実装なし。</td></tr><tr><td>DD-02/03 モジュール/単位</td><td>2,3</td><td>予定ツリーと責務。</td></tr><tr><td>DD-04 型付きI/O</td><td>4</td><td>vendor型/本文/Secretは境界外。</td></tr><tr><td>DD-05 永続化</td><td>5</td><td>相対path、object hash、metadata分離。</td></tr><tr><td>DD-06/07 順序・擬似コード</td><td>6,7,8</td><td>fail-closed。</td></tr><tr><td>DD-08 Secret/観測</td><td>9</td><td>参照とhashのみ。</td></tr><tr><td>DD-09 テスト</td><td>10</td><td>固定local全17ケース。</td></tr><tr><td>DD-10 Run互換</td><td>5,11</td><td>P5-08/09入力・停止。</td></tr><tr><td>DD-11/12 追跡/レビュー</td><td>12,13</td><td>Unknown/fallbackを明示。</td></tr></table></section>
+<section><h2>1. 目的・境界</h2><p>P5-02のDataRequest、CatalogVersionRef、CalendarVersionRef、PathHashContractを入力に、将来受信するRaw objectを不変に保持し、検証可能なNormalized objectとQuality reportを生成する詳細設計である。P5-03自身は受信・保存・変換を実行しない。</p><div class="box warn">実Symbol、Provider、取引日、holiday、short session、DST、Roll、単位、時刻意味、保管期限、再配布権、実データ値はP5-DATA-G1とEvidenceなしに確定しない。</div></section>
+<section><h2>2. 予定モジュールツリー</h2><pre>src/autotrade/market_data/                 # 将来予定。P5-03では作成しない
+  raw_retention_contract.py                # Raw封印、content/source/request hash
+  normalization_contract.py                # schema/timezone/unit正規化
+  calendar_classification_contract.py      # DST/holiday/short-session/Roll分類
+  quality_gate_contract.py                 # 欠損〜survivorship fail-closed
+  provenance_manifest_contract.py          # Catalog/Calendar/Manifest/Provenance link
+  storage_path_contract.py                 # 相対path・再生成・immutability
+tests/phase5/test_p5_data_operations.py    # fixed local dummy専用（予定）</pre><table><tr><th>モジュール</th><th>責務</th><th>禁止</th></tr><tr><td>RawRetention</td><td>バイト列をcontent hashで封印しrequest/source hashと相対pathを記録。</td><td>上書き、本文のP4 DB格納、absolute/UNC path。</td></tr><tr><td>Normalizer</td><td>明示schema/timestamp/timezone/unitを版付きで変換。</td><td>欠損、単位、時刻の推測。</td></tr><tr><td>CalendarClassifier</td><td>Calendar/Roll versionに基づく分類。</td><td>DST/休日/短縮取引の推定。</td></tr><tr><td>QualityGate</td><td>検査結果と停止をimmutable report化。</td><td>warningをPassへ昇格、look-ahead/survivorship黙認。</td></tr></table></section>
+<section><h2>3. 構造と受渡し</h2><pre class="mermaid">flowchart LR
+  req["P5-02 DataRequest / request_hash"] --> raw["RawRetention / immutable RawObject"]
+  raw --> norm["Normalizer / NormalizedObject"]
+  catalog["CatalogVersionRef"] --> norm
+  calendar["Calendar/Roll VersionRef"] --> cls["CalendarClassifier"]
+  norm --> cls --> quality["QualityGate / QualityReport"]
+  raw --> prov["Provenance/Manifest links"]
+  norm --> prov
+  quality --> prov --> evidence["P5-08/09 evidence input"]
+  quality -. "QUALITY_STOP" .-> stop["No usable manifest / no replay"]
+  unknown["unknown/mismatch"] -. "fail closed" .-> stop</pre><table><tr><th>送信元→先</th><th>型</th><th>条件</th></tr><tr><td>DataRequest→RawRetention</td><td>ApprovedDataRequest</td><td>P5-DATA-G1承認まで実行不可。P5-03では型のみ。</td></tr><tr><td>Raw→Normalizer</td><td>RawDatasetRef</td><td>content/source/request hash、schema、相対pathが一致。</td></tr><tr><td>Normalizer→Quality</td><td>NormalizedDatasetRef</td><td>timestamp/timezone/unit変換版固定、変換エラー0。</td></tr><tr><td>Calendar→Quality</td><td>CalendarClassificationRef</td><td>Calendar/Roll hash一致、UNKNOWN分類は停止。</td></tr><tr><td>Quality→Manifest</td><td>QualityReportRef</td><td>PASSのみ。WARN/FAIL/UNKNOWNはusable=false。</td></tr></table></section>
+<section><h2>4. 型付き入出力契約</h2><pre>type Sha256 = string  // lowercase hex、空値不可
+type RelativeObjectPath = string // object root相対。absolute/UNC/..不可
+type VersionRef = { id: string; version: string; content_hash: Sha256 }
+type RawDatasetRef = { dataset_id: string; object_path: RelativeObjectPath; content_hash: Sha256;
+  source_hash: Sha256; request_hash: Sha256; received_at_utc: string; source_schema_ref: VersionRef;
+  catalog_ref: VersionRef; calendar_ref: VersionRef; manifest_ref: VersionRef; provenance_ref: VersionRef }
+type NormalizedDatasetRef = { dataset_id: string; object_path: RelativeObjectPath; content_hash: Sha256;
+  raw_content_hash: Sha256; transform_spec_ref: VersionRef; timestamp_policy_ref: VersionRef;
+  timezone_policy_ref: VersionRef; unit_policy_ref: VersionRef; catalog_ref: VersionRef;
+  calendar_ref: VersionRef; roll_ref: VersionRef; provenance_ref: VersionRef }
+type QualityReport = { report_id: string; normalized_content_hash: Sha256; rule_set_ref: VersionRef;
+  outcomes: QualityOutcome[]; usable: boolean; stop_decision?: StopDecisionRef }
+type QualityOutcome = { rule_id: string; status: "PASS"|"FAIL"|"UNKNOWN"; evidence_hash: Sha256; detail_ref: string }</pre><p>timestampはRFC3339 UTC instantと元timezone ID、offset、意味（event/open/close/received）を分離保持。UTC化不能、曖昧/不存在DST時刻、timezone IDまたはunit未指定は拒否する。</p></section>
+<section><h2>5. 永続化・不変性・再生成</h2><table><tr><th>領域</th><th>正本（将来相対root）</th><th>規則</th></tr><tr><td>Raw object</td><td><code>objects/raw/{source_hash}/{content_hash}</code></td><td>同一hashの冪等参照のみ。更新・変換混在なし。</td></tr><tr><td>Normalized object</td><td><code>objects/normalized/{raw_hash}/{transform_hash}/{content_hash}</code></td><td>Raw+spec一致だけ再生成。上書きなし。</td></tr><tr><td>Quality report</td><td><code>objects/quality/{normalized_hash}/{ruleset_hash}/{report_hash}</code></td><td>同一入力の冪等参照。PASS注入なし。</td></tr><tr><td>Metadata/manifest</td><td>relative path/hash/VersionRef/decision/evidence refだけ。</td><td>P4 metadata DBへのRaw/Normalized本文は禁止。</td></tr></table><p>再生成キー: <code>(raw hash, transform hash, catalog hash, calendar hash, roll hash, timestamp/timezone/unit policy hash)</code>。一つでも違えば新objectを生成し既存を再利用しない。ManifestはRaw/Normalized/Quality/Catalog/Calendar/Roll/Provenance/request/source/content hashを同時固定する。</p></section>
+<section><h2>6. 正常・失敗フロー</h2><pre class="mermaid">sequenceDiagram
+  participant R as RawRetention
+  participant N as Normalizer
+  participant C as CalendarClassifier
+  participant Q as QualityGate
+  participant M as Manifest
+  R->>R: validate path and hashes
+  R->>N: RawDatasetRef
+  N->>N: validate schema/timestamp/timezone/unit
+  N->>C: NormalizedDatasetRef
+  C->>Q: classification with version hashes
+  Q->>Q: evaluate all rules
+  alt all PASS
+    Q->>M: QualityReport usable=true
+  else FAIL or UNKNOWN
+    Q-->>M: StopDecision; usable=false
+  end</pre><p>停止順序: path/hash/version不一致→即時拒否、schema/timezone/unit不明→正規化停止、Calendar/Roll不明→分類停止、Quality FAIL/UNKNOWN→manifest利用停止。停止時もhash、rule ID、reason refだけを記録し本文/Secret/実値をログへ出さない。</p></section>
+<section><h2>7. Quality規則とfail-closed</h2><table><tr><th>規則</th><th>検査</th><th>停止コード</th></tr><tr><td>missing</td><td>Calendarが期待する観測窓に欠損。</td><td>Q_MISSING_DATA</td></tr><tr><td>duplicate</td><td>同一instrument/timeframe/timestamp/sequenceの複数件。</td><td>Q_DUPLICATE_DATA</td></tr><tr><td>reversal</td><td>順序キー/source revision後退、訂正証拠なし。</td><td>Q_REVERSAL_UNPROVEN</td></tr><tr><td>outlier</td><td>承認済みrule外またはunit整合不可。</td><td>Q_OUTLIER_OR_UNIT_UNKNOWN</td></tr><tr><td>future</td><td>as-ofより後のevent/received/revision。</td><td>Q_FUTURE_DATA</td></tr><tr><td>look-ahead</td><td>評価時点後のCalendar/Roll/revision/transform参照。</td><td>Q_LOOK_AHEAD</td></tr><tr><td>survivorship</td><td>対象集合as-of版/除外理由/Catalog履歴なし。</td><td>Q_SURVIVORSHIP_UNKNOWN</td></tr><tr><td>DST/holiday/short session/Roll</td><td>分類未決/version不一致/重複local時刻/期待窓不明。</td><td>Q_CALENDAR_CLASSIFICATION_UNKNOWN</td></tr></table></section>
+<section><h2>8. 擬似コード</h2><pre>function build_normalized(raw, contract, versions):
+  require_relative_path(raw.object_path)
+  require_hashes_match(raw, contract)
+  require_all_version_hashes(raw, versions)
+  require(contract.gate == "P5-DATA-G1_APPROVED")  # P5-08だけ
+  records = decode_exactly(raw, raw.source_schema_ref)
+  normalized = []
+  for record in records:
+    instant = parse_timestamp(record, contract.timestamp_policy_ref)
+    require_unambiguous_timezone(instant, contract.timezone_policy_ref)
+    require_declared_unit(record, contract.unit_policy_ref)
+    normalized.append(transform(record, contract.transform_spec_ref))
+  normalized_ref = write_new_object_only(normalized, regeneration_key(...))
+  classification = classify(normalized_ref, versions.calendar, versions.roll)
+  report = evaluate_all_rules(normalized_ref, classification, contract.quality_rules_ref)
+  if any(report.status in ["FAIL", "UNKNOWN"]): return stop(report)
+  return freeze_manifest(raw, normalized_ref, classification, report)</pre></section>
+<section><h2>9. Secret・観測</h2><p>credential、endpoint、Provider SDK型、Data本文はP5-03の入力型に置かない。必要な場合もP5-02のmask/expiry付きSecretReferenceとP5-DATA-G1を参照するだけで、値を読み書き・ログ・Evidence化しない。観測はobject hash、VersionRef、rule ID、stop code、相対path、生成時刻だけ。</p></section>
+<section><h2>10. 完全テストケース（予定）</h2><table><tr><th>ID</th><th>固定入力/操作</th><th>期待結果・Evidence</th></tr><tr><td>TEST-P5-03-RAW-001</td><td>同一Raw bytesを二回登録。</td><td>同一content hash/ref、重複本文なし。</td></tr><tr><td>RAW-002</td><td>absolute/UNC/parent path。</td><td>PATH_NOT_RELATIVE。</td></tr><tr><td>HASH-001</td><td>source/request/content hash不一致。</td><td>HASH_MISMATCH、下流なし。</td></tr><tr><td>NORM-001</td><td>同一Raw/spec/version二回変換。</td><td>同一Normalized ref、冪等。</td></tr><tr><td>NORM-002</td><td>schema versionなし。</td><td>SCHEMA_UNKNOWN。</td></tr><tr><td>TIME-001</td><td>timezone IDなし。</td><td>TIMEZONE_UNKNOWN。</td></tr><tr><td>TIME-002</td><td>DST曖昧/不存在local時刻。</td><td>DST_AMBIGUOUS_OR_NONEXISTENT。</td></tr><tr><td>UNIT-001</td><td>unit policyなし/変換不能。</td><td>UNIT_UNKNOWN。</td></tr><tr><td>CALENDAR-001</td><td>holiday/short session/DST/Roll hash不一致。</td><td>Q_CALENDAR_CLASSIFICATION_UNKNOWN。</td></tr><tr><td>QUALITY-001</td><td>missing。</td><td>Q_MISSING_DATA、usable=false。</td></tr><tr><td>QUALITY-002</td><td>duplicate。</td><td>Q_DUPLICATE_DATA、usable=false。</td></tr><tr><td>QUALITY-003</td><td>reversal/outlier。</td><td>該当stop、evidence hash。</td></tr><tr><td>QUALITY-004</td><td>future/look-ahead/survivorship。</td><td>各stop、manifest利用不可。</td></tr><tr><td>MANIFEST-001</td><td>Catalog/Calendar/Roll/Provenance hash差替え。</td><td>MANIFEST_VERSION_MISMATCH。</td></tr><tr><td>REGEN-001</td><td>transform hashのみ変更。</td><td>別Normalized object、Raw不変。</td></tr><tr><td>DB-001</td><td>metadata sinkへData本文。</td><td>DATA_BODY_FORBIDDEN_IN_METADATA_DB。</td></tr><tr><td>GATE-001</td><td>P5-DATA-G1未承認。</td><td>HUMAN_GATE_REQUIRED、I/O=0。</td></tr></table></section>
+<section><h2>11. P5-08 / P5-09への入力</h2><table><tr><th>Step</th><th>必須入力</th><th>開始拒否</th></tr><tr><td>P5-08</td><td>P5-DATA-G1承認、ApprovedDataRequest、固定Runner/command/target scope、Raw path/hash、Catalog/Calendar/Manifest/Provenance versions、Evidence root。</td><td>Runner、承認、相対path、全hash、host isolationの一つでも不明。</td></tr><tr><td>P5-09</td><td>P5-08 Raw/Normalized/Quality evidence、Calendar/Roll分類、as-of boundary、Quality rule set、Manifest hash。</td><td>QualityがPASS以外、future/look-ahead/survivorship未検査、Calendar/Roll不明。</td></tr></table></section>
+<section><h2>12. 追跡・Unknown</h2><p>REQ-V2-0027/0028（時間足/Calendar）、REQ-V2-0029（Raw/Normalized/Quality分離）、REQ-V2-0030（Manifest）、REQ-V2-0032（品質停止）をP5-TR-002〜004へ接続する。P5-EXTERNAL-WORKER-UNKNOWN、Provider/契約/費用/Secret、正式Calendar、実Roll、長期市場品質は統合台帳でWAITINGのまま。</p></section>
+<section class="box ok"><h2>13. レビュー・完了</h2><p>自己レビューで型、境界、保存、失敗順序、全検査、P5-08/09入力、P4 metadata DB本文禁止、external I/O=0を照合した。独立Agent/A90/A91レビューは未実施。P5-04は本書のQuality/Calendar/Manifest停止契約を入力にする。</p><p>履歴: 2026-08-12 P5-03 v0.1作成。</p></section>
+<p><a href="../../../plan/phase5/ログ/P5-03_Raw_Normalized_Quality_Calendar_Provenance詳細設計_2026-08-12.md">P5-03実行ログ</a></p></main><script src="../../assets/mermaid.min.js"></script><script src="../../assets/mermaid-init.js"></script></body></html>
