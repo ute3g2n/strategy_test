@@ -11,7 +11,7 @@
 
 | ID | 重大度 | 状態 | 内容・処置 |
 |---|---|---|---|
-| P5-09-F-001 | Medium | STOP / OPEN | P5-DATA-G1が未承認。実測Data、Calendar、Cost、Gap、期間分割、Holdoutを実行・推定しない。 |
+| P5-09-F-001 | Medium | STOP / OPEN | P5-DATA-G1の範囲は承認済みだが、P5-08の実測Data／Raw／Normalized Evidenceがなく、Calendar、Cost、Gap、期間分割、Holdoutを実行・推定しない。 |
 | P5-09-F-002 | Medium | STOP / OPEN | P5-08がBLOCKEDでRaw／Normalized／Manifest／provenance Evidenceがない。Quality実証を開始しない。 |
 | P5-09-F-003 | Medium | RECORDED | Coordinator spawnは`collab spawn failed: agent thread limit reached`で失敗。childは未起動としてreceiptへ記録した。 |
 | P5-09-F-004 | Medium | CLOSED | 外部I/O、Provider、Secret、費用、実Data、Quality実証、Holdout操作は0件。UnknownをPassにしていない。 |
@@ -20,7 +20,7 @@ Critical=0、High=0。ただしこれはP5-09のPASSではなく、上流Gate未
 
 ## 発火制御
 
-- P5-DATA-G1=APPROVED、P5-08完了、trusted scope、host isolation、Run Manifest、Data／Calendar hashの全条件を満たしていない。
+- P5-DATA-G1=APPROVEDの承認Evidenceは存在するが、P5-08完了、trusted scope、host isolation、Run Manifest、Data／Calendar hashの全条件を満たしていない。
 - P5-04のQuality／Cost／Holdout設計は入力設計として保持するが、実測値・実Data Evidenceへ一般化しない。
 - Cost／Slippage／GapはASSUMPTIONのまま。MEASUREDへ置換していない。
 - Broker、Paper、Live、実資金、実Risk、Cloud、Core、P4 DB、migration、repositoryは対象外で、変更・実行していない。

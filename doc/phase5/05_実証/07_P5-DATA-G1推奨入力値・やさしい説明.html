@@ -23,8 +23,8 @@
     <strong>成果物ID:</strong> P5-ART-07-DATA-G1-RECOMMENDATION-001<br>
     <strong>Phase / Step:</strong> PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12 / P5-07<br>
     <strong>作成日:</strong> 2026-08-12（Asia/Tokyo）<br>
-    <strong>文書状態:</strong> <span class="badge proposal">PROPOSAL_NOT_APPROVAL</span><br>
-    <strong>一番大切な注意:</strong> これは、P5-DATA-G1の申請表を埋めるための「推奨案」である。P5-DATA-G1の承認記録、Provider契約、Secret、実在Runner、実Data取得、費用発生を意味しない。外部I/Oは0件である。
+    <strong>文書状態:</strong> <span class="badge done">APPLIED_TO_P5_DATA_G1_EXECUTION_BLOCKED</span><br>
+    <strong>一番大切な注意:</strong> 2026-08-13のユーザー指示により、この文書の推奨値をP5-DATA-G1の承認範囲へそのまま適用した。これは外部Data取得の完了、Provider契約確認、Secret参照、実在Runner登録、費用発生を意味しない。外部I/Oは0件である。
   </section>
 
   <section class="box ok">
@@ -87,8 +87,8 @@
   </section>
 
   <section>
-    <h2>3. 推奨する具体値：申請表へ入れる案</h2>
-    <p>以下は「この値で申請すると、現在の設計と衝突しにくい」という提案である。<span class="badge proposal">PROPOSED</span>はまだ人間承認・アカウント確認・実行前検証が必要である。</p>
+    <h2>3. 適用済みの具体値：P5-DATA-G1へ入れた値</h2>
+    <p>以下の値をP5-DATA-G1の承認範囲へ適用した。<span class="badge done">APPLIED</span>は範囲値として承認済み、実行前Evidenceが必要な項目は別途停止条件として残していることを示す。</p>
     <table>
       <thead><tr><th>項目</th><th>推奨入力値</th><th>根拠・システムとの相性</th><th>承認前に必要な証拠</th></tr></thead>
       <tbody>
@@ -157,8 +157,8 @@ Backtest／Coreへ渡す前にDataGateDecisionを再確認</pre>
   </section>
 
   <section class="box stop">
-    <h2>6. この推奨案だけでは、まだPASSにならないもの</h2>
-    <p>公式Webを読んで推奨値を作ることと、実際のアカウントで取得できることは別である。次の項目は、推奨案を書いた後に人間と実行環境で確認しなければならない。</p>
+    <h2>6. 値を適用しても、まだ実行開始できないもの</h2>
+    <p>P5-DATA-G1の範囲承認と、外部Dataを実際に取得できる状態は別である。次の項目は、値を適用した後に人間と実行環境で確認しなければならない。</p>
     <ol>
       <li>Databentoの実アカウントで、<code>GLBX.MDP3</code>、対象schema、対象期間が有効であること。</li>
       <li>契約・利用権限・保持・再配布条件が、今回の「内部利用・再配布なし」と一致すること。</li>
@@ -168,7 +168,7 @@ Backtest／Coreへ渡す前にDataGateDecisionを再確認</pre>
       <li>5候補のparent解決結果と、必要期間の個別契約一覧がそろうこと。<code>206 Partial Content</code>や<code>available</code>以外は成功にしないこと。</li>
       <li>外部Run専用のhost isolation Evidenceが、P5-06のlocal Evidenceとは別に存在すること。</li>
     </ol>
-    <p><strong>したがって、この文書の作成後の状態は、P5-DATA-G1 <code>HUMAN_GATE_REQUIRED</code>、<code>P5-EXTERNAL-WORKER-UNKNOWN</code> OPENのままである。</strong> 未確認の項目をPassへ変換していない。</p>
+    <p><strong>したがって、現在の状態は、P5-DATA-G1 <code>APPROVED</code>、P5-EXTERNAL-WORKER-UNKNOWN <code>OPEN</code>、P5-08 <code>BLOCKED</code>である。</strong> Runner・契約・権限・見積り・外部Run Evidenceがないため、未確認の項目をPassへ変換していない。</p>
   </section>
 
   <section>
@@ -177,11 +177,11 @@ Backtest／Coreへ渡す前にDataGateDecisionを再確認</pre>
       <thead><tr><th>ID</th><th>この文書での意味</th><th>接続先</th><th>状態</th></tr></thead>
       <tbody>
         <tr><td><code>REQ-V2-0025〜0032</code>、<code>REQ-V2-0044</code>、<code>REQ-V2-0091/0096</code></td><td>Catalog、DataRequest、Raw／Normalized、Quality、Cost／Gap、外部境界。</td><td><a href="../01_要件追跡/01_Phase5入力・Data対象・REQ追跡.html">P5-01追跡表</a>、P5-02〜04。</td><td><span class="badge done">追跡済み</span></td></tr>
-        <tr><td><code>DEC-P5-G1-REC-001〜008</code></td><td>Provider、対象、期間、schema、費用、Secret、保存、Runnerに対する今回の推奨判断。</td><td>本書の3章、P5-07申請表、P5-08再開条件。</td><td><span class="badge proposal">提案</span></td></tr>
-        <tr><td><code>EXTERNAL-DATA-PROVIDER-SECRET</code></td><td>Provider契約、費用、Secret、外部通信が未承認。</td><td><a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a>。</td><td><span class="badge unknown">OPEN</span></td></tr>
+        <tr><td><code>DEC-P5-G1-REC-001〜008</code></td><td>Provider、対象、期間、schema、費用、Secret、保存、Runnerに対する今回の判断。</td><td>本書の3章、P5-07申請表、P5-DATA-G1承認Evidence、P5-08再開条件。</td><td><span class="badge done">適用済み</span></td></tr>
+        <tr><td><code>EXTERNAL-DATA-PROVIDER-SECRET</code></td><td>契約・entitlement、事前費用見積り、Secret metadata、外部通信Evidenceが実行前確認待ち。</td><td><a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a>。</td><td><span class="badge unknown">OPEN</span></td></tr>
         <tr><td><code>P5-EXTERNAL-WORKER-UNKNOWN</code></td><td>推奨Runnerの名称は書いたが、実体・依存・監査は未登録。</td><td>P5-07申請表、P5-08 blocked log。</td><td><span class="badge unknown">OPEN</span></td></tr>
         <tr><td><code>UNK-P3-01/05/07</code></td><td>長期Data、Cost／Slippage／Gap、正式Calendarが未実証。</td><td>P5-09でEvidenceを取得後に再分類する。</td><td><span class="badge unknown">未解消</span></td></tr>
-        <tr><td><code>P5-ART-07-DATA-G1-RECOMMENDATION-001</code></td><td>申請項目の説明と推奨値・根拠。</td><td>本HTML、<a href="../../../plan/phase5/ログ/P5-07_外部Data_Gate申請・範囲表_2026-08-12.md">P5-07ログ</a>、<a href="../../index.html">doc/index</a>。</td><td><span class="badge proposal">作成済み・承認前</span></td></tr>
+        <tr><td><code>P5-ART-07-DATA-G1-RECOMMENDATION-001</code></td><td>申請項目の説明、適用値、公式根拠。</td><td>本HTML、<a href="../../../plan/phase5/ログ/P5-07_外部Data_Gate申請・範囲表_2026-08-12.md">P5-07ログ</a>、<a href="../../../tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1.md">P5-DATA-G1承認Evidence</a>、<a href="../../index.html">doc/index</a>。</td><td><span class="badge done">適用済み・実行前確認待ち</span></td></tr>
       </tbody>
     </table>
   </section>
@@ -208,16 +208,16 @@ Backtest／Coreへ渡す前にDataGateDecisionを再確認</pre>
   </section>
 
   <section class="box">
-    <h2>9. 次に承認者が確認する短いチェックリスト</h2>
+    <h2>9. 次に実行前に確認する短いチェックリスト</h2>
     <ul>
-      <li>ProviderをDatabento Historical APIにするか。</li>
-      <li>対象を5つのfuturesだけに限定し、stocks／FXスポット／cryptoを今回の対象外にするか。</li>
-      <li>共通期間を2025-02-24〜2026-07-31（UTC）とするか。</li>
-      <li>1 Run 25 USD、Historical月額50 USDの上限を承認するか。</li>
-      <li>内部利用のみ・再配布なし・Liveなしでよいか。</li>
-      <li>推奨Runnerを実体化・検証する担当と期限を決めるか。</li>
+      <li>Databento Historical API、5つのfutures、共通期間、Liveなし、再配布なしの範囲が承認Evidenceと一致しているか。</li>
+      <li>実アカウントでDataset／schema／期間のentitlementを確認したか。</li>
+      <li>契約・保持・内部利用・再配布不可を確認したか。</li>
+      <li>事前見積りが1 Run 25 USD以内、月額50 USD以内か。</li>
+      <li><code>DATABENTO_API_KEY</code>を値を出さずに参照できるか。</li>
+      <li>Runner実体、固定command、依存lock、target scope、外部host isolationを登録・検証したか。</li>
     </ul>
-    <p>すべてに同意しても、Runner実体、契約・権限、事前見積り、Secret境界、外部Runのhost isolation Evidenceが揃うまでは、P5-DATA-G1を機械的にPASSへ変更しない。</p>
+    <p>これらが揃うまでは、P5-DATA-G1の承認範囲を変更せず、P5-08の外部I/O・Secret・費用発生・実Data取得を開始しない。</p>
   </section>
 
   <section>
@@ -229,10 +229,10 @@ Backtest／Coreへ渡す前にDataGateDecisionを再確認</pre>
         <tr><td>2026-08-12</td><td>公式一次情報</td><td>採用</td><td>DatabentoとCMEの公式ページを確認し、URLと確認日を保存した。</td></tr>
         <tr><td>2026-08-12</td><td>長期Dataの一般化</td><td>保留</td><td>Micro Agの開始時期とMCLの開始時期が異なるため、標準契約proxyを実Micro契約のEvidenceへ一般化しない。</td></tr>
         <tr><td>2026-08-12</td><td>Runner／外部host isolation</td><td>保留</td><td>推奨名とcommandは示したが、実体・依存・外部通信監査は未作成。<code>P5-EXTERNAL-WORKER-UNKNOWN</code>を保持する。</td></tr>
-        <tr><td>2026-08-12</td><td>Human Gate</td><td>未承認</td><td>本書は推奨案であり、P5-DATA-G1の承認や外部I/Oの許可ではない。</td></tr>
+        <tr><td>2026-08-13</td><td>Human Gate</td><td>適用・承認</td><td>ユーザーの「P5-DATA-G1 は推奨構成の値をそのまま適用して下さい。」を承認指示として記録し、P5-DATA-G1承認Evidenceを保存した。Runner・契約・権限・見積り・外部Run Evidenceは別途確認待ち。</td></tr>
       </tbody>
     </table>
   </section>
 
-  <p class="small">関連ログ：<a href="../../../plan/phase5/ログ/P5-07_外部Data_Gate申請・範囲表_2026-08-12.md">P5-07 外部Data Gate申請・範囲表ログ</a> ／ 既存申請表：<a href="06_Phase5外部Data_Gate申請・範囲表.html">06_Phase5外部Data_Gate申請・範囲表.html</a> ／ P5-08はP5-DATA-G1承認とRunner登録まで開始しない。</p>
+  <p class="small">関連ログ：<a href="../../../plan/phase5/ログ/P5-07_外部Data_Gate申請・範囲表_2026-08-12.md">P5-07 外部Data Gate申請・範囲表ログ</a> ／ 承認Evidence：<a href="../../../tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1.md">P5-DATA-G1 Human Gate</a> ／ 既存申請表：<a href="06_Phase5外部Data_Gate申請・範囲表.html">06_Phase5外部Data_Gate申請・範囲表.html</a> ／ P5-08はRunner・実行前Evidenceが揃うまで開始しない。</p>
 </main></body></html>
