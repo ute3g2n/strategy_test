@@ -281,19 +281,19 @@
     <li><a href="./phase4/06_ロードマップ/01_RQV2_Phase4以降ゼロベース再編ロードマップ.html">01_RQV2_Phase4以降ゼロベース再編ロードマップ.html（RQV2-ART-11-ROADMAP-001 / RQV2-11）</a></li>
   </ul>
   <h2>Phase 5 / 00 実行計画</h2>
-  <p class="muted">P4-10の引渡しを基に、Phase5のData contract、Quality、Calendar、Cost／Gap、長期／Holdout、Data Provider専用Gate、限定実証、P6引渡しを定義した計画。P5-H0は2026-08-12に承認済みで、P5-01〜P5-07を完了。P5-DATA-G1は2026-08-13に推奨構成の値を適用・承認済みで、費用事前見積り必須ルールも廃止した。固定Runnerとdry-runは作成済みだが、entitlement・契約・権限・budget control・Secret metadata・host isolation・外部Run Evidence不足のため、P5-08以降の外部I/O・外部Data取得は未開始。</p>
+  <p class="muted">P4-10の引渡しを基に、Phase5のData contract、Quality、Calendar、Cost／Gap、長期／Holdout、Data Provider専用Gate、限定実証、P6引渡しを定義した計画。P5-H0／P5-H1は承認済みで、P5-01〜P5-07の旧Databento範囲を完了。2026-08-14の方針変更により現行ProviderはBinance Data Vision、暫定対象はBTCUSDT／ETHUSDT、旧CME 5候補は履歴となった。旧P5-DATA-G1の推奨値適用・費用ルール変更は履歴として保持し、Binance用amendment、Runner、request、checksum／hash Evidenceが成立するまでP5-08以降の外部I/O・外部Data取得は未開始。</p>
   <ul>
     <li><a href="./phase5/00_実行計画/01_Phase5実行計画書.html">01_Phase5実行計画書.html（P5-PLAN-HTML-001 / P5-01〜P5-11、P5-DATA-G1、実ランタイム起動契約）</a></li>
     <li><a href="../plan/Phase5_実行計画書_v0.1_2026-08-12.md">Phase5実行計画Markdown（P5-PLAN-001）</a> / <a href="../plan/phase5/ログ/P5-PLAN-001_計画作成・起動契約検証_2026-08-12.md">計画作成・起動契約検証ログ</a></li>
   </ul>
   <h2>Phase 5 / 01 要件追跡</h2>
-  <p class="muted">P5-H0承認後のP5-01。P4から受け取ったData／Manifest／保存／Quality接続点、MCL／M6A／MZC／MZS／MZW、4資産種類、D1／H4／H1／M30／M15、Catalog／Calendar／Quality／Cost／Gap／HoldoutのREQ→UC→Data object→Test→Evidence→Gateを追跡する。実Data、Provider、Secret、外部I/Oは未開始。</p>
+  <p class="muted">P5-H0承認後のP5-01。P4から受け取ったData／Manifest／保存／Quality接続点、現行暫定対象Binance SpotのBTCUSDT／ETHUSDT、旧CME 5候補の履歴境界、4資産種類、D1／H4／H1／M30／M15、Catalog／Calendar／Quality／Cost／Gap／HoldoutのREQ→UC→Data object→Test→Evidence→Gateを追跡する。実Data、Binance実接続、Secret、外部I/Oは未開始。</p>
   <ul>
     <li><a href="./phase5/01_要件追跡/01_Phase5入力・Data対象・REQ追跡.html">01_Phase5入力・Data対象・REQ追跡.html（P5-ART-01-REQ-DATA-TRACE-001 / P5-01完了・fallback review）</a></li>
     <li><a href="../plan/phase5/ログ/P5-01_入力・Data対象・REQ追跡_2026-08-12.md">P5-01実行ログ（dispatch receipt・責務チェック・検証）</a></li>
   </ul>
   <h2>Phase 5 / 02 データ詳細設計</h2>
-  <p class="muted">P5-H1範囲でP5-06の固定local dummy RED→GREENと正式WSL隔離品質Gateを完了し、formatter／lint／type／test、host isolation、fixture hashがPASS。P5-07でP5-DATA-G1申請表、推奨値適用、承認Evidence、停止条件、Runner未知、対象外、dispatch receiptを固定。P5-DATA-G1は承認済みだが、P5-08／09はRunner・実行前Evidence・上流Evidence不足でBLOCKED、P5-10は実証Evidence不足で未開始、P5-11はP5-H2未承認でBLOCKED。Provider実接続・Secret・外部Data・費用・Broker・Paper・Liveは未開始。</p>
+  <p class="muted">P5-H1範囲でP5-06の固定local dummy RED→GREENと正式WSL隔離品質Gateを完了し、formatter／lint／type／test、host isolation、fixture hashがPASS。P5-07で旧DatabentoのP5-DATA-G1申請表、推奨値適用、承認Evidence、停止条件、Runner未知、対象外、dispatch receiptを履歴化した。2026-08-14の方針変更後はBinance Data VisionのBTCUSDT／ETHUSDTへ切り替え、新amendmentが成立するまでP5-08／09はBLOCKED、P5-10は実証Evidence不足で未開始、P5-11はP5-H2未承認でBLOCKED。Provider実接続・Secret・外部Data・費用・Broker・Paper・Liveは未開始。</p>
   <ul>
     <li><a href="./phase5/02_データ詳細設計/02_Data_Catalog_Provider_DataContract詳細設計書.html">02_Data_Catalog_Provider_DataContract詳細設計書.html（P5-ART-02-DATA-CONTRACT-001 / P5-02完了・local fallback self-review）</a></li>
     <li><a href="../plan/phase5/ログ/P5-02_Catalog_Provider_DataContract詳細設計_2026-08-12.md">P5-02実行ログ（root/child dispatch receipt・責務チェック・検証）</a></li>
@@ -304,19 +304,20 @@
     <li><a href="./phase5/04_レビュー/05_Phase5詳細設計レビュー・改訂記録.html">05_Phase5詳細設計レビュー・改訂記録.html（P5-ART-05-INTEGRATED-REVIEW-001 / P5-05完了・local fallback self-review）</a></li>
     <li><a href="../plan/phase5/ログ/P5-05_Phase5詳細設計レビュー・改訂記録_2026-08-12.md">P5-05実行ログ（receipt・Findings first・P5-H1候補・再レビュー）</a></li>
     <li><a href="../plan/phase5/ログ/P5-06_固定local_DataContract_Quality_RED_GREEN_2026-08-12.md">P5-06実行ログ（RED→GREEN・正式4 Gate PASS）</a></li>
-    <li><a href="./phase5/05_実証/06_Phase5外部Data_Gate申請・範囲表.html">06_Phase5外部Data_Gate申請・範囲表.html（P5-ART-07-EXTERNAL-DATA-GATE-001 / P5-DATA-G1承認済み・P5-08再開条件待ち）</a></li>
-    <li><a href="./phase5/05_実証/07_P5-DATA-G1推奨入力値・やさしい説明.html">07_P5-DATA-G1推奨入力値・やさしい説明.html（P5-ART-07-DATA-G1-RECOMMENDATION-001 / 推奨構成を適用・承認済み／実行前確認待ち）</a> / <a href="../plan/phase5/ログ/P5-07A_P5-DATA-G1推奨入力値・公式根拠_2026-08-12.md">P5-07A公式根拠ログ</a> / <a href="../tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1.md">P5-DATA-G1承認Evidence</a></li>
+    <li><a href="./phase5/05_実証/06_Phase5外部Data_Gate申請・範囲表.html">06_Phase5外部Data_Gate申請・範囲表.html（旧Databento範囲の履歴／Binance amendment前）</a></li>
+    <li><a href="./phase5/05_実証/07_P5-DATA-G1推奨入力値・やさしい説明.html">07_P5-DATA-G1推奨入力値・やさしい説明.html（旧Databento推奨値の履歴）</a> / <a href="../plan/phase5/ログ/P5-07A_P5-DATA-G1推奨入力値・公式根拠_2026-08-12.md">P5-07A公式根拠ログ</a> / <a href="../tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1.md">旧P5-DATA-G1承認Evidence</a></li>
     <li><a href="../plan/phase5/ログ/P5-07_外部Data_Gate申請・範囲表_2026-08-12.md">P5-07実行ログ（申請対象・停止条件・Runner UNKNOWN・dispatch receipt）</a> / <a href="../tests/evidence/phase5/RUN-P5-07-GATE-PREP-001/dispatch-receipt.json">P5-07 dispatch receipt</a></li>
-    <li><a href="../plan/phase5/ログ/P5-08_承認範囲Data取得・Raw_Normalized_Evidence_2026-08-12.md">P5-08実行前判定（P5-DATA-G1承認済み・Runner／実行前Evidence不足・外部I/Oなし・BLOCKED）</a> / <a href="../tests/evidence/phase5/RUN-P5-08-BLOCKED-GATE-001/dispatch-receipt.json">P5-08 dispatch receipt</a></li>
+    <li><a href="../plan/phase5/ログ/P5-08_承認範囲Data取得・Raw_Normalized_Evidence_2026-08-12.md">P5-08旧Databento実行前判定（現行Binance scope change・Runner／Evidence不足・外部I/Oなし・BLOCKED）</a> / <a href="../plan/phase5/ログ/P5-08_Binance_Data_Vision方針転換・Crypto暫定対象_2026-08-14.md">Binance scope amendmentログ</a> / <a href="../tests/evidence/phase5/RUN-P5-08-BLOCKED-GATE-001/dispatch-receipt.json">旧P5-08 dispatch receipt</a></li>
     <li><a href="../plan/phase5/ログ/P5-09_Quality_Calendar_Cost_Gap期間分割_Holdout_2026-08-12.md">P5-09実行前判定（P5-08上流Evidence不足・実証なし・BLOCKED）</a> / <a href="../tests/evidence/phase5/RUN-P5-09-BLOCKED-UPSTREAM-001/dispatch-receipt.json">P5-09 dispatch receipt</a></li>
     <li><a href="../plan/phase5/ログ/P5-10_統合品質レビュー・P5-H2候補_2026-08-12.md">P5-10実行前判定（実証Evidence不足・P5-H2候補未作成）</a> / <a href="../tests/evidence/phase5/RUN-P5-10-BLOCKED-EVIDENCE-001/dispatch-receipt.json">P5-10 dispatch receipt</a></li>
     <li><a href="../plan/phase5/ログ/P5-11_完了・P6引渡し_BLOCKED_2026-08-12.md">P5-11実行前判定（P5-H2未承認・P6引渡し未作成）</a> / <a href="../tests/evidence/phase5/RUN-P5-11-BLOCKED-H2-001/dispatch-receipt.json">P5-11 dispatch receipt</a></li>
   </ul>
   <h2>Phase 5 / 06 方針転換調査</h2>
-  <p class="muted">Databentoの高額な使用量課金を受け、無料・低価格の市場Data候補を、現在のP5要件（5つのCME Micro futures、1分足、17か月、Raw／Normalized／Quality／Manifest）との意味の一致まで比較した調査。候補は未承認であり、P5-DATA-G1とP5-08のDatabento範囲を自動変更しない。Exact futures候補、日足prototype、FX／CFD proxy、Crypto別案を分離し、Unknownと小規模PoC手順を固定した。</p>
+  <p class="muted">Databentoの高額な使用量課金を受けた代替調査の履歴と、2026-08-14のProvider方針変更を記録する。現行ProviderはBinance Data Vision、初期運用の暫定対象は入力履歴で具体名があるBTCUSDT／ETHUSDT、旧CME Micro futures 5件は履歴扱い。Binance Spot、1m Kline、UTC、checksum／hash、Secret非使用の新P5-DATA-G1 amendmentが必要であり、実Data取得は未開始。</p>
   <ul>
     <li><a href="./phase5/06_方針転換/01_無料・低価格市場データ代替調査.html">01_無料・低価格市場データ代替調査.html（P5-ART-ALT-DATA-RESEARCH-001 / 代替候補比較・Sierra第一候補・未承認）</a></li>
     <li><a href="../plan/phase5/ログ/P5-08_無料・低価格市場データ代替調査_2026-08-13.md">P5-08代替調査ログ（公式URL・REQ／DEC／UNK／ART・PoC手順）</a></li>
+    <li><a href="./phase5/06_方針転換/02_Binance_Data_Vision方針転換・Crypto暫定対象.html">02_Binance_Data_Vision方針転換・Crypto暫定対象.html（P5-ART-ALT-DATA-DECISION-001 / DEC-P5-BINANCE-001 / 現行方針）</a> / <a href="../plan/phase5/ログ/P5-08_Binance_Data_Vision方針転換・Crypto暫定対象_2026-08-14.md">Binance方針転換ログ</a></li>
   </ul>
 </main>
 </body>

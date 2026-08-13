@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Binance Data Vision方針転換・Crypto暫定対象</title>
+  <style>
+    body{font-family:"Segoe UI","Yu Gothic",sans-serif;line-height:1.7;margin:28px auto;max-width:1400px;color:#172033;background:#f8fafc}
+    main{background:#fff;border:1px solid #d9e2ec;padding:28px}
+    h1{border-bottom:3px solid #1f2937;padding-bottom:10px}
+    h2{border-bottom:1px solid #cbd5e1;margin-top:34px;padding-bottom:6px}
+    h3{margin-top:26px;color:#334155}
+    a{color:#0f5db8}
+    code{background:#eef2f7;padding:1px 4px;border-radius:3px;overflow-wrap:anywhere}
+    table{border-collapse:collapse;width:100%;margin:14px 0;font-size:.9rem}
+    th,td{border:1px solid #cbd5e1;padding:8px;vertical-align:top}
+    th{background:#eef2f7;text-align:left}
+    pre{background:#0f172a;color:#e5e7eb;padding:14px;overflow:auto;white-space:pre-wrap}
+    .box{border-left:4px solid #2563eb;background:#eff6ff;padding:12px;margin:16px 0}
+    .stop{border-left-color:#dc2626;background:#fef2f2}
+    .ok{border-left-color:#059669;background:#ecfdf5}
+    .warn{border-left-color:#b45309;background:#fffbeb}
+    .muted{color:#475569}
+    .badge{border-radius:999px;padding:2px 8px;font-weight:bold;display:inline-block}
+    .done{background:#d1fae5;color:#065f46}
+    .wait{background:#fef3c7;color:#92400e}
+    .unknown{background:#e2e8f0;color:#334155}
+    .no{background:#fee2e2;color:#991b1b}
+    .info{background:#dbeafe;color:#1e40af}
+    .small{font-size:.86rem;color:#475569}
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">doc/index.htmlへ戻る</a> ／ <a href="../01_要件追跡/01_Phase5入力・Data対象・REQ追跡.html">P5-01追跡</a> ／ <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
+  <h1>Binance Data Vision方針転換・Crypto暫定対象</h1>
+
+  <section class="box">
+    <p><strong>文書ID:</strong> <code>P5-ART-ALT-DATA-DECISION-001</code><br>
+    <strong>決定ID:</strong> <code>DEC-P5-BINANCE-001</code><br>
+    <strong>Phase / Step:</strong> <code>PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12</code> / P5-08方針変更<br>
+    <strong>決定日:</strong> 2026-08-14（Asia/Tokyo）<br>
+    <strong>状態:</strong> <span class="badge done">PROVIDER_DECIDED / SCOPE_AMENDMENT_REQUIRED</span><br>
+    <strong>根拠入力:</strong> <a href="../../../plan/backtest_and_turtles_full_chat_history.md">plan/backtest_and_turtles_full_chat_history.md</a> と運用者の「Binance Data Vision にする。…銘柄選定で候補に入ったcryptoの銘柄を初期運用の暫定対象とする。」という指示。</p>
+  </section>
+
+  <section class="box ok">
+    <h2>1. 今回の決定を一言でいうと</h2>
+    <p><strong>市場Data Providerの方向をDatabentoからBinance Data Visionの公開アーカイブへ変更し、初期運用の銘柄候補は従来のCME Micro futures 5件をいったん白紙化する。</strong></p>
+    <p>現時点で履歴に具体的に書かれているCrypto銘柄だけを、初期運用の暫定対象として <code>BTCUSDT</code> と <code>ETHUSDT</code> にする。「主要アルトコイン」は分類名であり、具体的な銘柄名ではないため、勝手にBNB・SOL・XRPなどを追加しない。</p>
+    <p>これはProviderとData対象の設計方針を変更する決定であり、実Dataのダウンロード、外部通信、Secret読取、実運用、注文、Broker、Paper、Liveを開始する許可ではない。旧DatabentoのP5-DATA-G1承認は履歴として残し、P5-08にはBinance用の新しい申請範囲・request・Runner・Evidence rootが必要である。</p>
+  </section>
+
+  <section>
+    <h2>2. 何が白紙になり、何を暫定対象にするか</h2>
+    <table>
+      <thead><tr><th>区分</th><th>対象</th><th>現在の扱い</th><th>理由・境界</th></tr></thead>
+      <tbody>
+        <tr><td>旧初期候補</td><td><code>MCL</code>、<code>M6A</code>、<code>MZC</code>、<code>MZS</code>、<code>MZW</code></td><td><span class="badge no">INITIAL_OPERATION_CANDIDATE_RETIRED</span></td><td>既存のP5／Databento前提で作った履歴。削除せず、初期運用の正式候補から外す。CME先物をBinance Cryptoと同一視しない。</td></tr>
+        <tr><td>暫定対象</td><td><code>BTCUSDT</code></td><td><span class="badge done">PROVISIONAL_TARGET</span></td><td>履歴に「BTC」「BTC/USDT」が具体的に記載されているため、Binance Spotのシンボル表記へ正規化した候補。</td></tr>
+        <tr><td>暫定対象</td><td><code>ETHUSDT</code></td><td><span class="badge done">PROVISIONAL_TARGET</span></td><td>履歴に「ETH」が具体的に記載されているため、Binance Spotのシンボル表記へ正規化した候補。</td></tr>
+        <tr><td>追加候補</td><td>「主要アルトコイン」</td><td><span class="badge unknown">UNNAMED / NOT_SELECTED</span></td><td>具体的な銘柄名・Binance symbol・市場区分が入力に存在しない。推測追加は禁止。追加時は別の対象表更新とGateが必要。</td></tr>
+      </tbody>
+    </table>
+    <div class="box warn"><strong>Spotの扱い:</strong> 履歴は「BTC/USDT」と記載しており、レバレッジ・Funding・清算・限月を指定していない。そのため本書では <code>Binance Spot / BTCUSDT・ETHUSDT</code> を安全側の推奨暫定値とする。ただし、Spotを明示した新Gateが成立するまでは <code>SPOT_PROVISIONAL</code> とし、USD-M／COIN-M futuresへ自動拡張しない。</div>
+  </section>
+
+  <section>
+    <h2>3. Binance公式情報で確認できたこと</h2>
+    <p>確認日はすべて2026-08-14。公式一次情報のURLを固定し、実Dataはダウンロードしていない。</p>
+    <table>
+      <thead><tr><th>確認項目</th><th>公式情報</th><th>P5への意味</th></tr></thead>
+      <tbody>
+        <tr><td>公開入口</td><td><a href="https://data.binance.vision/">Binance Data Collection</a> は誰でも使える公開市場Dataの入口で、日次または月次ファイルを提供。</td><td>API keyを使わず、公開アーカイブをHTTPSで取得するProvider境界を設計できる。</td></tr>
+        <tr><td>市場区分</td><td>公式 <a href="https://github.com/binance/binance-public-data/blob/master/README.md?plain=1">binance-public-data README</a> はSpot、USD-M Futures、COIN-M Futuresを別区分として説明。</td><td>Spotと先物のファイル階層・契約意味を混ぜない。今回の暫定値はSpotだけ。</td></tr>
+        <tr><td>Kline</td><td>Spot Klineの列はOpen time、OHLC、Volume、Close time、Quote volume、Trade count、Taker buy volume等。<code>1m</code>、<code>15m</code>、<code>30m</code>、<code>1h</code>、<code>4h</code>、<code>1d</code>などのintervalが記載されている。</td><td>最初は1分KlineをRawの基底にし、D1／H4／H1／M30／M15を同じUTC境界から生成する。</td></tr>
+        <tr><td>時間単位</td><td>公式READMEはSpot Dataについて、2025-01-01以降のtimestampがmicrosecondsになると注意書きしている。</td><td>Timestamp unitをファイル期間から自動推測せず、Provider区分・年月・manifestへ記録してUTCへ変換する。</td></tr>
+        <tr><td>配布単位</td><td>日次・月次のZIPアーカイブ。公式READMEには月次Spot Klineのパス例がある。</td><td>月次を主取得、日次を境界確認・差分確認に使う設計が可能。ただし同一期間の二重保存は明示する。</td></tr>
+        <tr><td>完全性確認</td><td>各ZIPと同じフォルダに <code>.CHECKSUM</code> があり、SHA-256で検証できる。</td><td>ZIP、checksum、展開CSV、NormalizedをそれぞれhashでManifestへ接続する。</td></tr>
+        <tr><td>更新リスク</td><td>公式READMEは、問題発見後にアーカイブが更新される場合があると説明する。</td><td>取得日だけでなくURL、ファイルhash、checksum、Manifest versionを固定し、再取得差分を隠さない。</td></tr>
+        <tr><td>APIとの違い</td><td><a href="https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md?plain=1">Spot REST API公式文書</a> のKlineはsymbol・interval・UTC start/endを受け、1回の最大limitは1000。</td><td>初期経路は大量取得に向くData Vision ZIPを使い、REST APIのページングを主経路にしない。API keyやLive接続へ拡張しない。</td></tr>
+      </tbody>
+    </table>
+    <p class="small">公式README末尾のリポジトリLicense表示だけから、データアーカイブの再配布・商用利用条件まで断定しない。P5では外部再配布を禁止し、利用条件が必要な用途は別確認へ送る。</p>
+  </section>
+
+  <section>
+    <h2>4. Binance版P5-DATA-G1の推奨入力値</h2>
+    <p>以下は新しい申請表へ移すための推奨値。<span class="badge done">DECIDED／PROPOSED</span> は方針決定または設計推奨、<span class="badge unknown">UNKNOWN</span> は実行前に確認が必要な項目を表す。</p>
+    <table>
+      <thead><tr><th>項目</th><th>推奨値</th><th>根拠・システムとの相性</th><th>状態</th></tr></thead>
+      <tbody>
+        <tr><td>Provider</td><td><strong>Binance Data Vision / Binance Public Data</strong></td><td>公開アーカイブを使うため、Databentoの使用量課金・API key・dataset entitlementを初期取得の前提にしない。Provider固有処理はAdapter境界へ閉じ込める。</td><td><span class="badge done">DECIDED</span></td></tr>
+        <tr><td>Data URL</td><td><code>https://data.binance.vision/</code></td><td>公式公開入口。許可先はData VisionのHTTPSだけに限定する。</td><td><span class="badge done">PROPOSED</span></td></tr>
+        <tr><td>API key／Secret</td><td><strong>使用しない</strong>。既存環境変数のキーも読まない。</td><td>公開Historical ZIPの取得にAPI keyは不要。Secretを使わない構成は、ログ・環境・Evidenceへの漏洩面を減らす。</td><td><span class="badge done">DECIDED</span></td></tr>
+        <tr><td>資産種類</td><td><code>asset_type=crypto</code></td><td>Crypto固有の24/7、symbol、quote asset、volume単位をCatalogへ分離し、旧futures contract／expiry／rollを持ち込まない。</td><td><span class="badge done">DECIDED</span></td></tr>
+        <tr><td>市場区分</td><td><code>market_segment=spot</code>（暫定）</td><td>履歴のBTC/USDT表記に合わせ、funding・leverage・liquidation・expiryがないSpotを初期値にする。Futuresは別Gate。</td><td><span class="badge wait">SPOT_PROVISIONAL</span></td></tr>
+        <tr><td>暫定symbol</td><td><code>BTCUSDT</code>、<code>ETHUSDT</code></td><td>履歴で具体的に出たBTC・ETHだけをBinance symbolへ正規化。銘柄名のない「主要アルト」は追加しない。</td><td><span class="badge done">PROVISIONAL_TARGET</span></td></tr>
+        <tr><td>基底Data</td><td>Spot Kline <code>1m</code> の月次ZIPを主経路。必要な月だけ日次ZIPで境界照合。</td><td>1分から上位時間足を再生成でき、Raw／Normalized／Quality／Manifestの既存P5契約へつながる。Tick／Order bookは初期対象外。</td><td><span class="badge done">PROPOSED</span></td></tr>
+        <tr><td>生成時間足</td><td><code>D1</code>、<code>H4</code>、<code>H1</code>、<code>M30</code>、<code>M15</code></td><td>既存P5の時間足を維持し、Providerの各intervalを混在させず、1m Rawから同じ集計規則で生成する。</td><td><span class="badge done">INHERITED</span></td></tr>
+        <tr><td>時間・Calendar</td><td>保存・集計はUTC、<code>CRYPTO_24_7_UTC</code>。休場カレンダーは置かない。</td><td>Crypto SpotはCMEの休日・DST・限月・Rollを適用しない。データがない区間は自動ゼロ埋めせず、欠損・取引停止・配布欠落を別分類する。</td><td><span class="badge wait">VERSION／HASH要確認</span></td></tr>
+        <tr><td>対象期間</td><td><code>2025-02-24T00:00:00Z</code>以上、<code>2026-08-01T00:00:00Z</code>未満を比較用に暫定継承。</td><td>旧P5の共通比較期間を維持して差分を小さくする。Binanceの利用可能な全履歴を採用する決定ではない。長期期間は別判断。</td><td><span class="badge wait">INHERITED／再承認要</span></td></tr>
+        <tr><td>Timestamp</td><td>Spotの2025-01-01以降はmicroseconds想定。Manifestにunitを固定し、UTC datetimeへ変換。</td><td>公式READMEの注意書きに対応。millisecondsとして誤読すると、時間が1000倍ずれてQuality停止になる。</td><td><span class="badge done">REQUIRED</span></td></tr>
+        <tr><td>Raw保存</td><td><code>RUN-P5-08-BINANCE-001/raw/spot/klines/1m/{symbol}/{YYYY-MM}.zip</code> と同名<code>.CHECKSUM</code>、展開後CSVのhash。</td><td>取得元・配布月・checksum・展開内容を残し、上書き禁止。旧Databento Evidence rootと混ぜない。</td><td><span class="badge wait">NEW REQUEST／RUN要作成</span></td></tr>
+        <tr><td>Normalized</td><td><code>P5-NORMALIZED-BAR-v1.0.0</code>を再利用。symbol、quote asset、bar start/end UTC、OHLCV、raw／checksum hash、quality refを必須。</td><td>ProviderのCSV列やtimestamp unitをCoreへ漏らさず、P4のNormalizedDatasetRef／DataGateDecisionへ接続できる。</td><td><span class="badge done">DESIGN FIT</span></td></tr>
+        <tr><td>Cost</td><td>Providerの公開アーカイブData料金は <strong>0 USD</strong>。外部費用を前提にしない。内部の保存・通信・実行上限は別途budget control。</td><td>DatabentoのGB課金を廃止する方向と一致。ただし無料は品質・保存費用・利用条件の無条件保証ではない。</td><td><span class="badge done">PROVIDER_COST_0 / INTERNAL_UNKNOWN</span></td></tr>
+        <tr><td>Quality</td><td>checksum、月次ファイルの存在、CSV列数、timestamp単調性、重複、OHLC整合、1分間隔の欠損、月次／日次境界を検査。</td><td>公式アーカイブは後日更新される可能性がある。部分取得やhash不一致を下流へ渡さない。</td><td><span class="badge wait">実Dataで未実証</span></td></tr>
+        <tr><td>費用・停止</td><td>ファイルhash不一致、checksum不一致、対象外symbol、Spot／Futures階層違い、timestamp unit不明、欠損・重複・未来Data、通信先逸脱で停止。</td><td>UnknownをPassへ変換せず、既存P5 fail-closedと一致。</td><td><span class="badge done">DESIGN RULE</span></td></tr>
+        <tr><td>保持・再配布</td><td>承認済みローカルEvidence rootのみ。外部公開・第三者再配布・Cloudコピーは禁止。契約・利用条件確認後に保持期限を固定。</td><td>公開URLで取れることと、再配布権があることは別。不要な権限を追加しない。</td><td><span class="badge unknown">TERMS／RETENTION UNKNOWN</span></td></tr>
+        <tr><td>実運用境界</td><td>Backtest用Historicalだけ。Broker、Paper、Live、実資金、実Risk、Futures、Funding、Liquidation、注文は対象外。</td><td>Cryptoの価格Dataを取得できても、取引可能性・収益性・Live適合性の証明にはならない。</td><td><span class="badge done">OUT OF SCOPE</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>5. REQ → UC → Data object → Test → Evidence → Gate</h2>
+    <p>Provider変更で追跡の鎖を切らないため、既存P5-01の行を同じIDで再利用し、Gateだけを新しいBinance amendmentへ接続する。</p>
+    <table>
+      <thead><tr><th>REQ</th><th>UC</th><th>Data object</th><th>Test</th><th>Evidence</th><th>Gate</th></tr></thead>
+      <tbody>
+        <tr><td><code>REQ-V2-0025/0026</code></td><td><code>UC-V2-007/011/014</code></td><td>CatalogRecord／LogicalInstrumentMapping／AssetCapabilityState（BTCUSDT／ETHUSDT、Spot）</td><td><code>TEST-P5-01-CATALOG-001</code></td><td><code>P5-EV-01-CATALOG-TRACE-001</code>、symbol／market manifest</td><td><code>P5-DATA-G1-BINANCE-AMENDMENT-001</code></td></tr>
+        <tr><td><code>REQ-V2-0027/0028</code></td><td><code>UC-V2-008/011〜014</code></td><td>TimeframeBinding／ManifestTimeframeEntry／CalendarVersionRef</td><td><code>TEST-P5-01-TIMEFRAME-001/002</code></td><td><code>P5-EV-01-TIMEFRAME-TRACE-001</code>、UTC／1m→上位足</td><td><code>P5-DATA-G1-BINANCE-AMENDMENT-001</code></td></tr>
+        <tr><td><code>REQ-V2-0029/0032</code></td><td><code>UC-V2-009〜014/054</code></td><td>RawDatasetRef／NormalizedDatasetRef／QualityReport／StopDecision</td><td><code>TEST-P5-01-QUALITY-001〜003</code></td><td>ZIP／checksum／CSV／Normalized hash、欠損・重複レポート</td><td><code>P5-DATA-G1-BINANCE-AMENDMENT-001</code> → P5-08／P5-09</td></tr>
+        <tr><td><code>REQ-V2-0030</code></td><td><code>UC-V2-014/034</code></td><td>DataManifest／CalendarVersionRef／ProviderFileRef／HashRef</td><td><code>TEST-P5-01-MANIFEST-001</code></td><td>URL、月、symbol、unit、checksum、取得時点</td><td><code>P5-DATA-G1-BINANCE-AMENDMENT-001</code></td></tr>
+        <tr><td><code>REQ-V2-0031/0091</code></td><td><code>UC-V2-003/009/013/041〜050/067</code></td><td>ExternalAcquisitionRequest／ProviderCapability／AcquisitionMode</td><td><code>TEST-P5-01-EXTERNAL-BOUNDARY-001</code></td><td>Data Vision allowlist、Secret非使用、通信監査</td><td>新Gate承認後のP5-08のみ。外部I/Oは未開始。</td></tr>
+        <tr><td><code>REQ-V2-0044/0096</code>、<code>UNK-P3-05</code></td><td><code>UC-V2-024/025/030〜032</code></td><td>CostAssumptionSet／SlippageObservation／GapRuleVersion</td><td><code>TEST-P5-01-COST-GAP-BOUNDARY-001</code></td><td>Provider費用0、内部費用、Spot fee／slippage仮定を分離</td><td>P5-DATA-G1 amendment／P5-H2</td></tr>
+        <tr><td><code>REQ-V2-0054/0055</code></td><td><code>UC-V2-032/033/035</code></td><td>PeriodSplitManifest／HoldoutAssessment／WalkForwardWindow</td><td><code>TEST-P5-01-HOLDOUT-001/002</code></td><td>期間hash、train／validation／holdout、再利用拒否</td><td>P5-DATA-G1 amendment／P5-H2</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>6. Unknown・停止条件・非対象</h2>
+    <table>
+      <thead><tr><th>ID</th><th>内容</th><th>状態</th><th>解消条件</th></tr></thead>
+      <tbody>
+        <tr><td><code>UNK-P5-BINANCE-001</code></td><td>Spotを暫定採用したが、ユーザーが将来Futuresを意図していないことの明示。</td><td><span class="badge unknown">OPEN</span></td><td>Binance Spotの新Gateへ固定。Futuresは別Gateに分離。</td></tr>
+        <tr><td><code>UNK-P5-BINANCE-002</code></td><td>「主要アルトコイン」の具体名が入力にない。</td><td><span class="badge unknown">OPEN</span></td><td>具体的なsymbol、market segment、期間、採否を別の対象表へ登録。</td></tr>
+        <tr><td><code>UNK-P5-BINANCE-003</code></td><td>BTCUSDT／ETHUSDTの対象期間における実ファイル存在、最初・最後のtimestamp、欠損。</td><td><span class="badge unknown">OPEN</span></td><td>P5-08の実Data取得時にURL、checksum、件数、範囲を確認。</td></tr>
+        <tr><td><code>UNK-P5-BINANCE-004</code></td><td>アーカイブ更新差分、月次／日次の不一致、利用条件・再配布条件。</td><td><span class="badge unknown">OPEN</span></td><td>取得時hashと公式更新情報を固定し、再配布せず利用条件を確認。</td></tr>
+        <tr><td><code>P5-EXTERNAL-WORKER-UNKNOWN</code></td><td>Binance向け固定Runner、request、target scope、Evidence root、host isolation。</td><td><span class="badge unknown">OPEN</span></td><td>新Runnerと新Runのlocal dry-run、target-only、通信監査、Evidence rootを作成。</td></tr>
+      </tbody>
+    </table>
+    <div class="box stop"><strong>停止:</strong> 新しいBinance用P5-DATA-G1 amendment、固定request、Runner、対象ファイルhash、実行前Evidenceが揃うまでP5-08は開始しない。旧Databentoの承認・request・RunnerをBinanceへ読み替えない。実Dataを取得していない状態を、Data Quality PASSや初期運用可能の証拠にしない。</div>
+    <p><strong>非対象:</strong> CME／Databentoの再取得、Binance Futures、他取引所の統合、Tick／Order book、Funding／Liquidation、Broker、Paper、Live、実資金、実Risk、Secret値、Cloud、Core、P4 DB／migration、実注文。</p>
+  </section>
+
+  <section>
+    <h2>7. 次に必要な実務作業</h2>
+    <ol>
+      <li>この文書の <code>BTCUSDT</code>、<code>ETHUSDT</code>、Spot、1m、期間、UTC、保存先を新しいP5-DATA-G1 amendmentへ転記する。</li>
+      <li>旧Databento requestとは別に <code>RUN-P5-08-BINANCE-001</code> とrequestを作り、Data VisionのURL template、対象月、checksum検証、target pathsを固定する。</li>
+      <li>実行前に、Runnerの固定性、外部通信allowlist、Secret非使用、保存先、利用条件、停止条件を確認する。</li>
+      <li>承認済み範囲で初めて最小の限定取得を行い、ZIP／checksum／展開CSV／Normalized／Quality／Manifestを同じRunへ束ねる。</li>
+      <li>P5-09で品質・Calendar・Cost／Gap・期間分割・Holdoutを検証し、未取得・未確認の項目をPASSへしない。</li>
+    </ol>
+  </section>
+
+  <section class="box">
+    <h2>8. 変更履歴・相互参照</h2>
+    <ul>
+      <li>2026-08-14: Binance Data VisionをProvider方針として決定。旧CME Micro futures 5件を初期運用候補から外し、具体的に名前があるBTC／ETHだけを暫定対象へ変更。</li>
+      <li>旧調査記録: <a href="01_無料・低価格市場データ代替調査.html">無料・低価格市場データ代替調査</a>。旧調査のSierra第一候補などは、今回のBinance決定により現行候補ではなく履歴扱い。</li>
+      <li>決定ログ: <a href="../../../plan/phase5/ログ/P5-08_Binance_Data_Vision方針転換・Crypto暫定対象_2026-08-14.md">P5-08 Binance方針転換ログ</a></li>
+      <li>P5-01の現行追跡: <a href="../01_要件追跡/01_Phase5入力・Data対象・REQ追跡.html">P5-01 Phase5入力・Data対象・REQ追跡</a></li>
+      <li>旧Databento Gateの履歴: <a href="../05_実証/06_Phase5外部Data_Gate申請・範囲表.html">旧P5-DATA-G1申請表</a> ／ <a href="../05_実証/07_P5-DATA-G1推奨入力値・やさしい説明.html">旧推奨値</a>。旧値をBinance実行へ流用しない。</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

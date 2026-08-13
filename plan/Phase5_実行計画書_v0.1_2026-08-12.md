@@ -13,9 +13,18 @@
 
 ## 1. 結論
 
-Phase 5は、P4で作成したProduct/ApplicationのData接続点を引き継ぎ、初期5候補（MCL、M6A、MZC、MZS、MZW）の市場Dataを、対象・契約・来歴・品質・Calendar・Cost／Slippage／Gap・長期期間・Holdout／Walk-forwardまで再現可能なEvidenceへ変換するPhaseである。
+Phase 5は、P4で作成したProduct/ApplicationのData接続点を引き継ぎ、市場Dataを対象・契約・来歴・品質・Calendar・Cost／Slippage／Gap・長期期間・Holdout／Walk-forwardまで再現可能なEvidenceへ変換するPhaseである。計画作成時の初期5候補（MCL、M6A、MZC、MZS、MZW）は履歴として保持するが、2026-08-14の運用者指示により初期運用候補から外し、Binance Data VisionのCrypto暫定対象（BTCUSDT、ETHUSDT）へスコープを変更した。
 
-ただし、P4-H2はP5開始承認ではない。この計画を作成した時点では、外部Providerへの接続、費用発生、Secret参照、外部I/O、実Data取得、Broker／Paper／Live、実資金、Cloudを開始しない。P5-H0、P5-H1、P5-DATA-G1、P5-H2を分離し、承認範囲を越える発火を禁止する。2026-08-13、P5-DATA-G1は推奨構成の値をそのまま適用するユーザー指示により範囲承認済みとなり、費用事前見積り必須ルールも廃止したが、Runner・契約・権限・budget control・Secret metadata・host isolation・外部Run Evidence不足のためP5-08以降は停止中である。
+ただし、P4-H2はP5開始承認ではない。この計画を作成した時点では、外部Providerへの接続、費用発生、Secret参照、外部I/O、実Data取得、Broker／Paper／Live、実資金、Cloudを開始しない。P5-H0、P5-H1、P5-DATA-G1、P5-H2を分離し、承認範囲を越える発火を禁止する。2026-08-13の旧P5-DATA-G1（Databento範囲）は履歴として保持し、2026-08-14のProvider変更後はBinance用の新しいP5-DATA-G1 amendmentが必要である。費用事前見積り必須ルールは廃止済みだが、Runner・対象・利用条件・外部Run Evidence不足のためP5-08以降は停止中である。
+
+### 1.1 2026-08-14 Binance Data Visionスコープ改訂
+
+- ProviderをBinance Data Visionの公開アーカイブへ変更する。
+- 旧初期候補 `MCL`、`M6A`、`MZC`、`MZS`、`MZW` は初期運用候補から外し、履歴として保存する。
+- 入力履歴で具体的に名前があるCryptoだけを採用し、暫定対象を `BTCUSDT`、`ETHUSDT` とする。
+- `Binance Spot`、Spot Kline `1m`、UTC、24/7 Calendarを推奨暫定値とする。Futures、Funding、Liquidation、他のアルトコインは別Gateとする。
+- 既存Databentoの承認・request・RunnerをBinanceへ読み替えない。新しい申請表、request、Runner、Evidence root、checksum／hash検証がP5-08再開条件である。
+- 詳細は `doc/phase5/06_方針転換/02_Binance_Data_Vision方針転換・Crypto暫定対象.html` と `plan/phase5/ログ/P5-08_Binance_Data_Vision方針転換・Crypto暫定対象_2026-08-14.md` を正本とする。
 
 本計画の直接実行プロンプトは、Orchestrator／Agent／Skillの名前を列挙するだけでは完了扱いにしない。各Promptへ、実ランタイムのOrchestrator spawn、指定Agent全件の個別spawn、固定model受理、wait完了、受領証跡、起動不能時の継続Fallbackを埋め込む。起動不能は単独の停止条件にしないが、未起動を起動済み・独立レビュー済みと偽らない。Human Gate、外部I/O、Secret、UnknownのPass、Critical／High、必須Evidenceの欠落はFail-closedで停止する。
 
@@ -24,7 +33,7 @@ Phase 5は、P4で作成したProduct/ApplicationのData接続点を引き継ぎ
 ### 2.1 目的
 
 - 論理IDから実Symbol、取引所、限月、Roll、単位、Provider対応をEvidence付きで対応付ける。
-- 初期5候補と4資産種類の対象範囲、D1／H4／H1／M30／M15の時間足を固定する。
+- 現行暫定Crypto対象（BTCUSDT／ETHUSDT）、旧5候補の履歴境界、4資産種類、D1／H4／H1／M30／M15の時間足を固定する。
 - Raw／Normalized／Quality／Manifest／Calendar／Provenance／hashの責務と保存境界を確定する。
 - 欠損、重複、時刻逆行、異常値、DST、休場、短縮日、Roll、未来Data、Look-aheadをFail-closedで検出する。
 - 固定仮定と実測Cost／Slippage／Gapを分離し、長期期間、train／validation／holdout、Walk-forwardの再現可能な分割を作る。
@@ -99,9 +108,9 @@ Phase 5は、P4で作成したProduct/ApplicationのData接続点を引き継ぎ
 | P5-H1 | ローカル固定ダミー実装・品質の開始承認 | P5-05 | 人間承認 | 不可 | 承認記録 |
 | P5-06 | 固定local Data contract／QualityのRED→GREEN・品質Gate | P5-H1 | `PASS` | 不可 | 正式4 Gate、host isolation、fixture pre/post hash一致、wrapper exit 0 |
 | P5-07 | 外部Data Gate準備、承認対象表、台帳同期 | P5-06 | 申請表完了・P5-DATA-G1待ち | 不可 | `P5-EXTERNAL-WORKER-UNKNOWN`を保持。外部I/OはP5-DATA-G1承認まで開始しない |
-| P5-DATA-G1 | Provider専用の外部Data Gate | P5-07 | 人間承認 | `APPROVED`（2026-08-13） | 推奨値適用済みの承認記録、台帳同期。P5-08は実行前条件確認まで開始しない |
-| P5-08 | 承認範囲内の限定Data取得・Raw／Normalized Evidence | P5-DATA-G1 | `BLOCKED` | 不可 | P5-DATA-G1範囲と固定Runner／request／dry-runは作成済みだが、`P5-EXTERNAL-WORKER-UNKNOWN`、entitlement・契約・権限・budget control・Secret metadata・host isolation・外部Run Evidence不足。事前見積りは開始条件とせず、外部I/O／Secret値／費用／Data取得なし |
-| P5-09 | Quality／Calendar／Cost／Gap／期間分割／Holdout実証 | P5-08 | `BLOCKED` | 不可 | P5-DATA-G1は承認済みだが、P5-08 Evidenceなし。実証・実測・Holdout操作なし |
+| P5-DATA-G1 | Binance Data Vision Provider専用外部Data Gate amendment | P5-07 | 新しい人間承認 | `BINANCE_AMENDMENT_REQUIRED` | 旧Databento承認は履歴。BTCUSDT／ETHUSDT、Spot、1m、UTC、24/7、checksum／hash、Secret非使用、Runner／requestを新Gateで固定 |
+| P5-08 | Binance暫定対象の限定Data取得・Raw／Normalized Evidence | Binance用P5-DATA-G1 amendment | `BLOCKED` | 不可 | 旧Databento request／Runnerは現行範囲と不一致。Binance用対象（BTCUSDT／ETHUSDT、Spot、1m、UTC）、固定request／Runner／checksum／Evidence rootが未成立。外部I/O／Secret値／費用／Data取得なし |
+| P5-09 | Quality／Calendar／Cost／Gap／期間分割／Holdout実証 | P5-08 | `BLOCKED` | 不可 | Binance用P5-DATA-G1 amendment未成立、P5-08 Evidenceなし。実証・実測・Holdout操作なし |
 | P5-10 | 統合・独立レビュー、Unknown再分類、P5-H2候補 | P5-06、P5-09 | `NOT_STARTED` | 不可 | P5-08／09 Evidenceなし。UnknownをPassにせず、P5-H2候補を作成しない |
 | P5-H2 | P5完了・P6引渡し承認 | P5-10 | `HUMAN_GATE_REQUIRED` | 不可 | P5-10候補と実証Evidenceがなく、承認対象未成立 |
 | P5-11 | 完了記録、台帳同期、P6入力引渡し | P5-H2 | `BLOCKED` | 不可 | P5-H2未承認、P5-10候補なし。完了HTML・P6入力・完了宣言なし |
@@ -197,7 +206,7 @@ Skills: autotrade_skill_source_reader_v0_1, autotrade_skill_architecture_writer_
 5. 起動していないAgentを独立実行済み・独立レビュー済みと記載しない。receiptにはOrchestrator／Agent名、JSON path、固定model、agent_id、spawn／wait status、output_ref、fallback_reason、independent、review_modeを含める。
 発火制御: P5-H0=APPROVEDを統合台帳で確認する。設計・読み取り・HTML・ログだけを更新し、外部Data、Provider、Secret、費用、外部I/O、依存、実Run、Core、P4 DBを変更しない。
 入力: Phase5計画入力一覧、RQV2正式要件、RQV2ロードマップ、P4完了HTML、P4-03〜P4-04D、P4 Evidence、統合台帳、doc/index.html、指定AI部品JSON／SKILL.md。
-実施: P4から受け取ったData／Manifest／保存／Quality接続点を再照合し、MCL/M6A/MZC/MZS/MZW、4資産種類、D1/H4/H1/M30/M15、Catalog／Calendar／Quality／Cost／Gap／HoldoutのREQ→UC→Data object→Test→Evidence→Gateを行単位で追跡する。P5対象外のBroker／Paper／Live／実資金／実Risk／Cloudを別表に固定する。doc/phase5/01_要件追跡/01_Phase5入力・Data対象・REQ追跡.html、plan/phase5/ログ/P5-01_入力・Data対象・REQ追跡_2026-08-12.mdを作成し、doc/index.htmlへ導線を追加する。
+実施: P4から受け取ったData／Manifest／保存／Quality接続点を再照合し、Binance Data Vision、BTCUSDT／ETHUSDT、旧5候補の履歴境界、4資産種類、D1/H4/H1/M30/M15、Catalog／Calendar／Quality／Cost／Gap／HoldoutのREQ→UC→Data object→Test→Evidence→Gateを行単位で追跡する。P5対象外のBroker／Paper／Live／実資金／実Risk／Cloudを別表に固定する。doc/phase5/01_要件追跡/01_Phase5入力・Data対象・REQ追跡.html、plan/phase5/ログ/P5-01_入力・Data対象・REQ追跡_2026-08-12.mdを作成し、doc/index.htmlへ導線を追加する。
 レビュー: A90がFindings firstで入力欠落、P4契約の誤一般化、UnknownのPass化、Gate漏れ、リンク不足をレビューする。A80/A81の責務チェックリストも適用し、Critical/Highを同Stepで反映する。
 完了条件: P5対象・非対象、P4接続点、REQ／UC／Test／Evidence／Gate、Unknown、停止条件、dispatch receiptが相互に一致し、Critical/High=0。
 停止条件: P4接続点不明、対象・時間足不明、P4 syntheticを実市場Evidenceへ一般化、P5-H0未承認、外部I/O／Secret混入、必須receipt欠落、Critical/High未解決。
@@ -384,7 +393,7 @@ Skills: autotrade_skill_source_reader_v0_1, autotrade_skill_adapter_boundary_v0_
 3. Agent名の列挙、JSON／Skillの読込、または自己レビューはspawn済みの証拠にしない。実spawn、agent_id、wait status、出力参照を必須とする。
 4. spawn／waitが使えない場合は作業前にRUNTIME_DISPATCH_FALLBACK_REQUIRED、LOCAL_FALLBACK_NO_SUBAGENTS、未起動Agent、理由、時刻、agent_id=N/A、independent=false、review_mode=SELF_REVIEW_FALLBACKを記録し、責務チェックリストで継続する。child起動不能だけでは停止しない。
 5. 起動していないAgentを独立実行済み・独立レビュー済みと記載しない。receiptにはOrchestrator／Agent名、JSON path、固定model、agent_id、spawn／wait status、output_ref、fallback_reason、independent、review_modeを含める。
-発火制御: P5-DATA-G1=APPROVED、承認されたRun ID／target_paths／固定command／Secret参照／host isolationをすべて検証する。事前費用見積りは開始条件としないが、Provider／team側budget control、1 Run／月額上限、実行後usage監査を必須とする。承認範囲外のData、endpoint、費用、Secret、対象拡大、Broker、Paper、Liveは発火しない。取得Runnerが実在・固定・実行前条件確認済みでない場合はP5-EXTERNAL-WORKER-UNKNOWNとして外部I/Oをせず記録する。
+発火制御: P5-DATA-G1-BINANCE-AMENDMENT-001=APPROVED、承認されたRun ID／target_paths／固定command／Secret非使用／host isolationをすべて検証する。事前費用見積りは開始条件としないが、Provider公開Data費用0の確認、内部budget control、実行後usage／保存監査を必須とする。承認範囲外のData、endpoint、費用、Secret、対象拡大、Broker、Paper、Liveは発火しない。取得Runnerが実在・固定・実行前条件確認済みでない場合はP5-EXTERNAL-WORKER-UNKNOWNとして外部I/Oをせず記録する。
 入力: P5-02〜07正式設計、P5-DATA-G1承認・変更記録、固定取得Runner／command、request.json、entitlement／budget／Secret metadata、Run Manifest、target scope、Provider契約、固定対象、Evidence root、統合台帳。
 実施: 承認対象を変更せず、まずlocal dry-runで契約を検証する。外部実行時はRaw受信時刻、source／request／content hash、Manifest、Normalized変換、timezone／unit、相対path、Secret非出力、通信監査、停止・再試行・再生成、実行後usage監査を記録する。欠損、重複、逆行、hash不一致、Calendar不一致、未来Dataは推測補完せずFail-closedで停止する。tests/evidence/phase5/<RunId>/へsanitized Evidenceを保存する。
 レビュー: A50が変換・外部ID、A70がSecret／通信／費用／path、A90が承認範囲・停止・Evidence・Unknownをレビューする。外部I/Oの正式実行結果とAgent起動結果を混同しない。
@@ -408,7 +417,7 @@ Skills: autotrade_skill_python_test_quality_v0_1, autotrade_skill_debug_recovery
 3. Agent名の列挙、JSON／Skillの読込、または自己レビューはspawn済みの証拠にしない。実spawn、agent_id、wait status、出力参照を必須とする。
 4. spawn／waitが使えない場合は作業前にRUNTIME_DISPATCH_FALLBACK_REQUIRED、LOCAL_FALLBACK_NO_SUBAGENTS、未起動Agent、理由、時刻、agent_id=N/A、independent=false、review_mode=SELF_REVIEW_FALLBACKを記録し、責務チェックリストで継続する。child起動不能だけでは停止しない。
 5. 起動していないAgentを独立実行済み・独立レビュー済みと記載しない。receiptにはOrchestrator／Agent名、JSON path、固定model、agent_id、spawn／wait status、output_ref、fallback_reason、independent、review_modeを含める。
-発火制御: P5-DATA-G1=APPROVED、P5-08完了、trusted scope、host isolation、Run Manifest、Data／Calendar hashを確認する。承認範囲内のDataだけを対象とし、Broker、Paper、Live、実資金、Core変更、未登録Runは発火しない。
+発火制御: P5-DATA-G1-BINANCE-AMENDMENT-001=APPROVED、P5-08完了、trusted scope、host isolation、Run Manifest、Data／Calendar hashを確認する。承認範囲内のDataだけを対象とし、Broker、Paper、Live、実資金、Core変更、未登録Runは発火しない。
 入力: P5-04品質設計、P5-08 Raw／Normalized Evidence、Data／Calendar／Manifest hash、Cost／Gap provenance、期間分割、holdout／walk-forward定義、trusted scope。
 実施: 欠損、重複、逆行、異常値、DST、休場、Roll、Calendar不一致、未来参照、Look-ahead、Survivorship、Cost／Slippage／Gapの実測／仮定分離、長期期間、本数、市場数、train／validation／holdout、Walk-forward再現を固定入力で検証する。結果、停止一覧、再生成手順、hash、Evidence indexを作成する。利益性・Live適合を判定しない。
 レビュー: A130が検証、A140が上限付き復旧、A150/A160が安全・コード、A90がData contract／Gate／Unknown／Evidenceをレビューする。未実行、条件外、font／OS未固定をPASSにしない。
@@ -432,7 +441,7 @@ Skills: autotrade_skill_design_doc_set_writer_v0_1, autotrade_skill_source_reade
 3. Agent名の列挙、JSON／Skillの読込、または自己レビューはspawn済みの証拠にしない。実spawn、agent_id、wait status、出力参照を必須とする。
 4. spawn／waitが使えない場合は作業前にRUNTIME_DISPATCH_FALLBACK_REQUIRED、LOCAL_FALLBACK_NO_SUBAGENTS、未起動Agent、理由、時刻、agent_id=N/A、independent=false、review_mode=SELF_REVIEW_FALLBACKを記録し、責務チェックリストで継続する。child起動不能だけでは停止しない。
 5. 起動していないAgentを独立実行済み・独立レビュー済みと記載しない。receiptにはOrchestrator／Agent名、JSON path、固定model、agent_id、spawn／wait status、output_ref、fallback_reason、independent、review_modeを含める。
-発火制御: P5-DATA-G1=APPROVED、P5-08/P5-09完了を確認する。外部I/O、Secret、追加取得、Provider変更、実注文、実資金、Core変更は発火しない。
+発火制御: P5-DATA-G1-BINANCE-AMENDMENT-001=APPROVED、P5-08/P5-09完了を確認する。外部I/O、Secret、追加取得、Provider変更、実注文、実資金、Core変更は発火しない。
 入力: P5-01〜09正式HTML／ログ、P5-DATA-G1承認、Evidence index／hash、統合台帳、REQ／UC／Test／Evidence追跡、Unknown一覧。
 実施: Data contract、Catalog、Raw／Normalized、Quality、Calendar、Cost／Gap、期間分割、holdout、P5-DATA-G1承認、停止／再生成、外部通信／Secret監査、P6引渡しを統合し、REQ→Evidenceのcoverageを再照合する。未解消Unknownは根本原因、owner、期限、再開条件、後続Phaseへ再分類する。doc/phase5/04_レビュー/07_Phase5統合品質・P6引渡し候補.html とログを作成する。
 レビュー: A90がFindings firstで外部I/O、Data／Calendar／Cost／Gap、Look-ahead、Gate、Unknown、P6境界を監査する。A80/A81がHTML、index、相互リンク、採否、履歴を確認する。Critical/Highは反映・再レビューし、P5-H2候補に残さない。
@@ -494,3 +503,4 @@ Phase 5の完了判定は、外部Dataの実証範囲に限定する。P4の固�
 | 日付 | 版 | 内容 |
 |---|---|---|
 | 2026-08-12 | v0.1 | P4-10引渡しを基に、Phase5を入力追跡、Data契約、Raw／Normalized／Quality／Calendar、Cost／Gap、長期／Holdout、local固定品質、Data Provider専用Gate、限定外部Data実証、統合レビュー、P6引渡しへ分割した。全直接PromptへRDC-PHASE-PLAN-0.2、起動不能時Fallback、固定model、receipt、Unknown／Gate停止を追加した。 |
+| 2026-08-14 | v0.2 scope amendment | 運用者の決定を受領し、ProviderをBinance Data Visionへ変更、旧CME Micro futures 5件を初期運用候補から外し、BTCUSDT／ETHUSDTを暫定対象へ変更。旧Databento Gateを履歴化し、Binance用P5-DATA-G1 amendment、request、Runner、checksum／hash EvidenceをP5-08再開条件へ追加した。 |

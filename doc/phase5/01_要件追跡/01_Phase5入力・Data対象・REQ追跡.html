@@ -29,9 +29,16 @@
     <strong>Document Set:</strong> P5-DOCSET-001<br>
     <strong>Step:</strong> P5-01 ／ <strong>Phase:</strong> PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12<br>
     <strong>計画:</strong> P5-PLAN-001 ／ <strong>作成日:</strong> 2026-08-12（Asia/Tokyo）<br>
-    <strong>状態:</strong> <span class="badge done">P5-01_COMPLETE_WITH_FALLBACK_REVIEW</span><br>
-    <strong>発火状態:</strong> P5-H0はユーザー明示承認済み。P5-01の設計・読取・HTML・ログだけを完了。P5-H1、P5-DATA-G1、P5-H2は未承認。</p>
+    <strong>状態:</strong> <span class="badge done">P5-01_COMPLETE_WITH_FALLBACK_REVIEW / SCOPE_AMENDED_2026-08-14</span><br>
+    <strong>発火状態:</strong> P5-H0／P5-H1は承認済み。旧Databento範囲のP5-DATA-G1承認は履歴として保持し、Binance Data VisionへのProvider・対象変更は新しいP5-DATA-G1 amendmentが必要。実Data・外部I/Oは未開始。</p>
   </div>
+
+  <section class="warn">
+    <h2>2026-08-14 現行Data対象の変更</h2>
+    <p>運用者の方針変更により、初期運用の旧候補 <code>MCL/M6A/MZC/MZS/MZW</code> はいったん白紙化し、初期運用の暫定対象をBinance Data Visionの <code>BTCUSDT</code> と <code>ETHUSDT</code> へ切り替える。旧5候補、Databento、CME Calendar、先物限月・Rollは履歴であり、現行Binance範囲へ自動読み替えない。</p>
+    <p>今回の入力履歴で具体的に名前があるCrypto銘柄はBTCとETHだけである。「主要アルトコイン」は具体symbolがないため追加しない。市場区分は <code>Binance Spot</code> を暫定推奨し、Futuresは別Gateへ分離する。</p>
+    <p>詳細: <a href="../06_方針転換/02_Binance_Data_Vision方針転換・Crypto暫定対象.html">Binance Data Vision方針転換・Crypto暫定対象</a> ／ <a href="../../../plan/phase5/ログ/P5-08_Binance_Data_Vision方針転換・Crypto暫定対象_2026-08-14.md">決定ログ</a></p>
+  </section>
 
   <section class="stop">
     <h2>1. Findings first（先に結論）</h2>
@@ -54,7 +61,7 @@
           <td><code>P5-01-F-003</code></td>
           <td><span class="badge done">High / CLOSED</span></td>
           <td>Unknown、未承認Gate、対象外のBroker／Paper／Live／実資金／実Risk／CloudをPassと誤認しない必要がある。</td>
-          <td>Unknownは未解消のまま一覧化し、P5-H0だけを承認済みとして表示。P5-H1／P5-DATA-G1／P5-H2は待機。対象外表と停止条件を固定した。</td>
+          <td>Unknownは未解消のまま一覧化し、P5-H1は固定local範囲だけの承認、Binance用P5-DATA-G1 amendmentとP5-H2は待機として表示。対象外表と停止条件を固定した。</td>
         </tr>
         <tr>
           <td><code>P5-01-F-004</code></td>
@@ -107,7 +114,7 @@
   <section>
     <h2>4. P5-01の対象範囲と非対象</h2>
     <div class="grid">
-      <div class="card"><h3>対象</h3><ul><li>MCL／M6A／MZC／MZS／MZWの論理候補IDとCatalog追跡</li><li>4資産種類、D1／H4／H1／M30／M15の契約追跡</li><li>Raw／Normalized／Quality／Calendar／Manifest／Provenance／Hashの設計上の接続点</li><li>Cost／Slippage／Gap、長期、Holdout／Walk-forwardのEvidence要求</li><li>REQ → UC → Data object → Test → Evidence → Gateの行単位追跡</li><li>Unknown、停止条件、後続Human Gate、dispatch receipt</li></ul></div>
+      <div class="card"><h3>対象</h3><ul><li>現行暫定対象 <code>BTCUSDT</code>／<code>ETHUSDT</code> とBinance SpotのCatalog追跡。旧MCL／M6A／MZC／MZS／MZWは履歴。</li><li>4資産種類、D1／H4／H1／M30／M15の契約追跡</li><li>Raw／Normalized／Quality／Calendar／Manifest／Provenance／Hashの設計上の接続点</li><li>Cost／Slippage／Gap、長期、Holdout／Walk-forwardのEvidence要求</li><li>REQ → UC → Data object → Test → Evidence → Gateの行単位追跡</li><li>Unknown、停止条件、後続Human Gate、dispatch receipt</li></ul></div>
       <div class="card"><h3>このStepの実施</h3><ul><li>ローカル文書とJSON／SKILL.mdの読取</li><li>P4成果物との境界・リンク・ID再照合</li><li>正式HTML、計画ログ、doc/index導線の更新</li><li>静的なリンク・表・境界・Secret混入の検査</li><li>固定local値を設計トレースの例として表示</li></ul></div>
       <div class="card"><h3>非対象・変更禁止</h3><ul><li>Broker、Paper、Live、実資金、実Risk</li><li>Provider接続、外部Data取得、Secret、費用発生</li><li>Cloud、外部I/O、実Run、依存パッケージ</li><li>Core、P4 DB／migration、P4 fixture／Evidence</li><li>実Dataの補間・推定・未来Data・Calendarの仮承認</li></ul></div>
     </div>
@@ -122,20 +129,23 @@
         <tr><td>Futures</td><td><code>asset_type=futures</code>をCatalog／Roll／Expiry／Unitの分離対象とする。</td><td>実Symbol、取引所、限月、Roll、契約単位、Provider／Broker、実Data</td></tr>
         <tr><td>Stocks</td><td><code>asset_type=stocks</code>をCatalog／Calendar／Unitの分離対象とする。</td><td>実Symbol、取引所、公式Calendar、Corporate action、Provider、実Data</td></tr>
         <tr><td>FX</td><td><code>asset_type=fx</code>をCatalog／Calendar／Timezone／Unitの分離対象とする。</td><td>実Symbol、venue、休日・DST、Provider、実Data</td></tr>
-        <tr><td>Crypto</td><td><code>asset_type=crypto</code>をCatalog／venue／Calendar／Unitの分離対象とする。</td><td>実Symbol、venue、24/7扱い、Provider、実Data</td></tr>
+        <tr><td>Crypto</td><td><code>asset_type=crypto</code>、<code>venue=Binance</code>、<code>market_segment=spot</code>を暫定値としてCatalog／venue／24/7 Calendar／quote asset／Unitの分離対象とする。</td><td>実ファイル、対象期間、timestamp unit、checksum、利用条件、実Data</td></tr>
       </tbody>
     </table>
     <p class="small">4資産種類はRQV2の構造的サポートを表す。実市場の証明、利益性、注文可能性、Broker接続の証明ではない。</p>
 
-    <h3>5.2 初期5候補</h3>
+    <h3>5.2 旧初期5候補（履歴）と現行暫定Crypto対象</h3>
     <table>
       <thead><tr><th>論理候補</th><th>Catalog状態</th><th>必須未確定項目</th><th>P5-01の扱い</th></tr></thead>
       <tbody>
-        <tr><td><code>MCL</code></td><td><span class="badge info">LOGICAL_ID_ONLY</span></td><td>実Symbol／取引所／限月／Roll／単位／Provider／Broker</td><td>構造の追跡対象。未確認の値を補わない。</td></tr>
-        <tr><td><code>M6A</code></td><td><span class="badge info">LOGICAL_ID_ONLY</span></td><td>実Symbol／取引所／限月／Roll／単位／Provider／Broker</td><td>構造の追跡対象。旧変換記録を候補値として再利用しない。</td></tr>
-        <tr><td><code>MZC</code></td><td><span class="badge info">LOGICAL_ID_ONLY</span></td><td>実Symbol／取引所／限月／Roll／単位／Provider／Broker</td><td>構造の追跡対象。未確認の値を補わない。</td></tr>
-        <tr><td><code>MZS</code></td><td><span class="badge info">LOGICAL_ID_ONLY</span></td><td>実Symbol／取引所／限月／Roll／単位／Provider／Broker</td><td>構造の追跡対象。未確認の値を補わない。</td></tr>
-        <tr><td><code>MZW</code></td><td><span class="badge info">LOGICAL_ID_ONLY</span></td><td>実Symbol／取引所／限月／Roll／単位／Provider／Broker</td><td>構造の追跡対象。未確認の値を補わない。</td></tr>
+        <tr><td><code>BTCUSDT</code></td><td><span class="badge done">PROVISIONAL_TARGET</span></td><td>実ファイル、対象期間、timestamp unit、checksum、Spot状態、Provider利用条件</td><td>Binance Data Vision Spotの暫定対象。実Data取得・Catalog確定前の候補。</td></tr>
+        <tr><td><code>ETHUSDT</code></td><td><span class="badge done">PROVISIONAL_TARGET</span></td><td>実ファイル、対象期間、timestamp unit、checksum、Spot状態、Provider利用条件</td><td>Binance Data Vision Spotの暫定対象。実Data取得・Catalog確定前の候補。</td></tr>
+        <tr><td><code>MAJOR_ALTCOIN_UNNAMED</code></td><td><span class="badge info">NOT_SELECTED</span></td><td>具体symbol、market segment、期間、採否</td><td>入力に具体名がないため追加しない。Unknownのまま。</td></tr>
+        <tr><td><code>MCL</code></td><td><span class="badge info">HISTORICAL_RETIRED</span></td><td>旧CME実Symbol／取引所／限月／Roll／単位／Provider／Broker</td><td>旧Databento前提の履歴。現行初期運用候補へ自動復帰させない。</td></tr>
+        <tr><td><code>M6A</code></td><td><span class="badge info">HISTORICAL_RETIRED</span></td><td>旧CME実Symbol／取引所／限月／Roll／単位／Provider／Broker</td><td>旧Databento前提の履歴。現行初期運用候補へ自動復帰させない。</td></tr>
+        <tr><td><code>MZC</code></td><td><span class="badge info">HISTORICAL_RETIRED</span></td><td>旧CME実Symbol／取引所／限月／Roll／単位／Provider／Broker</td><td>旧Databento前提の履歴。現行初期運用候補へ自動復帰させない。</td></tr>
+        <tr><td><code>MZS</code></td><td><span class="badge info">HISTORICAL_RETIRED</span></td><td>旧CME実Symbol／取引所／限月／Roll／単位／Provider／Broker</td><td>旧Databento前提の履歴。現行初期運用候補へ自動復帰させない。</td></tr>
+        <tr><td><code>MZW</code></td><td><span class="badge info">HISTORICAL_RETIRED</span></td><td>旧CME実Symbol／取引所／限月／Roll／単位／Provider／Broker</td><td>旧Databento前提の履歴。現行初期運用候補へ自動復帰させない。</td></tr>
       </tbody>
     </table>
 
@@ -172,7 +182,7 @@
 
   <section>
     <h2>7. 追跡の読み方とEvidenceの種別</h2>
-    <p>本書のTest IDはP5-01の設計トレース確認を表す。ここでのEvidenceは正式HTML、実行ログ、P4接続点、静的リンク検査の参照であり、実市場Dataの収集Evidenceではない。後続のP5-H1、P5-DATA-G1、P5-H2が承認されるまで、実測値や外部取得をPassにしない。追跡の正式な連結表記は <code>REQ→UC→Data object→Test→Evidence→Gate</code> とする。</p>
+    <p>本書のTest IDはP5-01の設計トレース確認を表す。ここでのEvidenceは正式HTML、実行ログ、P4接続点、静的リンク検査の参照であり、実市場Dataの収集Evidenceではない。P5-H1の固定local承認を外部Dataへ一般化せず、Binance用P5-DATA-G1 amendmentとP5-H2が成立するまで、実測値や外部取得をPassにしない。追跡の正式な連結表記は <code>REQ→UC→Data object→Test→Evidence→Gate</code> とする。</p>
     <div class="grid">
       <div class="card"><h3>設計Evidence</h3><p><code>P5-EV-01-INPUT-TRACE-001</code>（本書とログ）</p><p>入力、P4接続点、対象、非対象、Unknown、Gateの読み取り結果。</p></div>
       <div class="card"><h3>P4引継ぎEvidence</h3><p><code>P4-EV-INPUT-PREFLIGHT</code>、P4-10 Run Manifest／Verification</p><p>固定localの既存契約。実市場・外部Providerの証拠ではない。</p></div>
@@ -302,8 +312,8 @@
       <tbody>
         <tr><td><code>P4-H2</code></td><td><span class="badge done">APPROVED / 2026-08-12</span></td><td>P4完了とP5計画入力の引渡し。</td><td>P5実装、外部Data、Provider、Secret、Broker、Paper、Live、実資金、実Risk、P4 DB変更。</td></tr>
         <tr><td><code>P5-H0</code></td><td><span class="badge done">APPROVED / 2026-08-12</span></td><td>ユーザー明示文「P5-H0 を承認します。」によりP5-01の順次実行を開始。</td><td>P5-H1、P5-DATA-G1、P5-H2の代替承認。実Data／外部I/Oの発火。</td></tr>
-        <tr><td><code>P5-H1</code></td><td><span class="badge wait">WAITING</span></td><td>後続設計レビュー後に固定local Data contract品質を開始するための候補。</td><td>P5-06、外部Data、Provider、Secret。</td></tr>
-        <tr><td><code>P5-DATA-G1</code></td><td><span class="badge wait">WAITING</span></td><td>後続でData契約、対象、費用、Secret、通信、保存、Evidenceの専用承認を行う。</td><td>承認前のProvider接続、実Data取得、費用発生。</td></tr>
+        <tr><td><code>P5-H1</code></td><td><span class="badge done">APPROVED / FIXED_LOCAL</span></td><td>固定local Data contract品質の承認済み範囲。</td><td>外部Data、Provider、Secret、費用は含まない。</td></tr>
+        <tr><td><code>P5-DATA-G1</code></td><td><span class="badge wait">BINANCE_AMENDMENT_REQUIRED</span></td><td>旧Databento範囲の承認は履歴。Binance Data Vision、BTCUSDT／ETHUSDT、Spot、1m、UTC、checksum、Secret非使用の新範囲を別承認する。</td><td>新amendment前のProvider接続、実Data取得、費用発生。</td></tr>
         <tr><td><code>P5-H2</code></td><td><span class="badge wait">WAITING</span></td><td>P5-08〜10の実証を完了した後の完了承認候補。</td><td>P5-01からの自動昇格、P6引渡し。</td></tr>
       </tbody>
     </table>
@@ -366,7 +376,7 @@
         <tr><td>Critical／High</td><td><span class="badge done">0 OPEN</span></td><td>High findingsは境界明示・追跡表・Gate分離で閉じ、Mediumのruntime fallbackは記録したまま残す。</td></tr>
       </tbody>
     </table>
-    <p><strong>履歴:</strong> 2026-08-12 P5-01 v0.1作成。P5-H0ユーザー承認、P4接続点再照合、Data対象、REQ追跡、Unknown／Gate、runtime receipt、fallback責務チェックリストを反映。P5-01完了後もP5-H1／P5-DATA-G1／P5-H2は未承認。</p>
+    <p><strong>履歴:</strong> 2026-08-12 P5-01 v0.1作成。P5-H0ユーザー承認、P4接続点再照合、Data対象、REQ追跡、Unknown／Gate、runtime receipt、fallback責務チェックリストを反映。2026-08-14、運用者のProvider変更指示により現行対象をBinance Data VisionのBTCUSDT／ETHUSDTへ改訂し、旧Databento／CME 5候補を履歴化した。詳細は <a href="../06_方針転換/02_Binance_Data_Vision方針転換・Crypto暫定対象.html">P5-ART-ALT-DATA-DECISION-001</a>。Binance用P5-DATA-G1 amendmentとP5-08実行は未成立。</p>
   </section>
 
   <section>

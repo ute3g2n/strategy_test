@@ -31,8 +31,9 @@
 
   <section class="note">
     <h2>1. この計画の効力</h2>
-    <p>P4-H2はP5の計画入力引渡しだけを承認しており、外部Data取得、Provider、Secret、費用、外部I/Oを承認していない。P5-H1承認範囲で固定local dummyのRED→GREENと正式WSL隔離品質Gateを完了し、P5-07で外部Data Gate申請表、推奨値適用、P5-DATA-G1承認Evidence、停止条件を固定した。P5-DATA-G1は2026-08-13に範囲承認済みで、費用事前見積り必須ルールも廃止したが、P5-08／09はRunner・契約・権限・budget control・Secret metadata・host isolation・実証Evidence不足でBLOCKED、P5-10は実証Evidence不足で未開始、P5-11はP5-H2未承認でBLOCKEDである。P5-H2、外部Data実行、Provider実接続、Secret、費用、Broker、Paper、Live、実資金、実Risk、Cloudは未開始のまま保持する。</p>
-    <p>初期5候補、4資産種類、D1／H4／H1／M30／M15、Data Quality、Calendar、Cost／Slippage／Gap、長期、Holdout／Walk-forwardを、固定仮定と実測値を分けた再現可能なEvidenceへ整理する。利益性、Broker、Paper、Live、実資金はP5の完了判定に含めない。</p>
+    <p>P4-H2はP5の計画入力引渡しだけを承認しており、外部Data取得、Provider、Secret、費用、外部I/Oを承認していない。P5-H1承認範囲で固定local dummyのRED→GREENと正式WSL隔離品質Gateを完了し、P5-07で旧Databentoの外部Data Gate申請表、推奨値適用、承認Evidence、停止条件を固定した。2026-08-14の方針変更により、旧Databento範囲は履歴となり、Binance Data Visionの新しいP5-DATA-G1 amendmentが必要である。費用事前見積り必須ルールは廃止したが、P5-08／09はBinance対象・Runner・request・checksum／hash・実証Evidence不足でBLOCKED、P5-10は実証Evidence不足で未開始、P5-11はP5-H2未承認でBLOCKEDである。P5-H2、外部Data実行、Provider実接続、Secret、費用、Broker、Paper、Live、実資金、実Risk、Cloudは未開始のまま保持する。</p>
+    <p>現行暫定対象はBinance Spotの <code>BTCUSDT</code>、<code>ETHUSDT</code>。旧初期5候補（MCL／M6A／MZC／MZS／MZW）は履歴として保持し、初期運用候補から外す。4資産種類、D1／H4／H1／M30／M15、Data Quality、Calendar、Cost／Slippage／Gap、長期、Holdout／Walk-forwardを、固定仮定と実測値を分けた再現可能なEvidenceへ整理する。利益性、Broker、Paper、Live、実資金はP5の完了判定に含めない。</p>
+    <div class="note"><strong>2026-08-14 scope amendment:</strong> Provider変更とCrypto暫定対象の根拠は <a href="../06_方針転換/02_Binance_Data_Vision方針転換・Crypto暫定対象.html">Binance Data Vision方針転換・Crypto暫定対象</a>、<a href="../../../plan/phase5/ログ/P5-08_Binance_Data_Vision方針転換・Crypto暫定対象_2026-08-14.md">決定ログ</a>に固定する。旧承認のDatabento request／RunnerをBinanceへ読み替えない。</div>
   </section>
 
   <section>
@@ -45,9 +46,9 @@
         <tr><td>P5-05</td><td>詳細設計レビュー、改訂、再レビュー、P5-H1候補</td><td>P5-01〜04</td><td>不可</td></tr>
         <tr><td>P5-H1</td><td>固定local Data contract品質の開始承認</td><td>人間の明示承認</td><td>不可</td></tr>
         <tr><td>P5-06</td><td>固定local dummyのRED→GREEN、品質Gate</td><td>P5-H1</td><td>PASS（正式4 Gate、host isolation、fixture hash）</td></tr>
-        <tr><td>P5-07</td><td>外部Data Gate申請、推奨値適用、台帳同期</td><td>P5-06解消</td><td>申請値適用・P5-DATA-G1承認済み</td></tr>
-        <tr><td>P5-DATA-G1</td><td>市場Data Provider専用Gate</td><td>人間の明示承認</td><td>承認済み（実行前確認待ち）</td></tr>
-        <tr><td>P5-08〜09</td><td>承認範囲内の限定取得、Quality／Calendar／Cost／Gap／Holdout実証</td><td>P5-DATA-G1、Runner、実行前Evidence</td><td>Runner・Evidence不足のためBLOCKED</td></tr>
+        <tr><td>P5-07</td><td>旧Databento外部Data Gate申請・方針変更履歴</td><td>P5-06解消</td><td>旧申請値適用・旧P5-DATA-G1承認済み。現行Binanceは新amendment待ち</td></tr>
+        <tr><td>P5-DATA-G1</td><td>Binance Data Vision Provider専用Gate amendment</td><td>新しい人間の明示承認</td><td>旧Databento承認は履歴／Binance amendment待ち</td></tr>
+        <tr><td>P5-08〜09</td><td>BTCUSDT／ETHUSDTの限定取得、Quality／Calendar／Cost／Gap／Holdout実証</td><td>Binance amendment、Runner、実行前Evidence</td><td>Scope・Runner・Evidence不足のためBLOCKED</td></tr>
         <tr><td>P5-10</td><td>統合レビュー、Unknown再分類、P5-H2候補</td><td>P5-08〜09</td><td>未開始（Evidence不足）</td></tr>
         <tr><td>P5-H2→P5-11</td><td>完了承認、完了記録、P6引渡し</td><td>人間の明示承認</td><td>P5-H2未承認のためBLOCKED</td></tr>
       </tbody>
@@ -83,12 +84,12 @@
       <li><a href="../../../plan/phase4/Phase5計画入力一覧_2026-08-12.md">P4-10 Phase5計画入力一覧</a></li>
       <li><a href="../../../plan/requirements_update/RQV2_Phase4以降再編ロードマップ_2026-08-11.md">RQV2 Phase4以降再編ロードマップ</a></li>
       <li><a href="../../phase4/05_完了/07_Phase4完了判定・Phase5計画引渡し.html">P4完了・P5引渡し</a></li>
-      <li><a href="../05_実証/06_Phase5外部Data_Gate申請・範囲表.html">P5-DATA-G1申請表（推奨値適用・承認済み）</a> / <a href="../../../tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1.md">P5-DATA-G1承認Evidence</a></li>
+      <li><a href="../05_実証/06_Phase5外部Data_Gate申請・範囲表.html">旧P5-DATA-G1申請表（Databento履歴）</a> / <a href="../06_方針転換/02_Binance_Data_Vision方針転換・Crypto暫定対象.html">Binance用P5-DATA-G1 amendment方針</a> / <a href="../../../tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1.md">旧承認Evidence</a></li>
       <li><a href="../../ai_foundation/09_Phase実行計画作成AI部品仕様.html">Phase実行計画作成AI部品仕様</a> / <a href="../../ai_foundation/10_Phase実行計画書作成依頼プロンプト.html">標準依頼Prompt</a></li>
     </ul>
   </section>
 
-  <p><strong>改訂履歴:</strong> 2026-08-12 v0.1作成。P5のStep、Gate、外部Data境界、Unknown、実ランタイム起動・Fallback契約を反映。2026-08-13 P5-DATA-G1推奨構成の適用・承認Evidenceと、Runner・実行前Evidence不足によるP5-08 BLOCKED状態を反映。</p>
+    <p><strong>改訂履歴:</strong> 2026-08-12 v0.1作成。P5のStep、Gate、外部Data境界、Unknown、実ランタイム起動・Fallback契約を反映。2026-08-13 P5-DATA-G1推奨構成の適用・承認Evidenceと、Runner・実行前Evidence不足によるP5-08 BLOCKED状態を反映。2026-08-14 ProviderをBinance Data Visionへ変更し、BTCUSDT／ETHUSDTを暫定対象、旧CME 5候補を履歴とするscope amendmentを追加。</p>
 </main>
 </body>
 </html>
