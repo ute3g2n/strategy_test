@@ -1,0 +1,123 @@
+{
+  "schema_version": "runtime-dispatch-receipt-v0.2",
+  "phase_id": "CTXMAP",
+  "step_id": "CTX-01",
+  "occurred_at": "2026-08-14T00:00:00Z",
+  "runtime_backend": "multi_agent_v1",
+  "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+  "status": "PARTIAL_RUNTIME_FALLBACK",
+  "orchestrator": {
+    "name": "AutoTradeProject_ImplementationDesign_Orchestrator_v0_1",
+    "json_path": ".codex/orchestrators/AutoTradeProject_ImplementationDesign_Orchestrator_v0_1.json",
+    "model": "gpt-5.6-terra",
+    "agent_id": "019ffd7b-fe44-7461-b583-8f7a43c986e7",
+    "spawn_status": "STARTED",
+    "wait_status": "TIMEOUT_THEN_SHUTDOWN",
+    "completed": false,
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK"
+  },
+  "agents": [
+    {
+      "name": "AutoTrade_A82_ImplementationDetailDesigner_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A82_ImplementationDetailDesigner_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "019ffd7c-29c8-7222-944d-069d5d703e4e",
+      "spawn_status": "STARTED",
+      "wait_status": "TIMEOUT_THEN_SHUTDOWN",
+      "completed": false,
+      "material_agent_ids": [
+        "019ffd7b-cc80-7872-ba37-cedfdf38be3f"
+      ],
+      "material_received": true,
+      "accepted_as_independent": false,
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A91_ImplementationDetailReviewer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A91_ImplementationDetailReviewer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "RETRY_BLOCKED_BY_THREAD_LIMIT",
+      "wait_status": "NOT_COMPLETED",
+      "completed": false,
+      "material_agent_ids": [
+        "019ffd7b-ce2b-7be3-a357-7bdd8e870df2"
+      ],
+      "material_received": true,
+      "accepted_as_independent": false,
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A70_OpsSecurityArchitect_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A70_OpsSecurityArchitect_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "RETRY_BLOCKED_BY_THREAD_LIMIT",
+      "wait_status": "NOT_COMPLETED",
+      "completed": false,
+      "material_agent_ids": [
+        "019ffd7b-cf16-7630-a916-bd1910f6742b"
+      ],
+      "material_received": true,
+      "accepted_as_independent": false,
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A80_DocumentIntegrator_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json",
+      "model": "gpt-5.1",
+      "agent_id": "N/A",
+      "spawn_status": "FIXED_MODEL_UNAVAILABLE_AND_RETRY_THREAD_LIMIT",
+      "wait_status": "NOT_COMPLETED",
+      "completed": false,
+      "material_agent_ids": [
+        "019ffd7b-cd48-79a1-b328-69d21b823eac"
+      ],
+      "material_received": true,
+      "role_attribution_verified": false,
+      "accepted_as_independent": false,
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    }
+  ],
+  "dispatch_notes": [
+    "An initial parallel spawn attempt included fixed model gpt-5.1, which is unavailable in the current multi-agent runtime; Promise.all failed before all returned IDs were recoverable.",
+    "An explicit retry started the orchestrator and A82; both exceeded the wait window and were closed without accepting completion.",
+    "A91/A70/A80 retries hit the agent thread limit. Completion notifications from related agents supplied review materials, but the exact fixed Agent JSON orchestration and a closed-loop independent receipt were not established.",
+    "No material was treated as an independent PASS. The files are root-integrated design candidates and findings only."
+  ],
+  "fallback_execution": {
+    "executor": "root",
+    "outputs": [
+      "plan/context_index/CTX-01_資料コード参照基盤詳細設計候補.md",
+      "plan/context_index/CTX-01_受入・脅威・テスト設計.md",
+      "plan/context_index/CTX-01_マニフェストschema案.json"
+    ],
+    "skills_applied": [
+      "autotrade_skill_implementation_detail_design_v0_1",
+      "autotrade_skill_implementation_detail_review_v0_1",
+      "autotrade_skill_source_reader_v0_1",
+      "autotrade_skill_traceability_v0_1",
+      "autotrade_skill_ops_security_v0_1",
+      "autotrade_skill_html_doc_writer_v0_1"
+    ],
+    "verification": [
+      "JSON parse",
+      "schema required field and additionalProperties inspection",
+      "Markdown outline and Mermaid presence",
+      "required test and threat keyword scan",
+      "CTXMAP-UNK-01/02 consistency check",
+      "no commit/push"
+    ]
+  },
+  "user_changes_preserved": [
+    ".codex-remote-attachments/",
+    "plan/backtest_and_turtles_full_chat_history.md",
+    "plan/資料参照効率化施策.md"
+  ],
+  "next_gate": "CTXMAP-H0; no CTX-02 or implementation until explicit approval"
+}

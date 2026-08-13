@@ -1,0 +1,57 @@
+{
+  "schema_version": "ctx-dispatch-receipt-v0.1",
+  "context_id": "CTX-00",
+  "executed_at_utc": "2026-08-13T23:31:33Z",
+  "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+  "independent": false,
+  "review_mode": "SELF_REVIEW_FALLBACK",
+  "orchestrator": {
+    "name": "AutoTradePhasePlanning_Orchestrator_v0_1",
+    "status": "NOT_STARTED",
+    "agent_id": "N/A",
+    "reason": "CTX-00 is an inventory step and the root runtime did not complete the required orchestrator handoff."
+  },
+  "requested_agents": [
+    {
+      "name": "AutoTrade_A05_PhaseExecutionPlanner_v0_1",
+      "status": "NOT_STARTED",
+      "agent_id": "N/A"
+    },
+    {
+      "name": "AutoTrade_A10_RequirementsCurator_v0_1",
+      "status": "NOT_STARTED",
+      "agent_id": "N/A"
+    },
+    {
+      "name": "AutoTrade_A90_DesignReviewer_v0_1",
+      "status": "NOT_STARTED",
+      "agent_id": "N/A"
+    }
+  ],
+  "direct_attempt": {
+    "role": "planner",
+    "model": "gpt-5.6-luna",
+    "agent_id": "019ffd64-1296-7a83-89a6-71444a8a34a3",
+    "status": "shutdown_after_timeout",
+    "completed": false,
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK",
+    "action": "long-running attempt was interrupted and closed; no output from this agent was accepted"
+  },
+  "fallback_execution": {
+    "executor": "root",
+    "outputs": [
+      "plan/context_index/CTX-00_棚卸し・対象分類.md",
+      "plan/context_index/CTX-00_変更基準線.json",
+      "plan/context_index/CTX-00_Unknown台帳.md",
+      "plan/context_index/CTX-00_対象パスハッシュ.tsv"
+    ],
+    "verification": "deterministic PowerShell inventory, SHA-256 manifest, JSON/Markdown presence checks"
+  },
+  "user_changes_preserved": [
+    ".codex-remote-attachments/",
+    "plan/backtest_and_turtles_full_chat_history.md",
+    "plan/資料参照効率化施策.md"
+  ],
+  "next_gate": "CTXMAP-H0 after CTX-01"
+}

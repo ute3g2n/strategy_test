@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ctxmap-manifest-schema-v0.1",
+  "title": "CTXMAP manifest schema candidate",
+  "type": "object",
+  "required": ["schema_version", "generator_version"],
+  "properties": {
+    "schema_version": {"const": "ctxmap-manifest-v0.1"},
+    "generator_version": {"type": "string", "minLength": 1}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)(?![A-Za-z]:)(?!//)[^\\u0000]+$"
+    },
+    "utcTime": {"type": "string", "format": "date-time"},
+    "stableId": {"type": "string", "pattern": "^(art|code|rel|rcpt)-[0-9a-f-]{36}$"},
+    "status": {"enum": ["active", "deleted", "partial", "blocked", "pending"]},
+    "artifactRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "kind", "status", "relative_path", "source_hash", "schema_version", "generator_version", "first_seen_at", "updated_at"],
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/stableId"},
+        "kind": {"enum": ["managed_document", "managed_config", "generated_or_evidence", "third_party_or_runtime", "sensitive_or_unknown"]},
+        "status": {"$ref": "#/$defs/status"},
+        "relative_path": {"$ref": "#/$defs/relativePath"},
+        "source_hash": {"$ref": "#/$defs/sha256"},
+        "schema_version": {"const": "ctxmap-manifest-v0.1"},
+        "generator_version": {"type": "string", "minLength": 1},
+        "first_seen_at": {"$ref": "#/$defs/utcTime"},
+        "updated_at": {"$ref": "#/$defs/utcTime"},
+        "title": {"type": "string", "maxLength": 500},
+        "headings": {"type": "array", "items": {"type": "object", "required": ["level", "text", "line"], "properties": {"level": {"enum": [1, 2, 3]}, "text": {"type": "string", "maxLength": 500}, "line": {"type": "integer", "minimum": 1}}, "additionalProperties": false}},
+        "trace_ids": {"type": "array", "items": {"type": "string", "pattern": "^(REQ|DEC|UNK|ART|CTXMAP)-[A-Za-z0-9._-]+$"}, "uniqueItems": true},
+        "local_links": {"type": "array", "items": {"$ref": "#/$defs/relativePath"}, "uniqueItems": true},
+        "summary": {"type": "string", "maxLength": 2000},
+        "purpose": {"type": "string", "maxLength": 1000},
+        "triggers": {"type": "array", "items": {"type": "string", "maxLength": 300}, "maxItems": 30},
+        "relation_ids": {"type": "array", "items": {"$ref": "#/$defs/stableId"}, "uniqueItems": true},
+        "path_history": {"type": "array", "items": {"type": "object", "required": ["relative_path", "observed_at"], "properties": {"relative_path": {"$ref": "#/$defs/relativePath"}, "observed_at": {"$ref": "#/$defs/utcTime"}, "reason": {"enum": ["initial", "rename", "restore"]}}, "additionalProperties": false}},
+        "deleted_at": {"$ref": "#/$defs/utcTime"},
+        "last_known_path": {"$ref": "#/$defs/relativePath"}
+      }
+    },
+    "codeRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code_id", "artifact_id", "language", "extraction_status", "source_hash", "schema_version", "generator_version", "symbols", "imports"],
+      "properties": {
+        "code_id": {"$ref": "#/$defs/stableId"},
+        "artifact_id": {"$ref": "#/$defs/stableId"},
+        "language": {"enum": ["python", "javascript", "typescript", "powershell", "shell", "cmd", "json", "toml", "yaml"]},
+        "extraction_status": {"enum": ["FULL", "PARTIAL", "BLOCKED"]},
+        "source_hash": {"$ref": "#/$defs/sha256"},
+        "schema_version": {"const": "ctxmap-manifest-v0.1"},
+        "generator_version": {"type": "string", "minLength": 1},
+        "symbols": {"type": "array", "items": {"type": "object", "required": ["symbol_id", "qualified_name", "kind", "line_start", "line_end"], "properties": {"symbol_id": {"$ref": "#/$defs/stableId"}, "qualified_name": {"type": "string", "maxLength": 1000}, "kind": {"type": "string", "maxLength": 100}, "line_start": {"type": "integer", "minimum": 1}, "line_end": {"type": "integer", "minimum": 1}, "predecessor_code_id": {"$ref": "#/$defs/stableId"}}, "additionalProperties": false}},
+        "imports": {"type": "array", "items": {"type": "string", "maxLength": 1000}},
+        "entry_points": {"type": "array", "items": {"type": "string", "maxLength": 1000}},
+        "limitations": {"type": "array", "items": {"type": "string", "maxLength": 1000}}
+      }
+    },
+    "relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relation_id", "from_id", "to_id", "relation_type", "evidence", "status", "schema_version"],
+      "properties": {
+        "relation_id": {"$ref": "#/$defs/stableId"},
+        "from_id": {"$ref": "#/$defs/stableId"},
+        "to_id": {"$ref": "#/$defs/stableId"},
+        "relation_type": {"enum": ["local_link", "trace_reference", "import", "component_reference", "rename", "predecessor"]},
+        "evidence": {"enum": ["explicit", "heuristic"]},
+        "status": {"enum": ["active", "inactive"]},
+        "schema_version": {"const": "ctxmap-manifest-v0.1"},
+        "source_line": {"type": "integer", "minimum": 1},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "last_verified_hash": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "stateRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["subject_id", "subject_type", "source_hash", "state", "last_processed_at", "generator_version", "schema_version"],
+      "properties": {
+        "subject_id": {"$ref": "#/$defs/stableId"},
+        "subject_type": {"enum": ["artifact", "code"]},
+        "source_hash": {"$ref": "#/$defs/sha256"},
+        "state": {"$ref": "#/$defs/status"},
+        "last_processed_at": {"$ref": "#/$defs/utcTime"},
+        "generator_version": {"type": "string", "minLength": 1},
+        "schema_version": {"const": "ctxmap-manifest-v0.1"},
+        "delta_kind": {"enum": ["added", "modified_minor", "modified_major", "renamed", "deleted", "rename_ambiguous"]},
+        "receipt_id": {"$ref": "#/$defs/stableId"},
+        "pending_reason": {"type": "string", "maxLength": 1000}
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["receipt_id", "request_id", "operation", "occurred_at", "status", "schema_version", "dispatch_mode", "independent", "review_mode"],
+      "properties": {
+        "receipt_id": {"$ref": "#/$defs/stableId"},
+        "request_id": {"type": "string", "minLength": 1, "maxLength": 200},
+        "operation": {"enum": ["a07_maintenance", "a08_routing", "validator", "migration"]},
+        "subject_id": {"type": ["string", "null"], "pattern": "^(art|code)-[0-9a-f-]{36}$"},
+        "source_hash": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+        "manifest_snapshot_hash": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+        "occurred_at": {"$ref": "#/$defs/utcTime"},
+        "status": {"enum": ["accepted", "blocked", "failed"]},
+        "schema_version": {"const": "ctxmap-manifest-v0.1"},
+        "dispatch_mode": {"enum": ["multi_agent_v1", "RUNTIME_DISPATCH_FALLBACK_REQUIRED", "LOCAL_FALLBACK_NO_SUBAGENTS"]},
+        "agent_name": {"type": "string", "maxLength": 300},
+        "agent_model": {"type": "string", "maxLength": 300},
+        "agent_id": {"type": ["string", "null"]},
+        "input_chars": {"type": "integer", "minimum": 0, "maximum": 18000},
+        "output_hash": {"$ref": "#/$defs/sha256"},
+        "reason_code": {"type": "string", "maxLength": 200},
+        "independent": {"type": "boolean"},
+        "review_mode": {"enum": ["INDEPENDENT_REVIEW", "SELF_REVIEW_FALLBACK"]}
+      }
+    },
+    "a07Input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "request_id", "operation", "relative_path", "source_hash", "delta", "existing_record", "safe_excerpt"],
+      "properties": {
+        "schema_version": {"const": "ctxmap-a07-input-v0.1"},
+        "request_id": {"type": "string", "minLength": 1, "maxLength": 200},
+        "operation": {"enum": ["record_add", "record_update"]},
+        "relative_path": {"$ref": "#/$defs/relativePath"},
+        "source_hash": {"$ref": "#/$defs/sha256"},
+        "delta": {"type": "object", "additionalProperties": false, "required": ["change_kind", "major_change"], "properties": {"change_kind": {"enum": ["added", "modified_major"]}, "major_change": {"const": true}, "structural_diff": {"type": "object"}}},
+        "existing_record": {"type": ["object", "null"]},
+        "safe_excerpt": {"type": "string", "maxLength": 18000},
+        "secret_scan": {"const": "PASS"}
+      }
+    },
+    "a07Output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "request_id", "action", "source_hash", "summary", "purpose", "triggers", "relations", "reason", "secret_scan", "agent_id", "independent", "review_mode"],
+      "properties": {
+        "schema_version": {"const": "ctxmap-a07-output-v0.1"},
+        "request_id": {"type": "string"},
+        "action": {"enum": ["record_add", "record_update", "metadata_unchanged", "blocked"]},
+        "artifact_id": {"type": ["string", "null"]},
+        "source_hash": {"$ref": "#/$defs/sha256"},
+        "summary": {"type": "string", "maxLength": 400},
+        "purpose": {"type": "array", "items": {"type": "string", "maxLength": 64}},
+        "triggers": {"type": "array", "items": {"type": "string", "maxLength": 200}},
+        "headings": {"type": "array"},
+        "relations": {"type": "array"},
+        "reason": {"type": "string", "maxLength": 500},
+        "secret_scan": {"enum": ["PASS", "BLOCK"]},
+        "agent_id": {"type": ["string", "null"]},
+        "independent": {"type": "boolean"},
+        "review_mode": {"enum": ["INDEPENDENT_REVIEW", "SELF_REVIEW_FALLBACK"]}
+      }
+    },
+    "a08Input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "request_id", "user_request", "candidate_ids", "max_primary", "max_supporting"],
+      "properties": {
+        "schema_version": {"const": "ctxmap-a08-input-v0.1"},
+        "request_id": {"type": "string", "maxLength": 200},
+        "user_request": {"type": "string", "maxLength": 4000},
+        "candidate_ids": {"type": "array", "maxItems": 100, "items": {"type": "string"}},
+        "relation_hints": {"type": "array", "maxItems": 50},
+        "max_primary": {"const": 3},
+        "max_supporting": {"const": 6}
+      }
+    },
+    "a08Output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "request_id", "primary_ids", "supporting_ids", "rationale_by_id", "jit_requests", "missing_information", "agent_id", "independent", "review_mode"],
+      "properties": {
+        "schema_version": {"const": "ctxmap-a08-output-v0.1"},
+        "request_id": {"type": "string"},
+        "primary_ids": {"type": "array", "minItems": 0, "maxItems": 3, "items": {"type": "string"}},
+        "supporting_ids": {"type": "array", "maxItems": 6, "items": {"type": "string"}},
+        "rationale_by_id": {"type": "object"},
+        "jit_requests": {"type": "array", "maxItems": 9},
+        "missing_information": {"type": "array", "items": {"type": "string", "maxLength": 300}},
+        "agent_id": {"type": ["string", "null"]},
+        "independent": {"type": "boolean"},
+        "review_mode": {"enum": ["INDEPENDENT_REVIEW", "SELF_REVIEW_FALLBACK"]}
+      }
+    },
+    "mcpToolPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["transport", "repo_allowlist", "max_results", "max_chars", "external_io"],
+      "properties": {
+        "transport": {"const": "local-stdio"},
+        "repo_allowlist": {"const": true},
+        "max_results": {"type": "integer", "minimum": 1, "maximum": 50},
+        "max_chars": {"type": "integer", "minimum": 1, "maximum": 12000},
+        "external_io": {"const": false},
+        "secret_denylist": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

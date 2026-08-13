@@ -1,0 +1,126 @@
+{
+  "schema_version": "ctx-00-baseline-v0.1",
+  "generated_at_utc": "2026-08-13T23:31:33.7326336Z",
+  "generated_at_jst": "2026-08-14",
+  "repository": "C:/project/strategy_test",
+  "branch": "main",
+  "head": "200f556cee868fadc3a13d8267bc5b26cb212b32",
+  "origin": "https://github.com/ute3g2n/strategy_test.git",
+  "git_status_baseline": [
+    "?? .codex-remote-attachments/",
+    "?? plan/backtest_and_turtles_full_chat_history.md",
+    "?? plan/資料参照効率化施策.md"
+  ],
+  "scope": {
+    "extensions": [
+      ".md",
+      ".html",
+      ".py",
+      ".js",
+      ".mjs",
+      ".cjs",
+      ".ts",
+      ".tsx",
+      ".ps1",
+      ".sh",
+      ".cmd",
+      ".json",
+      ".toml",
+      ".yaml",
+      ".yml"
+    ],
+    "managed_inventory_count": 682,
+    "counts": {
+      "managed_document": 409,
+      "managed_source": 166,
+      "managed_config": 107,
+      "sensitive_or_unknown": 0
+    },
+    "excluded_or_boundary": [
+      "third_party",
+      "node_modules",
+      ".venv",
+      "tests/evidence",
+      "dist",
+      "build",
+      "coverage",
+      ".codex-remote-attachments"
+    ]
+  },
+  "path_hash_manifest": "plan/context_index/CTX-00_対象パスハッシュ.tsv",
+  "hash_algorithm": "SHA-256",
+  "hash_record_fields": [
+    "path",
+    "kind",
+    "tracked",
+    "bytes",
+    "sha256"
+  ],
+  "inventory_digest_sha256": "4b5a888a1cd0ae23f146747b90560990125294a2b5894b80d4a83cd7001f5a22",
+  "doc_surface": {
+    "doc_html_count": 115,
+    "direct_reference_heuristic_count": 108,
+    "unresolved_heuristic_count": 7,
+    "note": "直接参照未検出は未到達を意味しない。完全リンク解決はCTX-08で再検証する。"
+  },
+  "ai_component_baseline": {
+    "skills": 59,
+    "agents": 46,
+    "orchestrators": 9
+  },
+  "boundaries": [
+    {
+      "path": "third_party",
+      "exists": true,
+      "gitignore": true
+    },
+    {
+      "path": "node_modules",
+      "exists": true,
+      "gitignore": true
+    },
+    {
+      "path": ".venv",
+      "exists": true,
+      "gitignore": true
+    },
+    {
+      "path": "tests/evidence",
+      "exists": true,
+      "gitignore": false
+    },
+    {
+      "path": "dist",
+      "exists": false,
+      "gitignore": false
+    },
+    {
+      "path": "build",
+      "exists": false,
+      "gitignore": false
+    },
+    {
+      "path": "coverage",
+      "exists": false,
+      "gitignore": false
+    },
+    {
+      "path": ".codex-remote-attachments",
+      "exists": true,
+      "gitignore": false
+    }
+  ],
+  "reproducibility": {
+    "source_listing": "rg --files --hidden with .git, node_modules, .venv, third_party, tests/evidence, plan/context_index excluded",
+    "baseline_snapshot_excluded": [
+      "plan/context_index/**"
+    ],
+    "canonical_record": "sorted path|kind|tracked|bytes|sha256 joined by LF",
+    "digest_recompute": "再走査し、CTX-00_対象パスハッシュ.tsvの同じ5列を作ってSHA-256を比較する"
+  },
+  "unknown_ids": [
+    "CTXMAP-UNK-01",
+    "CTXMAP-UNK-02"
+  ],
+  "gate": "CTXMAP-H0"
+}
