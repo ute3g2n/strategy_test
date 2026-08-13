@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>無料・低価格市場データ代替調査</title>
+  <style>
+    body{font-family:"Segoe UI","Yu Gothic",sans-serif;line-height:1.7;margin:28px auto;max-width:1400px;color:#172033;background:#f8fafc}
+    main{background:#fff;border:1px solid #d9e2ec;padding:28px}
+    h1{border-bottom:3px solid #1f2937;padding-bottom:10px}
+    h2{border-bottom:1px solid #cbd5e1;margin-top:34px;padding-bottom:6px}
+    h3{margin-top:26px;color:#334155}
+    a{color:#0f5db8}
+    code{background:#eef2f7;padding:1px 4px;border-radius:3px}
+    table{border-collapse:collapse;width:100%;margin:14px 0;font-size:.9rem}
+    th,td{border:1px solid #cbd5e1;padding:8px;vertical-align:top}
+    th{background:#eef2f7;text-align:left}
+    pre{background:#0f172a;color:#e5e7eb;padding:14px;overflow:auto;white-space:pre-wrap}
+    .box{border-left:4px solid #2563eb;background:#eff6ff;padding:12px;margin:16px 0}
+    .stop{border-left-color:#dc2626;background:#fef2f2}
+    .ok{border-left-color:#059669;background:#ecfdf5}
+    .warn{border-left-color:#b45309;background:#fffbeb}
+    .muted{color:#475569}
+    .badge{border-radius:999px;padding:2px 8px;font-weight:bold;display:inline-block}
+    .done{background:#d1fae5;color:#065f46}
+    .wait{background:#fef3c7;color:#92400e}
+    .unknown{background:#e2e8f0;color:#334155}
+    .no{background:#fee2e2;color:#991b1b}
+    .small{font-size:.86rem;color:#475569}
+    .nowrap{white-space:nowrap}
+  </style>
+</head>
+<body>
+<main>
+  <h1>無料・低価格市場データ代替調査</h1>
+  <section class="box">
+    <p><strong>成果物ID:</strong> <code>P5-ART-ALT-DATA-RESEARCH-001</code><br>
+    <strong>Phase / Step:</strong> <code>PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12</code> / P5-08方針転換検討<br>
+    <strong>調査日:</strong> 初回調査 2026-08-13、主要公式ページ再確認 2026-08-14（Asia/Tokyo）<br>
+    <strong>状態:</strong> <span class="badge wait">RESEARCH_COMPLETE / PROPOSAL_PENDING_USER_DECISION</span><br>
+    <strong>変更範囲:</strong> Web調査、正式HTML、Markdownログ、索引、統合台帳の調査状態だけ。P5-DATA-G1、P5-08 request、Provider、Secret、外部Data、Core、P4 DB、Broker、Paper、Live、実資金、外部Runは変更していない。</p>
+  </section>
+
+  <section class="box stop">
+    <h2>最初に結論</h2>
+    <p><strong>「無料で、現在のP5と同じ5銘柄のCME先物を、17か月分の1分足で、再現可能に取得できる」サービスは、今回確認した範囲では見つからなかった。</strong></p>
+    <p>無料サービスの多くは、日足、FXスポット／CFD、暗号資産、または研究用の非公式APIである。現在のP5で必要な <code>MCL</code>、<code>M6A</code>、<code>MZC</code>、<code>MZS</code>、<code>MZW</code>、1分足、個別限月、Calendar、Roll、Raw／Normalized／Quality／Manifest証跡を、同じ意味で満たすとは限らない。</p>
+    <p><strong>最も現実的な低価格候補は Sierra Chart Historical Data Service</strong> である。公式説明では日足・日中足・多くの先物市場のtick履歴を提供し、Standard／Advanced packageに含まれる。公開価格はBase Standardが月26 USDである。ただし、5銘柄の実際のsymbol、2025-02-24以降の履歴、1分足、Volume／Open Interest、限月・連続系列、CSV出力を、1日分の小さな検証で確認するまでは採用しない。</p>
+    <p><strong>完全無料を優先するなら、P5の対象を日足中心へ縮小する必要がある。</strong> Yahoo Finance／yfinance、Nasdaq Data Link、Stooq、CME公式Settlementは日足の研究・照合候補だが、17か月の1分足からH4／H1／M30／M15を作る代替にはならない。</p>
+  </section>
+
+  <section>
+    <h2>1. 今回の基準線と、Databentoが高く見える理由</h2>
+    <p>現在のP5-08は、Databento <code>GLBX.MDP3</code>に対して、5つのMicro futuresを対象に、2025-02-24〜2026-08-01、主schema <code>ohlcv-1m</code>、日次分割、Raw DBN.zstd、SHA-256、UTC保存、Calendar／Roll／Quality／Manifest証跡を要求していた。実行RunではProviderがHTTP 402を返し、Records 0、Raw 0、Normalized 0で停止した。</p>
+    <p>画面に表示された今回の料金は、<code>ohlcv-1m</code> 0.78 GB × 70 USD/GB = 54.59 USD、Definition 0.09 GB = 0.16 USD、Statistics 0.09 GB = 0.09 USD、合計54.84 USDだった。Databento公式説明ではHistoricalは使用量課金で、課金サイズはスキーマや取得内容に依存する。つまり、単純に「1分足CSVを月額で買う」料金ではなく、提供される市場データの粒度と転送量に対する料金である。</p>
+    <div class="box warn"><strong>比較上の注意:</strong> 月26 USDのプラットフォームや無料のAPIが安く見えても、同じものを比較しているとは限らない。日足だけ、連続銘柄だけ、スポット価格、CFDのBid価格、最大60日以内のイントラデイ、または再配布不可の研究用APIなら、現在P5の証拠要件を満たさない。</div>
+    <p>根拠: <a href="../../../tests/evidence/phase5/RUN-P5-08-DATABENTO-001/logs/actual-run-result-2026-08-13.md">P5-08実行結果</a> ／ <a href="https://databento.com/docs/faqs/usage-pricing-and-data-credits">Databento usage pricing</a> ／ <a href="https://databento.com/docs/api-reference-historical/basics/errors">Databento HTTP errors</a>。</p>
+  </section>
+
+  <section>
+    <h2>2. 「世界的に広く使われる」の判定方法</h2>
+    <p>各サービスについて、監査済みの世界市場シェア順位は公表されていない。そのため本報告の「広く使われる」は、次の実務上の証拠で分類した。市場シェアを断定するものではない。</p>
+    <table>
+      <thead><tr><th>判定軸</th><th>確認する内容</th><th>今回の扱い</th></tr></thead>
+      <tbody>
+        <tr><td>研究・OSSへの接続</td><td>yfinance、Backtrader、pandas-datareaderなどが公式ドキュメントで接続方法を持つか。</td><td>広く知られた研究ルートとして加点。ただし普及度とデータ品質は別。</td></tr>
+        <tr><td>公式の取得仕様</td><td>履歴、時間足、API、CSV、価格、制限、利用条件が一次情報で確認できるか。</td><td>「無料」と書かれていても、公式根拠がなければUnknown。</td></tr>
+        <tr><td>P5との意味の一致</td><td>CME先物の個別限月、1分足、Volume、UTC、Roll、再現可能な保存が揃うか。</td><td>一つでも不足すれば「P5直接代替」ではなく「別用途／proxy」と表示。</td></tr>
+        <tr><td>再現性・利用許可</td><td>同じ条件を再取得でき、内部研究・保存・再配布の条件が読めるか。</td><td>規約や個人利用限定がある場合、システムの正式Data evidenceへ一般化しない。</td></tr>
+      </tbody>
+    </table>
+    <p>yfinanceはYahooの公式製品ではなく、Yahooの公開APIを使う研究・教育目的のOSSで、Yahoo APIは個人利用向けと明記されている。Backtraderの公式Data Feed一覧にはYahoo、Quandl、IB、Oanda、SierraChart CSVなどがある。このようなエコシステム接続は「研究者に広く知られた経路」の根拠にはなるが、CMEの取引所級データの保証にはならない。</p>
+  </section>
+
+  <section>
+    <h2>3. 候補の比較表（結論を先に見る表）</h2>
+    <p>この表は、候補を「今のP5を置き換えられるか」「安く研究できるだけか」「資産種類を変える必要があるか」で判断するためのもの。</p>
+    <table>
+      <thead><tr><th>ID / サービス</th><th>費用の目安</th><th>主なデータ・時間足</th><th>現在P5との一致</th><th>主な弱点</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr><td><strong>A01<br>Sierra Chart Historical Data Service</strong></td><td>Base Standard 26 USD/月。Historical Data ServiceはStandard／Advancedに含まれる。税・外部サービス・リアルタイム取引所費用は別確認。</td><td>日足、日中足、多くの先物のtick履歴。CSV／Text出力。UTC exportが可能。</td><td>高い候補。CME／CBOT／NYMEX／COMEXの5銘柄と期間、Volume、個別限月、Rollは小規模PoCで確認が必要。</td><td>HTTP APIの一括Data Vendorではない。Sierra Chartを経由した取得・export・adapterが必要。symbol・履歴・利用条件の実証が残る。</td><td><span class="badge wait">第一候補・PoC必須</span></td></tr>
+        <tr><td><strong>A02<br>Yahoo Finance + yfinance</strong></td><td>研究用OSSは無料。ただしYahooの利用条件、CSV downloadの契約、個人利用条件を確認。</td><td>日足。yfinance公式docsではintradayは直近60日を越えられない。</td><td>日足proxyとしては有用。17か月の1分足、個別限月・Roll・取引所Volumeの正本にはならない。</td><td>APIの安定性・規約・連続銘柄の構成・契約切替・調整方法がP5のRaw契約と一致しない。</td><td><span class="badge wait">日足prototypeのみ</span></td></tr>
+        <tr><td><strong>A03<br>Nasdaq Data Link（旧Quandl）</strong></td><td>Free datasetとPremium datasetが混在。datasetごとに確認。APIは無料keyが必要な場合がある。</td><td>日次・低頻度の経済／市場データ。歴史的なCHRIS continuous futuresは広く知られた研究ルートだが、現在のアクセス可否は確認が必要。</td><td>日足continuous proxyの候補。現在の5つのMicro futuresの1分足代替ではない。</td><td>旧CHRISの現行権利・価格・dataset ID・symbol coverageを、ログイン後のlive portalで再確認できていない。</td><td><span class="badge unknown">候補・Availability Unknown</span></td></tr>
+        <tr><td><strong>A04<br>CME公式Settlement／Volume Open Interest</strong></td><td>公式Webの現在・前回Settlement等は無料閲覧。過去のまとまった取得はDataMine等の別経路。</td><td>公式日次Settlement、Volume、Open Interestの参照。</td><td>日足の正本照合に強い。1分足、tick、17か月の一括Rawの代替ではない。</td><td>Web画面の遅延・参照用途と、正式DataMineの利用条件を分ける必要がある。</td><td><span class="badge done">日次照合用</span></td></tr>
+        <tr><td><strong>A05<br>Stooq</strong></td><td>無料／低価格候補。ただし現在のAPI key、download、symbol、利用条件は要再確認。</td><td>主にEODの株式・指数・先物・商品候補。</td><td>日足の探索・第三者照合のみ。1分足CMEの代替ではない。</td><td>現行の提供条件・先物symbol・履歴の継続性を一次情報で確定できていない。</td><td><span class="badge unknown">EOD候補・要検証</span></td></tr>
+        <tr><td><strong>A06<br>Interactive Brokers TWS API</strong></td><td>無料ではない。Level 1市場Data subscription、口座・権限・場合によってfunded accountが必要。既存利用者なら限界費用が低い可能性。</td><td>契約別のHistorical bars、日中足。TWSが利用できる範囲。</td><td>条件付きで高い。5銘柄・期間・1分足・保存を実証すれば候補。</td><td>Broker依存、pacing、データフィルタ、履歴の修正、subscription条件、API取得形態がある。外部Adapterが必要。</td><td><span class="badge wait">既存口座がある場合の候補</span></td></tr>
+        <tr><td><strong>A07<br>NinjaTrader</strong></td><td>Free planは月額0 USD。リアルタイムDataや取引所・清算費用、利用条件は別。</td><td>Platform内のbacktest、sim、market replay等。</td><td>Platform内検証候補。再現可能な外部CSV/API Data sourceとしての適合は未確認。</td><td>無料プランだけで、5銘柄17か月1分足を独立保存・自動取得できるとは確認できない。</td><td><span class="badge unknown">Platform候補・主経路にしない</span></td></tr>
+        <tr><td><strong>A08<br>HistData</strong></td><td>無料。</td><td>FXのM1・tick、ASCII。Bidベース。WTI等のCFD／proxyが含まれる場合がある。</td><td>FX／CFD研究には有用。CME先物MCL等の正本ではない。</td><td>FXのVolumeなし、gap・品質保証なし、取引所契約・Roll・Calendarと意味が違う。</td><td><span class="badge no">P5直接代替不可・proxy</span></td></tr>
+        <tr><td><strong>A09<br>Dukascopy Historical Data</strong></td><td>無料。CSV／tick〜monthly。公式APIもHistorical candlesを提供。</td><td>FX、Commodity、Index等のbroker／CFD系履歴。</td><td>FX／CFDのintraday研究には強い。CME Micro futuresの契約Dataではない。</td><td>Bid／Ask、broker symbol、Volume、契約ロールの意味がP5と異なる。</td><td><span class="badge no">別市場のproxy</span></td></tr>
+        <tr><td><strong>A10<br>TrueFX</strong></td><td>過去履歴は無料提供を掲げる。</td><td>FXのtop-of-book tick、millisecond、GMT。</td><td>FXのtick研究のみ。CME先物ではない。</td><td>利用はinternal analysisに限定。現行ページでは個人向けcurrent data eligibilityに制限が示される。</td><td><span class="badge no">P5直接代替不可</span></td></tr>
+        <tr><td><strong>A11<br>Alpha Vantage</strong></td><td>無料keyで一部dataset。標準制限は25 requests/day。Intraday等はPremium機能がある。</td><td>株式、FX、金・銀・商品spot／index等。</td><td>CME futures MCL/M6A/MZC/MZS/MZWを同じ意味で提供しない。</td><td>Commodity endpointをCME先物と取り違えない。無料枠は取得量も限定。</td><td><span class="badge no">P5対象外</span></td></tr>
+        <tr><td><strong>A12<br>Twelve Data</strong></td><td>Basicは8 credits/min、800 requests/day。Commodityの有料プランは29 USD/月からの表示がある。</td><td>株式、FX、crypto、commodity aggregate／spot。intradayは商品・planに依存。</td><td>一般的な商品・FXの研究には便利。CME Micro futuresの個別限月ではない。</td><td>単位・symbol・roll・取引所VolumeがP5と一致しない。</td><td><span class="badge no">P5対象外</span></td></tr>
+        <tr><td><strong>A13<br>Binance Public Data</strong></td><td>公開データ無料。日次／月次ファイル、SHA-256 checksum。</td><td>Crypto spot、USD-M／COIN-M futures。1m、15m、30m、1h、4h、1d等。</td><td>再現可能な無料intradayの強い例。ただし資産種類をCryptoへ変更する場合だけ。</td><td>CME先物ではない。暗号資産へのScope変更、Calendar、Volume、funding等の設計変更が必要。</td><td><span class="badge no">Crypto別案</span></td></tr>
+        <tr><td><strong>A14<br>Coinbase Public Candles</strong></td><td>公開candlesは無料。</td><td>Crypto candles。1回300点超の要求は不可、歴史が不完全な場合がある。</td><td>Cryptoの小規模検証。17か月の1分Bulk経路としては不便。</td><td>ページング、欠落、取引所固有の市場構造を扱う必要。</td><td><span class="badge no">Crypto別案・補助</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>4. 候補別の詳しい評価</h2>
+    <h3>4.1 第一候補: Sierra Chart Historical Data Service</h3>
+    <p>Sierra Chartの公式説明では、Historical Data Serviceは日足・日中足を提供し、多くの先物取引所と米国株についてHistorical tick-by-tick intraday dataも提供する。Historical-onlyで、リアルタイムstreamingは提供しない。Standard／Advanced packageに含まれ、Base Standard packageは26 USD/月と公開されている。Intraday dataはCSV／Text形式へexportでき、export recordはUTCで保存できる。</p>
+    <table>
+      <thead><tr><th>確認項目</th><th>公式に確認できたこと</th><th>P5へ採用する前に実測すること</th></tr></thead>
+      <tbody>
+        <tr><td>費用</td><td>Base Standard 26 USD/月。Historical Data ServiceはStandard／Advancedに含まれる。</td><td>税、契約期間、実際に対象市場を開くための追加費用、保存・自動取得の条件。</td></tr>
+        <tr><td>時間足</td><td>日足、日中足、多くの先物のtick履歴。</td><td>5銘柄の1分足が2025-02-24から2026-08-01まで連続して取得できるか。</td></tr>
+        <tr><td>Symbol</td><td>公式説明はAvailable Symbolsから開く方式。</td><td><code>MCL</code>、<code>M6A</code>、<code>MZC</code>、<code>MZS</code>、<code>MZW</code>の実symbol、限月表記、expired contractの開き方。</td></tr>
+        <tr><td>Volume／Open Interest</td><td>日足DataではVolume／OpenInterestの項目がある。Intraday exportにもVolumeがある。</td><td>1分足のVolumeの意味、取引数、Open Interestの頻度、欠損時の扱い。</td></tr>
+        <tr><td>Roll</td><td>Continuous Futures Contractの機能はあるが、画面の連続系列をP5のvolume-front-month unadjusted ruleと同一視しない。</td><td>個別限月を保存し、Rollを別計算できるか。back-adjustなしでP5 contractへ変換できるか。</td></tr>
+        <tr><td>Export</td><td>CSV／Textへexportでき、UTC exportが可能。</td><td>固定CSV format、timezone、decimal、header、checksum、再取得差分、対象外列をmanifestへ保存できるか。</td></tr>
+      </tbody>
+    </table>
+    <p><strong>判断:</strong> 現在P5の「安くてもCME先物の意味を保ちたい」という方針には最も合う。ただし、まだ「採用済み」ではない。まずMCLとM6Aを各1営業日、次にMZC／MZS／MZWを各1営業日だけ取得して、既存Normalized schemaへ変換できることを証明する。</p>
+    <p>根拠: <a href="https://www.sierrachart.com/index.php?page=doc%2FSierraChartHistoricalData.php">Historical Data Service</a> ／ <a href="https://www.sierrachart.com/index.php?l=doc%2FPackages.php">Packages and Pricing</a> ／ <a href="https://www.sierrachart.com/index.php?page=doc%2FImportExport.html">Exporting and Importing Intraday Data Files</a> ／ <a href="https://www.sierrachart.com/index.php?page=doc%2FEditMenu.html">Edit Menu / export fields</a>。</p>
+
+    <h3>4.2 無料の研究ルート: Yahoo Finance／yfinance</h3>
+    <p>Yahoo Financeは研究者に広く知られ、Backtraderなどの公式Data Feedにも接続される。yfinanceはOSSとしてYahooの公開APIを利用するが、Yahoo自身の公式SDKではなく、研究・教育目的で、Yahoo APIは個人利用向けと説明している。yfinanceの公式docsは利用可能なintervalを列挙し、intraday dataは直近60日を越えられないと記載する。</p>
+    <p>したがって、現在のP5の17か月1分足には明確に足りない。日足の価格推移を見るprototype、戦略の大まかな感度確認、他ソースとの日次照合には使えるが、正式なCME Micro futures Evidenceに昇格させない。</p>
+    <p>根拠: <a href="https://github.com/ranaroussi/yfinance/blob/main/README.md?plain=1">yfinance README</a> ／ <a href="https://ranaroussi.github.io/yfinance/reference/yfinance.functions.html">yfinance interval limits</a> ／ <a href="https://www.backtrader.com/docu/datafeed/">Backtrader Data Feeds</a> ／ <a href="https://help.yahoo.com/kb/finance-for-web/SLN2310.html?locale=en_GB">Yahoo market coverage and delays</a>。</p>
+
+    <h3>4.3 Nasdaq Data Link／CHRIS、Stooq、CME公式</h3>
+    <p>Nasdaq Data LinkはFree datasetとPremium datasetを分けて提供する。公式ドキュメントには、free dataは実験・探索向け、professional applicationsにはpremiumを推奨する旨と、現行ドキュメントが2026-08-31にretire予定である旨が表示される。旧QuandlのCHRIS continuous futuresは研究・OSSで広く参照されてきたが、現在のdataset availability、料金、利用権、必要なsymbolが未確認である。CHRISを「無料で今も必ず使える」とは書かない。</p>
+    <p>StooqはEODの探索・照合候補だが、現行のdownload/API key、先物symbol、履歴・利用条件が一次情報で固まっていないためUnknownにする。CME公式サイトのSettlementは、日次の公式値を照合するには最も強いが、Webの現在・前回値と過去の正式一括取得を混同しない。CMEは過去のまとまったDataをDataMine等へ分けている。</p>
+    <p>根拠: <a href="https://docs.data.nasdaq.com/docs/getting-started">Nasdaq Data Link getting started</a> ／ <a href="https://docs.data.nasdaq.com/docs/data-organization">Data organization</a> ／ <a href="https://www.cmegroup.com/market-data/daily-settlements.html">CME Daily Settlements</a> ／ <a href="https://www.cmegroup.com/articles/faqs/access-cme-group-settlement-data-faq.html">CME settlement FAQ</a> ／ <a href="https://www.cmegroup.com/market-data/volume-open-interest.html">CME Volume and Open Interest</a>。</p>
+
+    <h3>4.4 FX／CFDの無料intraday: HistData、Dukascopy、TrueFX</h3>
+    <p>HistDataはFXのM1・tickを無料配布し、DukascopyはFX・Commodity・IndexのtickからmonthlyのHistorical Dataを無料でexportできる。TrueFXはFXのtop-of-book tickを無料履歴として案内する。ただし、これらはCMEの先物限月Dataではない。Bid／Ask、broker／CFD symbol、Volume、休日、Roll、契約サイズの意味が違うため、MCLやM6AなどのCME futures Evidenceへ一般化しない。</p>
+    <p>特にHistDataのFAQは、FXにVolumeがないこと、データはBidベースであること、完全性の保証がないことを説明している。これは「無料でM1がある」ことと「先物の正本として使える」ことが別である好例である。</p>
+    <p>根拠: <a href="https://www.histdata.com/download-free-forex-data/">HistData free Forex data</a> ／ <a href="https://www.histdata.com/f-a-q/">HistData FAQ</a> ／ <a href="https://www.dukascopy.com/swiss/english/marketwatch/historical/">Dukascopy Historical Data Export</a> ／ <a href="https://www.dukascopy.com/trading-tools/api/documentation/quotes">Dukascopy historical quotes API</a> ／ <a href="https://www.truefx.com/truefx-historical-downloads/">TrueFX historical downloads</a> ／ <a href="https://www.truefx.com/truefx-terms-and-conditions/">TrueFX terms</a>。</p>
+
+    <h3>4.5 一般API: Alpha Vantage／Twelve Data</h3>
+    <p>Alpha Vantageは無料keyと25 requests/dayの枠を持ち、株式・FX・spot／index系CommodityのAPIを提供する。Twelve DataはBasicで8 credits/min、800 requests/dayを表示し、Commodityの広いプランは29 USD/月からと案内する。しかし、どちらも現在の5つのCME Micro futuresの個別限月1分足を、そのまま提供する根拠は確認できない。</p>
+    <p>これらは「株式・FX・一般商品を安く研究するAPI」としては有用だが、Commodity spotやindexをMCL futuresに置き換えない。使うならP5の資産種類・Data contract・要件を正式に変える。</p>
+    <p>根拠: <a href="https://www.alphavantage.co/documentation/">Alpha Vantage documentation</a> ／ <a href="https://www.alphavantage.co/premium/">Alpha Vantage premium and limits</a> ／ <a href="https://twelvedata.com/pricing">Twelve Data pricing</a> ／ <a href="https://twelvedata.com/commodities">Twelve Data commodities</a>。</p>
+
+    <h3>4.6 Cryptoへ方針転換する場合: Binance／Coinbase</h3>
+    <p>Binance Public Dataは、spotとUSD-M／COIN-M futuresについて日次・月次ファイル、1分足などのklines、SHA-256 checksumを公開している。無料で再現可能なintradayの例としては非常に強い。ただし、CryptoはCME futuresと別資産であり、P5の4資産種類・Calendar・Volume・funding・continuous contract・取引時間を作り直す必要がある。Coinbaseの公開candlesは無料だが、1回300点超の要求不可や履歴不完全の可能性がある。</p>
+    <p>したがって、Cryptoを研究対象へ追加する案としては有力だが、現在のP5のDatabento代替にはならない。</p>
+    <p>根拠: <a href="https://github.com/binance/binance-public-data/blob/master/README.md">Binance Public Data README</a> ／ <a href="https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md">Binance REST API</a> ／ <a href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-candles">Coinbase candles API</a>。</p>
+  </section>
+
+  <section class="box">
+    <h2>5. 推奨する方針</h2>
+    <p><strong>推奨は「二段構え」にすること。</strong>正確なCME futuresを必要とする検証と、無料の日足prototypeを混ぜない。</p>
+    <table>
+      <thead><tr><th>トラック</th><th>採用候補</th><th>目的</th><th>許される結論</th><th>許されない結論</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Track A<br>Exact futures</strong></td><td>Sierra Chart Historical Data Serviceを第一候補。IB TWS APIを既存口座がある場合の第二候補。</td><td>5つのCME Micro futures、1分足、個別限月、Volume、UTC、Rollの実証。</td><td>サンプル検証を通過した範囲だけ、P5の正式Raw／Normalized／Qualityへ接続する。</td><td>料金が安いだけで、Sierraの連続銘柄や他市場のproxyをCME個別限月の証拠にすること。</td></tr>
+        <tr><td><strong>Track B<br>Free daily</strong></td><td>CME公式Settlementを照合軸、Yahoo／yfinanceをprototype、Nasdaq Data Link／Stooqはlive availability確認後に補助。</td><td>日足の戦略仮説、価格系列の大まかな比較、CME公式値との日次照合。</td><td>D1だけのprototype。日足の範囲での研究結果。</td><td>日足からH4／H1／M30／M15を作った、または1分足の代替になったとすること。</td></tr>
+        <tr><td><strong>Track C<br>Asset switch</strong></td><td>CryptoならBinance、FX／CFDならDukascopy／HistData。</td><td>無料intradayが最優先の別研究。</td><td>新しい資産種類・要件・Data contractを承認した後の別Run。</td><td>CME futuresのP5 Evidenceや既存Backtest結果へ流用すること。</td></tr>
+      </tbody>
+    </table>
+    <p><strong>優先順位:</strong> exact CMEを守るならA01の小規模PoC、完全無料を守るならTrack Bへ要件変更、資産種類を変えられるならTrack C。3つを同時に正式Dataへ入れず、Source／Asset／Contract／TimeframeごとにRunを分ける。</p>
+  </section>
+
+  <section>
+    <h2>6. 現在のP5要件への適合性</h2>
+    <p>この表は、候補をP5の原子要求に接続するための追跡表である。UnknownはPassへ変換しない。</p>
+    <table>
+      <thead><tr><th>REQ／判断軸</th><th>P5で必要なこと</th><th>低価格候補の状態</th><th>採用判定</th></tr></thead>
+      <tbody>
+        <tr><td><code>REQ-V2-0025/0026</code></td><td>4資産種類と初期5論理IDを、実外部ID・契約と分離して管理する。</td><td>Sierra／IBは個別契約の確認候補。Yahoo／CHRIS／Stooqはcontinuousやproxyの意味が混ざる。</td><td>実symbol・expiry・venue・contract typeが確認できるまでUnknown。</td></tr>
+        <tr><td><code>REQ-V2-0027/0028</code></td><td>D1／H4／H1／M30／M15、UTC保存、America/Chicago Calendar、DST／休日／short sessionを確認する。</td><td>日足のみの候補は1分足からの派生を満たせない。FX／CryptoはCalendarが別。</td><td>Sierra／IBの1分サンプルとCalendar証跡が必要。</td></tr>
+        <tr><td><code>REQ-V2-0029/0030/0032</code></td><td>Raw／Normalized／Qualityを分離し、Catalog／Calendar／Roll／Manifestをhashで固定する。</td><td>無料APIの戻り値をそのまま正式Dataにしない。CSV、規約、取得日、request、hashを保存できるadapterが必要。</td><td>全候補とも新しいSource adapter／Run設計が必要。</td></tr>
+        <tr><td><code>REQ-V2-0031/0091</code></td><td>外部取得とstored import、Provider adapterとCoreを分離する。</td><td>SierraはGUI／export経路、IBはTWS API、Yahoo等は非公式／規約依存API。Provider境界を新設する。</td><td>既存Core・P4 DBは変更せず、P5 evidence root内でPoC。</td></tr>
+        <tr><td><code>REQ-V2-0044/0096</code></td><td>Cost、Gap、Roll、Provenanceを実測と仮定に分ける。</td><td>月額だけでなく、追加fee、download制限、欠損、規約、再取得差分を実測する。</td><td>実証前の費用・品質・Gapを確定値にしない。</td></tr>
+        <tr><td><code>P5-DATA-G1 / P5-08</code></td><td>承認scope、request、Runner、Run ID、External I/O、Secret、Evidenceを一致させる。</td><td>今回の調査は方針案。Databento承認をSierra／Yahoo等へ自動転用しない。</td><td><span class="badge wait">Provider変更時はamendmentと新Gateが必要</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>7. 採用前の最小PoC手順（まだ実行していない）</h2>
+    <p>方針転換を本当に適用する場合は、次の順番にする。外部Data取得は、ユーザーが新Providerの範囲を承認し、Runnerと証跡を固定した後だけ行う。</p>
+    <ol>
+      <li><strong>非交渉条件を決める:</strong> 「CMEの5銘柄と1分足を守る」のか、「完全無料を守って日足へ縮小する」のかを決める。</li>
+      <li><strong>Track AならSierraでsymbolを確認:</strong> MCL、M6A、MZC、MZS、MZWを開き、2025-02-24以降のexpired contractを含む1分足の開始日、欠損、Volume、Open Interest、session timeを確認する。</li>
+      <li><strong>小さくexportする:</strong> MCLとM6Aを各1営業日、次に農産物3銘柄を各1営業日だけCSV／Textへ出す。全17か月を先に取得しない。</li>
+      <li><strong>意味を照合する:</strong> UTC、OHLCV、Volume、tick size、venue、expiry、contract multiplier、holiday／DSTをCatalogへ記録し、CME公式SettlementのD1と突合する。</li>
+      <li><strong>既存契約へ変換する:</strong> Sierra／IBのsource fieldsをProvider境界で止め、既存のRaw／Normalized／Quality／Manifest仕様へ変換できることを確認する。Core、P4 DB、既存Databento requestは触らない。</li>
+      <li><strong>新しいGateを作る:</strong> 採用候補、期間、schema、費用上限、保存・再配布、Runner、外部host isolation、Secret参照を新しいData amendment、new request、new Run IDに固定する。</li>
+      <li><strong>小規模PoCがPASSしたときだけ拡張:</strong> 1日分の欠損・symbol・timezone・hash・exportが合格してから、17か月へ拡張する。未知が残る場合は停止し、日足prototypeへ縮退する。</li>
+    </ol>
+    <div class="box stop"><strong>やってはいけないこと:</strong> yfinanceの日足、DukascopyのCFD、BinanceのCrypto、Sierraの連続系列を、DatabentoのCME個別限月1分足と同じEvidenceとして混ぜない。</div>
+  </section>
+
+  <section>
+    <h2>8. 対象外として固定するもの</h2>
+    <table>
+      <thead><tr><th>対象外</th><th>この調査での扱い</th></tr></thead>
+      <tbody>
+        <tr><td>Broker／Paper／Live／実注文／実資金／実Risk</td><td>市場Dataの候補調査だけなので変更しない。</td></tr>
+        <tr><td>Cloud／外部DB／P4 metadata DB／Core</td><td>変更しない。研究成果物とP5計画の読み取りだけ。</td></tr>
+        <tr><td>API key値、Secret値、口座情報</td><td>読み取り・保存・表示しない。</td></tr>
+        <tr><td>外部Dataの実取得</td><td>今回の調査では実行していない。P5-08実行結果もRecords 0のまま。</td></tr>
+        <tr><td>Databento承認の自動撤回・Provider自動切替</td><td>行っていない。新候補はDecision pending。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="box stop">
+    <h2>9. Unknown・停止条件・現在状態</h2>
+    <table>
+      <thead><tr><th>ID</th><th>Unknown</th><th>停止条件</th><th>次に必要な証拠</th></tr></thead>
+      <tbody>
+        <tr><td><code>UNK-P5-ALT-001</code></td><td>Sierraで5銘柄すべての実symbol・個別限月・1分足履歴が揃うか。</td><td>一銘柄でも対象期間・契約・時間足が不明ならTrack A採用を止める。</td><td>5銘柄のsymbol／expiry／availability表と1日分CSV hash。</td></tr>
+        <tr><td><code>UNK-P5-ALT-002</code></td><td>各候補のVolume、Open Interest、Roll、Calendar、DSTの意味。</td><td>意味がP5 contractと一致しない場合、正式Evidenceにしない。</td><td>field dictionary、Calendar／Roll version、CME settlement照合。</td></tr>
+        <tr><td><code>UNK-P5-ALT-003</code></td><td>利用条件、保存期限、内部利用、再配布、API／export制限。</td><td>規約不明・個人利用限定・再配布禁止の範囲を誤って拡大しない。</td><td>公式terms、アカウント条件、保管方針への適合記録。</td></tr>
+        <tr><td><code>UNK-P5-ALT-004</code></td><td>現行P5の17か月を低価格で再取得できる費用と所要時間。</td><td>月額・追加fee・取得制限が不明なまま全量取得しない。</td><td>小規模PoCの実測使用量・時間・再取得差分。事前見積りをGateに戻すという意味ではない。</td></tr>
+        <tr><td><code>P5-DATA-G1</code></td><td>現在の承認はDatabento推奨構成に対するもの。</td><td>Provider、symbol、schema、期間を変える場合、現承認を自動流用しない。</td><td>新しい申請表、decision、human approval、request、Run manifest。</td></tr>
+      </tbody>
+    </table>
+    <p><strong>現在状態:</strong> P5-DATA-G1は既存Databento範囲で承認済み、P5-08はDatabento実行がHTTP 402でBLOCKED、代替Providerは調査完了・未承認である。今回の文書はP5-08をPASSにしない。</p>
+  </section>
+
+  <section>
+    <h2>10. 公式一次情報・確認日</h2>
+    <p>以下は2026-08-13に調査し、主要ページを2026-08-14に再確認した公式URLである。サービスの一般仕様は、ユーザー個別のentitlement、利用地域、契約、現在の料金、実際のsymbol coverageを保証しない。候補採用時にはアカウント／画面／小規模取得で再確認する。</p>
+    <table>
+      <thead><tr><th>対象</th><th>公式URL</th><th>この報告で使った事実</th></tr></thead>
+      <tbody>
+        <tr><td>Databento pricing</td><td><a href="https://databento.com/docs/faqs/usage-pricing-and-data-credits">usage pricing and data credits</a></td><td>Historicalは使用量・データ量に基づく。今回の54.84 USDとの比較基準。</td></tr>
+        <tr><td>Databento errors</td><td><a href="https://databento.com/docs/api-reference-historical/basics/errors">Historical API errors</a></td><td>HTTP 402の意味。既存P5-08がRecords 0で停止した理由の補助根拠。</td></tr>
+        <tr><td>Sierra Historical Data</td><td><a href="https://www.sierrachart.com/index.php?page=doc%2FSierraChartHistoricalData.php">Historical Data Service</a></td><td>日足・日中足・多くの先物tick履歴、Standard／Advanced package含有、Historical-only。</td></tr>
+        <tr><td>Sierra pricing</td><td><a href="https://www.sierrachart.com/index.php?l=doc%2FPackages.php">Packages and Pricing</a></td><td>Base Standard 26 USD/月、packageごとの追加条件。</td></tr>
+        <tr><td>Sierra export</td><td><a href="https://www.sierrachart.com/index.php?page=doc%2FImportExport.html">Exporting and Importing Intraday Data Files</a></td><td>CSV／Text export、UTC timestamp、export field。</td></tr>
+        <tr><td>Yahoo／yfinance</td><td><a href="https://github.com/ranaroussi/yfinance/blob/main/README.md?plain=1">yfinance README</a> ／ <a href="https://ranaroussi.github.io/yfinance/reference/yfinance.functions.html">yfinance functions</a></td><td>OSS、研究・教育目的、Yahoo非公式、個人利用注意、intradayは直近60日制限。</td></tr>
+        <tr><td>Backtrader</td><td><a href="https://www.backtrader.com/docu/datafeed/">Data Feeds</a></td><td>Yahoo、CSV、IB、Oanda等の研究向けData Feed接続の例。</td></tr>
+        <tr><td>Nasdaq Data Link</td><td><a href="https://docs.data.nasdaq.com/docs/getting-started">Getting started</a> ／ <a href="https://docs.data.nasdaq.com/docs/data-organization">Data organization</a></td><td>Free／Premium datasetの区別、datasetごとの利用条件。</td></tr>
+        <tr><td>CME settlement</td><td><a href="https://www.cmegroup.com/market-data/daily-settlements.html">Daily settlements</a> ／ <a href="https://www.cmegroup.com/articles/faqs/access-cme-group-settlement-data-faq.html">Settlement FAQ</a> ／ <a href="https://www.cmegroup.com/market-data/volume-open-interest.html">Volume and open interest</a></td><td>無料Web参照と過去一括DataMineを分け、日次照合に使う。</td></tr>
+        <tr><td>HistData</td><td><a href="https://www.histdata.com/download-free-forex-data/">Free Forex data</a> ／ <a href="https://www.histdata.com/f-a-q/">FAQ</a></td><td>FX M1／tick、Bid基準、Volume・保証・gapの制約。</td></tr>
+        <tr><td>Dukascopy</td><td><a href="https://www.dukascopy.com/swiss/english/marketwatch/historical/">Historical export</a> ／ <a href="https://www.dukascopy.com/trading-tools/api/documentation/quotes">Quotes API</a></td><td>無料のFX／Commodity／Index Historical、tick〜monthly、API時間足。</td></tr>
+        <tr><td>TrueFX</td><td><a href="https://www.truefx.com/truefx-historical-downloads/">Historical downloads</a> ／ <a href="https://www.truefx.com/truefx-terms-and-conditions/">Terms</a></td><td>FX top-of-book tick、internal analysis限定、現行アクセス条件の注意。</td></tr>
+        <tr><td>Alpha Vantage</td><td><a href="https://www.alphavantage.co/documentation/">Documentation</a> ／ <a href="https://www.alphavantage.co/premium/">Premium</a></td><td>無料key、一部無料dataset、25 requests/day、intraday等のPremium区分。</td></tr>
+        <tr><td>Twelve Data</td><td><a href="https://twelvedata.com/pricing">Pricing</a> ／ <a href="https://twelvedata.com/commodities">Commodities</a></td><td>Basicの8 credits/min・800/day、Commodityプランと商品aggregateの範囲。</td></tr>
+        <tr><td>Binance</td><td><a href="https://github.com/binance/binance-public-data/blob/master/README.md">Public Data README</a> ／ <a href="https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md">REST API</a></td><td>無料公開、spot／USD-M／COIN-M futures、1m等、checksum。</td></tr>
+        <tr><td>Coinbase</td><td><a href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-candles">Public candles API</a></td><td>公開candles、300点制限、履歴不完全の可能性。</td></tr>
+        <tr><td>Interactive Brokers</td><td><a href="https://interactivebrokers.github.io/tws-api/historical_data.html">Historical data</a> ／ <a href="https://interactivebrokers.github.io/tws-api/market_data.html">Market data subscriptions</a></td><td>Historical APIもmarket data subscription条件、TWS／口座依存。</td></tr>
+        <tr><td>NinjaTrader</td><td><a href="https://ninjatrader.com/pricing/">Pricing</a></td><td>Free plan、backtest／simulationのPlatform候補、Data／exchange条件の分離。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>11. 追跡・レビュー・成果物</h2>
+    <table>
+      <thead><tr><th>区分</th><th>内容</th><th>状態</th></tr></thead>
+      <tbody>
+        <tr><td>REQ</td><td><code>REQ-V2-0025/0026/0027/0028/0029/0030/0031/0032/0044/0091/0096</code>、P5-01〜04のData／Quality／Cost／Provider境界へ接続。</td><td><span class="badge done">追跡済み</span></td></tr>
+        <tr><td>DEC</td><td><code>DEC-P5-ALT-001</code>: Exact CMEを守るならSierra PoC、無料を守るなら日足縮小、資産変更なら別Track。</td><td><span class="badge wait">提案・未承認</span></td></tr>
+        <tr><td>UNK</td><td><code>UNK-P5-ALT-001〜004</code>、Sierra symbol／期間／field／規約／費用／export。</td><td><span class="badge unknown">Unknown維持</span></td></tr>
+        <tr><td>ART</td><td>本HTML、<a href="../../../plan/phase5/ログ/P5-08_無料・低価格市場データ代替調査_2026-08-13.md">調査ログ</a>、<a href="../../index.html">doc/index</a>、<a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a>。</td><td><span class="badge done">作成・導線追加</span></td></tr>
+        <tr><td>レビュー</td><td>公式URL、費用・時間足・資産種類・P5適合性・Unknown・停止条件・非対象をroot self-reviewで照合。</td><td><span class="badge done">Critical=0 / High=0</span>（独立Agentレビューではない）</td></tr>
+      </tbody>
+    </table>
+    <p>本報告は「代替候補の調査結果」であり、新Providerの採用決定書ではない。候補を一つ選んだ時点で、P5-DATA-G1 amendment、DataRequest、Runner、Run Manifest、実取得Evidence、Quality／Calendar／Cost／Gapの順に別途作成する。</p>
+  </section>
+
+  <section class="box ok">
+    <h2>12. いまの実務的な答え</h2>
+    <ol>
+      <li><strong>現在のP5をなるべく守る:</strong> Sierra Chartを第一候補として、5銘柄の1日PoCだけを行う。</li>
+      <li><strong>完全無料にする:</strong> Yahoo／yfinance＋CME Settlementで日足prototypeを作り、P5の時間足要件を正式に縮小する。</li>
+      <li><strong>無料intradayを優先する:</strong> Binance（Crypto）またはDukascopy／HistData（FX／CFD）へ資産種類を変更し、別のScopeとして設計する。</li>
+    </ol>
+    <p><strong>推奨順位は1→2→3。</strong> まず「CME futuresを捨てるか」を決め、捨てないならSierraの小規模検証へ進む。今この文書だけでDatabentoから自動切替することはしない。</p>
+  </section>
+</main>
+</body>
+</html>
