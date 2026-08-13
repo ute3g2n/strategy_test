@@ -9,6 +9,8 @@
 - Received: `2026-08-13`（Asia/Tokyo）
 - User statement: 「P5-DATA-G1 は推奨構成の値をそのまま適用して下さい。」
 
+> このファイルは推奨値適用を承認した時点の原記録（historical snapshot）である。費用事前見積り必須ルールの現行扱いは、後続の [`P5-DATA-G1-AMEND-COST-PREFLIGHT-001`](human-gate-p5-data-g1-amendment-2026-08-13.md) が優先する。原記録の内容は履歴として保持し、現行状態は変更Evidence・request・Runner・台帳を参照する。
+
 ## 承認の意味
 
 上記のユーザー指示を、P5-07Aで整理した推奨構成をP5-DATA-G1の申請範囲へ適用する明示承認として記録する。承認対象は市場Data Providerの限定範囲だけであり、P5-08の実行完了、P5-09の品質実証、P5-H2、Broker、Paper、Live、実資金、実Risk、Cloud、Core変更を意味しない。

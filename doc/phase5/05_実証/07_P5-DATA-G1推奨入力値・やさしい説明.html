@@ -37,7 +37,7 @@
       <li><strong>Provider入力:</strong> <code>MCL.FUT</code>、<code>M6A.FUT</code>、<code>MZC.FUT</code>、<code>MZS.FUT</code>、<code>MZW.FUT</code>をparent symbologyで解決し、spreadを除外した現物の先物契約だけを採用する。</li>
       <li><strong>共通期間:</strong> <code>2025-02-24T00:00:00Z</code>以上、<code>2026-08-01T00:00:00Z</code>未満。これは5候補のMicro契約を同じ条件で比較するための限定期間である。</li>
       <li><strong>時間足:</strong> 元データは<code>ohlcv-1m</code>。そこからD1／H4／H1／M30／M15をシステム側で作る。</li>
-      <li><strong>費用:</strong> 実行前の見積りが1 Runあたり25 USD以下、チームのHistorical月額上限50 USD以下でなければ停止する。</li>
+      <li><strong>費用:</strong> 事前見積りは必須としない。1 Run上限25 USD、Historicalチーム月額上限50 USD、80%警告・100%停止、Provider／team側budget control、実行後usage監査を必須にする。</li>
       <li><strong>Broker／Paper／Live／実資金／実Risk／Cloud:</strong> 今回の承認対象から除外する。</li>
     </ol>
     <p><strong>4資産種類について:</strong> futures／stocks／FX／cryptoはシステムが扱える構造上の4分類である。今回の5候補はすべてfuturesなので、stocks・FXスポット・cryptoの実Dataまで取得済みとは扱わない。これを広げる場合は別のData Gateが必要である。</p>
@@ -102,7 +102,7 @@
         <tr><td>資産種類</td><td><strong>実取得は futures のみ</strong>。<code>stocks</code>、<code>FXスポット</code>、<code>crypto</code>は今回の対象外。</td><td>初期5候補がすべて先物であり、先物の契約月・Roll・限月を先に実証する方が現在のP5/P2設計に合う。4資産種類は構造上の対応範囲として残す。</td><td>申請表に対象外3分類を明記。4分類の実Data PASSと混同しない。</td></tr>
         <tr><td>契約形態</td><td><strong>outright futuresのみ</strong>。calendar spread、option、swap、spotは除外。</td><td>既存Catalogが先物契約とspreadを分離する設計。spread混入は価格・Roll・品質判定を壊す。</td><td>definitionのinstrument classフィルタと除外件数。</td></tr>
         <tr><td>Raw schema</td><td>全期間：<code>definition</code>、<code>ohlcv-1m</code>、<code>statistics</code>。<br>TBBOパイロット：<code>tbbo</code>、<code>2026-07-01T00:00:00Z</code>以上<code>2026-08-01T00:00:00Z</code>未満。</td><td>1分を元に5時間足を再生成できる。definitionは契約、statisticsは日次統計・建玉・Settlement等、TBBOは売買時点直前のBBOを確認するため。ただしTBBOは実約定Slippageそのものではない。</td><td>schema一覧、各schemaのcost quote、source／schema別hash。</td></tr>
-        <tr><td>Raw encoding／保存</td><td><code>DBN</code>、<code>zstd</code>、日単位分割、<code>.dbn.zst</code>。相対path：<code>tests/evidence/phase5/RUN-P5-08-DATABENTO-001/raw/{schema}/{date}/</code></td><td>Databento公式がDBNとzstdを推奨している。Rawは受信バイト列と取得メタデータを残し、上書きしない。</td><td>Raw manifest、SHA-256、ファイルサイズ、取得request fingerprint。</td></tr>
+        <tr><td>Raw encoding／保存</td><td><code>DBN</code>、<code>zstd</code>、日単位分割、<code>.dbn.zst</code>。相対path：<code>tests/evidence/phase5/RUN-P5-08-DATABENTO-001/raw/{schema}/{logical_id}/{date}.dbn.zst</code></td><td>Databento公式がDBNとzstdを推奨している。Rawは受信バイト列と取得メタデータを残し、上書きしない。</td><td>Raw manifest、SHA-256、ファイルサイズ、取得request fingerprint。</td></tr>
         <tr><td>対象期間</td><td><code>start=2025-02-24T00:00:00Z</code><br><code>end=2026-08-01T00:00:00Z</code>（endは排他的）<br><code>as_of=2026-07-31T23:59:59Z</code></td><td>Micro Agの取引開始が2025-02-24であるため、5候補の実Micro契約を同じ期間で比較できる共通下限を採用。現在日付に近い未確定セッションを除き、2026年7月末までの完了月を対象にする。</td><td>対象期間一覧、Providerのavailable／condition、取得時点。</td></tr>
         <tr><td>長期評価</td><td>このG1では<strong>実Micro契約の共通期間だけ</strong>。2010年以降の標準契約をProxyにする場合は、<code>CL</code>／<code>6A</code>／<code>ZC</code>／<code>ZS</code>／<code>ZW</code>を別Data version・別Gateで扱う。</td><td>MCLは2021年、Micro Agは2025年開始なので、標準契約をMicro契約の実績と混ぜると契約サイズ・Settlement・Rollの意味が変わる。長期要件を未解消のままPassにしない。</td><td>長期proxyを使うかどうかの別判断と、同一商品扱いしない比較表。</td></tr>
         <tr><td>時間足</td><td><code>D1</code>、<code>H4</code>、<code>H1</code>、<code>M30</code>、<code>M15</code>を生成。保存時刻はUTC、営業日判定は<code>America/Chicago</code>。</td><td>内部の時刻はUTCで統一し、CMEの取引所セッション・DSTをCalendarで処理する。ProviderのUTC日足をそのままD1とは呼ばない。</td><td>Calendar version／hash、bar boundary表、DST・休場・maintenance breakの確認。</td></tr>
@@ -110,7 +110,7 @@
         <tr><td>Roll rule</td><td>Rawは個別契約を保持。派生continuousは<strong>前日出来高の最大契約をfront monthとするvolume-based rule</strong>を初期案とし、価格はback-adjustしない。Roll時の価格差はGapとして別記録。</td><td>Databentoのcontinuousはvolume／calendar等の規則で実契約へ写像できるが、価格は未調整。Rawと派生を混ぜない既存境界に合う。</td><td>RollRuleVersion、契約切替日、調整なしフラグ、Gap report。</td></tr>
         <tr><td>endpoint／通信</td><td><code>https://hist.databento.com/v0/</code>のみ。HTTPS/TLS。allowlistは<code>hist.databento.com:443</code>のみ。Live endpoint、portal操作、Broker endpointは使わない。</td><td>Historical APIの公式入口とP5のProvider専用外部I/O境界に一致する。接続先を一つに絞ると通信監査が簡単になる。</td><td>実行時のsanitized connection audit、DNS／接続先、終了後の復旧記録。</td></tr>
         <tr><td>rate／retry</td><td>アプリ側は同時接続1、最大1 request／秒。429は<code>Retry-After</code>に従い最大2回まで。401／402／403／404／422、206 partial、hash不一致は即停止。</td><td>Provider公式の上限より保守的に運用し、過剰取得と部分解決を成功扱いしない既存fail-closed方針に合う。</td><td>request log、HTTP status、Retry-After、停止理由。</td></tr>
-        <tr><td>費用上限</td><td><strong>1 Run上限 25 USD、Historicalチーム月額上限 50 USD</strong>。実行前の<code>get_billable_size</code>／<code>get_cost</code>見積りが上限超過なら実行しない。80%で警告、100%で停止。</td><td>DatabentoはHistoricalを使用量で課金し、公式APIで見積りを取得できる。具体的なProvider見積りなしに金額を断定せず、上限を先に置く。</td><td>事前見積り、Human Gateの予算承認、実請求／usage画面、超過なしの監査。</td></tr>
+        <tr><td>費用上限</td><td><strong>1 Run上限 25 USD、Historicalチーム月額上限 50 USD</strong>。事前の<code>get_billable_size</code>／<code>get_cost</code>見積りは必須としない。80%で警告、100%で停止し、Provider／team側budget controlと実行後usage監査を必須にする。</td><td>DatabentoはHistoricalを使用量で課金するため、事前見積りを開始条件にせず、承認済み上限・アカウント側制御・実行後監査で管理する。</td><td>budget control確認、実行後usage／請求監査、超過時のStopDecision。事前見積り欠落は開始拒否理由にしない。</td></tr>
         <tr><td>Secret</td><td>参照名は<code>DATABENTO_API_KEY</code>のみ。プロセス開始時の環境変数または承認済みSecret保管庫から読む。CLI引数、<code>.env</code>、HTML、ログ、Evidenceへ値を出さない。用途はP5-08 Historical限定。失効期限は<strong>2026-08-31</strong>を上限とし、Run後にrotate／revoke。</td><td>公式clientが<code>DATABENTO_API_KEY</code>環境変数を利用でき、既存設計もSecret値ではなく参照名だけを許可する。短い期限で漏洩時の影響を限定する。</td><td>Secret metadata（参照名、用途、expiry、mask、audit ref）のみ。秘密値の非出力検査。</td></tr>
         <tr><td>Normalized schema</td><td><code>P5-NORMALIZED-BAR-v1.0.0</code>案。<code>instrument_id</code>、<code>logical_instrument_id</code>、<code>timeframe_id</code>、<code>bar_start_utc</code>、<code>bar_end_utc</code>、OHLCV、Calendar／Roll／Quality／Raw hash参照を必須にする。</td><td>Providerのraw_symbolやDBN型をCoreへ漏らさず、P2のNormalizedDatasetRefとP5のData contractへ接続できる。</td><td>schema version、変換コードのhash、Raw→Normalized件数対応、provenance。</td></tr>
         <tr><td>Quality／Calendar</td><td>相対path：<code>tests/evidence/phase5/RUN-P5-08-DATABENTO-001/quality/</code>。<code>CalendarVersion=CME-CALENDAR-2026-08-12-PROPOSED-001</code>、<code>RollRuleVersion=P5-ROLL-VOLUME-FRONT-UNADJUSTED-001</code>案。</td><td>欠損・重複・逆行・未来Data・DST・休場・Roll・価格調整を別々に追跡できる。未確認はUnknownのまま止める。</td><td>QualityReport、Calendar source／version／hash、StopDecision。</td></tr>
@@ -118,9 +118,9 @@
         <tr><td>target_paths</td><td>書込み許可は上記Evidence rootと、承認済みのRunner作業用一時ディレクトリだけ。<code>src/</code>、Core、P4 DB／migration、既存P4 Evidence、Broker／Cloud領域は対象外。</td><td>外部Dataの取得がCoreやP4成果物を変更しないようにする。target-onlyで範囲を機械的に狭める。</td><td>pre／post status、対象path一覧、変更差分、対象外変更0件。</td></tr>
         <tr><td>保持／再配布</td><td>Raw／Normalized本体はP5-H2後180日を上限に承認済みローカルrootだけで保持。Manifest、Quality、Provenance、hash、StopDecisionは3年保持案。外部再配布、公開、第三者共有、Cloudバックアップは禁止。</td><td>最小限のローカル保持で再検証期間を確保し、外部配布権限を追加しない。Provider契約がより短い場合は契約を優先する。</td><td>契約・ライセンスの保持条件、削除ログ、アクセス権、バックアップなしの確認。</td></tr>
         <tr><td>停止条件</td><td>対象外Symbol、spread混入、期間外、partial resolution、available以外、欠損・重複・逆行、未来Data、Calendar不一致、hash不一致、費用超過、401／402／403／404／422、Secret異常、通信先逸脱、Runner未登録のいずれかで即停止。</td><td>既存P5のfail-closed、Databentoのpartial／condition／error、P4からのUnknown引継ぎに一致する。</td><td>StopDecisionを作成し、該当Dataを下流へ渡さない。</td></tr>
-        <tr><td>Runner／固定command</td><td>Runner ID案：<code>P5-EXT-DATABENTO-HIST-001</code>、version案：<code>0.1.0</code>。実体配置案：<code>scripts/phase5_external_data/run_databento_historical.ps1</code>。固定command案：<br><code>powershell.exe -NoProfile -File scripts/phase5_external_data/run_databento_historical.ps1 -Request tests/evidence/phase5/RUN-P5-08-DATABENTO-001/request.json -RunId RUN-P5-08-DATABENTO-001 -EvidenceRoot tests/evidence/phase5/RUN-P5-08-DATABENTO-001 -MaxCostUsd 25 -NoLive</code></td><td>現在はこのRunner実体が登録済みではないため、名称・commandは予約案である。存在しないWorkerを起動しない既存ルールを守る。</td><td>Runner実体、依存lock、固定Python 3.11、実行前dry-run、通信監査、再現手順。登録できるまで<code>P5-EXTERNAL-WORKER-UNKNOWN</code>はOPEN。</td></tr>
+        <tr><td>Runner／固定command</td><td>Runner ID：<code>P5-EXT-DATABENTO-HIST-001</code>、version：<code>0.1.0</code>。実体：<code>scripts/phase5_external_data/run_databento_historical.ps1</code>＋Python worker。固定command：<br><code>powershell.exe -NoProfile -File scripts/phase5_external_data/run_databento_historical.ps1 -Request tests/evidence/phase5/RUN-P5-08-DATABENTO-001/request.json -RunId RUN-P5-08-DATABENTO-001 -EvidenceRoot tests/evidence/phase5/RUN-P5-08-DATABENTO-001 -MaxCostUsd 25 -NoLive</code></td><td>Runnerとlocal dry-runを作成済み。<code>-Execute</code>を明示しない限り外部通信せず、entitlement・budget・host isolationなどの未知条件はfail-closedで停止する。</td><td>Runner実体、固定venv／依存、dry-run report、通信監査、再現手順。未確認の前提が残る間は<code>P5-EXTERNAL-WORKER-UNKNOWN</code>をOPENにする。</td></tr>
         <tr><td>host isolation</td><td>外部取得Run専用のexecution IDを発行し、allowlist以外の外部接続を拒否。接続監査を保存し、終了後に外部通信を閉じる。P5-06のlocal isolation Evidenceは外部Runへ流用しない。</td><td>External Dataは通信が必要だが、Provider以外への送信は禁止する。P5-06は外部通信0のlocal Gateなので、別証拠が必要。</td><td>外部Run専用host isolation／egress監査、execution ID一致、終了後状態。</td></tr>
-        <tr><td>再現手順</td><td>Windows側checkout、Python 3.11、Runner依存lock、request.json、scope／期間、endpoint、environment flag、command、Raw／Normalized hashをManifestへ固定。再取得は上書きせず新しいattempt IDで行う。</td><td>同じ入力から同じ結果を検証でき、再取得差分を隠さない。P4 DBやCoreに依存しない。</td><td>再現Run、Manifest、hash比較、差分説明。</td></tr>
+        <tr><td>再現手順</td><td>Windows側checkout、固定project venv、Runner依存、request.json、scope／期間、endpoint、environment flag、command、Raw／Normalized hashをManifestへ固定し、実行時Python versionも記録する。再取得は上書きせず新しいattempt IDで行う。</td><td>同じ入力から同じ結果を検証でき、再取得差分を隠さない。P4 DBやCoreに依存しない。</td><td>再現Run、Manifest、hash比較、差分説明。</td></tr>
       </tbody>
     </table>
   </section>
@@ -162,13 +162,13 @@ Backtest／Coreへ渡す前にDataGateDecisionを再確認</pre>
     <ol>
       <li>Databentoの実アカウントで、<code>GLBX.MDP3</code>、対象schema、対象期間が有効であること。</li>
       <li>契約・利用権限・保持・再配布条件が、今回の「内部利用・再配布なし」と一致すること。</li>
-      <li><code>get_cost</code>等の事前見積りが、1 Run 25 USD以内・月額50 USD以内であること。</li>
+       <li>Provider／team側budget controlが、1 Run 25 USD・Historical月額50 USDの上限と80%警告・100%停止へ設定・確認されていること。事前見積りは必須条件ではない。</li>
       <li><code>DATABENTO_API_KEY</code>を安全に参照できること。値をログや文書へ出さないこと。</li>
-      <li><code>P5-EXT-DATABENTO-HIST-001</code>のRunner実体、依存lock、固定command、target scope、外部通信監査が作成・検証済みであること。</li>
+       <li><code>P5-EXT-DATABENTO-HIST-001</code>のRunner実体、固定venv／依存、command、target scope、dry-run、外部通信監査が作成・検証済みであること。</li>
       <li>5候補のparent解決結果と、必要期間の個別契約一覧がそろうこと。<code>206 Partial Content</code>や<code>available</code>以外は成功にしないこと。</li>
       <li>外部Run専用のhost isolation Evidenceが、P5-06のlocal Evidenceとは別に存在すること。</li>
     </ol>
-    <p><strong>したがって、現在の状態は、P5-DATA-G1 <code>APPROVED</code>、P5-EXTERNAL-WORKER-UNKNOWN <code>OPEN</code>、P5-08 <code>BLOCKED</code>である。</strong> Runner・契約・権限・見積り・外部Run Evidenceがないため、未確認の項目をPassへ変換していない。</p>
+    <p><strong>したがって、現在の状態は、P5-DATA-G1 <code>APPROVED</code>、P5-EXTERNAL-WORKER-UNKNOWN <code>OPEN / PRECONDITION_UNKNOWN</code>、P5-08 <code>BLOCKED</code>である。</strong> Runnerとdry-runは作成済みだが、entitlement・budget control・Secret metadata・host isolation・外部Run Evidenceが未確認であり、未確認の項目をPassへ変換していない。事前費用見積りは開始条件から除外した。</p>
   </section>
 
   <section>
@@ -178,7 +178,7 @@ Backtest／Coreへ渡す前にDataGateDecisionを再確認</pre>
       <tbody>
         <tr><td><code>REQ-V2-0025〜0032</code>、<code>REQ-V2-0044</code>、<code>REQ-V2-0091/0096</code></td><td>Catalog、DataRequest、Raw／Normalized、Quality、Cost／Gap、外部境界。</td><td><a href="../01_要件追跡/01_Phase5入力・Data対象・REQ追跡.html">P5-01追跡表</a>、P5-02〜04。</td><td><span class="badge done">追跡済み</span></td></tr>
         <tr><td><code>DEC-P5-G1-REC-001〜008</code></td><td>Provider、対象、期間、schema、費用、Secret、保存、Runnerに対する今回の判断。</td><td>本書の3章、P5-07申請表、P5-DATA-G1承認Evidence、P5-08再開条件。</td><td><span class="badge done">適用済み</span></td></tr>
-        <tr><td><code>EXTERNAL-DATA-PROVIDER-SECRET</code></td><td>契約・entitlement、事前費用見積り、Secret metadata、外部通信Evidenceが実行前確認待ち。</td><td><a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a>。</td><td><span class="badge unknown">OPEN</span></td></tr>
+        <tr><td><code>EXTERNAL-DATA-PROVIDER-SECRET</code></td><td>契約・entitlement、budget control、Secret metadata、外部通信Evidenceが実行前確認待ち。事前費用見積りは開始条件から除外した。</td><td><a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a>。</td><td><span class="badge unknown">OPEN</span></td></tr>
         <tr><td><code>P5-EXTERNAL-WORKER-UNKNOWN</code></td><td>推奨Runnerの名称は書いたが、実体・依存・監査は未登録。</td><td>P5-07申請表、P5-08 blocked log。</td><td><span class="badge unknown">OPEN</span></td></tr>
         <tr><td><code>UNK-P3-01/05/07</code></td><td>長期Data、Cost／Slippage／Gap、正式Calendarが未実証。</td><td>P5-09でEvidenceを取得後に再分類する。</td><td><span class="badge unknown">未解消</span></td></tr>
         <tr><td><code>P5-ART-07-DATA-G1-RECOMMENDATION-001</code></td><td>申請項目の説明、適用値、公式根拠。</td><td>本HTML、<a href="../../../plan/phase5/ログ/P5-07_外部Data_Gate申請・範囲表_2026-08-12.md">P5-07ログ</a>、<a href="../../../tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1.md">P5-DATA-G1承認Evidence</a>、<a href="../../index.html">doc/index</a>。</td><td><span class="badge done">適用済み・実行前確認待ち</span></td></tr>
@@ -188,13 +188,14 @@ Backtest／Coreへ渡す前にDataGateDecisionを再確認</pre>
 
   <section>
     <h2>8. 公式一次情報と確認日</h2>
-    <p>以下は2026-08-12にWebで確認した公式ページである。Providerの一般仕様は、個別アカウントのentitlement・費用・契約条件を保証しないため、実行前にアカウント単位で再確認する。</p>
+    <p>以下は2026-08-13にWebで再確認した公式ページである。Providerの一般仕様は、個別アカウントのentitlement・費用・契約条件を保証しないため、実行前にアカウント単位で再確認する。</p>
     <table>
       <thead><tr><th>確認対象</th><th>公式URL</th><th>今回の根拠</th></tr></thead>
       <tbody>
         <tr><td>Databento Dataset</td><td><a href="https://databento.com/docs/knowledge-base/datasets">https://databento.com/docs/knowledge-base/datasets</a></td><td><code>GLBX.MDP3</code>がCME、CBOT、NYMEX、COMEXを対象とし、先物・先物オプションの履歴を提供すること。</td></tr>
         <tr><td>Databento Symbology</td><td><a href="https://databento.com/docs/standards-and-conventions/symbology">https://databento.com/docs/standards-and-conventions/symbology</a></td><td>parent、instrument_id、continuous、instrument_class、volume-based roll、未調整価格の扱い。</td></tr>
-        <tr><td>Databento Historical API</td><td><a href="https://databento.com/docs/reference-historical/basics/symbology">https://databento.com/docs/reference-historical/basics/symbology</a></td><td><code>stype_in</code>／<code>stype_out</code>、UTC start/end、cost／billable sizeの公式API。</td></tr>
+        <tr><td>Databento Historical authentication</td><td><a href="https://databento.com/docs/api-reference-historical/basics/authentication">https://databento.com/docs/api-reference-historical/basics/authentication</a></td><td>Historical APIの入口、API key、公式clientの<code>DATABENTO_API_KEY</code>環境変数利用。Secret値は記録しない。</td></tr>
+        <tr><td>Databento Historical metadata／cost</td><td><a href="https://databento.com/docs/api-reference-historical/metadata/metadata-list-datasets">metadata list datasets</a> ／ <a href="https://databento.com/docs/api-reference-historical/metadata/metadata-get-cost">metadata get cost</a></td><td><code>stype_in</code>／<code>stype_out</code>、UTC start/end、dataset metadata、billable size／cost API。今回の承認変更により、cost APIの事前実行は開始条件としない。</td></tr>
         <tr><td>Databento OHLCV</td><td><a href="https://databento.com/docs/schemas-and-data-formats/ohlcv">https://databento.com/docs/schemas-and-data-formats/ohlcv</a></td><td>1分足、区間開始時刻、取引がない区間はレコードがないこと。日足を自前集計する理由。</td></tr>
         <tr><td>Databento schema一覧</td><td><a href="https://databento.com/docs/schemas-and-data-formats/whats-a-schema">https://databento.com/docs/schemas-and-data-formats/whats-a-schema</a></td><td>definition、statistics、TBBO、trades、OHLCVの役割と派生関係。</td></tr>
         <tr><td>Databento Data condition</td><td><a href="https://databento.com/docs/api-reference-historical/metadata/metadata-get-dataset">https://databento.com/docs/api-reference-historical/metadata/metadata-get-dataset</a></td><td>available／degraded／pending／missingをQuality Gateで区別すること。</td></tr>
@@ -228,11 +229,11 @@ Backtest／Coreへ渡す前にDataGateDecisionを再確認</pre>
         <tr><td>2026-08-12</td><td>既存P5／P2設計との整合</td><td>採用</td><td>Databento、GLBX.MDP3、parent／definition、Raw／Normalized、UTC、Catalog／Calendar境界を既存設計へ接続した。</td></tr>
         <tr><td>2026-08-12</td><td>公式一次情報</td><td>採用</td><td>DatabentoとCMEの公式ページを確認し、URLと確認日を保存した。</td></tr>
         <tr><td>2026-08-12</td><td>長期Dataの一般化</td><td>保留</td><td>Micro Agの開始時期とMCLの開始時期が異なるため、標準契約proxyを実Micro契約のEvidenceへ一般化しない。</td></tr>
-        <tr><td>2026-08-12</td><td>Runner／外部host isolation</td><td>保留</td><td>推奨名とcommandは示したが、実体・依存・外部通信監査は未作成。<code>P5-EXTERNAL-WORKER-UNKNOWN</code>を保持する。</td></tr>
-        <tr><td>2026-08-13</td><td>Human Gate</td><td>適用・承認</td><td>ユーザーの「P5-DATA-G1 は推奨構成の値をそのまま適用して下さい。」を承認指示として記録し、P5-DATA-G1承認Evidenceを保存した。Runner・契約・権限・見積り・外部Run Evidenceは別途確認待ち。</td></tr>
+         <tr><td>2026-08-12</td><td>Runner／外部host isolation</td><td>保留</td><td>Runner実体、request、Evidence root、dry-runを作成した。外部通信監査とhost isolation検証は未完了のため、<code>P5-EXTERNAL-WORKER-UNKNOWN</code>を保持する。</td></tr>
+         <tr><td>2026-08-13</td><td>Human Gate／費用ルール</td><td>適用・承認</td><td>推奨値適用の承認に加え、費用事前見積り必須ルールの廃止指示を変更Evidenceへ保存した。上限・budget control・実行後usage監査は維持する。entitlement・Secret metadata・host isolation・外部Run Evidenceは別途確認待ち。</td></tr>
       </tbody>
     </table>
   </section>
 
-  <p class="small">関連ログ：<a href="../../../plan/phase5/ログ/P5-07_外部Data_Gate申請・範囲表_2026-08-12.md">P5-07 外部Data Gate申請・範囲表ログ</a> ／ 承認Evidence：<a href="../../../tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1.md">P5-DATA-G1 Human Gate</a> ／ 既存申請表：<a href="06_Phase5外部Data_Gate申請・範囲表.html">06_Phase5外部Data_Gate申請・範囲表.html</a> ／ P5-08はRunner・実行前Evidenceが揃うまで開始しない。</p>
+   <p class="small">関連ログ：<a href="../../../plan/phase5/ログ/P5-07_外部Data_Gate申請・範囲表_2026-08-12.md">P5-07 外部Data Gate申請・範囲表ログ</a> ／ <a href="../../../plan/phase5/ログ/P5-08_公式仕様・アカウント確認_2026-08-13.md">P5-08公式仕様・アカウント確認</a> ／ 承認Evidence：<a href="../../../tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1.md">P5-DATA-G1 Human Gate</a> ／ <a href="../../../tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1-amendment-2026-08-13.md">費用ルール変更Evidence</a> ／ <a href="../../../tests/evidence/phase5/RUN-P5-08-DATABENTO-001/README.md">P5-08 Runner／Evidence root</a> ／ 既存申請表：<a href="06_Phase5外部Data_Gate申請・範囲表.html">06_Phase5外部Data_Gate申請・範囲表.html</a> ／ P5-08はアカウント・budget・host isolation・外部Run Evidenceが揃うまで開始しない。</p>
 </main></body></html>

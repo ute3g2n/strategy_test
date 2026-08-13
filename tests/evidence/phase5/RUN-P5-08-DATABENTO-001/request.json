@@ -1,0 +1,51 @@
+{
+  "schema_version": "p5-08-databento-request-v1",
+  "phase_id": "PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12",
+  "step_id": "P5-08",
+  "run_id": "RUN-P5-08-DATABENTO-001",
+  "provider": "databento",
+  "dataset": "GLBX.MDP3",
+  "endpoint": "https://hist.databento.com/v0/",
+  "source_mode": "external",
+  "no_live": true,
+  "symbols": [
+    {"logical_id": "MCL", "provider_symbol": "MCL.FUT", "venue": "NYMEX"},
+    {"logical_id": "M6A", "provider_symbol": "M6A.FUT", "venue": "CME"},
+    {"logical_id": "MZC", "provider_symbol": "MZC.FUT", "venue": "CBOT"},
+    {"logical_id": "MZS", "provider_symbol": "MZS.FUT", "venue": "CBOT"},
+    {"logical_id": "MZW", "provider_symbol": "MZW.FUT", "venue": "CBOT"}
+  ],
+  "symbology": {
+    "stype_in": "parent",
+    "stype_out": "instrument_id",
+    "contract_filter": "outright_futures_only",
+    "exclude": ["spread", "option", "swap", "spot"]
+  },
+  "requests": [
+    {"schema": "definition", "start": "2025-02-24T00:00:00Z", "end": "2026-08-01T00:00:00Z", "daily_split": true},
+    {"schema": "ohlcv-1m", "start": "2025-02-24T00:00:00Z", "end": "2026-08-01T00:00:00Z", "daily_split": true},
+    {"schema": "statistics", "start": "2025-02-24T00:00:00Z", "end": "2026-08-01T00:00:00Z", "daily_split": true},
+    {"schema": "tbbo", "start": "2026-07-01T00:00:00Z", "end": "2026-08-01T00:00:00Z", "daily_split": true, "pilot": true}
+  ],
+  "derived_timeframes": ["D1", "H4", "H1", "M30", "M15"],
+  "time_policy": {"storage_timezone": "UTC", "calendar_timezone": "America/Chicago", "zero_fill": false},
+  "raw_policy": {"encoding": "dbn", "compression": "zstd", "extension": ".dbn.zst", "daily_split": true, "overwrite": false, "hash": "SHA-256"},
+  "normalized_policy": {"schema_version": "P5-NORMALIZED-BAR-v1.0.0", "source_schema": "ohlcv-1m", "provider_fields_stay_at_boundary": true},
+  "roll_policy": {"raw_contracts": "individual_contracts", "derived_continuous": "previous_day_volume_front_month", "back_adjust": false, "roll_gap_separate": true},
+  "rate_policy": {"concurrency": 1, "max_requests_per_second": 1, "retry_status": 429, "max_retries": 2, "retry_after": true},
+  "cost_policy": {
+    "preflight_estimate_required": false,
+    "preflight_estimate_status": "NOT_REQUIRED_BY_USER_AMENDMENT",
+    "per_run_hard_cap_usd": 25,
+    "team_monthly_hard_cap_usd": 50,
+    "warning_percent": 80,
+    "stop_percent": 100,
+    "provider_budget_control_required": true,
+    "post_run_usage_audit_required": true
+  },
+  "secret_policy": {"env_name": "DATABENTO_API_KEY", "value_recorded": false, "cli_argument": false, "expiry_upper_bound": "2026-08-31", "rotate_after_run": true, "revoke_after_run": true},
+  "evidence_root": "tests/evidence/phase5/RUN-P5-08-DATABENTO-001",
+  "target_paths": ["tests/evidence/phase5/RUN-P5-08-DATABENTO-001"],
+  "excluded_paths": ["src", "tests/evidence/phase4", "tests/evidence/phase5/RUN-P5-06-LOCAL-001", "doc", "plan", "Broker", "Cloud"],
+  "status": "REQUEST_FIXED_NOT_EXECUTED"
+}

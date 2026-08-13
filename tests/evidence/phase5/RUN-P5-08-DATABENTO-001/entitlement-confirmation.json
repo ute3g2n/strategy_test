@@ -1,0 +1,18 @@
+{
+  "schema_version": "p5-08-entitlement-confirmation-v1",
+  "status": "UNKNOWN",
+  "source": "account-side confirmation required",
+  "provider": "databento",
+  "dataset": "GLBX.MDP3",
+  "historical_only": true,
+  "live_allowed": false,
+  "redistribution": "not_allowed_for_this_run",
+  "schemas": ["definition", "ohlcv-1m", "statistics", "tbbo"],
+  "symbols": ["MCL.FUT", "M6A.FUT", "MZC.FUT", "MZS.FUT", "MZW.FUT"],
+  "period": {"start": "2025-02-24T00:00:00Z", "end": "2026-08-01T00:00:00Z"},
+  "license_reference": null,
+  "account_identifier_recorded": false,
+  "confirmed_by": null,
+  "confirmed_at": null,
+  "stop_until": "status=CONFIRMED"
+}

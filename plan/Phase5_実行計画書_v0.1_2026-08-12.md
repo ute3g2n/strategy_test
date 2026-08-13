@@ -15,7 +15,7 @@
 
 Phase 5は、P4で作成したProduct/ApplicationのData接続点を引き継ぎ、初期5候補（MCL、M6A、MZC、MZS、MZW）の市場Dataを、対象・契約・来歴・品質・Calendar・Cost／Slippage／Gap・長期期間・Holdout／Walk-forwardまで再現可能なEvidenceへ変換するPhaseである。
 
-ただし、P4-H2はP5開始承認ではない。この計画を作成した時点では、外部Providerへの接続、費用発生、Secret参照、外部I/O、実Data取得、Broker／Paper／Live、実資金、Cloudを開始しない。P5-H0、P5-H1、P5-DATA-G1、P5-H2を分離し、承認範囲を越える発火を禁止する。2026-08-13、P5-DATA-G1は推奨構成の値をそのまま適用するユーザー指示により範囲承認済みとなったが、Runner・契約・権限・見積り・外部Run Evidence不足のためP5-08以降は停止中である。
+ただし、P4-H2はP5開始承認ではない。この計画を作成した時点では、外部Providerへの接続、費用発生、Secret参照、外部I/O、実Data取得、Broker／Paper／Live、実資金、Cloudを開始しない。P5-H0、P5-H1、P5-DATA-G1、P5-H2を分離し、承認範囲を越える発火を禁止する。2026-08-13、P5-DATA-G1は推奨構成の値をそのまま適用するユーザー指示により範囲承認済みとなり、費用事前見積り必須ルールも廃止したが、Runner・契約・権限・budget control・Secret metadata・host isolation・外部Run Evidence不足のためP5-08以降は停止中である。
 
 本計画の直接実行プロンプトは、Orchestrator／Agent／Skillの名前を列挙するだけでは完了扱いにしない。各Promptへ、実ランタイムのOrchestrator spawn、指定Agent全件の個別spawn、固定model受理、wait完了、受領証跡、起動不能時の継続Fallbackを埋め込む。起動不能は単独の停止条件にしないが、未起動を起動済み・独立レビュー済みと偽らない。Human Gate、外部I/O、Secret、UnknownのPass、Critical／High、必須Evidenceの欠落はFail-closedで停止する。
 
@@ -100,7 +100,7 @@ Phase 5は、P4で作成したProduct/ApplicationのData接続点を引き継ぎ
 | P5-06 | 固定local Data contract／QualityのRED→GREEN・品質Gate | P5-H1 | `PASS` | 不可 | 正式4 Gate、host isolation、fixture pre/post hash一致、wrapper exit 0 |
 | P5-07 | 外部Data Gate準備、承認対象表、台帳同期 | P5-06 | 申請表完了・P5-DATA-G1待ち | 不可 | `P5-EXTERNAL-WORKER-UNKNOWN`を保持。外部I/OはP5-DATA-G1承認まで開始しない |
 | P5-DATA-G1 | Provider専用の外部Data Gate | P5-07 | 人間承認 | `APPROVED`（2026-08-13） | 推奨値適用済みの承認記録、台帳同期。P5-08は実行前条件確認まで開始しない |
-| P5-08 | 承認範囲内の限定Data取得・Raw／Normalized Evidence | P5-DATA-G1 | `BLOCKED` | 不可 | P5-DATA-G1範囲は承認済みだが、`P5-EXTERNAL-WORKER-UNKNOWN`、契約・権限・見積り・外部Run Evidence不足。外部I/O／Secret／費用／Data取得なし |
+| P5-08 | 承認範囲内の限定Data取得・Raw／Normalized Evidence | P5-DATA-G1 | `BLOCKED` | 不可 | P5-DATA-G1範囲と固定Runner／request／dry-runは作成済みだが、`P5-EXTERNAL-WORKER-UNKNOWN`、entitlement・契約・権限・budget control・Secret metadata・host isolation・外部Run Evidence不足。事前見積りは開始条件とせず、外部I/O／Secret値／費用／Data取得なし |
 | P5-09 | Quality／Calendar／Cost／Gap／期間分割／Holdout実証 | P5-08 | `BLOCKED` | 不可 | P5-DATA-G1は承認済みだが、P5-08 Evidenceなし。実証・実測・Holdout操作なし |
 | P5-10 | 統合・独立レビュー、Unknown再分類、P5-H2候補 | P5-06、P5-09 | `NOT_STARTED` | 不可 | P5-08／09 Evidenceなし。UnknownをPassにせず、P5-H2候補を作成しない |
 | P5-H2 | P5完了・P6引渡し承認 | P5-10 | `HUMAN_GATE_REQUIRED` | 不可 | P5-10候補と実証Evidenceがなく、承認対象未成立 |
@@ -384,12 +384,12 @@ Skills: autotrade_skill_source_reader_v0_1, autotrade_skill_adapter_boundary_v0_
 3. Agent名の列挙、JSON／Skillの読込、または自己レビューはspawn済みの証拠にしない。実spawn、agent_id、wait status、出力参照を必須とする。
 4. spawn／waitが使えない場合は作業前にRUNTIME_DISPATCH_FALLBACK_REQUIRED、LOCAL_FALLBACK_NO_SUBAGENTS、未起動Agent、理由、時刻、agent_id=N/A、independent=false、review_mode=SELF_REVIEW_FALLBACKを記録し、責務チェックリストで継続する。child起動不能だけでは停止しない。
 5. 起動していないAgentを独立実行済み・独立レビュー済みと記載しない。receiptにはOrchestrator／Agent名、JSON path、固定model、agent_id、spawn／wait status、output_ref、fallback_reason、independent、review_modeを含める。
-発火制御: P5-DATA-G1=APPROVED、承認されたRun ID／target_paths／固定command／Secret参照／host isolationをすべて検証する。承認範囲外のData、endpoint、費用、Secret、対象拡大、Broker、Paper、Liveは発火しない。取得Runnerが実在・固定・承認済みでない場合はP5-EXTERNAL-WORKER-UNKNOWNとして外部I/Oをせず記録する。
-入力: P5-02〜07正式設計、P5-DATA-G1承認記録、固定取得Runner／command、Run Manifest、target scope、Provider契約、固定対象、Evidence root、統合台帳。
-実施: 承認対象を変更せず、Raw受信時刻、source／request／content hash、Manifest、Normalized変換、timezone／unit、相対path、Secret非出力、通信監査、停止・再試行・再生成を記録する。欠損、重複、逆行、hash不一致、Calendar不一致、未来Dataは推測補完せずFail-closedで停止する。tests/evidence/phase5/<RunId>/へsanitized Evidenceを保存する。
+発火制御: P5-DATA-G1=APPROVED、承認されたRun ID／target_paths／固定command／Secret参照／host isolationをすべて検証する。事前費用見積りは開始条件としないが、Provider／team側budget control、1 Run／月額上限、実行後usage監査を必須とする。承認範囲外のData、endpoint、費用、Secret、対象拡大、Broker、Paper、Liveは発火しない。取得Runnerが実在・固定・実行前条件確認済みでない場合はP5-EXTERNAL-WORKER-UNKNOWNとして外部I/Oをせず記録する。
+入力: P5-02〜07正式設計、P5-DATA-G1承認・変更記録、固定取得Runner／command、request.json、entitlement／budget／Secret metadata、Run Manifest、target scope、Provider契約、固定対象、Evidence root、統合台帳。
+実施: 承認対象を変更せず、まずlocal dry-runで契約を検証する。外部実行時はRaw受信時刻、source／request／content hash、Manifest、Normalized変換、timezone／unit、相対path、Secret非出力、通信監査、停止・再試行・再生成、実行後usage監査を記録する。欠損、重複、逆行、hash不一致、Calendar不一致、未来Dataは推測補完せずFail-closedで停止する。tests/evidence/phase5/<RunId>/へsanitized Evidenceを保存する。
 レビュー: A50が変換・外部ID、A70がSecret／通信／費用／path、A90が承認範囲・停止・Evidence・Unknownをレビューする。外部I/Oの正式実行結果とAgent起動結果を混同しない。
 完了条件: 承認範囲、Raw／Normalized hash、Manifest、provenance、通信・費用・Secret監査、停止条件、dispatch receiptが一致し、Critical/High=0。
-停止条件: Gate不一致、Runner不明、承認範囲外、Secret平文、費用上限超過、hash不一致、欠損補完、未来Data、host isolation不明、Critical/High、receipt欠落。
+停止条件: Gate不一致、Runner不明、entitlement／budget control／Secret metadata不明、承認範囲外、Secret平文、費用上限超過、hash不一致、欠損補完、未来Data、host isolation不明、実行後usage監査不明、Critical/High、receipt欠落。事前見積りの不存在だけでは停止しない。
 ```
 
 ### P5-09 Quality／Calendar／Cost／Gap／期間分割／Holdout実証

@@ -1,0 +1,12 @@
+{
+  "schema_version": "p5-08-host-isolation-policy-v1",
+  "execution_id": "P5-08-DATABENTO-001",
+  "verification_status": "UNKNOWN",
+  "allowlist": [{"scheme": "https", "host": "hist.databento.com", "port": 443}],
+  "deny_all_other_egress": true,
+  "dns_and_connection_audit_required": true,
+  "p5_06_local_isolation_reusable": false,
+  "target_only": true,
+  "evidence_required": ["pre-run-policy", "post-run-policy", "sanitized-egress-audit", "execution-id-match"],
+  "stop_until": "verification_status=VERIFIED"
+}

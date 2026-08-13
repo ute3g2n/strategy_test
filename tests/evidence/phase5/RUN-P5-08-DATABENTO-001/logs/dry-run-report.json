@@ -1,0 +1,25 @@
+{
+  "created_at": "2026-08-13T13:06:55Z",
+  "data_acquired": false,
+  "execute_precondition_blockers": [
+    "ENTITLEMENT_CONFIRMATION_REQUIRED",
+    "BUDGET_CONTROL_CONFIRMATION_REQUIRED",
+    "SECRET_METADATA_VERIFICATION_REQUIRED",
+    "HOST_ISOLATION_VERIFICATION_REQUIRED"
+  ],
+  "external_io": false,
+  "hard_caps": {
+    "per_run_usd": 25,
+    "team_monthly_usd": 50
+  },
+  "next_action": "Confirm each listed precondition; then invoke the same wrapper with -Execute.",
+  "preflight_estimate_required": false,
+  "provider_access": false,
+  "request_sha256": "155efe65f30b4f8ec83d44fa1ebe17e0e22bc8afb4815df09f2fdb5d5e46abeb",
+  "run_id": "RUN-P5-08-DATABENTO-001",
+  "runner_id": "P5-EXT-DATABENTO-HIST-001",
+  "runner_version": "0.1.0",
+  "schema_version": "p5-08-dry-run-report-v1",
+  "secret_value_read": false,
+  "status": "DRY_RUN_BLOCKED"
+}

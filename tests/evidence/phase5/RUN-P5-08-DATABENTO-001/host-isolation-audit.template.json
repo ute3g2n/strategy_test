@@ -1,0 +1,30 @@
+{
+  "schema_version": "p5-08-host-isolation-audit-v1",
+  "execution_id": "P5-08-DATABENTO-001",
+  "status": "NOT_VERIFIED",
+  "verification_status": "UNKNOWN",
+  "allowlist": [
+    {
+      "scheme": "https",
+      "host": "hist.databento.com",
+      "port": 443
+    }
+  ],
+  "deny_all_other_egress": true,
+  "pre_run": {
+    "policy_hash": null,
+    "firewall_or_sandbox_rule_ref": null,
+    "dns_resolution_audit_ref": null,
+    "verified_by": null,
+    "verified_at": null
+  },
+  "post_run": {
+    "connection_audit_ref": null,
+    "unexpected_destination_count": null,
+    "execution_id_match": null,
+    "verified_by": null,
+    "verified_at": null
+  },
+  "stop_until": "verification_status=VERIFIED",
+  "secret_value_recorded": false
+}

@@ -25,7 +25,7 @@
   </section>
   <section class="box stop"><h2>Findings first</h2>
     <table><thead><tr><th>ID</th><th>重大度</th><th>状態</th><th>内容・処置</th></tr></thead><tbody>
-      <tr><td>P5-07-F-001</td><td>Medium</td><td>OPEN / UNKNOWN</td><td>P5-DATA-G1の推奨範囲はユーザー指示で適用・承認済み。ただし取得Runner、固定command、依存、target scope、Evidence root、外部host isolationが未登録であり、<code>P5-EXTERNAL-WORKER-UNKNOWN</code>として台帳に保持してP5-08を開始しない。</td></tr>
+      <tr><td>P5-07-F-001</td><td>Medium</td><td>OPEN / UNKNOWN</td><td>P5-DATA-G1の推奨範囲はユーザー指示で適用・承認済み。固定Runner、request、Evidence root、dry-runは作成したが、entitlement、budget control、Secret metadata検証、外部host isolation、外部Run Evidenceは未確認であり、<code>P5-EXTERNAL-WORKER-UNKNOWN</code>として台帳に保持してP5-08を開始しない。</td></tr>
       <tr><td>P5-07-F-002</td><td>Medium</td><td>RECORDED</td><td>Coordinatorの実spawnは<code>collab spawn failed: agent thread limit reached</code>で失敗。childは全員未起動としてreceiptに記録し、独立実行・独立レビューを主張しない。</td></tr>
       <tr><td>P5-07-F-003</td><td>Medium</td><td>CLOSED</td><td>P5-H1／P5-06の固定local範囲を外部Data承認へ一般化していない。外部I/O、Secret、費用、Provider接続、実Data取得は実行していない。</td></tr>
     </tbody></table>
@@ -35,12 +35,12 @@
     <ul>
       <li>P5-H0=APPROVED、P5-H1=APPROVED（固定local dummy品質Gateのみ）、P5-06正式PASSを確認した。</li>
       <li>P5-DATA-G1は、P5-07Aの推奨値をそのまま適用するユーザー指示を受領し、<a href="../../../tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1.md">明示承認Evidence</a>を保存した。</li>
-      <li>適用範囲はDatabento Historical API、<code>GLBX.MDP3</code>、5先物、共通期間、schema、費用上限、Secret参照名、保存・停止条件である。実アカウントentitlement、契約・ライセンス、事前費用見積り、Secret metadata、Runner実体は実行前確認として残る。</li>
+      <li>適用範囲はDatabento Historical API、<code>GLBX.MDP3</code>、5先物、共通期間、schema、費用上限、Secret参照名、保存・停止条件である。実アカウントentitlement、契約・ライセンス、budget control、Secret metadata、外部host isolation、外部Run Evidenceは実行前確認として残る。事前費用見積りは開始必須条件から除外し、実行後usage監査は維持する。</li>
       <li>今回の更新は設計・読み取り・HTML・ログ・承認Evidenceだけであり、外部Data、Provider接続、Secret参照、費用、外部I/O、取得Runner起動、実Run、Broker、Paper、Live、実資金、実Risk、Cloud、Core、P4 DB、migration、repositoryは変更・実行しない。</li>
     </ul>
   </section>
   <section><h2>2. P5-DATA-G1適用済み申請対象表</h2>
-    <p>2026-08-13のユーザー指示により、P5-07Aの推奨値を申請範囲へそのまま適用した。値の適用は外部Data取得の完了を意味しない。実行前に必要な契約・権限・見積り・Runner・host isolation Evidenceは、未確認なら停止する。</p>
+    <p>2026-08-13のユーザー指示により、P5-07Aの推奨値を申請範囲へそのまま適用した。値の適用は外部Data取得の完了を意味しない。実行前に必要な契約・権限・budget control・Secret metadata・Runner・host isolation Evidenceは、未確認なら停止する。事前費用見積りは必須としない。</p>
     <table><thead><tr><th>項目</th><th>適用値</th><th>システムとの接続</th><th>実行前に必要なEvidence／未確認時の停止</th></tr></thead><tbody>
       <tr><td>対象Symbol／論理市場ID</td><td><code>MCL</code>、<code>M6A</code>、<code>MZC</code>、<code>MZS</code>、<code>MZW</code>。Provider入力は各<code>[ROOT].FUT</code>、<code>stype_in=parent</code>、<code>stype_out=instrument_id</code>。</td><td>論理IDとProvider側の契約・instrument_idをdefinitionで対応付け、outright futureだけを採用する。</td><td>対象一覧、definition結果、raw_symbol、instrument_id、hash。欠落は<code>SCOPE_UNKNOWN</code>。</td></tr>
       <tr><td>対象期間／as-of</td><td><code>start=2025-02-24T00:00:00Z</code>、<code>end=2026-08-01T00:00:00Z</code>（排他的）、<code>as_of=2026-07-31T23:59:59Z</code>。</td><td>5候補のMicro契約を同じ期間で比較し、未来Dataの混入を防ぐ。</td><td>Providerのavailable／condition、取得時点、期間manifest。欠落は<code>PERIOD_UNKNOWN</code>。</td></tr>
@@ -48,21 +48,21 @@
       <tr><td>資産種類</td><td>今回の実取得は<code>futures</code>のみ。stocks、FXスポット、cryptoは対象外。4資産分類は構造上の候補としてのみ保持する。</td><td>現在の5候補の契約・Roll・限月を先に検証し、4分類の実Data PASSへ一般化しない。</td><td>Catalog／Contractと対象外一覧。欠落は<code>ASSET_SCOPE_UNKNOWN</code>。</td></tr>
       <tr><td>Provider／契約／権限</td><td><strong>Databento Historical API</strong>、Dataset<code>GLBX.MDP3</code>、Usage-based Historical only、Liveなし、外部再配布なし。</td><td>既存P2のProvider候補、Adapter境界、Raw／Normalized設計へ接続する。</td><td>実アカウントのentitlement、契約・ライセンス、利用期限。欠落は<code>PROVIDER_GATE_REQUIRED</code>。</td></tr>
       <tr><td>endpoint／rate／通信方式</td><td><code>https://hist.databento.com/v0/</code>のみ、HTTPS/TLS、<code>hist.databento.com:443</code>のみallowlist。同時接続1、最大1 request/秒。</td><td>Historical専用のProvider境界を一接続先へ限定し、通信監査を可能にする。</td><td>sanitized通信監査、DNS／接続先、retry／timeout。欠落は<code>NETWORK_SCOPE_UNKNOWN</code>。</td></tr>
-      <tr><td>費用上限</td><td>1 Run上限25 USD、Historicalチーム月額上限50 USD、80%警告、100%停止。実行前見積りが上限超過なら開始しない。</td><td>使用量課金の不確実性を上限で閉じ、費用超過をfail-closedにする。</td><td><code>get_billable_size</code>／<code>get_cost</code>見積り、利用額、停止監査。欠落は<code>COST_GATE_REQUIRED</code>。</td></tr>
+      <tr><td>費用上限</td><td>1 Run上限25 USD、Historicalチーム月額上限50 USD、80%警告、100%停止。事前見積りは必須としない。Provider／team側budget controlと実行後usage監査を必須とする。</td><td>事前見積りを開始条件にせず、承認済み上限・アカウント側制御・実行後監査で費用を管理する。</td><td>budget control設定、実行後usage／<code>get_cost</code>監査、停止監査。事前見積り欠落は開始拒否理由にしない。</td></tr>
       <tr><td>Secret参照／mask／失効</td><td>参照名<code>DATABENTO_API_KEY</code>のみ。値はHTML・CLI・ログ・Evidenceへ出さない。Historical限定、期限上限<code>2026-08-31</code>、Run後rotate／revoke。</td><td>Secret値をCore・文書・ログへ漏らさず、用途と期限を限定する。</td><td>Secret metadata（参照名、用途、expiry、mask、audit ref）のみ。平文・Account IDは保存禁止。</td></tr>
       <tr><td>Raw／Normalized／Quality保存</td><td>Evidence rootは<code>tests/evidence/phase5/RUN-P5-08-DATABENTO-001/</code>。RawはDBN+zstd、日単位<code>.dbn.zst</code>、SHA-256。Normalizedは<code>P5-NORMALIZED-BAR-v1.0.0</code>。</td><td>Raw、Normalized、Quality、Manifestを同一Runへ束ね、Provider型をCoreへ漏らさない。</td><td>各manifest、content hash、provenance、QualityReport。欠落は<code>RAW_EVIDENCE_UNKNOWN</code>／<code>QUALITY_STOP</code>。</td></tr>
       <tr><td>保持／再配布</td><td>Raw／NormalizedはP5-H2後180日上限案。Manifest／Quality／Provenance／hash／StopDecisionは3年案。外部再配布・公開・Cloudバックアップなし。</td><td>最小限のローカル保持で再検証期間を確保し、配布権限を増やさない。</td><td>契約・ライセンス、削除ログ、アクセス権。未確認は<code>RETENTION_GATE_REQUIRED</code>。</td></tr>
       <tr><td>停止条件</td><td>対象外Symbol、spread混入、期間外、partial resolution、available以外、欠損・重複・逆行、未来Data、Calendar／hash不一致、費用超過、401／402／403／404／422、Secret異常、通信先逸脱、Runner未登録で即停止。</td><td>既存P5のfail-closedとProviderのpartial／condition／errorを一つのStopDecisionへ接続する。</td><td>StopDecisionを作成し、異常Dataを下流へ渡さない。</td></tr>
-      <tr><td>取得Runner／固定command</td><td>Runner ID<code>P5-EXT-DATABENTO-HIST-001</code>、version<code>0.1.0</code>、配置案<code>scripts/phase5_external_data/run_databento_historical.ps1</code>、Run ID<code>RUN-P5-08-DATABENTO-001</code>の固定command。</td><td>適用値として予約するが、実体がないWorkerを推測起動しない。</td><td>Runner実体、依存lock、固定Python 3.11、dry-run、通信監査、再現手順。未登録は<code>P5-EXTERNAL-WORKER-UNKNOWN</code>。</td></tr>
+      <tr><td>取得Runner／固定command</td><td>Runner ID<code>P5-EXT-DATABENTO-HIST-001</code>、version<code>0.1.0</code>、<code>scripts/phase5_external_data/run_databento_historical.ps1</code>＋Python worker、Run ID<code>RUN-P5-08-DATABENTO-001</code>の固定command。</td><td>固定Runnerとdry-runを作成済み。<code>-Execute</code>を明示しない限り外部通信せず、未確認の前提があればfail-closedで停止する。</td><td>Runner実体、依存・Python version、dry-run report、通信監査、再現手順。entitlement／budget／host isolation未確認は<code>P5-EXTERNAL-WORKER-UNKNOWN</code>として保持。</td></tr>
       <tr><td>host isolation</td><td>外部取得Run専用execution IDを発行し、allowlist以外の外部接続を拒否。P5-06 local isolationは流用しない。</td><td>Provider以外への送信を防ぎ、外部Run専用の通信証拠を残す。</td><td>外部Runのhost isolation、egress監査、execution ID一致。Unknownは<code>QUALITY_STOP</code>。</td></tr>
       <tr><td>Run ID／target_paths／再現手順</td><td>targetは上記Evidence rootと承認済みRunner一時領域のみ。<code>src/</code>、Core、P4 DB／migration、既存P4 Evidence、Broker／Cloudは除外。再取得は新attempt IDで上書きしない。</td><td>target-onlyでCore・P4成果物への書込みを防ぎ、Manifestとhashで再現性を束ねる。</td><td>Run manifest、HEAD／change／data hash、sanitized log、対象外変更0件。欠落は<code>MANIFEST_UNKNOWN</code>／<code>REPRODUCTION_UNKNOWN</code>。</td></tr>
     </tbody></table>
   </section>
   <section><h2>3. Gate状態と後続停止</h2>
     <table><thead><tr><th>Gate／Step</th><th>状態</th><th>根拠</th><th>次の処置</th></tr></thead><tbody>
-      <tr><td>P5-DATA-G1</td><td><code>APPROVED</code></td><td>2026-08-13、ユーザーがP5-07Aの推奨構成をそのまま適用する旨を明示。承認Evidenceを保存した。</td><td>承認範囲を変更しない。P5-08はRunner・契約・権限・見積り・外部Run Evidenceの確認後のみ開始</td></tr>
-      <tr><td>P5-EXTERNAL-WORKER-UNKNOWN</td><td><code>OPEN / UNKNOWN</code></td><td>実在する固定Runner、command、依存、target scope、Evidence root、外部host isolationがない</td><td>推測起動しない。登録・dry-run・外部Run Evidenceが揃うまでP5-08を停止</td></tr>
-      <tr><td>P5-08</td><td><code>BLOCKED</code></td><td>P5-DATA-G1は承認済みだが、Runner不明と実行前Evidence不足</td><td>外部I/O／Secret／費用／Data取得を開始しない</td></tr>
+      <tr><td>P5-DATA-G1</td><td><code>APPROVED</code></td><td>2026-08-13、ユーザーがP5-07Aの推奨構成をそのまま適用する旨を明示。承認Evidenceと費用ルール変更Evidenceを保存した。</td><td>承認範囲を変更しない。P5-08はRunner・契約・権限・budget control・Secret metadata・host isolation・外部Run Evidenceの確認後に開始。事前見積りは必須としない。</td></tr>
+      <tr><td>P5-EXTERNAL-WORKER-UNKNOWN</td><td><code>OPEN / PRECONDITION_UNKNOWN</code></td><td>固定Runner、request、Evidence root、dry-runは作成済みだが、entitlement、budget control、Secret metadata、外部host isolationの検証がない</td><td>推測実行しない。未確認の前提を埋め、sanitized通信監査と外部Run Evidenceが揃うまでP5-08を停止</td></tr>
+      <tr><td>P5-08</td><td><code>BLOCKED</code></td><td>P5-DATA-G1は承認済み。dry-runは実施済みだが、entitlement、budget control、Secret metadata、host isolation、外部Run Evidenceが未確認</td><td>外部I/O／Secret値／費用／Data取得を開始しない</td></tr>
       <tr><td>P5-09</td><td><code>BLOCKED</code></td><td>P5-08 Raw／Normalized／Manifest Evidenceなし</td><td>Quality／Calendar／Cost／Gap／Holdoutを実証しない</td></tr>
       <tr><td>P5-10</td><td><code>NOT_STARTED</code></td><td>P5-09 Evidenceなし</td><td>UnknownをPassにせず、P5-H2候補を作らない</td></tr>
       <tr><td>P5-11</td><td><code>NOT_STARTED</code></td><td>P5-H2未承認</td><td>完了記録・P6引渡しを作らない</td></tr>
@@ -81,12 +81,12 @@
     <p>Broker接続、Paper、Live、注文、実資金、実Risk、Account／OMS、Cloud、P4 DB、migration、Core変更、Application／UI変更、Provider以外の外部I/OはP5-07の対象外である。これらをP5-DATA-G1の承認対象へ混入させない。</p>
   </section>
   <section class="box"><h2>6. Runtime receipt</h2>
-    <p><a href="../../../tests/evidence/phase5/RUN-P5-07-GATE-PREP-001/dispatch-receipts.md">P5-07 dispatch receipt</a> ／ <a href="../../../tests/evidence/phase5/RUN-P5-07-GATE-PREP-001/dispatch-receipt.json">machine-readable receipt</a> ／ <a href="../../../tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1.md">P5-DATA-G1承認Evidence</a></p>
+     <p><a href="../../../tests/evidence/phase5/RUN-P5-07-GATE-PREP-001/dispatch-receipts.md">P5-07 dispatch receipt</a> ／ <a href="../../../tests/evidence/phase5/RUN-P5-07-GATE-PREP-001/dispatch-receipt.json">machine-readable receipt</a> ／ <a href="../../../tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1.md">P5-DATA-G1承認Evidence</a> ／ <a href="../../../tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1-amendment-2026-08-13.md">費用ルール変更Evidence</a> ／ <a href="../../../tests/evidence/phase5/RUN-P5-08-DATABENTO-001/README.md">P5-08 Evidence root／dry-run</a></p>
     <p>前二つのP5-07 receiptは2026-08-12時点の承認前準備実行の履歴であり、現在の承認状態はHuman Gate Evidenceに分離して記録した。指定Coordinatorのspawnはランタイムのagent thread limitで失敗した。全childを未起動、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>SELF_REVIEW_FALLBACK</code>として記録しており、独立実行・独立レビュー済みとは扱わない。</p>
   </section>
   <section><h2>7. 完了条件</h2>
     <ul><li>P5-DATA-G1の推奨値を空欄・仮値なしで適用し、明示承認Evidenceを保存。</li><li><code>P5-EXTERNAL-WORKER-UNKNOWN</code>を未解消のまま保持。</li><li>外部I/O／Secret／費用／実Data取得を実行していない。</li><li>REQ／UC／Test／Data object／Evidence／Gateを接続。</li><li>対象外のBroker／Paper／Live等を固定。</li><li>dispatch receiptを保存し、未起動Agentを独立実行済みと記載していない。</li></ul>
-    <p><strong>Critical=0、High=0。</strong> P5-08以降は、承認範囲と実在・固定・承認済みRunner、契約・権限、事前見積り、外部host isolation Evidenceが一致するまで開始しない。</p>
+    <p><strong>Critical=0、High=0。</strong> P5-08以降は、承認範囲と固定Runner、契約・権限、budget control、Secret metadata、外部host isolation Evidenceが一致するまで開始しない。事前費用見積りは開始条件にしないが、実行後usage監査を省略しない。</p>
   </section>
-  <p class="small">作成日: 2026-08-12 ／ 状態更新: 2026-08-13にP5-DATA-G1の推奨値を適用・範囲承認。P5-08はRunner Unknownと実行前Evidence不足でBLOCKED。P5-H1はP5-DATA-G1の代替承認ではない。</p>
+  <p class="small">作成日: 2026-08-12 ／ 状態更新: 2026-08-13にP5-DATA-G1の推奨値を適用・範囲承認し、費用事前見積り必須ルールを廃止。固定Runnerとdry-runを作成したが、P5-08はアカウント・budget・host isolation・外部Run Evidence不足でBLOCKED。P5-H1はP5-DATA-G1の代替承認ではない。</p>
 </main></body></html>

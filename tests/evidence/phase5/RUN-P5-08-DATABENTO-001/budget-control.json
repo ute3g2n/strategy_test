@@ -1,0 +1,13 @@
+{
+  "schema_version": "p5-08-budget-control-v1",
+  "status": "UNKNOWN",
+  "preflight_estimate_required": false,
+  "per_run_hard_cap_usd": 25,
+  "team_monthly_hard_cap_usd": 50,
+  "warning_percent": 80,
+  "stop_percent": 100,
+  "provider_or_team_budget_control": "account-side confirmation required",
+  "post_run_usage_audit_required": true,
+  "billing_evidence": null,
+  "stop_until": "status=CONFIRMED"
+}
