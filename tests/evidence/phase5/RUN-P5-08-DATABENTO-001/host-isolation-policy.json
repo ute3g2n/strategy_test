@@ -5,6 +5,8 @@
   "allowlist": [{"scheme": "https", "host": "hist.databento.com", "port": 443}],
   "deny_all_other_egress": true,
   "dns_and_connection_audit_required": true,
+  "process_guard_implementation_ref": "logs/process-egress-guard-implementation.json",
+  "process_guard_scope": "runner-process-only; not host-level verification",
   "p5_06_local_isolation_reusable": false,
   "target_only": true,
   "evidence_required": ["pre-run-policy", "post-run-policy", "sanitized-egress-audit", "execution-id-match"],

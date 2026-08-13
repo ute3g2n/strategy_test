@@ -1,0 +1,9 @@
+{
+  "at": "2026-08-13T13:45:08Z",
+  "external_io": false,
+  "reason": "EXECUTE_BLOCKED:ENTITLEMENT_CONFIRMATION_REQUIRED,BUDGET_CONTROL_CONFIRMATION_REQUIRED,SECRET_METADATA_VERIFICATION_REQUIRED,HOST_ISOLATION_VERIFICATION_REQUIRED",
+  "run_id": "RUN-P5-08-DATABENTO-001",
+  "schema_version": "p5-08-execute-precondition-check-v1",
+  "secret_value_read": false,
+  "status": "BLOCKED_PRECONDITION"
+}

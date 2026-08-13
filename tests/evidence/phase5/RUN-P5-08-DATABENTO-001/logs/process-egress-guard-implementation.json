@@ -1,0 +1,19 @@
+{
+  "schema_version": "p5-08-process-egress-guard-implementation-v1",
+  "status": "IMPLEMENTED_NOT_VERIFIED",
+  "implementation": "scripts/phase5_external_data/run_databento_historical.py:ProcessEgressGuard",
+  "allowlist": [
+    {
+      "host": "hist.databento.com",
+      "port": 443,
+      "scheme": "https"
+    }
+  ],
+  "scope": "explicit P5-08 runner process only",
+  "machine_firewall_changed": false,
+  "secret_value_recorded": false,
+  "external_io_performed": false,
+  "formal_host_isolation_status": "UNKNOWN",
+  "reason_formal_verification_remains_unknown": "A process guard is an additional control, not independent OS-level pre/post isolation evidence.",
+  "created_at": "2026-08-13T13:44:42Z"
+}

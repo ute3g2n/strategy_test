@@ -19,11 +19,13 @@ import json
 import math
 import os
 import re
+import socket
 import sys
 import time
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Iterable
+from urllib.parse import urlparse
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -47,6 +49,179 @@ UTC = timezone.utc
 
 class ContractError(RuntimeError):
     """Raised when a local P5-08 contract is invalid."""
+
+
+class ProcessEgressGuard:
+    """Bounded process-level egress guard for the explicit external run.
+
+    This is intentionally not treated as host-level isolation evidence. It is
+    an additional fail-closed control inside the runner. Formal host isolation
+    still requires an independently captured pre/post environment audit.
+    """
+
+    def __init__(self, endpoint: str, audit_path: Path, execution_id: str) -> None:
+        self.endpoint = endpoint
+        self.audit_path = audit_path
+        self.execution_id = execution_id
+        self.allowed_host = "hist.databento.com"
+        self.allowed_port = 443
+        self.allowed_ips: set[str] = set()
+        self.events: list[dict[str, Any]] = []
+        self._original_socket_type: Any = None
+        self._entered = False
+
+    def _destination_summary(self, address: Any) -> dict[str, Any]:
+        if isinstance(address, tuple) and len(address) >= 2:
+            host = str(address[0])
+            try:
+                port: int | None = int(address[1])
+            except (TypeError, ValueError):
+                port = None
+        else:
+            host = "<invalid>"
+            port = None
+        destination_hash = hashlib.sha256(
+            f"{host}:{port}".encode("utf-8", errors="replace")
+        ).hexdigest()
+        if host == self.allowed_host:
+            visible_host = self.allowed_host
+        elif host in self.allowed_ips:
+            visible_host = "resolved-allowlisted-ip"
+        else:
+            visible_host = "redacted-unexpected-destination"
+        return {
+            "destination_host": visible_host,
+            "destination_port": port,
+            "destination_hash": destination_hash,
+        }
+
+    def _is_allowed(self, address: Any) -> bool:
+        if not isinstance(address, tuple) or len(address) < 2:
+            return False
+        host = str(address[0])
+        try:
+            port = int(address[1])
+        except (TypeError, ValueError):
+            return False
+        return port == self.allowed_port and (
+            host == self.allowed_host or host in self.allowed_ips
+        )
+
+    def _record_connection(self, address: Any, allowed: bool, reason: str) -> None:
+        event = {
+            "at": utc_now(),
+            "execution_id": self.execution_id,
+            "allowed": allowed,
+            "reason": reason,
+        }
+        event.update(self._destination_summary(address))
+        self.events.append(event)
+
+    def _write_audit(self, status: str, exception_type: str | None = None) -> None:
+        write_json(
+            self.audit_path,
+            {
+                "schema_version": "p5-08-process-egress-audit-v1",
+                "status": status,
+                "verification_status": "UNVERIFIED_HOST_LEVEL",
+                "execution_id": self.execution_id,
+                "external_io_scope": "process_guard_only",
+                "allowlist": [
+                    {"host": self.allowed_host, "port": self.allowed_port}
+                ],
+                "resolved_allowlisted_ip_count": len(self.allowed_ips),
+                "resolved_allowlisted_ip_hash": hashlib.sha256(
+                    "\n".join(sorted(self.allowed_ips)).encode("utf-8")
+                ).hexdigest()
+                if self.allowed_ips
+                else None,
+                "events": self.events,
+                "unexpected_destination_count": sum(
+                    1 for event in self.events if not event.get("allowed", False)
+                ),
+                "exception_type": exception_type,
+                "secret_value_recorded": False,
+                "note": (
+                    "Process-level evidence only; this file does not prove OS-level "
+                    "host isolation or provider entitlement."
+                ),
+            },
+        )
+
+    def __enter__(self) -> "ProcessEgressGuard":
+        parsed = urlparse(self.endpoint)
+        actual_port = parsed.port or (443 if parsed.scheme == "https" else None)
+        if (
+            parsed.scheme != "https"
+            or parsed.hostname != self.allowed_host
+            or actual_port != self.allowed_port
+        ):
+            self._write_audit("BLOCKED_ENDPOINT_CONTRACT")
+            raise ContractError(
+                "PROCESS_EGRESS_GUARD_ENDPOINT_MISMATCH: "
+                f"expected https://{self.allowed_host}:{self.allowed_port}"
+            )
+        try:
+            infos = socket.getaddrinfo(
+                self.allowed_host,
+                self.allowed_port,
+                type=socket.SOCK_STREAM,
+            )
+            self.allowed_ips = {
+                str(info[4][0]) for info in infos if info[4] and info[4][0]
+            }
+        except OSError as exc:
+            self._write_audit("BLOCKED_DNS_RESOLUTION")
+            raise ContractError("PROCESS_EGRESS_GUARD_DNS_RESOLUTION_FAILED") from exc
+        if not self.allowed_ips:
+            self._write_audit("BLOCKED_NO_ALLOWLISTED_ADDRESS")
+            raise ContractError("PROCESS_EGRESS_GUARD_NO_ALLOWLISTED_ADDRESS")
+
+        self.events.append(
+            {
+                "at": utc_now(),
+                "execution_id": self.execution_id,
+                "event": "pre_run_resolution",
+                "allowed_host": self.allowed_host,
+                "allowed_port": self.allowed_port,
+                "resolved_address_count": len(self.allowed_ips),
+            }
+        )
+        original_socket_type = socket.socket
+        guard = self
+
+        class GuardedSocket(original_socket_type):
+            def connect(self, address: Any) -> Any:  # type: ignore[override]
+                if not guard._is_allowed(address):
+                    guard._record_connection(
+                        address, False, "destination_not_in_allowlist"
+                    )
+                    raise OSError("P5_HOST_ISOLATION_EGRESS_DENIED")
+                guard._record_connection(address, True, "allowlisted_destination")
+                return super().connect(address)
+
+            def connect_ex(self, address: Any) -> int:  # type: ignore[override]
+                if not guard._is_allowed(address):
+                    guard._record_connection(
+                        address, False, "destination_not_in_allowlist"
+                    )
+                    return 13
+                guard._record_connection(address, True, "allowlisted_destination")
+                return super().connect_ex(address)
+
+        socket.socket = GuardedSocket  # type: ignore[assignment]
+        self._original_socket_type = original_socket_type
+        self._entered = True
+        return self
+
+    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> bool:
+        if self._entered and self._original_socket_type is not None:
+            socket.socket = self._original_socket_type  # type: ignore[assignment]
+        self._write_audit(
+            "AUDIT_CAPTURED",
+            exc_type.__name__ if exc_type is not None else None,
+        )
+        return False
 
 
 def utc_now() -> str:
@@ -416,11 +591,6 @@ def execute_run(request: dict[str, Any], evidence_root: Path, contract: dict[str
         raise ContractError("SECRET_ENV_NOT_PRESENT")
     del api_key  # Presence only; never log, serialize, or pass as a CLI value.
 
-    try:
-        import databento as db  # Import only on explicit external execution.
-    except ImportError as exc:
-        raise ContractError("DATABENTO_PYTHON_PACKAGE_MISSING") from exc
-
     started_at = utc_now()
     manifest_path = evidence_root / "manifest" / "run-manifest.json"
     manifest = {
@@ -440,13 +610,24 @@ def execute_run(request: dict[str, Any], evidence_root: Path, contract: dict[str
         "secret_value_read": False,
         "records": [],
         "usage_audit": None,
+        "process_egress_audit": "logs/egress-audit.json",
         "stop_reason": None,
     }
     write_json(manifest_path, manifest)
-    client = db.Historical()
     max_retries = int(request["rate_policy"]["max_retries"])
     request_rows: list[dict[str, Any]] = []
+    egress_guard = ProcessEgressGuard(
+        request["endpoint"],
+        evidence_root / "logs" / "egress-audit.json",
+        run_id,
+    )
     try:
+        egress_guard.__enter__()
+        try:
+            import databento as db  # Import only after the egress guard is active.
+        except ImportError as exc:
+            raise ContractError("DATABENTO_PYTHON_PACKAGE_MISSING") from exc
+        client = db.Historical()
         for job in request["requests"]:
             schema = job["schema"]
             range_start = parse_utc(job["start"], label=f"{schema}.start")
@@ -533,6 +714,8 @@ def execute_run(request: dict[str, Any], evidence_root: Path, contract: dict[str
         manifest["finished_at"] = utc_now()
         write_json(manifest_path, manifest)
         raise
+    finally:
+        egress_guard.__exit__(*sys.exc_info())
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -568,6 +751,25 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         return execute_run(request, evidence_root, contract, args.run_id)
     except ContractError as exc:
+        if args.execute:
+            try:
+                blocked_evidence_root = repo_path(
+                    args.evidence_root, label="--evidence-root"
+                )
+                write_json(
+                    blocked_evidence_root / "logs" / "execute-precondition-check.json",
+                    {
+                        "schema_version": "p5-08-execute-precondition-check-v1",
+                        "status": "BLOCKED_PRECONDITION",
+                        "run_id": args.run_id,
+                        "external_io": False,
+                        "secret_value_read": False,
+                        "reason": safe_exception_text(exc),
+                        "at": utc_now(),
+                    },
+                )
+            except Exception:
+                pass
         print(f"BLOCKED: {safe_exception_text(exc)}", file=sys.stderr)
         return 2
     except Exception as exc:  # Keep unexpected failures redacted and fail-closed.
