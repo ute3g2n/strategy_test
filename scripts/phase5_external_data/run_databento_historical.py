@@ -539,9 +539,7 @@ def parse_http_status(exc: BaseException) -> int | None:
 
 def safe_exception_text(exc: BaseException) -> str:
     text = str(exc)
-    secret_value = os.environ.get(EXPECTED_SECRET_ENV)
-    if secret_value:
-        text = text.replace(secret_value, "[REDACTED]")
+    text = re.sub(r"\bdb-[A-Za-z0-9]{29}\b", "[REDACTED_SECRET]", text)
     if EXPECTED_SECRET_ENV in text:
         text = text.replace(EXPECTED_SECRET_ENV, "[SECRET_ENV]")
     return text[:1000]
@@ -634,10 +632,8 @@ def execute_run(request: dict[str, Any], evidence_root: Path, contract: dict[str
     reviewable and fail-closed.
     """
 
-    api_key = os.environ.get(EXPECTED_SECRET_ENV)
-    if not api_key:
+    if EXPECTED_SECRET_ENV not in os.environ:
         raise ContractError("SECRET_ENV_NOT_PRESENT")
-    del api_key  # Presence only; never log, serialize, or pass as a CLI value.
 
     started_at = utc_now()
     manifest_path = evidence_root / "manifest" / "run-manifest.json"
