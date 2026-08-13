@@ -1,0 +1,24 @@
+{
+  "dataset": "GLBX.MDP3",
+  "endpoint": "https://hist.databento.com/v0/",
+  "external_io": true,
+  "finished_at": "2026-08-13T14:30:19Z",
+  "no_live": true,
+  "precondition_waivers": [
+    "BUDGET_CONTROL_EXECUTION_GATE_WAIVED",
+    "HOST_ISOLATION_EXECUTION_GATE_WAIVED"
+  ],
+  "process_egress_audit": "logs/egress-audit.json",
+  "provider": "databento",
+  "records": [],
+  "request_sha256": "190009b0ce57f5c21ad809c94991c3ddc42fd9c1f15e97bed9f60eddc226b11b",
+  "run_id": "RUN-P5-08-DATABENTO-001",
+  "runner_id": "P5-EXT-DATABENTO-HIST-001",
+  "runner_version": "0.1.1",
+  "schema_version": "p5-08-run-manifest-v1",
+  "secret_value_read": false,
+  "started_at": "2026-08-13T14:30:17Z",
+  "status": "BLOCKED",
+  "stop_reason": "PROVIDER_STOP_HTTP_402",
+  "usage_audit": null
+}

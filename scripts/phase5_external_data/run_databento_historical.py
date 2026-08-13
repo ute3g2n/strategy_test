@@ -137,7 +137,17 @@ class ProcessEgressGuard:
                 else None,
                 "events": self.events,
                 "unexpected_destination_count": sum(
-                    1 for event in self.events if not event.get("allowed", False)
+                    1
+                    for event in self.events
+                    if "allowed" in event and event.get("allowed") is False
+                ),
+                "connection_event_count": sum(
+                    1 for event in self.events if "allowed" in event
+                ),
+                "allowed_connection_event_count": sum(
+                    1
+                    for event in self.events
+                    if "allowed" in event and event.get("allowed") is True
                 ),
                 "exception_type": exception_type,
                 "secret_value_recorded": False,

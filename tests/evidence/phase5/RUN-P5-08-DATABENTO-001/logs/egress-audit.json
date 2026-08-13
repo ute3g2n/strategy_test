@@ -1,0 +1,41 @@
+{
+  "allowlist": [
+    {
+      "host": "hist.databento.com",
+      "port": 443
+    }
+  ],
+  "events": [
+    {
+      "allowed_host": "hist.databento.com",
+      "allowed_port": 443,
+      "at": "2026-08-13T14:30:17Z",
+      "event": "pre_run_resolution",
+      "execution_id": "RUN-P5-08-DATABENTO-001",
+      "resolved_address_count": 2
+    },
+    {
+      "allowed": true,
+      "at": "2026-08-13T14:30:17Z",
+      "destination_hash": "ccfac1630e160e7ba65f12851e780cc9852d92718c743b98b602ac45ea9a8ee2",
+      "destination_host": "resolved-allowlisted-ip",
+      "destination_port": 443,
+      "execution_id": "RUN-P5-08-DATABENTO-001",
+      "reason": "allowlisted_destination"
+    }
+  ],
+  "exception_type": "ContractError",
+  "execution_id": "RUN-P5-08-DATABENTO-001",
+  "external_io_scope": "process_guard_only",
+  "note": "Process-level evidence only; this file does not prove OS-level host isolation or provider entitlement.",
+  "resolved_allowlisted_ip_count": 2,
+  "resolved_allowlisted_ip_hash": "e3d2093c9c37acd0efe3a9bc5df468049bac4b35c407a6f77ac3ce29f8cf43d9",
+  "schema_version": "p5-08-process-egress-audit-v1",
+  "secret_value_recorded": false,
+  "status": "AUDIT_CAPTURED",
+  "unexpected_destination_count": 0,
+  "connection_event_count": 1,
+  "allowed_connection_event_count": 1,
+  "audit_correction": "Pre-run resolution event has no allowed field; corrected after code review so only connection events contribute to unexpected_destination_count.",
+  "verification_status": "UNVERIFIED_HOST_LEVEL"
+}
