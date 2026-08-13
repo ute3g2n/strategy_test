@@ -2,6 +2,10 @@
   "schema_version": "p5-08-host-isolation-policy-v1",
   "execution_id": "P5-08-DATABENTO-001",
   "verification_status": "UNKNOWN",
+  "execution_gate_waived": true,
+  "waiver_type": "USER_DIRECTIVE_STOP_RULE_REMOVAL",
+  "waived_at": "2026-08-13T14:29:14Z",
+  "waived_by": "user directive: abolish the budget and host-isolation stop rules",
   "allowlist": [{"scheme": "https", "host": "hist.databento.com", "port": 443}],
   "deny_all_other_egress": true,
   "dns_and_connection_audit_required": true,
@@ -10,5 +14,6 @@
   "p5_06_local_isolation_reusable": false,
   "target_only": true,
   "evidence_required": ["pre-run-policy", "post-run-policy", "sanitized-egress-audit", "execution-id-match"],
-  "stop_until": "verification_status=VERIFIED"
+  "stop_until": "no_host_isolation_execution_gate_waiver",
+  "residual_control": "ProcessEgressGuard allows only hist.databento.com:443; formal host-level verification remains UNKNOWN"
 }

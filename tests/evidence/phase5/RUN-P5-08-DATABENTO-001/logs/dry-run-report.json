@@ -1,16 +1,17 @@
 {
-  "created_at": "2026-08-13T14:23:18Z",
+  "created_at": "2026-08-13T14:29:41Z",
   "data_acquired": false,
-  "execute_precondition_blockers": [
-    "BUDGET_CONTROL_CONFIRMATION_REQUIRED",
-    "HOST_ISOLATION_VERIFICATION_REQUIRED"
-  ],
+  "execute_precondition_blockers": [],
   "external_io": false,
   "hard_caps": {
     "per_run_usd": 25,
     "team_monthly_usd": 50
   },
-  "next_action": "Confirm each listed precondition; no portal API-key screenshot is required; then invoke the same wrapper with -Execute.",
+  "next_action": "Explicit user waivers are recorded; process egress guard and post-run usage audit remain active.",
+  "precondition_waivers": [
+    "BUDGET_CONTROL_EXECUTION_GATE_WAIVED",
+    "HOST_ISOLATION_EXECUTION_GATE_WAIVED"
+  ],
   "preflight_estimate_required": false,
   "provider_access": false,
   "request_sha256": "190009b0ce57f5c21ad809c94991c3ddc42fd9c1f15e97bed9f60eddc226b11b",
@@ -20,5 +21,5 @@
   "schema_version": "p5-08-dry-run-report-v1",
   "secret_value_read": false,
   "secret_verification_scope": "ENVIRONMENT_PRESENCE_ONLY",
-  "status": "DRY_RUN_BLOCKED"
+  "status": "DRY_RUN_READY"
 }

@@ -1,13 +1,19 @@
 {
   "schema_version": "p5-08-budget-control-v1",
-  "status": "UNKNOWN",
+  "status": "WAIVED_BY_USER",
+  "monthly_limit_status": "USER_CONFIRMED_SAVED",
+  "monthly_limit_usd": 50,
+  "execution_gate_waived": true,
+  "waiver_type": "USER_DIRECTIVE_STOP_RULE_REMOVAL",
+  "waived_at": "2026-08-13T14:29:14Z",
+  "waived_by": "user directive: abolish the budget and host-isolation stop rules",
   "preflight_estimate_required": false,
   "per_run_hard_cap_usd": 25,
   "team_monthly_hard_cap_usd": 50,
   "warning_percent": 80,
   "stop_percent": 100,
-  "provider_or_team_budget_control": "account-side confirmation required",
+  "provider_or_team_budget_control": "Databento Historical monthly limit 50 USD; user confirmed portal save; per-run 25 USD remains post-run audit control",
   "post_run_usage_audit_required": true,
   "billing_evidence": null,
-  "stop_until": "status=CONFIRMED"
+  "stop_until": "no_budget_execution_gate_waiver"
 }

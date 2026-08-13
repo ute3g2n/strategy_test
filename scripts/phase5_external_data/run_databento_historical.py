@@ -436,14 +436,29 @@ def validate_request(
     ):
         raise ContractError("SECRET_PRESENCE_EVIDENCE_INVALID")
     blockers: list[str] = []
+    precondition_waivers: list[str] = []
     if entitlement.get("status") != "CONFIRMED":
         blockers.append("ENTITLEMENT_CONFIRMATION_REQUIRED")
+    budget_waived = (
+        budget.get("execution_gate_waived") is True
+        and budget.get("waiver_type") == "USER_DIRECTIVE_STOP_RULE_REMOVAL"
+    )
     if budget.get("status") != "CONFIRMED":
-        blockers.append("BUDGET_CONTROL_CONFIRMATION_REQUIRED")
+        if budget_waived:
+            precondition_waivers.append("BUDGET_CONTROL_EXECUTION_GATE_WAIVED")
+        else:
+            blockers.append("BUDGET_CONTROL_CONFIRMATION_REQUIRED")
     if metadata.get("metadata_status") != "VERIFIED":
         blockers.append("SECRET_METADATA_VERIFICATION_REQUIRED")
+    host_isolation_waived = (
+        isolation.get("execution_gate_waived") is True
+        and isolation.get("waiver_type") == "USER_DIRECTIVE_STOP_RULE_REMOVAL"
+    )
     if isolation.get("verification_status") != "VERIFIED":
-        blockers.append("HOST_ISOLATION_VERIFICATION_REQUIRED")
+        if host_isolation_waived:
+            precondition_waivers.append("HOST_ISOLATION_EXECUTION_GATE_WAIVED")
+        else:
+            blockers.append("HOST_ISOLATION_VERIFICATION_REQUIRED")
 
     local_contract = {
         "runner_id": RUNNER_ID,
@@ -458,6 +473,7 @@ def validate_request(
         "secret_verification_scope": "ENVIRONMENT_PRESENCE_ONLY",
         "external_io": False,
         "execute_precondition_blockers": blockers,
+        "precondition_waivers": precondition_waivers,
         "source_status": request.get("status"),
     }
     if execute and blockers:
@@ -485,6 +501,7 @@ def write_dry_run_report(
         "data_acquired": False,
         "secret_value_read": False,
         "secret_verification_scope": contract["secret_verification_scope"],
+        "precondition_waivers": contract["precondition_waivers"],
         "preflight_estimate_required": request["cost_policy"]["preflight_estimate_required"],
         "hard_caps": {
             "per_run_usd": request["cost_policy"]["per_run_hard_cap_usd"],
@@ -495,7 +512,7 @@ def write_dry_run_report(
         "next_action": (
             "Confirm each listed precondition; no portal API-key screenshot is required; then invoke the same wrapper with -Execute."
             if contract["execute_precondition_blockers"]
-            else "Human may authorize a separately reviewed -Execute invocation."
+            else "Explicit user waivers are recorded; process egress guard and post-run usage audit remain active."
         ),
     }
     write_json(report_path, report)
@@ -629,6 +646,7 @@ def execute_run(request: dict[str, Any], evidence_root: Path, contract: dict[str
         "endpoint": request["endpoint"],
         "no_live": True,
         "secret_value_read": False,
+        "precondition_waivers": contract.get("precondition_waivers", []),
         "records": [],
         "usage_audit": None,
         "process_egress_audit": "logs/egress-audit.json",
