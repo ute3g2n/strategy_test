@@ -1,8 +1,7 @@
 {
-  "created_at": "2026-08-13T14:19:48Z",
+  "created_at": "2026-08-13T14:23:18Z",
   "data_acquired": false,
   "execute_precondition_blockers": [
-    "ENTITLEMENT_CONFIRMATION_REQUIRED",
     "BUDGET_CONTROL_CONFIRMATION_REQUIRED",
     "HOST_ISOLATION_VERIFICATION_REQUIRED"
   ],

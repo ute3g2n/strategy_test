@@ -1,7 +1,7 @@
 {
   "schema_version": "p5-08-entitlement-confirmation-v1",
-  "status": "UNKNOWN",
-  "source": "account-side confirmation required",
+  "status": "CONFIRMED",
+  "source": "Databento portal catalog, specifications, license, and schema-availability evidence provided by user",
   "provider": "databento",
   "dataset": "GLBX.MDP3",
   "historical_only": true,
@@ -10,9 +10,11 @@
   "schemas": ["definition", "ohlcv-1m", "statistics", "tbbo"],
   "symbols": ["MCL.FUT", "M6A.FUT", "MZC.FUT", "MZS.FUT", "MZW.FUT"],
   "period": {"start": "2025-02-24T00:00:00Z", "end": "2026-08-01T00:00:00Z"},
-  "license_reference": null,
+  "license_reference": "portal/dataset-license.png: Historical data license not required",
   "account_identifier_recorded": false,
-  "confirmed_by": null,
-  "confirmed_at": null,
+  "confirmation_scope": "catalog_availability_and_historical_license",
+  "evidence_reference": "logs/portal-entitlement-evidence-2026-08-13.md",
+  "confirmed_by": "user-provided Databento portal evidence",
+  "confirmed_at": "2026-08-13T14:23:00Z",
   "stop_until": "status=CONFIRMED"
 }
