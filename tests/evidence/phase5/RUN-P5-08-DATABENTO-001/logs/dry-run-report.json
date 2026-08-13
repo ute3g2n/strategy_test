@@ -1,10 +1,9 @@
 {
-  "created_at": "2026-08-13T13:45:03Z",
+  "created_at": "2026-08-13T14:19:48Z",
   "data_acquired": false,
   "execute_precondition_blockers": [
     "ENTITLEMENT_CONFIRMATION_REQUIRED",
     "BUDGET_CONTROL_CONFIRMATION_REQUIRED",
-    "SECRET_METADATA_VERIFICATION_REQUIRED",
     "HOST_ISOLATION_VERIFICATION_REQUIRED"
   ],
   "external_io": false,
@@ -12,14 +11,15 @@
     "per_run_usd": 25,
     "team_monthly_usd": 50
   },
-  "next_action": "Confirm each listed precondition; then invoke the same wrapper with -Execute.",
+  "next_action": "Confirm each listed precondition; no portal API-key screenshot is required; then invoke the same wrapper with -Execute.",
   "preflight_estimate_required": false,
   "provider_access": false,
-  "request_sha256": "155efe65f30b4f8ec83d44fa1ebe17e0e22bc8afb4815df09f2fdb5d5e46abeb",
+  "request_sha256": "190009b0ce57f5c21ad809c94991c3ddc42fd9c1f15e97bed9f60eddc226b11b",
   "run_id": "RUN-P5-08-DATABENTO-001",
   "runner_id": "P5-EXT-DATABENTO-HIST-001",
-  "runner_version": "0.1.0",
+  "runner_version": "0.1.1",
   "schema_version": "p5-08-dry-run-report-v1",
   "secret_value_read": false,
+  "secret_verification_scope": "ENVIRONMENT_PRESENCE_ONLY",
   "status": "DRY_RUN_BLOCKED"
 }

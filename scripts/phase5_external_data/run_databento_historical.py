@@ -33,7 +33,7 @@ EXPECTED_DATASET = "GLBX.MDP3"
 EXPECTED_ENDPOINT = "https://hist.databento.com/v0/"
 EXPECTED_SECRET_ENV = "DATABENTO_API_KEY"
 RUNNER_ID = "P5-EXT-DATABENTO-HIST-001"
-RUNNER_VERSION = "0.1.0"
+RUNNER_VERSION = "0.1.1"
 EXPECTED_SCHEMAS = {"definition", "ohlcv-1m", "statistics", "tbbo"}
 EXPECTED_SYMBOLS = {
     "MCL": ("MCL.FUT", "NYMEX"),
@@ -395,6 +395,10 @@ def validate_request(
         raise ContractError("SECRET_POLICY_MISMATCH")
     if secret_policy.get("value_recorded") is not False or secret_policy.get("cli_argument") is not False:
         raise ContractError("SECRET_VALUE_HANDLING_INVALID")
+    if secret_policy.get("verification_method") != "environment_presence_only":
+        raise ContractError("SECRET_VERIFICATION_METHOD_MISMATCH")
+    if secret_policy.get("portal_metadata_screenshot_required") is not False:
+        raise ContractError("SECRET_PORTAL_SCREENSHOT_RULE_MUST_BE_DISABLED")
 
     for key in ("target_paths", "excluded_paths"):
         values = request.get(key)
@@ -405,6 +409,7 @@ def validate_request(
                 ensure_relative_path(value, label=f"request.{key}")
 
     metadata = load_json(evidence_root / "secret-metadata.json")
+    secret_presence = load_json(evidence_root / "logs" / "secret-presence-check.json")
     entitlement = load_json(evidence_root / "entitlement-confirmation.json")
     budget = load_json(evidence_root / "budget-control.json")
     isolation = load_json(evidence_root / "host-isolation-policy.json")
@@ -416,6 +421,20 @@ def validate_request(
         or metadata.get("value_passed_as_cli_argument") is not False
     ):
         raise ContractError("SECRET_VALUE_PRESENT_IN_METADATA")
+    if metadata.get("verification_scope") != "ENVIRONMENT_PRESENCE_ONLY":
+        raise ContractError("SECRET_VERIFICATION_SCOPE_MISMATCH")
+    if metadata.get("portal_metadata_screenshot_required") is not False:
+        raise ContractError("SECRET_PORTAL_SCREENSHOT_RULE_ENABLED")
+    if (
+        secret_presence.get("status") != "VERIFIED_ENVIRONMENT_PRESENCE"
+        or secret_presence.get("env_name") != EXPECTED_SECRET_ENV
+        or secret_presence.get("present") is not True
+        or secret_presence.get("value_read") is not False
+        or secret_presence.get("value_recorded") is not False
+        or secret_presence.get("value_logged") is not False
+        or secret_presence.get("value_passed_as_cli_argument") is not False
+    ):
+        raise ContractError("SECRET_PRESENCE_EVIDENCE_INVALID")
     blockers: list[str] = []
     if entitlement.get("status") != "CONFIRMED":
         blockers.append("ENTITLEMENT_CONFIRMATION_REQUIRED")
@@ -436,6 +455,7 @@ def validate_request(
         "team_monthly_hard_cap_usd": 50,
         "post_run_usage_audit_required": True,
         "secret_value_read": False,
+        "secret_verification_scope": "ENVIRONMENT_PRESENCE_ONLY",
         "external_io": False,
         "execute_precondition_blockers": blockers,
         "source_status": request.get("status"),
@@ -464,6 +484,7 @@ def write_dry_run_report(
         "provider_access": False,
         "data_acquired": False,
         "secret_value_read": False,
+        "secret_verification_scope": contract["secret_verification_scope"],
         "preflight_estimate_required": request["cost_policy"]["preflight_estimate_required"],
         "hard_caps": {
             "per_run_usd": request["cost_policy"]["per_run_hard_cap_usd"],
@@ -472,7 +493,7 @@ def write_dry_run_report(
         "execute_precondition_blockers": contract["execute_precondition_blockers"],
         "request_sha256": contract["request_sha256"],
         "next_action": (
-            "Confirm each listed precondition; then invoke the same wrapper with -Execute."
+            "Confirm each listed precondition; no portal API-key screenshot is required; then invoke the same wrapper with -Execute."
             if contract["execute_precondition_blockers"]
             else "Human may authorize a separately reviewed -Execute invocation."
         ),

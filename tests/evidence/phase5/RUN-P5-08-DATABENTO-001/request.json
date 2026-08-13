@@ -43,7 +43,7 @@
     "provider_budget_control_required": true,
     "post_run_usage_audit_required": true
   },
-  "secret_policy": {"env_name": "DATABENTO_API_KEY", "value_recorded": false, "cli_argument": false, "expiry_upper_bound": "2026-08-31", "rotate_after_run": true, "revoke_after_run": true},
+  "secret_policy": {"env_name": "DATABENTO_API_KEY", "value_recorded": false, "cli_argument": false, "verification_method": "environment_presence_only", "portal_metadata_screenshot_required": false, "expiry_upper_bound": "2026-08-31", "rotate_after_run": true, "revoke_after_run": true},
   "evidence_root": "tests/evidence/phase5/RUN-P5-08-DATABENTO-001",
   "target_paths": ["tests/evidence/phase5/RUN-P5-08-DATABENTO-001"],
   "excluded_paths": ["src", "tests/evidence/phase4", "tests/evidence/phase5/RUN-P5-06-LOCAL-001", "doc", "plan", "Broker", "Cloud"],
