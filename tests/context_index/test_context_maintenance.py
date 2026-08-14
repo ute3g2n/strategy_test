@@ -15,6 +15,9 @@ from scripts.context_index.run_context_maintenance import (
 from scripts.context_index.run_context_maintenance import (
     main as maintenance_main,
 )
+from scripts.context_index.run_context_maintenance import (
+    _safe_dispatch_info,
+)
 from scripts.context_index.validate_context_index import validate_manifest
 
 
@@ -70,6 +73,13 @@ def decision_for(payload: dict[str, Any], *, action: str | None = None, confiden
             "run_id": "fixture-run",
         },
     }
+
+
+def test_active_a07_dispatch_profile_is_luna_low() -> None:
+    dispatch_info = _safe_dispatch_info(attempts=1, status="completed")
+
+    assert dispatch_info["model"] == "gpt-5.6-luna"
+    assert dispatch_info["reasoning_effort"] == "low"
 
 
 def test_new_markdown_and_html_require_a07_and_update_manifest(
