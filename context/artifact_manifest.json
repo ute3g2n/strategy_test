@@ -6063,7 +6063,7 @@
       "kind": "managed_document",
       "status": "active",
       "relative_path": "doc/index.html",
-      "source_hash": "bca3d1985d3e225c547b5fd2f51be64b07a8af2dba4769a372e9391c17c083a4",
+      "source_hash": "a90ad50eff7eabe2ed1c3507f5e9f6c6f54b126c6b2a69801c4ea63796120d19",
       "schema_version": "ctxmap-manifest-v0.1",
       "generator_version": "ctxmap-indexer-v0.1",
       "first_seen_at": "2026-08-14T00:00:00Z",
@@ -6468,7 +6468,7 @@
       "triggers": [],
       "relation_ids": [],
       "line_count": 325,
-      "byte_size": 34365
+      "byte_size": 34364
     },
     {
       "artifact_id": "art-09c557ad-fe80-5e5e-b590-d68aba816af8",
@@ -22378,7 +22378,7 @@
       "kind": "managed_document",
       "status": "active",
       "relative_path": "plan/context_index/reviews/CTX-09_findings.md",
-      "source_hash": "fadd7872d33a94d0f513303d5a3ad1fba4145a57b34e4cbbdda5ccab0ed40d00",
+      "source_hash": "e7a2444be2ea188d435fcef3a2bd9750a8a551712b28bec079c14f9acaa768e2",
       "schema_version": "ctxmap-manifest-v0.1",
       "generator_version": "ctxmap-indexer-v0.1",
       "first_seen_at": "2026-08-14T00:00:00Z",
@@ -22470,7 +22470,7 @@
       "triggers": [],
       "relation_ids": [],
       "line_count": 119,
-      "byte_size": 13800
+      "byte_size": 13796
     },
     {
       "artifact_id": "art-647317cf-d499-55d2-8e4e-ee00e6b9f771",

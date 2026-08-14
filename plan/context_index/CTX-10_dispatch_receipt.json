@@ -1,0 +1,38 @@
+{
+  "schema_version": "ctxmap.dispatch-receipt.v0.1",
+  "plan_id": "CTXMAP-PLAN-001",
+  "step_id": "CTX-10",
+  "recorded_at_utc": "2026-08-14T00:00:00Z",
+  "status": "BLOCKED",
+  "human_gate": {
+    "id": "CTXMAP-H1",
+    "status": "NOT_ISSUED",
+    "required_approval_text": "CTXMAP-H1を承認します",
+    "received_text": "承認します。続けて"
+  },
+  "preflight": {
+    "watch_start_check": "BLOCKED",
+    "watch_start_reason": "H1_RECEIPT_MISSING",
+    "critical_high_findings": 1,
+    "high_finding_ids": ["CTX09-F-003"],
+    "independent_review_receipts": "UNAVAILABLE",
+    "full_manifest_validator": "PASS"
+  },
+  "runtime": {
+    "dispatch_status": "NOT_STARTED_PRECONDITION_BLOCKED",
+    "agent_id": "N/A",
+    "independent": false,
+    "review_mode": "NOT_APPLICABLE"
+  },
+  "activation": {
+    "watcher_started": false,
+    "auto_commit_enabled": false,
+    "a07_save_hook_enabled": false,
+    "system_detail_html_created": false
+  },
+  "reopen_conditions": [
+    "Create a valid CTXMAP-H1 approval receipt with the exact required approval text.",
+    "Resolve CTX09-F-003 using the exact fixed gpt-5.1 A07 runtime; do not substitute a model.",
+    "Obtain truthful independent reviewer spawn/wait receipts or record a new approved governance decision."
+  ]
+}

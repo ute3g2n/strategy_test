@@ -1,0 +1,25 @@
+{
+  "schema_version": "ctxmap.dispatch-receipt.v0.1",
+  "plan_id": "CTXMAP-PLAN-001",
+  "step_id": "CTX-11",
+  "recorded_at_utc": "2026-08-14T00:00:00Z",
+  "status": "BLOCKED",
+  "blocked_by": [
+    "CTX-10 BLOCKED",
+    "CTXMAP-H1 receipt missing",
+    "CTX09-F-003 OPEN_HIGH",
+    "independent reviewer receipts unavailable"
+  ],
+  "runtime": {
+    "dispatch_status": "NOT_STARTED_PRECONDITION_BLOCKED",
+    "agent_id": "N/A",
+    "independent": false,
+    "review_mode": "NOT_APPLICABLE"
+  },
+  "finalization": {
+    "final_acceptance_document_created": false,
+    "commit_created": false,
+    "push_performed": false
+  },
+  "reopen_condition": "Complete CTX-10 and satisfy every CTXMAP-AC-01 through CTXMAP-AC-10 condition before final integration."
+}

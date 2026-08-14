@@ -112,7 +112,7 @@ This section is the current status after the user-approved remediation pass. The
 | CTX09-F-002 | RESOLVED for the local wrapper path | PASS reports contain per-file SHA-256 values and the report SHA-256 is bound from Gate output through allowlist validation and the staged-index check. |
 | CTX09-F-003 | OPEN / HIGH | The exact `gpt-5.1` A07 runtime probe was rejected as `Unknown model`; no substitute model is accepted as semantic confirmation. H1 remains ineligible. |
 | CTX09-F-004 | RESOLVED | JSONL request lines are byte-bounded and Japanese/English prompt-injection metadata is rejected or omitted. |
-| CTX09-F-005 | MITIGATED / MEDIUM | `doc/index.html` now states CTX-09 remediation and H1 pending. PARTIAL code records now carry owner, deadline, and acceptance metadata. |
+| CTX09-F-005 | MITIGATED / MEDIUM | `doc/index.html` now states CTX-10 BLOCKED and H1 pending. PARTIAL code records now carry owner, deadline, and acceptance metadata. |
 | CTX09-F-006 | RESOLVED | Watch-loop event failures propagate as nonzero process results and record BLOCKED state. |
 | CTX09-F-007 | RESOLVED for stale-lock safety | Lock metadata includes schema, PID, start time, repository fingerprint, and process-start marker; recovery is fail-closed on invalid, active, mismatched, or reused identities. |
 
