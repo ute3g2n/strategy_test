@@ -149,7 +149,9 @@ def test_new_document_requires_a07_response_and_updates_only_explicit_outputs(
     response_path = tmp_path / "a07.json"
     write_json(response_path, response)
 
-    assert gate_main(gate_args(paths, "docs/new.md", "--a07-responses", str(response_path))) == 0
+    assert gate_main(
+        gate_args(paths, "docs/new.md", "--a07-responses", "a07.json")
+    ) == 0
     report = json.loads(paths["report"].read_text(encoding="utf-8"))
     assert report["status"] == "PASS"
     assert "docs/new.md" in report["allowed_paths"]
@@ -234,7 +236,7 @@ def test_gate_rejects_external_control_input_paths(
 
     assert gate_main(gate_args(paths, "docs/guide.md", "--changed-list", str(outside))) == 1
     assert json.loads(paths["report"].read_text(encoding="utf-8"))["reason_code"] == (
-        "INPUT_PATH_OUTSIDE_REPOSITORY"
+        "INPUT_PATH_ABSOLUTE"
     )
 
     write_file(tmp_path, "docs/new.md", "# New\nbody\n")
@@ -242,7 +244,7 @@ def test_gate_rejects_external_control_input_paths(
     write_json(response_path, {"responses": {}})
     assert gate_main(gate_args(paths, "docs/new.md", "--a07-responses", str(response_path))) == 1
     assert json.loads(paths["report"].read_text(encoding="utf-8"))["reason_code"] == (
-        "INPUT_PATH_OUTSIDE_REPOSITORY"
+        "INPUT_PATH_ABSOLUTE"
     )
 
     snapshot_path = tmp_path.parent / f"{tmp_path.name}-external-snapshot.json"
@@ -267,7 +269,16 @@ def test_gate_rejects_external_control_input_paths(
     ]
     assert gate_main(baseline_args) == 1
     assert json.loads(paths["report"].read_text(encoding="utf-8"))["reason_code"] == (
-        "INPUT_PATH_OUTSIDE_REPOSITORY"
+        "INPUT_PATH_ABSOLUTE"
+    )
+
+    inside_absolute = tmp_path / "inside-event-paths.txt"
+    inside_absolute.write_text("docs/guide.md\n", encoding="utf-8")
+    assert gate_main(
+        gate_args(paths, "docs/guide.md", "--changed-list", str(inside_absolute))
+    ) == 1
+    assert json.loads(paths["report"].read_text(encoding="utf-8"))["reason_code"] == (
+        "INPUT_PATH_ABSOLUTE"
     )
 
 
@@ -334,6 +345,10 @@ def test_gate_report_allowlist_is_revalidated(tmp_path: Path, policy: dict[str, 
         },
     )
     assert approved_paths_from_report(report, tmp_path) == ["docs/guide.md"]
+    report_hash = hashlib.sha256(report.read_bytes()).hexdigest()
+    assert approved_paths_from_report(report, tmp_path, report_hash) == ["docs/guide.md"]
+    with pytest.raises(GateError, match="GATE_REPORT_CHANGED"):
+        approved_paths_from_report(report, tmp_path, "0" * 64)
     with pytest.raises(GateError, match="GATE_CONTENT_CHANGED"):
         write_file(tmp_path, "docs/guide.md", "# Changed\nbody\n")
         approved_paths_from_report(report, tmp_path)
@@ -400,15 +415,53 @@ def test_watch_loop_propagates_event_failure_to_process_exit(
 def test_stale_lock_recovery_requires_dead_pid_and_is_explicit(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from scripts.context_index.context_watch import LOCK_PATH, recover_stale_lock
+    import scripts.context_index.context_watch as context_watch
 
-    lock = tmp_path / LOCK_PATH
+    lock = tmp_path / context_watch.LOCK_PATH
     lock.parent.mkdir(parents=True, exist_ok=True)
-    lock.write_text("12345", encoding="ascii")
+    lock.write_text(
+        json.dumps(
+            {
+                "schema_version": context_watch.LOCK_SCHEMA_VERSION,
+                "pid": 12345,
+                "started_at": "2026-08-14T00:00:00Z",
+                "root_fingerprint": context_watch._root_fingerprint(tmp_path),
+                "process_start_marker": "fixture-start",
+            }
+        ),
+        encoding="utf-8",
+    )
     monkeypatch.setattr(os, "kill", lambda _pid, _signal: (_ for _ in ()).throw(ProcessLookupError()))
 
-    assert recover_stale_lock(tmp_path) is True
+    assert context_watch.recover_stale_lock(tmp_path) is True
     assert not lock.exists()
+
+
+def test_lock_recovery_rejects_pid_reuse(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import scripts.context_index.context_watch as context_watch
+
+    lock = tmp_path / context_watch.LOCK_PATH
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    lock.write_text(
+        json.dumps(
+            {
+                "schema_version": context_watch.LOCK_SCHEMA_VERSION,
+                "pid": 12345,
+                "started_at": "2026-08-14T00:00:00Z",
+                "root_fingerprint": context_watch._root_fingerprint(tmp_path),
+                "process_start_marker": "old-start",
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(os, "kill", lambda _pid, _signal: None)
+    monkeypatch.setattr(context_watch, "_process_start_marker", lambda _pid: "new-start")
+
+    with pytest.raises(context_watch.GateError, match="WATCH_LOCK_OWNER_UNKNOWN"):
+        context_watch.recover_stale_lock(tmp_path)
+    assert lock.exists()
 
 
 def test_h1_invalid_receipts_are_rejected_without_fallback(tmp_path: Path) -> None:

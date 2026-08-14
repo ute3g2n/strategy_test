@@ -111,6 +111,8 @@ def _inside_root(root: Path, path: Path) -> Path:
 def _repo_input_file(root: Path, path: Path) -> Path:
     """Resolve a user-provided control file inside the repository only."""
 
+    if path.is_absolute():
+        raise GateError("INPUT_PATH_ABSOLUTE")
     try:
         resolved = _inside_root(root, path)
         relative = resolved.relative_to(root.resolve()).as_posix()
@@ -403,8 +405,29 @@ def _base_report(
     }
 
 
-def _approved_report(report_path: Path, root: Path) -> tuple[dict[str, Any], list[str]]:
-    report = _safe_json_read(_repo_input_file(root, report_path))
+def _approved_report(
+    report_path: Path,
+    root: Path,
+    expected_report_sha256: str | None = None,
+) -> tuple[dict[str, Any], list[str]]:
+    try:
+        resolved_report = _inside_root(root, report_path)
+        relative_report = resolved_report.relative_to(root.resolve()).as_posix()
+        _assert_no_reparse(root, relative_report)
+        report_bytes = resolved_report.read_bytes()
+    except (GateError, OSError, ValueError) as exc:
+        raise GateError("GATE_REPORT_INPUT_INVALID") from exc
+    if expected_report_sha256 is not None:
+        if not re.fullmatch(r"[a-f0-9]{64}", expected_report_sha256):
+            raise GateError("GATE_REPORT_HASH_INVALID")
+        if sha256_bytes(report_bytes) != expected_report_sha256:
+            raise GateError("GATE_REPORT_CHANGED")
+    try:
+        report = json.loads(report_bytes.decode("utf-8"))
+    except (UnicodeError, json.JSONDecodeError) as exc:
+        raise GateError("JSON_INPUT_INVALID") from exc
+    if not isinstance(report, dict):
+        raise GateError("JSON_ROOT_INVALID")
     if report.get("schema_version") != GATE_SCHEMA_VERSION or report.get("status") != "PASS":
         raise GateError("GATE_REPORT_NOT_APPROVED")
     paths = report.get("allowed_paths")
@@ -431,17 +454,25 @@ def _approved_report(report_path: Path, root: Path) -> tuple[dict[str, Any], lis
     return report, result
 
 
-def approved_paths_from_report(report_path: Path, root: Path) -> list[str]:
+def approved_paths_from_report(
+    report_path: Path,
+    root: Path,
+    expected_report_sha256: str | None = None,
+) -> list[str]:
     """Load a PASS report and return only normalized, repository-relative paths."""
 
-    _, result = _approved_report(report_path, root)
+    _, result = _approved_report(report_path, root, expected_report_sha256)
     return result
 
 
-def verify_index_matches_report(report_path: Path, root: Path) -> list[str]:
+def verify_index_matches_report(
+    report_path: Path,
+    root: Path,
+    expected_report_sha256: str | None = None,
+) -> list[str]:
     """Verify worktree and staged bytes still match the gate-approved hashes."""
 
-    report, paths = _approved_report(report_path, root)
+    report, paths = _approved_report(report_path, root, expected_report_sha256)
     hashes = report["approved_hashes"]
     for relative_path in paths:
         expected = str(hashes[relative_path])
@@ -699,7 +730,21 @@ def main(argv: list[str] | None = None) -> int:
     except OSError:
         print("GATE_REPORT_WRITE_FAILED")
         return 1
-    print(json.dumps({"status": report["status"], "reason_code": report["reason_code"]}, ensure_ascii=False))
+    try:
+        report_sha256 = sha256_bytes(report_path.read_bytes())
+    except OSError:
+        print("GATE_REPORT_WRITE_FAILED")
+        return 1
+    print(
+        json.dumps(
+            {
+                "status": report["status"],
+                "reason_code": report["reason_code"],
+                "report_sha256": report_sha256,
+            },
+            ensure_ascii=False,
+        )
+    )
     return 0 if report["status"] == "PASS" else 1
 
 

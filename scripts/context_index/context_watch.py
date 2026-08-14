@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import ctypes
 import json
 import os
 import subprocess
@@ -12,11 +13,13 @@ from typing import Any
 from .check_context_gate import (
     DEFAULT_H1_RECEIPT,
     GateError,
+    _assert_no_reparse,
     _inside_root,
     _write_json_atomic,
     capture_worktree_snapshot,
     is_generated_path,
     require_h1_approval,
+    sha256_bytes,
 )
 from .common import load_policy
 
@@ -25,6 +28,7 @@ PENDING_PATH = RUNTIME_DIR / "context_watch_pending.json"
 SNAPSHOT_PATH = RUNTIME_DIR / "context_watch_snapshot.json"
 LOCK_PATH = RUNTIME_DIR / "context_watch.lock"
 EVENT_LOG_PATH = RUNTIME_DIR / "context_watch_events.jsonl"
+LOCK_SCHEMA_VERSION = "ctxmap-watch-lock-v0.2"
 
 
 def _runtime_path(root: Path, relative: Path) -> Path:
@@ -51,29 +55,125 @@ def _append_event(root: Path, event: dict[str, Any]) -> None:
         handle.write(json.dumps(event, ensure_ascii=False, sort_keys=True) + "\n")
 
 
+def _root_fingerprint(root: Path) -> str:
+    return sha256_bytes(str(root.resolve()).encode("utf-8"))
+
+
+def _process_start_marker(pid: int) -> str | None:
+    """Return an OS process-start identity to protect against PID reuse."""
+
+    if pid <= 0:
+        return None
+    if os.name == "nt":
+        try:
+            from ctypes import wintypes
+
+            class _FileTime(ctypes.Structure):
+                _fields_ = [("dwLowDateTime", wintypes.DWORD), ("dwHighDateTime", wintypes.DWORD)]
+
+            kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+            open_process = kernel32.OpenProcess
+            open_process.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+            open_process.restype = wintypes.HANDLE
+            get_process_times = kernel32.GetProcessTimes
+            get_process_times.argtypes = [
+                wintypes.HANDLE,
+                ctypes.POINTER(_FileTime),
+                ctypes.POINTER(_FileTime),
+                ctypes.POINTER(_FileTime),
+                ctypes.POINTER(_FileTime),
+            ]
+            get_process_times.restype = wintypes.BOOL
+            close_handle = kernel32.CloseHandle
+            close_handle.argtypes = [wintypes.HANDLE]
+            close_handle.restype = wintypes.BOOL
+            handle = open_process(0x1000, False, pid)
+            if not handle:
+                return None
+            try:
+                creation = _FileTime()
+                exit_time = _FileTime()
+                kernel_time = _FileTime()
+                user_time = _FileTime()
+                if not get_process_times(
+                    handle,
+                    ctypes.byref(creation),
+                    ctypes.byref(exit_time),
+                    ctypes.byref(kernel_time),
+                    ctypes.byref(user_time),
+                ):
+                    return None
+                value = (int(creation.dwHighDateTime) << 32) | int(creation.dwLowDateTime)
+                return str(value)
+            finally:
+                close_handle(handle)
+        except (AttributeError, OSError, TypeError, ValueError):
+            return None
+    try:
+        stat = Path(f"/proc/{pid}/stat").read_text(encoding="ascii")
+        closing_parenthesis = stat.rfind(")")
+        fields = stat[closing_parenthesis + 2 :].split()
+        return fields[19] if len(fields) > 19 else None
+    except (OSError, UnicodeError, ValueError):
+        return None
+
+
+def _lock_metadata(root: Path) -> dict[str, str | int]:
+    pid = os.getpid()
+    marker = _process_start_marker(pid)
+    if marker is None:
+        raise GateError("WATCH_PROCESS_IDENTITY_UNAVAILABLE")
+    return {
+        "schema_version": LOCK_SCHEMA_VERSION,
+        "pid": pid,
+        "started_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "root_fingerprint": _root_fingerprint(root),
+        "process_start_marker": marker,
+    }
+
+
+def _load_lock_metadata(root: Path, target: Path) -> dict[str, Any]:
+    _assert_no_reparse(root, LOCK_PATH.as_posix())
+    try:
+        value = json.loads(target.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise GateError("WATCH_LOCK_INVALID") from exc
+    if not isinstance(value, dict):
+        raise GateError("WATCH_LOCK_INVALID")
+    if value.get("schema_version") != LOCK_SCHEMA_VERSION:
+        raise GateError("WATCH_LOCK_INVALID")
+    if type(value.get("pid")) is not int or value["pid"] <= 0:
+        raise GateError("WATCH_LOCK_INVALID")
+    if not isinstance(value.get("started_at"), str) or not value["started_at"]:
+        raise GateError("WATCH_LOCK_INVALID")
+    if value.get("root_fingerprint") != _root_fingerprint(root):
+        raise GateError("WATCH_LOCK_ROOT_MISMATCH")
+    if not isinstance(value.get("process_start_marker"), str) or not value["process_start_marker"]:
+        raise GateError("WATCH_LOCK_INVALID")
+    return value
+
+
 def _acquire_lock(root: Path) -> Path:
     target = _runtime_path(root, LOCK_PATH)
     target.parent.mkdir(parents=True, exist_ok=True)
     try:
-        with target.open("x", encoding="ascii", newline="\n") as handle:
-            handle.write(str(os.getpid()))
+        with target.open("x", encoding="utf-8", newline="\n") as handle:
+            handle.write(json.dumps(_lock_metadata(root), ensure_ascii=False, sort_keys=True) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
     except FileExistsError as exc:
         raise GateError("WATCH_ALREADY_RUNNING") from exc
     return target
 
 
 def recover_stale_lock(root: Path) -> bool:
-    """Remove a lock only when its recorded PID is no longer alive."""
+    """Remove a lock only when its owner identity is demonstrably gone."""
 
     target = _runtime_path(root, LOCK_PATH)
     if not target.exists():
         return False
-    try:
-        pid = int(target.read_text(encoding="ascii").strip())
-    except (OSError, UnicodeError, ValueError) as exc:
-        raise GateError("WATCH_LOCK_INVALID") from exc
-    if pid <= 0:
-        raise GateError("WATCH_LOCK_INVALID")
+    metadata = _load_lock_metadata(root, target)
+    pid = int(metadata["pid"])
     try:
         os.kill(pid, 0)
     except ProcessLookupError:
@@ -83,6 +183,9 @@ def recover_stale_lock(root: Path) -> bool:
         raise GateError("WATCH_LOCK_OWNER_UNKNOWN") from exc
     except OSError as exc:
         raise GateError("WATCH_LOCK_OWNER_UNKNOWN") from exc
+    current_marker = _process_start_marker(pid)
+    if current_marker is None or current_marker != metadata["process_start_marker"]:
+        raise GateError("WATCH_LOCK_OWNER_UNKNOWN")
     raise GateError("WATCH_LOCK_ACTIVE")
 
 
@@ -114,7 +217,7 @@ def _run_gate(root: Path, paths: list[str], args: argparse.Namespace) -> tuple[i
         "--root",
         str(root),
         "--changed-list",
-        str(event_path),
+        str(RUNTIME_DIR / "current_event_paths.txt"),
         "--report",
         str(report_path),
         "--require-h1",
@@ -147,7 +250,7 @@ def _run_auto_commit(root: Path, args: argparse.Namespace) -> int:
         script = root / "auto-commit.sh"
     if not script.exists():
         return 1
-    command = [str(script), "--allowlist-file", allowlist.as_posix(), "--watch-mode"]
+    command = [str(script), "--allowlist-file", RUNTIME_DIR.joinpath("gate_allowlist.txt").as_posix(), "--watch-mode"]
     if args.no_commit:
         command.append("--no-commit")
     if args.no_push:
