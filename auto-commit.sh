@@ -145,6 +145,12 @@ fi
 
 git add -- "${ALLOWED_PATHS[@]}"
 
+if ! "$PYTHON" -c 'import sys; from pathlib import Path; from scripts.context_index.check_context_gate import verify_index_matches_report; verify_index_matches_report(Path(sys.argv[1]), Path(sys.argv[2]))' "$REPORT" "$PY_ROOT"; then
+  git reset --quiet -- "${ALLOWED_PATHS[@]}" >/dev/null 2>&1 || true
+  echo "[auto-commit] Gate-approved content changed before commit; index was restored." >&2
+  exit 1
+fi
+
 if [[ "$NO_COMMIT" -eq 1 ]]; then
   echo "[auto-commit] Gate-approved paths staged; commit skipped."
   exit 0

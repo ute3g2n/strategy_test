@@ -62,6 +62,30 @@ def _acquire_lock(root: Path) -> Path:
     return target
 
 
+def recover_stale_lock(root: Path) -> bool:
+    """Remove a lock only when its recorded PID is no longer alive."""
+
+    target = _runtime_path(root, LOCK_PATH)
+    if not target.exists():
+        return False
+    try:
+        pid = int(target.read_text(encoding="ascii").strip())
+    except (OSError, UnicodeError, ValueError) as exc:
+        raise GateError("WATCH_LOCK_INVALID") from exc
+    if pid <= 0:
+        raise GateError("WATCH_LOCK_INVALID")
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        target.unlink(missing_ok=True)
+        return True
+    except PermissionError as exc:
+        raise GateError("WATCH_LOCK_OWNER_UNKNOWN") from exc
+    except OSError as exc:
+        raise GateError("WATCH_LOCK_OWNER_UNKNOWN") from exc
+    raise GateError("WATCH_LOCK_ACTIVE")
+
+
 def _changed_since(before: dict[str, Any], after: dict[str, Any]) -> list[str]:
     old = before.get("paths", {})
     new = after.get("paths", {})
@@ -173,7 +197,8 @@ def watch_loop(root: Path, args: argparse.Namespace) -> int:
             if pending and time.monotonic() - last_event_at >= max(0.0, float(args.debounce)):
                 event_paths = sorted(pending)
                 pending.clear()
-                process_event(root, event_paths, args)
+                if process_event(root, event_paths, args) != 0:
+                    return 1
                 before = after
                 _write_json_atomic(_runtime_path(root, SNAPSHOT_PATH), before)
             else:
@@ -198,8 +223,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--a07-responses", type=Path)
     parser.add_argument("--no-commit", action="store_true")
     parser.add_argument("--no-push", action="store_true")
+    parser.add_argument("--recover-stale-lock", action="store_true")
     args = parser.parse_args(argv)
     root = args.root.resolve()
+    if args.recover_stale_lock:
+        try:
+            recovered = recover_stale_lock(root)
+        except GateError as exc:
+            print(f"WATCH_LOCK_RECOVERY_REJECTED: {exc}")
+            return 1
+        print("WATCH_LOCK_RECOVERED" if recovered else "WATCH_LOCK_NOT_PRESENT")
+        return 0
     try:
         require_h1_approval(root, args.h1_receipt)
     except GateError as exc:

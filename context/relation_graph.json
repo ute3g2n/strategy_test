@@ -3322,6 +3322,13 @@
       "kind": "function"
     },
     {
+      "node_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::recover_stale_lock",
+      "node_type": "code_symbol",
+      "label": "recover_stale_lock",
+      "code_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
+      "kind": "function"
+    },
+    {
       "node_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::watch_loop",
       "node_type": "code_symbol",
       "label": "watch_loop",
@@ -5678,6 +5685,20 @@
       "kind": "method"
     },
     {
+      "node_id": "code-2d1847bf-e51f-5c41-b353-c1cbffe07854::symbol::_metadata_contains_prompt_injection",
+      "node_type": "code_symbol",
+      "label": "_metadata_contains_prompt_injection",
+      "code_id": "code-2d1847bf-e51f-5c41-b353-c1cbffe07854",
+      "kind": "method"
+    },
+    {
+      "node_id": "code-2d1847bf-e51f-5c41-b353-c1cbffe07854::symbol::_read_bounded_line",
+      "node_type": "code_symbol",
+      "label": "_read_bounded_line",
+      "code_id": "code-2d1847bf-e51f-5c41-b353-c1cbffe07854",
+      "kind": "method"
+    },
+    {
       "node_id": "code-2d1847bf-e51f-5c41-b353-c1cbffe07854::symbol::_require_mapping",
       "node_type": "code_symbol",
       "label": "_require_mapping",
@@ -6647,6 +6668,13 @@
       "kind": "class"
     },
     {
+      "node_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06::symbol::_approved_report",
+      "node_type": "code_symbol",
+      "label": "_approved_report",
+      "code_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06",
+      "kind": "method"
+    },
+    {
       "node_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06::symbol::_assert_no_reparse",
       "node_type": "code_symbol",
       "label": "_assert_no_reparse",
@@ -6720,6 +6748,13 @@
       "node_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06::symbol::_receipt_path",
       "node_type": "code_symbol",
       "label": "_receipt_path",
+      "code_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06",
+      "kind": "method"
+    },
+    {
+      "node_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06::symbol::_repo_input_file",
+      "node_type": "code_symbol",
+      "label": "_repo_input_file",
       "code_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06",
       "kind": "method"
     },
@@ -6834,6 +6869,13 @@
       "label": "run_gate.dispatcher",
       "code_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06",
       "kind": "function"
+    },
+    {
+      "node_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06::symbol::verify_index_matches_report",
+      "node_type": "code_symbol",
+      "label": "verify_index_matches_report",
+      "code_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06",
+      "kind": "method"
     },
     {
       "node_id": "code-4852a41c-92f3-51bb-aefb-22ce135dbcf7",
@@ -9387,9 +9429,23 @@
       "kind": "function"
     },
     {
+      "node_id": "code-8af0d678-7e5b-551e-9b67-e27b1d7bf17a::symbol::test_mcp_search_does_not_return_prompt_injection_metadata",
+      "node_type": "code_symbol",
+      "label": "test_mcp_search_does_not_return_prompt_injection_metadata",
+      "code_id": "code-8af0d678-7e5b-551e-9b67-e27b1d7bf17a",
+      "kind": "function"
+    },
+    {
       "node_id": "code-8af0d678-7e5b-551e-9b67-e27b1d7bf17a::symbol::test_mcp_search_is_manifest_only_and_enforces_limits",
       "node_type": "code_symbol",
       "label": "test_mcp_search_is_manifest_only_and_enforces_limits",
+      "code_id": "code-8af0d678-7e5b-551e-9b67-e27b1d7bf17a",
+      "kind": "function"
+    },
+    {
+      "node_id": "code-8af0d678-7e5b-551e-9b67-e27b1d7bf17a::symbol::test_mcp_stdio_rejects_oversized_input_line_before_json_dispatch",
+      "node_type": "code_symbol",
+      "label": "test_mcp_stdio_rejects_oversized_input_line_before_json_dispatch",
       "code_id": "code-8af0d678-7e5b-551e-9b67-e27b1d7bf17a",
       "kind": "function"
     },
@@ -13505,6 +13561,13 @@
       "kind": "function"
     },
     {
+      "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_gate_rejects_external_control_input_paths",
+      "node_type": "code_symbol",
+      "label": "test_gate_rejects_external_control_input_paths",
+      "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "kind": "function"
+    },
+    {
       "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_gate_rejects_out_of_scope_and_invalid_manifest_inputs",
       "node_type": "code_symbol",
       "label": "test_gate_rejects_out_of_scope_and_invalid_manifest_inputs",
@@ -13582,6 +13645,13 @@
       "kind": "function"
     },
     {
+      "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_stale_lock_recovery_requires_dead_pid_and_is_explicit",
+      "node_type": "code_symbol",
+      "label": "test_stale_lock_recovery_requires_dead_pid_and_is_explicit",
+      "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "kind": "function"
+    },
+    {
       "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_symlink_target_is_rejected_when_platform_allows_symlinks",
       "node_type": "code_symbol",
       "label": "test_symlink_target_is_rejected_when_platform_allows_symlinks",
@@ -13592,6 +13662,13 @@
       "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_watch_document_event_stays_pending_when_a07_is_unavailable",
       "node_type": "code_symbol",
       "label": "test_watch_document_event_stays_pending_when_a07_is_unavailable",
+      "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "kind": "function"
+    },
+    {
+      "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_watch_loop_propagates_event_failure_to_process_exit",
+      "node_type": "code_symbol",
+      "label": "test_watch_loop_propagates_event_failure_to_process_exit",
       "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
       "kind": "function"
     },
@@ -56823,6 +56900,14 @@
     },
     {
       "source_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
+      "target_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::recover_stale_lock",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "recover_stale_lock"
+    },
+    {
+      "source_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
       "target_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::watch_loop",
       "relation_type": "contains",
       "resolution": "resolved",
@@ -60583,6 +60668,22 @@
     },
     {
       "source_id": "code-2d1847bf-e51f-5c41-b353-c1cbffe07854",
+      "target_id": "code-2d1847bf-e51f-5c41-b353-c1cbffe07854::symbol::_metadata_contains_prompt_injection",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "_metadata_contains_prompt_injection"
+    },
+    {
+      "source_id": "code-2d1847bf-e51f-5c41-b353-c1cbffe07854",
+      "target_id": "code-2d1847bf-e51f-5c41-b353-c1cbffe07854::symbol::_read_bounded_line",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "_read_bounded_line"
+    },
+    {
+      "source_id": "code-2d1847bf-e51f-5c41-b353-c1cbffe07854",
       "target_id": "code-2d1847bf-e51f-5c41-b353-c1cbffe07854::symbol::_require_mapping",
       "relation_type": "contains",
       "resolution": "resolved",
@@ -62383,6 +62484,14 @@
     },
     {
       "source_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06",
+      "target_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06::symbol::_approved_report",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "_approved_report"
+    },
+    {
+      "source_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06",
       "target_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06::symbol::_assert_no_reparse",
       "relation_type": "contains",
       "resolution": "resolved",
@@ -62468,6 +62577,14 @@
       "resolution": "resolved",
       "evidence": "explicit",
       "target_ref": "_receipt_path"
+    },
+    {
+      "source_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06",
+      "target_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06::symbol::_repo_input_file",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "_repo_input_file"
     },
     {
       "source_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06",
@@ -62596,6 +62713,14 @@
       "resolution": "resolved",
       "evidence": "explicit",
       "target_ref": "run_gate.dispatcher"
+    },
+    {
+      "source_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06",
+      "target_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06::symbol::verify_index_matches_report",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "verify_index_matches_report"
     },
     {
       "source_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06",
@@ -66759,11 +66884,27 @@
     },
     {
       "source_id": "code-8af0d678-7e5b-551e-9b67-e27b1d7bf17a",
+      "target_id": "code-8af0d678-7e5b-551e-9b67-e27b1d7bf17a::symbol::test_mcp_search_does_not_return_prompt_injection_metadata",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "test_mcp_search_does_not_return_prompt_injection_metadata"
+    },
+    {
+      "source_id": "code-8af0d678-7e5b-551e-9b67-e27b1d7bf17a",
       "target_id": "code-8af0d678-7e5b-551e-9b67-e27b1d7bf17a::symbol::test_mcp_search_is_manifest_only_and_enforces_limits",
       "relation_type": "contains",
       "resolution": "resolved",
       "evidence": "explicit",
       "target_ref": "test_mcp_search_is_manifest_only_and_enforces_limits"
+    },
+    {
+      "source_id": "code-8af0d678-7e5b-551e-9b67-e27b1d7bf17a",
+      "target_id": "code-8af0d678-7e5b-551e-9b67-e27b1d7bf17a::symbol::test_mcp_stdio_rejects_oversized_input_line_before_json_dispatch",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "test_mcp_stdio_rejects_oversized_input_line_before_json_dispatch"
     },
     {
       "source_id": "code-8af0d678-7e5b-551e-9b67-e27b1d7bf17a",
@@ -73719,6 +73860,14 @@
     },
     {
       "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_gate_rejects_external_control_input_paths",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "test_gate_rejects_external_control_input_paths"
+    },
+    {
+      "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
       "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_gate_rejects_out_of_scope_and_invalid_manifest_inputs",
       "relation_type": "contains",
       "resolution": "resolved",
@@ -73807,6 +73956,14 @@
     },
     {
       "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_stale_lock_recovery_requires_dead_pid_and_is_explicit",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "test_stale_lock_recovery_requires_dead_pid_and_is_explicit"
+    },
+    {
+      "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
       "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_symlink_target_is_rejected_when_platform_allows_symlinks",
       "relation_type": "contains",
       "resolution": "resolved",
@@ -73820,6 +73977,14 @@
       "resolution": "resolved",
       "evidence": "explicit",
       "target_ref": "test_watch_document_event_stays_pending_when_a07_is_unavailable"
+    },
+    {
+      "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_watch_loop_propagates_event_failure_to_process_exit",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "test_watch_loop_propagates_event_failure_to_process_exit"
     },
     {
       "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
@@ -73860,6 +74025,14 @@
       "resolution": "external",
       "evidence": "explicit",
       "target_ref": "__future__"
+    },
+    {
+      "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "target_id": null,
+      "relation_type": "imports",
+      "resolution": "external",
+      "evidence": "explicit",
+      "target_ref": "hashlib"
     },
     {
       "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
@@ -73916,6 +74089,14 @@
       "resolution": "external",
       "evidence": "explicit",
       "target_ref": "sys"
+    },
+    {
+      "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "target_id": null,
+      "relation_type": "imports",
+      "resolution": "external",
+      "evidence": "explicit",
+      "target_ref": "types"
     },
     {
       "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",

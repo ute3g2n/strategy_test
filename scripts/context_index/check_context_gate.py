@@ -108,6 +108,22 @@ def _inside_root(root: Path, path: Path) -> Path:
     return resolved
 
 
+def _repo_input_file(root: Path, path: Path) -> Path:
+    """Resolve a user-provided control file inside the repository only."""
+
+    try:
+        resolved = _inside_root(root, path)
+        relative = resolved.relative_to(root.resolve()).as_posix()
+    except (GateError, ValueError) as exc:
+        raise GateError("INPUT_PATH_OUTSIDE_REPOSITORY") from exc
+    if not relative or relative == ".":
+        raise GateError("INPUT_PATH_INVALID")
+    _assert_no_reparse(root, relative)
+    if not resolved.is_file():
+        raise GateError("INPUT_PATH_MISSING")
+    return resolved
+
+
 def _assert_no_reparse(root: Path, relative_path: str) -> None:
     current = root.resolve()
     for part in relative_path.split("/"):
@@ -247,10 +263,12 @@ def _selected_changes(
     if explicit or changed_list:
         requested = [_safe_path(item) for item in explicit]
         if changed_list:
-            requested.extend(_read_changed_list(changed_list))
+            requested.extend(_read_changed_list(_repo_input_file(root, changed_list)))
         requested = list(dict.fromkeys(requested))
     elif baseline_snapshot:
-        requested = sorted(_snapshot_changed_paths(root, policy, _load_snapshot(baseline_snapshot)))
+        requested = sorted(
+            _snapshot_changed_paths(root, policy, _load_snapshot(_repo_input_file(root, baseline_snapshot)))
+        )
     else:
         requested = [item.relative_path for item in status_changes]
     selected: list[GitChange] = []
@@ -378,30 +396,67 @@ def _base_report(
         "document_manifest_updated": False,
         "relation_graph_updated": False,
         "allowed_paths": [],
+        "approved_hashes": {},
         "receipts": [],
         "pending": None,
         "validator": None,
     }
 
 
-def approved_paths_from_report(report_path: Path, root: Path) -> list[str]:
-    """Load a PASS report and return only normalized, repository-relative paths."""
-
-    report = _safe_json_read(report_path)
+def _approved_report(report_path: Path, root: Path) -> tuple[dict[str, Any], list[str]]:
+    report = _safe_json_read(_repo_input_file(root, report_path))
     if report.get("schema_version") != GATE_SCHEMA_VERSION or report.get("status") != "PASS":
         raise GateError("GATE_REPORT_NOT_APPROVED")
     paths = report.get("allowed_paths")
     if not isinstance(paths, list) or not paths:
         raise GateError("GATE_ALLOWLIST_EMPTY")
+    hashes = report.get("approved_hashes")
+    if not isinstance(hashes, dict):
+        raise GateError("GATE_APPROVED_HASHES_MISSING")
     result: list[str] = []
     for value in paths:
         if not isinstance(value, str):
             raise GateError("GATE_ALLOWLIST_INVALID")
         normalized = _safe_path(value)
         if normalized not in result:
-            _gate_target(root, normalized)
+            expected = hashes.get(normalized)
+            if not isinstance(expected, str) or not re.fullmatch(r"[a-f0-9]{64}", expected):
+                raise GateError("GATE_APPROVED_HASH_INVALID")
+            actual = _file_hash(root, normalized)
+            if actual is None or actual != expected:
+                raise GateError("GATE_CONTENT_CHANGED")
             result.append(normalized)
+    if set(hashes) != set(result):
+        raise GateError("GATE_APPROVED_HASHES_MISMATCH")
+    return report, result
+
+
+def approved_paths_from_report(report_path: Path, root: Path) -> list[str]:
+    """Load a PASS report and return only normalized, repository-relative paths."""
+
+    _, result = _approved_report(report_path, root)
     return result
+
+
+def verify_index_matches_report(report_path: Path, root: Path) -> list[str]:
+    """Verify worktree and staged bytes still match the gate-approved hashes."""
+
+    report, paths = _approved_report(report_path, root)
+    hashes = report["approved_hashes"]
+    for relative_path in paths:
+        expected = str(hashes[relative_path])
+        try:
+            staged = subprocess.run(
+                ["git", "show", f":{relative_path}"],
+                cwd=root,
+                check=False,
+                capture_output=True,
+            )
+        except OSError as exc:
+            raise GateError("GATE_INDEX_READ_FAILED") from exc
+        if staged.returncode != 0 or sha256_bytes(staged.stdout) != expected:
+            raise GateError("GATE_INDEX_CONTENT_CHANGED")
+    return paths
 
 
 def run_gate(
@@ -478,7 +533,9 @@ def run_gate(
     original_code = copy.deepcopy(code_manifest)
     original_graph = copy.deepcopy(relation_graph)
     receipt_records: list[tuple[Path, dict[str, Any]]] = []
-    response_map = _load_a07_responses(a07_responses)
+    response_map = _load_a07_responses(
+        _repo_input_file(root, a07_responses) if a07_responses is not None else None
+    )
 
     if any(item.status[0] in {"D", "R", "C"} or item.status[1] in {"D", "R", "C"} for item in selected):
         report["status"] = "BLOCKED"
@@ -577,6 +634,16 @@ def run_gate(
         allowed.update({"context/code_manifest.json", "context/relation_graph.json"})
     allowed.update(path.relative_to(root).as_posix() for path, _ in receipt_records)
     report["allowed_paths"] = sorted(allowed)
+    approved_hashes: dict[str, str] = {}
+    for relative_path in report["allowed_paths"]:
+        digest = _file_hash(root, relative_path)
+        if digest is None:
+            report["status"] = "BLOCKED"
+            report["reason_code"] = "GATE_APPROVED_PATH_MISSING"
+            report["pending"] = {"reason_code": report["reason_code"], "paths": [relative_path]}
+            return report
+        approved_hashes[relative_path] = digest
+    report["approved_hashes"] = approved_hashes
     report["status"] = "PASS"
     report["reason_code"] = "GATE_PASS"
     return report

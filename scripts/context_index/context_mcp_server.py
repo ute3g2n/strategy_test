@@ -24,9 +24,13 @@ from .context_router import _query_terms, _record_text, load_router_snapshot
 MAX_SEARCH_LIMIT = 20
 MAX_RELATED_DEPTH = 1
 MAX_RESPONSE_CHARS = 12_000
+MAX_REQUEST_LINE_BYTES = 128_000
 _PROMPT_INJECTION_RE = re.compile(
     r"(?:ignore\s+(?:all\s+)?previous|system\s+prompt|reveal\s+(?:the\s+)?prompt|"
-    r"disregard\s+(?:all\s+)?instructions|jailbreak)",
+    r"disregard\s+(?:all\s+)?instructions|jailbreak|"
+    r"以前の(?:指示|命令|ルール)を(?:無視|忘れ)|"
+    r"(?:システム)?プロンプトを(?:開示|表示|公開)|"
+    r"(?:秘密|機密)を(?:開示|表示|公開))",
     re.IGNORECASE,
 )
 
@@ -85,6 +89,39 @@ def _manifest_result(record: Mapping[str, Any]) -> dict[str, Any]:
         if key in record and isinstance(record[key], (str, int, list, dict)):
             result[key] = record[key]
     return result
+
+
+def _metadata_contains_prompt_injection(record: Mapping[str, Any]) -> bool:
+    metadata = json.dumps(_manifest_result(record), ensure_ascii=False, sort_keys=True)
+    return _PROMPT_INJECTION_RE.search(metadata) is not None
+
+
+def _read_bounded_line(input_stream: TextIO) -> tuple[str | None, bool]:
+    """Read one line with bounded intermediate buffers and drain oversized input."""
+
+    parts: list[str] = []
+    total_bytes = 0
+    while True:
+        chunk = input_stream.readline(MAX_REQUEST_LINE_BYTES + 1)
+        if not chunk:
+            if not parts:
+                return None, False
+            return "".join(parts), False
+        try:
+            total_bytes += len(chunk.encode("utf-8"))
+        except UnicodeError:
+            parts.append(chunk)
+            return "".join(parts), False
+        if total_bytes > MAX_REQUEST_LINE_BYTES:
+            if not chunk.endswith("\n"):
+                while True:
+                    remainder = input_stream.readline(MAX_REQUEST_LINE_BYTES + 1)
+                    if not remainder or remainder.endswith("\n"):
+                        break
+            return None, True
+        parts.append(chunk)
+        if chunk.endswith("\n"):
+            return "".join(parts), False
 
 
 class ContextMcpServer:
@@ -220,6 +257,8 @@ class ContextMcpServer:
         candidates: list[tuple[int, str, Mapping[str, Any]]] = []
         for record in [*self._artifacts.values(), *self._codes.values()]:
             if record.get("status", "active") != "active":
+                continue
+            if _metadata_contains_prompt_injection(record):
                 continue
             record_kind = record.get("kind")
             if allowed_kinds and record_kind not in allowed_kinds:
@@ -499,9 +538,17 @@ class ContextMcpServer:
 
         input_stream = input_stream or sys.stdin
         output_stream = output_stream or sys.stdout
-        for line in input_stream:
+        while True:
+            line, oversized = _read_bounded_line(input_stream)
+            if line is None and not oversized:
+                break
+            if oversized:
+                result = {"ok": False, "error": {"code": "REQUEST_LINE_TOO_LARGE"}}
+                output_stream.write(json.dumps(result, ensure_ascii=False, separators=(",", ":")) + "\n")
+                output_stream.flush()
+                continue
             try:
-                request = json.loads(line)
+                request = json.loads(line or "")
                 result = self.dispatch(request)
             except McpRejected as exc:
                 result = {"ok": False, "error": {"code": str(exc)}}

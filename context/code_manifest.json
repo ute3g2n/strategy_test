@@ -2406,7 +2406,7 @@
       "kind": "managed_source",
       "status": "active",
       "relative_path": "auto-commit.sh",
-      "source_hash": "f93254c959e47c44bf7da080dc30a605db76a7ff125b1795d25251aabaf40e01",
+      "source_hash": "6b0d71be100b216ca560c547a49b9ab5e3a28659a700ee03aa5e573af88d8508",
       "schema_version": "ctxmap-code-manifest-v0.1",
       "generator_version": "ctxmap-code-indexer-v0.1",
       "language": "shell",
@@ -2447,8 +2447,8 @@
           "message": "shell grammar was not added"
         }
       ],
-      "line_count": 163,
-      "byte_size": 4050
+      "line_count": 169,
+      "byte_size": 4457
     },
     {
       "code_id": "code-adebb43c-e991-5fbe-ace0-439039a949c2",
@@ -3960,7 +3960,7 @@
       "kind": "managed_source",
       "status": "active",
       "relative_path": "scripts/context_index/check_context_gate.py",
-      "source_hash": "d3ce40aec42f76f1395c6f785ded4809c9d9046e3ac206678c9580b19aa46341",
+      "source_hash": "266d8f237651adf71898c00d26bee22b779b7df121edba8287cc4a93d28d45d7",
       "schema_version": "ctxmap-code-manifest-v0.1",
       "generator_version": "ctxmap-code-indexer-v0.1",
       "language": "python",
@@ -4030,8 +4030,8 @@
           "public": false
         },
         {
-          "name": "_assert_no_reparse",
-          "qualified_name": "_assert_no_reparse",
+          "name": "_repo_input_file",
+          "qualified_name": "_repo_input_file",
           "kind": "method",
           "line_start": 111,
           "line_end": 124,
@@ -4040,11 +4040,21 @@
           "public": false
         },
         {
+          "name": "_assert_no_reparse",
+          "qualified_name": "_assert_no_reparse",
+          "kind": "method",
+          "line_start": 127,
+          "line_end": 140,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
           "name": "_gate_target",
           "qualified_name": "_gate_target",
           "kind": "method",
-          "line_start": 127,
-          "line_end": 134,
+          "line_start": 143,
+          "line_end": 150,
           "parent": null,
           "decorators": [],
           "public": false
@@ -4053,8 +4063,8 @@
           "name": "_safe_path",
           "qualified_name": "_safe_path",
           "kind": "method",
-          "line_start": 137,
-          "line_end": 141,
+          "line_start": 153,
+          "line_end": 157,
           "parent": null,
           "decorators": [],
           "public": false
@@ -4063,8 +4073,8 @@
           "name": "_git_status",
           "qualified_name": "_git_status",
           "kind": "method",
-          "line_start": 144,
-          "line_end": 172,
+          "line_start": 160,
+          "line_end": 188,
           "parent": null,
           "decorators": [],
           "public": false
@@ -4073,8 +4083,8 @@
           "name": "_file_hash",
           "qualified_name": "_file_hash",
           "kind": "method",
-          "line_start": 175,
-          "line_end": 180,
+          "line_start": 191,
+          "line_end": 196,
           "parent": null,
           "decorators": [],
           "public": false
@@ -4083,8 +4093,8 @@
           "name": "capture_worktree_snapshot",
           "qualified_name": "capture_worktree_snapshot",
           "kind": "method",
-          "line_start": 183,
-          "line_end": 196,
+          "line_start": 199,
+          "line_end": 212,
           "parent": null,
           "decorators": [],
           "public": true
@@ -4093,8 +4103,8 @@
           "name": "_load_snapshot",
           "qualified_name": "_load_snapshot",
           "kind": "method",
-          "line_start": 199,
-          "line_end": 203,
+          "line_start": 215,
+          "line_end": 219,
           "parent": null,
           "decorators": [],
           "public": false
@@ -4103,8 +4113,8 @@
           "name": "_snapshot_changed_paths",
           "qualified_name": "_snapshot_changed_paths",
           "kind": "method",
-          "line_start": 206,
-          "line_end": 214,
+          "line_start": 222,
+          "line_end": 230,
           "parent": null,
           "decorators": [],
           "public": false
@@ -4113,8 +4123,8 @@
           "name": "_read_changed_list",
           "qualified_name": "_read_changed_list",
           "kind": "method",
-          "line_start": 217,
-          "line_end": 229,
+          "line_start": 233,
+          "line_end": 245,
           "parent": null,
           "decorators": [],
           "public": false
@@ -4123,8 +4133,8 @@
           "name": "_selected_changes",
           "qualified_name": "_selected_changes",
           "kind": "method",
-          "line_start": 232,
-          "line_end": 259,
+          "line_start": 248,
+          "line_end": 277,
           "parent": null,
           "decorators": [],
           "public": false
@@ -4133,8 +4143,8 @@
           "name": "_validate_h1_receipt",
           "qualified_name": "_validate_h1_receipt",
           "kind": "method",
-          "line_start": 262,
-          "line_end": 275,
+          "line_start": 280,
+          "line_end": 293,
           "parent": null,
           "decorators": [],
           "public": false
@@ -4143,8 +4153,8 @@
           "name": "require_h1_approval",
           "qualified_name": "require_h1_approval",
           "kind": "method",
-          "line_start": 278,
-          "line_end": 282,
+          "line_start": 296,
+          "line_end": 300,
           "parent": null,
           "decorators": [],
           "public": true
@@ -4153,8 +4163,8 @@
           "name": "_load_a07_responses",
           "qualified_name": "_load_a07_responses",
           "kind": "method",
-          "line_start": 285,
-          "line_end": 298,
+          "line_start": 303,
+          "line_end": 316,
           "parent": null,
           "decorators": [],
           "public": false
@@ -4163,8 +4173,8 @@
           "name": "_safe_read_target",
           "qualified_name": "_safe_read_target",
           "kind": "method",
-          "line_start": 301,
-          "line_end": 320,
+          "line_start": 319,
+          "line_end": 338,
           "parent": null,
           "decorators": [],
           "public": false
@@ -4173,8 +4183,8 @@
           "name": "_request_id",
           "qualified_name": "_request_id",
           "kind": "method",
-          "line_start": 323,
-          "line_end": 325,
+          "line_start": 341,
+          "line_end": 343,
           "parent": null,
           "decorators": [],
           "public": false
@@ -4183,8 +4193,8 @@
           "name": "_receipt_path",
           "qualified_name": "_receipt_path",
           "kind": "method",
-          "line_start": 328,
-          "line_end": 329,
+          "line_start": 346,
+          "line_end": 347,
           "parent": null,
           "decorators": [],
           "public": false
@@ -4193,8 +4203,8 @@
           "name": "_graph_valid",
           "qualified_name": "_graph_valid",
           "kind": "method",
-          "line_start": 332,
-          "line_end": 339,
+          "line_start": 350,
+          "line_end": 357,
           "parent": null,
           "decorators": [],
           "public": false
@@ -4203,8 +4213,8 @@
           "name": "_validate_all",
           "qualified_name": "_validate_all",
           "kind": "method",
-          "line_start": 342,
-          "line_end": 362,
+          "line_start": 360,
+          "line_end": 380,
           "parent": null,
           "decorators": [],
           "public": false
@@ -4213,8 +4223,18 @@
           "name": "_base_report",
           "qualified_name": "_base_report",
           "kind": "method",
-          "line_start": 365,
-          "line_end": 384,
+          "line_start": 383,
+          "line_end": 403,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_approved_report",
+          "qualified_name": "_approved_report",
+          "kind": "method",
+          "line_start": 406,
+          "line_end": 431,
           "parent": null,
           "decorators": [],
           "public": false
@@ -4223,8 +4243,18 @@
           "name": "approved_paths_from_report",
           "qualified_name": "approved_paths_from_report",
           "kind": "method",
-          "line_start": 387,
-          "line_end": 404,
+          "line_start": 434,
+          "line_end": 438,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "verify_index_matches_report",
+          "qualified_name": "verify_index_matches_report",
+          "kind": "method",
+          "line_start": 441,
+          "line_end": 459,
           "parent": null,
           "decorators": [],
           "public": true
@@ -4233,8 +4263,8 @@
           "name": "run_gate",
           "qualified_name": "run_gate",
           "kind": "method",
-          "line_start": 407,
-          "line_end": 582,
+          "line_start": 462,
+          "line_end": 649,
           "parent": null,
           "decorators": [],
           "public": true
@@ -4243,8 +4273,8 @@
           "name": "dispatcher",
           "qualified_name": "run_gate.dispatcher",
           "kind": "function",
-          "line_start": 502,
-          "line_end": 507,
+          "line_start": 559,
+          "line_end": 564,
           "parent": "run_gate",
           "decorators": [],
           "public": true
@@ -4253,8 +4283,8 @@
           "name": "main",
           "qualified_name": "main",
           "kind": "method",
-          "line_start": 585,
-          "line_end": 636,
+          "line_start": 652,
+          "line_end": 703,
           "parent": null,
           "decorators": [],
           "public": true
@@ -4483,7 +4513,7 @@
           "name": "discover_code_paths",
           "alias": null,
           "level": 1,
-          "line": 187
+          "line": 203
         },
         {
           "kind": "from_import",
@@ -4491,7 +4521,7 @@
           "name": "is_managed_code_path",
           "alias": null,
           "level": 1,
-          "line": 441
+          "line": 496
         }
       ],
       "exports": [],
@@ -4504,12 +4534,13 @@
         "main",
         "require_h1_approval",
         "run_gate",
-        "run_gate.dispatcher"
+        "run_gate.dispatcher",
+        "verify_index_matches_report"
       ],
       "config": {},
       "diagnostics": [],
-      "line_count": 640,
-      "byte_size": 24378
+      "line_count": 707,
+      "byte_size": 27160
     },
     {
       "code_id": "code-31e4fd6d-d411-544e-b4d8-2e0dc7214652",
@@ -5005,7 +5036,7 @@
       "kind": "managed_source",
       "status": "active",
       "relative_path": "scripts/context_index/context_mcp_server.py",
-      "source_hash": "e6dba7bf743e281978dd886fa9d21b9670d8cbd4cf653bc0cb2490c50a270d27",
+      "source_hash": "acf991c6dd17546e364a48d22d8f2c86ffa906669d95246f52a6c16471380a13",
       "schema_version": "ctxmap-code-manifest-v0.1",
       "generator_version": "ctxmap-code-indexer-v0.1",
       "language": "python",
@@ -5016,8 +5047,8 @@
           "name": "McpRejected",
           "qualified_name": "McpRejected",
           "kind": "class",
-          "line_start": 34,
-          "line_end": 35,
+          "line_start": 38,
+          "line_end": 39,
           "parent": null,
           "decorators": [],
           "public": true
@@ -5026,8 +5057,8 @@
           "name": "_require_mapping",
           "qualified_name": "_require_mapping",
           "kind": "method",
-          "line_start": 38,
-          "line_end": 41,
+          "line_start": 42,
+          "line_end": 45,
           "parent": null,
           "decorators": [],
           "public": false
@@ -5036,8 +5067,8 @@
           "name": "_limit",
           "qualified_name": "_limit",
           "kind": "method",
-          "line_start": 44,
-          "line_end": 47,
+          "line_start": 48,
+          "line_end": 51,
           "parent": null,
           "decorators": [],
           "public": false
@@ -5046,8 +5077,8 @@
           "name": "_safe_id",
           "qualified_name": "_safe_id",
           "kind": "method",
-          "line_start": 50,
-          "line_end": 53,
+          "line_start": 54,
+          "line_end": 57,
           "parent": null,
           "decorators": [],
           "public": false
@@ -5056,8 +5087,8 @@
           "name": "_safe_path",
           "qualified_name": "_safe_path",
           "kind": "method",
-          "line_start": 56,
-          "line_end": 62,
+          "line_start": 60,
+          "line_end": 66,
           "parent": null,
           "decorators": [],
           "public": false
@@ -5066,8 +5097,28 @@
           "name": "_manifest_result",
           "qualified_name": "_manifest_result",
           "kind": "method",
-          "line_start": 65,
-          "line_end": 87,
+          "line_start": 69,
+          "line_end": 91,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_metadata_contains_prompt_injection",
+          "qualified_name": "_metadata_contains_prompt_injection",
+          "kind": "method",
+          "line_start": 94,
+          "line_end": 96,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_read_bounded_line",
+          "qualified_name": "_read_bounded_line",
+          "kind": "method",
+          "line_start": 99,
+          "line_end": 124,
           "parent": null,
           "decorators": [],
           "public": false
@@ -5076,8 +5127,8 @@
           "name": "ContextMcpServer",
           "qualified_name": "ContextMcpServer",
           "kind": "class",
-          "line_start": 90,
-          "line_end": 511,
+          "line_start": 127,
+          "line_end": 558,
           "parent": null,
           "decorators": [],
           "public": true
@@ -5086,8 +5137,8 @@
           "name": "__init__",
           "qualified_name": "ContextMcpServer.__init__",
           "kind": "method",
-          "line_start": 93,
-          "line_end": 114,
+          "line_start": 130,
+          "line_end": 151,
           "parent": "ContextMcpServer",
           "decorators": [],
           "public": false
@@ -5096,8 +5147,8 @@
           "name": "_index_records",
           "qualified_name": "ContextMcpServer._index_records",
           "kind": "method",
-          "line_start": 117,
-          "line_end": 129,
+          "line_start": 154,
+          "line_end": 166,
           "parent": "ContextMcpServer",
           "decorators": [
             "staticmethod"
@@ -5108,8 +5159,8 @@
           "name": "from_paths",
           "qualified_name": "ContextMcpServer.from_paths",
           "kind": "method",
-          "line_start": 132,
-          "line_end": 154,
+          "line_start": 169,
+          "line_end": 191,
           "parent": "ContextMcpServer",
           "decorators": [
             "classmethod"
@@ -5120,8 +5171,8 @@
           "name": "_record_path",
           "qualified_name": "ContextMcpServer._record_path",
           "kind": "method",
-          "line_start": 156,
-          "line_end": 169,
+          "line_start": 193,
+          "line_end": 206,
           "parent": "ContextMcpServer",
           "decorators": [],
           "public": false
@@ -5130,8 +5181,8 @@
           "name": "_read_verified",
           "qualified_name": "ContextMcpServer._read_verified",
           "kind": "method",
-          "line_start": 171,
-          "line_end": 200,
+          "line_start": 208,
+          "line_end": 237,
           "parent": "ContextMcpServer",
           "decorators": [],
           "public": false
@@ -5140,8 +5191,8 @@
           "name": "search_context",
           "qualified_name": "ContextMcpServer.search_context",
           "kind": "method",
-          "line_start": 202,
-          "line_end": 232,
+          "line_start": 239,
+          "line_end": 271,
           "parent": "ContextMcpServer",
           "decorators": [],
           "public": true
@@ -5150,8 +5201,8 @@
           "name": "_range_from_input",
           "qualified_name": "ContextMcpServer._range_from_input",
           "kind": "method",
-          "line_start": 234,
-          "line_end": 283,
+          "line_start": 273,
+          "line_end": 322,
           "parent": "ContextMcpServer",
           "decorators": [],
           "public": false
@@ -5160,8 +5211,8 @@
           "name": "_bounded_content",
           "qualified_name": "ContextMcpServer._bounded_content",
           "kind": "method",
-          "line_start": 286,
-          "line_end": 290,
+          "line_start": 325,
+          "line_end": 329,
           "parent": "ContextMcpServer",
           "decorators": [
             "staticmethod"
@@ -5172,8 +5223,8 @@
           "name": "_max_chars",
           "qualified_name": "ContextMcpServer._max_chars",
           "kind": "method",
-          "line_start": 292,
-          "line_end": 295,
+          "line_start": 331,
+          "line_end": 334,
           "parent": "ContextMcpServer",
           "decorators": [],
           "public": false
@@ -5182,8 +5233,8 @@
           "name": "get_artifact",
           "qualified_name": "ContextMcpServer.get_artifact",
           "kind": "method",
-          "line_start": 297,
-          "line_end": 321,
+          "line_start": 336,
+          "line_end": 360,
           "parent": "ContextMcpServer",
           "decorators": [],
           "public": true
@@ -5192,8 +5243,8 @@
           "name": "_registered_code_range",
           "qualified_name": "ContextMcpServer._registered_code_range",
           "kind": "method",
-          "line_start": 323,
-          "line_end": 338,
+          "line_start": 362,
+          "line_end": 377,
           "parent": "ContextMcpServer",
           "decorators": [],
           "public": false
@@ -5202,8 +5253,8 @@
           "name": "get_code_slice",
           "qualified_name": "ContextMcpServer.get_code_slice",
           "kind": "method",
-          "line_start": 340,
-          "line_end": 400,
+          "line_start": 379,
+          "line_end": 439,
           "parent": "ContextMcpServer",
           "decorators": [],
           "public": true
@@ -5212,8 +5263,8 @@
           "name": "get_related",
           "qualified_name": "ContextMcpServer.get_related",
           "kind": "method",
-          "line_start": 402,
-          "line_end": 456,
+          "line_start": 441,
+          "line_end": 495,
           "parent": "ContextMcpServer",
           "decorators": [],
           "public": true
@@ -5222,8 +5273,8 @@
           "name": "dispatch",
           "qualified_name": "ContextMcpServer.dispatch",
           "kind": "method",
-          "line_start": 458,
-          "line_end": 495,
+          "line_start": 497,
+          "line_end": 534,
           "parent": "ContextMcpServer",
           "decorators": [],
           "public": true
@@ -5232,8 +5283,8 @@
           "name": "serve_stdio",
           "qualified_name": "ContextMcpServer.serve_stdio",
           "kind": "method",
-          "line_start": 497,
-          "line_end": 511,
+          "line_start": 536,
+          "line_end": 558,
           "parent": "ContextMcpServer",
           "decorators": [],
           "public": true
@@ -5242,8 +5293,8 @@
           "name": "main",
           "qualified_name": "main",
           "kind": "method",
-          "line_start": 514,
-          "line_end": 538,
+          "line_start": 561,
+          "line_end": 585,
           "parent": null,
           "decorators": [],
           "public": true
@@ -5432,7 +5483,7 @@
           "name": "is_managed_code_path",
           "alias": null,
           "level": 1,
-          "line": 162
+          "line": 199
         }
       ],
       "exports": [],
@@ -5450,8 +5501,8 @@
       ],
       "config": {},
       "diagnostics": [],
-      "line_count": 542,
-      "byte_size": 21994
+      "line_count": 589,
+      "byte_size": 23938
     },
     {
       "code_id": "code-0ffb11d0-c051-5a7c-9e28-5253a8c09801",
@@ -5752,7 +5803,7 @@
       "kind": "managed_source",
       "status": "active",
       "relative_path": "scripts/context_index/context_watch.py",
-      "source_hash": "09d71068944f764a9965cb0cb810103b572734d93861a0c2a1729067dd941ab5",
+      "source_hash": "cbe03f2f2b2e3c4b1e7016b315c85e58ec8338a837829a7a359195ea3ecf20b9",
       "schema_version": "ctxmap-code-manifest-v0.1",
       "generator_version": "ctxmap-code-indexer-v0.1",
       "language": "python",
@@ -5800,11 +5851,21 @@
           "public": false
         },
         {
+          "name": "recover_stale_lock",
+          "qualified_name": "recover_stale_lock",
+          "kind": "function",
+          "line_start": 65,
+          "line_end": 86,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
           "name": "_changed_since",
           "qualified_name": "_changed_since",
           "kind": "function",
-          "line_start": 65,
-          "line_end": 75,
+          "line_start": 89,
+          "line_end": 99,
           "parent": null,
           "decorators": [],
           "public": false
@@ -5813,8 +5874,8 @@
           "name": "_python_executable",
           "qualified_name": "_python_executable",
           "kind": "function",
-          "line_start": 78,
-          "line_end": 79,
+          "line_start": 102,
+          "line_end": 103,
           "parent": null,
           "decorators": [],
           "public": false
@@ -5823,8 +5884,8 @@
           "name": "_run_gate",
           "qualified_name": "_run_gate",
           "kind": "function",
-          "line_start": 82,
-          "line_end": 107,
+          "line_start": 106,
+          "line_end": 131,
           "parent": null,
           "decorators": [],
           "public": false
@@ -5833,8 +5894,8 @@
           "name": "_run_auto_commit",
           "qualified_name": "_run_auto_commit",
           "kind": "function",
-          "line_start": 110,
-          "line_end": 132,
+          "line_start": 134,
+          "line_end": 156,
           "parent": null,
           "decorators": [],
           "public": false
@@ -5843,8 +5904,8 @@
           "name": "process_event",
           "qualified_name": "process_event",
           "kind": "function",
-          "line_start": 135,
-          "line_end": 153,
+          "line_start": 159,
+          "line_end": 177,
           "parent": null,
           "decorators": [],
           "public": true
@@ -5853,8 +5914,8 @@
           "name": "watch_loop",
           "qualified_name": "watch_loop",
           "kind": "function",
-          "line_start": 156,
-          "line_end": 183,
+          "line_start": 180,
+          "line_end": 208,
           "parent": null,
           "decorators": [],
           "public": true
@@ -5863,8 +5924,8 @@
           "name": "main",
           "qualified_name": "main",
           "kind": "function",
-          "line_start": 186,
-          "line_end": 218,
+          "line_start": 211,
+          "line_end": 252,
           "parent": null,
           "decorators": [],
           "public": true
@@ -6012,12 +6073,13 @@
       "public_candidates": [
         "main",
         "process_event",
+        "recover_stale_lock",
         "watch_loop"
       ],
       "config": {},
       "diagnostics": [],
-      "line_count": 222,
-      "byte_size": 8620
+      "line_count": 256,
+      "byte_size": 9834
     },
     {
       "code_id": "code-813d93ca-d051-553e-948d-81cc27701d28",
@@ -26835,7 +26897,7 @@
       "kind": "managed_source",
       "status": "active",
       "relative_path": "tests/context_index/test_context_gate.py",
-      "source_hash": "64e45a76740c545c225cef44fe689de9e289984064276f2e71b665302d1791b8",
+      "source_hash": "67afe857725ee570703fc97a683fc8a4b6de84861daeb07d2b56f282b8123ba8",
       "schema_version": "ctxmap-code-manifest-v0.1",
       "generator_version": "ctxmap-code-indexer-v0.1",
       "language": "python",
@@ -26846,8 +26908,8 @@
           "name": "policy",
           "qualified_name": "policy",
           "kind": "function",
-          "line_start": 21,
-          "line_end": 43,
+          "line_start": 23,
+          "line_end": 45,
           "parent": null,
           "decorators": [
             "dynamic"
@@ -26858,8 +26920,8 @@
           "name": "write_file",
           "qualified_name": "write_file",
           "kind": "function",
-          "line_start": 46,
-          "line_end": 49,
+          "line_start": 48,
+          "line_end": 51,
           "parent": null,
           "decorators": [],
           "public": true
@@ -26868,8 +26930,8 @@
           "name": "write_json",
           "qualified_name": "write_json",
           "kind": "function",
-          "line_start": 52,
-          "line_end": 54,
+          "line_start": 54,
+          "line_end": 56,
           "parent": null,
           "decorators": [],
           "public": true
@@ -26878,8 +26940,8 @@
           "name": "prepare_index",
           "qualified_name": "prepare_index",
           "kind": "function",
-          "line_start": 57,
-          "line_end": 77,
+          "line_start": 59,
+          "line_end": 79,
           "parent": null,
           "decorators": [],
           "public": true
@@ -26888,8 +26950,8 @@
           "name": "git",
           "qualified_name": "git",
           "kind": "function",
-          "line_start": 80,
-          "line_end": 83,
+          "line_start": 82,
+          "line_end": 85,
           "parent": null,
           "decorators": [],
           "public": true
@@ -26898,8 +26960,8 @@
           "name": "init_git",
           "qualified_name": "init_git",
           "kind": "function",
-          "line_start": 86,
-          "line_end": 91,
+          "line_start": 88,
+          "line_end": 93,
           "parent": null,
           "decorators": [],
           "public": true
@@ -26908,8 +26970,8 @@
           "name": "decision_for",
           "qualified_name": "decision_for",
           "kind": "function",
-          "line_start": 94,
-          "line_end": 108,
+          "line_start": 96,
+          "line_end": 110,
           "parent": null,
           "decorators": [],
           "public": true
@@ -26918,8 +26980,8 @@
           "name": "gate_args",
           "qualified_name": "gate_args",
           "kind": "function",
-          "line_start": 111,
-          "line_end": 130,
+          "line_start": 113,
+          "line_end": 132,
           "parent": null,
           "decorators": [],
           "public": true
@@ -26928,8 +26990,8 @@
           "name": "test_new_document_requires_a07_response_and_updates_only_explicit_outputs",
           "qualified_name": "test_new_document_requires_a07_response_and_updates_only_explicit_outputs",
           "kind": "function",
-          "line_start": 133,
-          "line_end": 159,
+          "line_start": 135,
+          "line_end": 161,
           "parent": null,
           "decorators": [],
           "public": true
@@ -26938,8 +27000,8 @@
           "name": "test_major_document_change_without_a07_is_pending_and_does_not_touch_index",
           "qualified_name": "test_major_document_change_without_a07_is_pending_and_does_not_touch_index",
           "kind": "function",
-          "line_start": 162,
-          "line_end": 177,
+          "line_start": 164,
+          "line_end": 179,
           "parent": null,
           "decorators": [],
           "public": true
@@ -26948,8 +27010,8 @@
           "name": "test_source_change_rebuilds_code_manifest_and_relation_graph",
           "qualified_name": "test_source_change_rebuilds_code_manifest_and_relation_graph",
           "kind": "function",
-          "line_start": 180,
-          "line_end": 193,
+          "line_start": 182,
+          "line_end": 195,
           "parent": null,
           "decorators": [],
           "public": true
@@ -26958,8 +27020,8 @@
           "name": "test_secret_rename_and_delete_fail_closed",
           "qualified_name": "test_secret_rename_and_delete_fail_closed",
           "kind": "function",
-          "line_start": 196,
-          "line_end": 208,
+          "line_start": 198,
+          "line_end": 210,
           "parent": null,
           "decorators": [],
           "public": true
@@ -26968,8 +27030,18 @@
           "name": "test_gate_rejects_out_of_scope_and_invalid_manifest_inputs",
           "qualified_name": "test_gate_rejects_out_of_scope_and_invalid_manifest_inputs",
           "kind": "function",
-          "line_start": 211,
-          "line_end": 221,
+          "line_start": 213,
+          "line_end": 223,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_gate_rejects_external_control_input_paths",
+          "qualified_name": "test_gate_rejects_external_control_input_paths",
+          "kind": "function",
+          "line_start": 226,
+          "line_end": 271,
           "parent": null,
           "decorators": [],
           "public": true
@@ -26978,8 +27050,8 @@
           "name": "test_gate_h1_requirement_fails_closed_before_work",
           "qualified_name": "test_gate_h1_requirement_fails_closed_before_work",
           "kind": "function",
-          "line_start": 224,
-          "line_end": 228,
+          "line_start": 274,
+          "line_end": 278,
           "parent": null,
           "decorators": [],
           "public": true
@@ -26988,8 +27060,8 @@
           "name": "test_git_rename_status_is_parsed_and_blocked",
           "qualified_name": "test_git_rename_status_is_parsed_and_blocked",
           "kind": "function",
-          "line_start": 231,
-          "line_end": 240,
+          "line_start": 281,
+          "line_end": 290,
           "parent": null,
           "decorators": [],
           "public": true
@@ -26998,8 +27070,8 @@
           "name": "test_generated_manifest_path_is_ignored_by_watch_loop",
           "qualified_name": "test_generated_manifest_path_is_ignored_by_watch_loop",
           "kind": "function",
-          "line_start": 243,
-          "line_end": 248,
+          "line_start": 293,
+          "line_end": 298,
           "parent": null,
           "decorators": [],
           "public": true
@@ -27008,8 +27080,8 @@
           "name": "test_snapshot_tracks_only_hashes_and_detects_source_change",
           "qualified_name": "test_snapshot_tracks_only_hashes_and_detects_source_change",
           "kind": "function",
-          "line_start": 251,
-          "line_end": 263,
+          "line_start": 301,
+          "line_end": 313,
           "parent": null,
           "decorators": [],
           "public": true
@@ -27018,8 +27090,28 @@
           "name": "test_gate_report_allowlist_is_revalidated",
           "qualified_name": "test_gate_report_allowlist_is_revalidated",
           "kind": "function",
-          "line_start": 266,
-          "line_end": 299,
+          "line_start": 316,
+          "line_end": 366,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_watch_loop_propagates_event_failure_to_process_exit",
+          "qualified_name": "test_watch_loop_propagates_event_failure_to_process_exit",
+          "kind": "function",
+          "line_start": 369,
+          "line_end": 397,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_stale_lock_recovery_requires_dead_pid_and_is_explicit",
+          "qualified_name": "test_stale_lock_recovery_requires_dead_pid_and_is_explicit",
+          "kind": "function",
+          "line_start": 400,
+          "line_end": 411,
           "parent": null,
           "decorators": [],
           "public": true
@@ -27028,8 +27120,8 @@
           "name": "test_h1_invalid_receipts_are_rejected_without_fallback",
           "qualified_name": "test_h1_invalid_receipts_are_rejected_without_fallback",
           "kind": "function",
-          "line_start": 302,
-          "line_end": 308,
+          "line_start": 414,
+          "line_end": 420,
           "parent": null,
           "decorators": [],
           "public": true
@@ -27038,8 +27130,8 @@
           "name": "test_symlink_target_is_rejected_when_platform_allows_symlinks",
           "qualified_name": "test_symlink_target_is_rejected_when_platform_allows_symlinks",
           "kind": "function",
-          "line_start": 311,
-          "line_end": 328,
+          "line_start": 423,
+          "line_end": 440,
           "parent": null,
           "decorators": [],
           "public": true
@@ -27048,8 +27140,8 @@
           "name": "test_h1_start_is_rejected_until_approval_receipt_exists",
           "qualified_name": "test_h1_start_is_rejected_until_approval_receipt_exists",
           "kind": "function",
-          "line_start": 331,
-          "line_end": 342,
+          "line_start": 443,
+          "line_end": 454,
           "parent": null,
           "decorators": [],
           "public": true
@@ -27058,8 +27150,8 @@
           "name": "test_watch_once_ignores_generated_event_and_watch_loop_serializes",
           "qualified_name": "test_watch_once_ignores_generated_event_and_watch_loop_serializes",
           "kind": "function",
-          "line_start": 345,
-          "line_end": 393,
+          "line_start": 457,
+          "line_end": 505,
           "parent": null,
           "decorators": [],
           "public": true
@@ -27068,8 +27160,8 @@
           "name": "test_watch_loop_runs_one_local_cycle_and_records_auto_commit_pending",
           "qualified_name": "test_watch_loop_runs_one_local_cycle_and_records_auto_commit_pending",
           "kind": "function",
-          "line_start": 396,
-          "line_end": 435,
+          "line_start": 508,
+          "line_end": 547,
           "parent": null,
           "decorators": [],
           "public": true
@@ -27078,8 +27170,8 @@
           "name": "test_watch_document_event_stays_pending_when_a07_is_unavailable",
           "qualified_name": "test_watch_document_event_stays_pending_when_a07_is_unavailable",
           "kind": "function",
-          "line_start": 438,
-          "line_end": 462,
+          "line_start": 550,
+          "line_end": 574,
           "parent": null,
           "decorators": [],
           "public": true
@@ -27088,8 +27180,8 @@
           "name": "test_auto_commit_stages_only_gate_allowlist_and_never_user_untracked",
           "qualified_name": "test_auto_commit_stages_only_gate_allowlist_and_never_user_untracked",
           "kind": "function",
-          "line_start": 465,
-          "line_end": 492,
+          "line_start": 577,
+          "line_end": 604,
           "parent": null,
           "decorators": [],
           "public": true
@@ -27106,11 +27198,19 @@
         },
         {
           "kind": "import",
+          "module": "hashlib",
+          "name": "hashlib",
+          "alias": null,
+          "level": 0,
+          "line": 3
+        },
+        {
+          "kind": "import",
           "module": "json",
           "name": "json",
           "alias": null,
           "level": 0,
-          "line": 3
+          "line": 4
         },
         {
           "kind": "import",
@@ -27118,7 +27218,7 @@
           "name": "os",
           "alias": null,
           "level": 0,
-          "line": 4
+          "line": 5
         },
         {
           "kind": "import",
@@ -27126,7 +27226,7 @@
           "name": "shutil",
           "alias": null,
           "level": 0,
-          "line": 5
+          "line": 6
         },
         {
           "kind": "import",
@@ -27134,7 +27234,7 @@
           "name": "subprocess",
           "alias": null,
           "level": 0,
-          "line": 6
+          "line": 7
         },
         {
           "kind": "import",
@@ -27142,7 +27242,7 @@
           "name": "sys",
           "alias": null,
           "level": 0,
-          "line": 7
+          "line": 8
         },
         {
           "kind": "from_import",
@@ -27150,7 +27250,15 @@
           "name": "Path",
           "alias": null,
           "level": 0,
-          "line": 8
+          "line": 9
+        },
+        {
+          "kind": "from_import",
+          "module": "types",
+          "name": "SimpleNamespace",
+          "alias": null,
+          "level": 0,
+          "line": 10
         },
         {
           "kind": "from_import",
@@ -27158,7 +27266,7 @@
           "name": "Any",
           "alias": null,
           "level": 0,
-          "line": 9
+          "line": 11
         },
         {
           "kind": "import",
@@ -27166,7 +27274,7 @@
           "name": "pytest",
           "alias": null,
           "level": 0,
-          "line": 11
+          "line": 13
         },
         {
           "kind": "from_import",
@@ -27174,7 +27282,7 @@
           "name": "build_code_manifest",
           "alias": null,
           "level": 0,
-          "line": 12
+          "line": 14
         },
         {
           "kind": "from_import",
@@ -27182,7 +27290,7 @@
           "name": "build_index",
           "alias": null,
           "level": 0,
-          "line": 13
+          "line": 15
         },
         {
           "kind": "from_import",
@@ -27190,7 +27298,7 @@
           "name": "build_state",
           "alias": null,
           "level": 0,
-          "line": 13
+          "line": 15
         },
         {
           "kind": "from_import",
@@ -27198,7 +27306,7 @@
           "name": "build_relation_graph",
           "alias": null,
           "level": 0,
-          "line": 14
+          "line": 16
         },
         {
           "kind": "from_import",
@@ -27206,7 +27314,7 @@
           "name": "main",
           "alias": "gate_main",
           "level": 0,
-          "line": 15
+          "line": 17
         },
         {
           "kind": "from_import",
@@ -27214,7 +27322,7 @@
           "name": "stable_id",
           "alias": null,
           "level": 0,
-          "line": 16
+          "line": 18
         },
         {
           "kind": "from_import",
@@ -27222,7 +27330,7 @@
           "name": "main",
           "alias": "context_watch_main",
           "level": 0,
-          "line": 17
+          "line": 19
         },
         {
           "kind": "from_import",
@@ -27230,7 +27338,7 @@
           "name": "is_generated_path",
           "alias": null,
           "level": 0,
-          "line": 244
+          "line": 294
         },
         {
           "kind": "from_import",
@@ -27238,7 +27346,7 @@
           "name": "capture_worktree_snapshot",
           "alias": null,
           "level": 0,
-          "line": 254
+          "line": 304
         },
         {
           "kind": "from_import",
@@ -27246,7 +27354,7 @@
           "name": "_changed_since",
           "alias": null,
           "level": 0,
-          "line": 255
+          "line": 305
         },
         {
           "kind": "from_import",
@@ -27254,7 +27362,7 @@
           "name": "GateError",
           "alias": null,
           "level": 0,
-          "line": 267
+          "line": 317
         },
         {
           "kind": "from_import",
@@ -27262,7 +27370,39 @@
           "name": "approved_paths_from_report",
           "alias": null,
           "level": 0,
-          "line": 267
+          "line": 317
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.check_context_gate",
+          "name": "verify_index_matches_report",
+          "alias": null,
+          "level": 0,
+          "line": 317
+        },
+        {
+          "kind": "import",
+          "module": "scripts.context_index.context_watch",
+          "name": "scripts.context_index.context_watch",
+          "alias": "context_watch",
+          "level": 0,
+          "line": 372
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.context_watch",
+          "name": "LOCK_PATH",
+          "alias": null,
+          "level": 0,
+          "line": 403
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.context_watch",
+          "name": "recover_stale_lock",
+          "alias": null,
+          "level": 0,
+          "line": 403
         },
         {
           "kind": "from_import",
@@ -27270,7 +27410,7 @@
           "name": "GateError",
           "alias": null,
           "level": 0,
-          "line": 303
+          "line": 415
         },
         {
           "kind": "from_import",
@@ -27278,7 +27418,7 @@
           "name": "require_h1_approval",
           "alias": null,
           "level": 0,
-          "line": 303
+          "line": 415
         },
         {
           "kind": "from_import",
@@ -27286,7 +27426,7 @@
           "name": "GateError",
           "alias": null,
           "level": 0,
-          "line": 346
+          "line": 458
         },
         {
           "kind": "from_import",
@@ -27294,7 +27434,7 @@
           "name": "_acquire_lock",
           "alias": null,
           "level": 0,
-          "line": 347
+          "line": 459
         },
         {
           "kind": "from_import",
@@ -27302,7 +27442,7 @@
           "name": "_changed_since",
           "alias": null,
           "level": 0,
-          "line": 347
+          "line": 459
         },
         {
           "kind": "from_import",
@@ -27310,7 +27450,7 @@
           "name": "_write_pending",
           "alias": null,
           "level": 0,
-          "line": 347
+          "line": 459
         },
         {
           "kind": "from_import",
@@ -27318,7 +27458,7 @@
           "name": "_run_auto_commit",
           "alias": null,
           "level": 0,
-          "line": 439
+          "line": 551
         }
       ],
       "exports": [],
@@ -27331,6 +27471,7 @@
         "prepare_index",
         "test_auto_commit_stages_only_gate_allowlist_and_never_user_untracked",
         "test_gate_h1_requirement_fails_closed_before_work",
+        "test_gate_rejects_external_control_input_paths",
         "test_gate_rejects_out_of_scope_and_invalid_manifest_inputs",
         "test_gate_report_allowlist_is_revalidated",
         "test_generated_manifest_path_is_ignored_by_watch_loop",
@@ -27342,8 +27483,10 @@
         "test_secret_rename_and_delete_fail_closed",
         "test_snapshot_tracks_only_hashes_and_detects_source_change",
         "test_source_change_rebuilds_code_manifest_and_relation_graph",
+        "test_stale_lock_recovery_requires_dead_pid_and_is_explicit",
         "test_symlink_target_is_rejected_when_platform_allows_symlinks",
         "test_watch_document_event_stays_pending_when_a07_is_unavailable",
+        "test_watch_loop_propagates_event_failure_to_process_exit",
         "test_watch_loop_runs_one_local_cycle_and_records_auto_commit_pending",
         "test_watch_once_ignores_generated_event_and_watch_loop_serializes",
         "write_file",
@@ -27356,8 +27499,8 @@
           "message": "secret-like source content was not retained"
         }
       ],
-      "line_count": 492,
-      "byte_size": 19478
+      "line_count": 604,
+      "byte_size": 23680
     },
     {
       "code_id": "code-b6791cf7-be73-5306-8626-2fced6a4184e",
@@ -28231,7 +28374,7 @@
       "kind": "managed_source",
       "status": "active",
       "relative_path": "tests/context_index/test_context_router_mcp.py",
-      "source_hash": "1121b7471aa7d603402b06b61851a5da08a8a94f0f2b2bbdacc786cf31d1dcc3",
+      "source_hash": "89d228cef80ce5d7ad93b3d04b439d3bacd0e3f8ec5dbbfb4970dcb7884cf753",
       "schema_version": "ctxmap-code-manifest-v0.1",
       "generator_version": "ctxmap-code-indexer-v0.1",
       "language": "python",
@@ -28242,8 +28385,8 @@
           "name": "write_file",
           "qualified_name": "write_file",
           "kind": "function",
-          "line_start": 16,
-          "line_end": 19,
+          "line_start": 20,
+          "line_end": 23,
           "parent": null,
           "decorators": [],
           "public": true
@@ -28252,8 +28395,8 @@
           "name": "record_hash",
           "qualified_name": "record_hash",
           "kind": "function",
-          "line_start": 22,
-          "line_end": 23,
+          "line_start": 26,
+          "line_end": 27,
           "parent": null,
           "decorators": [],
           "public": true
@@ -28262,8 +28405,8 @@
           "name": "policy",
           "qualified_name": "policy",
           "kind": "function",
-          "line_start": 27,
-          "line_end": 44,
+          "line_start": 31,
+          "line_end": 48,
           "parent": null,
           "decorators": [
             "dynamic"
@@ -28274,8 +28417,8 @@
           "name": "manifests",
           "qualified_name": "manifests",
           "kind": "function",
-          "line_start": 48,
-          "line_end": 126,
+          "line_start": 52,
+          "line_end": 130,
           "parent": null,
           "decorators": [
             "dynamic"
@@ -28286,8 +28429,8 @@
           "name": "test_router_uses_manifest_only_and_limits_primary_and_supporting",
           "qualified_name": "test_router_uses_manifest_only_and_limits_primary_and_supporting",
           "kind": "function",
-          "line_start": 129,
-          "line_end": 153,
+          "line_start": 133,
+          "line_end": 157,
           "parent": null,
           "decorators": [],
           "public": true
@@ -28296,8 +28439,8 @@
           "name": "test_router_fails_closed_for_unverified_or_oversized_snapshot_request",
           "qualified_name": "test_router_fails_closed_for_unverified_or_oversized_snapshot_request",
           "kind": "function",
-          "line_start": 156,
-          "line_end": 172,
+          "line_start": 160,
+          "line_end": 176,
           "parent": null,
           "decorators": [],
           "public": true
@@ -28306,8 +28449,28 @@
           "name": "test_mcp_search_is_manifest_only_and_enforces_limits",
           "qualified_name": "test_mcp_search_is_manifest_only_and_enforces_limits",
           "kind": "function",
-          "line_start": 175,
-          "line_end": 189,
+          "line_start": 179,
+          "line_end": 193,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_mcp_search_does_not_return_prompt_injection_metadata",
+          "qualified_name": "test_mcp_search_does_not_return_prompt_injection_metadata",
+          "kind": "function",
+          "line_start": 196,
+          "line_end": 216,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_mcp_stdio_rejects_oversized_input_line_before_json_dispatch",
+          "qualified_name": "test_mcp_stdio_rejects_oversized_input_line_before_json_dispatch",
+          "kind": "function",
+          "line_start": 219,
+          "line_end": 242,
           "parent": null,
           "decorators": [],
           "public": true
@@ -28316,8 +28479,8 @@
           "name": "test_mcp_get_artifact_reads_only_registered_safe_range_and_rejects_injection",
           "qualified_name": "test_mcp_get_artifact_reads_only_registered_safe_range_and_rejects_injection",
           "kind": "function",
-          "line_start": 192,
-          "line_end": 234,
+          "line_start": 245,
+          "line_end": 287,
           "parent": null,
           "decorators": [],
           "public": true
@@ -28326,8 +28489,8 @@
           "name": "test_mcp_get_code_slice_requires_registered_symbol_and_safe_bounds",
           "qualified_name": "test_mcp_get_code_slice_requires_registered_symbol_and_safe_bounds",
           "kind": "function",
-          "line_start": 237,
-          "line_end": 251,
+          "line_start": 290,
+          "line_end": 304,
           "parent": null,
           "decorators": [],
           "public": true
@@ -28336,8 +28499,8 @@
           "name": "test_mcp_rejects_unknown_ids_external_paths_secrets_and_bad_graph_queries",
           "qualified_name": "test_mcp_rejects_unknown_ids_external_paths_secrets_and_bad_graph_queries",
           "kind": "function",
-          "line_start": 254,
-          "line_end": 327,
+          "line_start": 307,
+          "line_end": 380,
           "parent": null,
           "decorators": [],
           "public": true
@@ -28346,8 +28509,8 @@
           "name": "test_mcp_dispatch_is_json_safe_and_does_not_expose_server_transport",
           "qualified_name": "test_mcp_dispatch_is_json_safe_and_does_not_expose_server_transport",
           "kind": "function",
-          "line_start": 330,
-          "line_end": 358,
+          "line_start": 383,
+          "line_end": 411,
           "parent": null,
           "decorators": [],
           "public": true
@@ -28356,8 +28519,8 @@
           "name": "test_repository_routing_fixtures_keep_expected_primary_sets",
           "qualified_name": "test_repository_routing_fixtures_keep_expected_primary_sets",
           "kind": "function",
-          "line_start": 361,
-          "line_end": 370,
+          "line_start": 414,
+          "line_end": 423,
           "parent": null,
           "decorators": [],
           "public": true
@@ -28366,8 +28529,8 @@
           "name": "test_context_cli_dispatches_all_bounded_commands_without_network",
           "qualified_name": "test_context_cli_dispatches_all_bounded_commands_without_network",
           "kind": "function",
-          "line_start": 373,
-          "line_end": 425,
+          "line_start": 426,
+          "line_end": 478,
           "parent": null,
           "decorators": [],
           "public": true
@@ -28376,8 +28539,8 @@
           "name": "FakeServer",
           "qualified_name": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer",
           "kind": "class",
-          "line_start": 376,
-          "line_end": 396,
+          "line_start": 429,
+          "line_end": 449,
           "parent": "test_context_cli_dispatches_all_bounded_commands_without_network",
           "decorators": [],
           "public": true
@@ -28386,8 +28549,8 @@
           "name": "from_paths",
           "qualified_name": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.from_paths",
           "kind": "method",
-          "line_start": 378,
-          "line_end": 379,
+          "line_start": 431,
+          "line_end": 432,
           "parent": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer",
           "decorators": [
             "classmethod"
@@ -28398,8 +28561,8 @@
           "name": "search_context",
           "qualified_name": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.search_context",
           "kind": "method",
-          "line_start": 381,
-          "line_end": 382,
+          "line_start": 434,
+          "line_end": 435,
           "parent": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer",
           "decorators": [],
           "public": true
@@ -28408,8 +28571,8 @@
           "name": "get_artifact",
           "qualified_name": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.get_artifact",
           "kind": "method",
-          "line_start": 384,
-          "line_end": 387,
+          "line_start": 437,
+          "line_end": 440,
           "parent": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer",
           "decorators": [],
           "public": true
@@ -28418,8 +28581,8 @@
           "name": "get_code_slice",
           "qualified_name": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.get_code_slice",
           "kind": "method",
-          "line_start": 389,
-          "line_end": 390,
+          "line_start": 442,
+          "line_end": 443,
           "parent": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer",
           "decorators": [],
           "public": true
@@ -28428,8 +28591,8 @@
           "name": "get_related",
           "qualified_name": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.get_related",
           "kind": "method",
-          "line_start": 392,
-          "line_end": 393,
+          "line_start": 445,
+          "line_end": 446,
           "parent": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer",
           "decorators": [],
           "public": true
@@ -28438,8 +28601,8 @@
           "name": "serve_stdio",
           "qualified_name": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.serve_stdio",
           "kind": "method",
-          "line_start": 395,
-          "line_end": 396,
+          "line_start": 448,
+          "line_end": 449,
           "parent": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer",
           "decorators": [],
           "public": true
@@ -28448,8 +28611,8 @@
           "name": "test_mcp_main_and_stdio_redact_malformed_requests",
           "qualified_name": "test_mcp_main_and_stdio_redact_malformed_requests",
           "kind": "method",
-          "line_start": 428,
-          "line_end": 449,
+          "line_start": 481,
+          "line_end": 502,
           "parent": null,
           "decorators": [],
           "public": true
@@ -28458,8 +28621,8 @@
           "name": "FakeServer",
           "qualified_name": "test_mcp_main_and_stdio_redact_malformed_requests.FakeServer",
           "kind": "class",
-          "line_start": 429,
-          "line_end": 435,
+          "line_start": 482,
+          "line_end": 488,
           "parent": "test_mcp_main_and_stdio_redact_malformed_requests",
           "decorators": [],
           "public": true
@@ -28468,8 +28631,8 @@
           "name": "from_paths",
           "qualified_name": "test_mcp_main_and_stdio_redact_malformed_requests.FakeServer.from_paths",
           "kind": "method",
-          "line_start": 431,
-          "line_end": 432,
+          "line_start": 484,
+          "line_end": 485,
           "parent": "test_mcp_main_and_stdio_redact_malformed_requests.FakeServer",
           "decorators": [
             "classmethod"
@@ -28480,8 +28643,8 @@
           "name": "serve_stdio",
           "qualified_name": "test_mcp_main_and_stdio_redact_malformed_requests.FakeServer.serve_stdio",
           "kind": "method",
-          "line_start": 434,
-          "line_end": 435,
+          "line_start": 487,
+          "line_end": 488,
           "parent": "test_mcp_main_and_stdio_redact_malformed_requests.FakeServer",
           "decorators": [],
           "public": true
@@ -28579,6 +28742,14 @@
         {
           "kind": "from_import",
           "module": "scripts.context_index.context_mcp_server",
+          "name": "MAX_REQUEST_LINE_BYTES",
+          "alias": null,
+          "level": 0,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.context_mcp_server",
           "name": "McpRejected",
           "alias": null,
           "level": 0,
@@ -28590,7 +28761,7 @@
           "name": "RouterRejected",
           "alias": null,
           "level": 0,
-          "line": 13
+          "line": 17
         },
         {
           "kind": "from_import",
@@ -28598,7 +28769,7 @@
           "name": "load_router_snapshot",
           "alias": null,
           "level": 0,
-          "line": 13
+          "line": 17
         },
         {
           "kind": "from_import",
@@ -28606,7 +28777,7 @@
           "name": "route_request",
           "alias": null,
           "level": 0,
-          "line": 13
+          "line": 17
         }
       ],
       "exports": [],
@@ -28630,7 +28801,9 @@
         "test_mcp_main_and_stdio_redact_malformed_requests.FakeServer.from_paths",
         "test_mcp_main_and_stdio_redact_malformed_requests.FakeServer.serve_stdio",
         "test_mcp_rejects_unknown_ids_external_paths_secrets_and_bad_graph_queries",
+        "test_mcp_search_does_not_return_prompt_injection_metadata",
         "test_mcp_search_is_manifest_only_and_enforces_limits",
+        "test_mcp_stdio_rejects_oversized_input_line_before_json_dispatch",
         "test_repository_routing_fixtures_keep_expected_primary_sets",
         "test_router_fails_closed_for_unverified_or_oversized_snapshot_request",
         "test_router_uses_manifest_only_and_limits_primary_and_supporting",
@@ -28643,8 +28816,8 @@
           "message": "secret-like source content was not retained"
         }
       ],
-      "line_count": 449,
-      "byte_size": 19202
+      "line_count": 502,
+      "byte_size": 20961
     },
     {
       "code_id": "code-8e81a6ad-9bf9-5304-a488-8e26f4c44730",

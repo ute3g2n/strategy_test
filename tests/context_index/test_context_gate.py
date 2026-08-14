@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import json
 import hashlib
+import json
 import os
 import shutil
 import subprocess
@@ -395,6 +395,20 @@ def test_watch_loop_propagates_event_failure_to_process_exit(
     )
 
     assert context_watch.watch_loop(tmp_path, args) == 1
+
+
+def test_stale_lock_recovery_requires_dead_pid_and_is_explicit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts.context_index.context_watch import LOCK_PATH, recover_stale_lock
+
+    lock = tmp_path / LOCK_PATH
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    lock.write_text("12345", encoding="ascii")
+    monkeypatch.setattr(os, "kill", lambda _pid, _signal: (_ for _ in ()).throw(ProcessLookupError()))
+
+    assert recover_stale_lock(tmp_path) is True
+    assert not lock.exists()
 
 
 def test_h1_invalid_receipts_are_rejected_without_fallback(tmp_path: Path) -> None:
