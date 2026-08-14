@@ -62,11 +62,7 @@ class LocalWorker:
             evidence = evidence_reference(
                 job.run_id,
                 f"evidence/{job.run_id}",
-                {
-                    "result.json": reference.result_sha256,
-                    "result.commit.json": reference.commit_marker_sha256,
-                    **output.evidence_files,
-                },
+                dict(output.evidence_files),
             )
             return self.store.complete_job_with_result(
                 job.job_id,

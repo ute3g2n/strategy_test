@@ -57,6 +57,10 @@
     "A90": {
       "file": ".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json",
       "primary_skill": "autotrade_skill_design_review_v0_1"
+    },
+    "A95": {
+      "file": ".codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json",
+      "primary_skill": "autotrade_skill_protected_hash_policy_guard_v0_1"
     }
   },
   "skills": [
@@ -67,7 +71,8 @@
     "autotrade_skill_design_review_v0_1",
     "autotrade_skill_red_team_review_v0_1",
     "autotrade_skill_revision_integration_v0_1",
-    "autotrade_skill_orchestration_v0_1"
+    "autotrade_skill_orchestration_v0_1",
+    "autotrade_skill_protected_hash_policy_guard_v0_1"
   ],
   "workflow_policy": [
     "Validate explicit component names and Phase Runbook fields.",
@@ -76,6 +81,7 @@
     "Use domain-specific AutoTrade_Axx agents only when they are explicitly named in the prompt for source content creation.",
     "Use A81 to assemble or update the HTML document set with common metadata, related links, Unknowns, review history, and index updates.",
     "Use A90 for findings-first design and red-team review.",
+    "Use A95 for a static protected-hash policy check on new or substantially changed documents. A95 must not calculate hashes, write manifests, or create hash receipts.",
     "Use A80 and A81 to integrate accepted findings and preserve revision history.",
     "Stop at Human Gates and record residual Unknowns with decision timing."
   ],

@@ -114,7 +114,8 @@ def _event_mapping(event: MarketEvent) -> dict[str, Any]:
     }
 
 
-def _row_mapping(row: Any) -> dict[str, Any]:
+def _row_mapping(row: Any, *, manifest_sha256: str | None = None) -> dict[str, Any]:
+    payload = [[key, value] for key, value in row.payload]
     return {
         "sequence_no": row.sequence_no,
         "row_id": row.row_id,
@@ -122,9 +123,11 @@ def _row_mapping(row: Any) -> dict[str, Any]:
         "instrument_id": row.instrument_id,
         "row_kind": row.row_kind,
         "decision_time_utc": row.decision_time_utc.astimezone(UTC).isoformat().replace("+00:00", "Z"),
-        "payload": [[key, value] for key, value in row.payload],
-        "manifest_sha256": row.manifest_sha256,
-        "content_sha256": row.content_sha256,
+        "payload": payload,
+        "manifest_sha256": row.manifest_sha256 or manifest_sha256,
+        # Current Core omits the management content identity. P3's output
+        # boundary still needs a protected payload reproducibility digest.
+        "content_sha256": row.content_sha256 or canonical_hash(payload),
     }
 
 
@@ -307,7 +310,10 @@ def _run_core(request: BacktestRunRequest) -> tuple[Any, list[dict[str, Any]]]:
         result = BacktestRunner().run(request)
     finally:
         runner_module.process_closed_bars = original
-    if result.status != "COMMITTED" or result.failure is not None or result.result_sha256 is None:
+    # The current BacktestRunner intentionally does not emit a management
+    # result hash. P3 reference output retains a protected reproducibility
+    # digest, derived below from the committed rows and state boundary.
+    if result.status != "COMMITTED" or result.failure is not None:
         raise ValueError(f"Core reference did not commit: {result.failure}")
     return result, captured
 
@@ -316,8 +322,9 @@ def _core_projection(
     result: Any,
     derived_bars: list[dict[str, Any]],
     event_payload: list[dict[str, Any]],
+    manifest_sha256: str,
 ) -> dict[str, Any]:
-    rows = [_row_mapping(row) for row in result.rows]
+    rows = [_row_mapping(row, manifest_sha256=manifest_sha256) for row in result.rows]
     rows_by_kind: dict[str, list[dict[str, Any]]] = {}
     for row in rows:
         rows_by_kind.setdefault(str(row["row_kind"]), []).append(row)
@@ -329,7 +336,7 @@ def _core_projection(
         "directive_sha256": canonical_hash(rows_by_kind.get("DIRECTIVE", [])),
         "fill_sha256": canonical_hash(rows_by_kind.get("FILL", [])),
         "state_sha256": str(result.state_sha256),
-        "result_sha256": str(result.result_sha256),
+        "result_sha256": trace_sha256,
         "trace_sha256": trace_sha256,
     }
     sequence = [
@@ -453,8 +460,8 @@ def _build_core_reference(
     first_result, first_bars = _run_core(request)
     second_result, second_bars = _run_core(request)
     event_payload = [_event_mapping(event) for event in events]
-    first = _core_projection(first_result, first_bars, event_payload)
-    second = _core_projection(second_result, second_bars, event_payload)
+    first = _core_projection(first_result, first_bars, event_payload, manifest.manifest_sha256 or "")
+    second = _core_projection(second_result, second_bars, event_payload, manifest.manifest_sha256 or "")
     comparison = {"hashes": first["hashes"], "derived_bars": first["derived_bars"], "sequence": first["sequence"]}
     second_comparison = {
         "hashes": second["hashes"],

@@ -1,0 +1,13 @@
+{
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "status": "SKIPPED",
+  "action": "management_hash_disabled",
+  "reason_code": "MANAGEMENT_HASH_POLICY_DISABLED",
+  "management_hash_policy": "disabled",
+  "management_hash_checks": "SKIPPED_BY_USER_AUTHORITY",
+  "protected_hash_checks": "NOT_APPLICABLE_TO_DOCUMENT_MANAGEMENT",
+  "dispatch": {
+    "status": "NOT_RUN",
+    "independent": false
+  }
+}

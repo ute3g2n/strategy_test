@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+# Step 02 user authority: context-management hash generation and comparison
+# are retired. Shared helpers enforce only path, scope, UTF-8, size, Secret,
+# and metadata extraction boundaries.
 import fnmatch
-import hashlib
 import html
 import os
 import posixpath
@@ -176,10 +178,6 @@ def discover_managed_paths(root: Path, policy: Mapping[str, Any]) -> list[str]:
 
 def stable_id(prefix: str, key: str) -> str:
     return f"{prefix}-{uuid.uuid5(_UUID_NAMESPACE, key)}"
-
-
-def sha256_bytes(data: bytes) -> str:
-    return hashlib.sha256(data).hexdigest()
 
 
 def _clean_markup(value: str) -> str:

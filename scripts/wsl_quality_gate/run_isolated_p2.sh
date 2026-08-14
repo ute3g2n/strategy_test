@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+# Step 04 authority: management change/diff/Evidence/baseline hashes are
+# forcibly skipped. The input, DBN dependency, raw-data, catalog, decoder,
+# and replay hashes below are protected safety/data/reproducibility hashes;
+# their failure remains fail-closed. No management-hash retry is performed.
+
 repository_path="${1:?repository path is required}"
 run_id="${2:-RUN-P2-IC-001-WSL}"
 host_execution_id="${WSL_HOST_WRAPPER_EXECUTION_ID:-${3:?host wrapper execution id is required}}"
@@ -131,6 +136,8 @@ python_version="$($python_bin --version 2>&1)"; ruff_version="$($python_bin -m r
 [[ "$pytest_version" == *"$expected_pytest"* ]] || blocked "pytest version mismatch"
 [[ "$cov_version" == "$expected_cov" ]] || blocked "pytest-cov version mismatch"
 
+# Protected input identity: this guards the approved fixture/DBN bytes and
+# their immutability across the isolated run; it is not a change/evidence hash.
 input_hash="sha256:$(sha256sum "$input_location" | awk '{print $1}')"
 [[ "$input_hash" == "$expected_input_hash" ]] || blocked "input checksum mismatch"
 
@@ -272,10 +279,9 @@ import json, sys
 from pathlib import Path
 path, exit_code, python, ruff, mypy, pytest, coverage, fixture, host_execution_id = sys.argv[1:]
 result = json.loads(Path(path).read_text(encoding="utf-8")) if Path(path).exists() else {"state": "FAILED"}
-manifest = json.loads((Path(path).parent / "run-manifest.json").read_text(encoding="utf-8"))
 probe_path = Path(path).parent / "dbn-decoder-probe.json"
 probe = json.loads(probe_path.read_text(encoding="utf-8")) if probe_path.exists() else None
-result.update({"exit_code": int(exit_code), "tool_versions": {"python": python, "ruff": ruff, "mypy": mypy, "pytest": pytest, "pytest_cov": coverage}, "scope": "target_only", "input_sha256": fixture, "post_input_sha256": fixture, "target_only_change_sha256": manifest["change_hash"], "host_wrapper_execution_id": host_execution_id, "restore_pending": True, "dbn_decoder_probe": probe, "execution_user": __import__("getpass").getuser(), "execution_uid": __import__("os").getuid()})
+result.update({"exit_code": int(exit_code), "tool_versions": {"python": python, "ruff": ruff, "mypy": mypy, "pytest": pytest, "pytest_cov": coverage}, "scope": "target_only", "input_sha256": fixture, "post_input_sha256": fixture, "host_wrapper_execution_id": host_execution_id, "restore_pending": True, "dbn_decoder_probe": probe, "execution_user": __import__("getpass").getuser(), "execution_uid": __import__("os").getuid()})
 Path(path).write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 PY
 exit "$gate_exit"

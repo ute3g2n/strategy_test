@@ -214,7 +214,8 @@ def test_frozen_backtest_runner_adapter_is_typed_and_single_use() -> None:
 
     adapter = BacktestCoreAdapter(lambda _job: _request(tuple(_event(index) for index in range(3))))
     output = adapter.execute(object())
-    assert output.core_result_sha256 is not None
+    assert output.core_result_sha256 is None
+    assert output.evidence_files["core.state.sha256"].startswith("sha256:")
     assert adapter.execution_count == 1
     with pytest.raises(CoreExecutionNotEnabled, match="DUPLICATE"):
         adapter.execute(object())

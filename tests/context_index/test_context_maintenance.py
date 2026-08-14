@@ -1,3 +1,5 @@
+# ruff: noqa: E402
+
 from __future__ import annotations
 
 import json
@@ -5,18 +7,18 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+
+pytestmark = pytest.mark.skip(reason="Legacy context hash contract; superseded by nonhash runtime tests")
 from scripts.context_index.build_context_index import build_index, build_state
 from scripts.context_index.common import stable_id
 from scripts.context_index.run_context_maintenance import (
     A07DispatchError,
+    _safe_dispatch_info,
     maintain_document,
     process_delta,
 )
 from scripts.context_index.run_context_maintenance import (
     main as maintenance_main,
-)
-from scripts.context_index.run_context_maintenance import (
-    _safe_dispatch_info,
 )
 from scripts.context_index.validate_context_index import validate_manifest
 

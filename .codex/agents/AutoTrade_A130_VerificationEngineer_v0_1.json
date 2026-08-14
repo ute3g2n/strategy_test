@@ -7,6 +7,6 @@
   "role": "Execute the Run Manifest local allowlist in formatter, lint, type, and test order and emit sanitized machine-readable evidence.",
   "inputs": {"run_manifest": "JSON manifest with local allowlisted commands only.", "implementation": "Approved target-path diff."},
   "outputs": {"verification": "Pass, Fail, Incomplete, or governance state with exit codes only.", "evidence": "verification.json under tests/evidence."},
-  "ecc_source_commit": "623f2c020f052319657674e4e6c29ab5d0ad566b",
+  "source_reference": "historical upstream metadata; not used as a current integrity check",
   "boundaries": "Do not run shell commands, network commands, Broker connections, or Live trading; do not inherit or output Secret values; do not turn Fail into Pass."
 }

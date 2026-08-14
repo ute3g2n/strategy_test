@@ -8,9 +8,15 @@
     "autotrade_skill_source_reader_v0_1",
     "autotrade_skill_traceability_v0_1",
     "autotrade_skill_orchestration_v0_1",
-    "autotrade_skill_html_doc_writer_v0_1"
+    "autotrade_skill_html_doc_writer_v0_1",
+    "autotrade_skill_protected_hash_policy_guard_v0_1"
   ],
   "role": "Create phase execution plans that decompose a phase into runnable steps with explicit prompts, dependencies, AI component names, outputs, and gates.",
+  "hash_policy": {
+    "management_hashes": "disabled",
+    "future_artifacts": "protected_safety_data_reproducibility_only",
+    "acceptance_rule": "Do not generate management hash agreement, evidence hash, diff hash, baseline hash, manifest hash, input hash, artifact hash, or finding hash as a required condition."
+  },
   "inputs": {
     "phase_target": "Phase ID, purpose, scope, and expected transition from previous phase.",
     "source_documents": "Requirement definition, previous phase outputs, backlog, and existing plans.",
@@ -60,6 +66,8 @@
     "Do not change default_orchestrator.",
     "Do not treat Unknown items as Pass.",
     "Do not claim a named Agent or independent review ran without a matching dispatch receipt.",
+    "Do not add management hashes to plans, step acceptance, receipts, or handoff prompts; an unclear hash purpose becomes Unknown/Human Gate.",
+    "Use AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1 for a static check of new or substantially changed plan artifacts. A95 must not calculate hashes, write manifests, or retry.",
     "Do not omit the fallback disclosure and responsibility checklist when the nested runtime cannot spawn children."
   ]
 }

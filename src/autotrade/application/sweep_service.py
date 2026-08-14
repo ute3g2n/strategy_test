@@ -38,7 +38,7 @@ class SweepService:
         if len(set(candidate_hashes)) != len(candidate_hashes):
             raise PersistenceConflict("SWEEP_DUPLICATE_CANDIDATE")
         parent_command = CreateRunCommand(
-            f"{client_request_id}-parent", "SINGLE_BACKTEST", base_config, utc_now(), preflight.report_sha256
+            f"{client_request_id}-parent", "SINGLE_BACKTEST", base_config, utc_now(), None
         )
         child_commands: list[CreateRunCommand] = []
         for ordinal, candidate in enumerate(candidates):
@@ -55,7 +55,7 @@ class SweepService:
                 config_sha256=canonical_hash({"base": base_config.config_sha256, "candidate": candidate}),
             )
             child_command = CreateRunCommand(
-                f"{client_request_id}-{ordinal}", "SWEEP_CHILD", config, utc_now(), preflight.report_sha256
+                f"{client_request_id}-{ordinal}", "SWEEP_CHILD", config, utc_now(), None
             )
             child_commands.append(child_command)
         parent_id, parent, members, candidate_set_hash, _ = self.store.create_sweep(

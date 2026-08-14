@@ -16,6 +16,13 @@
     "unknown_must_not_pass": true,
     "do_not_change_default_orchestrator": true
   },
+  "hash_policy": {
+    "management_hashes": "disabled",
+    "future_artifacts": "protected_safety_data_reproducibility_only",
+    "phase_step_acceptance": "never require management, evidence, diff, baseline, manifest, input, artifact, or finding hash agreement",
+    "unknown_hash_use": "do not create a hash; send to Unknown/Human Gate",
+    "protected_hash_rule": "retain only when the hash directly protects safety, data identity, or reproducibility and document the failure stop behavior"
+  },
   "runtime_dispatch_contract": {
     "version": "RDC-PHASE-PLAN-0.2",
     "preferred_backend": "multi_agent_v1",
@@ -71,6 +78,10 @@
     "A90": {
       "file": ".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json",
       "primary_skill": "autotrade_skill_design_review_v0_1"
+    },
+    "A95": {
+      "file": ".codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json",
+      "primary_skill": "autotrade_skill_protected_hash_policy_guard_v0_1"
     }
   },
   "skills": [
@@ -81,13 +92,16 @@
     "autotrade_skill_html_doc_writer_v0_1",
     "autotrade_skill_design_review_v0_1",
     "autotrade_skill_red_team_review_v0_1",
-    "autotrade_skill_revision_integration_v0_1"
+    "autotrade_skill_revision_integration_v0_1",
+    "autotrade_skill_protected_hash_policy_guard_v0_1"
   ],
   "workflow_policy": [
     "Validate that all named components exist.",
     "Apply the runtime dispatch contract before any file mutation and persist the dispatch receipt in the plan log.",
     "Treat a component name, JSON read, skill application, or root self-review as neither a spawn receipt nor independent-agent completion.",
     "Generate every direct step prompt with the complete runtime dispatch contract, including the non-blocking fallback and false-claim prohibition.",
+    "Generate every plan and receipt without management hashes; propagate HASH-FUTURE-01 through HASH-FUTURE-08 and preserve only explicitly justified protected hash results.",
+    "Pass new or substantially changed plans, prompts, acceptance rules, and receipts through AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1. A95 is static-only and must not calculate hashes, write manifests, or retry.",
     "Read requirement definition, previous phase outputs, backlog, current component inventory, and project rules.",
     "Draft the phase execution plan with multiple runnable steps.",
     "Review the plan for missing dependencies, over/under decomposition, unsafe phase scope, missing Human Gates, and missing doc/index.html rules.",

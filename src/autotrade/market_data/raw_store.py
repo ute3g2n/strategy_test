@@ -12,6 +12,7 @@ from pathlib import Path
 from .store_contracts import RawWriteRequest, RawWriteResult
 
 _SECRET_KEY = re.compile(r"(?:secret|api[_-]?key|token|password|account[_-]?id)", re.IGNORECASE)
+_RAW_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}\Z")
 
 
 class LocalRawStore:
@@ -27,13 +28,15 @@ class LocalRawStore:
             or request.received_at_utc.utcoffset() != timedelta(0)
         ):
             raise ValueError("RECEIVED_AT_NOT_UTC")
-        if not request.request_fingerprint or not request.payload:
+        if not request.request_id or not _RAW_ID.fullmatch(request.request_id) or not request.payload:
             raise ValueError("RAW_INPUT_MISSING")
         if any(_SECRET_KEY.search(key) for key in request.metadata):
             raise ValueError("SECRET_METADATA_REJECTED")
 
         payload_sha256 = sha256(request.payload).hexdigest()
-        raw_object_id = sha256(f"{request.request_fingerprint}:{payload_sha256}".encode()).hexdigest()
+        # The object path is a semantic request identifier.  Payload SHA-256
+        # remains protected raw-data identity and is still fail-closed below.
+        raw_object_id = request.request_id
         object_dir = self._root / "raw" / raw_object_id
         payload_path = object_dir / "payload.bin"
         metadata_path = object_dir / "metadata.json"
@@ -48,7 +51,7 @@ class LocalRawStore:
         try:
             temporary_payload.write_bytes(request.payload)
             metadata = {
-                "request_fingerprint": request.request_fingerprint,
+                "request_id": request.request_id,
                 "payload_sha256": payload_sha256,
                 "received_at_utc": request.received_at_utc.isoformat(),
                 "metadata": request.metadata,

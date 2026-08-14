@@ -37,13 +37,40 @@
 
 ### 資料・コード参照効率化の専用部品
 
-- 新規の管理対象Markdown／HTML文書は、`autotrade_skill_context_manifest_maintenance_v0_1` と `AutoTrade_A07_ContextManifestMaintainer_v0_1` へ1ファイル単位で渡し、`record_add`を返すまで完了扱いにしない。
-- 既存文書の大幅変更は同じA07へ渡し、`record_update` または `metadata_unchanged` を返させる。小変更でも決定的なhash更新を省略しない。
-- `AutoTrade_A08_ContextRouter_v0_1` と `autotrade_skill_context_routing_v0_1` は、validator PASS済みのmanifestと依頼文だけを受け取り、主資料1〜3件、補助資料0〜6件、JIT取得範囲、不足情報を返す。本文を直接読ませない。
-- A07/A08はネットワーク、外部MCP、Secret、任意path、Git stage／commit／push、本文全量保存を禁止する。入力不整合、Secret疑い、stale hash、境界不明は`blocked`またはfail-closedとする。
-- CTXMAPの現行実行経路であるA07、A08、A80は、Agent JSONの `model=gpt-5.6-luna`、`reasoning_effort=low` を正本とし、runtime dispatchとsanitized receiptにも同じ値を記録する。過去のPhase／CTX receiptは履歴として保持し、現在状態へ書き換えない。
-- 文書作成、設計書セット作成、Python実装、AI部品変更の導線は、該当差分を`run_context_maintenance`または決定的コード解析へ渡し、validator PASSまたは正直なBLOCKED receiptなしに完了宣言しない。
+- 新規・大幅変更のMarkdown／HTMLは、A07相当のmetadata-only判定へ1ファイル単位で渡せる。ただし、管理用hash、manifest hash、stale判定、hash mismatch retryは要求しない。
+- A07はpath、artifact_id、title、見出し、目的、関係、変更種別、状態をstrict JSONで返し、manifestを直接書き換えない。schema、link、Secret、path、状態の非hash確認または理由付きBLOCKEDを受け取る。
+- A08はschema、状態、path境界、関係、見出しを使ってprimary 1〜3件、supporting 0〜6件、JIT範囲、不足情報を返す。snapshot hash、stale hash、manifest hashを入力・出力・判定条件にしない。
+- A07/A08はネットワーク、外部MCP、Secret、任意path、Git stage／commit／push、本文全量保存を禁止する。入力不整合、Secret疑い、状態不明、境界不明は`blocked`またはfail-closedとする。
+- CTXMAPのA07、A08、A80は、Agent JSONの `model=gpt-5.6-luna`、`reasoning_effort=low` を正本とし、runtime dispatchとsanitized receiptにも同じ値を記録する。管理用hash receipt項目は追加しない。
+- 文書作成、設計書セット作成、Python実装、AI部品変更の導線は、path、schema、link、Secret、状態、要件追跡の非hash確認へ渡す。validatorのhash PASSは完了条件にしない。
 - この専用部品は日常の軽量保守用であり、保存のたびに常時Orchestratorを起動しない。AI部品自体の作成・変更だけは`AutoTradeComponentLifecycle_Orchestrator_v0_1`で統制する。
+
+### 保護hash限定ガード（Step 07以降）
+
+- 新規・大幅変更の文書、計画、ソース、テスト、受入条件、receipt、AI部品には、`AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1`を超軽量の静的判定として発火できる。
+- A95と`autotrade_skill_protected_hash_policy_guard_v0_1`はhash値を計算・取得・保存・比較せず、manifest、stale、fingerprint、hash retryも作らない。出力は対象、候補、`ALLOW`／`NEEDS_HUMAN_GATE`／`BLOCKED`、理由、修正提案だけとする。
+- `ALLOW`は安全・データ・再現性への直接因果、保護対象、失敗時停止範囲が明記された既存のprotected hashだけに限定する。用途不明は`NEEDS_HUMAN_GATE`、管理目的の再導入は`BLOCKED`とする。
+- A95はA07/A08の文章manifest責務を代替・復活させず、A07/A08を起動してmanifestを追加しない。新規・大幅変更の通常確認はpath、schema、link、Secret、状態、要件追跡で行う。
+- 新設・変更スクリプトには、管理用hashを強制スキップしprotected hashだけを維持する権限文を冒頭コメントまたは実行ログへ記載する。
+
+### 管理用hash廃止移行モード（Step 00）
+
+- CTXMAP_MANAGEMENT_HASH_POLICY の既定値は disabled とし、文章管理のwatcher、daily validator、A07/A08の管理用hash判定、context Gate、auto-commitを通常経路から起動しない。
+- 移行中は、文章管理・参照効率化・実行証跡・ファイル同一性・差分許可だけを目的とするhashの取得、照合、stale判定、不一致再試行を強制スキップしてよい。スクリプトにも同じ権限を適用する。
+- 安全・データ・再現性に直結するprotected hash、Secret、外部I/O、Human Gate、Unknown、Critical/High、対象範囲、権限境界、既存ユーザー変更保護はスキップしない。
+- CTXMAP_MANAGEMENT_HASH_POLICY=legacy は移行rollback調査以外で使用しない。legacy経路は後続Stepで廃止し、通常の新規計画・成果物・ソースコードから参照してはならない。
+- 既存manifest、receipt、Evidence、hashは履歴として保持し、現行の受入条件、routing、再実行条件には再利用しない。
+
+### 今後の計画・成果物・ソースコードのhash追加禁止
+
+- HASH-FUTURE-01: 安全・データ・再現性に直結すると明示できないhash管理を新規追加しない。
+- HASH-FUTURE-02: Step/Phase受入条件へ管理用hash、証跡hash、差分hash、manifest hash、入力hashの一致を追加しない。
+- HASH-FUTURE-03: 新規テンプレート、依頼プロンプト、Agent、Orchestrator、Skillへ管理用hash取得・保存・照合・再試行を追加しない。候補記述はA95の静的判定へ渡し、A95自体もhashを計算しない。
+- HASH-FUTURE-04: protected hashを使う場合は、守る対象、直接因果、保護しない場合の失敗、失敗時停止範囲を明記する。
+- HASH-FUTURE-05: 用途不明hashは新規作成せず、UnknownとしてHuman Gateへ送る。
+- HASH-FUTURE-06: 管理用hash不一致を理由に再取得・再生成・再試行しない。
+- HASH-FUTURE-07: 新規・大幅変更の文書フローはmanifest生成、hash取得、stale検出、hash照合を要求しない。
+- HASH-FUTURE-08: 過去hashは履歴に限定し、現行受入、routing、再実行条件に再利用しない。
 
 ### 実ランタイム起動・待機・Fallback契約
 
@@ -76,14 +103,14 @@
 
   - 通常の編集・実装・文書更新は、Windows側の本リポジトリツリーだけで行う。Windows側を正本として先に保存する。
   - AIは `\\wsl.localhost` 経由の直接書込み、UNC経由のパッチ適用、WSL側の通常編集を行わない。ただしユーザー委譲（2026-08-10）により、実機テスト・隔離実行に必要な場合は、WSL側の未コミット変更をリポジトリ外のローカルアーカイブへ記録し、`git stash push --include-untracked`で可逆退避してから同期してよい。
-  - 同期対象は事前に絶対パス、branch、origin、HEAD、clean/ignored状態を読み取り確認する。`.venv`、cache、wheelhouse、既存automationログなど`.gitignore`で許可された生成物は保持し、Secret、鍵、`.env`、認証情報らしい変更、未知のignored項目、想定外パスは停止条件とする。退避アーカイブは `C:\\Users\\ute3g\\AppData\\Local\\Codex\\wsl-archives\\strategy_test\\<UTC timestamp>\\` に置き、status、binary diff、未追跡一覧、hash、stash refを記録する。
+  - 同期対象は事前に絶対パス、branch、origin、HEAD、clean/ignored状態を読み取り確認する。`.venv`、cache、wheelhouse、既存automationログなど`.gitignore`で許可された生成物は保持し、Secret、鍵、`.env`、認証情報らしい変更、未知のignored項目、想定外パスは停止条件とする。退避アーカイブは `C:\\Users\\ute3g\\AppData\\Local\\Codex\\wsl-archives\\strategy_test\\<UTC timestamp>\\` に置き、status、binary diff、未追跡一覧、stash refを記録する。
   - 退避後に許可される同期はnative Windowsからの `wsl.exe -d <distro> -- bash -lc "cd <repo> && git pull --ff-only"` だけである。force、reset、clean、checkout、rebase、remote変更、stash drop、stash pop、未コミット変更の上書きは禁止する。fast-forward不能や想定外状態はstashとアーカイブを保持して停止する。
-  - 同期後はWSLのHEAD、branch、origin、clean状態、trusted scope、fixture hashを再確認し、stashは自動復元しない。WSL側の成果物を編集せず、証跡の正本はWindows側へ取得する。
+  - 同期後はWSLのHEAD、branch、origin、clean状態、trusted scope、protected fixture hashを再確認し、stashは自動復元しない。WSL側の成果物を編集せず、証跡の正本はWindows側へ取得する。
 
 ### Human Gateの承認ルール
 
 - ユーザーがチャットで対象Runについて明示的に「承認します」と伝えた場合、その意思表示をHuman Gateの正式な承認として扱う。
-- 作業Agentは承認を推測してはならないが、明示された承認をRun ID、HEAD、change hash、fixture hashとともに `human-gate-user-declaration.md` へ記録してよい。
+- 作業Agentは承認を推測してはならないが、明示された承認をRun ID、HEAD、fixtureのprotected hashとともに `human-gate-user-declaration.md` へ記録してよい。管理用change hashは記録しない。
 - 秘密鍵、公開鍵、署名JSON、worktree外の承認チャネルは要求しない。
 - 機械Gate、レビュー、Unknown、scope、hash、Secret、外部接続の停止条件は、ユーザー承認があっても省略しない。
 

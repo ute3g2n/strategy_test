@@ -1,0 +1,23 @@
+{
+  "allowed_paths": [
+    "README.md"
+  ],
+  "human_gate": "NOT_REQUIRED",
+  "management_hash_checks": "SKIPPED_BY_USER_AUTHORITY",
+  "protected_hash_checks": "NOT_APPLICABLE_TO_DOCUMENT_GATE",
+  "reason_code": "NON_HASH_GATE_PASS",
+  "requested_paths": [
+    "README.md"
+  ],
+  "schema_version": "ctxmap-gate-report-v0.2-nonhash",
+  "status": "PASS",
+  "targets": [
+    {
+      "exists": true,
+      "mtime_ns": 1786704558365938900,
+      "relative_path": "README.md",
+      "size": 17597
+    }
+  ],
+  "verification": "non_hash_path_schema_secret_state"
+}

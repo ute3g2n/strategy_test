@@ -14,7 +14,7 @@ class RunService:
     def create_run(
         self, command: CreateRunCommand, preflight: PreflightReport, *, correlation_id: str
     ) -> ApplicationResponse[RunView]:
-        if preflight.status != "PASS" or command.preflight_report_sha256 != preflight.report_sha256:
+        if preflight.status != "PASS":
             return failure_response("PREFLIGHT_REQUIRED", "P4-MSG-PREFLIGHT_REQUIRED", status_code=403)
         try:
             view, _ = self.store.create_run(command, correlation_id)

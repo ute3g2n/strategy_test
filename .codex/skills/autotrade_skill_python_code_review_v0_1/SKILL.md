@@ -1,7 +1,7 @@
 ---
 name: autotrade_skill_python_code_review_v0_1
 description: Python品質と取引安全を独立にレビューし、Findings firstで受入可否を判断する。
-ecc_source_commit: 623f2c020f052319657674e4e6c29ab5d0ad566b
+source_reference: historical upstream metadata; not used as a current integrity check
 ---
 
 # Python コードレビュー

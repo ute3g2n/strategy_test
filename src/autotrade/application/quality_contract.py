@@ -9,7 +9,7 @@ FAIL_CLOSED_CODES: Final[frozenset[str]] = frozenset(
     {
         "TYPED_INPUT_INVALID",
         "REFERENCE_MISSING",
-        "MANIFEST_MISMATCH",
+        "PROTECTED_INPUT_MISMATCH",
         "CORE_BASELINE_MISMATCH",
         "EXTERNAL_IO_FORBIDDEN",
         "OUTPUT_POLICY_INVALID",

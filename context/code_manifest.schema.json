@@ -15,7 +15,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["code_id", "kind", "status", "relative_path", "source_hash", "schema_version", "generator_version", "language", "parser", "extraction_status", "symbols", "imports", "exports", "public_candidates", "config", "diagnostics", "line_count", "byte_size"],
+        "required": ["code_id", "kind", "status", "relative_path", "schema_version", "generator_version", "language", "parser", "extraction_status", "symbols", "imports", "exports", "public_candidates", "config", "diagnostics", "line_count", "byte_size"],
         "properties": {
           "code_id": {"type": "string", "pattern": "^code-"},
           "kind": {"enum": ["managed_source", "managed_config"]},
@@ -23,7 +23,7 @@
           "relative_path": {"type": "string", "pattern": "^[^/].*"},
           "last_known_path": {"type": "string"},
           "rename_status": {"type": "string"},
-          "source_hash": {"type": ["string", "null"]},
+          "source_hash": {"type": ["string", "null"], "description": "Historical field only; active runtime neither creates nor validates it."},
           "schema_version": {"const": "ctxmap-code-manifest-v0.1"},
           "generator_version": {"type": "string"},
           "language": {"type": "string"},

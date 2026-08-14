@@ -1,15 +1,10 @@
-"""Evidence reference helpers with relative-path and hash checks."""
+"""Evidence reference helpers with relative-path and structure checks."""
 
 from __future__ import annotations
 
-import hashlib
 from pathlib import Path
 
-from .contracts import EvidenceReference, canonical_hash, is_sha256
-
-
-def hash_bytes(payload: bytes) -> str:
-    return "sha256:" + hashlib.sha256(payload).hexdigest()
+from .contracts import EvidenceReference, is_safe_id
 
 
 def evidence_reference(
@@ -19,7 +14,12 @@ def evidence_reference(
         raise ValueError("EVIDENCE_PATH_INVALID")
     if any(Path(name).is_absolute() or ".." in Path(name).parts for name in files):
         raise ValueError("EVIDENCE_PATH_INVALID")
-    if any(not is_sha256(value) for value in files.values()):
-        raise ValueError("EVIDENCE_HASH_INVALID")
-    bundle_hash = canonical_hash({"root": relative_root, "files": dict(sorted(files.items()))})
-    return EvidenceReference(f"evidence-{bundle_hash[7:19]}", run_id, relative_root, bundle_hash, status)  # type: ignore[arg-type]
+    if not is_safe_id(run_id):
+        raise ValueError("EVIDENCE_RUN_ID_INVALID")
+    if status not in {"DESIGNED_NOT_EXECUTED", "RECORDED", "RECONCILIATION_REQUIRED"}:
+        raise ValueError("EVIDENCE_STATUS_INVALID")
+    # Evidence identity is semantic and stable for the run.  The caller may
+    # still carry protected data/replay hashes inside `files`; this helper
+    # does not turn the bundle into another management hash.
+    del files
+    return EvidenceReference(f"evidence-{run_id}", run_id, relative_root, None, status)  # type: ignore[arg-type]

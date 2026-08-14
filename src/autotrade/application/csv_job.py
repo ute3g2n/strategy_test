@@ -8,12 +8,10 @@ from collections.abc import Iterable, Mapping
 from io import StringIO
 from pathlib import Path
 
-from .contracts import is_sha256
-
 
 def atomic_csv_output(
     root: Path, relative_path: str, rows: Iterable[Mapping[str, str]], columns: tuple[str, ...]
-) -> str:
+) -> None:
     if (
         not columns
         or Path(relative_path).is_absolute()
@@ -48,11 +46,3 @@ def atomic_csv_output(
     except Exception:
         temporary.unlink(missing_ok=True)
         raise
-    import hashlib
-
-    return "sha256:" + hashlib.sha256(payload).hexdigest()
-
-
-def validate_source_hash(value: str) -> None:
-    if not is_sha256(value):
-        raise ValueError("CSV_SOURCE_HASH_INVALID")

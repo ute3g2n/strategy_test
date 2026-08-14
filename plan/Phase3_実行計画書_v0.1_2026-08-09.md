@@ -39,6 +39,12 @@
 
 > `doc/phase2/08_完了判定/08_Phase2完了判定とPhase3移行承認書.html` の未承認表示は作成時点の履歴である。現在状態は、総合台帳のH2-3/H2-4承認済み記録、P2-12-03最終PASS証跡、実行ID `37da7396f4e84be3b82dfd0aae69a217` を正本とする。
 
+## HASH-FUTURE-01〜08／Step 05 現行運用ルール
+
+本計画の現行実行では、文章管理、差分許可、Evidence・baseline・manifestの同一性確認だけを目的とする管理用hashを計算・保存・照合しない。ユーザー委譲により、管理用hashのstale停止・不一致retryは強制スキップして完了する。engine digest、artifact、fixture、raw/input、Calendar、Replay、resultなど安全・データ・再現性へ直接因果のあるprotected hashは、目的・対象・失敗時停止を明記して維持し、不一致時はfail-closedで停止する。過去のtarget/change/Evidence hashは履歴として残すが、現行受入条件へ再利用しない。
+
+全プロンプトとスクリプトへこの権限を適用する。成果物の存在・構造、対象path、固定command、テスト、レビュー、Unknown、Secret、外部I/O、Human Gate、protected hash結果で受入を判定し、管理hashの代替としてfingerprint、UUID、mtime、別名checksumを追加しない。Agent未起動は独立実行済みと報告せず、`RUNTIME_DISPATCH_FALLBACK_REQUIRED` として記録する。
+
 ---
 
 ## 1. AI部品存在確認
@@ -112,7 +118,7 @@ Phase 3ではBroker接続、IBKR Paper発注、Broker再同期、実資金注文
 |---|---|
 | Phase 2移行承認 | 総合台帳でH2-3、H2-4は2026-08-09承認済み。 |
 | 実データReplay | P2-12-03は実DBN 4件を読取り、通常先物3件をMarketEvent化し、spread 1件を除外して固定4 Gate PASS。 |
-| 再現性 | 入力hash前後一致、同一Replay系列一致、data_version `dv_780568eab89680cfc758`。 |
+| 再現性 | 保護対象の入力hash前後一致、同一Replay系列一致、data_version `dv_780568eab89680cfc758`。 |
 | Strategy仕様 | D08でStrategyの責務、非責務、ライフサイクル、OrderIntent境界を定義済み。 |
 | Golden仕様 | D09でGT-TUR-001〜012、Look-ahead防止、fixture後出し変更禁止を定義済み。 |
 | 実行モデル | D11でEvent Envelope、Run Manifest、Backtest / Shadow / Paper / Liveの共通意味論を定義済み。 |
@@ -261,8 +267,8 @@ Phase 3で作る大容量データは次へ保存する。バックアップ、�
 | Gate | タイミング | 承認してもらう内容 | 未承認時 |
 |---|---|---|---|
 | H3-0 | P3-01完了後 | Phase 3の対象、非対象、Strategy候補、成果物、Unknown、Phase 4への境界。 | P3-02の読取調査だけ可能。詳細設計・実装を開始しない。 |
-| H3-1 | 承認済み（2026-08-09） | Golden fixture、時間足・Calendar fixture、期待出力、hash、丸め、同時close順序、TargetPosition、日中突破の `M15_CLOSE_CONFIRMED_V1` 近似、Look-ahead/Biasテスト、3〜5市場性能fixtureと合格値、変更規則を凍結する。 | `RES-P3-H3-1`。30分足を追加するため、P3-05Rで変わるfixture/hashはH3-1Rで再承認するまで本実装へ使わない。 |
-| H3-1R | 承認済み（2026-08-09） | 30分足を含む改訂fixture、期待OHLCV、session境界、同時close順、Manifest/timeframe rule版、新hash、追加REDテストを凍結する。改訂承認により、v2は履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する。 | `RES-P3-H3-1R-REVISION`。P3-06/P3-07はv3を正本として実装・GREEN化する。既存15分〜日足の承認済み範囲は変更しない。 |
+| H3-1 | 承認済み（2026-08-09） | Golden fixture、時間足・Calendar fixture、期待出力、fixture／Calendar／入力のprotected hash、丸め、同時close順序、TargetPosition、日中突破の `M15_CLOSE_CONFIRMED_V1` 近似、Look-ahead/Biasテスト、3〜5市場性能fixtureと合格値、変更規則を凍結する。 | `RES-P3-H3-1`。30分足を追加するため、P3-05Rで変わるfixture／protected hashはH3-1Rで再承認するまで本実装へ使わない。管理用Manifest／Evidence hashは凍結しない。 |
+| H3-1R | 承認済み（2026-08-09） | 30分足を含む改訂fixture、期待OHLCV、session境界、同時close順、Manifest/timeframe rule版、fixture／Calendar／入力のprotected hash、追加REDテストを凍結する。改訂承認により、v2は履歴として保持し、v3では実M1を連続30本必須・不足M30を停止する。 | `RES-P3-H3-1R-REVISION`。P3-06/P3-07はv3を正本として実装・GREEN化する。既存15分〜日足の承認済み範囲は変更しない。管理用Manifest／Evidence hashは凍結しない。 |
 | H3-2 | 承認済み（2026-08-09） | LEANを主PoC候補として、固定版・hash・公式配布元をP3-09開始前に証跡化して導入する。必要な長期履歴は `E:\strategy_test_data\phase3\datasets\` に限る。OD-02はPhase 3では候補選定まで、最終決定はPhase 4のPaper証拠後とする。 | Broker、Secret、実注文、Live運用は引き続き許可しない。固定版・hashを記録できない導入は行わない。 |
 | H3-3 | P3-11完了後 | 統合レビューとレッドチーム指摘の採否、残Unknownの送り先。 | P3-12の完了判定へ進めない。 |
 | H3-4 | P3-12完了後 | Phase 3完了、Backtest結果の利用範囲、Phase 4 Broker / Paper基盤への移行。 | 承認済み。Phase 4の計画作成とBroker / Paper境界の設計・隔離検証準備のみ許可し、接続・実行・Live・Secretは別Gateとする。 |
@@ -508,7 +514,7 @@ Phase Runbook:
 1. MarketEvent順序、clock、queue、Strategy呼出し、状態保存、結果確定の処理順を定義する。
 2. FillModel、CostModel、SlippageModel、GapModel、RollPnLModelをPortとして分離する。
 3. 同一時刻、Gap、Stop飛越し、価格上限下限、欠損、roll境界の保守的規則を定義する。
-4. Experiment Manifestへdata_version、fixture/data hash、Catalog、Strategy Config、engine版、cost設定、分割、code revisionを束縛する。
+4. Experiment Manifestへdata_version、fixture／dataのprotected hash、Catalog、Strategy Config、engine版、cost設定、分割、code revisionを束縛する。管理用Manifest hashは束縛しない。
 5. Holdout/Walk-forwardの期間分割、学習/検証情報のアクセス禁止を定義する。
 6. Eドライブの大容量出力とGit管理証跡の境界を定義する。
 7. Nautilus/LEAN AdapterをCoreから分離し、外部型をStrategyへ漏らさない。
@@ -518,7 +524,7 @@ Phase Runbook:
 11. 同一close時刻は「1分足確定→15分→1時間→4時間→日足の順にView更新→Strategy判断を一回」の順序へ固定し、並び順をManifest材料に含める。
 12. 未完成barはStrategyへ渡さず、終了時に残った端数barは明示的に破棄するか`PARTIAL_BAR_REJECTED`で停止する。どちらを採用するかを設計とテストで一意にする。
 13. `EngineAdapter` Protocolを定義し、入力をproject共通MarketEvent/Manifest、出力を共通Signal/Intent/Resultへ限定する。LEAN/Nautilus固有型、暗黙clock、固有IDをCoreへ出さない。
-14. Experiment Manifestへtimeframe rule版、Calendar版/hash、同時close順序版、Adapter版、engine版/digest、入力hash、性能fixture hashを束縛する。
+14. Experiment Manifestへtimeframe rule版、Calendar版の保護hash、同時close順序版、Adapter版、engine版/digest、保護対象の入力hash、性能fixture hashを束縛する。管理用Manifest hashは束縛しない。
 15. P3-AC-07の固定性能試験を「5市場×2暦年のsynthetic 1分足、4種の派生足、Strategy Replay、同一端末で初回と再実行、30分以内、peak RSS 8GiB以下」と定義する。端末情報、CPU、RAM、OS、実測時間、peak RSSを証跡化する。
 16. 外部通信なしを機械確認するpreflight/postflight、ローカル入力限定、Eドライブ保存先、オフライン再実行の設計を定義する。
 
@@ -650,9 +656,9 @@ Phase Runbook:
 2. M30の意味を固定する。時間区間はCalendarのsession anchorからの半開区間`[open, close)`、30本すべてが確定済み、`bar_open_time_utc < bar_close_time_utc`、OHLCVは1分足列から直接算出する。open=最初、high=最大、low=最小、close=最後、volume=合計とする。DST、休日、短縮日、日次休場、session終端の端数は固定Calendarで判断し、端数は`PARTIAL_BAR_REJECTED`としてStrategyへ渡さない。
 3. 同時close順を`M1 → M15 → M30 → H1 → H4 → D1`へ改訂し、同じDecisionPointでは全ての該当Viewを更新してからStrategyを一回だけ呼ぶ。M30が無効なConfig、未完成、未来、重複競合、Calendar版不一致、Snapshot文脈不一致はSignal/Directive 0件・停止にする。
 4. P3-D04を改訂する。`Timeframe`、enabled/trigger/indicator/entry/exit binding、Batch正規順、warmup、State、Snapshot、reason code、公開DTO、Mermaid図、全テスト表へM30を明記する。M30を使うかはConfigで明示し、指定しない戦略の既存M15/H1/H4/D1挙動は変えない。
-5. P3-D05を改訂する。`TimeframeAggregator`、`PartialBarState`、`AggregatorSnapshot`、Replay order、Calendar、Manifestの`timeframe_rule_version`、Performance/Result/Snapshotのhash材料、正常・異常の擬似コード、BT表へM30を明記する。M30の出力をM15出力から導出する実装、端数の黙殺、同bar新規約定、未来Calendar/Rollの利用は禁止する。
+5. P3-D05を改訂する。`TimeframeAggregator`、`PartialBarState`、`AggregatorSnapshot`、Replay order、Calendar、Manifestの`timeframe_rule_version`、Performance/Result/Snapshotのprotected hash材料、正常・異常の擬似コード、BT表へM30を明記する。管理用Manifest／Evidence hashは材料にしない。M30の出力をM15出力から導出する実装、端数の黙殺、同bar新規約定、未来Calendar/Rollの利用は禁止する。
 6. P3-D06と新規v2 fixtureを作る。既存v1を保持したまま、M30 normal、M30+M15、M30+H1、M30+H1+H4+D1の同時close、欠損1分、重複、時刻逆行、DST、短縮日端数、休日、復元、Manifest/timeframe rule差替えを固定する。GT-TUR-036〜040、BT-038〜042を追加し、全ケースで入力・操作・期待値・合否・証跡を表にする。
-7. `RUN-P3-M30-001`をtarget-only scopeとして登録する。対象はP3の設計/fixture/テスト/品質Gateだけとし、親Manifestで全v2子fixtureのhashを束縛する。formatter、lint、mypy、固定P3 pytestを4 Gateとして設計する。H3-1R未承認の間はscopeをBLOCKEDにし、REDを品質GateのPASSと呼ばない。
+7. `RUN-P3-M30-001`をtarget-only scopeとして登録する。対象はP3の設計/fixture/テスト/品質Gateだけとし、親Manifestで全v2子fixtureのprotected hashを束縛する。管理用Manifest hashは束縛しない。formatter、lint、mypy、固定P3 pytestを4 Gateとして設計する。H3-1R未承認の間はscopeをBLOCKEDにし、REDを品質GateのPASSと呼ばない。
 8. v2 REDを先に実行して通常失敗として記録する。既存v1 GREEN/REDの意味を変えない。既存P2 MarketEvent契約はGREENのまま分離して確認し、未実装のStrategy/Backtest APIだけをREDとして記録する。
 9. A90/A91/A150/A160の指摘を、問題内容と修正方針の直下に中学生でも分かる説明を付けて記録する。Critical/Highを0件にしてからP3-05Rを完了扱いにする。
 10. P3-D02のP3-AC-01〜04/08、timeframe前提、test/Run追跡表をM30へ更新する。`doc/index.html`、Phase 3実行計画、総合台帳、P3-05R実行ログを全件確認して更新する。H3-1は承認済みとして履歴を残し、M30改訂分だけをH3-1R承認待ちとして登録する。既存の残課題と同じ根本原因なら新しい残課題行を増やさない。
@@ -666,8 +672,8 @@ Phase Runbook:
 - A160が未来情報、欠損/重複の通過、端数barの黙殺、M30を使った有利な仮想約定を監査する。
 
 完了条件:
-- M30の生成規則、Calendar境界、OHLCV、同時close順、Snapshot/Manifest hash材料、停止コードがP3-D04/P3-D05に一意に定義されている。
-- GT-TUR-036〜040、BT-038〜042を含むv2 fixture/hashと通常REDが存在し、旧v1 fixture/hashは変更されていない。
+- M30の生成規則、Calendar境界、OHLCV、Snapshotのprotected hash材料、Manifest構造、停止コードがP3-D04/P3-D05に一意に定義されている。
+- GT-TUR-036〜040、BT-038〜042を含むv2 fixtureのprotected hashと通常REDが存在し、旧v1 fixtureのprotected hashは変更されていない。
 - H3-1Rで承認してもらう項目と、承認前に開始してはいけないM30実装範囲がP3-D06と総合台帳で日本語で分かる。
 - P3-AC-01〜04/08のM30追加分が追跡表へ割り当てられ、Critical/Highが0件、P3-D04/P3-D05/P3-D06がdoc/index.htmlから到達できる。
 ```
@@ -719,7 +725,7 @@ Phase Runbook:
 9. 同一close時刻で複数時間足が更新されても、Backtest Coreが発行する一つの判断点につきStrategy判断を一回だけ行い、`M1 → M15 → M30 → H1 → H4 → D1`の全View更新後に重複Signal/Intentを生成しない。
 10. 時間足別warmup、最終確定時刻、indicator状態をsnapshotへ保存し、復元前後でSignal/Intent/Stateの順序付き系列を一致させる。
 11. 公開API、例外、証跡、snapshotを静的検査し、LEAN/QuantConnect/NautilusTraderのimport、型、ID、文字列表現がStrategy Coreへ漏れていないことを証明する。
-12. `RUN-P3-STR-001`のtarget_paths、固定4 Gate、fixture hash、Manifest、証跡先をtrusted scopeへ登録してから実行する。
+12. `RUN-P3-STR-001`のtarget_paths、固定4 Gate、protected fixture hash、Manifest構造、証跡先をtrusted scopeへ登録してから実行する。管理用Manifest hashは登録しない。
 
 レビュー:
 - A150がPython品質、型、純粋性、保守性を確認する。
@@ -771,7 +777,7 @@ Phase Runbook:
 作業:
 1. Event queue、simulated clock、Strategy lifecycle、結果収集を実装する。
 2. data_versionとMarketEvent順序を改変せず入力する。
-3. Manifestへ全入力版/hash/config/codeを束縛し、不一致を拒否する。
+3. Manifestへ入力版、protected input/data/fixture identity、config、code revisionを束縛し、不一致を拒否する。管理用Manifest hashは束縛・比較しない。
 4. snapshot/restore後も重複Signal/Intentを作らない。
 5. 最小Fill Portを実装し、cost/roll/gapの詳細はP3-08へ分離する。
 6. 固定GateとA150/A160レビューを通す。
@@ -780,10 +786,10 @@ Phase Runbook:
 9. 固定Calendarとsession anchorを実装し、通常日、夏時間開始・終了、休日、短縮日、日次休場の4時間足・日足境界を凍結fixtureどおりにする。OSの現在時間帯設定へ依存しない。
 10. 同一close時刻では、1分→15分→30分→1時間→4時間→日足をViewへ反映した後にDecisionPointを一回発行する。順序違反や二重DecisionPointを拒否する。
 11. `EngineAdapter` Protocol、project共通入力/output DTO、engine変換エラーを実装する。外部engine packageはimportせず、synthetic fake adapterで契約テストをGREENにする。
-12. Manifestにtimeframe rule版、Calendar hash、同時close順序版、Adapter版、engine placeholder、性能fixture hashを追加し、値欠落・差替え・再構築不一致を拒否する。
+12. Manifestにtimeframe rule版、Calendarのprotected hash、同時close順序版、Adapter版、engine placeholder、性能fixtureのprotected hashを追加し、値欠落・差替え・構造不一致を拒否する。管理用Manifest hashは追加しない。
 13. ネットワークなし、ローカル入力限定、明示clockのみを検査するpreflight interfaceと、wall time・peak RSS・event件数を記録するperformance recorderを実装する。
 14. 5市場×2暦年のsynthetic fixtureで出力hash、Signal/Intent順序を二回一致させる。P3-07では計測値を記録し、正式な30分・8GiB判定はLEANを含むP3-09で行う。
-15. `RUN-P3-BT-001`のtarget_paths、固定4 Gate、fixture hash、Manifest、証跡先をtrusted scopeへ登録してから実行する。
+15. `RUN-P3-BT-001`のtarget_paths、固定4 Gate、protected fixture hash、Manifest構造、証跡先をtrusted scopeへ登録してから実行する。管理用Manifest hashは登録しない。
 
 レビュー:
 - A150が決定性、型、例外、永続化、競合を確認する。
@@ -805,15 +811,15 @@ P3-07Rは、P3-07の履歴を改変せず、レビュー差戻しを修復する
 
 - H3-1、H3-1R、H3-2の承認済み内容、既存v1/v2/v3 Golden fixtureのbytes、期待出力、M30の「実M1連続30本」規則を変更しない。修復のために期待値をテスト内で上書き、`skip`/`xfail`化、常時PASSの分岐、自己申告のboolを追加してはならない。
 - Broker、Secret、実注文、外部engine SDK、外部ネットワーク、可変現在時刻は対象外である。P3-07RのEngineAdapterは、外部SDKをimportしない共通DTOと`FakeEngineAdapter`までに限る。LEANの取得・固定・実行はP3-08A以降である。
-- 大容量の正式Run出力だけを`E:\strategy_test_data\phase3\backtests\runs\`に原子的に公開する。Gitには小型fixture、Manifestの要約/hash、テスト、実行証跡だけを置く。ユーザー決定どおり、バックアップ、暗号化、保存期限、容量上限、専用ACLは追加の合格条件にしない。
+- 大容量の正式Run出力だけを`E:\strategy_test_data\phase3\backtests\runs\`に原子的に公開する。Gitには小型fixture、Manifestの要約、protected fixture／input／result hash、テスト、実行証跡だけを置く。ユーザー決定どおり、バックアップ、暗号化、保存期限、容量上限、専用ACLは追加の合格条件にしない。
 - P3-07Rの各工程は、前工程のREDまたはレビュー指摘を消さずに証跡化してからGREENへ進む。設計と凍結済み期待値に矛盾が出た場合だけは、安全に停止し、P3-07をPASSとせずに差分を報告する。
 
 | 修復対象 | P3-07Rでの閉じ方 | 主な完了証跡 |
 |---|---|---|
 | BLK-P3-008: 実ReplayからResult公開まで未接続 | 型付き`BacktestRunner`を唯一の正本経路にし、Replay→Calendar/集約→Strategy→次bar約定→Snapshot→Commitを実行する。 | 順序違い、重複、改ざん、中断復旧、二回Replayの統合テストとresult hash。 |
-| Manifest / fixtureの改ざん検知不足 | strict canonical JSON、全必須hash、親Manifestの固定子集合、独立した期待値oracleを用いる。 | 欠落、未知field、NaN/Infinity、子fixture差替え、hash差替えがSTOPPEDとなるテスト。 |
+| Manifest / fixtureの改ざん検知不足 | strict canonical JSON、protected fixture／input／result hash、親Manifestの固定子集合、独立した期待値oracleを用いる。 | 欠落、未知field、NaN/Infinity、子fixture差替え、protected hash差替えがSTOPPEDとなるテスト。管理用Manifest hashは使わない。 |
 | ResultStoreの任意root、symlink、偽造marker | 固定Eドライブroot、run ID、regular path、staging、hash再計算、commit marker、no-overwriteを実装する。 | path traversal / reparse / marker偽造 / 部分commit / 二重publishの拒否テスト。 |
-| BLK-P3-009: Offline / Engine / 性能が自己申告 | 実入力と実出力から証跡を作るPreflight/Postflight、共通Engine DTO、Fake Adapter parity、性能測定器を実装する。 | 通信・Secret・依存・hash・端末情報の欠落をPASSにできないテストとmachine-readable evidence。 |
+| BLK-P3-009: Offline / Engine / 性能が自己申告 | 実入力と実出力から証跡を作るPreflight/Postflight、共通Engine DTO、Fake Adapter parity、性能測定器を実装する。 | 通信・Secret・依存・protected input/result hash・端末情報の欠落をPASSにできないテストとmachine-readable evidence。管理用Evidence hashは使わない。 |
 
 #### P3-07R-01 実行契約の補強と敵対的RED固定
 
@@ -843,7 +849,7 @@ Phase Runbook:
 1. P3-D05にP3-07R補足節を追加し、以下をフィールド名、Python型、必須/nullable、正規化、失敗コード、冪等性まで固定する。`ReplayInput`、`ReplayOrderKey`、`DataGateDecision`、`ExperimentManifest`、`BacktestRunRequest`、`BacktestRunResult`、`BacktestSnapshot`、`ResultRow`、`CommitMarker`、`EngineIdentity`、`EngineRunRequest`、`EngineRunResult`、`EngineAdapter` Protocol、`OfflineEvidence`、`PerformanceEvidence`。
 2. 唯一の正本経路を `BacktestRunner.run(request) -> BacktestRunResult` と固定する。公開APIが「caller suppliedのPASS bool」だけで合格を返すことを禁止し、既存のdict predicateは削除するか、実DTOを呼び出す薄い互換入口に限定する。
 3. 実行順を擬似コードで固定する。strict Manifest検証 → P2 MarketEvent/Data Gate検証 → Replay正規化/重複処理 → 各1分Eventで既存protective stopとeligible pendingだけを処理 → Calendar/Timeframe集約 → 同一close cohortを全更新 → Strategy一回 → 新Directiveを次bar用pendingへ追加 → Snapshot/Result append → marker commit → atomic publish、の順以外を許可しない。
-4. 親fixture Manifestは、P3-07Rで読む全子fixtureの「完全な相対path集合、sha256、schema version」を列挙する。テストは親Manifestから期待値を読むだけにせず、テストコード側の固定期待hash/不変条件とも突き合わせる。絶対path、UNC、`..`、symlink/junction/reparse、重複子、未列挙子、hash形式不正を拒否する。
+4. 親fixture Manifestは、P3-07Rで読む全子fixtureの「完全な相対path集合、protected sha256、schema version」を列挙する。テストは親Manifestから期待値を読むだけにせず、テストコード側の固定期待hash/不変条件とも突き合わせる。絶対path、UNC、`..`、symlink/junction/reparse、重複子、未列挙子、protected hash形式不正を拒否する。管理用Manifest hashは計算しない。
 5. 次の通常REDを、既存のBT-001〜042とH3 fixtureのbytesを変えずに追加する。欠落/未知Manifest値、非有限Decimal/float、未知Data Gate flag、品質停止、未来Event、BAR_1M以外、event_id欠落、同じinstrument・同じ1分区間の別payload、同じevent_id再送/競合、M30のM1 30本以外、future Calendar/Roll、同bar新規Fill、遅い別市場barへのFill、Snapshot改ざん/欠落、偽造commit marker、path escape/reparse、engine identity未固定、offline/performance証跡欠落、Secret形状のResultRow。
 6. `pytest`は実装前に通常REDであることを記録する。失敗理由は未実装APIまたは既存stubのfail-openに限り、fixture/期待値/テストを都合よく弱めない。A91がCritical/High 0となるまで、本実装へ進めない。
 
@@ -883,7 +889,7 @@ Phase Runbook:
 1. public entryを型付き・不変DTOだけにする。入力Mapping/JSONは境界で厳格復元し、未知field、欠落field、非UTC/naive時刻、float、非有限Decimal、未承認timeframeを固定BacktestFailureへ正規化して、Signal/Directive/Fill/Resultを0件にする。
 2. Replay順序を `(bar_close_time_utc, instrument_id, event_id)` とし、同一event_idかつcanonical payload同一は一回だけ採用、同一event_idで内容違い、または同一instrument・同一BAR_1M区間で内容違いは`DUPLICATE_1M_CONFLICT`でsticky停止する。P2のdata_version、quality decision、Catalog/Calendar/Manifest bindingのどれかが欠けても開始しない。
 3. P3-D05のTimeframeAggregatorとCalendarを実行経路へ接続する。M30は実M1 30本、session anchor、source ID、OHLCV、品質、Calendar版を再計算して一致した場合だけ作る。15分・30分・1時間・4時間・日足の端数、DST、休日、短縮日、休場、欠損、重複、逆行は`PARTIAL_BAR_REJECTED`等で停止する。
-4. 同一close cohortは固定順 `M1_TRIGGER → M15 → M30 → H1 → H4 → D1` で全Viewを更新してから、P3-06 Strategyを一回だけ呼ぶ。到着順の全permutationで、Signal、TargetPosition、State hash、Batch hashが一致することを実行テストにする。
+4. 同一close cohortは固定順 `M1_TRIGGER → M15 → M30 → H1 → H4 → D1` で全Viewを更新してから、P3-06 Strategyを一回だけ呼ぶ。到着順の全permutationで、Signal、TargetPosition、Stateのprotected identity、Batchの再現identityが一致することを実行テストにする。
 5. `ScheduledDirective` / `SimulatorState`を実装する。新規Entry/Add/Channel Exitはdecisionより後の、同一tradable instrumentの最初のeligible 1分barだけで評価する。既存保有のprotective stopだけは設計どおり現barで評価できる。別市場、未到達、同bar、過去bar、時刻形式不正、Replay終端のpendingを明確に`PENDING`/`UNFILLED`/`NO_ELIGIBLE_BAR`へし、二重Fillを許可しない。
 6. `TARGET_POSITION`出力はP3-06契約を保持する。Entry/Addは正のstrategy unit hint、Exit/2N Stopは`FLAT`と0 hintであり、Broker quantity、Margin、実注文、外部engine IDを混ぜない。
 7. 全REDをGREEN化し、既存P3-06/P3-07テストを含む対象scopeを通す。A140は失敗時に最小修正を行うが、仕様・fixture・期待値を変更して合格扱いにしない。
@@ -917,21 +923,21 @@ Phase Runbook:
 - human_gate_policy: 保存方針は承認済み。AIはEドライブ外への正式結果公開、UNC/WSLコピー、既存Run上書きを行わない。
 
 タスク:
-1. strict canonical JSONを一箇所に実装する。UTF-8、sorted key、Decimal正規文字列、UTC RFC3339 `Z`、Enum code、固定collection順だけを許可し、float、NaN、Infinity、set、任意object、unknown fieldを拒否する。SHA-256はcanonical bytesだけから再計算する。
-2. ExperimentManifestはraw/normalized/MarketEvent列、data/catalog/calendar/timeframe/ordering/config/code、quality、split、cost profile、adapter/engine、fixture、input/output hashを全て必須にする。P3-07ではEngineIdentityを全field `ENGINE_NOT_USED` の固定値にする。read/restore/publishのたびにManifestと全hashを再構築照合し、欠落・差替え・未知schemaは`MANIFEST_INTEGRITY_VIOLATION`で公開しない。
+1. strict canonical JSONを一箇所に実装する。UTF-8、sorted key、Decimal正規文字列、UTC RFC3339 `Z`、Enum code、固定collection順だけを許可し、float、NaN、Infinity、set、任意object、unknown fieldを拒否する。管理用Manifest hashは計算せず、protected payloadを扱う場合だけ対象bytesからhashを計算する。
+2. ExperimentManifestはraw/normalized/MarketEvent列、data/catalog/calendar/timeframe/ordering/config/code、quality、split、cost profile、adapter/engine、fixture、protected input/output identityを必須にする。P3-07ではEngineIdentityを全field `ENGINE_NOT_USED` の固定値にする。read/restore/publishのたびにManifestの存在・構造・必須fieldとprotected hashを確認し、欠落・差替え・未知schemaは`MANIFEST_INTEGRITY_VIOLATION`で公開しない。管理用Manifest hashは再構築照合しない。
 3. ResultStoreは固定root `E:\strategy_test_data\phase3\backtests\runs\` のregular directoryだけを受ける。run IDをallow-list正規表現で検証し、相対/絶対混在、UNC、`..`、symlink/junction/reparse、root自身、存在済みrun、root外pathを拒否する。テストは一時rootを明示注入して同じ規則を実測する。
-4. `staging/<run_id>`へ immutable Manifest → canonical result rows → Snapshot → commit marker の順に書く。各write後にhashとflushを確認し、markerにはmanifest/result/snapshot/last committed event/offset/hashを束縛する。marker内容を再読込・再hashしてから一回だけatomic renameし、公開済みRunの上書き、二度目publish、外部から置換したstaging、偽造markerを拒否する。
-5. SnapshotにはManifest、Replay/aggregator/strategy/simulator state、pending directives、consumed fingerprints、execution/campaign watermarks、result offset、input/output hashを束縛する。中断注入後はcommit済みeventだけを再生し、同じSignal/Fill/ResultRowを二度作らない。missing/tampered/newer schema/context mismatchは復旧せずSTOPPEDとする。
+4. `staging/<run_id>`へ immutable Manifest → canonical result rows → Snapshot → commit marker の順に書く。各write後にflushと、必要なprotected result／snapshot identityを確認し、markerにはmanifestの構造参照、result／snapshot、last committed event／offsetを束縛する。marker内容を再読込してから一回だけatomic renameし、公開済みRunの上書き、二度目publish、外部から置換したstaging、偽造markerを拒否する。管理用Manifest／marker hashは計算しない。
+5. SnapshotにはManifest、Replay/aggregator/strategy/simulator state、pending directives、consumed fingerprints、execution/campaign watermarks、result offset、protected input/output identityを束縛する。中断注入後はcommit済みeventだけを再生し、同じSignal/Fill/ResultRowを二度作らない。missing/tampered/newer schema/context mismatchは復旧せずSTOPPEDとする。
 6. ResultRowは許可fieldだけを持ち、Secretらしいkey/value、engine/broker固有ID、非canonical数値を拒否またはredact reason付きSTOPPEDにする。ResultStoreはCoreの外側のpublish adapterとし、Strategy/Replay/Engine DTOからfilesystem objectを漏らさない。
 7. path/reparse差替え、marker差替え、部分書込み、同一run再実行、Snapshot改ざん、同一event再配送、途中停電相当のfailure injectionをGREENにする。実験結果が公開されない失敗も監査証跡へ一意に残す。
 
 レビュー:
-- A150はcanonical hash、commit順、復旧水位、ResultRow schemaをレビューする。
+- A150はprotected result／snapshot identity、commit順、復旧水位、ResultRow schemaをレビューする。管理用Manifest／Evidence hashはレビュー条件にしない。
 - A160はpath traversal、Windows reparse point、TOCTOU、marker偽造、Secret混入、任意rootを実証的に監査する。
 
 完了条件:
 - BLK-P3-008の「実Replay→Snapshot→ResultStore→復旧」が実行テストで一体化される。
-- hash、path、marker、Snapshotの一つでも不一致ならResultは公開されず、Signal/Fillの追加生成は0件。
+- protected result／snapshot／fixture identity、path、marker、Snapshotの一つでも不一致ならResultは公開されず、Signal/Fillの追加生成は0件。管理用hash不一致では停止しない。
 - A150/A160のCritical/Highが0件でP3-07R-04へ進む。
 ```
 
@@ -956,15 +962,15 @@ Phase Runbook:
 タスク:
 1. `EngineIdentity`、`EngineAdapter` Protocol、`EngineRunRequest`、`EngineRunResult`、`EngineFailure`を実装する。engine/adapter/runtime/artifact digestの全fieldを必須にし、P3-07は`ENGINE_NOT_USED`だけを許可する。tag単独、空、unknown、型違い、SDK型/ID/例外の公開型・Snapshot・Manifest漏出はSTOPPEDにする。
 2. `FakeEngineAdapter`は同じ凍結Replay/Manifest/Strategy Configを受け、Core referenceが一度だけ作った順序付きSignal/Directive/virtual fill/state/result hashと比較する。差異は`ENGINE_PARITY_MISMATCH`で結果を採用しない。Fake Adapter自身がStrategyを二度実行することを禁止する。
-3. OfflinePreflight/Postflightを実測値から作る。許可input root、実際に読んだinput hash、実際に書いたresult hash、許可依存hash、禁止import走査、Secret key/value scan、外向き通信遮断/試行0、Broker/Cloud URL 0をmachine-readable evidenceへ記録する。欠落、型違い、未知値、観測不能は`OFFLINE_PREFLIGHT_UNPROVEN`または`OFFLINE_POLICY_VIOLATION`で停止し、caller boolだけでPASSにしない。
+3. OfflinePreflight/Postflightを実測値から作る。許可input root、実際に読んだprotected input hash、実際に書いたprotected result hash、許可依存hash、禁止import走査、Secret key/value scan、外向き通信遮断/試行0、Broker/Cloud URL 0をmachine-readable evidenceへ記録する。管理用Evidence hashは記録しない。欠落、型違い、未知値、観測不能は`OFFLINE_PREFLIGHT_UNPROVEN`または`OFFLINE_POLICY_VIOLATION`で停止し、caller boolだけでPASSにしない。
 4. P3用品質Gate入口は登録済みtarget pathsだけを実行し、対象scopeのnetwork guardを必ず有効にする。直接pytestによる最終証跡代用、外部path、実DBN、Secret、engine SDKを拒否する。既存P2入口・証跡を変更しない。
-5. PerformanceEvidenceは決定的5市場×2暦年synthetic inputのgenerator/schema/seed/hash、派生bar hash、Manifest、CPU/RAM/OS/ストレージ、monotonic elapsed、peak RSS測定器/版/単位、二回の実結果hashを記録する。計測なし/不正値/形だけの`sha256:`/limit超過/二回不一致はPASSにしない。P3-07では「計測口と証跡の正しさ」だけをGREENとし、30分/8GiBの正式性能判定はP3-09であると記録する。
+5. PerformanceEvidenceは決定的5市場×2暦年synthetic inputのgenerator/schema/seedのprotected identity、派生barのprotected hash、Manifest構造、CPU/RAM/OS/ストレージ、monotonic elapsed、peak RSS測定器/版/単位、二回の実結果のprotected hashを記録する。管理用Evidence hashは記録しない。計測なし/不正値/形だけの`sha256:`/limit超過/二回不一致はPASSにしない。P3-07では「計測口と証跡の正しさ」だけをGREENとし、30分/8GiBの正式性能判定はP3-09であると記録する。
 6. Fake Adapter成功、SDK漏出、identity不一致、parity差、通信試行、禁止依存、Secret/URL、外部path、測定値/host/hash欠落の全ケースをGREENにする。
 
 レビュー:
 - A40は共通DTO、Core一回実行、identity、Fake parity、P3-08A/P3-09への境界を確認する。
 - A160はOffline/Secret/SDK/import/path/evidenceの自己申告抜けを監査する。
-- A150はProtocolの型、例外正規化、Evidence hashの決定性を確認する。
+- A150はProtocolの型、例外正規化、Evidenceの構造・内容・決定性を確認する。Evidenceファイル自体の管理hashは要求しない。
 
 完了条件:
 - P3-AC-05/06のCore範囲が、SDKなしの実DTO・Fake parity・機械証跡でGREEN。
@@ -987,12 +993,12 @@ Phase Runbook:
 - step_id: P3-07R-05
 - run_id: RUN-P3-BT-001
 - output_root: tests/evidence/phase3/RUN-P3-BT-001/, doc/phase3/06_実装検証/07_Backtest再現性検証結果.html, doc/00_全Phase残課題Blocked統合台帳.html
-- detail_boundary: P3-07の同じRun IDを、P3-07R-01〜04で固定したscope/fixture/hash/APIで再実行して受入可否を更新する。P3-08、P3-08A、P3-09、Broker、Paper、Liveを開始しない。
+- detail_boundary: P3-07の同じRun IDを、P3-07R-01〜04で固定したscope／fixture／protected hash／APIで再実行して受入可否を更新する。管理用差分／Manifest／Evidence hashは使わない。P3-08、P3-08A、P3-09、Broker、Paper、Liveを開始しない。
 - human_gate_policy: 新しい設計承認は不要。既存H3-1/H3-1R/H3-2を再確認する。実行入口が別途人のRun承認を要求した場合だけは、その状態を偽造せず停止して正確なRun IDと確認対象をユーザーへ提示する。
 
 タスク:
-1. `trusted_scopes.json`、P3 local test wrapper、親fixture Manifest、target paths、fixture hash、Evidence schemaを最終実装と完全一致させる。対象外worktree差分、P2 scope、WSL、外部pathを最終合否へ混ぜない。
-2. `RUN-P3-BT-001`で、formatter、lint、type、P3許可pytestの固定4 Gateを実行する。直接pytestの結果だけを最終証跡にせず、preflight/postflight、fixture integrity、input/output hash、二回Replay、failure injection、ResultStore復旧、Fake Adapter parity、performance evidence状態を同じRunへ保存する。
+1. `trusted_scopes.json`、P3 local test wrapper、親fixture Manifest、target paths、protected fixture hash、Evidence schemaを最終実装と完全一致させる。対象外worktree差分、P2 scope、WSL、外部pathを最終合否へ混ぜない。管理用差分hashは合否に使わない。
+2. `RUN-P3-BT-001`で、formatter、lint、type、P3許可pytestの固定4 Gateを実行する。直接pytestの結果だけを最終証跡にせず、preflight/postflight、fixture integrity、protected input/output hash、二回Replay、failure injection、ResultStore復旧、Fake Adapter parity、performance evidence状態を同じRunへ保存する。管理用Evidence hashは保存しない。
 3. A150、A160、A40に最終コードと実行証跡を独立レビューさせる。前回の全Critical/Highに対し「どのテスト・どの実装・どの証跡で閉じたか」をP3-D08の表に一対一で記録する。未解消Critical/High、skip/xfail、期待値改変、自己申告PASS、外部I/O、Result公開不整合が一件でもあれば`REVIEW_RETURNED`のままにする。
 4. 全条件を満たした場合だけP3-D08をP3-07受入可へ更新し、BLK-P3-008を解決済みにする。BLK-P3-009は「P3-07 Coreの自己申告問題は解消、実LEAN依存の固定・実行はP3-08A/P3-09待ち」と範囲を縮小する。総合台帳の最新状態、件数、Human Gate、Phase表示、履歴、P3-08前提を全件検索して同期する。
 5. 最終判定は「P3-07 PASS（Core範囲）」と「P3-09で初めて判定するLEAN実機・30分/8GiB正式性能」を明確に分ける。未実施の外部engine/実取引所Calendar/Paper/LiveをPASSと書かない。
@@ -1067,7 +1073,7 @@ Cost、Slippage、Gap、Roll、Holdout/Walk-forwardの実行契約を実装し�
 
 ### P3-08A LEAN固定依存・オフライン実行環境準備
 
-実行結果（2026-08-10）: **PASS**。初回約60分ではDocker展開・登録が完了しなかったが、ユーザーの追加待機指示後、同じ公式固定digestで取得を継続し、完成イメージ登録、Eドライブtar保存、全hash、LICENSE、network none/read-only Local preflight、固定4 Gate、独立レビューを完了した。P3-09は別Gateであり、まだ開始しない。証跡: `tests/evidence/phase3/RUN-P3-LEAN-PREP-001/`。
+実行結果（2026-08-10）: **PASS**。初回約60分ではDocker展開・登録が完了しなかったが、ユーザーの追加待機指示後、同じ公式固定digestで取得を継続し、完成イメージ登録、Eドライブtar保存、依存・artifact・licenseのprotected hash、network none/read-only Local preflight、固定4 Gate、独立レビューを完了した。管理用hashは現行受入へ使わない。P3-09は別Gateであり、まだ開始しない。証跡: `tests/evidence/phase3/RUN-P3-LEAN-PREP-001/`。
 
 ```text
 ステップID: P3-08A
@@ -1083,7 +1089,7 @@ Phase Runbook:
 - output_root: E:\strategy_test_data\phase3\engine_poc\lean\, tests/evidence/phase3/RUN-P3-LEAN-PREP-001/
 - log_root: plan/phase3/ログ/
 - run_id: RUN-P3-LEAN-PREP-001
-- detail_boundary: LEAN公式依存の取得、完全hash固定、ライセンス記録、オフライン起動確認まで。Strategy評価、Broker、Paper、Live、Secretは対象外。
+- detail_boundary: LEAN公式依存の取得、安全・データ・再現性に直接必要なprotected hash固定、ライセンス記録、オフライン起動確認まで。管理用Manifest／Evidence／差分hashは固定しない。Strategy評価、Broker、Paper、Live、Secretは対象外。
 - human_gate_policy: H3-2承認済み範囲だけを使用する。LEAN主候補の準備が安全に完了できない場合はPoCを開始せず、縮退条件を記録する。
 - acceptance_conditions: P3-AC-05, P3-AC-06
 
@@ -1092,7 +1098,7 @@ Phase Runbook:
 - 公式QuantConnect/LEAN配布元以外からpackage、Docker image、source、dataを取得しない。
 - 取得時だけ必要最小限の外部通信を許可し、接続先、時刻、取得物、版、digestを記録する。Broker、QuantConnect Cloud backtest、API key、Secret、データ自動購入を使わない。
 - 可変tagだけで固定せず、Docker image digestまたはsource commitと全artifact hashを記録する。
-- 大容量取得物はEドライブへ置き、GitにはManifest、hash、ライセンス、要約証跡だけを保存する。
+- 大容量取得物はEドライブへ置き、GitにはManifestの構造要約、protected artifact／license hash、ライセンス、要約証跡だけを保存する。管理用Manifest hashは保存しない。
 
 入力:
 - H3-2承認記録
@@ -1108,11 +1114,11 @@ LEANをP3-09で完全オフライン再実行できるよう、公式依存を�
 2. 原則として公式LEAN Docker imageをdigest固定して取得する。利用不能な場合だけ公式sourceの固定commit buildへ縮退し、理由と全build artifact hashを記録する。
 3. image/package/cacheを`E:\strategy_test_data\phase3\engine_poc\lean\`へ保存し、Git追跡・staged・Secret混入が0件であることを確認する。
 4. 取得完了後にネットワークを遮断し、固定ローカルfixtureだけでLEANが起動できるpreflightを実行する。データ自動取得、Cloud、Broker接続要求が発生した場合はBLOCKEDにする。
-5. `RUN-P3-LEAN-PREP-001`のManifestへ全hash、実行入口、必要volume、read/write範囲、環境変数名、ネットワーク禁止、復元手順を固定する。Secret値は記録しない。
+5. `RUN-P3-LEAN-PREP-001`のManifestへ安全・データ・再現性に直接必要なprotected hash、実行入口、必要volume、read/write範囲、環境変数名、ネットワーク禁止、復元手順を固定する。管理用hashは固定せず、Secret値は記録しない。
 6. LEAN project/AdapterのCore側import境界を静的検査し、engine固有型が`src/autotrade/strategy/`とengine非依存Coreへ漏れていないことを確認する。
 7. NautilusTraderへの縮退条件を「LEANがP3-AC-01〜08のいずれかをengine固有理由で満たせず、二回の限定修正後も再現する場合」と固定する。縮退準備は`RUN-P3-NT-PREP-001`、縮退PoCは`RUN-P3-POC-NT-001`とし、同じfixture・期待値・合格値、公式版/hashを固定する。
 8. P3-D03、総合台帳、doc/index.htmlを更新し、現在の正本版とP3-09で使う唯一のexecution manifestを明示する。
-9. `RUN-P3-LEAN-PREP-001`と`RUN-P3-POC-001`のtarget_paths、固定4 Gate、入力hash、image/package digest、証跡先をtrusted scopeへ登録する。縮退Runは縮退条件成立後に別scopeとして登録する。
+9. `RUN-P3-LEAN-PREP-001`と`RUN-P3-POC-001`のtarget_paths、固定4 Gate、保護対象の入力hash、image/package digest、証跡先をtrusted scopeへ登録する。管理用差分hashは登録しない。縮退Runは縮退条件成立後に別scopeとして登録する。
 
 レビュー:
 - A70/A160が供給元、digest、権限、外部通信、Secret、書込範囲を監査する。
@@ -1165,15 +1171,15 @@ Phase Runbook:
 LEANを主候補として、同じ固定入力・Strategy意味論・Manifestで複数時間足、再現性、Adapter境界、オフライン、性能をPoCしてください。LEANが固定縮退条件に該当した場合だけNautilusTraderを同じ条件で評価してください。
 
 作業:
-1. 実行前にP3-08AのLEAN digest/hash、ローカル入力hash、Calendar hash、timeframe rule版、Adapter版、code revisionを再照合する。一つでも違えば開始しない。
+1. 実行前にP3-08AのLEAN digest/hash、保護対象のローカル入力hash、Calendarの保護hash、timeframe rule版、Adapter版、code revisionを再照合する。一つでも違えば開始しない。管理用差分hashは計算・照合しない。
 2. ネットワークを遮断し、QuantConnect Cloud、Broker、Secret、自動データ取得を無効化した状態を機械確認してからLEANを起動する。
-3. P3-AC-01として、固定1分足から15分・30分・1時間・4時間・日足を生成し、project Timeframe Aggregatorの期待OHLCV、件数、開始・終了時刻、順序、hashと一致させる。
+3. P3-AC-01として、固定1分足から15分・30分・1時間・4時間・日足を生成し、project Timeframe Aggregatorの期待OHLCV、件数、開始・終了時刻、順序、保護対象の再現hashと一致させる。
 4. P3-AC-02/03として、未完成bar拒否、通常日、夏時間開始・終了、休日、短縮日、日次休場、4時間session anchor、同時close時の一回判断を実行する。
 5. P3-AC-04/08として、Entry/Add/Stop/Exit、snapshot/restoreを同一Manifestで二回実行し、MarketEvent、派生bar、Signal、Intent、State、結果の順序付き系列を一致させる。
 6. P3-AC-05として、LEAN固有型・ID・例外をAdapter内で共通型へ変換し、Strategy/Core公開API、snapshot、Manifest、証跡へ漏れていないことを静的・動的に確認する。
 7. P3-AC-06として、二回目のPoCを完全オフライン、固定ローカル入力だけで再実行する。外部接続要求や未固定依存要求が一件でもあればFAILとする。
-8. P3-AC-07として、5市場×2暦年のsynthetic 1分足、5派生時間足、Strategy Replayを実行し、30分以内、peak RSS 8GiB以下、二回の出力hash一致を確認する。端末情報と測定方法を保存する。
-9. 各P3-ACを個別にPASS/FAIL/BLOCKEDで記録し、利益率を合否基準にしない。失敗時も入力、ログ、hash、原因を保存する。
+8. P3-AC-07として、5市場×2暦年のsynthetic 1分足、5派生時間足、Strategy Replayを実行し、30分以内、peak RSS 8GiB以下、二回のprotected output reproducibility identity一致を確認する。端末情報と測定方法を保存する。
+9. 各P3-ACを個別にPASS/FAIL/BLOCKEDで記録し、利益率を合否基準にしない。失敗時も入力、ログ、protected hash（該当する場合）、原因を保存する。管理用hashは保存しない。
 10. LEANがengine固有理由でいずれかのP3-ACに失敗した場合、限定修正を最大二回行う。なお失敗する場合だけP3-08Aの縮退契約に従いNautilusTraderを`RUN-P3-POC-NT-001`で同じfixture・期待値・合格値により評価する。
 11. P3-D10を作成し、LEAN採用候補/条件付き/不採用、Nautilus縮退の有無、Phase 4未検証部分、OD-02の決定範囲、総合台帳のUNK-P3-03/04を更新する。
 
@@ -1184,8 +1190,8 @@ LEANを主候補として、同じ固定入力・Strategy意味論・Manifestで
 
 完了条件:
 - LEANについてP3-AC-01〜08のPhase 3範囲が全てPASSしている。または固定縮退条件に従い、LEANの失敗証跡が存在し、NautilusTraderが同じP3-AC-01〜08を全てPASSしている。
-- 5市場×2暦年の性能試験が30分以内・peak RSS 8GiB以下で、二回の出力hashが一致する。
-- ネットワーク遮断、固定ローカル入力、固定digest/hashの実行前後一致が証跡化される。
+- 5市場×2暦年の性能試験が30分以内・peak RSS 8GiB以下で、二回のprotected output reproducibility identityが一致する。
+- ネットワーク遮断、固定ローカル入力、固定protected digest/hashの実行前後一致が証跡化される。
 - Broker/Paper未検証を合格扱いしていない。
 - P3-D10がdoc/index.htmlから到達できる。
 ```
@@ -1228,16 +1234,16 @@ Phase Runbook:
 Phase 3のGolden、Replay、Manifest、Bias、Cost/Roll/Gap、PoCを統合検証してください。
 
 作業:
-1. GT-TUR-001〜012、Look-ahead、fixture hash、Manifest tamper、Replay一致を検証する。
+1. GT-TUR-001〜012、Look-ahead、fixtureのprotected hash、Manifestの構造tamper、Replay一致を検証する。管理用Manifest hashは検証しない。
 2. 原典System 1/2と比較候補を同一入力・同一cost条件で実行する。
 3. holdout漏洩、未来roll、survivorship、結果後の設定変更を拒否する。
 4. 実データ期間が不足する場合、契約検証PASSと頑健性UNKNOWNを分離する。
-5. 全RunのHEAD、target hash、fixture/data hash、tool版、execution IDを照合する。
+5. 全RunのHEAD、対象path、fixture/data hash（protected input/data identity）、tool版、execution IDを照合する。管理用target/change hashは照合しない。
 6. P3-D07〜P3-D10を最終実測へ更新する。
 7. P3-AC-01〜08の追跡表を機械的に集計し、各条件について設計行、テストID、実装path、Run証跡、レビュー結果、最終状態が全て存在することを確認する。
-8. 1分→15分/1時間/4時間/日足の期待bar系列とLEAN実測系列、project Aggregator系列を三者比較し、順序・値・hashの差分0件を確認する。
+8. 1分→15分/1時間/4時間/日足の期待bar系列とLEAN実測系列、project Aggregator系列を三者比較し、順序・値・protected data/result hashの差分0件を確認する。
 9. 通常日、夏時間開始・終了、休日、短縮日、日次休場、同時close、未完成barの全fixtureについて、未来情報参照0件とStrategy判断回数一致を確認する。
-10. snapshot/restore前後、オフライン再実行前後、同一Manifest二回、5市場性能二回のSignal/Intent/State/結果hashを比較する。
+10. snapshot/restore前後、オフライン再実行前後、同一Manifest二回、5市場性能二回のSignal/Intent/State/結果のprotected reproducibility identityを比較する。管理用Manifest／Evidence hashは比較しない。
 11. P3-AC-01/02/04/05/06/08は一件でもFAIL/BLOCKEDならPhase 3完了不可とする。P3-AC-03は固定Calendar試験PASSを必須とし、実取引所Calendar継続追随だけPhase 4へ送る。P3-AC-07は3〜5市場PASSを必須とし、20〜40市場連続運用だけPhase 4へ送る。
 12. `p3-acceptance-summary.json`と中学生向け説明を含むMarkdown/HTML要約を作り、総合台帳へ最終状態を反映する。
 
@@ -1253,7 +1259,7 @@ Phase 3のGolden、Replay、Manifest、Bias、Cost/Roll/Gap、PoCを統合検証
 - `p3-acceptance-summary.json`でP3-AC-01〜08のPhase 3必須部分が全てPASSし、未割当、未実行、根拠なしのPASSが0件である。
 ```
 
-実行結果（2026-08-10）: **契約Gate PASS・Human Gate承認済み**。`RUN-P3-INT-001`を登録済みManifestの固定入力・固定scopeで実行し、P3-AC-01〜08を全件PASSとした。WSL Ubuntu-24.04 / networking mode `none` でformatter、lint、type、testの固定4 Gate、fixture前後hash、target-only change hash、A150/A160/A30/A40レビューを確認した。古い`RUN-P3-GOLD-001`のBLOCKED証跡は最終PASSに使わず、現在の固定品質Suiteを代替根拠として記録した。ユーザーの「RUN-P3-INT-001を承認します」を固定文言で記録し、同じ入口を再実行してwrapper exit code 0、verification state `PASS`を確認した。`phase3_completion_status=NOT_COMPLETE_UNKNOWN`、`profitability_decision=NOT_MADE`であり、`UNK-P3-01`、`UNK-P3-05`、`UNK-P3-07`は継続する。P3-11/P3-12、Paper、Live、利益採用へはまだ進まない。正式結果: `doc/phase3/07_頑健性検証/10_P3-10_統合Replay_Golden_Bias検証結果.html`。証跡: `tests/evidence/phase3/RUN-P3-INT-001/`。実行ログ: `plan/phase3/ログ/P3-10_実行ログ_2026-08-10.md`。
+実行結果（2026-08-10）: **契約Gate PASS・Human Gate承認済み**。`RUN-P3-INT-001`を登録済みManifestの固定入力・固定scopeで実行し、P3-AC-01〜08を全件PASSとした。WSL Ubuntu-24.04 / networking mode `none` でformatter、lint、type、testの固定4 Gate、protected fixture前後hash、A150/A160/A30/A40レビューを確認した。旧証跡に含まれるtarget-only change hashは履歴として保持するが、現行の受入判定では再利用しない。古い`RUN-P3-GOLD-001`のBLOCKED証跡は最終PASSに使わず、現在の固定品質Suiteを代替根拠として記録した。ユーザーの「RUN-P3-INT-001を承認します」を固定文言で記録し、同じ入口を再実行してwrapper exit code 0、verification state `PASS`を確認した。`phase3_completion_status=NOT_COMPLETE_UNKNOWN`、`profitability_decision=NOT_MADE`であり、`UNK-P3-01`、`UNK-P3-05`、`UNK-P3-07`は継続する。P3-11/P3-12、Paper、Live、利益採用へはまだ進まない。正式結果: `doc/phase3/07_頑健性検証/10_P3-10_統合Replay_Golden_Bias検証結果.html`。証跡: `tests/evidence/phase3/RUN-P3-INT-001/`。実行ログ: `plan/phase3/ログ/P3-10_実行ログ_2026-08-10.md`。
 
 ### P3-11 統合レビュー・レッドチーム監査
 

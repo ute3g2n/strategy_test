@@ -109,8 +109,9 @@ def validate_environment_names(environment: Mapping[str, str]) -> None:
 
 
 def _health_id(request_id: str, reason_code: str) -> str:
-    digest = sha256(f"{request_id}:{reason_code}".encode()).hexdigest()[:16]
-    return f"health-{digest}"
+    # Health identity is a semantic projection of the request and reason.  It
+    # is not a content identity and must not be synthesized from a hash.
+    return f"health-{request_id}-{reason_code}"
 
 
 def classify_failure(

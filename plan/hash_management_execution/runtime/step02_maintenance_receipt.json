@@ -1,0 +1,48 @@
+{
+  "schema_version": "ctxmap-maintenance-receipt-v0.2-nonhash",
+  "request_id": "ctx-maintenance",
+  "relative_path": "plan/hash_management_execution/step00_migration_state.md",
+  "action": "record_add",
+  "status": "PASS",
+  "reason_code": "METADATA_RECORD_ADDED",
+  "recorded_at": "2026-08-15T00:00:00Z",
+  "verification": "metadata_schema_path_link_secret_state",
+  "management_hash_checks": "SKIPPED_BY_USER_AUTHORITY",
+  "protected_hash_checks": "NOT_APPLICABLE_TO_DOCUMENT_MANAGEMENT",
+  "dispatch": {
+    "backend": "not_run",
+    "agent_name": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "low",
+    "status": "NOT_RUN",
+    "attempts": 0,
+    "independent": false,
+    "review_mode": "NOT_APPLICABLE_METADATA_ONLY"
+  },
+  "change": {
+    "change_kind": "added",
+    "major_change": true,
+    "before_headings": [],
+    "after_headings": [
+      {
+        "level": 1,
+        "text": "Step 00 移行状態",
+        "line": 1
+      },
+      {
+        "level": 2,
+        "text": "実行確認",
+        "line": 15
+      },
+      {
+        "level": 2,
+        "text": "未解決事項",
+        "line": 23
+      }
+    ],
+    "before_trace_ids": [],
+    "after_trace_ids": [],
+    "before_local_links": [],
+    "after_local_links": []
+  }
+}

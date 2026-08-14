@@ -46,7 +46,6 @@ def snapshot_payload(value: BacktestSnapshot | Mapping[str, Any]) -> dict[str, A
     if isinstance(value, BacktestSnapshot):
         payload: dict[str, Any] = {
             "schema_version": value.schema_version,
-            "manifest_sha256": value.manifest_sha256,
             "input_sequence_sha256": value.input_sequence_sha256,
             "last_committed_event_id": value.last_committed_event_id,
             "last_batch_sha256": value.last_batch_sha256,
@@ -56,7 +55,6 @@ def snapshot_payload(value: BacktestSnapshot | Mapping[str, Any]) -> dict[str, A
             "pending_fingerprints": list(value.pending_fingerprints),
             "consumed_fingerprints": list(value.consumed_fingerprints),
             "result_offset": value.result_offset,
-            "commit_marker_sha256": value.commit_marker_sha256,
         }
     elif isinstance(value, Mapping):
         payload = dict(value)
@@ -65,7 +63,6 @@ def snapshot_payload(value: BacktestSnapshot | Mapping[str, Any]) -> dict[str, A
     if set(payload) - {
         "schema_version",
         "run_id",
-        "manifest_sha256",
         "input_sequence_sha256",
         "replay_sha256",
         "last_committed_event_id",
@@ -79,14 +76,12 @@ def snapshot_payload(value: BacktestSnapshot | Mapping[str, Any]) -> dict[str, A
         "execution_watermarks",
         "result_offset",
         "result_sha256",
-        "commit_marker_sha256",
         "state_payload_sha256",
         "state_payload",
     }:
         raise ValueError("unknown snapshot field")
     required_fields = {
         "schema_version",
-        "manifest_sha256",
         "input_sequence_sha256",
         "last_committed_event_id",
         "last_batch_sha256",
@@ -96,13 +91,9 @@ def snapshot_payload(value: BacktestSnapshot | Mapping[str, Any]) -> dict[str, A
         "pending_fingerprints",
         "consumed_fingerprints",
         "result_offset",
-        "commit_marker_sha256",
     }
     if not isinstance(value, BacktestSnapshot) and not required_fields.issubset(payload):
         raise ValueError("snapshot binding is incomplete")
-    manifest_sha256 = payload.get("manifest_sha256")
-    if not isinstance(manifest_sha256, str) or not manifest_sha256.startswith("sha256:"):
-        raise ValueError("snapshot manifest binding is required")
     result_offset = payload.get("result_offset")
     if not isinstance(result_offset, int) or result_offset < 0:
         raise ValueError("snapshot result offset is invalid")
@@ -126,8 +117,6 @@ def validate_snapshot(
 
     try:
         payload = snapshot_payload(value)
-        if payload["manifest_sha256"] != manifest_sha256:
-            raise ValueError("manifest binding mismatch")
         if result_offset is not None and payload["result_offset"] != result_offset:
             raise ValueError("result offset mismatch")
         if snapshot_sha256 is not None and canonical_hash(payload) != snapshot_sha256:

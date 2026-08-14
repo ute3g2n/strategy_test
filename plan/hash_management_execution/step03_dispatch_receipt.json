@@ -1,0 +1,89 @@
+{
+  "schema": "hash-management-migration-dispatch-receipt-v0.1",
+  "plan": "hash管理廃止_保護hash限定_全体導入実行計画書_v0.1_2026-08-15",
+  "step": "Step 03",
+  "status": "COMPLETED_WITH_REMEDIATION",
+  "runtime_backend": "multi_agent_v1",
+  "management_hash_policy": "disabled_by_user_authority",
+  "user_authority": "管理・参照効率化・実行証跡・Phase受入目的のhashを必須化せずに完了する。protected safety/data/reproducibility hashだけを所有runtimeの意味ある結果として扱う。",
+  "root_orchestrator": {
+    "name": "AutoTradePhasePlanning_Orchestrator_v0_1",
+    "json_path": ".codex/orchestrators/AutoTradePhasePlanning_Orchestrator_v0_1.json",
+    "agent_id": "N/A",
+    "model": "gpt-5.6-terra",
+    "status": "NOT_STARTED",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK",
+    "reason": "multi_agent_v1のagent thread limitによりroot dispatch不能。ローカル仕様更新・JSON/HTML検証で継続し、独立Orchestrator実行済みとは扱わない。"
+  },
+  "agents": [
+    {
+      "name": "AutoTrade_A05_PhaseExecutionPlanner_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A05_PhaseExecutionPlanner_v0_1.json",
+      "agent_id": "N/A",
+      "model": "gpt-5.6-luna",
+      "status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A10_RequirementsCurator_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json",
+      "agent_id": "N/A",
+      "model": "gpt-5.6-luna",
+      "status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A80_DocumentIntegrator_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json",
+      "agent_id": "N/A",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "low",
+      "status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A90_DesignReviewer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json",
+      "agent_id": "N/A",
+      "model": "gpt-5.6-luna",
+      "status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    }
+  ],
+  "nested_dispatch": {
+    "status": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "reason": "multi_agent_v1 agent thread limit",
+    "unstarted_agents_are_not_independent_evidence": true
+  },
+  "changes_reviewed": [
+    ".codex/skills/autotrade_skill_phase_execution_planning_v0_1/SKILL.md",
+    ".codex/skills/autotrade_skill_ai_component_lifecycle_v0_1/SKILL.md",
+    ".codex/orchestrators/AutoTradePhasePlanning_Orchestrator_v0_1.json",
+    ".codex/agents/AutoTrade_A05_PhaseExecutionPlanner_v0_1.json",
+    ".codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json",
+    ".codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json",
+    ".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json",
+    "doc/ai_foundation/09_Phase実行計画作成AI部品仕様.html",
+    "doc/ai_foundation/10_Phase実行計画書作成依頼プロンプト.html",
+    "doc/ai_foundation/11_AI部品作成更新AI部品仕様.html",
+    "doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html"
+  ],
+  "non_hash_validation": [
+    "対象JSON構文確認 PASS",
+    "対象HTML parser確認 PASS",
+    "09〜12にinput/artifact/finding/evidence/diff/baseline/manifest/snapshot/reportの管理hash fieldがないことを確認",
+    "Phase Planning Skillがruntime dispatchとfallbackをhashなしで要求することを確認",
+    "AI Component Lifecycle SkillがHASH-FUTURE-01〜08を要求することを確認"
+  ],
+  "protected_boundaries": [
+    "protected hashは目的・失敗時停止・所有runtimeを明示する場合だけ許可",
+    "Secret、外部I/O、Human Gate、Unknown、Critical/High、scope、権限境界はhashスキップの対象外"
+  ],
+  "remaining_unknowns": [],
+  "hash_receipt_fields": "管理用hash値・input hash・artifact hash・finding hash・evidence hashは生成・保存していない。"
+}

@@ -4,6 +4,12 @@
 対象: 自動トレードシステム Phase 2 以降（Python による実装、テスト、デバッグ、レビュー）  
 状態: 実行前計画（ECC の導入済み部品を基に、Phase 2 の小さな実装単位で検証してから標準化する）
 
+## HASH-FUTURE-01〜08／Step 05 現行運用ルール
+
+本計画の現行実行では、文章管理、差分許可、Evidence・baseline・manifestの同一性確認、参照効率化だけを目的とする管理用hashを計算・保存・照合しない。ユーザーから委譲された権限により、これらの管理用hashチェック、stale停止、不一致retryは強制スキップしてタスクを完了する。fixture、raw/input、依存artifact、Replay、結果決定性など安全・データ・再現性に直接必要なprotected hashは、目的・対象・失敗時の停止範囲を明記した場合だけ維持し、失敗時はfail-closedとする。過去のhashは履歴として残すが、現行受入条件へ再利用しない。
+
+以下の実行プロンプト共通で、成果物の存在・構造、対象path、固定command、テスト、レビュー、Unknown、Secret、外部I/O、Human Gate、protected hash結果を受入根拠とする。管理用hashの代替としてchecksum、fingerprint、UUID、mtimeを導入しない。各スクリプトには「管理用hashチェックを強制スキップし、protected hashだけを維持する」権限を適用する。実ランタイムAgentの未起動は独立実行済みと報告せず、`RUNTIME_DISPATCH_FALLBACK_REQUIRED` として記録する。
+
 ## 1. 目的と完了条件
 
 Phase 2–5 の各実装作業を、要求・設計に対するトレーサビリティを失わずに、次の閉ループで自律実行できる基盤にする。
@@ -246,9 +252,9 @@ AutoTradeProject_ImplementationQuality_Orchestrator_v0_1 の S4.1 として、RU
 
 入力は P2-D07、REQ-Q02/REQ-Q19/REQ-Q20/REQ-Q23、HEAD のコミット、src/autotrade/market_data/、tests/market_data/、tests/fixtures/market_data/、tests/evidence/phase2/RUN-P2-IC-001/、scripts/quality_gate/、.codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json です。
 
-仕様・実装・テスト・ツール設定・エージェント指示・外部依存の各分類について、原因、証拠パス、Critical/High/Medium/Low、最小改訂案、影響パスを表にしてください。RUN-P2-IC-001 の対象パス、HEAD commit、fixture SHA-256、実差分 SHA-256、除外パスを baseline.json に記録してください。
+仕様・実装・テスト・ツール設定・エージェント指示・外部依存の各分類について、原因、証拠パス、Critical/High/Medium/Low、最小改訂案、影響パスを表にしてください。RUN-P2-IC-001 の対象パス、HEAD commit、fixture SHA-256、除外パスを baseline.json に記録してください。実差分SHA-256は管理用hashのため取得・保存しません。
 
-既存 Runner が S2 bootstrap scope に固定され P2 対象を拒否すること、ruff/mypy/pyright が未導入であること、change_hash が未解決であること、Human Gate が未承認であることを確認対象に含めてください。外部ネットワーク、Databento、Broker、Secret、実データには接続しないでください。Critical/High、証跡欠落、設計外変更が残る場合は Pass にしないでください。
+既存 Runner が S2 bootstrap scope に固定され P2 対象を拒否すること、ruff/mypy/pyright が未導入であること、Human Gate が未承認であることを確認対象に含めてください。change_hashは現行条件に含めません。外部ネットワーク、Databento、Broker、Secret、実データには接続しないでください。Critical/High、証跡欠落、設計外変更が残る場合は Pass にしないでください。
 ```
 
 完了条件: 改訂対象は品質基盤、P2-D07 実装、テスト、fixture、証跡、開発ツール設定だけに固定され、設計外変更がない。
@@ -276,11 +282,11 @@ AutoTradeComponentLifecycle_Orchestrator_v0_1 と AutoTradeProject_Implementatio
 
 最初に scripts/quality_gate/runner.py の pytest を追加し、次を RED で確認してください。
 1. repository 内の信頼済み scope registry に登録された RUN-P2-IC-001 だけが、src/autotrade/market_data、tests/market_data、tests/fixtures/market_data と固定4 Gate を受理する。
-2. Manifest が異なる path、command、Python module、fixture checksum、baseline ref、change hash を指定した場合は、実行前に BLOCKED または ManifestValidationError となる。
+2. Manifest が異なる path、command、Python module、fixture checksum、baseline ref を指定した場合は、実行前に BLOCKED または ManifestValidationError となる。管理用change hashの指定・一致は検査しない。
 3. 追跡済み・未追跡の差分、test skip、test deletion、excluded path の変更を fail-closed で検出する。
 4. test subprocess は host 側の outbound 遮断が確認済みの場合だけ実行し、確認できない場合は BLOCKED とする。
 
-RED 証跡を保存してから、scope registry を repository 管理の信頼済み設定として実装してください。Runner は registry にある固定 command template だけを使い、Manifest は Run ID、requirements、design、fixture hash、実差分 hash の照合材料として扱ってください。P2-D07 の test wrapper は固定の tests/market_data だけを実行し、外部 I/O、Broker、Databento、Secret、実取引を禁止してください。
+RED 証跡を保存してから、scope registry を repository 管理の信頼済み設定として実装してください。Runner は registry にある固定 command template だけを使い、Manifest は Run ID、requirements、design、対象範囲、固定command、protected fixture hashの確認材料として扱ってください。実差分hashや管理用Evidence hashは扱いません。P2-D07 の test wrapper は固定の tests/market_data だけを実行し、外部 I/O、Broker、Databento、Secret、実取引を禁止してください。
 
 実装後、同じ pytest を GREEN にし、品質基盤自身の独立 Python レビューと取引安全レビューを実施してください。AI部品更新ルールに従い、関連する .codex 定義、doc/ai_foundation の仕様、doc/index.html、AGENTS.md/README.md を必要な範囲だけ同期してください。Critical/High または scope 外実行の可能性が残る場合は次へ進まないでください。
 ```
@@ -295,7 +301,7 @@ RED 証跡を保存してから、scope registry を repository 管理の信頼�
 
 - Python 3.11 以上を明記した project tool configuration と lock / 再現手順
 - `.coverage` を追跡しない設定、および既存の追跡済み `.coverage` を履歴を壊さず対象コミットから除外する変更
-- 実差分 SHA-256、fixture SHA-256、formatter / lint / type / pytest の結果を含む `verification.json`
+- fixture SHA-256（protected input identity）、formatter / lint / type / pytest の結果を含む `verification.json`
 - 実行ログ、レビュー記録、対象外変更検査を含む `tests/evidence/phase2/RUN-P2-IC-001/`
 
 実行プロンプト:
@@ -305,12 +311,12 @@ RUN-P2-IC-001 の S4.3 として、Python 品質ツール設定と証跡を確�
 
 まず既存の Python 実行環境を読取りで確認し、ruff と mypy または pyright の固定バージョン、pytest、pytest-cov を project の開発用設定へ明記してください。パッケージ導入が必要なら、承認済みパッケージレジストリまたは事前取得済み artifact からだけ導入し、Runner 自身はネットワーク接続を行わないでください。導入不能なら BLOCKED として停止してください。
 
-次に、src/autotrade/market_data と tests/market_data に対する formatter、lint、type、pytest、coverage を実行し、コマンド、終了コード、ツール version、対象 scope、実差分 SHA-256、fixture SHA-256 を verification.json へ保存してください。生成された .coverage は Git の追跡対象から外し、.gitignore に追加してください。削除対象は repository root の .coverage だけと読み取りで確認してから、履歴を書き換えずに index から除外してください。
+次に、src/autotrade/market_data と tests/market_data に対する formatter、lint、type、pytest、coverage を実行し、コマンド、終了コード、ツール version、対象 scope、fixture SHA-256（protected input identity）を verification.json へ保存してください。実差分SHA-256とEvidence hashは保存しません。生成された .coverage は Git の追跡対象から外し、.gitignore に追加してください。削除対象は repository root の .coverage だけと読み取りで確認してから、履歴を書き換えずに index から除外してください。
 
-Run Manifest の change_hash を実差分から計算した値へ更新し、Runner が同じ値を再計算して照合できることをテストしてください。コマンド失敗、tool 未導入、hash 不一致、scope 外差分、Secret / Broker / Databento / network 参照が一つでもある場合は BLOCKED にしてください。
+Run Manifest の change_hash更新・差分再計算・Evidence hash照合は実装・実行しないでください。コマンド失敗、tool 未導入、protected fixture不一致、scope 外差分、Secret / Broker / Databento / network 参照が一つでもある場合は BLOCKED にしてください。管理用hash不一致では停止・retryしません。
 ```
 
-完了条件: 4 Gate がすべて実行済み・終了コード0・version付きで証跡化され、`.coverage` は追跡外、fixture と実差分は hash で固定される。
+完了条件: 4 Gate がすべて実行済み・終了コード0・version付きで証跡化され、`.coverage` は追跡外、protected fixtureの入力identityが確認される。実差分hashは完了条件にしない。
 
 #### S4.4: 独立再レビューと Human Gate を完了する
 
@@ -327,11 +333,11 @@ Run Manifest の change_hash を実差分から計算した値へ更新し、Run
 ```text
 RUN-P2-IC-001 の S4.4 として、独立 Python レビュー、取引安全レビュー、品質ゲートレビューを順番に行ってください。
 
-各レビューは、HEAD commit、実差分 SHA-256、Run Manifest、fixture SHA-256、4 Gate の実行結果、TDD RED/GREEN、scope registry、P2-D07、REQ-Q02/REQ-Q19/REQ-Q20/REQ-Q23 を参照し、Finding ID、重要度、根拠、再現手順、修正要否、再レビュー結果を個別ファイルに記録してください。
+各レビューは、HEAD commit、Run Manifest、fixture SHA-256（protected input identity）、4 Gate の実行結果、TDD RED/GREEN、scope registry、P2-D07、REQ-Q02/REQ-Q19/REQ-Q20/REQ-Q23 を参照し、Finding ID、重要度、根拠、再現手順、修正要否、再レビュー結果を個別ファイルに記録してください。実差分hashとEvidence hashは要求しません。
 
-次のいずれかが残る場合は verification.json を BLOCKED とし、Human Gate へ進めないでください: Critical/High、証跡欠落、設計外変更、scope 外実行、未実行の formatter/lint/type/test、hash 不一致、未解決 Unknown、Databento/Broker/Secret/実データ/外部ネットワークへの接続。
+次のいずれかが残る場合は verification.json を BLOCKED とし、Human Gate へ進めないでください: Critical/High、証跡欠落、設計外変更、scope 外実行、未実行の formatter/lint/type/test、protected input/data hash不一致、未解決 Unknown、Databento/Broker/Secret/実データ/外部ネットワークへの接続。管理用hash不一致はBLOCKED理由にしません。
 
-すべて解消した場合だけ Human Gate の承認依頼を書いてください。承認依頼には Run ID、HEAD commit、実差分 SHA-256、fixture SHA-256、4 Gate、レビュー結果、残件0を含めます。ユーザーが対象Runについてチャットで「承認します」と明示した場合は、その意思表示を `human-gate-user-declaration.md` に記録し、署名鍵や外部承認チャネルなしでRunnerとverification.jsonをPASSへ更新してください。ユーザー承認がない、拒否された、または内容がRunと一致しない場合は HUMAN_GATE_REQUIRED または BLOCKED のまま停止してください。
+すべて解消した場合だけ Human Gate の承認依頼を書いてください。承認依頼には Run ID、HEAD commit、fixture SHA-256（protected input identity）、4 Gate、レビュー結果、残件0を含めます。実差分hashやEvidence hashは含めません。ユーザーが対象Runについてチャットで「承認します」と明示した場合は、その意思表示を `human-gate-user-declaration.md` に記録し、署名鍵や外部承認チャネルなしでRunnerとverification.jsonをPASSへ更新してください。ユーザー承認がない、拒否された、または内容がRunと一致しない場合は HUMAN_GATE_REQUIRED または BLOCKED のまま停止してください。
 ```
 
 完了条件: 独立3レビューの Critical/High が0、証跡・設計外変更が0、かつユーザーが対象Runについて明示的に「承認します」と伝えた場合のみ `RUN-P2-IC-001` を Pass とする。秘密鍵署名や外部承認チャネルは要求しない。

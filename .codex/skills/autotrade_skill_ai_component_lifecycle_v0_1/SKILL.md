@@ -27,6 +27,15 @@ AI実行基盤の部品追加や変更を、実体ファイルだけで終わら
 4. `doc/ai_foundation/03` から `08`、`doc/index.html`、必要に応じて `AGENTS.md` と `README.md` を追従更新する。
 5. JSON整合、リンク整合、参照整合を確認し、残課題があれば明記する。
 
+## 保護hash限定ルール（HASH-FUTURE-01〜08）
+
+- 新設・更新するSkill、Agent、Orchestrator、prompt、receipt、HTML仕様へ管理・参照効率化・実行証跡目的のhashを追加しない。
+- Phase/Step受入条件へinput、artifact、finding、evidence、diff、baseline、manifest、snapshot、reportのhash一致を追加しない。
+- hash用途が安全・データ・再現性に直結するか不明な場合は、新しいhashを作らずUnknown/Human Gateへ送る。
+- protected hashを扱う場合だけ、目的、保護対象、保護しない場合の具体的失敗、失敗時の停止範囲を記録する。hash不一致を管理作業のretry理由にしない。
+- 実行receiptはruntime backend、dispatch、ID、JSON path、model、Skill、status、入出力参照、independent、review_mode、fallbackを正本とし、管理hash fieldsを含めない。
+- 新規・大幅変更の成果物は`autotrade_skill_protected_hash_policy_guard_v0_1`と`AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1`へ静的判定を渡す。A95はhash値、manifest、fingerprint、stale、retryを生成しない。
+
 ## 実ランタイム起動契約（RDC-AI-COMPONENT-0.2）
 
 AI部品の作成・変更依頼も、完全名を列挙するだけでは実行証拠にならない。ルート実行Agentは変更前に `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` を確認し、`AutoTradeComponentLifecycle_Orchestrator_v0_1` のJSON path、`model=gpt-5.6-terra`、変更範囲、入力、出力、明示されたAgents／Skillsを渡してCoordinatorを実spawnする。CoordinatorはPromptの全Agentを一体ずつspawnし、Agent JSONの固定modelをmodel引数へ渡してwaitする。
@@ -40,6 +49,7 @@ Orchestratorの `agents` map外でもPromptで完全名指定されたAgentを�
 - 仕様書更新を省略しない。
 - `default_orchestrator` を変更しない。
 - UnknownをPassにしない。
+- A95を文章manifest管理へ拡張しない。管理目的hashの候補は`BLOCKED`、用途不明は`NEEDS_HUMAN_GATE`、直接の保護対象hashだけを目的・停止範囲付きで`ALLOW`とする。
 
 ## 品質チェック
 - 再利用した既存部品と新設した部品の境界が説明されている。

@@ -2,7 +2,8 @@
 
 Only Product/Application metadata is stored here.  Result bodies remain under
 the frozen Core ResultStore contract and are represented by references and
-hashes.  The store is intentionally small, synchronous, and dependency-free;
+ relative references and protected input identities.  The store is intentionally
+ small, synchronous, and dependency-free;
 P4 does not expose it as an HTTP or external database service.
 """
 
@@ -36,7 +37,7 @@ from .contracts import (
 )
 from .state_machine import ensure_transition
 
-SCHEMA_VERSION = "p4-metadata-v1"
+SCHEMA_VERSION = "p4-metadata-v2-nonhash-management"
 MAX_JOB_ATTEMPTS = 3
 
 
@@ -83,7 +84,7 @@ class MetadataStore:
                     migration_id TEXT PRIMARY KEY,
                     version TEXT NOT NULL UNIQUE,
                     direction TEXT NOT NULL CHECK(direction IN ('FORWARD_ONLY', 'UP', 'DOWN')),
-                    checksum TEXT NOT NULL,
+                    checksum TEXT,
                     applied_at TEXT NOT NULL
                 );
                 CREATE TABLE IF NOT EXISTS run (
@@ -92,7 +93,7 @@ class MetadataStore:
                     status TEXT NOT NULL,
                     revision INTEGER NOT NULL CHECK(revision >= 0),
                     condition_sha256 TEXT NOT NULL,
-                    manifest_sha256 TEXT NOT NULL,
+                    manifest_sha256 TEXT,
                     config_json TEXT NOT NULL,
                     failure_code TEXT,
                     failure_message_id TEXT,
@@ -114,7 +115,7 @@ class MetadataStore:
                     resulting_revision INTEGER NOT NULL,
                     reason_code TEXT NOT NULL,
                     actor_kind TEXT NOT NULL,
-                    payload_sha256 TEXT NOT NULL,
+                    payload_sha256 TEXT,
                     created_at TEXT NOT NULL
                 );
                 CREATE TABLE IF NOT EXISTS job (
@@ -124,14 +125,14 @@ class MetadataStore:
                     revision INTEGER NOT NULL CHECK(revision >= 0),
                     attempt INTEGER NOT NULL CHECK(attempt >= 0),
                     operation TEXT NOT NULL,
-                    request_fingerprint TEXT NOT NULL,
+                    request_key TEXT NOT NULL,
                     expected_revision INTEGER,
                     checkpoint_sha256 TEXT,
                     failure_code TEXT,
                     failure_message_id TEXT,
                     created_at TEXT NOT NULL,
                     updated_at TEXT NOT NULL,
-                    UNIQUE(operation, request_fingerprint)
+                    UNIQUE(operation, request_key)
                 );
                 CREATE TABLE IF NOT EXISTS queue_item (
                     job_id TEXT PRIMARY KEY REFERENCES job(job_id) ON DELETE CASCADE,
@@ -149,17 +150,17 @@ class MetadataStore:
                     sequence_no INTEGER NOT NULL CHECK(sequence_no >= 0),
                     relative_ref TEXT NOT NULL,
                     checkpoint_sha256 TEXT NOT NULL,
-                    manifest_sha256 TEXT NOT NULL,
-                    commit_marker_sha256 TEXT NOT NULL,
+                    manifest_sha256 TEXT,
+                    commit_marker_sha256 TEXT,
                     created_at TEXT NOT NULL,
                     UNIQUE(job_id, sequence_no)
                 );
                 CREATE TABLE IF NOT EXISTS result_reference (
                     run_id TEXT PRIMARY KEY REFERENCES run(run_id) ON DELETE CASCADE,
                     relative_root TEXT NOT NULL,
-                    manifest_sha256 TEXT NOT NULL,
-                    result_sha256 TEXT NOT NULL,
-                    commit_marker_sha256 TEXT NOT NULL,
+                    manifest_sha256 TEXT,
+                    result_sha256 TEXT,
+                    commit_marker_sha256 TEXT,
                     created_at TEXT NOT NULL
                 );
                 CREATE TABLE IF NOT EXISTS evidence_reference (
@@ -167,7 +168,7 @@ class MetadataStore:
                     run_id TEXT NOT NULL REFERENCES run(run_id) ON DELETE CASCADE,
                     job_id TEXT REFERENCES job(job_id),
                     relative_root TEXT NOT NULL,
-                    evidence_sha256 TEXT NOT NULL,
+                    evidence_sha256 TEXT,
                     status TEXT NOT NULL,
                     created_at TEXT NOT NULL
                 );
@@ -193,7 +194,7 @@ class MetadataStore:
                     source_run_id TEXT NOT NULL REFERENCES run(run_id) ON DELETE CASCADE,
                     status TEXT NOT NULL,
                     revision INTEGER NOT NULL CHECK(revision >= 0),
-                    source_result_sha256 TEXT NOT NULL,
+                    source_result_sha256 TEXT,
                     column_set_json TEXT NOT NULL,
                     filter_payload_sha256 TEXT NOT NULL,
                     relative_output_ref TEXT,
@@ -206,7 +207,7 @@ class MetadataStore:
                     idempotency_id TEXT PRIMARY KEY,
                     scope TEXT NOT NULL,
                     request_key TEXT NOT NULL,
-                    fingerprint TEXT NOT NULL,
+                    fingerprint TEXT,
                     target_kind TEXT NOT NULL,
                     target_id TEXT NOT NULL,
                     response_json TEXT NOT NULL,
@@ -222,7 +223,7 @@ class MetadataStore:
                     before_revision INTEGER,
                     after_revision INTEGER,
                     payload_json TEXT NOT NULL,
-                    payload_sha256 TEXT NOT NULL,
+                    payload_sha256 TEXT,
                     created_at TEXT NOT NULL
                 );
                 CREATE TABLE IF NOT EXISTS holdout_assessment (
@@ -244,7 +245,7 @@ class MetadataStore:
             self.connection.execute(
                 "INSERT OR IGNORE INTO schema_migration(migration_id, version, direction, checksum, applied_at) "
                 "VALUES (?, ?, ?, ?, ?)",
-                ("P4-MIG-001", SCHEMA_VERSION, "FORWARD_ONLY", canonical_hash(SCHEMA_VERSION), _now()),
+                ("P4-MIG-002", SCHEMA_VERSION, "FORWARD_ONLY", None, _now()),
             )
 
     @contextmanager
@@ -285,7 +286,7 @@ class MetadataStore:
             """INSERT INTO audit_event
             (event_id, aggregate_kind, aggregate_id, event_type, correlation_id,
              before_revision, after_revision, payload_json, payload_sha256, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)""",
             (
                 str(uuid.uuid4()),
                 aggregate_kind,
@@ -295,7 +296,6 @@ class MetadataStore:
                 before_revision,
                 after_revision,
                 payload_json,
-                canonical_hash(payload),
                 _now(),
             ),
         )
@@ -317,7 +317,7 @@ class MetadataStore:
             """INSERT INTO run_state_transition
             (run_id, from_status, to_status, expected_revision, resulting_revision,
              reason_code, actor_kind, payload_sha256, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?)""",
             (
                 run_id,
                 from_status,
@@ -326,7 +326,6 @@ class MetadataStore:
                 resulting_revision,
                 reason_code,
                 actor_kind,
-                canonical_hash({"from": from_status, "to": to_status, "revision": resulting_revision}),
                 _now(),
             ),
         )
@@ -390,7 +389,7 @@ class MetadataStore:
             QueueReceipt(
                 row["job_id"],
                 queue_row["queue_sequence"],
-                row["request_fingerprint"],
+                row["request_key"],
                 "QUEUED" if queue_row["status"] == "WAITING" else "EXISTING",
             )
             if queue_row
@@ -416,17 +415,8 @@ class MetadataStore:
     def _create_run_in_transaction(self, command: CreateRunCommand, correlation_id: str) -> tuple[RunView, bool]:
         """Create a Run while the caller owns the surrounding transaction."""
 
-        request_fingerprint = canonical_hash(
-            {
-                "kind": command.run_kind,
-                "config": command.config.fingerprint_payload(),
-                "preflight": command.preflight_report_sha256,
-            }
-        )
         existing = self._idempotency("create_run", command.client_request_id)
         if existing:
-            if existing["fingerprint"] != request_fingerprint:
-                raise PersistenceConflict("IDEMPOTENCY_FINGERPRINT_CONFLICT")
             row = self._run_row(existing["target_id"])
             if row is None:
                 raise PersistenceConflict("IDEMPOTENCY_TARGET_MISSING")
@@ -445,7 +435,7 @@ class MetadataStore:
                 RunStatus.DRAFT,
                 0,
                 condition_sha,
-                command.preflight_report_sha256,
+                None,
                 config_json,
                 now,
                 now,
@@ -463,7 +453,7 @@ class MetadataStore:
                 str(uuid.uuid4()),
                 "create_run",
                 command.client_request_id,
-                request_fingerprint,
+                None,
                 "run",
                 run_id,
                 "{}",
@@ -478,7 +468,6 @@ class MetadataStore:
             {
                 "run_kind": command.run_kind,
                 "condition_sha256": condition_sha,
-                "request_fingerprint": request_fingerprint,
             },
             correlation_id=correlation_id,
             before_revision=None,
@@ -504,19 +493,9 @@ class MetadataStore:
         """Create a sweep parent, members and their Runs in one transaction."""
 
         self._assert_initialized()
-        request_fingerprint = canonical_hash(
-            {
-                "parent": parent_command.config.fingerprint_payload(),
-                "children": [command.config.fingerprint_payload() for command in child_commands],
-                "candidate_hashes": candidate_hashes,
-                "preflight": parent_command.preflight_report_sha256,
-            }
-        )
         with self.transaction():
             existing = self._idempotency("create_sweep", client_request_id)
             if existing:
-                if existing["fingerprint"] != request_fingerprint:
-                    raise PersistenceConflict("IDEMPOTENCY_FINGERPRINT_CONFLICT")
                 parent_row = self.connection.execute(
                     "SELECT * FROM sweep_parent WHERE sweep_parent_id = ?", (existing["target_id"],)
                 ).fetchone()
@@ -573,7 +552,7 @@ class MetadataStore:
                     str(uuid.uuid4()),
                     "create_sweep",
                     client_request_id,
-                    request_fingerprint,
+                    None,
                     "sweep_parent",
                     sweep_parent_id,
                     "{}",
@@ -611,10 +590,8 @@ class MetadataStore:
     def start_job(self, command: StartJobCommand, correlation_id: str) -> tuple[JobView, bool]:
         self._assert_initialized()
         with self.transaction():
-            existing = self._idempotency("start_job", command.request_fingerprint)
+            existing = self._idempotency("start_job", command.request_key)
             if existing:
-                if existing["fingerprint"] != command.request_fingerprint:
-                    raise PersistenceConflict("IDEMPOTENCY_FINGERPRINT_CONFLICT")
                 row = self.connection.execute("SELECT * FROM job WHERE job_id = ?", (existing["target_id"],)).fetchone()
                 if row is None:
                     raise PersistenceConflict("IDEMPOTENCY_TARGET_MISSING")
@@ -634,14 +611,14 @@ class MetadataStore:
                 self.connection.execute("SELECT COALESCE(MAX(queue_sequence), 0) + 1 FROM queue_item").fetchone()[0]
             )
             self.connection.execute(
-                """INSERT INTO job(job_id, run_id, status, revision, attempt, operation, request_fingerprint,
+                """INSERT INTO job(job_id, run_id, status, revision, attempt, operation, request_key,
                 expected_revision, checkpoint_sha256, failure_code, failure_message_id, created_at, updated_at)
                 VALUES (?, ?, ?, 0, 0, 'BACKTEST', ?, ?, NULL, NULL, NULL, ?, ?)""",
                 (
                     job_id,
                     command.run_id,
                     JobStatus.QUEUED,
-                    command.request_fingerprint,
+                    command.request_key,
                     command.expected_revision,
                     now,
                     now,
@@ -671,8 +648,8 @@ class MetadataStore:
                 (
                     str(uuid.uuid4()),
                     "start_job",
-                    command.request_fingerprint,
-                    command.request_fingerprint,
+                    command.request_key,
+                    None,
                     "job",
                     job_id,
                     "{}",
@@ -686,7 +663,6 @@ class MetadataStore:
                 {
                     "run_id": command.run_id,
                     "queue_sequence": sequence,
-                    "request_fingerprint": command.request_fingerprint,
                 },
                 correlation_id=correlation_id,
                 before_revision=0,
@@ -717,10 +693,8 @@ class MetadataStore:
     def cancel_job(self, command: CancelJobCommand, correlation_id: str) -> JobView:
         self._assert_initialized()
         with self.transaction():
-            existing = self._idempotency("cancel_job", command.request_fingerprint)
+            existing = self._idempotency("cancel_job", command.request_key)
             if existing:
-                if existing["fingerprint"] != command.request_fingerprint:
-                    raise PersistenceConflict("IDEMPOTENCY_FINGERPRINT_CONFLICT")
                 existing_row = self.connection.execute(
                     "SELECT * FROM job WHERE job_id = ?", (existing["target_id"],)
                 ).fetchone()
@@ -788,8 +762,8 @@ class MetadataStore:
                 VALUES (?, 'cancel_job', ?, ?, 'job', ?, '{}', ?)""",
                 (
                     str(uuid.uuid4()),
-                    command.request_fingerprint,
-                    command.request_fingerprint,
+                    command.request_key,
+                    None,
                     command.job_id,
                     now,
                 ),
@@ -927,11 +901,7 @@ class MetadataStore:
                 "run",
                 reference.run_id,
                 "RESULT_REFERENCES_COMMITTED",
-                {
-                    "result_sha256": reference.result_sha256,
-                    "commit_marker_sha256": reference.commit_marker_sha256,
-                    "evidence_sha256": evidence.evidence_sha256,
-                },
+                {"relative_root": reference.relative_root, "evidence_id": evidence.evidence_id},
                 correlation_id=correlation_id,
                 before_revision=None,
                 after_revision=None,
@@ -945,15 +915,13 @@ class MetadataStore:
         source_result_sha256: str,
         column_set: tuple[str, ...],
         filter_payload_sha256: str,
-        request_fingerprint: str,
+        request_key: str,
         correlation_id: str,
     ) -> tuple[dict[str, Any], bool]:
         self._assert_initialized()
         with self.transaction():
-            existing = self._idempotency("create_csv_job", request_fingerprint)
+            existing = self._idempotency("create_csv_job", request_key)
             if existing:
-                if existing["fingerprint"] != request_fingerprint:
-                    raise PersistenceConflict("IDEMPOTENCY_FINGERPRINT_CONFLICT")
                 row = self.connection.execute(
                     "SELECT * FROM csv_job WHERE csv_job_id = ?", (existing["target_id"],)
                 ).fetchone()
@@ -966,8 +934,8 @@ class MetadataStore:
             result = self.connection.execute(
                 "SELECT * FROM result_reference WHERE run_id = ?", (source_run_id,)
             ).fetchone()
-            if result is None or result["result_sha256"] != source_result_sha256:
-                raise PersistenceConflict("RESULT_HASH_MISMATCH")
+            if result is None:
+                raise PersistenceConflict("RESULT_NOT_COMMITTED")
             csv_job_id = _new_id("csv")
             now = _now()
             self.connection.execute(
@@ -990,13 +958,13 @@ class MetadataStore:
                 """INSERT INTO idempotency_record(
                 idempotency_id, scope, request_key, fingerprint, target_kind, target_id, response_json, created_at)
                 VALUES (?, 'create_csv_job', ?, ?, 'csv_job', ?, '{}', ?)""",
-                (str(uuid.uuid4()), request_fingerprint, request_fingerprint, csv_job_id, now),
+                (str(uuid.uuid4()), request_key, None, csv_job_id, now),
             )
             self._audit(
                 "csv_job",
                 csv_job_id,
                 "CSV_JOB_CREATED",
-                {"source_run_id": source_run_id, "source_result_sha256": source_result_sha256},
+                {"source_run_id": source_run_id, "column_set": list(column_set)},
                 correlation_id=correlation_id,
                 before_revision=0,
                 after_revision=0,
@@ -1015,7 +983,7 @@ class MetadataStore:
         csv_job_id: str,
         *,
         relative_output_ref: str,
-        output_sha256: str,
+        output_sha256: str | None,
         correlation_id: str,
     ) -> dict[str, Any]:
         self._assert_initialized()
@@ -1024,7 +992,7 @@ class MetadataStore:
             if row is None:
                 raise PersistenceConflict("CSV_JOB_NOT_FOUND")
             if row["status"] == "COMPLETED":
-                if row["output_sha256"] != output_sha256 or row["relative_output_ref"] != relative_output_ref:
+                if row["relative_output_ref"] != relative_output_ref:
                     raise PersistenceConflict("CSV_OUTPUT_MISMATCH")
                 return dict(row)
             if row["status"] != "QUEUED":
@@ -1039,7 +1007,7 @@ class MetadataStore:
                 "csv_job",
                 csv_job_id,
                 "CSV_JOB_COMPLETED",
-                {"relative_output_ref": relative_output_ref, "output_sha256": output_sha256},
+                {"relative_output_ref": relative_output_ref},
                 correlation_id=correlation_id,
                 before_revision=row["revision"],
                 after_revision=row["revision"] + 1,
@@ -1060,7 +1028,7 @@ class MetadataStore:
             source = self._run_row(source_run_id)
             if source is None:
                 raise PersistenceConflict("RUN_NOT_FOUND")
-            request_key = canonical_hash({"source_run_id": source_run_id, "holdout_plan_sha256": holdout_plan_sha256})
+            request_key = f"holdout:{source_run_id}:{holdout_plan_sha256}"
             existing_idempotency = self._idempotency("assess_holdout_reuse", request_key)
             if existing_idempotency:
                 existing_assessment = self.connection.execute(
@@ -1091,7 +1059,7 @@ class MetadataStore:
                 """INSERT INTO idempotency_record(
                 idempotency_id, scope, request_key, fingerprint, target_kind, target_id, response_json, created_at)
                 VALUES (?, 'assess_holdout_reuse', ?, ?, 'holdout_assessment', ?, '{}', ?)""",
-                (str(uuid.uuid4()), request_key, request_key, assessment_id, now),
+                (str(uuid.uuid4()), request_key, None, assessment_id, now),
             )
             self._audit(
                 "run",
@@ -1156,12 +1124,8 @@ class MetadataStore:
             ).fetchone()
             if checkpoint is None:
                 raise PersistenceConflict("CHECKPOINT_VERIFICATION_REQUIRED")
-            if checkpoint["manifest_sha256"] != run["manifest_sha256"]:
-                raise PersistenceConflict("MANIFEST_MISMATCH")
-            existing = self._idempotency("resume_job", command.request_fingerprint)
+            existing = self._idempotency("resume_job", command.request_key)
             if existing:
-                if existing["fingerprint"] != command.request_fingerprint:
-                    raise PersistenceConflict("IDEMPOTENCY_FINGERPRINT_CONFLICT")
                 row = self.connection.execute("SELECT * FROM job WHERE job_id = ?", (existing["target_id"],)).fetchone()
                 if row is None:
                     raise PersistenceConflict("IDEMPOTENCY_TARGET_MISSING")
@@ -1184,14 +1148,14 @@ class MetadataStore:
                 self.connection.execute("SELECT COALESCE(MAX(queue_sequence), 0) + 1 FROM queue_item").fetchone()[0]
             )
             self.connection.execute(
-                """INSERT INTO job(job_id, run_id, status, revision, attempt, operation, request_fingerprint,
+                """INSERT INTO job(job_id, run_id, status, revision, attempt, operation, request_key,
                 expected_revision, checkpoint_sha256, failure_code, failure_message_id, created_at, updated_at)
                 VALUES (?, ?, 'QUEUED', 0, ?, 'BACKTEST_RESUME', ?, ?, ?, NULL, NULL, ?, ?)""",
                 (
                     job_id,
                     command.run_id,
                     max_attempt + 1,
-                    command.request_fingerprint,
+                    command.request_key,
                     command.expected_revision,
                     command.checkpoint_sha256,
                     now,
@@ -1223,7 +1187,7 @@ class MetadataStore:
                 """INSERT INTO idempotency_record(
                 idempotency_id, scope, request_key, fingerprint, target_kind, target_id, response_json, created_at)
                 VALUES (?, 'resume_job', ?, ?, 'job', ?, '{}', ?)""",
-                (str(uuid.uuid4()), command.request_fingerprint, command.request_fingerprint, job_id, now),
+                (str(uuid.uuid4()), command.request_key, None, job_id, now),
             )
             self._audit(
                 "job",

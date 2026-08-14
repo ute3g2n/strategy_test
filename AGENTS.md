@@ -27,7 +27,7 @@
 - 通常の編集・実装・文書更新はWindows側の `C:\\project\\strategy_test` だけに行う。Windows側を正本として先に保存する。
 - WSLクローンへの通常の編集、UNC経由のコピー、パッチ適用は行わない。ただし、ユーザーは2026-08-10に、実機Run・隔離品質Gateに必要な場合のWSLクローンについて、未コミット変更を可逆退避して同期する権限をAIへ明示委譲した。
 - 同期前に、対象WSLクローンの絶対パス、branch、origin、HEAD、`git status --porcelain=v1`、ignored項目をnative Windowsから読み取り確認する。`.venv`、cache、wheelhouse、既存automationログなど`.gitignore`で許可された生成物は保持し、対象パスが想定外、branch/originが不一致、または未知のignored項目・Secret・鍵・`.env`・認証情報らしい変更がある場合は停止する。
-- dirtyな場合は、次の可逆手順だけを自律実行してよい。①リポジトリ外の `C:\\Users\\ute3g\\AppData\\Local\\Codex\\wsl-archives\\strategy_test\\<UTC timestamp>\\` にHEAD、branch、origin、status、binary diff、未追跡一覧と変更内容のhashを保存する。②アーカイブの一覧とhashを検証する。③WSL側で `git stash push --include-untracked --message codex-wsl-archive-<UTC timestamp>` を実行し、stash refとclean状態を確認する。許可済みignored生成物は保持し、未知のignored変更は自動処理せず停止する。
+- dirtyな場合は、次の可逆手順だけを自律実行してよい。①リポジトリ外の `C:\\Users\\ute3g\\AppData\\Local\\Codex\\wsl-archives\\strategy_test\\<UTC timestamp>\\` にHEAD、branch、origin、status、binary diff、未追跡一覧を保存する。②アーカイブの一覧と内容を確認する。③WSL側で `git stash push --include-untracked --message codex-wsl-archive-<UTC timestamp>` を実行し、stash refとclean状態を確認する。許可済みignored生成物は保持し、未知のignored変更は自動処理せず停止する。
 - 退避確認後の同期はnative Windowsから `wsl.exe -d <distro> -- bash -lc "cd <repo> && git pull --ff-only"` だけを実行する。`reset`、`clean`、`checkout`、`rebase`、force、remote変更、stash drop、stash pop、未コミット変更の上書きは行わない。fast-forward不能やpull失敗時はstashとアーカイブを保持して停止する。
 - 同期後はWSL側のHEAD、branch、origin、clean状態、対象Runのtrusted scope、fixture hash、target scopeを再確認する。stashは自動復元せず、復元は別判断として報告する。WSL側の成果物編集は行わず、実行証跡の正本はWindows側へ取得する。
 - `.codex/orchestrators/`
@@ -65,6 +65,7 @@ WSL隔離品質ゲートの実行入口は `scripts/wsl_quality_gate/run_test.ps
   `AutoTrade_A81_DesignDocSetWriter_v0_1`
   `AutoTrade_A82_ImplementationDetailDesigner_v0_1`
   `AutoTrade_A90_DesignReviewer_v0_1`
+  `AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1`
   `AutoTrade_A91_ImplementationDetailReviewer_v0_1`
   `AutoTrade_A110_PythonTestEngineer_v0_1`
   `AutoTrade_A120_PythonImplementer_v0_1`
@@ -78,14 +79,14 @@ WSL隔離品質ゲートの実行入口は `scripts/wsl_quality_gate/run_test.ps
   `.codex/skills/autotrade_skill_*_v0_1/`
   Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を標準で使う。
   AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を標準で使う。
-  新規／大幅変更文書のmanifest保守では `autotrade_skill_context_manifest_maintenance_v0_1` と `AutoTrade_A07_ContextManifestMaintainer_v0_1` を使い、参照候補の選定では `autotrade_skill_context_routing_v0_1` と `AutoTrade_A08_ContextRouter_v0_1` を使う。A07は1文書の追加・更新判定だけ、A08はvalidator済みmanifestからのroutingだけを担当し、本文を直接読ませない。A07/A08はネットワーク、Secret、任意path、Git書込みを持たない。
+  新規／大幅変更文書、計画、ソース、テスト、AI部品の管理hash再導入判定では `autotrade_skill_protected_hash_policy_guard_v0_1` と `AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1` を使う。A95はhash値、manifest、stale、fingerprint、hash retryを作らず、管理hashはBLOCKED、用途不明はNEEDS_HUMAN_GATE、直接の保護対象hashだけを目的・停止範囲付きでALLOWとする。A07/A08は文章manifest管理の通常経路から起動しない。
   UIモック作成では `AutoTradeProject_UiMock_Orchestrator_v0_1`、`AutoTrade_A170_UiMockEngineer_v0_1`、`AutoTrade_A171_UiVisualQaReviewer_v0_1` とUI専用Skill 3件を完全名で指定する。正式合否は固定 `@playwright/test`、Storybook、Vitest/axeで判定し、AI向けCLIは匿名ローカル探索に限定する。
   実装詳細設計では `autotrade_skill_implementation_detail_design_v0_1` と `autotrade_skill_implementation_detail_review_v0_1` を標準で使う。
   Python本実装の品質ループでは `autotrade_skill_python_implementation_v0_1`、`autotrade_skill_python_test_quality_v0_1`、`autotrade_skill_debug_recovery_v0_1`、`autotrade_skill_python_code_review_v0_1` を明示指定で使う。
   実行証跡は `tests/evidence/{phase_id}/{run_id}/` に保存し、`scripts/quality_gate/` は `trusted_scopes.json` に登録されたRun IDの固定コマンドだけを実行する。`scope_mode=target_only` のRunは登録済みtarget_pathsだけを試験対象とし、対象外のHEAD/worktree差分では止めない。Phaseのtest subprocessはhost outbound isolation確認がない場合にBLOCKEDとする。
-  新規文書、大幅変更文書、構造変更コードは、文書作成・実装の完了前に `run_context_maintenance` または決定的コードmanifest更新へ渡し、validator PASSまたは理由付きBLOCKED receiptを保存する。A07の未起動を実行済みと偽らず、A08はmanifest本文を直接取得しない。
-- CTXMAPのcommit経路は `scripts/context_index/check_context_gate.py` を前段に置く。Gateはstage/commit/pushを自分で行わず、PASS時に返した明示allowlistだけを `auto-commit.sh` がstageする。Gate失敗時はGit indexを変更せず、A07 unavailable/timeout、Secret、rename/delete、validator不合格はpendingまたはBLOCKEDとして停止する。
-- `npm run watch-start`、`npm run watch-commit` は `plan/context_index/CTXMAP-H1_approval.json` の明示承認がない限り拒否する。監視は `scripts/context_index/context_watch.py` のローカル単一worker・debounce経路だけを使い、外部通信、永続サービス、Secret本文送信、自己生成manifestの再発火を許可しない。
+  新規文書、大幅変更文書、構造変更コードは、完了前にpath、schema、link、Secret、状態、要件追跡の非hash確認とA95の静的ポリシー判定へ渡す。管理用hashのvalidator PASS、manifest更新、stale判定、hash retry、hash receiptは完了条件にしない。A95の未起動を実行済みと偽らず、用途不明はHuman Gateへ送る。
+- CTXMAPの旧commit／watch／validatorによる管理hash経路は通常経路から廃止した。`scripts/context_index/auto-commit.sh`、watcher、context Gateは管理用hashを計算・照合・retryせず、現行成果物の完了条件にも使わない。必要な保護対象hash、Secret、外部I/O、Human Gate、Unknown、対象範囲、権限境界は別途維持する。
+- `npm run watch-start`、`npm run watch-commit` は旧運用の履歴入口として扱い、現行の新規文書・大幅変更・ソース変更では起動しない。A95の静的ポリシー判定とpath、schema、link、Secret、状態確認を使用する。
 - Phase 1専用部品:
   `AutoTradePhase1_*`
   `autotrade_phase1_skill_*_v0_1`
@@ -112,6 +113,7 @@ AI部品の作成、設計、レビュー、Phase実行に入る前は、原則�
 ## AI部品作成・変更
 
 Skill、サブエージェント、オーケストレータの作成または変更では、まず既存再利用を調査し、その後に実体更新、最後に仕様と導線を更新する。標準の依頼プロンプトは `doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html` を参照する。
+新しいAI部品または既存AI部品の大幅変更では、`AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1`を静的に発火させる。A95はhashを計算せず、manifestを作らず、管理hashのretryを要求しない。
 
 ## 実装詳細設計
 

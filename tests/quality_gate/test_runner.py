@@ -41,7 +41,6 @@ class FakeChangeInspector:
 
     changes: tuple[ChangeRecord, ...] = ()
     has_test_skip: bool = False
-    change_hash_value: str = "test-change-hash"
 
     requested_paths: tuple[str, ...] | None = None
 
@@ -56,11 +55,6 @@ class FakeChangeInspector:
         del project_root, baseline_ref
         self.requested_paths = paths
         return self.has_test_skip
-
-    def change_hash(self, project_root: Path, baseline_ref: str, paths: tuple[str, ...] | None = None) -> str:
-        del project_root, baseline_ref
-        self.requested_paths = paths
-        return self.change_hash_value
 
 
 @dataclass
@@ -85,7 +79,6 @@ def manifest(tmp_path: Path, **overrides: object) -> dict[str, object]:
         "skills": ["autotrade_skill_python_test_quality_v0_1"],
         "input_fixture": {"name": "quality_gate", "version": "v1", "checksum": "sha256:test"},
         "data_version": "v1",
-        "change_hash": "test-change-hash",
         "baseline_ref": "HEAD",
         "target_paths": ["scripts/quality_gate", "tests/quality_gate"],
         "excluded_paths": [".env"],
@@ -295,7 +288,6 @@ def test_p2_target_only_scope_ignores_unrelated_worktree_changes(tmp_path: Path)
             ChangeRecord(status="M", path="settings/ai_component_rules.md"),
             ChangeRecord(status="A", path="doc/00_全Phase残課題Blocked統合台帳.html"),
         ),
-        change_hash_value=run_manifest["change_hash"],
     )
 
     result = LocalQualityGateRunner(
@@ -431,7 +423,6 @@ def p2_manifest(tmp_path: Path, **overrides: object) -> dict[str, object]:
             "checksum": "sha256:94022229698e972353b8ec9537f455af5cb29d47253f5f2a1ed5d33b08b50169",
         },
         data_version="fixture-catalog-v1",
-        change_hash="sha256:" + ("a" * 64),
         target_paths=[
             "src/autotrade/market_data",
             "tests/market_data",
@@ -509,7 +500,6 @@ def test_p2_registry_accepts_only_the_fixed_scope_and_four_gates(tmp_path: Path)
         },
         {"baseline_ref": "main"},
         {"scope_mode": "all_changes"},
-        {"change_hash": "sha256:tampered"},
     ],
 )
 def test_p2_manifest_mutations_are_rejected_before_execution(tmp_path: Path, field_override: dict[str, object]) -> None:
@@ -533,7 +523,6 @@ def test_p2_manifest_mutations_are_rejected_before_execution(tmp_path: Path, fie
 def test_p2_untrusted_changes_and_test_mutations_fail_closed(tmp_path: Path, inspector: FakeChangeInspector) -> None:
     executor = successful_executor()
 
-    inspector.change_hash_value = p2_manifest(tmp_path)["change_hash"]
     result = runner(tmp_path, executor, inspector).run(p2_manifest(tmp_path))
 
     assert result.state == "BLOCKED"
@@ -543,7 +532,7 @@ def test_p2_untrusted_changes_and_test_mutations_fail_closed(tmp_path: Path, ins
 def test_p2_requires_host_outbound_isolation_confirmation(tmp_path: Path) -> None:
     executor = successful_executor()
 
-    inspector = FakeChangeInspector(change_hash_value=p2_manifest(tmp_path)["change_hash"])
+    inspector = FakeChangeInspector()
     result = runner(tmp_path, executor, inspector).run(p2_manifest(tmp_path))
 
     assert result.state == "BLOCKED"
@@ -554,7 +543,7 @@ def test_p2_requires_host_outbound_isolation_confirmation(tmp_path: Path) -> Non
 def test_p2_runs_fixed_gates_only_after_host_isolation_confirmation(tmp_path: Path) -> None:
     executor = successful_executor()
     run_manifest = p2_manifest(tmp_path)
-    inspector = FakeChangeInspector(change_hash_value=run_manifest["change_hash"])
+    inspector = FakeChangeInspector()
     quality_runner = LocalQualityGateRunner(
         tmp_path,
         executor=executor,
@@ -691,7 +680,6 @@ def test_p3_fixed_test_template_is_allowed_only_inside_declared_targets(tmp_path
             "version": "p3-gold-fixture-manifest-v1",
             "checksum": "sha256:19eff1a99d407570e73fac74d3e0e00bbaf72c3c4278e6f046dcc6723adcc314",
         },
-        change_hash="sha256:" + ("a" * 64),
         target_paths=[
             "scripts/quality_gate",
             "tests/quality_gate",

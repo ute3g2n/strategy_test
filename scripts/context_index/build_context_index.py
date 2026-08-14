@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+# Step 02 user authority: management/reference hashes, stale checks, and hash
+# retries are force-skipped. This builder emits metadata only; safety, data,
+# reproducibility hashes outside this document-management runtime are not
+# handled here.
 import argparse
 import json
 from collections.abc import Mapping
@@ -19,7 +23,6 @@ from .common import (
     extract_title,
     extract_trace_ids,
     load_policy,
-    sha256_bytes,
     stable_id,
 )
 
@@ -67,7 +70,6 @@ def build_record(
         "kind": "managed_document",
         "status": "active",
         "relative_path": relative_path,
-        "source_hash": sha256_bytes(data),
         "schema_version": SCHEMA_VERSION,
         "generator_version": str(policy.get("generator_version", GENERATOR_VERSION)),
         "first_seen_at": first_seen_at,
@@ -92,7 +94,6 @@ def build_state(manifest: Mapping[str, Any], observed_at: str) -> dict[str, Any]
             {
                 "subject_id": record["artifact_id"],
                 "subject_type": "artifact",
-                "source_hash": record["source_hash"],
                 "state": record["status"],
                 "last_processed_at": observed_at,
                 "generator_version": record["generator_version"],

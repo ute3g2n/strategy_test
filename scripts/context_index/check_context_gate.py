@@ -1,37 +1,37 @@
 from __future__ import annotations
 
+# Step 02 user authority: the document-management platform's management,
+# reference, evidence, stale, allowlist, and retry hash checks are force-
+# skipped. This gate performs only nonhash path, scope, schema, Secret,
+# UTF-8, size, state, and Human Gate checks. Protected safety/data/
+# reproducibility hashes are owned by their respective runtimes and are not
+# processed here.
 import argparse
-import copy
-import hashlib
 import json
 import os
 import re
-import subprocess
 import tempfile
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from .build_code_manifest import build_code_manifest, validate_code_manifest
-from .build_relation_graph import build_relation_graph
+from .build_code_manifest import discover_code_paths
 from .common import (
     ContextIndexError,
     PolicyViolation,
     discover_managed_paths,
-    is_managed_document,
     load_policy,
     normalize_relative_path,
     scan_secret_content,
     scan_secret_path,
-    sha256_bytes,
 )
-from .run_context_maintenance import A07DispatchError, maintain_document
-from .validate_context_index import validate_manifest
 
-GATE_SCHEMA_VERSION = "ctxmap-gate-report-v0.1"
-SNAPSHOT_SCHEMA_VERSION = "ctxmap-worktree-snapshot-v0.1"
+GATE_SCHEMA_VERSION = "ctxmap-gate-report-v0.2-nonhash"
+SNAPSHOT_SCHEMA_VERSION = "ctxmap-worktree-snapshot-v0.2-metadata"
 DEFAULT_H1_RECEIPT = "plan/context_index/CTXMAP-H1_approval.json"
-_SAFE_IDENTIFIER_RE = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
+MANAGEMENT_HASH_POLICY_ENV = "CTXMAP_MANAGEMENT_HASH_POLICY"
+DEFAULT_MANAGEMENT_HASH_POLICY = "disabled"
 
 GENERATED_MANIFEST_PATHS = frozenset(
     {
@@ -45,6 +45,7 @@ GENERATED_PREFIXES = (
     "plan/context_index/runtime/",
     "plan/context_index/receipts/",
 )
+_SAFE_IDENTIFIER_RE = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
 
 
 class GateError(ContextIndexError):
@@ -53,14 +54,14 @@ class GateError(ContextIndexError):
 
 @dataclass(frozen=True)
 class GitChange:
+    """Compatibility shape for callers that only need a path/status pair."""
+
     status: str
     relative_path: str
     before_path: str | None = None
 
 
 def is_generated_path(relative_path: str) -> bool:
-    """Return whether a path is an index/runtime output that must not retrigger itself."""
-
     normalized = relative_path.replace("\\", "/")
     return normalized in GENERATED_MANIFEST_PATHS or normalized.startswith(GENERATED_PREFIXES)
 
@@ -109,8 +110,6 @@ def _inside_root(root: Path, path: Path) -> Path:
 
 
 def _repo_input_file(root: Path, path: Path) -> Path:
-    """Resolve a user-provided control file inside the repository only."""
-
     if path.is_absolute():
         raise GateError("INPUT_PATH_ABSOLUTE")
     try:
@@ -118,11 +117,9 @@ def _repo_input_file(root: Path, path: Path) -> Path:
         relative = resolved.relative_to(root.resolve()).as_posix()
     except (GateError, ValueError) as exc:
         raise GateError("INPUT_PATH_OUTSIDE_REPOSITORY") from exc
-    if not relative or relative == ".":
-        raise GateError("INPUT_PATH_INVALID")
-    _assert_no_reparse(root, relative)
-    if not resolved.is_file():
+    if not relative or relative == "." or not resolved.is_file():
         raise GateError("INPUT_PATH_MISSING")
+    _assert_no_reparse(root, relative)
     return resolved
 
 
@@ -143,13 +140,12 @@ def _assert_no_reparse(root: Path, relative_path: str) -> None:
 
 
 def _gate_target(root: Path, relative_path: str) -> Path:
-    normalized = _safe_path(relative_path)
+    try:
+        normalized = normalize_relative_path(relative_path)
+    except PolicyViolation as exc:
+        raise GateError(str(exc)) from exc
     _assert_no_reparse(root, normalized)
-    candidate = (root.resolve() / Path(*normalized.split("/"))).resolve()
-    resolved_root = root.resolve()
-    if candidate != resolved_root and resolved_root not in candidate.parents:
-        raise GateError("PATH_OUTSIDE_REPOSITORY")
-    return candidate
+    return _inside_root(root, Path(*normalized.split("/")))
 
 
 def _safe_path(value: str) -> str:
@@ -159,230 +155,32 @@ def _safe_path(value: str) -> str:
         raise GateError(str(exc)) from exc
 
 
-def _git_status(root: Path) -> list[GitChange]:
+def _read_changed_list(root: Path, path: Path) -> list[str]:
+    control = _repo_input_file(root, path)
     try:
-        result = subprocess.run(
-            ["git", "status", "--porcelain=v1", "-z"],
-            cwd=root,
-            check=True,
-            capture_output=True,
-        )
-    except (OSError, subprocess.CalledProcessError) as exc:
-        raise GateError("GIT_STATUS_UNAVAILABLE") from exc
-    raw = result.stdout.decode("utf-8", errors="strict")
-    tokens = [item for item in raw.split("\0") if item]
-    changes: list[GitChange] = []
-    index = 0
-    while index < len(tokens):
-        token = tokens[index]
-        if len(token) < 4:
-            raise GateError("GIT_STATUS_INVALID")
-        status = token[:2]
-        path = _safe_path(token[3:])
-        before_path: str | None = None
-        if status[0] in {"R", "C"} or status[1] in {"R", "C"}:
-            if index + 1 >= len(tokens):
-                raise GateError("GIT_STATUS_INVALID")
-            before_path = _safe_path(tokens[index + 1])
-            index += 1
-        changes.append(GitChange(status, path, before_path))
-        index += 1
-    return changes
-
-
-def _file_hash(root: Path, relative_path: str) -> str | None:
-    target = _gate_target(root, relative_path)
-    try:
-        return sha256_bytes(target.read_bytes()) if target.is_file() else None
-    except (OSError, ValueError) as exc:
-        raise GateError("FILE_READ_FAILED") from exc
-
-
-def capture_worktree_snapshot(root: Path, policy: dict[str, Any]) -> dict[str, Any]:
-    """Capture hashes only; no document or source body is stored."""
-
-    paths = set(discover_managed_paths(root.resolve(), policy))
-    from .build_code_manifest import discover_code_paths
-
-    paths.update(discover_code_paths(root.resolve(), policy))
-    entries: dict[str, dict[str, Any]] = {}
-    for path in sorted(paths):
-        if is_generated_path(path):
-            continue
-        digest = _file_hash(root, path)
-        entries[path] = {"exists": digest is not None, "sha256": digest}
-    return {"schema_version": SNAPSHOT_SCHEMA_VERSION, "paths": entries}
-
-
-def _load_snapshot(path: Path) -> dict[str, Any]:
-    value = _safe_json_read(path)
-    if value.get("schema_version") != SNAPSHOT_SCHEMA_VERSION or not isinstance(value.get("paths"), dict):
-        raise GateError("SNAPSHOT_SCHEMA_INVALID")
-    return value
-
-
-def _snapshot_changed_paths(root: Path, policy: dict[str, Any], baseline: dict[str, Any]) -> set[str]:
-    current = capture_worktree_snapshot(root, policy).get("paths", {})
-    old = baseline.get("paths", {})
-    paths = set(current) | set(old)
-    changed: set[str] = set()
-    for path in paths:
-        if current.get(path) != old.get(path):
-            changed.add(path)
-    return changed
-
-
-def _read_changed_list(path: Path) -> list[str]:
-    try:
-        lines = path.read_text(encoding="utf-8").splitlines()
+        lines = control.read_text(encoding="utf-8").splitlines()
     except (OSError, UnicodeError) as exc:
         raise GateError("CHANGED_LIST_INVALID") from exc
-    result: list[str] = []
-    for line in lines:
-        if not line.strip():
-            continue
-        normalized = _safe_path(line.strip())
-        if normalized not in result:
-            result.append(normalized)
-    return result
+    return [line.strip() for line in lines if line.strip()]
 
 
-def _selected_changes(
-    root: Path,
-    policy: dict[str, Any],
-    explicit: list[str],
-    changed_list: Path | None,
-    baseline_snapshot: Path | None,
-) -> tuple[list[GitChange], list[str]]:
-    try:
-        status_changes = _git_status(root)
-    except GateError as exc:
-        if explicit or changed_list:
-            status_changes = []
-        else:
-            raise exc
-    by_path = {item.relative_path: item for item in status_changes}
-    if explicit or changed_list:
-        requested = [_safe_path(item) for item in explicit]
-        if changed_list:
-            requested.extend(_read_changed_list(_repo_input_file(root, changed_list)))
-        requested = list(dict.fromkeys(requested))
-    elif baseline_snapshot:
-        requested = sorted(
-            _snapshot_changed_paths(root, policy, _load_snapshot(_repo_input_file(root, baseline_snapshot)))
-        )
-    else:
-        requested = [item.relative_path for item in status_changes]
-    selected: list[GitChange] = []
-    for path in requested:
-        selected.append(by_path.get(path, GitChange("??", path)))
-    return selected, requested
-
-
-def _validate_h1_receipt(path: Path) -> tuple[bool, str]:
-    if not path.exists():
-        return False, "H1_RECEIPT_MISSING"
-    try:
-        value = _safe_json_read(path)
-    except GateError as exc:
-        return False, str(exc)
-    if value.get("gate_id") != "CTXMAP-H1":
-        return False, "H1_RECEIPT_INVALID"
-    if value.get("status") != "APPROVED":
-        return False, "H1_NOT_APPROVED"
-    if value.get("approval_text") != "CTXMAP-H1を承認します":
-        return False, "H1_APPROVAL_TEXT_INVALID"
-    return True, "H1_APPROVED"
-
-
-def require_h1_approval(root: Path, receipt: Path) -> None:
-    receipt_path = _inside_root(root, receipt)
-    allowed, reason = _validate_h1_receipt(receipt_path)
-    if not allowed:
-        raise GateError(reason)
-
-
-def _load_a07_responses(path: Path | None) -> dict[str, dict[str, Any]]:
-    if path is None:
-        return {}
-    value = _safe_json_read(path)
-    raw = value.get("responses", value)
-    if not isinstance(raw, dict):
-        raise GateError("A07_RESPONSES_INVALID")
-    result: dict[str, dict[str, Any]] = {}
-    required_keys = {
-        "artifact_id",
-        "action",
-        "summary",
-        "purpose",
-        "triggers",
-        "headings",
-        "relations",
-        "confidence",
-        "reason",
-        "source_hash",
-        "receipt",
-    }
-    for key, item in raw.items():
-        normalized = _safe_path(str(key))
-        if not isinstance(item, dict):
-            raise GateError("A07_RESPONSES_INVALID")
-        if set(item) != required_keys:
-            raise GateError("A07_RESPONSES_INVALID")
-        if not isinstance(item.get("artifact_id"), str) or not _SAFE_IDENTIFIER_RE.fullmatch(
-            item["artifact_id"]
-        ):
-            raise GateError("A07_RESPONSES_INVALID")
-        if item.get("action") not in {"record_add", "record_update", "metadata_unchanged"}:
-            raise GateError("A07_RESPONSES_INVALID")
-        if not all(isinstance(item.get(field), str) for field in ("summary", "purpose", "reason")):
-            raise GateError("A07_RESPONSES_INVALID")
-        if not all(isinstance(item.get(field), list) for field in ("triggers", "headings", "relations")):
-            raise GateError("A07_RESPONSES_INVALID")
-        confidence = item.get("confidence")
-        if isinstance(confidence, bool) or not isinstance(confidence, (int, float)):
-            raise GateError("A07_RESPONSES_INVALID")
-        if not 0.70 <= float(confidence) <= 1.0:
-            raise GateError("A07_RESPONSES_INVALID")
-        if not isinstance(item.get("source_hash"), str) or not re.fullmatch(
-            r"[a-f0-9]{64}", item["source_hash"]
-        ):
-            raise GateError("A07_RESPONSES_INVALID")
-        receipt = item.get("receipt")
-        if not isinstance(receipt, dict) or set(receipt) != {
-            "agent_id",
-            "model",
-            "reasoning_effort",
-            "status",
-            "run_id",
-        }:
-            raise GateError("A07_RESPONSES_INVALID")
-        if (
-            not all(isinstance(receipt.get(field), str) for field in receipt)
-            or receipt["model"] != "gpt-5.6-luna"
-            or receipt["reasoning_effort"] != "low"
-            or receipt["status"] != "completed"
-            or receipt["run_id"] in {"", "N/A"}
-            or not _SAFE_IDENTIFIER_RE.fullmatch(receipt["agent_id"])
-            or not _SAFE_IDENTIFIER_RE.fullmatch(receipt["run_id"])
-        ):
-            raise GateError("A07_RESPONSES_INVALID")
-        result[normalized] = copy.deepcopy(item)
-    return result
-
-
-def _safe_read_target(root: Path, relative_path: str, policy: dict[str, Any]) -> bytes:
+def _metadata_for_path(root: Path, relative_path: str, policy: dict[str, Any]) -> dict[str, Any]:
     normalized = _safe_path(relative_path)
     if scan_secret_path(normalized, policy):
         raise GateError("SECRET_PATH")
     target = _gate_target(root, normalized)
+    result: dict[str, Any] = {"relative_path": normalized, "exists": target.exists()}
+    if not target.exists():
+        return result
+    if not target.is_file():
+        raise GateError("TARGET_NOT_FILE")
     try:
         data = target.read_bytes()
-    except (OSError, ValueError) as exc:
+        stat = target.stat()
+    except OSError as exc:
         raise GateError("FILE_READ_FAILED") from exc
-    limit = int(policy.get("max_file_bytes", 0))
-    source_limit = int(policy.get("source_max_file_bytes", limit))
-    if len(data) > (source_limit if normalized not in GENERATED_MANIFEST_PATHS else limit):
+    max_bytes = int(policy.get("max_file_bytes", 0))
+    if max_bytes <= 0 or len(data) > max_bytes:
         raise GateError("FILE_SIZE_LIMIT")
     try:
         text = data.decode("utf-8")
@@ -390,49 +188,27 @@ def _safe_read_target(root: Path, relative_path: str, policy: dict[str, Any]) ->
         raise GateError("UTF8_REQUIRED") from exc
     if scan_secret_content(text, policy):
         raise GateError("SECRET_CONTENT")
-    return data
+    result.update({"size": len(data), "mtime_ns": int(stat.st_mtime_ns)})
+    return result
 
 
-def _request_id(relative_path: str) -> str:
-    digest = hashlib.sha256(relative_path.encode("utf-8")).hexdigest()[:16]
-    return f"ctx-gate-{digest}"
+def capture_worktree_snapshot(root: Path, policy: dict[str, Any]) -> dict[str, Any]:
+    """Return path/size/mtime metadata only; no content digest is produced."""
 
-
-def _receipt_path(root: Path, request_id: str) -> Path:
-    return _inside_root(root, Path("plan/context_index/receipts") / f"{request_id}.json")
-
-
-def _graph_valid(graph: Any) -> bool:
-    return (
-        isinstance(graph, dict)
-        and graph.get("schema_version") == "ctxmap-relation-graph-v0.1"
-        and isinstance(graph.get("nodes"), list)
-        and isinstance(graph.get("edges"), list)
-        and isinstance(graph.get("diagnostics"), list)
-    )
-
-
-def _validate_all(
-    root: Path,
-    policy: dict[str, Any],
-    document_manifest: dict[str, Any],
-    state: dict[str, Any] | None,
-    code_manifest: dict[str, Any],
-    relation_graph: dict[str, Any],
-) -> tuple[bool, dict[str, Any]]:
-    document_report = validate_manifest(document_manifest, root, policy, state=state)
-    code_report = validate_code_manifest(code_manifest, root, policy)
-    graph_ok = _graph_valid(relation_graph)
-    details = {
-        "document_manifest": {"valid": document_report.valid, "counts": document_report.counts},
-        "code_manifest": {"valid": code_report.valid, "status": code_report.status, "counts": code_report.counts},
-        "relation_graph": {
-            "valid": graph_ok,
-            "node_count": len(relation_graph.get("nodes", [])) if isinstance(relation_graph, dict) else 0,
-            "edge_count": len(relation_graph.get("edges", [])) if isinstance(relation_graph, dict) else 0,
-        },
+    paths = sorted(set(discover_managed_paths(root, policy)) | set(discover_code_paths(root, policy)))
+    return {
+        "schema_version": SNAPSHOT_SCHEMA_VERSION,
+        "verification": "path_size_mtime_only",
+        "captured_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "paths": {path: _metadata_for_path(root, path, policy) for path in paths if not is_generated_path(path)},
     }
-    return document_report.valid and code_report.valid and graph_ok, details
+
+
+def require_h1_approval(root: Path, receipt: Path) -> None:
+    receipt_path = _inside_root(root, receipt) if receipt.is_absolute() else _repo_input_file(root, receipt)
+    value = _safe_json_read(receipt_path)
+    if value.get("status") != "APPROVED":
+        raise GateError("H1_NOT_APPROVED")
 
 
 def _base_report(
@@ -442,114 +218,21 @@ def _base_report(
         "schema_version": GATE_SCHEMA_VERSION,
         "status": status,
         "reason_code": reason_code,
-        "requested_paths": requested_paths,
-        "target_paths": target_paths,
-        "ignored_paths": [],
-        "generated_paths": [],
-        "document_actions": [],
-        "source_manifest_updated": False,
-        "document_manifest_updated": False,
-        "relation_graph_updated": False,
-        "allowed_paths": [],
-        "approved_hashes": {},
-        "receipts": [],
-        "pending": None,
-        "validator": None,
+        "verification": "non_hash_path_schema_secret_state",
+        "requested_paths": sorted(set(requested_paths)),
+        "allowed_paths": sorted(set(target_paths)),
+        "protected_hash_checks": "NOT_APPLICABLE_TO_DOCUMENT_GATE",
+        "management_hash_checks": "SKIPPED_BY_USER_AUTHORITY",
     }
-
-
-def _approved_report(
-    report_path: Path,
-    root: Path,
-    expected_report_sha256: str | None = None,
-) -> tuple[dict[str, Any], list[str]]:
-    try:
-        resolved_report = _inside_root(root, report_path)
-        relative_report = resolved_report.relative_to(root.resolve()).as_posix()
-        _assert_no_reparse(root, relative_report)
-        report_bytes = resolved_report.read_bytes()
-    except (GateError, OSError, ValueError) as exc:
-        raise GateError("GATE_REPORT_INPUT_INVALID") from exc
-    if expected_report_sha256 is not None:
-        if not re.fullmatch(r"[a-f0-9]{64}", expected_report_sha256):
-            raise GateError("GATE_REPORT_HASH_INVALID")
-        if sha256_bytes(report_bytes) != expected_report_sha256:
-            raise GateError("GATE_REPORT_CHANGED")
-    try:
-        report = json.loads(report_bytes.decode("utf-8"))
-    except (UnicodeError, json.JSONDecodeError) as exc:
-        raise GateError("JSON_INPUT_INVALID") from exc
-    if not isinstance(report, dict):
-        raise GateError("JSON_ROOT_INVALID")
-    if report.get("schema_version") != GATE_SCHEMA_VERSION or report.get("status") != "PASS":
-        raise GateError("GATE_REPORT_NOT_APPROVED")
-    paths = report.get("allowed_paths")
-    if not isinstance(paths, list) or not paths:
-        raise GateError("GATE_ALLOWLIST_EMPTY")
-    hashes = report.get("approved_hashes")
-    if not isinstance(hashes, dict):
-        raise GateError("GATE_APPROVED_HASHES_MISSING")
-    result: list[str] = []
-    for value in paths:
-        if not isinstance(value, str):
-            raise GateError("GATE_ALLOWLIST_INVALID")
-        normalized = _safe_path(value)
-        if normalized not in result:
-            expected = hashes.get(normalized)
-            if not isinstance(expected, str) or not re.fullmatch(r"[a-f0-9]{64}", expected):
-                raise GateError("GATE_APPROVED_HASH_INVALID")
-            actual = _file_hash(root, normalized)
-            if actual is None or actual != expected:
-                raise GateError("GATE_CONTENT_CHANGED")
-            result.append(normalized)
-    if set(hashes) != set(result):
-        raise GateError("GATE_APPROVED_HASHES_MISMATCH")
-    return report, result
-
-
-def approved_paths_from_report(
-    report_path: Path,
-    root: Path,
-    expected_report_sha256: str | None = None,
-) -> list[str]:
-    """Load a PASS report and return only normalized, repository-relative paths."""
-
-    _, result = _approved_report(report_path, root, expected_report_sha256)
-    return result
-
-
-def verify_index_matches_report(
-    report_path: Path,
-    root: Path,
-    expected_report_sha256: str | None = None,
-) -> list[str]:
-    """Verify worktree and staged bytes still match the gate-approved hashes."""
-
-    report, paths = _approved_report(report_path, root, expected_report_sha256)
-    hashes = report["approved_hashes"]
-    for relative_path in paths:
-        expected = str(hashes[relative_path])
-        try:
-            staged = subprocess.run(
-                ["git", "show", f":{relative_path}"],
-                cwd=root,
-                check=False,
-                capture_output=True,
-            )
-        except OSError as exc:
-            raise GateError("GATE_INDEX_READ_FAILED") from exc
-        if staged.returncode != 0 or sha256_bytes(staged.stdout) != expected:
-            raise GateError("GATE_INDEX_CONTENT_CHANGED")
-    return paths
 
 
 def run_gate(
     root: Path,
-    policy_path: Path,
-    manifest_path: Path,
-    state_path: Path,
-    code_manifest_path: Path,
-    relation_graph_path: Path,
+    policy_path: Path | str,
+    manifest_path: Path | str | None = None,
+    state_path: Path | str | None = None,
+    code_manifest_path: Path | str | None = None,
+    relation_graph_path: Path | str | None = None,
     *,
     changed: list[str] | None = None,
     changed_list: Path | None = None,
@@ -557,203 +240,64 @@ def run_gate(
     a07_responses: Path | None = None,
     require_h1: bool = False,
     h1_receipt: Path | None = None,
+    management_hash_policy: str = DEFAULT_MANAGEMENT_HASH_POLICY,
 ) -> dict[str, Any]:
-    root = root.resolve()
-    policy = load_policy(_inside_root(root, policy_path))
+    del manifest_path, state_path, code_manifest_path, relation_graph_path, baseline_snapshot, a07_responses
+    if management_hash_policy != DEFAULT_MANAGEMENT_HASH_POLICY:
+        raise GateError("LEGACY_MANAGEMENT_HASH_POLICY_RETIRED")
+    repository = root.resolve()
+    policy = load_policy(_inside_root(repository, Path(policy_path)))
     if require_h1:
-        require_h1_approval(root, h1_receipt or Path(DEFAULT_H1_RECEIPT))
-    selected, requested = _selected_changes(
-        root, policy, changed or [], changed_list, baseline_snapshot
-    )
-    report = _base_report(status="PASS", reason_code="NO_TARGET_CHANGES", requested_paths=requested, target_paths=[])
-    document_paths: list[str] = []
-    source_paths: list[str] = []
-    generated_paths: list[str] = []
-    ignored_paths: list[str] = []
-    for item in selected:
-        path = item.relative_path
-        if is_generated_path(path):
-            generated_paths.append(path)
+        require_h1_approval(repository, h1_receipt or Path(DEFAULT_H1_RECEIPT))
+    requested = list(changed or [])
+    if changed_list is not None:
+        requested.extend(_read_changed_list(repository, changed_list))
+    safe_paths: list[str] = []
+    details: list[dict[str, Any]] = []
+    for path in requested:
+        normalized = _safe_path(path)
+        if is_generated_path(normalized):
             continue
-        try:
-            is_doc = is_managed_document(path, policy)
-            from .build_code_manifest import is_managed_code_path
-
-            is_source = is_managed_code_path(path, policy)
-        except (PolicyViolation, ValueError) as exc:
-            is_doc = False
-            is_source = False
-            ignored_paths.append(path)
-            if changed or changed_list:
-                report["status"] = "BLOCKED"
-                report["reason_code"] = str(exc) or "OUT_OF_SCOPE"
-                report["target_paths"] = requested
-                report["ignored_paths"] = sorted(set(ignored_paths))
-                return report
-            continue
-        if is_doc:
-            document_paths.append(path)
-        elif is_source:
-            source_paths.append(path)
-        else:
-            ignored_paths.append(path)
-            if changed or changed_list:
-                report["status"] = "BLOCKED"
-                report["reason_code"] = "OUT_OF_SCOPE_TARGET"
-                report["target_paths"] = requested
-                report["ignored_paths"] = sorted(set(ignored_paths))
-                return report
-    target_paths = sorted(set(document_paths + source_paths + generated_paths))
-    report["target_paths"] = target_paths
-    report["ignored_paths"] = sorted(set(ignored_paths))
-    report["generated_paths"] = sorted(set(generated_paths))
-
-    document_manifest = _safe_json_read(_inside_root(root, manifest_path))
-    state = _safe_json_read(_inside_root(root, state_path)) if _inside_root(root, state_path).exists() else None
-    code_manifest = _safe_json_read(_inside_root(root, code_manifest_path))
-    relation_graph = _safe_json_read(_inside_root(root, relation_graph_path))
-    original_document = copy.deepcopy(document_manifest)
-    original_state = copy.deepcopy(state)
-    original_code = copy.deepcopy(code_manifest)
-    original_graph = copy.deepcopy(relation_graph)
-    receipt_records: list[tuple[Path, dict[str, Any]]] = []
-    response_map = _load_a07_responses(
-        _repo_input_file(root, a07_responses) if a07_responses is not None else None
+        details.append(_metadata_for_path(repository, normalized, policy))
+        safe_paths.append(normalized)
+    report = _base_report(
+        status="PASS",
+        reason_code="NON_HASH_GATE_PASS",
+        requested_paths=requested,
+        target_paths=safe_paths,
     )
-
-    if any(item.status[0] in {"D", "R", "C"} or item.status[1] in {"D", "R", "C"} for item in selected):
-        report["status"] = "BLOCKED"
-        report["reason_code"] = "RENAME_OR_DELETE_REQUIRES_RECONCILIATION"
-        report["pending"] = {"reason_code": report["reason_code"], "paths": target_paths}
-        return report
-    active_manifest_paths = {
-        str(item.get("relative_path"))
-        for item in document_manifest.get("artifacts", [])
-        if isinstance(item, dict) and item.get("status") == "active"
-    }
-    missing_manifest_paths = sorted(
-        path for path in active_manifest_paths if _file_hash(root, path) is None
-    )
-    if missing_manifest_paths:
-        report["status"] = "BLOCKED"
-        report["reason_code"] = "RENAME_OR_DELETE_REQUIRES_RECONCILIATION"
-        report["pending"] = {"reason_code": report["reason_code"], "paths": missing_manifest_paths}
-        return report
-
-    def dispatcher(payload: dict[str, Any]) -> dict[str, Any]:
-        path = str(payload.get("relative_path", ""))
-        decision = response_map.get(path)
-        if decision is None:
-            raise A07DispatchError("RUNTIME_DISPATCH_FALLBACK_REQUIRED")
-        return decision
-
-    observed_at = "2026-08-14T00:00:00Z"
-    for path in sorted(document_paths):
-        _safe_read_target(root, path, policy)
-        result = maintain_document(
-            root,
-            path,
-            policy,
-            document_manifest,
-            dispatcher=dispatcher,
-            request_id=_request_id(path),
-            observed_at=observed_at,
-            state=state,
-            validate_manifest_result=False,
-        )
-        if result.status != "PASS":
-            receipt = result.receipt
-            receipt_path = _receipt_path(root, _request_id(path))
-            _write_json_atomic(receipt_path, receipt)
-            report["receipts"].append(
-                {
-                    "path": receipt_path.relative_to(root).as_posix(),
-                    "source_hash": receipt.get("source_hash"),
-                    "action": receipt.get("action"),
-                    "status": receipt.get("status"),
-                    "reason_code": receipt.get("reason_code"),
-                }
-            )
-            reason = str(receipt.get("reason_code", "MAINTENANCE_FAILED"))
-            if reason == "RUNTIME_DISPATCH_FALLBACK_REQUIRED":
-                reason = "A07_RUNTIME_UNAVAILABLE"
-            report["status"] = "BLOCKED"
-            report["reason_code"] = reason
-            report["pending"] = {
-                "reason_code": reason,
-                "paths": [path],
-                "receipt_path": receipt_path.relative_to(root).as_posix(),
-            }
-            return report
-        document_manifest = result.manifest
-        state = result.state
-        receipt_path = _receipt_path(root, _request_id(path))
-        receipt_records.append((receipt_path, result.receipt))
-        report["receipts"].append(
-            {
-                "path": receipt_path.relative_to(root).as_posix(),
-                "source_hash": result.receipt.get("source_hash"),
-                "action": result.receipt.get("action"),
-                "status": result.receipt.get("status"),
-                "reason_code": result.receipt.get("reason_code"),
-            }
-        )
-        report["document_actions"].append({"path": path, "action": result.action, "status": result.status})
-
-    if source_paths:
-        code_manifest = build_code_manifest(
-            root, policy, observed_at=observed_at, existing_manifest=code_manifest
-        )
-        report["source_manifest_updated"] = code_manifest != original_code
-    if document_paths:
-        report["document_manifest_updated"] = document_manifest != original_document or state != original_state
-    if document_paths or source_paths:
-        relation_graph = build_relation_graph(code_manifest, document_manifest)
-        report["relation_graph_updated"] = relation_graph != original_graph
-
-    valid, validator = _validate_all(root, policy, document_manifest, state, code_manifest, relation_graph)
-    report["validator"] = validator
-    if not valid:
-        report["status"] = "BLOCKED"
-        report["reason_code"] = "VALIDATOR_FAILED"
-        report["pending"] = {"reason_code": "VALIDATOR_FAILED", "paths": target_paths}
-        return report
-
-    for receipt_path, receipt in receipt_records:
-        _write_json_atomic(receipt_path, receipt)
-    if document_paths:
-        _write_json_atomic(_inside_root(root, manifest_path), document_manifest)
-        if state is not None:
-            _write_json_atomic(_inside_root(root, state_path), state)
-    if source_paths:
-        _write_json_atomic(_inside_root(root, code_manifest_path), code_manifest)
-    if document_paths or source_paths:
-        _write_json_atomic(_inside_root(root, relation_graph_path), relation_graph)
-
-    allowed = set(target_paths)
-    if document_paths:
-        allowed.update({"context/artifact_manifest.json", "context/manifest_state.json", "context/relation_graph.json"})
-    if source_paths:
-        allowed.update({"context/code_manifest.json", "context/relation_graph.json"})
-    allowed.update(path.relative_to(root).as_posix() for path, _ in receipt_records)
-    report["allowed_paths"] = sorted(allowed)
-    approved_hashes: dict[str, str] = {}
-    for relative_path in report["allowed_paths"]:
-        digest = _file_hash(root, relative_path)
-        if digest is None:
-            report["status"] = "BLOCKED"
-            report["reason_code"] = "GATE_APPROVED_PATH_MISSING"
-            report["pending"] = {"reason_code": report["reason_code"], "paths": [relative_path]}
-            return report
-        approved_hashes[relative_path] = digest
-    report["approved_hashes"] = approved_hashes
-    report["status"] = "PASS"
-    report["reason_code"] = "GATE_PASS"
+    report["targets"] = details
+    report["human_gate"] = "APPROVED" if require_h1 else "NOT_REQUIRED"
     return report
 
 
+def approved_paths_from_report(report_path: Path, root: Path, expected_legacy_value: str | None = None) -> list[str]:
+    """Compatibility helper returning a nonhash path allowlist."""
+
+    del root, expected_legacy_value
+    report = _safe_json_read(report_path)
+    if report.get("status") != "PASS":
+        raise GateError("GATE_NOT_PASS")
+    paths = report.get("allowed_paths", [])
+    if not isinstance(paths, list) or not all(isinstance(item, str) for item in paths):
+        raise GateError("GATE_ALLOWED_PATHS_INVALID")
+    return sorted(set(paths))
+
+
+def verify_index_matches_report(
+    report_path: Path, root: Path, expected_legacy_value: str | None = None
+) -> None:
+    """Compatibility helper performing only path/safety revalidation."""
+
+    del expected_legacy_value
+    paths = approved_paths_from_report(report_path, root)
+    policy = load_policy(_inside_root(root, Path("context/context_policy.json")))
+    for path in paths:
+        _metadata_for_path(root, path, policy)
+
+
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Fail-closed CTXMAP commit gate.")
+    parser = argparse.ArgumentParser(description="Nonhash local context safety gate.")
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--policy", type=Path, default=Path("context/context_policy.json"))
     parser.add_argument("--manifest", type=Path, default=Path("context/artifact_manifest.json"))
@@ -768,12 +312,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--snapshot-output", type=Path)
     parser.add_argument("--require-h1", action="store_true")
     parser.add_argument("--h1-receipt", type=Path, default=Path(DEFAULT_H1_RECEIPT))
+    parser.add_argument(
+        "--management-hash-policy",
+        choices=("disabled",),
+        default=os.environ.get(MANAGEMENT_HASH_POLICY_ENV, DEFAULT_MANAGEMENT_HASH_POLICY),
+        help="Retained as a disabled-only migration compatibility option.",
+    )
     args = parser.parse_args(argv)
     root = args.root.resolve()
     report_path = _inside_root(root, args.report)
     try:
-        policy = load_policy(_inside_root(root, args.policy))
         if args.snapshot_output:
+            policy = load_policy(_inside_root(root, args.policy))
             _write_json_atomic(_inside_root(root, args.snapshot_output), capture_worktree_snapshot(root, policy))
         report = run_gate(
             root,
@@ -788,6 +338,7 @@ def main(argv: list[str] | None = None) -> int:
             a07_responses=args.a07_responses,
             require_h1=args.require_h1,
             h1_receipt=args.h1_receipt,
+            management_hash_policy=args.management_hash_policy,
         )
     except (ContextIndexError, PolicyViolation, OSError, UnicodeError, json.JSONDecodeError) as exc:
         report = _base_report(
@@ -802,21 +353,12 @@ def main(argv: list[str] | None = None) -> int:
     except OSError:
         print("GATE_REPORT_WRITE_FAILED")
         return 1
-    try:
-        report_sha256 = sha256_bytes(report_path.read_bytes())
-    except OSError:
-        print("GATE_REPORT_WRITE_FAILED")
-        return 1
-    print(
-        json.dumps(
-            {
-                "status": report["status"],
-                "reason_code": report["reason_code"],
-                "report_sha256": report_sha256,
-            },
-            ensure_ascii=False,
-        )
-    )
+    output = {
+        "status": report["status"],
+        "reason_code": report["reason_code"],
+        "management_hash_policy": "disabled",
+    }
+    print(json.dumps(output, ensure_ascii=False))
     return 0 if report["status"] == "PASS" else 1
 
 

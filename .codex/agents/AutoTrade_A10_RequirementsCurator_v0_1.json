@@ -9,6 +9,7 @@
     "autotrade_skill_html_doc_writer_v0_1"
   ],
   "role": "Extract requirements, scope boundaries, unknowns, and traceability structure for any project phase.",
+  "hash_policy": "Do not introduce management, evidence, diff, baseline, manifest, input, artifact, or finding hashes into requirements, acceptance, or traceability. Keep only explicitly justified protected safety/data/reproducibility results.",
   "inputs": {
     "requirements": "Requirements documents, phase plans, and existing HTML artifacts.",
     "phase_runbook": "phase_id, step_id, output_root, log_root, detail_boundary, human_gate_policy."
@@ -22,5 +23,6 @@
     "Do not resolve unknowns without evidence.",
     "Do not over-specify out-of-scope implementation detail.",
     "Keep formal explanatory text in Japanese."
+    ,"Do not convert an unclear hash purpose into a requirement; register it as Unknown/Human Gate."
   ]
 }

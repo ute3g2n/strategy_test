@@ -46,7 +46,8 @@ def make_config() -> BacktestConfig:
 def test_p4_h1_contract_modules_and_manifest_are_green() -> None:
     manifest = RunManifest("p4-v1", "run-1", HASH, HASH, HASH, "evidence")
     manifest.validate()
-    assert manifest.manifest_sha256.startswith("sha256:")
+    assert not hasattr(manifest, "manifest_sha256")
+    assert manifest.fixture_sha256 == HASH
     validate_ui_payload({"contract_version": UI_CONTRACT_VERSION, "state": "INITIAL"})
 
 

@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+# Step 04 authority: management change/diff/Evidence/baseline hashes are
+# forcibly skipped. The approved fixture hash below protects reproducibility
+# and input immutability; its failure remains fail-closed. No management-hash
+# retry is performed.
+
 repository_path="${1:?repository path is required}"
 run_id="${2:?run id is required}"
 host_execution_id="${WSL_HOST_WRAPPER_EXECUTION_ID:-${3:?host wrapper execution id is required}}"
@@ -55,6 +60,8 @@ if printf '%s\n' "$addr_records" | awk '$2 != "lo" && ($3 == "inet" || $3 == "in
   blocked "outward-facing NIC remains"
 fi
 
+# Protected fixture identity: this is direct reproducibility/data protection,
+# not a management diff or evidence hash.
 input_hash="sha256:$(sha256sum "$input_location" | awk '{print $1}')"
 [[ "$input_hash" == "$expected_input_hash" ]] || blocked "input checksum mismatch"
 
@@ -94,16 +101,15 @@ if [[ "$post_input_hash" != "$input_hash" || "$post_input_hash" != "$expected_in
   exit 20
 fi
 
-"$python_bin" - "$evidence_root/verification.json" "$gate_exit" "$input_hash" "$post_input_hash" "$host_execution_id" "$manifest" "$repository_path" <<'PY'
+"$python_bin" - "$evidence_root/verification.json" "$gate_exit" "$input_hash" "$post_input_hash" "$host_execution_id" "$repository_path" <<'PY'
 import json
 import subprocess
 import sys
 from pathlib import Path
 
-path, exit_code, input_hash, post_input_hash, host_execution_id, manifest_path, repository_path = sys.argv[1:]
+path, exit_code, input_hash, post_input_hash, host_execution_id, repository_path = sys.argv[1:]
 verification_path = Path(path)
 result = json.loads(verification_path.read_text(encoding="utf-8")) if verification_path.exists() else {"state": "FAILED"}
-manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
 
 
 def command_version(command: list[str]) -> str:
@@ -126,7 +132,6 @@ result.update(
         "scope": "target_only",
         "input_sha256": input_hash,
         "post_input_sha256": post_input_hash,
-        "target_only_change_sha256": manifest["change_hash"],
         "host_wrapper_execution_id": host_execution_id,
         "restore_pending": True,
         "execution_user": __import__("getpass").getuser(),

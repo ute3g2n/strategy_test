@@ -17,8 +17,9 @@
     "html_outputs_must_be_under_doc": true,
     "plans_and_logs_must_be_under_plan": true,
     "doc_index_must_be_updated": true,
-    "unknown_must_not_pass": true,
-    "do_not_change_default_orchestrator": true
+   "unknown_must_not_pass": true,
+    "do_not_change_default_orchestrator": true,
+    "future_hash_policy": "protected_safety_data_reproducibility_only"
   },
   "runtime_dispatch_contract": {
     "version": "RDC-AI-COMPONENT-0.2",
@@ -71,6 +72,10 @@
     "A90": {
       "file": ".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json",
       "primary_skill": "autotrade_skill_design_review_v0_1"
+    },
+    "A95": {
+      "file": ".codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json",
+      "primary_skill": "autotrade_skill_protected_hash_policy_guard_v0_1"
     }
   },
   "skills": [
@@ -82,7 +87,8 @@
     "autotrade_skill_orchestration_v0_1",
     "autotrade_skill_html_doc_writer_v0_1",
     "autotrade_skill_design_review_v0_1",
-    "autotrade_skill_revision_integration_v0_1"
+    "autotrade_skill_revision_integration_v0_1",
+    "autotrade_skill_protected_hash_policy_guard_v0_1"
   ],
   "workflow_policy": [
     "Survey existing reusable generic components before proposing any new component.",
@@ -90,10 +96,11 @@
     "Do not treat a component name, JSON read, or root self-review as a spawn receipt or independent review.",
     "Decide whether the request is create, modify, or create-by-composition.",
     "Create or modify only the explicitly named skill, agent, orchestrator, and config entries.",
-    "Update AI foundation HTML docs, rules, and doc/index.html in the same run.",
-    "Connect new-document and major-document-change handoffs to AutoTrade_A07_ContextManifestMaintainer_v0_1; require validator PASS or an honest BLOCKED result before completion.",
-    "Use AutoTrade_A08_ContextRouter_v0_1 only with a validator-approved manifest snapshot; do not make it a body-reading agent.",
-    "Run a review for over-creation, missing sync updates, and name-control mistakes.",
+   "Update AI foundation HTML docs, rules, and doc/index.html in the same run.",
+    "For ordinary new-document and major-document-change handoffs, do not dispatch management-hash maintenance; use non-hash metadata, schema, link, path, Secret, and state checks.",
+    "Use AutoTrade_A08_ContextRouter_v0_1 only with non-hash schema/state/path checks; do not make it a body-reading agent or a hash router.",
+    "For new or substantially changed artifacts, invoke AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1 as a static policy guard. It must not calculate hashes, write manifests, compare hashes, or retry on hash mismatch.",
+   "Run a review for over-creation, missing sync updates, and name-control mistakes.",
     "Record residual risks and any blocked collisions.",
     "Continue with the declared fallback checklist when nested child dispatch is unavailable; never hide the fallback."
   ],

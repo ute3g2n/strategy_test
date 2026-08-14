@@ -1,0 +1,84 @@
+{
+  "schema": "hash-management-migration-dispatch-receipt-v0.1",
+  "plan": "hash管理廃止_保護hash限定_全体導入実行計画書_v0.1_2026-08-15",
+  "step": "Step 01",
+  "status": "COMPLETED_WITH_REMEDIATION",
+  "runtime_backend": "multi_agent_v1",
+  "management_hash_policy": "disabled_by_user_authority",
+  "user_authority": "文章管理基盤と廃止対象の管理用hashチェックを強制スキップして完了する。安全・データ・再現性に直結するprotected hash、Secret、Human Gate、Unknown、Critical/High、対象範囲、権限境界は維持する。",
+  "root_orchestrator": {
+    "name": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+    "json_path": ".codex/orchestrators/AutoTradeComponentLifecycle_Orchestrator_v0_1.json",
+    "agent_id": "01a00225-25fb-7e20-b442-fba0e08d8584",
+    "model": "gpt-5.6-terra",
+    "status": "COMPLETED",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK",
+    "result": "AI部品ルール、非hash routing、将来禁止規則、receipt境界、HTML導線をレビュー。旧説明節の誤読防止を追加修正。"
+  },
+  "agents": [
+    {
+      "name": "AutoTrade_A06_AiComponentEngineer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A06_AiComponentEngineer_v0_1.json",
+      "agent_id": "N/A",
+      "model": "gpt-5.6-luna",
+      "status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK",
+      "reason": "multi_agent_v1のagent thread limitにより個別dispatch不能。ルートレビューで代替し、独立実行済みとは扱わない。"
+    },
+    {
+      "name": "AutoTrade_A80_DocumentIntegrator_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json",
+      "agent_id": "N/A",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "low",
+      "status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK",
+      "reason": "multi_agent_v1のagent thread limitにより個別dispatch不能。ルートレビューで代替し、独立実行済みとは扱わない。"
+    },
+    {
+      "name": "AutoTrade_A90_DesignReviewer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json",
+      "agent_id": "N/A",
+      "model": "gpt-5.6-luna",
+      "status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK",
+      "status_detail": "ルートレビューで同等観点を実施したが、独立Agent実行ではない。"
+    }
+  ],
+  "nested_dispatch": {
+    "status": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "reason": "nested spawn/wait unavailable、およびroot agent thread limit",
+    "unstarted_agents_are_not_independent_evidence": true
+  },
+  "changes_reviewed": [
+    "settings/ai_component_rules.md",
+    ".codex/skills/autotrade_skill_context_manifest_maintenance_v0_1/SKILL.md",
+    ".codex/skills/autotrade_skill_context_routing_v0_1/SKILL.md",
+    ".codex/agents/AutoTrade_A06_AiComponentEngineer_v0_1.json",
+    ".codex/agents/AutoTrade_A07_ContextManifestMaintainer_v0_1.json",
+    ".codex/agents/AutoTrade_A08_ContextRouter_v0_1.json",
+    ".codex/orchestrators/AutoTradeComponentLifecycle_Orchestrator_v0_1.json",
+    "doc/ai_foundation/09_Phase実行計画作成AI部品仕様.html",
+    "doc/ai_foundation/10_Phase実行計画書作成依頼プロンプト.html",
+    "doc/ai_foundation/11_AI部品作成更新AI部品仕様.html",
+    "doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html",
+    "doc/ai_foundation/21_資料コード参照基盤システム詳細解説.html"
+  ],
+  "non_hash_validation": [
+    "AI部品JSONの構文確認",
+    "doc/ai_foundation/12の箇条書き記号確認",
+    "doc/ai_foundation/21の現行ポリシーと旧履歴の明示確認",
+    "doc/index.htmlの正式解説資料リンク確認",
+    "metadata/schema/path/link/state/Secret境界の確認"
+  ],
+  "protected_boundaries": [
+    "safety/data/reproducibilityに直結するprotected hashは用途と失敗時停止を明示して維持する",
+    "Secret、鍵、個人情報、外部I/O、Human Gate、Unknown、Critical/High、対象範囲、権限境界は管理用hashスキップの対象外"
+  ],
+  "remaining_unknowns": [],
+  "hash_receipt_fields": "管理用hash値・manifest hash・snapshot hash・受領hashはユーザー権限により生成・保存していない。"
+}

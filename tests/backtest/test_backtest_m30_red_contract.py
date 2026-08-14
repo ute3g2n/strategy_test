@@ -82,7 +82,7 @@ def test_named_m30_backtest_operation_matches_fixed_contract(case_id: str) -> No
         actual = operation(_input_for_case(case_id))
         if case_id == "BT-038":
             assert {key: actual[key] for key in expected_value} == expected_value
-            assert actual["parent_manifest_sha256"] == "sha256:" + "a" * 64
+            assert actual["parent_data_version"] == "sha256:" + "a" * 64
             assert actual["source_content_sha256"].startswith("sha256:")
             assert actual["source_provenance_sha256"].startswith("sha256:")
         else:

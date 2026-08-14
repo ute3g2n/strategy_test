@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import re
@@ -152,10 +151,6 @@ def is_publishable(path: str | Path, root: str | Path) -> bool:
         return False
 
 
-def _sha256_bytes(value: bytes) -> str:
-    return "sha256:" + hashlib.sha256(value).hexdigest()
-
-
 def _flush_bytes(path: Path, payload: bytes, *, overwrite: bool = False) -> None:
     """Write one file durably and atomically, refusing accidental replacement."""
 
@@ -222,7 +217,7 @@ def _as_mapping(value: Any) -> dict[str, Any]:
     raise TypeError("canonical mapping required")
 
 
-def _row_mapping(value: Any, *, run_id: str, manifest_sha256: str) -> dict[str, Any]:
+def _row_mapping(value: Any, *, run_id: str, manifest_sha256: str | None = None) -> dict[str, Any]:
     if isinstance(value, ResultRow):
         payload = dict(value.payload)
         result = {
@@ -237,19 +232,18 @@ def _row_mapping(value: Any, *, run_id: str, manifest_sha256: str) -> dict[str, 
             "payload": payload,
             "payload_sha256": canonical_hash(payload),
             "warning_flags": [],
-            "manifest_sha256": value.manifest_sha256,
-            "content_sha256": value.content_sha256,
         }
     else:
         result = _as_mapping(value)
         result.setdefault("run_id", run_id)
         if "decision_time_utc" in result and "logical_time_utc" not in result:
             result["logical_time_utc"] = result.pop("decision_time_utc")
-        result.setdefault("manifest_sha256", manifest_sha256)
+        result.pop("manifest_sha256", None)
+        result.pop("content_sha256", None)
     if set(result) - _ALLOWED_ROW_FIELDS:
         raise ValueError("unknown result row field")
     _reject_forbidden(result)
-    if result.get("run_id") != run_id or result.get("manifest_sha256") != manifest_sha256:
+    if result.get("run_id") != run_id:
         raise ValueError("result row binding mismatch")
     sequence_no = result.get("sequence_no")
     if not isinstance(sequence_no, int) or sequence_no < 0:
@@ -264,7 +258,7 @@ def _row_mapping(value: Any, *, run_id: str, manifest_sha256: str) -> dict[str, 
     return result
 
 
-def _snapshot_mapping(value: Any, *, run_id: str, manifest_sha256: str) -> dict[str, Any]:
+def _snapshot_mapping(value: Any, *, run_id: str, manifest_sha256: str | None = None) -> dict[str, Any]:
     typed_snapshot = isinstance(value, BacktestSnapshot)
     if isinstance(value, BacktestSnapshot):
         result = asdict(value)
@@ -294,7 +288,6 @@ def _snapshot_mapping(value: Any, *, run_id: str, manifest_sha256: str) -> dict[
         raise ValueError("unknown snapshot field")
     required_snapshot_fields = {
         "schema_version",
-        "manifest_sha256",
         "input_sequence_sha256",
         "last_committed_event_id",
         "last_batch_sha256",
@@ -304,13 +297,12 @@ def _snapshot_mapping(value: Any, *, run_id: str, manifest_sha256: str) -> dict[
         "pending_fingerprints",
         "consumed_fingerprints",
         "result_offset",
-        "commit_marker_sha256",
     }
     if not typed_snapshot and not required_snapshot_fields.issubset(result):
         raise ValueError("snapshot binding is incomplete")
     result.setdefault("run_id", run_id)
     if typed_snapshot:
-        result.setdefault("input_sequence_sha256", result.get("replay_sha256", manifest_sha256))
+        result.setdefault("input_sequence_sha256", result.get("replay_sha256", ""))
         result.setdefault("replay_sha256", result["input_sequence_sha256"])
         result.setdefault("execution_watermarks", {})
         result.setdefault("pending_fingerprints", [])
@@ -322,10 +314,9 @@ def _snapshot_mapping(value: Any, *, run_id: str, manifest_sha256: str) -> dict[
     if result.get("state_payload_sha256", expected_state_hash) != expected_state_hash:
         raise ValueError("snapshot state payload hash mismatch")
     result["state_payload_sha256"] = expected_state_hash
-    result["manifest_sha256"] = result.get("manifest_sha256", manifest_sha256)
+    result.pop("manifest_sha256", None)
+    result.pop("commit_marker_sha256", None)
     _reject_forbidden(result)
-    if result["manifest_sha256"] != manifest_sha256:
-        raise ValueError("snapshot binding mismatch")
     result_offset = result.get("result_offset")
     if not isinstance(result_offset, int) or result_offset < 0:
         raise ValueError("snapshot result offset is invalid")
@@ -335,6 +326,9 @@ def _snapshot_mapping(value: Any, *, run_id: str, manifest_sha256: str) -> dict[
 
 def _marker_mapping(value: Any) -> dict[str, Any]:
     result = _as_mapping(value)
+    # Legacy management identity fields are intentionally ignored on input.
+    for legacy_key in ("manifest_sha256", "result_sha256", "commit_sha256"):
+        result.pop(legacy_key, None)
     required = {
         "commit_id",
         "result_offset",
@@ -342,9 +336,8 @@ def _marker_mapping(value: Any) -> dict[str, Any]:
         "last_batch_sha256",
         "snapshot_sha256",
         "audit_tail_sha256",
-        "manifest_sha256",
     }
-    if not required.issubset(result) or set(result) - required - {"result_sha256", "commit_sha256"}:
+    if not required.issubset(result) or set(result) - required:
         raise ValueError("invalid commit marker fields")
     if not isinstance(result["commit_id"], str) or not result["commit_id"]:
         raise ValueError("commit id is required")
@@ -355,7 +348,7 @@ def _marker_mapping(value: Any) -> dict[str, Any]:
     return result
 
 
-def _audit_mapping(value: Any, *, run_id: str, manifest_sha256: str, sequence_no: int) -> dict[str, Any]:
+def _audit_mapping(value: Any, *, run_id: str, manifest_sha256: str | None = None, sequence_no: int) -> dict[str, Any]:
     result = _as_mapping(value)
     allowed = {
         "audit_id",
@@ -365,15 +358,14 @@ def _audit_mapping(value: Any, *, run_id: str, manifest_sha256: str, sequence_no
         "severity",
         "code",
         "message_ja",
-        "manifest_sha256",
         "subject_hashes",
     }
     if set(result) - allowed:
         raise ValueError("unknown audit field")
     result.setdefault("sequence_no", sequence_no)
     result.setdefault("run_id", run_id)
-    result.setdefault("manifest_sha256", manifest_sha256)
-    if result.get("run_id") != run_id or result.get("manifest_sha256") != manifest_sha256:
+    result.pop("manifest_sha256", None)
+    if result.get("run_id") != run_id:
         raise ValueError("audit binding mismatch")
     if not isinstance(result.get("audit_id"), str) or not result["audit_id"]:
         raise ValueError("audit id is required")
@@ -386,7 +378,7 @@ def _audit_mapping(value: Any, *, run_id: str, manifest_sha256: str, sequence_no
 class RunStaging:
     run_id: str
     tmp_path: Path
-    manifest_sha256: str
+    manifest_sha256: str | None = None
 
 
 @dataclass(frozen=True)
@@ -394,14 +386,14 @@ class CommitMarker:
     """Persisted commit marker; marker bytes are always written last."""
 
     commit_id: str
-    manifest_sha256: str
-    result_sha256: str
+    manifest_sha256: str | None = None
+    result_sha256: str | None = None
     snapshot_sha256: str = ""
     result_offset: int = 0
     last_event_id: str | None = None
     last_batch_sha256: str = ""
     audit_tail_sha256: str = ""
-    commit_sha256: str = ""
+    commit_sha256: str | None = None
 
 
 class AtomicResultStore:
@@ -437,7 +429,6 @@ class AtomicResultStore:
             if check["status"] != "PASS":
                 raise ValueError(check["reason"])
             run_id = manifest["run_id"]
-            manifest_sha256 = manifest["manifest_sha256"]
         else:
             if not isinstance(manifest, str):
                 raise ValueError("legacy staging requires run_id")
@@ -445,10 +436,10 @@ class AtomicResultStore:
             manifest = {
                 "schema_version": "legacy-staging-rejected-v1",
                 "run_id": run_id,
-                "manifest_sha256": manifest_sha256,
             }
-        if not isinstance(manifest_sha256, str) or not HASH_PATTERN.fullmatch(manifest_sha256):
-            raise ValueError("invalid manifest hash")
+        # `manifest_sha256` is accepted only for old callers.  It is not
+        # persisted, validated, or used as a management gate.
+        manifest_sha256 = None
         final = _safe_run_path(self.root, run_id, allow_missing=True)
         tmp = self.root / f".{run_id}.tmp"
         if final.exists() or tmp.exists() or _has_reparse_point(self.root):
@@ -462,7 +453,7 @@ class AtomicResultStore:
             else canonical_json(manifest)
         )
         _atomic_write(tmp / _MANIFEST_FILE, manifest_bytes)
-        return RunStaging(run_id, tmp, manifest_sha256)
+        return RunStaging(run_id, tmp, None)
 
     def append_then_commit(self, staging: RunStaging, commit: CommitInput | list[dict[str, Any]]) -> CommitMarker:
         """Write result rows, snapshot, then marker, each with durable bytes."""
@@ -479,8 +470,7 @@ class AtomicResultStore:
             snapshot: dict[str, Any] = {
                 "schema_version": "legacy-staging-rejected-v1",
                 "run_id": staging.run_id,
-                "manifest_sha256": staging.manifest_sha256,
-                "input_sequence_sha256": staging.manifest_sha256,
+                "input_sequence_sha256": "UNBOUND",
                 "last_committed_event_id": None,
                 "last_batch_sha256": canonical_hash([]),
                 "strategy_snapshot_sha256": canonical_hash({}),
@@ -489,13 +479,10 @@ class AtomicResultStore:
                 "pending_fingerprints": [],
                 "consumed_fingerprints": [],
                 "result_offset": len(rows),
-                "commit_marker_sha256": canonical_hash({"run_id": staging.run_id}),
             }
             commit = CommitInput(staging.run_id, rows, snapshot)
         if not isinstance(commit, CommitInput) or commit.commit_id != staging.run_id:
             raise ValueError("invalid commit input")
-        if not HASH_PATTERN.fullmatch(staging.manifest_sha256):
-            raise ValueError("invalid staging manifest hash")
         manifest_path = staging.tmp_path / _MANIFEST_FILE
         if not manifest_path.is_file() or _has_reparse_point(manifest_path):
             raise ValueError("immutable manifest is missing")
@@ -508,7 +495,6 @@ class AtomicResultStore:
         if len({row["row_id"] for row in rows}) != len(rows):
             raise ValueError("duplicate result row id")
         result_bytes = b"".join(canonical_json(row) + b"\n" for row in rows)
-        result_sha256 = _sha256_bytes(result_bytes)
         _atomic_write(staging.tmp_path / _RESULT_FILE, result_bytes)
 
         audit_rows = tuple(
@@ -522,42 +508,37 @@ class AtomicResultStore:
         if snapshot["result_offset"] != len(rows):
             raise ValueError("snapshot/result offset mismatch")
         snapshot_bytes = canonical_json(snapshot)
-        snapshot_sha256 = _sha256_bytes(snapshot_bytes)
+        # Snapshot identity protects recovery state; it is not a file
+        # fingerprint and is retained only for direct replay/recovery use.
+        snapshot_sha256 = canonical_hash(snapshot)
         _atomic_write(staging.tmp_path / _SNAPSHOT_FILE, snapshot_bytes)
 
-        audit_tail = commit.audit_tail_sha256 or canonical_hash(audit_rows[-1] if audit_rows else {})
         marker_payload = {
             "commit_id": commit.commit_id,
             "result_offset": len(rows),
             "last_event_id": commit.last_event_id or snapshot.get("last_committed_event_id"),
             "last_batch_sha256": commit.last_batch_sha256 or str(snapshot.get("last_batch_sha256", "")),
             "snapshot_sha256": snapshot_sha256,
-            "audit_tail_sha256": audit_tail,
-            "manifest_sha256": staging.manifest_sha256,
-            "result_sha256": result_sha256,
+            "audit_tail_sha256": "",
         }
-        marker_payload["commit_sha256"] = canonical_hash(
-            {key: value for key, value in marker_payload.items() if key != "commit_sha256"}
-        )
         last_event_id = marker_payload["last_event_id"]
         last_batch_sha256 = marker_payload["last_batch_sha256"]
-        commit_sha256 = marker_payload["commit_sha256"]
         if last_event_id is not None and not isinstance(last_event_id, str):
             raise ValueError("commit marker last event id is invalid")
-        if not isinstance(last_batch_sha256, str) or not isinstance(commit_sha256, str):
-            raise ValueError("commit marker hash is invalid")
+        if not isinstance(last_batch_sha256, str):
+            raise ValueError("commit marker last batch identity is invalid")
         marker_bytes = canonical_json(marker_payload)
         _atomic_write(staging.tmp_path / _MARKER_FILE, marker_bytes)
         return CommitMarker(
             commit_id=commit.commit_id,
-            manifest_sha256=staging.manifest_sha256,
-            result_sha256=result_sha256,
+            manifest_sha256=None,
+            result_sha256=None,
             snapshot_sha256=snapshot_sha256,
             result_offset=len(rows),
             last_event_id=last_event_id,
             last_batch_sha256=last_batch_sha256,
-            audit_tail_sha256=audit_tail,
-            commit_sha256=commit_sha256,
+            audit_tail_sha256="",
+            commit_sha256=None,
         )
 
     def _verify_staging(self, staging: RunStaging, marker: CommitMarker) -> dict[str, Any]:
@@ -575,29 +556,21 @@ class AtomicResultStore:
         manifest = json.loads(expected[_MANIFEST_FILE].read_text(encoding="utf-8"))
         if validate_manifest_integrity(manifest)["status"] != "PASS":
             raise ValueError("manifest integrity violation")
-        if manifest.get("run_id") != staging.run_id or manifest.get("manifest_sha256") != staging.manifest_sha256:
+        if manifest.get("run_id") != staging.run_id:
             raise ValueError("manifest binding mismatch")
         result_bytes = expected[_RESULT_FILE].read_bytes()
         snapshot_bytes = expected[_SNAPSHOT_FILE].read_bytes()
         stored_marker = _marker_mapping(json.loads(expected[_MARKER_FILE].read_text(encoding="utf-8")))
         supplied_marker = _marker_mapping(asdict(marker))
-        actual_result_sha = _sha256_bytes(result_bytes)
-        actual_snapshot_sha = _sha256_bytes(snapshot_bytes)
-        if stored_marker.get("commit_id") != staging.run_id or stored_marker.get("commit_sha256") != canonical_hash(
-            {key: value for key, value in stored_marker.items() if key != "commit_sha256"}
-        ):
-            raise ValueError("commit marker integrity mismatch")
-        if (
-            stored_marker != supplied_marker
-            or stored_marker.get("result_sha256") != actual_result_sha
-            or stored_marker.get("snapshot_sha256") != actual_snapshot_sha
-        ):
-            raise ValueError("commit marker or payload hash mismatch")
-        if stored_marker.get("manifest_sha256") != staging.manifest_sha256:
-            raise ValueError("commit manifest mismatch")
+        actual_snapshot = _snapshot_mapping(
+            json.loads(snapshot_bytes), run_id=staging.run_id, manifest_sha256=None
+        )
+        actual_snapshot_sha = canonical_hash(actual_snapshot)
+        if stored_marker != supplied_marker or stored_marker.get("snapshot_sha256") != actual_snapshot_sha:
+            raise ValueError("commit marker or snapshot state mismatch")
         rows = [json.loads(line) for line in result_bytes.splitlines() if line]
         for expected_sequence, row in enumerate(rows):
-            _row_mapping(row, run_id=staging.run_id, manifest_sha256=staging.manifest_sha256)
+            _row_mapping(row, run_id=staging.run_id, manifest_sha256=None)
             if row.get("sequence_no") != expected_sequence:
                 raise ValueError("result sequence mismatch")
         audit_bytes = expected[_AUDIT_FILE].read_bytes()
@@ -606,16 +579,18 @@ class AtomicResultStore:
             _audit_mapping(
                 audit_row,
                 run_id=staging.run_id,
-                manifest_sha256=staging.manifest_sha256,
+                manifest_sha256=None,
                 sequence_no=sequence_no,
             )
-        if stored_marker.get("audit_tail_sha256") != canonical_hash(audit_rows[-1] if audit_rows else {}):
-            raise ValueError("audit tail mismatch")
         snapshot = _snapshot_mapping(
-            json.loads(snapshot_bytes), run_id=staging.run_id, manifest_sha256=staging.manifest_sha256
+            json.loads(snapshot_bytes), run_id=staging.run_id, manifest_sha256=None
         )
         if snapshot.get("result_offset") != len(rows) or stored_marker.get("result_offset") != len(rows):
             raise ValueError("result offset mismatch")
+        if stored_marker.get("last_event_id") != snapshot.get("last_committed_event_id"):
+            raise ValueError("commit marker state mismatch")
+        if stored_marker.get("last_batch_sha256") != snapshot.get("last_batch_sha256"):
+            raise ValueError("commit marker batch binding mismatch")
         return {"manifest": manifest, "rows": rows, "snapshot": snapshot, "marker": stored_marker}
 
     def publish(self, staging: RunStaging, marker: CommitMarker) -> Path:
@@ -649,16 +624,16 @@ class AtomicResultStore:
             marker_dict = json.loads((run_path / _MARKER_FILE).read_text(encoding="utf-8"))
             marker = CommitMarker(
                 commit_id=marker_dict["commit_id"],
-                manifest_sha256=marker_dict["manifest_sha256"],
-                result_sha256=marker_dict.get("result_sha256", ""),
+                manifest_sha256=None,
+                result_sha256=None,
                 snapshot_sha256=marker_dict["snapshot_sha256"],
                 result_offset=marker_dict["result_offset"],
                 last_event_id=marker_dict.get("last_event_id"),
                 last_batch_sha256=marker_dict["last_batch_sha256"],
                 audit_tail_sha256=marker_dict["audit_tail_sha256"],
-                commit_sha256=marker_dict.get("commit_sha256", ""),
+                commit_sha256=None,
             )
-            staging = RunStaging(run_id, run_path, marker.manifest_sha256)
+            staging = RunStaging(run_id, run_path, None)
             verified = self._verify_staging(staging, marker)
             return {"status": "PASS", "run_id": run_id, **verified}
         except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError) as error:

@@ -13,13 +13,13 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["artifact_id", "kind", "status", "relative_path", "source_hash", "schema_version", "generator_version", "first_seen_at", "updated_at", "title", "headings", "trace_ids", "local_links", "summary", "purpose", "triggers", "relation_ids", "line_count", "byte_size"],
+        "required": ["artifact_id", "kind", "status", "relative_path", "schema_version", "generator_version", "first_seen_at", "updated_at", "title", "headings", "trace_ids", "local_links", "summary", "purpose", "triggers", "relation_ids", "line_count", "byte_size"],
         "properties": {
           "artifact_id": {"type": "string", "pattern": "^art-[0-9a-f-]{36}$"},
           "kind": {"const": "managed_document"},
           "status": {"enum": ["active", "deleted", "partial", "blocked", "pending"]},
           "relative_path": {"type": "string", "minLength": 1, "maxLength": 1024},
-          "source_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "source_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$", "description": "Historical field only; active runtime neither creates nor validates it."},
           "schema_version": {"const": "ctxmap-manifest-v0.1"},
           "generator_version": {"type": "string", "minLength": 1},
           "first_seen_at": {"type": "string", "minLength": 1},

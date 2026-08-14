@@ -193,7 +193,7 @@ def run_fake_engine_adapter(value: dict[str, Any]) -> dict[str, Any]:
 
     if not isinstance(value, dict) or type(value.get("sdk_imports")) is not int or value["sdk_imports"] < 0:
         return _stopped("ENGINE_SDK_LEAK")
-    if not {"request_type", "core_reference_sha256", "manifest_sha256"}.issubset(value):
+    if not {"request_type", "core_reference_sha256"}.issubset(value):
         return _stopped("ENGINE_IDENTITY_UNPINNED")
     return {"status": "PASS", "common_dto_only": True} if value["sdk_imports"] == 0 else _stopped("ENGINE_SDK_LEAK")
 

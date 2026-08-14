@@ -6,9 +6,11 @@
   "skills": [
     "autotrade_skill_design_review_v0_1",
     "autotrade_skill_red_team_review_v0_1",
-    "autotrade_skill_traceability_v0_1"
+    "autotrade_skill_traceability_v0_1",
+    "autotrade_skill_protected_hash_policy_guard_v0_1"
   ],
   "role": "Review design consistency, traceability, operational safety, and dangerous deferrals with findings-first output.",
+  "hash_policy": "Reject management hash agreement and hash retry as acceptance conditions. Treat unclear hash purpose as Unknown/Human Gate; accept protected hashes only with direct safety/data/reproducibility purpose and failure stop behavior.",
   "inputs": {
     "design_html": "Target HTML specifications or designs.",
     "requirements": "Requirements, runbook constraints, and linked artifacts.",
@@ -23,5 +25,7 @@
     "Findings come before summary.",
     "Do not approve unknowns as pass.",
     "Escalate missing fail-closed behavior, audit trails, and manual intervention controls."
+    ,"Review future plans and receipts for prohibited management hashes, without calculating or comparing hashes."
+    ,"Confirm that A95 is a static policy guard only and that protected-hash purpose and fail-closed behavior are explicit."
   ]
 }

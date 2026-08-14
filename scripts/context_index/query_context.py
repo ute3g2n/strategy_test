@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+# Step 02 user authority: metadata queries do not calculate, return, or compare
+# document-management hashes. Historical fields in old manifests are ignored.
 import argparse
 import json
 from collections.abc import Mapping
@@ -58,7 +60,6 @@ def query_manifest(
                     "relative_path": record.get("relative_path"),
                     "kind": record.get("kind"),
                     "status": record.get("status"),
-                    "source_hash": record.get("source_hash"),
                     "title": record.get("title", ""),
                     "headings": record.get("headings", []),
                     "trace_ids": record.get("trace_ids", []),

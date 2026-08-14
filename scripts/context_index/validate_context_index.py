@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+# Step 02 user authority: management/reference hash validation, stale checks,
+# and mismatch retries are force-skipped. This validator checks only schema,
+# path, link/state shape, file safety, and nonhash metadata.
 import argparse
 import json
 import re
@@ -17,7 +20,6 @@ from .common import (
     is_managed_document,
     load_policy,
     normalize_relative_path,
-    sha256_bytes,
 )
 
 
@@ -37,7 +39,6 @@ _REQUIRED_RECORD_KEYS = {
     "kind",
     "status",
     "relative_path",
-    "source_hash",
     "schema_version",
     "generator_version",
     "first_seen_at",
@@ -53,8 +54,7 @@ _REQUIRED_RECORD_KEYS = {
     "line_count",
     "byte_size",
 }
-_OPTIONAL_RECORD_KEYS = {"deleted_at", "last_known_path"}
-_SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
+_OPTIONAL_RECORD_KEYS = {"deleted_at", "last_known_path", "source_hash"}
 _ID_RE = re.compile(r"^art-[0-9a-f-]{36}$")
 
 
@@ -91,8 +91,6 @@ def _validate_record_shape(record: Any, errors: list[dict[str, str]]) -> bool:
         _error(errors, "SCHEMA_INVALID")
     if not isinstance(record.get("relative_path"), str):
         _error(errors, "SCHEMA_INVALID")
-    if not isinstance(record.get("source_hash"), str) or not _SHA256_RE.fullmatch(record["source_hash"]):
-        _error(errors, "SCHEMA_INVALID")
     if not isinstance(record.get("headings"), list) or not isinstance(record.get("trace_ids"), list):
         _error(errors, "SCHEMA_INVALID")
     if not isinstance(record.get("local_links"), list) or not isinstance(record.get("line_count"), int):
@@ -119,12 +117,8 @@ def _validate_state(
     }
     for record in records:
         item = state_by_id.get(record.get("artifact_id"))
-        if (
-            not item
-            or item.get("source_hash") != record.get("source_hash")
-            or item.get("state") != record.get("status")
-        ):
-            _error(errors, "STATE_STALE", record.get("relative_path"))
+        if not item or item.get("state") != record.get("status"):
+            _error(errors, "STATE_MISSING_OR_MISMATCH", record.get("relative_path"))
 
 
 def validate_manifest(
@@ -175,18 +169,14 @@ def validate_manifest(
         except PolicyViolation as exc:
             _error(errors, str(exc), normalized)
             continue
-        if sha256_bytes(data) != record["source_hash"]:
-            _error(errors, "STALE_HASH", normalized)
-        if len(data) != record.get("byte_size"):
-            _error(errors, "SIZE_MISMATCH", normalized)
     try:
-        discovered = set(discover_managed_paths(root, loaded_policy))
+        discover_managed_paths(root, loaded_policy)
     except PolicyViolation as exc:
         _error(errors, str(exc))
-        discovered = set()
-    registered_active = {record["relative_path"] for record in valid_records if record.get("status") == "active"}
-    for relative_path in sorted(discovered - registered_active):
-        _error(errors, "UNREGISTERED_DOCUMENT", relative_path)
+    # A newly added path is a metadata maintenance task, not a stale/hash
+    # failure. The router may return no candidate until maintenance records it.
+    # Do not fail the existing manifest solely because the worktree contains a
+    # new document.
     _validate_state(state, valid_records, errors)
     counts: dict[str, int] = {}
     for record in valid_records:

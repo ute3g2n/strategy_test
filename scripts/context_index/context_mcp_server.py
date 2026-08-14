@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+# Step 02 user authority: document/reference hashes, double-read hash checks,
+# stale rejection, and mismatch retries are force-skipped. Local MCP keeps
+# path, scope, size, UTF-8, Secret, prompt-injection, and bounded-range checks.
 import argparse
 import json
 import re
@@ -17,7 +20,6 @@ from .common import (
     normalize_relative_path,
     scan_secret_content,
     scan_secret_path,
-    sha256_bytes,
 )
 from .context_router import _query_terms, _record_text, load_router_snapshot
 
@@ -74,7 +76,6 @@ def _manifest_result(record: Mapping[str, Any]) -> dict[str, Any]:
         "relative_path",
         "kind",
         "status",
-        "source_hash",
         "title",
         "summary",
         "purpose",
@@ -209,18 +210,10 @@ class ContextMcpServer:
         relative_path, target = self._record_path(record, document=document)
         if scan_secret_path(relative_path, self.policy):
             raise McpRejected("SECRET_PATH")
-        expected_hash = record.get("source_hash")
-        if not isinstance(expected_hash, str) or not re.fullmatch(r"[a-f0-9]{64}", expected_hash):
-            raise McpRejected("MANIFEST_HASH_INVALID")
         try:
-            first_stat = target.stat()
             first = target.read_bytes()
-            second_stat = target.stat()
-            second = target.read_bytes()
         except (OSError, ValueError) as exc:
             raise McpRejected("FILE_READ_FAILED") from exc
-        if first != second or first_stat.st_size != second_stat.st_size or sha256_bytes(first) != expected_hash:
-            raise McpRejected("STALE_HASH")
         try:
             text = first.decode("utf-8")
         except UnicodeDecodeError as exc:
@@ -352,7 +345,6 @@ class ContextMcpServer:
         return {
             "artifact_id": identifier,
             "relative_path": relative_path,
-            "source_hash": record["source_hash"],
             "line_start": start,
             "line_end": end,
             "heading": heading,
@@ -430,7 +422,6 @@ class ContextMcpServer:
         return {
             "code_id": identifier,
             "relative_path": relative_path,
-            "source_hash": record["source_hash"],
             "extraction_status": record.get("extraction_status"),
             "symbol": requested_symbol,
             "line_start": start,

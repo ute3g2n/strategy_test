@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+# Step 02 user authority: document-management hashes, content fingerprints,
+# stale checks, and hash retries are force-skipped. Delta detection compares
+# path and extracted metadata only.
 import argparse
 import json
 from collections.abc import Mapping
@@ -15,109 +18,48 @@ def _snapshot(root: Path, policy: Mapping[str, Any]) -> dict[str, dict[str, Any]
     return {record["relative_path"]: record for record in manifest["artifacts"]}
 
 
-def _major_change(before: Mapping[str, Any], after: Mapping[str, Any], policy: Mapping[str, Any]) -> bool:
+def _change_kind(before: Mapping[str, Any], after: Mapping[str, Any], policy: Mapping[str, Any]) -> str | None:
     before_size = int(before.get("byte_size", 0))
     after_size = int(after.get("byte_size", 0))
     denominator = max(before_size, after_size, 1)
-    ratio = abs(after_size - before_size) / denominator
-    if ratio > float(policy.get("major_change_ratio", 0.20)):
-        return True
-    for field in ("headings", "trace_ids", "local_links"):
-        if before.get(field) != after.get(field):
-            return True
-    return False
+    if abs(after_size - before_size) / denominator > float(policy.get("major_change_ratio", 0.20)):
+        return "modified_major"
+    if any(before.get(field) != after.get(field) for field in ("headings", "trace_ids", "local_links", "title")):
+        return "modified_major"
+    if before.get("byte_size") != after.get("byte_size"):
+        return "modified_minor"
+    return None
 
 
 def detect_delta(before_root: Path, after_root: Path, policy: Mapping[str, Any] | Path | str) -> list[dict[str, Any]]:
     loaded_policy = load_policy(policy)
     before = _snapshot(before_root.resolve(), loaded_policy)
     after = _snapshot(after_root.resolve(), loaded_policy)
-    deleted = set(before) - set(after)
-    added = set(after) - set(before)
     changes: list[dict[str, Any]] = []
-
-    before_by_hash: dict[str, list[str]] = {}
-    after_by_hash: dict[str, list[str]] = {}
-    for path in deleted:
-        before_by_hash.setdefault(before[path]["source_hash"], []).append(path)
-    for path in added:
-        after_by_hash.setdefault(after[path]["source_hash"], []).append(path)
-    renamed_before: set[str] = set()
-    renamed_after: set[str] = set()
-    for source_hash in sorted(set(before_by_hash) & set(after_by_hash)):
-        old_paths = sorted(before_by_hash[source_hash])
-        new_paths = sorted(after_by_hash[source_hash])
-        if len(old_paths) == len(new_paths) == 1:
-            old_path, new_path = old_paths[0], new_paths[0]
-            renamed_before.add(old_path)
-            renamed_after.add(new_path)
-            changes.append(
-                {
-                    "change_kind": "renamed",
-                    "relative_path": new_path,
-                    "before_path": old_path,
-                    "after_path": new_path,
-                    "before_hash": source_hash,
-                    "after_hash": source_hash,
-                    "major_change": False,
-                }
-            )
-        elif old_paths and new_paths:
-            changes.append(
-                {
-                    "change_kind": "rename_ambiguous",
-                    "relative_path": old_paths[0],
-                    "before_paths": old_paths,
-                    "after_paths": new_paths,
-                    "before_hash": source_hash,
-                    "after_hash": source_hash,
-                    "major_change": False,
-                }
-            )
-
-    for path in sorted(added - renamed_after):
-        changes.append(
-            {
-                "change_kind": "added",
-                "relative_path": path,
-                "after_path": path,
-                "before_hash": None,
-                "after_hash": after[path]["source_hash"],
-                "major_change": True,
-            }
-        )
-    for path in sorted(deleted - renamed_before):
-        changes.append(
-            {
-                "change_kind": "deleted",
-                "relative_path": path,
-                "before_path": path,
-                "before_hash": before[path]["source_hash"],
-                "after_hash": None,
-                "major_change": False,
-            }
-        )
+    for path in sorted(set(after) - set(before)):
+        changes.append({"change_kind": "added", "relative_path": path, "after_path": path, "major_change": True})
+    for path in sorted(set(before) - set(after)):
+        changes.append({"change_kind": "deleted", "relative_path": path, "before_path": path, "major_change": False})
     for path in sorted(set(before) & set(after)):
-        if before[path]["source_hash"] == after[path]["source_hash"]:
+        change_kind = _change_kind(before[path], after[path], loaded_policy)
+        if change_kind is None:
             continue
-        major = _major_change(before[path], after[path], loaded_policy)
+        major = change_kind == "modified_major"
         changes.append(
             {
-                "change_kind": "modified_major" if major else "modified_minor",
+                "change_kind": change_kind,
                 "relative_path": path,
                 "before_path": path,
                 "after_path": path,
-                "before_hash": before[path]["source_hash"],
-                "after_hash": after[path]["source_hash"],
                 "major_change": major,
             }
         )
-    order = {"renamed": 0, "rename_ambiguous": 1, "added": 2, "modified_major": 3, "modified_minor": 4, "deleted": 5}
+    order = {"added": 0, "modified_major": 1, "modified_minor": 2, "deleted": 3}
     return sorted(changes, key=lambda item: (order[item["change_kind"]], item["relative_path"]))
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Detect deterministic CTXMAP document deltas.")
+    parser = argparse.ArgumentParser(description="Detect CTXMAP metadata/path deltas without content hashes.")
     parser.add_argument("--before", type=Path, required=True)
     parser.add_argument("--after", type=Path, required=True)
     parser.add_argument("--policy", type=Path, required=True)
@@ -130,7 +72,12 @@ def main(argv: list[str] | None = None) -> int:
     except (OSError, PolicyViolation) as exc:
         print(str(exc))
         return 1
-    print(json.dumps({"status": "PASS", "delta_count": len(result)}, ensure_ascii=False))
+    print(
+        json.dumps(
+            {"status": "PASS", "delta_count": len(result), "verification": "metadata_only"},
+            ensure_ascii=False,
+        )
+    )
     return 0
 
 

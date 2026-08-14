@@ -1,7 +1,7 @@
 ---
 name: autotrade_skill_debug_recovery_v0_1
 description: ローカル失敗を再現し、原因仮説ごとの最小修正と再検証を上限付きで行う。
-ecc_source_commit: 623f2c020f052319657674e4e6c29ab5d0ad566b
+source_reference: historical upstream metadata; not used as a current integrity check
 ---
 
 # デバッグと回復

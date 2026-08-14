@@ -21,7 +21,8 @@
 </head>
 <body>
 <main>
-  <h1>プロジェクト汎用オーケストレータ仕様</h1>
+<h1>プロジェクト汎用オーケストレータ仕様</h1>
+<section class="note"><strong>2026-08-15 追補:</strong> 新規・大幅変更の計画、文書、ソース、テスト、AI部品はA95の静的判定へ渡す。管理hashは受入条件・実行証跡・retry条件にせず、protected hashだけを目的・fail-closed境界付きで維持する。</section>
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D05<br>
     <strong>作成日:</strong> 2026-08-03<br>
@@ -107,11 +108,11 @@
   <table>
     <thead><tr><th>キー</th><th>仕様</th></tr></thead>
     <tbody>
-      <tr><td><code>trusted_scope_registry</code></td><td><code>scripts/quality_gate/trusted_scopes.json</code> を正本とし、Run IDごとに対象パス、除外パス、fixture checksum、baseline ref、4つの固定コマンドを登録する。</td></tr>
-      <tr><td><code>manifest_policy</code></td><td>ManifestはRun ID、要件、設計、fixture、差分hashを照合する入力であり、任意のpath・command・Python moduleを実行ポリシーとして採用しない。</td></tr>
+      <tr><td><code>trusted_scope_registry</code></td><td><code>scripts/quality_gate/trusted_scopes.json</code> を正本とし、Run IDごとに対象パス、除外パス、保護対象fixture checksum、baseline ref、4つの固定コマンドを登録する。</td></tr>
+      <tr><td><code>manifest_policy</code></td><td>ManifestはRun ID、要件、設計、対象範囲、固定コマンド、Human Gate方針、保護対象fixtureを受け取る入力であり、管理用change/diff/Evidence hashを計算・照合しない。任意のpath・command・Python moduleを実行ポリシーとして採用しない。</td></tr>
       <tr><td><code>network_boundary</code></td><td>Phaseのtest subprocessは、信頼済みhostが<code>QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED=1</code>を提示した場合だけ実行する。確認不能時は<code>BLOCKED</code>とする。</td></tr>
       <tr><td><code>phase_pilot</code></td><td><code>RUN-P2-IC-001</code> は <code>src/autotrade/market_data</code>、<code>tests/market_data</code>、<code>tests/fixtures/market_data</code> とP2専用固定pytest wrapperだけを許可する。</td></tr>
-      <tr><td><code>stop_conditions</code></td><td>未登録Run ID、Manifest改変、fixture checksum不一致、差分hash不一致、target_onlyでは対象内の範囲違反、all_changesではscope外差分、test skip/deletion、外部接続、Critical/High、未承認Human Gate。</td></tr>
+      <tr><td><code>stop_conditions</code></td><td>未登録Run ID、Manifest構造不正、保護対象fixture checksum不一致、target_onlyでは対象内の範囲違反、all_changesではscope外差分、test skip/deletion、外部接続、Critical/High、未承認Human Gate。管理用change/diff hash不一致は停止条件にしない。</td></tr>
     </tbody>
   </table>
 

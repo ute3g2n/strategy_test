@@ -37,6 +37,7 @@ description: Phase開始時の実行計画書を作成する。要件定義書�
 6. 正式HTML成果物は `doc/phaseX/` 配下、実行計画書とプロンプトログは `plan/` 配下に置く。
 7. `doc/index.html` から正式HTML成果物へ到達できる更新ルールを計画に含める。
 8. UnknownをPassにせず、決定タイミングと担当Phaseを明記する。
+9. 新規・大幅変更の計画、プロンプト、受入条件、receiptは`AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1`の静的判定対象にする。A95はhash値、manifest、stale、fingerprint、hash retryを作らない。
 
 ## 実ランタイム起動契約（RDC-PHASE-PLAN-0.2）
 
@@ -49,7 +50,8 @@ description: Phase開始時の実行計画書を作成する。要件定義書�
 5. 名前の列挙、JSON／Skillの読込、Skillの自己適用、ルートAgentの自己レビューは、spawn receipt、独立Agent実行、独立レビューの代替ではない。起動不能時に独立実行済みと記載してはならない。
 6. Human Gate未承認、外部I/O／Secret／費用／実資金の範囲逸脱、Core境界違反、UnknownのPass、必須成果物・Evidence欠落、Critical／High未解決は、起動不能とは無関係にFail-closedで停止する。
 
-直接実行プロンプトには最低限、`runtime_backend`、`dispatch_mode`、`orchestrator_agent_id`、Agentごとの `agent_id`、JSON path、model、Skills、受付／完了status、出力参照、`independent`、`review_mode` を含む受領証跡の保存先を指定する。child-run ledger、親Run ID、入力hash、成果物／finding hashを記録できない場合は、正式な独立実行の証拠として扱わない。
+直接実行プロンプトには最低限、`runtime_backend`、`dispatch_mode`、`orchestrator_agent_id`、Agentごとの `agent_id`、JSON path、model、Skills、受付／完了status、出力参照、`independent`、`review_mode` を含む受領証跡の保存先を指定する。child-run ledger、親Run ID、入力・成果物・findingのpathまたは識別子、statusを記録する。管理・参照効率化・実行証跡目的のhashを独立実行の必須条件にしてはならない。安全・データ・再現性に直結するprotected hashがその作業の本質である場合だけ、所有runtimeの意味ある結果として別途記録する。
+計画作成時のhash候補は、直接実行前にA95へ渡す。管理用hashは`BLOCKED`、用途不明は`NEEDS_HUMAN_GATE`とし、hash不一致を理由に計画や証跡を再生成しない。
 
 ## 必須ルール
 

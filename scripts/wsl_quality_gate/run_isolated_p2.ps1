@@ -8,6 +8,10 @@ param(
     [switch]$AllowRunningDistro,
     [switch]$RunAsRoot
 )
+
+# Step 04 authority: management change/diff/Evidence/baseline hashes are
+# forcibly skipped. The .wslconfig SHA-256 below protects restoration safety
+# and is retained as a protected hash; it is not a management acceptance hash.
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 $EvidencePhase = $EvidencePhase.ToLowerInvariant()
@@ -173,7 +177,8 @@ try {
     $env:WSLENV = $wslEnvNames -join ':'
     $runnerArguments = [Collections.Generic.List[string]]::new()
     # root実行は本番運用で許可するが、通常ユーザー実行も選択できる。
-    # 入力hash、対象範囲、ネットワーク隔離、固定Gateの検証は従来どおり先に行う。
+    # 保護対象入力hash、対象範囲、ネットワーク隔離、固定Gateの検証は先に行う。
+    # 管理用change/diff/Evidence/baseline hashは計算・照合しない。
     $runnerArguments.AddRange([string[]]("-d", $Distro))
     if ($RunAsRoot) { $runnerArguments.AddRange([string[]]("-u", "root")) }
     $shellScript = if ($EvidencePhase -eq "phase3") { "run_isolated_p3.sh" } else { "run_isolated_p2.sh" }

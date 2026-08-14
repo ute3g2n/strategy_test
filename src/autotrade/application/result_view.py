@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import shutil
@@ -11,7 +10,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
-from .contracts import ResultReference, canonical_json, is_safe_id, is_sha256
+from .contracts import ResultReference, canonical_json, is_safe_id
 
 
 @dataclass(frozen=True)
@@ -25,7 +24,9 @@ class MetricSet:
     period_start_utc: str
     period_end_utc: str
     rounding_rule: str
-    source_result_sha256: str
+    # Optional protected Core result identity.  Local result-file identity is
+    # deliberately not generated here.
+    source_result_sha256: str | None
 
 
 class LocalResultArtifacts:
@@ -35,10 +36,9 @@ class LocalResultArtifacts:
         self.root = root.resolve()
         self.root.mkdir(parents=True, exist_ok=True)
 
-    def publish(self, run_id: str, output: Any, manifest_sha256: str) -> ResultReference:
+    def publish(self, run_id: str, output: Any, manifest_sha256: str | None = None) -> ResultReference:
         if (
-            not is_sha256(manifest_sha256)
-            or not isinstance(run_id, str)
+            not isinstance(run_id, str)
             or not is_safe_id(run_id)
             or not hasattr(output, "metrics")
             or not hasattr(output, "rows")
@@ -53,11 +53,10 @@ class LocalResultArtifacts:
                 "rows": [dict(row) for row in output.rows],
             }
         ).encode("utf-8")
-        result_sha256 = "sha256:" + hashlib.sha256(payload).hexdigest()
+        del manifest_sha256
         marker_payload = canonical_json(
-            {"manifest_sha256": manifest_sha256, "result_sha256": result_sha256, "version": "P4-RESULT-MARKER-V1"}
+            {"run_id": run_id, "status": "COMMITTED", "version": "P4-RESULT-MARKER-V2"}
         ).encode("utf-8")
-        marker_sha256 = "sha256:" + hashlib.sha256(marker_payload).hexdigest()
         parent = directory.parent
         parent.mkdir(parents=True, exist_ok=True)
         temporary = parent / f".{directory.name}.{uuid.uuid4().hex}.tmp"
@@ -74,7 +73,7 @@ class LocalResultArtifacts:
             if temporary.exists():
                 shutil.rmtree(temporary, ignore_errors=True)
             raise
-        return ResultReference(run_id, relative_root, manifest_sha256, result_sha256, marker_sha256)
+        return ResultReference(run_id, relative_root)
 
     def read(self, reference: ResultReference) -> dict[str, Any]:
         validate_result_reference(reference)
@@ -84,19 +83,12 @@ class LocalResultArtifacts:
         if not result_path.is_file() or not marker_path.is_file():
             raise ValueError("RESULT_ARTIFACT_MISSING")
         payload = result_path.read_bytes()
-        actual_result = "sha256:" + hashlib.sha256(payload).hexdigest()
         marker_payload = marker_path.read_bytes()
-        actual_marker = "sha256:" + hashlib.sha256(marker_payload).hexdigest()
-        if actual_result != reference.result_sha256 or actual_marker != reference.commit_marker_sha256:
-            raise ValueError("RESULT_MARKER_MISMATCH")
         try:
             marker = json.loads(marker_payload.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as error:
             raise ValueError("RESULT_MARKER_MISMATCH") from error
-        if (
-            marker.get("result_sha256") != reference.result_sha256
-            or marker.get("manifest_sha256") != reference.manifest_sha256
-        ):
+        if marker.get("run_id") != reference.run_id or marker.get("status") != "COMMITTED":
             raise ValueError("RESULT_MARKER_MISMATCH")
         try:
             decoded = json.loads(payload.decode("utf-8"))
@@ -153,8 +145,3 @@ def validate_result_reference(reference: ResultReference) -> None:
         or "\\" in reference.relative_root
     ):
         raise ValueError("RESULT_PATH_INVALID")
-    if not all(
-        is_sha256(value)
-        for value in (reference.manifest_sha256, reference.result_sha256, reference.commit_marker_sha256)
-    ):
-        raise ValueError("RESULT_HASH_INVALID")

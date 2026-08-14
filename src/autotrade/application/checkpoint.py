@@ -14,13 +14,11 @@ class CheckpointReference:
     sequence_no: int
     relative_ref: str
     checkpoint_sha256: Sha256
-    manifest_sha256: Sha256
-    commit_marker_sha256: Sha256
+    manifest_sha256: Sha256 | None = None
+    commit_marker_sha256: Sha256 | None = None
 
     def validate(self) -> None:
         if self.sequence_no < 0 or not self.relative_ref or self.relative_ref.startswith(("/", "\\", "//")):
             raise ValueError("CHECKPOINT_PATH_INVALID")
-        if not all(
-            is_sha256(value) for value in (self.checkpoint_sha256, self.manifest_sha256, self.commit_marker_sha256)
-        ):
+        if not is_sha256(self.checkpoint_sha256):
             raise ValueError("CHECKPOINT_HASH_INVALID")

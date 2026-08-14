@@ -33,8 +33,6 @@ _REQUIRED_MANIFEST_FIELDS = {
     "fixture_manifest_sha256",
     "child_fixture_sha256s",
     "input_sha256",
-    "output_sha256",
-    "manifest_sha256",
 }
 
 _V2_REQUIRED = {
@@ -66,7 +64,6 @@ _V2_REQUIRED = {
     "experiment_plan_sha256",
     "performance_fixture_sha256",
     "engine_identity",
-    "manifest_sha256",
 }
 _ENGINE_FIELDS = {
     "engine_kind",
@@ -151,7 +148,10 @@ def manifest_mapping(value: ExperimentManifest | Mapping[str, Any]) -> dict[str,
 
     base = _legacy_mapping(value)
     if base.get("schema_version") == "experiment-manifest/v2":
-        return dict(base)
+        payload = dict(base)
+        payload.pop("manifest_sha256", None)
+        payload.pop("output_sha256", None)
+        return payload
     enabled = tuple(base.get("enabled_timeframes", ("M1", "M15", "H1", "H4", "D1")))
     enabled_sorted = sorted(set(enabled))
     m30_enabled = "M30" in enabled_sorted
@@ -191,7 +191,6 @@ def manifest_mapping(value: ExperimentManifest | Mapping[str, Any]) -> dict[str,
         "performance_fixture_sha256": base.get("performance_fixture_sha256", base.get("fixture_manifest_sha256", "")),
         "engine_identity": engine,
     }
-    payload["manifest_sha256"] = base.get("manifest_sha256", "")
     return payload
 
 
@@ -202,7 +201,7 @@ def _valid_v2(value: Mapping[str, Any]) -> bool:
         return False
     if not value["run_id"] or any(part in {".", ".."} for part in value["run_id"].replace("\\", "/").split("/")):
         return False
-    scalar_fields = _V2_REQUIRED - {"raw_object_sha256s", "enabled_timeframes", "engine_identity", "manifest_sha256"}
+    scalar_fields = _V2_REQUIRED - {"raw_object_sha256s", "enabled_timeframes", "engine_identity"}
     if any(not isinstance(value[field], str) or not value[field] for field in scalar_fields):
         return False
     for field in _HASH_FIELDS:
@@ -228,8 +227,9 @@ def _valid_v2(value: Mapping[str, Any]) -> bool:
         return False
     if any(engine[field] != "ENGINE_NOT_USED" for field in _ENGINE_FIELDS - {"identity_sha256"}):
         return False
-    expected_manifest = canonical_hash({key: value[key] for key in sorted(value) if key != "manifest_sha256"})
-    return value["manifest_sha256"] == expected_manifest
+    # Manifest structure and protected input identities are validated
+    # directly.  The manifest is not assigned another management digest.
+    return True
 
 
 def canonical_manifest_bytes(value: ExperimentManifest | Mapping[str, Any]) -> bytes:
@@ -273,13 +273,9 @@ def validate_manifest(value: dict[str, Any]) -> dict[str, Any]:
         return _stopped("MANIFEST_INTEGRITY_VIOLATION")
     if not _REQUIRED_MANIFEST_FIELDS.issubset(value) or set(value) - _REQUIRED_MANIFEST_FIELDS:
         return _stopped("MANIFEST_INTEGRITY_VIOLATION")
-    for key in _REQUIRED_MANIFEST_FIELDS - {"output_sha256", "child_fixture_sha256s", "engine_identity"}:
+    for key in _REQUIRED_MANIFEST_FIELDS - {"child_fixture_sha256s", "engine_identity"}:
         if not isinstance(value[key], str) or not value[key]:
             return _stopped("MANIFEST_INTEGRITY_VIOLATION")
-    if value["output_sha256"] is not None and (
-        not isinstance(value["output_sha256"], str) or not value["output_sha256"]
-    ):
-        return _stopped("MANIFEST_INTEGRITY_VIOLATION")
     if not isinstance(value["child_fixture_sha256s"], (list, tuple)) or any(
         not isinstance(item, str) or not item for item in value["child_fixture_sha256s"]
     ):

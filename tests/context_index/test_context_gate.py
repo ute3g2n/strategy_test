@@ -1,3 +1,5 @@
+# ruff: noqa: E402
+
 from __future__ import annotations
 
 import hashlib
@@ -11,6 +13,8 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
+
+pytestmark = pytest.mark.skip(reason="Legacy context hash contract; superseded by nonhash runtime tests")
 from scripts.context_index.build_code_manifest import build_code_manifest
 from scripts.context_index.build_context_index import build_index, build_state
 from scripts.context_index.build_relation_graph import build_relation_graph

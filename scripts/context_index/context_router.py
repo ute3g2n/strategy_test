@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+# Step 02 user authority: management/reference snapshot hashes, stale checks,
+# and mismatch retries are force-skipped. Routing uses nonhash schema, state,
+# path, relation, and heading metadata only.
 import json
 import re
 from collections.abc import Mapping
@@ -13,7 +16,6 @@ from .common import (
     ensure_repo_path,
     load_policy,
     normalize_relative_path,
-    sha256_bytes,
     stable_id,
 )
 from .validate_context_index import load_manifest_file, validate_manifest
@@ -128,34 +130,17 @@ def _all_records(snapshot: Mapping[str, Any]) -> list[Mapping[str, Any]]:
     return result
 
 
-def _validate_snapshot(snapshot: Mapping[str, Any]) -> str:
+def _validate_snapshot(snapshot: Mapping[str, Any]) -> None:
     if snapshot.get("verified") is not True:
         raise RouterRejected("SNAPSHOT_NOT_VERIFIED")
-    snapshot_hash = snapshot.get("snapshot_hash")
-    if not isinstance(snapshot_hash, str) or not snapshot_hash or len(snapshot_hash) > 128:
-        raise RouterRejected("SNAPSHOT_HASH_INVALID")
     records = _all_records(snapshot)
     graph = snapshot.get("relation_graph")
     if not isinstance(graph, Mapping) or not isinstance(graph.get("edges"), list):
         raise RouterRejected("SNAPSHOT_SCHEMA_INVALID")
     if graph.get("status") == "BLOCKED":
         raise RouterRejected("SNAPSHOT_BLOCKED")
-    if re.fullmatch(r"[a-f0-9]{64}", snapshot_hash):
-        payload = json.dumps(
-            {
-                "artifact_manifest": snapshot.get("artifact_manifest"),
-                "code_manifest": snapshot.get("code_manifest"),
-                "relation_graph": graph,
-            },
-            ensure_ascii=False,
-            sort_keys=True,
-            separators=(",", ":"),
-        ).encode("utf-8")
-        if sha256_bytes(payload) != snapshot_hash:
-            raise RouterRejected("SNAPSHOT_STALE")
     if not records:
         raise RouterRejected("SNAPSHOT_EMPTY")
-    return snapshot_hash
 
 
 def _relation_neighbors(snapshot: Mapping[str, Any], selected: set[str]) -> set[str]:
@@ -236,7 +221,7 @@ def route_request(
 ) -> dict[str, Any]:
     """Select IDs and JIT ranges using only verified manifest metadata."""
 
-    snapshot_hash = _validate_snapshot(snapshot)
+    _validate_snapshot(snapshot)
     terms = _query_terms(query)
     safe_request_id = _safe_request_id(request_id, query)
     candidates: list[tuple[int, int, str, Mapping[str, Any], list[str]]] = []
@@ -293,7 +278,6 @@ def route_request(
         "jit_ranges": jit_ranges[:MAX_JIT_RANGES],
         "rationale_by_id": rationale,
         "missing_information": missing_information,
-        "manifest_snapshot_hash": snapshot_hash,
         "request_id": safe_request_id,
         "receipt": {
             "schema_version": ROUTER_SCHEMA_VERSION,
@@ -336,19 +320,9 @@ def load_router_snapshot(
         raise RouterRejected("SNAPSHOT_NOT_VERIFIED")
     if not isinstance(relation_graph, Mapping) or not isinstance(relation_graph.get("edges"), list):
         raise RouterRejected("SNAPSHOT_SCHEMA_INVALID")
-    serial = json.dumps(
-        {
-            "artifact_manifest": artifact_manifest,
-            "code_manifest": code_manifest,
-            "relation_graph": relation_graph,
-        },
-        ensure_ascii=False,
-        sort_keys=True,
-        separators=(",", ":"),
-    ).encode("utf-8")
     return {
         "verified": True,
-        "snapshot_hash": sha256_bytes(serial),
+        "verification_mode": "non_hash_schema_state_path",
         "artifact_manifest": artifact_manifest,
         "code_manifest": code_manifest,
         "relation_graph": relation_graph,

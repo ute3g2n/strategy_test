@@ -1,0 +1,95 @@
+{
+  "step_id": "Step 05",
+  "status": "COMPLETED_WITH_RUNTIME_FALLBACK",
+  "purpose": "現行Phase計画・実行プロンプトの完了、受入、引渡し、再試行、BLOCKED条件から管理用hashの合意を除去し、保護hashだけを残した",
+  "authority": {
+    "management_hash_checks": "FORCE_SKIPPED_BY_USER_AUTHORITY",
+    "protected_hashes": "MUST_REMAIN_WITH_PURPOSE_AND_FAIL_CLOSED_BEHAVIOR",
+    "management_hash_retry": "DISABLED",
+    "script_authority_applied": true
+  },
+  "runtime_dispatch": {
+    "state": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "reason": "collab spawn failed: agent thread limit reached",
+    "orchestrator": {
+      "name": "AutoTradePhasePlanning_Orchestrator_v0_1",
+      "agent_id": "N/A",
+      "model": "gpt-5.6-terra",
+      "status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    "agents": [
+      {
+        "name": "AutoTrade_A05_PhaseExecutionPlanner_v0_1",
+        "agent_id": "N/A",
+        "model": "gpt-5.6-luna",
+        "status": "NOT_STARTED",
+        "independent": false,
+        "review_mode": "SELF_REVIEW_FALLBACK"
+      },
+      {
+        "name": "AutoTrade_A10_RequirementsCurator_v0_1",
+        "agent_id": "N/A",
+        "model": "gpt-5.6-luna",
+        "status": "NOT_STARTED",
+        "independent": false,
+        "review_mode": "SELF_REVIEW_FALLBACK"
+      },
+      {
+        "name": "AutoTrade_A80_DocumentIntegrator_v0_1",
+        "agent_id": "N/A",
+        "model": "gpt-5.1",
+        "status": "NOT_STARTED",
+        "independent": false,
+        "review_mode": "SELF_REVIEW_FALLBACK"
+      },
+      {
+        "name": "AutoTrade_A90_DesignReviewer_v0_1",
+        "agent_id": "N/A",
+        "model": "gpt-5.6-luna",
+        "status": "NOT_STARTED",
+        "independent": false,
+        "review_mode": "SELF_REVIEW_FALLBACK"
+      }
+    ]
+  },
+  "changed_files": [
+    "plan/Phase2_実行計画書_v0.1_2026-08-04.md",
+    "plan/Phase2-5_本実装AI実行基盤構築計画_v0.1_2026-08-06.md",
+    "plan/Phase2_P2-12_実行計画書_v0.1_2026-08-08.md",
+    "plan/Phase3_実行計画書_v0.1_2026-08-09.md",
+    "plan/phase3/P3-08R_実行計画書_2026-08-10.md",
+    "plan/Phase4_実行計画書_v0.1_2026-08-11.md",
+    "plan/Phase5_実行計画書_v0.1_2026-08-12.md"
+  ],
+  "management_hash_removals": [
+    "Phase completion and acceptance agreement on change/diff/worktree/baseline hash",
+    "Manifest or Evidence hash as a completion, handoff, retry, or BLOCKED condition",
+    "Input/artifact/finding management hash in execution receipts",
+    "Unqualified all-hash or complete-hash wording in current Phase prompts",
+    "Reusing historical management hashes as current acceptance evidence"
+  ],
+  "protected_hashes_retained": [
+    "fixed fixture identity",
+    "raw/input/data/catalog/calendar identity",
+    "dependency, engine, artifact, and license supply-chain identity",
+    "Replay, result, snapshot, and deterministic-output identity where directly required",
+    "safety or offline-boundary identity where directly required"
+  ],
+  "verification": {
+    "utf8_plan_read": "PASS",
+    "targeted_management_hash_acceptance_scan": "PASS; remaining matches are explicitly disabled, historical, or protected-purpose references",
+    "git_diff_check": "PASS",
+    "external_io": "NOT_RUN_BY_BOUNDARY",
+    "secret_or_live_execution": "NOT_RUN_BY_BOUNDARY",
+    "wsl_execution": "NOT_RUN_BY_BOUNDARY",
+    "hash_values_recorded": false
+  },
+  "notes": [
+    "Phase 2、P2-12、Phase 3、P3-08R、Phase 4、Phase 5の現行計画へHASH-FUTURE-01〜08を継承した",
+    "protected hashは目的と失敗時停止を明記するようにし、管理用hashは成果物構造・状態・path・テスト・レビュー・Gateへ置き換えた",
+    "既存のPhaseログ・過去Evidenceは履歴として変更せず、現行受入条件へ管理用hashを再利用しない",
+    "独立Agentの実起動完了とは扱わず、root責務でローカル適用と監査を行った"
+  ]
+}

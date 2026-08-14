@@ -20,7 +20,7 @@ from autotrade.market_data.store_contracts import (
 
 def raw_request(metadata: dict[str, str] | None = None) -> RawWriteRequest:
     return RawWriteRequest(
-        request_fingerprint="fixture-request-001",
+        request_id="fixture-request-001",
         payload=b"fixed-raw-payload",
         metadata=metadata or {"dataset": "fixture_dataset", "schema": "ohlcv-1m"},
         received_at_utc=datetime(2026, 6, 15, 12, 0, tzinfo=UTC),
@@ -76,13 +76,13 @@ def test_raw_store_rejects_secret_like_metadata_and_naive_time(tmp_path: Path) -
         store.put_if_absent(raw_request({"api_key": "must-not-be-stored"}))
 
     naive = raw_request()
-    naive = RawWriteRequest(naive.request_fingerprint, naive.payload, naive.metadata, datetime(2026, 6, 15, 12))
+    naive = RawWriteRequest(naive.request_id, naive.payload, naive.metadata, datetime(2026, 6, 15, 12))
     with pytest.raises(ValueError, match="RECEIVED_AT_NOT_UTC"):
         store.put_if_absent(naive)
 
     offset = raw_request()
     offset = RawWriteRequest(
-        offset.request_fingerprint,
+        offset.request_id,
         offset.payload,
         offset.metadata,
         datetime(2026, 6, 15, 21, tzinfo=timezone(timedelta(hours=9))),

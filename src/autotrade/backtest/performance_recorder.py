@@ -1,4 +1,4 @@
-"""Measured performance evidence with deterministic two-run result hashes."""
+"""Measured performance evidence with protected input/replay identities."""
 
 from __future__ import annotations
 
@@ -21,7 +21,6 @@ _FULL_REQUIRED = {
     "seed",
     "input_sha256",
     "derived_bar_sha256s",
-    "manifest_sha256",
     "host_cpu",
     "host_ram_bytes",
     "host_os",
@@ -69,9 +68,7 @@ def validate_performance_evidence(value: Mapping[str, Any]) -> dict[str, Any]:
         return {"status": "STOPPED", "reason": "PERFORMANCE_EVIDENCE_UNPROVEN"}
     if type(value["seed"]) is not int or value["seed"] < 0:
         return {"status": "STOPPED", "reason": "PERFORMANCE_EVIDENCE_INVALID"}
-    if not _valid_hash(value["input_sha256"], reject_zero=True) or not _valid_hash(
-        value["manifest_sha256"], reject_zero=True
-    ):
+    if not _valid_hash(value["input_sha256"], reject_zero=True):
         return {"status": "STOPPED", "reason": "PERFORMANCE_EVIDENCE_INVALID"}
     derived = value["derived_bar_sha256s"]
     if (
@@ -173,7 +170,7 @@ def measure_performance_run(
 
     if not isinstance(input_value, Mapping) or not callable(run_callable):
         return {"status": "STOPPED", "reason": "PERFORMANCE_EVIDENCE_UNPROVEN"}
-    required = ("generator_version", "schema_version", "seed", "input_sha256", "derived_bar_sha256s", "manifest_sha256")
+    required = ("generator_version", "schema_version", "seed", "input_sha256", "derived_bar_sha256s")
     if any(key not in input_value for key in required):
         return {"status": "STOPPED", "reason": "PERFORMANCE_EVIDENCE_UNPROVEN"}
     rss_before = _peak_rss_bytes()
@@ -199,7 +196,6 @@ def measure_performance_run(
         "seed": input_value["seed"],
         "input_sha256": input_value["input_sha256"],
         "derived_bar_sha256s": tuple(input_value["derived_bar_sha256s"]),
-        "manifest_sha256": input_value["manifest_sha256"],
         "host_cpu": host_cpu,
         "host_ram_bytes": host_ram,
         "host_os": platform.platform(),

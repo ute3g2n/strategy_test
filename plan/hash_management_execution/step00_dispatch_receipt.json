@@ -1,0 +1,65 @@
+{
+  "schema_version": "hash-policy-migration-dispatch-v0.1",
+  "phase_id": "HASH-POLICY-RETIRE",
+  "step_id": "STEP-00",
+  "status": "COMPLETED_WITH_REMEDIATION",
+  "runtime_backend": "multi_agent_v1",
+  "dispatch_mode": "root_spawn_with_nested_fallback",
+  "orchestrator": {
+    "name": "AutoTradeProject_Orchestrator_v0_1",
+    "json_path": ".codex/orchestrators/AutoTradeProject_Orchestrator_v0_1.json",
+    "model": "gpt-5.6-terra",
+    "agent_id": "01a00215-f69c-7dc3-9074-7dd52802bc23",
+    "accepted_status": "completed",
+    "completion_status": "completed",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK",
+    "fallback_reason": "Nested coordinator dispatch reported RUNTIME_DISPATCH_FALLBACK_REQUIRED."
+  },
+  "agents": [
+    {
+      "name": "AutoTrade_A06_AiComponentEngineer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A06_AiComponentEngineer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": null,
+      "agent_id": "01a00217-40b8-7eb0-8c37-645832da2d71",
+      "accepted_status": "completed",
+      "completion_status": "completed_read_only_review",
+      "output_ref": "subagent_notification",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A80_DocumentIntegrator_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "low",
+      "agent_id": "01a00218-6945-7a23-99fd-a2cf0415c895",
+      "accepted_status": "completed",
+      "completion_status": "completed_read_only_review",
+      "output_ref": "subagent_notification",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A90_DesignReviewer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": null,
+      "agent_id": "01a00218-c23c-79f2-ad53-faf0110bd12f",
+      "accepted_status": "completed",
+      "completion_status": "BLOCKED",
+      "output_ref": "subagent_notification",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK",
+      "remediation": "auto-commit and default watcher paths were disabled before any Git or external operation"
+    }
+  ],
+  "management_hash_checks": "SKIPPED_BY_USER_AUTHORITY",
+  "protected_hash_checks": "NOT_APPLICABLE_TO_DOCUMENT_MANAGEMENT_MIGRATION",
+  "hash_receipt_fields": "omitted_by_user_authority_for_retired_management_hashes",
+  "unknowns": [
+    "Protected-hash trust anchor for any future safety/data/reproducibility path remains unresolved.",
+    "Git hook, credential helper, origin, and host outbound isolation were not exercised and remain out of scope."
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "step_id": "Step 08",
+  "status": "COMPLETED_WITH_RUNTIME_FALLBACK",
+  "purpose": "Pilot representative document, source, acceptance, and protected-boundary flows without management hashes.",
+  "authority": {
+    "management_hash_checks": "FORCE_SKIPPED_BY_USER_AUTHORITY",
+    "protected_hashes": "MUST_REMAIN_AND_FAIL_CLOSED",
+    "management_hash_retry": "DISABLED",
+    "script_authority_applied": true
+  },
+  "runtime_dispatch": {
+    "state": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "reason": "collab spawn failed: agent thread limit reached",
+    "orchestrator": {
+      "name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "agent_id": "N/A",
+      "model": "gpt-5.6-terra",
+      "status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    "agents": [
+      {"name": "AutoTrade_A110_PythonTestEngineer_v0_1", "agent_id": "N/A", "model": "gpt-5.6-luna", "status": "NOT_STARTED", "independent": false, "review_mode": "SELF_REVIEW_FALLBACK"},
+      {"name": "AutoTrade_A130_VerificationEngineer_v0_1", "agent_id": "N/A", "model": "gpt-5.6-luna", "status": "NOT_STARTED", "independent": false, "review_mode": "SELF_REVIEW_FALLBACK"},
+      {"name": "AutoTrade_A150_PythonCodeReviewer_v0_1", "agent_id": "N/A", "model": "gpt-5.6-luna", "status": "NOT_STARTED", "independent": false, "review_mode": "SELF_REVIEW_FALLBACK"},
+      {"name": "AutoTrade_A160_TradingSecurityReviewer_v0_1", "agent_id": "N/A", "model": "gpt-5.6-luna", "status": "NOT_STARTED", "independent": false, "review_mode": "SELF_REVIEW_FALLBACK"},
+      {"name": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1", "agent_id": "N/A", "model": "gpt-5.6-luna", "reasoning_effort": "low", "status": "NOT_STARTED", "independent": false, "review_mode": "SELF_REVIEW_FALLBACK"}
+    ]
+  },
+  "pilot_cases": {
+    "new_markdown": "ALLOW",
+    "new_html_and_index_link": "PASS",
+    "major_html_change": "ALLOW",
+    "source_change": "ALLOW",
+    "phase_acceptance_change": "ALLOW",
+    "protected_hash_failure": "FAIL_CLOSED_TESTS_PASS",
+    "unknown_hash": "NEEDS_HUMAN_GATE"
+  },
+  "verification": {
+    "pilot_tests": "55 passed",
+    "elapsed_ms": 1932,
+    "management_hash_values_recorded": false,
+    "management_hash_retry_count": 0,
+    "token_consumption": "NOT_EXPOSED_BY_RUNTIME",
+    "external_io": "NOT_RUN_BY_BOUNDARY",
+    "secret_or_live_execution": "NOT_RUN_BY_BOUNDARY",
+    "wsl_execution": "NOT_RUN_BY_BOUNDARY"
+  },
+  "changed_files": [
+    "tests/ai_foundation/test_nonhash_pilot_scenarios.py",
+    "plan/hash_management_execution/step08_nonhash_pilot_report.md"
+  ],
+  "notes": [
+    "The pilot used in-memory candidates and existing local protected-boundary tests; it did not add temporary management artifacts.",
+    "Independent agent execution was unavailable because the agent thread limit was reached; fallback is explicitly disclosed."
+  ]
+}

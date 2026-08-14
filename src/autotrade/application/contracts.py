@@ -20,7 +20,9 @@ from typing import Any, Generic, Literal, TypeVar
 Sha256 = str
 RunId = str
 JobId = str
-RequestFingerprint = Sha256
+# Request keys are caller-supplied semantic identifiers.  The application
+# never derives a hash for idempotency.
+RequestKey = str
 T = TypeVar("T")
 _SHA256_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
 _SAFE_ID_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}\Z")
@@ -160,13 +162,15 @@ class CreateRunCommand:
     run_kind: Literal["SINGLE_BACKTEST", "SWEEP_CHILD"]
     config: BacktestConfig
     requested_at_utc: datetime
-    preflight_report_sha256: Sha256
+    # Legacy input accepted for deserialisation only.  The active path checks
+    # the preflight status and never stores or compares this management hash.
+    preflight_report_sha256: Sha256 | None = None
 
 
 @dataclass(frozen=True)
 class StartJobCommand:
     run_id: RunId
-    request_fingerprint: RequestFingerprint
+    request_key: RequestKey
     priority: int = 0
     expected_revision: int = 0
 
@@ -174,7 +178,7 @@ class StartJobCommand:
 @dataclass(frozen=True)
 class CancelJobCommand:
     job_id: JobId
-    request_fingerprint: RequestFingerprint
+    request_key: RequestKey
     expected_revision: int | None = None
     reason_code: str = "USER_REQUESTED"
 
@@ -183,7 +187,7 @@ class CancelJobCommand:
 class ResumeJobCommand:
     run_id: RunId
     checkpoint_sha256: Sha256
-    request_fingerprint: RequestFingerprint
+    request_key: RequestKey
     expected_revision: int | None = None
 
 
@@ -193,7 +197,7 @@ class CreateCsvJobCommand:
     source_result_sha256: Sha256
     column_set: tuple[str, ...]
     filter_payload_sha256: Sha256
-    request_fingerprint: RequestFingerprint
+    request_key: RequestKey
 
 
 @dataclass(frozen=True)
@@ -233,7 +237,9 @@ class FailureView:
 class PreflightReport:
     status: Literal["PASS", "STOPPED"]
     checks: tuple[PreflightCheck, ...]
-    report_sha256: Sha256
+    # Kept nullable for old persisted/API payloads; new reports do not create
+    # a management identity hash.
+    report_sha256: Sha256 | None = None
     failure: FailureView | None = None
 
 
@@ -249,9 +255,11 @@ class ValidatedRunSpec:
 class ResultReference:
     run_id: RunId
     relative_root: str
-    manifest_sha256: Sha256
-    result_sha256: Sha256
-    commit_marker_sha256: Sha256
+    # These fields are legacy management metadata.  New publications leave
+    # them empty and readers validate path, JSON shape, and commit state.
+    manifest_sha256: Sha256 | None = None
+    result_sha256: Sha256 | None = None
+    commit_marker_sha256: Sha256 | None = None
 
 
 @dataclass(frozen=True)
@@ -259,7 +267,7 @@ class EvidenceReference:
     evidence_id: str
     run_id: RunId
     relative_root: str
-    evidence_sha256: Sha256
+    evidence_sha256: Sha256 | None
     status: Literal["DESIGNED_NOT_EXECUTED", "RECORDED", "RECONCILIATION_REQUIRED"]
 
 
@@ -270,7 +278,7 @@ class RunView:
     status: RunStatus
     revision: int
     condition_sha256: Sha256
-    manifest_sha256: Sha256
+    manifest_sha256: Sha256 | None
     result: ResultReference | None = None
     evidence: EvidenceReference | None = None
     failure: FailureView | None = None
@@ -280,7 +288,7 @@ class RunView:
 class QueueReceipt:
     job_id: JobId
     queue_sequence: int
-    request_fingerprint: RequestFingerprint
+    request_key: RequestKey
     state: Literal["QUEUED", "EXISTING"]
 
 

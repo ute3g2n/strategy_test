@@ -25,6 +25,7 @@
 <main>
   <p><a href="../index.html">ドキュメントインデックスへ戻る</a></p>
   <h1>09 Phase実行計画作成AI部品仕様</h1>
+  <section class="note"><strong>2026-08-15 現行hashルール:</strong> 新規・大幅変更の計画、プロンプト、受入条件、receiptは <code>AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1</code> の静的判定へ渡す。A95はhash値、manifest、stale、fingerprint、hash retryを作らない。管理hashはBLOCKED、用途不明はNEEDS_HUMAN_GATE、直接の安全・データ・再現性を守るprotected hashだけを目的と失敗時停止範囲付きで扱う。</section>
   <div class="meta">
     <p><strong>文書状態:</strong> v0.2 / <strong>作成日:</strong> 2026-08-12 / <strong>対象:</strong> Phase開始時の実行計画作成基盤、実ランタイム起動・待機・Fallback契約</p>
   </div>
@@ -32,7 +33,7 @@
   <section>
     <h2>実ランタイム起動・待機・Fallback契約</h2>
     <p>完全名の列挙、JSONの読込、Skillの適用、ルートAgentの自己レビューは、OrchestratorまたはAgentの起動証跡ではない。直接実行Promptは、変更前に <code>multi_agent_v1__spawn_agent</code> と <code>multi_agent_v1__wait_agent</code> を確認し、指定Orchestratorを定義JSONの固定modelで実spawnする。CoordinatorはPromptのAgents欄にある全Agentを一体ずつspawnし、各Agent JSONの固定modelを明示してwaitする。Orchestratorのagents map外の明示Agentも省略しない。</p>
-    <p>起動ごとにruntime backend、dispatch mode、orchestrator_agent_id、AgentのJSON path・model・Skills・agent_id、受付／完了status、出力参照、<code>independent</code>、<code>review_mode</code>、入力hash、成果物／finding hashを保存する。spawn／waitが使えない場合は <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、未起動Agent、理由、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を先に記録し、ルート責務チェックリストで継続する。未起動を独立実行済みと表現しない。</p>
+  <p>起動ごとにruntime backend、dispatch mode、orchestrator_agent_id、AgentのJSON path・model・Skills・agent_id、受付／完了status、出力参照、<code>independent</code>、<code>review_mode</code>を保存する。管理・参照効率化・実行証跡目的のhashは保存しない。安全・データ・再現性に直結するhashは、該当する保護経路の意味ある結果として別途扱う。spawn／waitが使えない場合は <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、未起動Agent、理由、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を先に記録し、ルート責務チェックリストで継続する。未起動を独立実行済みと表現しない。</p>
   </section>
   <section>
     <h2>目的</h2>

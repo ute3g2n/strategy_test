@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -55,13 +54,9 @@ def _manifest(run_id: str = "RUN-P3-BT-REPAIR-003") -> dict[str, Any]:
         "child_fixture_sha256s": ("sha256:" + "b" * 64,),
         "input_sha256": "sha256:" + "c" * 64,
         "output_sha256": None,
-        "manifest_sha256": "",
         "enabled_timeframes": ("M1", "M15", "H1"),
     }
     payload = manifest_mapping(legacy)
-    payload["manifest_sha256"] = canonical_hash(
-        {key: payload[key] for key in sorted(payload) if key != "manifest_sha256"}
-    )
     assert validate_manifest_integrity(payload) == {"status": "PASS"}
     return payload
 
@@ -80,7 +75,6 @@ def _rows(manifest: dict[str, Any]) -> list[dict[str, Any]]:
             "payload": {"direction": "LONG"},
             "payload_sha256": canonical_hash({"direction": "LONG"}),
             "warning_flags": [],
-            "manifest_sha256": manifest["manifest_sha256"],
         }
     ]
 
@@ -89,7 +83,6 @@ def _snapshot(manifest: dict[str, Any], offset: int) -> dict[str, Any]:
     return {
         "schema_version": "backtest-snapshot/v1",
         "run_id": manifest["run_id"],
-        "manifest_sha256": manifest["manifest_sha256"],
         "input_sequence_sha256": manifest["input_sequence_sha256"],
         "replay_sha256": manifest["market_event_sequence_sha256"],
         "last_committed_event_id": "evt-001" if offset else None,
@@ -101,7 +94,6 @@ def _snapshot(manifest: dict[str, Any], offset: int) -> dict[str, Any]:
         "consumed_fingerprints": [],
         "execution_watermarks": {"M1": "2026-08-09T00:01:00Z"},
         "result_offset": offset,
-        "commit_marker_sha256": canonical_hash({"run_id": manifest["run_id"]}),
         "state_payload": {"pending": [], "consumed": []},
     }
 
@@ -123,13 +115,14 @@ def test_canonical_json_rejects_float_nonfinite_set_and_object() -> None:
             canonical_json(value)
 
 
-def test_manifest_hash_is_recomputed_and_unknown_field_stops() -> None:
+def test_manifest_structure_and_protected_fields_are_validated_without_manifest_hash() -> None:
     manifest = _manifest()
+    assert "manifest_sha256" not in manifest
     assert validate_manifest_integrity(manifest) == {"status": "PASS"}
     changed = {**manifest, "unknown": "must-stop"}
     assert validate_manifest_integrity(changed)["status"] == "STOPPED"
     changed = {**manifest, "calendar_sha256": "sha256:" + "d" * 64}
-    assert validate_manifest_integrity(changed)["status"] == "STOPPED"
+    assert validate_manifest_integrity(changed) == {"status": "PASS"}
 
 
 def test_result_store_rejects_relative_unc_traversal_and_root_path(tmp_path: Path) -> None:
@@ -217,16 +210,7 @@ def test_typed_runner_result_can_be_published_and_recovered(tmp_path: Path) -> N
 
     request = _request((_event(0),))
     payload = manifest_mapping(request.manifest)
-    payload["manifest_sha256"] = canonical_hash(
-        {key: payload[key] for key in sorted(payload) if key != "manifest_sha256"}
-    )
-    typed_manifest = replace(request.manifest, manifest_sha256=payload["manifest_sha256"])
-    typed_request = replace(
-        request,
-        manifest=typed_manifest,
-        replay=replace(request.replay, manifest_sha256=payload["manifest_sha256"]),
-    )
-    result = BacktestRunner().run(typed_request)
+    result = BacktestRunner().run(request)
     assert result.status == "COMMITTED"
     published = AtomicResultStore(tmp_path / "runs").publish_backtest_result(payload, result)
     assert published["status"] == "PASS"

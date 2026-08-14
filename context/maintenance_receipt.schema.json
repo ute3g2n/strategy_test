@@ -1,24 +1,26 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "ctxmap-maintenance-receipt-v0.1",
-  "title": "CTXMAP sanitized maintenance receipt",
+  "title": "CTXMAP metadata-only maintenance receipt",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "schema_version",
     "request_id",
     "relative_path",
-    "source_hash",
     "action",
     "status",
     "reason_code",
-    "recorded_at"
+    "recorded_at",
+    "verification",
+    "management_hash_checks",
+    "protected_hash_checks"
   ],
   "properties": {
-    "schema_version": {"const": "ctxmap-maintenance-receipt-v0.1"},
+    "schema_version": {"const": "ctxmap-maintenance-receipt-v0.2-nonhash"},
     "request_id": {"type": "string", "maxLength": 128},
     "relative_path": {"type": ["string", "null"]},
-    "source_hash": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+    "source_hash": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$", "description": "Historical field only; active runtime does not create or validate it."},
     "action": {
       "type": "string",
       "enum": [
@@ -34,6 +36,10 @@
     "status": {"type": "string", "enum": ["PASS", "BLOCKED"]},
     "reason_code": {"type": "string", "maxLength": 128},
     "recorded_at": {"type": "string", "maxLength": 64},
+    "verification": {"type": "string", "maxLength": 128},
+    "management_hash_checks": {"const": "SKIPPED_BY_USER_AUTHORITY"},
+    "protected_hash_checks": {"const": "NOT_APPLICABLE_TO_DOCUMENT_MANAGEMENT"},
+    "change": {"type": "object"},
     "before_path": {"type": "string", "maxLength": 512},
     "dispatch": {
       "type": "object",
@@ -42,6 +48,7 @@
         "backend": {"type": "string", "maxLength": 128},
         "agent_name": {"type": "string", "maxLength": 128},
         "model": {"type": "string", "maxLength": 64},
+        "reasoning_effort": {"type": "string", "maxLength": 32},
         "status": {"type": "string", "maxLength": 64},
         "attempts": {"type": "integer", "minimum": 0, "maximum": 3},
         "agent_id": {"type": "string", "maxLength": 128},

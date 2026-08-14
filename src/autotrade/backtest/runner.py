@@ -145,20 +145,11 @@ def _row(
     sequence_no: int,
     event: MarketEvent,
     kind: str,
-    manifest_sha256: str,
+    manifest_sha256: str | None,
     payload: dict[str, str],
 ) -> ResultRow:
     payload_items = tuple(sorted(payload.items()))
     row_id = f"{event.run_id}:{sequence_no}:{kind}"
-    content = {
-        "sequence_no": sequence_no,
-        "row_id": row_id,
-        "event_id": event.event_id,
-        "instrument_id": event.instrument_id,
-        "row_kind": kind,
-        "decision_time_utc": _utc(event.bar_close_time).isoformat().replace("+00:00", "Z"),
-        "payload": payload_items,
-    }
     return ResultRow(
         sequence_no=sequence_no,
         row_id=row_id,
@@ -167,8 +158,10 @@ def _row(
         row_kind=kind,
         decision_time_utc=_utc(event.bar_close_time),
         payload=payload_items,
-        manifest_sha256=manifest_sha256,
-        content_sha256=canonical_hash(content),
+        # Row payload identity is recalculated by ResultStore as a protected
+        # data/replay check.  No management row/content hash is emitted here.
+        manifest_sha256=None,
+        content_sha256=None,
     )
 
 
@@ -226,11 +219,10 @@ def _manifest_failure(request: BacktestRunRequest) -> BacktestFailure | None:
         manifest.adapter_artifact_sha256,
         manifest.fixture_manifest_sha256,
         manifest.input_sha256,
-        manifest.manifest_sha256,
     )
     if any(not isinstance(value, str) or not value for value in required):
         return BacktestFailure("MANIFEST_INTEGRITY_VIOLATION", "required binding is missing")
-    if manifest.run_id != request.run_id or request.replay.manifest_sha256 != manifest.manifest_sha256:
+    if manifest.run_id != request.run_id:
         return BacktestFailure("RUN_BINDING_INVALID", "request and manifest run bindings differ")
     if any(value != "ENGINE_NOT_USED" for value in vars(request.engine_identity).values()) or any(
         value != "ENGINE_NOT_USED" for value in vars(manifest.engine_identity).values()
@@ -571,49 +563,38 @@ class BacktestRunner:
                     )
                 )
         state_hash = _state_hash(strategy_state, simulator_state)
-        result_payload = [
-            {
-                "sequence_no": row.sequence_no,
-                "row_id": row.row_id,
-                "event_id": row.event_id,
-                "instrument_id": row.instrument_id,
-                "row_kind": row.row_kind,
-                "payload": row.payload,
-                "content_sha256": row.content_sha256,
-            }
-            for row in rows
-        ]
-        result_hash = canonical_hash(result_payload)
         last_event_id = ordered_events[-1].event_id if ordered_events else None
         snapshot = BacktestSnapshot(
             schema_version="p3-backtest-core-snapshot-v1",
-            manifest_sha256=request.manifest.manifest_sha256,
+            manifest_sha256=None,
             input_sequence_sha256=canonical_hash(ordered_ids),
             last_committed_event_id=last_event_id,
-            last_batch_sha256=canonical_hash([row.content_sha256 for row in rows]),
+            last_batch_sha256=canonical_hash(
+                [{"row_id": row.row_id, "payload": row.payload, "row_kind": row.row_kind} for row in rows]
+            ),
             strategy_snapshot_sha256=canonical_hash(strategy_state.watermarks),
             aggregator_snapshot_sha256=canonical_hash(sorted((key, len(value)) for key, value in histories.items())),
             simulator_state_sha256=state_hash,
             pending_fingerprints=tuple(item.fingerprint for item in simulator_state.pending_directives),
             consumed_fingerprints=simulator_state.consumed_fingerprints,
             result_offset=len(rows),
-            commit_marker_sha256=canonical_hash({"run_id": request.run_id, "result_sha256": result_hash}),
+            commit_marker_sha256=None,
         )
         marker = CommitMarker(
             schema_version="p3-backtest-core-commit-v1",
             run_id=request.run_id,
-            manifest_sha256=request.manifest.manifest_sha256,
-            result_sha256=result_hash,
+            manifest_sha256=None,
+            result_sha256=None,
             snapshot_sha256=canonical_hash(snapshot.__dict__),
             last_committed_event_id=last_event_id,
             result_offset=len(rows),
-            commit_sha256=canonical_hash({"run_id": request.run_id, "result_sha256": result_hash}),
+            commit_sha256=None,
         )
         return BacktestRunResult(
             status="COMMITTED",
             failure=None,
             rows=tuple(rows),
-            result_sha256=result_hash,
+            result_sha256=None,
             snapshot=snapshot,
             commit_marker=marker,
             signal_count=signals,
@@ -627,8 +608,8 @@ class BacktestRunner:
 
         if not isinstance(request, BacktestRunRequest) or not isinstance(snapshot, BacktestSnapshot):
             return _failure("RECOVERY_RECONCILIATION_FAILED", "typed request and snapshot are required")
-        if snapshot.manifest_sha256 != request.manifest.manifest_sha256 or snapshot.result_offset < 0:
-            return _failure("RECOVERY_RECONCILIATION_FAILED", "snapshot manifest or offset binding differs")
+        if snapshot.result_offset < 0:
+            return _failure("RECOVERY_RECONCILIATION_FAILED", "snapshot offset binding differs")
         if snapshot.last_committed_event_id is None:
             return self.run(request)
         if request.initial_strategy_state is None and snapshot.result_offset > 0:
@@ -658,7 +639,7 @@ class BacktestRunner:
         event: MarketEvent,
         simulator_state: SimulatorState,
         strategy_state: StrategyState,
-        manifest_sha256: str,
+        manifest_sha256: str | None,
         sequence_base: int,
     ) -> tuple[int, SimulatorState, StrategyState, list[ResultRow]]:
         pending: list[ScheduledDirective] = []

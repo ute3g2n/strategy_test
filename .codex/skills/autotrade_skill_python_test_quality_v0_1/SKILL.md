@@ -1,7 +1,7 @@
 ---
 name: autotrade_skill_python_test_quality_v0_1
 description: pytestのRED/GREEN、固定fixture、ローカル品質ゲート、証跡を統制する。
-ecc_source_commit: 623f2c020f052319657674e4e6c29ab5d0ad566b
+source_reference: historical upstream metadata; not used as a current integrity check
 ---
 
 # Python テストと品質

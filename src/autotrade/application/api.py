@@ -26,12 +26,10 @@ from .contracts import (
     ResumeJobCommand,
     RunView,
     StartJobCommand,
-    canonical_hash,
     failure_response,
     utc_now,
 )
 from .csv_job import atomic_csv_output
-from .evidence import hash_bytes
 from .job_service import JobService
 from .persistence import MetadataStore, PersistenceConflict
 from .preflight import preflight_run
@@ -159,7 +157,7 @@ class ProductApplicationApi:
             return failure_response(
                 code,
                 f"P4-MSG-{code}",
-                status_code=423 if code in {"CHECKPOINT_VERIFICATION_REQUIRED", "MANIFEST_MISMATCH"} else 409,
+                status_code=423 if code in {"CHECKPOINT_VERIFICATION_REQUIRED", "PROTECTED_INPUT_MISMATCH"} else 409,
                 recovery_required=True,
             )
         return ApplicationResponse(202, job, correlation_id=self._correlation())
@@ -244,25 +242,16 @@ class ProductApplicationApi:
                         recovery_required=True,
                     )
         comparable = left.condition_sha256 == right.condition_sha256
-        result_hashes: dict[str, str | None] = {
-            "left": left.result.result_sha256 if left.result else None,
-            "right": right.result.result_sha256 if right.result else None,
-        }
         return ApplicationResponse(
             200,
             {
                 "left_run_id": left.run_id,
                 "right_run_id": right.run_id,
                 "comparable": comparable,
-                "result_hashes": result_hashes,
-                "comparison_sha256": canonical_hash(
-                    {
-                        "left": left_run_id,
-                        "right": right_run_id,
-                        "comparable": comparable,
-                        "result_hashes": result_hashes,
-                    }
-                ),
+                "result_state": {
+                    "left": "COMMITTED" if left.result else "NOT_COMMITTED",
+                    "right": "COMMITTED" if right.result else "NOT_COMMITTED",
+                },
             },
             correlation_id=self._correlation(),
         )
@@ -284,7 +273,7 @@ class ProductApplicationApi:
                 source_result_sha256=command.source_result_sha256,
                 column_set=command.column_set,
                 filter_payload_sha256=command.filter_payload_sha256,
-                request_fingerprint=command.request_fingerprint,
+                request_key=command.request_key,
                 correlation_id=self._correlation(),
             )
         except PersistenceConflict as error:
@@ -299,13 +288,8 @@ class ProductApplicationApi:
         column_set: tuple[str, ...],
         filter_payload_sha256: str,
     ) -> ApplicationResponse[dict[str, Any]]:
-        fingerprint = canonical_hash(
-            {
-                "source_run_id": source_run_id,
-                "source_result_sha256": source_result_sha256,
-                "column_set": column_set,
-                "filter_payload_sha256": filter_payload_sha256,
-            }
+        request_key = ":".join(
+            ("csv", source_run_id, ",".join(column_set), filter_payload_sha256)
         )
         return self.create_csv_job(
             CreateCsvJobCommand(
@@ -313,7 +297,7 @@ class ProductApplicationApi:
                 source_result_sha256,
                 column_set,
                 filter_payload_sha256,
-                fingerprint,
+                request_key,
             )
         )
 
@@ -326,10 +310,10 @@ class ProductApplicationApi:
                 relative = row["relative_output_ref"]
                 path = (self.artifacts.root / relative).resolve()
                 path.relative_to(self.artifacts.root)
-                if not path.is_file() or hash_bytes(path.read_bytes()) != row["output_sha256"]:
-                    raise ValueError("CSV_OUTPUT_HASH_MISMATCH")
+                if not path.is_file():
+                    raise ValueError("CSV_OUTPUT_MISSING")
             except (OSError, TypeError, ValueError) as error:
-                code = str(error) if str(error).startswith("CSV_") else "CSV_OUTPUT_HASH_MISMATCH"
+                code = str(error) if str(error).startswith("CSV_") else "CSV_OUTPUT_MISSING"
                 return failure_response(code, f"P4-MSG-{code}", status_code=423, recovery_required=True)
         return ApplicationResponse(200, row, correlation_id=self._correlation())
 
@@ -342,10 +326,10 @@ class ProductApplicationApi:
         if row["status"] == "COMPLETED":
             return self.get_csv_job(csv_job_id)
         source = self.store.get_run(row["source_run_id"])
-        if source is None or source.result is None or source.result.result_sha256 != row["source_result_sha256"]:
+        if source is None or source.result is None:
             return failure_response(
-                "RESULT_HASH_MISMATCH",
-                "P4-MSG-RESULT_HASH_MISMATCH",
+                "RESULT_NOT_COMMITTED",
+                "P4-MSG-RESULT_NOT_COMMITTED",
                 status_code=423,
                 recovery_required=True,
             )
@@ -355,11 +339,11 @@ class ProductApplicationApi:
             if not columns or (payload["rows"] and any(column not in payload["rows"][0] for column in columns)):
                 raise ValueError("CSV_COLUMNS_INVALID")
             relative_ref = f"csv/{csv_job_id}.csv"
-            digest = atomic_csv_output(self.artifacts.root, relative_ref, payload["rows"], columns)
+            atomic_csv_output(self.artifacts.root, relative_ref, payload["rows"], columns)
             completed = self.store.complete_csv_job(
                 csv_job_id,
                 relative_output_ref=relative_ref,
-                output_sha256=digest,
+                output_sha256=None,
                 correlation_id=self._correlation(),
             )
         except (OSError, ValueError, TypeError, KeyError, PersistenceConflict) as error:
@@ -422,4 +406,4 @@ def build_create_run_command(
 ) -> CreateRunCommand:
     if run_kind not in {"SINGLE_BACKTEST", "SWEEP_CHILD"}:
         raise ValueError("RUN_KIND_INVALID")
-    return CreateRunCommand(client_request_id, run_kind, config, utc_now(), preflight_report.report_sha256)  # type: ignore[arg-type]
+    return CreateRunCommand(client_request_id, run_kind, config, utc_now(), None)

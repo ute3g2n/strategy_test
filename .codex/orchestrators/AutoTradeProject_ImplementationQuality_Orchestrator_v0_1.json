@@ -3,10 +3,10 @@
   "display_name": "Auto Trade Project Implementation Quality Orchestrator v0.1",
   "model": "gpt-5.6-terra",
   "purpose": "Run one approved implementation unit through test-first design, minimal implementation, local verification, bounded debugging, independent review, and a Human Gate without replacing existing project or implementation-design orchestrators.",
-  "ecc_source_commit": "623f2c020f052319657674e4e6c29ab5d0ad566b",
+  "ecc_source_revision": "historical metadata; not used as a current integrity check",
   "bootstrap_quality_gate_scope": "scripts/quality_gate and tests/quality_gate only; extending the allowlist to a Phase implementation unit requires a separately approved component update.",
   "trusted_scope_registry": "scripts/quality_gate/trusted_scopes.json",
-  "phase_scope_policy": "A Run ID must be registered before execution; the registry fixes scope_mode, target paths, excluded paths, fixture checksum, baseline ref, and four command templates. For scope_mode=target_only, unrelated HEAD/worktree paths are not used to decide the test target or change hash; only registered target paths are inspected. The manifest is comparison input, not an execution policy.",
+  "phase_scope_policy": "A Run ID must be registered before execution; the registry fixes scope_mode, target paths, excluded paths, protected fixture checksum, baseline ref, and four command templates. For scope_mode=target_only, unrelated HEAD/worktree paths are not used to decide the test target; only registered target paths are inspected. The manifest is scope metadata, not a file-integrity comparison policy.",
   "trigger_examples": [
     "Run Manifest を入力として Phase 2 の一機能をテスト先行で実装して",
     "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1 で品質ゲートを実行して"
@@ -45,7 +45,6 @@
       "skills",
       "input_fixture",
       "data_version",
-      "change_hash",
       "baseline_ref",
       "target_paths",
       "excluded_paths",
@@ -63,7 +62,8 @@
     "A130": { "file": ".codex/agents/AutoTrade_A130_VerificationEngineer_v0_1.json", "primary_skill": "autotrade_skill_python_test_quality_v0_1" },
     "A140": { "file": ".codex/agents/AutoTrade_A140_DebugEngineer_v0_1.json", "primary_skill": "autotrade_skill_debug_recovery_v0_1" },
     "A150": { "file": ".codex/agents/AutoTrade_A150_PythonCodeReviewer_v0_1.json", "primary_skill": "autotrade_skill_python_code_review_v0_1" },
-    "A160": { "file": ".codex/agents/AutoTrade_A160_TradingSecurityReviewer_v0_1.json", "primary_skill": "autotrade_skill_python_code_review_v0_1" }
+    "A160": { "file": ".codex/agents/AutoTrade_A160_TradingSecurityReviewer_v0_1.json", "primary_skill": "autotrade_skill_python_code_review_v0_1" },
+    "A95": { "file": ".codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json", "primary_skill": "autotrade_skill_protected_hash_policy_guard_v0_1" }
   },
   "skills": [
     "autotrade_skill_python_implementation_v0_1",
@@ -72,10 +72,12 @@
     "autotrade_skill_python_code_review_v0_1",
     "autotrade_skill_orchestration_v0_1",
     "autotrade_skill_test_strategy_v0_1",
-    "autotrade_skill_ops_security_v0_1"
+    "autotrade_skill_ops_security_v0_1",
+    "autotrade_skill_protected_hash_policy_guard_v0_1"
   ],
   "workflow_policy": [
     "Require an approved design and a complete Run Manifest before any implementation.",
+    "Pass new or substantially changed implementation plans, source, tests, and receipts through A95 as a static management-hash reintroduction check; A95 never calculates hashes, writes manifests, or retries.",
     "Run A110 before A120 and require a valid RED result before implementation.",
     "Run only the local command templates in the trusted scope registry; never use a shell or network command.",
     "Require host outbound isolation confirmation before a phase test subprocess; otherwise return BLOCKED.",

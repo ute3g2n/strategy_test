@@ -1,0 +1,77 @@
+{
+  "step_id": "Step 06",
+  "status": "COMPLETED_WITH_RUNTIME_FALLBACK",
+  "purpose": "application、market_data、backtest、replay、external data runnerの管理用hashを廃止し、直接の安全・データ・再現性に関わるprotected hashだけを残す",
+  "authority": {
+    "management_hash_checks": "FORCE_SKIPPED_BY_USER_AUTHORITY",
+    "protected_hashes": "MUST_REMAIN_WITH_PURPOSE_AND_FAIL_CLOSED_BEHAVIOR",
+    "management_hash_retry": "DISABLED",
+    "script_authority_applied": true
+  },
+  "runtime_dispatch": {
+    "state": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "reason": "collab spawn failed: agent thread limit reached",
+    "orchestrator": {
+      "name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "agent_id": "N/A",
+      "model": "gpt-5.6-terra",
+      "status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    "agents": [
+      {"name": "AutoTrade_A120_PythonImplementer_v0_1", "agent_id": "N/A", "model": "gpt-5.6-luna", "status": "NOT_STARTED", "independent": false, "review_mode": "SELF_REVIEW_FALLBACK"},
+      {"name": "AutoTrade_A130_VerificationEngineer_v0_1", "agent_id": "N/A", "model": "gpt-5.6-luna", "status": "NOT_STARTED", "independent": false, "review_mode": "SELF_REVIEW_FALLBACK"},
+      {"name": "AutoTrade_A140_DebugEngineer_v0_1", "agent_id": "N/A", "model": "gpt-5.6-luna", "status": "NOT_STARTED", "independent": false, "review_mode": "SELF_REVIEW_FALLBACK"},
+      {"name": "AutoTrade_A150_PythonCodeReviewer_v0_1", "agent_id": "N/A", "model": "gpt-5.6-luna", "status": "NOT_STARTED", "independent": false, "review_mode": "SELF_REVIEW_FALLBACK"},
+      {"name": "AutoTrade_A160_TradingSecurityReviewer_v0_1", "agent_id": "N/A", "model": "gpt-5.6-luna", "status": "NOT_STARTED", "independent": false, "review_mode": "SELF_REVIEW_FALLBACK"}
+    ]
+  },
+  "changed_files": [
+    "src/autotrade/application/contracts.py",
+    "src/autotrade/application/preflight.py",
+    "src/autotrade/application/run_service.py",
+    "src/autotrade/application/run_manifest.py",
+    "src/autotrade/application/evidence.py",
+    "src/autotrade/application/result_view.py",
+    "src/autotrade/application/csv_job.py",
+    "src/autotrade/application/api.py",
+    "src/autotrade/application/persistence.py",
+    "src/autotrade/application/checkpoint.py",
+    "src/autotrade/application/core_adapter.py",
+    "src/autotrade/application/quality_contract.py",
+    "src/autotrade/market_data/store_contracts.py",
+    "src/autotrade/market_data/raw_store.py",
+    "src/autotrade/market_data/acquisition_protocol.py",
+    "src/autotrade/backtest/contracts.py",
+    "src/autotrade/backtest/experiment_manifest.py",
+    "src/autotrade/backtest/snapshot.py",
+    "src/autotrade/backtest/result_store.py",
+    "src/autotrade/backtest/runner.py",
+    "src/autotrade/backtest/engine_adapter.py",
+    "src/autotrade/backtest/simulator.py",
+    "src/autotrade/backtest/performance_recorder.py",
+    "src/autotrade/backtest/timeframe_aggregator.py",
+    "scripts/phase5_external_data/run_databento_historical.py",
+    "tests/application/test_application_boundaries.py",
+    "tests/application/test_p4_07_execution.py",
+    "tests/application/test_nonhash_management_boundaries.py",
+    "tests/backtest/test_backtest_repair_persistence.py",
+    "tests/backtest/test_backtest_m30_red_contract.py",
+    "tests/backtest/test_nonhash_backtest_management_boundaries.py"
+  ],
+  "verification": {
+    "targeted_regression": "389 passed",
+    "step06_nonhash_regression": "3 passed",
+    "python_compile": "PASS",
+    "external_io": "NOT_RUN_BY_BOUNDARY",
+    "secret_or_live_execution": "NOT_RUN_BY_BOUNDARY",
+    "wsl_execution": "NOT_RUN_BY_BOUNDARY",
+    "hash_values_recorded": false
+  },
+  "notes": [
+    "管理用hashの代替としてUUID、mtime、fingerprint、checksumは導入していない",
+    "protected hashは入力境界・比較相手・失敗時停止を維持した",
+    "独立Agentの実起動完了とは扱わず、thread limitのためroot責務で実装・監査・回帰を行った"
+  ]
+}

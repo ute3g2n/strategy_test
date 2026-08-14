@@ -17,20 +17,20 @@ description: 単体で読める日本語HTML成果物を作成し、doc/index.ht
 ## 出力
 - HTML成果物
 - `doc/index.html` 更新案
-- 新規または大幅変更時の `run_context_maintenance` 引き渡し情報
+- 新規または大幅変更時の非hashmetadata、schema、link、path、Secret、状態確認の引き渡し情報
 
 ## 禁止事項
 - 外部CDN依存
 - 正式設計書をMarkdownだけで終えること
 - リンク孤立
-- A07またはvalidatorの結果を隠して完了扱いにすること
+- metadata/schema/link/Secret確認の結果やUnknownを隠して完了扱いにすること
 
 ## 品質チェック
 - 文書ID、作成日、状態、入力、判断、Unknown、レビュー履歴を含む
 - PCレビュー可読性を優先する
 - `doc/index.html` から到達可能にする
-- 新規HTMLは `record_add`、大幅変更HTMLは `record_update` または `metadata_unchanged` の判定対象へ渡す
-- validator PASS、または理由付きBLOCKEDを受領するまで文書作業を完了扱いにしない
+- 新規HTML・大幅変更HTMLはmetadata、schema、link、path、Secret、状態の非hash判定対象へ渡し、A95で管理hash再導入を静的判定する
+- 非hash確認のPASS、または理由付きBLOCKEDを受領するまで文書作業を完了扱いにしない。管理用hashの一致は完了条件にしない。A95はhashを計算しない。
 
 ## Phase依存パラメータ
 - `output_root`

@@ -9,6 +9,9 @@ metadata gates must be CONFIRMED/VERIFIED first.
 
 This runner is intentionally scoped to Historical data only. It has no Broker,
 Paper, Live, order, account, Cloud, or Core write path.
+
+Step 06 authority: 文章管理基盤と廃止対象の管理用hashチェックを強制スキップして完了する。
+安全・データ・再現性に直結する保護対象hashは維持する。
 """
 
 from __future__ import annotations
@@ -22,11 +25,11 @@ import re
 import socket
 import sys
 import time
-from datetime import date, datetime, timedelta, timezone
+from collections.abc import Iterable
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 from urllib.parse import urlparse
-
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 EXPECTED_DATASET = "GLBX.MDP3"
@@ -44,9 +47,6 @@ EXPECTED_SYMBOLS = {
 }
 RUN_ID_RE = re.compile(r"^RUN-P5-08-DATABENTO-001$")
 BLOCKING_HTTP_STATUSES = {206, 401, 402, 403, 404, 422}
-UTC = timezone.utc
-
-
 class ContractError(RuntimeError):
     """Raised when a local P5-08 contract is invalid."""
 
@@ -158,7 +158,7 @@ class ProcessEgressGuard:
             },
         )
 
-    def __enter__(self) -> "ProcessEgressGuard":
+    def __enter__(self) -> ProcessEgressGuard:
         parsed = urlparse(self.endpoint)
         actual_port = parsed.port or (443 if parsed.scheme == "https" else None)
         if (
@@ -520,7 +520,8 @@ def write_dry_run_report(
         "execute_precondition_blockers": contract["execute_precondition_blockers"],
         "request_sha256": contract["request_sha256"],
         "next_action": (
-            "Confirm each listed precondition; no portal API-key screenshot is required; then invoke the same wrapper with -Execute."
+            "Confirm each listed precondition; no portal API-key screenshot is required; "
+            "then invoke the same wrapper with -Execute."
             if contract["execute_precondition_blockers"]
             else "Explicit user waivers are recorded; process egress guard and post-run usage audit remain active."
         ),
@@ -792,7 +793,15 @@ def main(argv: list[str] | None = None) -> int:
             report_path = write_dry_run_report(evidence_root, request, contract, run_id=args.run_id)
             blockers = contract["execute_precondition_blockers"]
             status = "DRY_RUN_BLOCKED" if blockers else "DRY_RUN_READY"
-            print(json.dumps({"status": status, "report": report_path.relative_to(REPO_ROOT).as_posix(), "blockers": blockers}))
+            print(
+                json.dumps(
+                    {
+                        "status": status,
+                        "report": report_path.relative_to(REPO_ROOT).as_posix(),
+                        "blockers": blockers,
+                    }
+                )
+            )
             return 0
         return execute_run(request, evidence_root, contract, args.run_id)
     except ContractError as exc:

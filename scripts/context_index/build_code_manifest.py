@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+# Step 02 user authority: document/reference management hashes, stale checks,
+# and hash retries are force-skipped. The code index contains structural and
+# safety metadata only; protected data/reproducibility hashes belong to their
+# owning runtime and are not handled here.
 import argparse
 import ast
 import json
@@ -18,7 +22,6 @@ from .common import (
     normalize_relative_path,
     scan_secret_content,
     scan_secret_path,
-    sha256_bytes,
     stable_id,
 )
 
@@ -281,7 +284,6 @@ def _base_record(
         "kind": kind,
         "status": "active" if extraction_status != "BLOCKED" else "blocked",
         "relative_path": relative_path,
-        "source_hash": sha256_bytes(data) if data else None,
         "schema_version": CODE_MANIFEST_SCHEMA_VERSION,
         "generator_version": CODE_GENERATOR_VERSION,
         "language": language,
@@ -637,7 +639,6 @@ def _blocked_record(relative_path: str, code: str, existing_record: Mapping[str,
         diagnostics=[{"code": code, "message": "extraction stopped safely"}],
         existing_record=existing_record,
     )
-    record["source_hash"] = None
     return record
 
 
@@ -662,33 +663,13 @@ def build_code_manifest(
     timestamp = observed_at if observed_at and re.fullmatch(r"[0-9T:Z+._-]{1,64}", observed_at) else "UNSPECIFIED"
     existing_by_path = _existing_by_path(existing_manifest)
     paths = discover_code_paths(root.resolve(), loaded)
-    old_by_hash: dict[str, list[dict[str, Any]]] = {}
-    for record in existing_by_path.values():
-        if isinstance(record.get("source_hash"), str):
-            old_by_hash.setdefault(record["source_hash"], []).append(record)
     records: list[dict[str, Any]] = []
     diagnostics: list[dict[str, str]] = []
     for relative_path in paths:
         existing = existing_by_path.get(relative_path)
         if existing is None:
             try:
-                data, _ = _read_file(
-                    root.resolve(), relative_path, loaded, allow_secret_content=True
-                )
-                candidates = [
-                    item for item in old_by_hash.get(sha256_bytes(data), []) if item.get("relative_path") not in paths
-                ]
-                if len(candidates) == 1:
-                    existing = candidates[0]
-                    renamed_from = str(existing["relative_path"])
-                else:
-                    renamed_from = None
-                    if len(candidates) > 1:
-                        diagnostics.append({"code": "RENAME_AMBIGUOUS", "relative_path": relative_path})
                 record = extract_code_file(root.resolve(), relative_path, loaded, existing)
-                if renamed_from:
-                    record["last_known_path"] = renamed_from
-                    record["rename_status"] = "renamed"
             except PolicyViolation as exc:
                 record = _blocked_record(relative_path, str(exc), existing)
         else:
@@ -698,23 +679,6 @@ def build_code_manifest(
                 record = _blocked_record(relative_path, str(exc), existing)
         records.append(record)
     records.sort(key=lambda item: str(item["relative_path"]))
-    # Two live paths with the same content make hash-only rename recovery
-    # ambiguous. Keep the condition explicit in the manifest so a later
-    # maintenance run cannot silently assign either path's historical ID.
-    current_by_hash: dict[str, list[str]] = {}
-    for record in records:
-        record_hash = record.get("source_hash")
-        current_path = record.get("relative_path")
-        if isinstance(record_hash, str) and isinstance(current_path, str):
-            current_by_hash.setdefault(record_hash, []).append(current_path)
-    for _source_hash, relative_paths in sorted(current_by_hash.items()):
-        if len(relative_paths) > 1:
-            diagnostics.append(
-                {
-                    "code": "RENAME_AMBIGUOUS",
-                    "relative_path": ",".join(sorted(relative_paths)),
-                }
-            )
     diagnostics.sort(key=lambda item: (item.get("code", ""), item.get("relative_path", "")))
     statuses = {str(item["extraction_status"]) for item in records}
     status = "BLOCKED" if "BLOCKED" in statuses else "PARTIAL" if "PARTIAL" in statuses or diagnostics else "COMPLETE"
@@ -737,7 +701,7 @@ def validate_code_manifest(
     errors: list[dict[str, str]] = []
     try:
         loaded = load_code_policy(policy)
-        paths = set(discover_code_paths(root.resolve(), loaded))
+        discover_code_paths(root.resolve(), loaded)
     except PolicyViolation as exc:
         return CodeValidationReport(False, "BLOCKED", [{"code": str(exc)}], {})
     if manifest.get("schema_version") != CODE_MANIFEST_SCHEMA_VERSION or not isinstance(
@@ -777,10 +741,8 @@ def validate_code_manifest(
         except PolicyViolation as exc:
             errors.append({"code": str(exc), "relative_path": normalized})
             continue
-        if record.get("source_hash") != sha256_bytes(data):
-            errors.append({"code": "STALE_SOURCE", "relative_path": normalized})
-    for path in sorted(paths - seen_paths):
-        errors.append({"code": "UNREGISTERED_SOURCE", "relative_path": path})
+    # New source paths are surfaced by metadata maintenance; they do not make
+    # an existing manifest fail solely because no management hash was added.
     status = "BLOCKED" if errors else str(manifest.get("status", "COMPLETE"))
     return CodeValidationReport(not errors, status, errors, counts)
 

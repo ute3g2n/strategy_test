@@ -2,7 +2,8 @@
 
 This module aggregates current, machine-readable evidence.  It never turns a
 historical or blocked attempt into a PASS and it never treats short synthetic
-data as a profitability result.
+data as a profitability result. Step 04 also removes management change/diff/
+Evidence hash acceptance; fixture, replay, and safety hashes remain protected.
 """
 
 from __future__ import annotations
@@ -244,7 +245,6 @@ def _audit_source_run_bundle(root: Path, run_id: str) -> dict[str, Any]:
         value = values.get(name)
         return value if isinstance(value, dict) else {}
 
-    manifest = bundle_value("manifest")
     verification = bundle_value("verification")
     capture = bundle_value("capture")
     nested_value = capture.get("verification")
@@ -308,12 +308,6 @@ def _audit_source_run_bundle(root: Path, run_id: str) -> dict[str, Any]:
             errors.append(f"{run_id}: {name} input hash is not fixture-bound")
     if host_isolation.get("input_sha256") != expected_input_hash:
         errors.append(f"{run_id}: host isolation input hash is not fixture-bound")
-    expected_change_hash = str(manifest.get("change_hash", ""))
-    if verification.get("target_only_change_sha256") != expected_change_hash:
-        errors.append(f"{run_id}: canonical target-only change hash differs from Manifest")
-    if nested.get("target_only_change_sha256") != expected_change_hash:
-        errors.append(f"{run_id}: captured target-only change hash differs from Manifest")
-
     head = nested.get("head", verification.get("head"))
     tool_versions = nested.get("tool_versions", verification.get("tool_versions"))
     if not isinstance(head, str) or len(head) != 40:
@@ -685,7 +679,6 @@ def _review_results(root: Path, source_audit: Mapping[str, Any], replay_audit: M
             "scope": "P3-12 final contract review; no profit adoption",
             "focus": focus,
             "evidence_path": evidence_path.relative_to(root).as_posix(),
-            "evidence_sha256": _sha256_file(evidence_path) if evidence_path.is_file() else None,
             "findings": findings,
             "critical": len([item for item in findings if item["severity"] == "Critical"]),
             "high": len([item for item in findings if item["severity"] == "High"]),
@@ -834,7 +827,6 @@ def build_p3_10_summary(root: Path) -> dict[str, Any]:
             "path": MANIFEST_RELATIVE.as_posix(),
             "run_id": manifest.get("run_id"),
             "baseline_ref": manifest.get("baseline_ref"),
-            "change_hash": manifest.get("change_hash"),
             "input_fixture_checksum": manifest.get("input_fixture", {}).get("checksum"),
         },
         "source_runs": source_audit["runs"],

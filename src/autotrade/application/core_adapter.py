@@ -98,17 +98,16 @@ class BacktestCoreAdapter:
         if result.status != "COMMITTED":
             reason = result.failure.reason if result.failure is not None else "CORE_RESULT_STOPPED"
             raise CoreExecutionStopped(reason)
-        if not is_sha256(result.result_sha256) or not is_sha256(result.state_sha256):
-            raise CoreExecutionNotEnabled("CORE_RESULT_HASH_INVALID")
+        if not is_sha256(result.state_sha256):
+            raise CoreExecutionNotEnabled("CORE_STATE_HASH_INVALID")
         return self._output(result)
 
     @staticmethod
     def _output(result: BacktestRunResult) -> CoreExecutionOutput:
         rows = tuple(_core_row_mapping(row) for row in result.rows)
-        result_sha256 = result.result_sha256
         state_sha256 = result.state_sha256
-        if not isinstance(result_sha256, str) or not isinstance(state_sha256, str):
-            raise CoreExecutionNotEnabled("CORE_RESULT_HASH_INVALID")
+        if not isinstance(state_sha256, str):
+            raise CoreExecutionNotEnabled("CORE_STATE_HASH_INVALID")
         fill_count = result.fill_count
         total_pnl = _decimal_payload_sum(rows, "pnl")
         return CoreExecutionOutput(
@@ -122,14 +121,11 @@ class BacktestCoreAdapter:
                 period_start_utc="UNKNOWN",
                 period_end_utc="UNKNOWN",
                 rounding_rule="CORE_RESULT_PROJECTION",
-                source_result_sha256=result_sha256,
+                source_result_sha256=None,
             ),
             rows=rows,
-            evidence_files={
-                "core.result.sha256": result_sha256,
-                "core.state.sha256": state_sha256,
-            },
-            core_result_sha256=result_sha256,
+            evidence_files={"core.state.sha256": state_sha256},
+            core_result_sha256=None,
         )
 
 

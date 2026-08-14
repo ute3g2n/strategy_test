@@ -1,0 +1,25 @@
+{
+  "allowed_paths": [],
+  "approved_hashes": {},
+  "document_actions": [],
+  "document_manifest_updated": false,
+  "generated_paths": [],
+  "ignored_paths": [],
+  "management_hash_checks": "SKIPPED_BY_USER_AUTHORITY",
+  "management_hash_policy": "disabled",
+  "pending": null,
+  "protected_hash_checks": "NOT_APPLICABLE_TO_DOCUMENT_GATE",
+  "reason_code": "MANAGEMENT_HASH_POLICY_DISABLED",
+  "receipts": [],
+  "relation_graph_updated": false,
+  "requested_paths": [
+    "README.md"
+  ],
+  "schema_version": "ctxmap-gate-report-v0.1",
+  "source_manifest_updated": false,
+  "status": "PASS",
+  "target_paths": [
+    "README.md"
+  ],
+  "validator": null
+}

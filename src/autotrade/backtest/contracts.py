@@ -113,7 +113,8 @@ class ExperimentManifest:
     child_fixture_sha256s: tuple[str, ...] = ()
     input_sha256: str = ""
     output_sha256: str | None = None
-    manifest_sha256: str = ""
+    # Legacy management identity; new manifest payloads do not populate it.
+    manifest_sha256: str | None = None
     session_anchor_utc: datetime | None = None
     enabled_timeframes: tuple[str, ...] = ("M1", "M15", "H1", "H4", "D1")
     calendar_case: str = "normal"
@@ -131,13 +132,13 @@ class ReplayInput:
     data_version_manifest: DataVersionManifest
     data_gate: DataGateDecision
     replay_cutoff_utc: datetime
-    manifest_sha256: str
+    manifest_sha256: str | None
 
 
 @dataclass(frozen=True)
 class BacktestSnapshot:
     schema_version: str
-    manifest_sha256: str
+    manifest_sha256: str | None
     input_sequence_sha256: str
     last_committed_event_id: str | None
     last_batch_sha256: str
@@ -147,7 +148,7 @@ class BacktestSnapshot:
     pending_fingerprints: tuple[str, ...]
     consumed_fingerprints: tuple[str, ...]
     result_offset: int
-    commit_marker_sha256: str
+    commit_marker_sha256: str | None
 
 
 @dataclass(frozen=True)
@@ -159,8 +160,8 @@ class ResultRow:
     row_kind: str
     decision_time_utc: datetime
     payload: tuple[tuple[str, str], ...]
-    manifest_sha256: str
-    content_sha256: str
+    manifest_sha256: str | None
+    content_sha256: str | None
 
 
 @dataclass(frozen=True)

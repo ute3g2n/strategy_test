@@ -1,105 +1,477 @@
 <!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>資料・コード参照基盤システム詳細解説 | CTX-10</title>
-<meta name="description" content="CTXMAPによる資料・コード参照基盤を初心者向けに説明する正式設計資料">
-<style>
-:root{--ink:#172033;--muted:#536174;--line:#d9e0ea;--blue:#155eef;--pale:#f5f8fc;--warn:#fff7e6;--stop:#fff0f0;--ok:#eaf8ef}*{box-sizing:border-box}body{margin:0;background:#eef2f7;color:var(--ink);font-family:"Yu Gothic",Meiryo,system-ui,sans-serif;line-height:1.75}main{max-width:1180px;margin:0 auto;background:#fff;padding:42px 58px 80px;box-shadow:0 0 24px #22304418}h1{font-size:2.1rem;line-height:1.35;margin:0 0 12px}h2{margin-top:2.5rem;border-left:6px solid var(--blue);padding:8px 14px;background:var(--pale);font-size:1.45rem}h3{margin-top:1.8rem;border-bottom:2px solid var(--line);padding-bottom:5px}p{margin:.7rem 0}a{color:#0759c9}small,.muted{color:var(--muted)}.meta,.notice,.stop,.ok{border:1px solid var(--line);padding:15px 18px;margin:18px 0;border-radius:8px}.notice{background:#f7fbff}.stop{background:var(--stop);border-color:#e8bcbc}.ok{background:var(--ok);border-color:#b8ddc2}.toc{background:#f8fafc;border:1px solid var(--line);padding:18px 28px}.toc ol{columns:2}.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:18px 0}.step{flex:1 1 150px;min-height:72px;padding:12px;background:#edf4ff;border:1px solid #b9d0f8;border-radius:8px;text-align:center}.arrow{font-size:1.5rem;color:var(--blue)}table{border-collapse:collapse;width:100%;margin:12px 0;font-size:.94rem}th,td{border:1px solid var(--line);padding:9px 11px;vertical-align:top}th{background:#eef3fa;text-align:left}code,pre{font-family:Consolas,"Yu Gothic UI",monospace}code{background:#eef1f5;padding:2px 5px;border-radius:3px}pre{background:#172033;color:#f6f8fb;padding:16px;overflow:auto;border-radius:7px;font-size:.86rem;line-height:1.55}.tag{display:inline-block;padding:2px 8px;border-radius:12px;background:#e6efff;color:#174b9c;font-size:.82rem}.foot{border-top:1px solid var(--line);margin-top:40px;padding-top:15px}@media(max-width:700px){main{padding:25px 18px}.toc ol{columns:1}h1{font-size:1.65rem}.flow{display:block}.arrow{display:block;text-align:center}}@media print{body{background:#fff}main{box-shadow:none;max-width:none;padding:0}a{color:#000;text-decoration:none}pre{white-space:pre-wrap}}
-</style></head><body><main>
-<header><p class="tag">正式設計資料 / CTX-10 / ART-CTX10-DOC-001</p>
-<h1>資料・コード参照基盤システム詳細解説</h1>
-<p>大量の文書とソースコードから、必要な根拠だけを安全に取り出すためのローカル参照基盤を説明します。</p>
-<div class="meta"><strong>文書情報</strong><br>文書ID: CTXMAP-D02　|　作成日: 2026-08-15　|　状態: CTX-10正式HTML<br>対象: CTXMAP（Context Map）導入設計　|　作成担当: AutoTrade_A81_DesignDocSetWriter_v0_1<br>前提: CTXMAP-H1は2026-08-15承認済み。ただしWSL依存検証、外部サービス、Secret、実取引は未実行・未許可です。</div></header>
-<nav class="toc"><strong>ページ内目次</strong><ol>
-<li><a href="#purpose">なぜ参照基盤が必要か</a></li><li><a href="#ctxmap">CTXMAPの目的と正本</a></li><li><a href="#manifests">三つの記録</a></li><li><a href="#changes">変更処理シーケンス</a></li><li><a href="#a07">A07の判定</a></li><li><a href="#a08">A08の最小routing</a></li><li><a href="#security">安全停止と脅威</a></li><li><a href="#mcp">Routerから本文取得まで</a></li><li><a href="#ops">日次運用</a></li><li><a href="#tests">テストと限界</a></li><li><a href="#faq">FAQ・用語・追跡</a></li><li><a href="#history">変更履歴</a></li></ol></nav>
-<h2 id="purpose">1. なぜ参照基盤が必要か</h2>
-<p>プロジェクトには、Markdown、HTML、Python、TypeScript、PowerShellなどが増えます。毎回すべてを読む方法は、時間がかかり、重要な一箇所を見落としやすく、AIへ不要な内容まで渡す危険があります。</p>
-<table><tr><th>方法</th><th>得意なこと</th><th>苦手なこと</th></tr><tr><td>全文を読む</td><td>文脈を保つ</td><td>巨大化すると遅く、必要箇所の選択が難しい</td></tr><tr><td><code>doc/index.html</code></td><td>正式成果物の入口を一覧する</td><td>本文の該当段落やコード依存関係までは探さない</td></tr><tr><td>全文検索</td><td>単語の一致を探す</td><td>意味、重要度、最新版、関連資料を判断しない</td></tr><tr><td>要件追跡</td><td>REQ→設計→成果物→証跡を説明する</td><td>依頼に必要な本文の最小範囲を直接返さない</td></tr><tr><td>CTXMAP</td><td>正本の構造・hash・関係を使い、必要な候補を絞る</td><td>未解析・古いhash・Unknownを勝手に補完できない</td></tr></table>
-<p>CTXMAPは全文を置き換える検索ではなく、「どの正本を、どの理由で、どこまで読むか」を決める索引です。</p>
-<h2 id="ctxmap">2. CTXMAPの目的、対象範囲、正本と証跡</h2>
-<p>CTXMAPは、リポジトリ内の管理対象文書とソースコードを、本文そのものではなく参照に必要な構造情報として記録します。対象は許可されたrepo内pathです。Secret、認証情報、外部サービス本文、実取引データは対象外です。</p>
-<table><tr><th>種類</th><th>正本</th><th>役割</th></tr><tr><td>artifact manifest</td><td><a href="../../context/artifact_manifest.json">context/artifact_manifest.json</a></td><td>文書のtitle、見出し、ID、hash、用途、リンク等</td></tr><tr><td>code manifest</td><td><a href="../../context/code_manifest.json">context/code_manifest.json</a></td><td>コードのsymbol、定義位置、呼出し候補、解析状態等</td></tr><tr><td>relation graph</td><td><a href="../../context/relation_graph.json">context/relation_graph.json</a></td><td>REQ、文書、コード、test、evidenceの関係</td></tr><tr><td>状態・証跡</td><td><a href="../../context/manifest_state.json">context/manifest_state.json</a>、receipts</td><td>validator結果、source_hash、更新判断、停止理由</td></tr></table>
-<div class="notice"><strong>正本と証跡の違い:</strong> manifestは現在の索引、receiptはなぜその索引になったかです。証跡がないPASSは受け入れません。本文を索引にコピーしてSecretを増やすこともしません。</div>
-<h2 id="structure">2-1. 構成と役割を先に理解する</h2>
-<p>ここでは、どこに何があり、誰が判断するかを先に示します。正本は現在の状態、生成物は解析・検証の結果、禁止保存物はSecretや外部サービス本文です。</p>
-<pre>repo/
-├─ doc/                 正式HTMLとdoc/index.html
-├─ context/             manifestとrelation graphの正本
-├─ src/                 解析対象コード（例）
-├─ tests/               fixture・検証証跡
-└─ plan/context_index/  receipt・Human Gate・pending記録</pre>
-<div class="flow"><div class="step">依頼<br>何を知りたいか</div><div class="arrow">→</div><div class="step">A08 Router<br>候補を絞る</div><div class="arrow">→</div><div class="step">local MCP<br>許可範囲だけ取得</div><div class="arrow">→</div><div class="step">JIT<br>必要箇所だけ読む</div></div>
-<table><tr><th>役割</th><th>すること</th><th>しないこと</th></tr><tr><td>A07</td><td>1ファイル単位でstrict JSONを返し、追加・更新・保留を判断する</td><td>複数ファイルを横断して勝手に設計変更しない</td></tr><tr><td>A08</td><td>validator済みmanifestからprimary最大3、supporting最大6、残りはJIT候補に絞る</td><td>本文を直接読んで新しいmanifestを作らない、PATHやSecretを推測しない</td></tr><tr><td>local MCP</td><td>RouterのIDと許可pathに対して検索・本文・関係を返す</td><td>外部MCP、クラウド、認証情報、repo外pathへ接続しない</td></tr></table>
-<p>外部実行環境やCDNには依存せず、このHTMLの矢印と表で構成を説明します。構造が不明、manifestがstale、または上限を超える場合は、結果を増やさずPARTIALまたはBLOCKEDとして停止します。</p>
-<h2 id="manifests">3. 三つの記録をダミーで理解する</h2>
-<p>以下は秘密を含まない説明用ダミーです。実在の鍵、口座ID、個人情報を入れてはいけません。</p>
-<pre>{
-  "artifact_id": "DEMO_ARTIFACT_001",
-  "path": "doc/example/design.html",
-  "title": "例示設計書",
-  "source_hash": "sha256:DEMO_ONLY",
-  "status": "ACTIVE",
-  "extracted": ["h1", "h2", "DEMO_REQUIREMENT_01", "DEMO_DECISION_01"]
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>資料・コード参照基盤システム詳細解説 | 保護hash限定・現行版</title>
+  <meta name="description" content="大量のMarkdown、HTML、ソースコードから必要な資料だけを安全に選ぶ参照基盤の現行仕様。管理用hashを廃止し、直接の安全・データ・再現性に必要なprotected hashだけを維持する。">
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #526175;
+      --line: #d7e0ea;
+      --paper: #ffffff;
+      --canvas: #f4f7fb;
+      --blue: #165d9b;
+      --blue-soft: #eaf4ff;
+      --green: #087443;
+      --green-soft: #eaf8f0;
+      --amber: #9a5b00;
+      --amber-soft: #fff7e6;
+      --red: #a22b2b;
+      --red-soft: #fff0f0;
+      --navy: #0b1f38;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.8;
+    }
+    main { max-width: 1240px; margin: 0 auto; padding: 28px 22px 72px; }
+    header, section, footer { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; }
+    header { padding: 34px 36px; margin-bottom: 20px; }
+    section { padding: 28px 32px; margin: 20px 0; }
+    footer { padding: 24px 32px; margin-top: 20px; }
+    h1, h2, h3 { color: #10243f; line-height: 1.35; }
+    h1 { font-size: clamp(1.9rem, 4vw, 3rem); margin: 12px 0 18px; letter-spacing: .02em; }
+    h2 { border-bottom: 2px solid #dce7f1; padding-bottom: 8px; margin: 0 0 18px; font-size: 1.55rem; }
+    h3 { margin-top: 24px; font-size: 1.16rem; }
+    p { margin: 10px 0; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover, a:focus { text-decoration: underline; }
+    code { color: #163a61; background: #eef3f8; border-radius: 4px; padding: 1px 5px; font-family: Consolas, "Courier New", monospace; font-size: .94em; }
+    pre { overflow-x: auto; border-radius: 10px; padding: 18px 20px; margin: 16px 0; }
+    pre, .mermaid { background: var(--navy); color: #eaf2fb; }
+    .mermaid { white-space: pre; font-family: Consolas, "Courier New", monospace; line-height: 1.5; }
+    .breadcrumb { margin: 0; font-size: .94rem; }
+    .meta { color: var(--muted); background: #f8fbff; border-left: 5px solid var(--blue); padding: 14px 16px; border-radius: 8px; }
+    .hero { background: linear-gradient(135deg, #eaf4ff 0%, #ffffff 62%); border-color: #b8d4ed; }
+    .hero strong { color: #0f4777; }
+    .callout { padding: 16px 18px; border-radius: 9px; margin: 16px 0; }
+    .callout.current { background: var(--green-soft); border-left: 5px solid var(--green); }
+    .callout.stop { background: var(--red-soft); border-left: 5px solid var(--red); }
+    .callout.warn { background: var(--amber-soft); border-left: 5px solid var(--amber); }
+    .callout.info { background: var(--blue-soft); border-left: 5px solid var(--blue); }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 18px 0; }
+    .card { border: 1px solid var(--line); border-radius: 10px; padding: 16px; background: #fff; }
+    .card h3 { margin: 0 0 6px; }
+    .card.keep { border-top: 5px solid var(--green); }
+    .card.remove { border-top: 5px solid var(--red); }
+    .card.check { border-top: 5px solid var(--blue); }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; font-size: .95rem; }
+    th, td { border: 1px solid var(--line); padding: 10px 12px; text-align: left; vertical-align: top; }
+    th { background: #edf4fa; color: #143657; }
+    tr:nth-child(even) td { background: #fbfdff; }
+    .tag { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: .82rem; font-weight: 700; margin-right: 5px; }
+    .tag.green { color: var(--green); background: var(--green-soft); }
+    .tag.red { color: var(--red); background: var(--red-soft); }
+    .tag.amber { color: var(--amber); background: var(--amber-soft); }
+    .tag.blue { color: var(--blue); background: var(--blue-soft); }
+    .toc ol { columns: 2; column-gap: 36px; }
+    .toc li { break-inside: avoid; margin: 4px 0; }
+    .small { color: var(--muted); font-size: .9rem; }
+    .big-number { color: var(--blue); font-size: 1.8rem; font-weight: 800; line-height: 1; }
+    .two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .checklist { list-style: none; padding-left: 0; }
+    .checklist li { padding-left: 1.8em; position: relative; margin: 7px 0; }
+    .checklist li::before { content: "✓"; color: var(--green); font-weight: 800; position: absolute; left: .2em; }
+    .stop-list li::before { content: "!"; color: var(--red); }
+    .legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    @media (max-width: 760px) {
+      main { padding: 12px 10px 40px; }
+      header, section, footer { padding: 20px 18px; border-radius: 10px; }
+      .cards, .two-col { grid-template-columns: 1fr; }
+      .toc ol { columns: 1; }
+      table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header class="hero" id="top">
+    <p class="breadcrumb"><a href="../index.html">ドキュメントインデックスへ戻る</a></p>
+    <h1>資料・コード参照基盤システム詳細解説</h1>
+    <div class="meta">
+      <strong>文書ID:</strong> CTXMAP-D02　|　<strong>版:</strong> v0.2 現行版　|　<strong>更新日:</strong> 2026-08-15<br>
+      <strong>対象:</strong> Markdown・HTML文書、ソースコード、テスト、計画、AI部品の参照効率化<br>
+      <strong>状態:</strong> 保護hash限定へ移行済み。外部サービス、Secret、実取引、WSL実機検証は本資料の対象外。
+    </div>
+    <div class="callout current">
+      <strong>最初に読む結論:</strong> このシステムの役割は、巨大なプロジェクトから「今回の依頼に必要な資料・コードだけ」を短時間で選ぶことです。文書管理のためのhash取得、hash照合、stale判定、manifestのhash一致、hash不一致retryは現行フローから完全に外れています。安全・データ・再現性を直接守るprotected hashだけは、目的と失敗時停止範囲を明記して残します。
+    </div>
+  </header>
+
+  <section class="toc" aria-labelledby="toc-title">
+    <h2 id="toc-title">この資料の読み方</h2>
+    <p>急いで全体を把握する場合は、1章、2章、6章、7章の順に読んでください。実際に文書やコードを追加・変更する人は、4章の変更フローと8章のチェックリストを使います。</p>
+    <ol>
+      <li><a href="#summary">1. まず結論：何が残り、何がなくなったか</a></li>
+      <li><a href="#why">2. なぜ参照基盤が必要か</a></li>
+      <li><a href="#architecture">3. システム全体の構成</a></li>
+      <li><a href="#change-flow">4. 文書・コードが変わったときの流れ</a></li>
+      <li><a href="#routing">5. 依頼から必要範囲だけを取り出す流れ</a></li>
+      <li><a href="#hash-policy">6. hashの境界：維持するものと廃止するもの</a></li>
+        <li><a href="#future-rules">6.1 HASH-FUTURE-01〜08</a></li>
+        <li><a href="#a95">7. A95保護hashポリシーガード</a></li>
+      <li><a href="#operations">8. 実務チェックリスト</a></li>
+      <li><a href="#fail-closed">9. 停止条件、Human Gate、rollback</a></li>
+      <li><a href="#history">10. 旧制度と現在の扱い</a></li>
+      <li><a href="#faq">11. よくある質問</a></li>
+      <li><a href="#references">12. 正式な参照先</a></li>
+    </ol>
+  </section>
+
+  <section id="summary">
+    <h2>1. まず結論：何が残り、何がなくなったか</h2>
+    <div class="cards">
+      <article class="card keep">
+        <h3>残るもの</h3>
+        <p>title、見出し、目的、REQ/DEC/UNK/ARTなどの追跡ID、関係、リンク、ソースのsymbol・import・export、状態、path境界を使ったmetadata検索です。</p>
+      </article>
+      <article class="card remove">
+        <h3>なくなったもの</h3>
+        <p>文書の同一性だけを確認するhash、manifest/evidence/result/file identityの管理hash、差分hash、stale hash、hash一致受入、管理hash不一致retryです。</p>
+      </article>
+      <article class="card check">
+        <h3>それでも止めるもの</h3>
+        <p>Secret、path traversal、schema不正、リンク境界違反、状態不明、Human Gate未承認、Unknownの無断Pass、protected hashのfail-closed違反です。</p>
+      </article>
+    </div>
+    <h3>一言でいうと</h3>
+    <p>以前の仕組みは「内容が同じかをhashで確認してから次へ進む」比重が大きくなっていました。現在は「どの資料か、何の目的か、どこへリンクし、どの状態か」をmetadataと構造で確認して、必要な本文だけを後から読みます。hashを使う場合は、単なる管理ではなく、データ破損や再現不能を直接防ぐ場合に限ります。</p>
+  </section>
+
+  <section id="why">
+    <h2>2. なぜ参照基盤が必要か</h2>
+    <p>プロジェクトが小さい間は、依頼を受けるたびにREADME、計画書、設計書、ソース、テストを順番に読んでも問題ありません。しかし資料とコードが増えると、全文を読む方法には次の負担が発生します。</p>
+    <table>
+      <thead><tr><th>困ること</th><th>全文を読むだけでは起きる問題</th><th>参照基盤で行うこと</th></tr></thead>
+      <tbody>
+        <tr><td>必要な資料を探す</td><td>似たタイトルの旧版や計画書を毎回読み比べる。</td><td>title、見出し、目的、追跡ID、pathをmetadata検索する。</td></tr>
+        <tr><td>関連コードを探す</td><td>ファイルを開いてsymbolやimportを手作業で探す。</td><td>code manifestのsymbol、import、export、設定参照候補を使う。</td></tr>
+        <tr><td>読み過ぎる</td><td>依頼に不要な本文までAIへ投入し、時間とtokenを使う。</td><td>primary最大3件、supporting最大6件、JIT範囲最大3件へ絞る。</td></tr>
+        <tr><td>古い資料を選ぶ</td><td>ファイル名だけでは現行・履歴・Blockedを区別しにくい。</td><td>status、更新時刻、関係、Unknown、正本リンクを候補情報に含める。</td></tr>
+        <tr><td>危険な入力を読む</td><td>Secretやprompt injectionを本文投入後に発見する。</td><td>path、サイズ、UTF-8、Secret、prompt injectionを本文取得前に確認する。</td></tr>
+      </tbody>
+    </table>
+    <div class="callout info"><strong>大切な考え方:</strong> 参照基盤は「本文の代わり」ではありません。まず候補を絞り、最後に必要な本文の小さな範囲を読むための案内板です。metadataだけで意味を断定できないときは、PARTIAL、NEEDS_HUMAN_GATE、またはBLOCKEDとして止めます。</div>
+  </section>
+
+  <section id="architecture">
+    <h2>3. システム全体の構成</h2>
+    <p>文書とコードは同じ入口から扱いますが、抽出するmetadataが異なります。文書はtitle・見出し・リンク・追跡ID、コードはsymbol・import・export・設定の参照候補を中心に記録します。</p>
+    <pre class="mermaid" aria-label="参照基盤の構成図">flowchart LR
+  U["依頼"] --> C["依頼の語句・対象・範囲"]
+  C --> R["metadata router"]
+  D["Markdown / HTML"] --> DI["document index"]
+  S["Source / Test"] --> CI["code index"]
+  DI --> G["relation graph"]
+  CI --> G
+  G --> R
+  R --> M["local bounded MCP / query"]
+  M --> B["必要な本文・コード範囲"]
+  P["Path / Schema / Secret / State checks"] --> R
+  A95["A95 static policy guard"] --> R</pre>
+    <h3>3.1 主要な正本と役割</h3>
+    <table>
+      <thead><tr><th>場所・部品</th><th>何を持つか</th><th>現行の境界</th></tr></thead>
+      <tbody>
+        <tr><td><code>context/context_policy.json</code></td><td>対象root、拡張子、除外dir、最大サイズ、Secretパターン。</td><td>対象範囲と安全条件を決める。管理hashの設定は持たない。</td></tr>
+        <tr><td><code>context/artifact_manifest.json</code></td><td>文書のpath、title、見出し、関係、状態、行数、サイズ、リンク。</td><td>名前はmanifestだが、現行runtimeはmetadata indexとして扱う。本文同一性のhashを現行生成しない。</td></tr>
+        <tr><td><code>context/code_manifest.json</code></td><td>コードのpath、言語、parser、symbol、import、export、診断。</td><td>構造候補を返す。コード全体をAIへ自動投入しない。</td></tr>
+        <tr><td><code>context/relation_graph.json</code></td><td>文書、コード、要件、設計、テストなどの関係edge。</td><td>関係の近傍を選ぶ。関係の同一性hashは作らない。</td></tr>
+        <tr><td><code>context/manifest_state.json</code></td><td>対象のactive、blocked、partialなどの状態。</td><td>stale hashではなく、現在の状態と処理日時を扱う。</td></tr>
+        <tr><td><code>scripts/context_index/context_router.py</code></td><td>依頼語句からprimary、supporting、JIT範囲を選ぶ。</td><td>schema、state、path、関係、見出しを使う。本文hashで選ばない。</td></tr>
+        <tr><td><code>scripts/context_index/context_mcp_server.py</code></td><td>local stdioの検索・本文・関係取得。</td><td>ネットワークsocketを開かず、許可pathと範囲を強制する。</td></tr>
+        <tr><td><code>AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1</code></td><td>新規・大幅変更に管理hashを再導入しないかの判定。</td><td>hash値、manifest、receipt、stale、retryを作らない。</td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn"><strong>「manifest」という名前について:</strong> 現在のCTXMAPにはmetadataをまとめるmanifestファイルが残っています。ここで廃止したのはmanifestという容器ではなく、文書管理のためにhashを付け、hashを比較し、staleとして止める運用です。metadata indexとしてのmanifestと、hash管理台帳は別物です。</div>
+  </section>
+
+  <div class="callout info"><strong>実行Runのメタデータと文書管理hashは別物:</strong> 現行の品質ゲートが対象範囲、Run ID、schema、protected fixtureの情報を持つことはあります。しかし、それは実行範囲を固定するための運用メタデータであり、文書・成果物の同一性hashや管理用manifest hashを要求することを意味しません。protected fixture、raw data、replay、stateなど安全・データ・再現性に直結するhashだけは、それぞれの本体境界でfail-closedに維持します。</div>
+
+  <section id="change-flow">
+    <h2>4. 文書・コードが変わったときの流れ</h2>
+    <h3>4.1 現行フロー</h3>
+    <ol>
+      <li><strong>変更の種類を決める:</strong> 新規、軽微変更、大幅変更、構造変更、rename、deleteを区別する。</li>
+      <li><strong>対象を安全に読む:</strong> 相対path、repo内境界、除外dir、サイズ、UTF-8、Secret path、Secret本文を確認する。</li>
+      <li><strong>metadataを抽出する:</strong> Markdown/HTMLならtitle、見出し、リンク、追跡ID、要約。コードならsymbol、import、export、parser、診断。</li>
+      <li><strong>状態を記録する:</strong> active、partial、blockedなど、現在分かっている状態を記録する。古い資料を自動的に現行扱いしない。</li>
+      <li><strong>関係を更新する:</strong> pathと既知の追跡ID・リンク・symbolからrelation graphを更新する。</li>
+      <li><strong>A95を発火する:</strong> 新規または大幅変更なら、管理hashの再導入だけを静的に判定する。hash値は計算しない。</li>
+      <li><strong>非hash受入を行う:</strong> JSON schema、HTML構造、link、path、Secret、状態、要件追跡、AI部品完全名を確認する。</li>
+      <li><strong>必要な本文だけを次工程へ渡す:</strong> routing結果の許可範囲を超えて本文全量を投入しない。</li>
+    </ol>
+    <pre class="mermaid" aria-label="変更時の現行処理フロー">flowchart TD
+  N["新規・変更"] --> T{"対象範囲は安全か"}
+  T -- "いいえ" --> X1["BLOCKED: path / Secret / サイズ"]
+  T -- "はい" --> E["metadata抽出"]
+  E --> V{"schema / link / state"}
+  V -- "不明" --> X2["PARTIAL または Human Gate"]
+  V -- "OK" --> H{"A95の静的判定"}
+  H -- "管理hash" --> X3["BLOCKED: retryしない"]
+  H -- "用途不明" --> X4["NEEDS_HUMAN_GATE"]
+  H -- "保護対象または候補なし" --> I["metadata index / relation更新"]
+  I --> R["最小範囲routing"]</pre>
+    <h3>4.2 以前のフローとの違い</h3>
+    <table>
+      <thead><tr><th>段階</th><th>旧来の重い流れ</th><th>現行の流れ</th></tr></thead>
+      <tbody>
+        <tr><td>変更検知</td><td>内容digestを作り、前回値と比較する。</td><td>path、変更種別、metadata、状態を確認する。</td></tr>
+        <tr><td>文書追加・変更</td><td>manifestへhashを追加し、validatorを通す。</td><td>metadata indexを更新し、schema/link/path/Secret/stateを確認する。</td></tr>
+        <tr><td>不一致</td><td>再取得、再生成、hash retry。</td><td>管理hashなら廃止扱いにして関連文書を更新する。protected不一致ならfail-closedで停止する。</td></tr>
+        <tr><td>完了条件</td><td>複数のhashが一致していること。</td><td>必要なmetadata、リンク、範囲、状態、レビュー、Human Gateが明確であること。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="routing">
+    <h2>5. 依頼から必要範囲だけを取り出す流れ</h2>
+    <p>参照時は、まず依頼文を検索語句へ分解します。Routerはmetadata indexを検索し、関係graphの近傍を補助候補にします。本文は候補が決まった後に、許可された範囲だけをJIT取得します。</p>
+    <div class="two-col">
+      <div class="card">
+        <div class="big-number">1</div>
+        <h3>依頼を短くする</h3>
+        <p>例: 「CSV出力のresult markerとprotected inputの境界を確認したい」。巨大な背景説明をそのまま検索語にしない。</p>
+      </div>
+      <div class="card">
+        <div class="big-number">2</div>
+        <h3>候補を選ぶ</h3>
+        <p>path、title、summary、purpose、heading、trace ID、symbol、relationを使い、主資料と補助資料を選ぶ。</p>
+      </div>
+      <div class="card">
+        <div class="big-number">3</div>
+        <h3>範囲を絞る</h3>
+        <p>primaryは最大3、supportingは最大6、JIT範囲は最大3を基本とする。上限を超えるときは増やさずPARTIALにする。</p>
+      </div>
+      <div class="card">
+        <div class="big-number">4</div>
+        <h3>本文を読む</h3>
+        <p>local MCPまたはqueryの許可path・heading・行範囲を使う。Secret、prompt injection、範囲逸脱は本文返却前に停止する。</p>
+      </div>
+    </div>
+    <h3>5.1 検索で使う情報と、使わない情報</h3>
+    <table>
+      <thead><tr><th>使う</th><th>使わない</th></tr></thead>
+      <tbody>
+        <tr><td>relative path、title、summary、purpose、見出し、REQ/DEC/UNK/ART、symbol、import、export、status、relation graph。</td><td>本文全量、Secret、外部MCP、repo外path、管理用hashの一致、stale marker。</td></tr>
+        <tr><td>semantic request key、対象範囲、最大件数、JIT行範囲、非hashのschemaと状態。</td><td>hashを別名にしたfingerprint、mtimeだけの同一性判定、hash mismatch retry。</td></tr>
+      </tbody>
+    </table>
+    <div class="callout stop"><strong>情報が足りない場合:</strong> Routerは推測で本文を増やしません。候補が空、snapshotが未検証、関係が壊れている、pathが不安全、または上限を超える場合はPARTIAL、BLOCKED、またはHuman Gateです。</div>
+  </section>
+
+  <section id="hash-policy">
+    <h2>6. hashの境界：維持するものと廃止するもの</h2>
+    <p>判断の軸は「hashという名前かどうか」ではなく、「何を守るために存在し、失敗すると何が壊れるか」です。現在の文書・コード参照runtimeからは管理hashを外し、業務処理の安全・データ・再現性に直接つながるhashだけを各本体側で維持します。</p>
+    <div class="legend"><span class="tag green">PROTECTED: 維持</span><span class="tag red">MANAGEMENT: 廃止</span><span class="tag amber">UNKNOWN: Human Gate</span></div>
+    <table>
+      <thead><tr><th>分類</th><th>代表例</th><th>現行の扱い</th><th>失敗したとき</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag green">PROTECTED</span>データ</td><td>raw payload、DBN、fixture、normalized data、catalog data。</td><td>データそのものの取り違え・破損を防ぐために維持。</td><td>対象データを使わずfail-closed。管理hashのretryへ変換しない。</td></tr>
+        <tr><td><span class="tag green">PROTECTED</span>再現性</td><td>replay input、engine identity、dependency、checkpoint state、snapshot state。</td><td>同じ入力・状態で再現できることを守るために維持。</td><td>replayやresumeを停止し、原因と範囲を報告する。</td></tr>
+        <tr><td><span class="tag green">PROTECTED</span>安全</td><td>安全停止に直接必要な入力、許可対象、実行境界。</td><td>安全判定の直接入力として目的と停止範囲を明記。</td><td>実行を許可せず、Secret・外部I/O・Live境界を維持する。</td></tr>
+        <tr><td><span class="tag red">MANAGEMENT</span>文書</td><td>文書source、artifact、manifest、snapshot、stale、file identityの管理hash。</td><td>取得、保存、比較、validator受入、retryをしない。metadataと構造で扱う。</td><td>不一致を理由にやり直さず、記述を非hashへ修正する。</td></tr>
+        <tr><td><span class="tag red">MANAGEMENT</span>証跡</td><td>evidence、result、commit marker、receipt、差分、baseline、findingのhash。</td><td>path、状態、件数、watermark、schema、レビューで扱う。</td><td>管理hashの停止や再取得を行わない。</td></tr>
+        <tr><td><span class="tag red">MANAGEMENT</span>AI運用</td><td>計画の受入hash、Agent receipt hash、manifest hash、hash retry。</td><td>runtime ID、model、status、path、出力参照、independent、review_modeを記録する。</td><td>起動不能はfallbackとして記録し、hashの有無で独立実行を偽らない。</td></tr>
+        <tr><td><span class="tag amber">UNKNOWN</span></td><td>用途説明のないchecksum、identity digest、候補hash。</td><td>自動追加・削除・置換をせず、A95からHuman Gateへ送る。</td><td>判断が出るまで現行経路へ入れない。</td></tr>
+      </tbody>
+    </table>
+    <div class="callout info"><strong>protected hashを残すための4条件:</strong> ①守る対象が具体的、②安全・データ・再現性への直接因果がある、③失敗時に止める範囲が明確、④管理作業のretryを目的にしない。この4点を説明できなければ、自動的にprotectedとは扱いません。</div>
+  </section>
+
+  <section id="future-rules">
+    <h2>6.1 HASH-FUTURE-01〜08：今後の計画・成果物に適用する固定ルール</h2>
+    <p>この8ルールは、今後作成する計画書、実行プロンプト、Markdown、HTML、ソースコード、テスト、Skill、Agent、Orchestrator、およびそれらの受入条件に常に適用します。管理用hashを別名で復活させることも禁止します。</p>
+    <table>
+      <thead><tr><th>ID</th><th>今後の固定ルール</th><th>実務上の判定</th></tr></thead>
+      <tbody>
+        <tr><td>HASH-FUTURE-01</td><td>安全・データ・再現性に直接結び付かないhashは新規作成しない。</td><td>文書、成果物、差分、証跡、receipt、manifestの管理目的hashは作らない。</td></tr>
+        <tr><td>HASH-FUTURE-02</td><td>各step、phase、受入の完了条件に管理用hash一致を入れない。</td><td>完了条件は対象範囲、schema、link、state、review、Human Gateなどで定義する。</td></tr>
+        <tr><td>HASH-FUTURE-03</td><td>Skill、Agent、Orchestrator、テンプレートは管理用hashを取得・保存・比較しない。</td><td>AI部品の変更時はA95を静的に発火し、hash値は計算しない。</td></tr>
+        <tr><td>HASH-FUTURE-04</td><td>protected hashを残す場合は、保護対象、直接因果、失敗時の停止範囲を明記する。</td><td>目的を説明できないchecksumやdigestはprotected扱いにしない。</td></tr>
+        <tr><td>HASH-FUTURE-05</td><td>用途不明または仕様衝突するhash候補は自動承認しない。</td><td>A95はNEEDS_HUMAN_GATEを返し、Human Gateの台帳登録と承認を待つ。</td></tr>
+        <tr><td>HASH-FUTURE-06</td><td>管理用hashの不一致を理由に再生成、再取得、再実行、retryを行わない。</td><td>管理hash由来の停止は廃止扱いとし、関連文書を非hash条件へ更新する。</td></tr>
+        <tr><td>HASH-FUTURE-07</td><td>新規・大幅変更の文書に、管理用manifest、stale marker、hash台帳を追加しない。</td><td>必要なmetadata index、relation、state、導線だけを更新する。</td></tr>
+        <tr><td>HASH-FUTURE-08</td><td>過去のhashは履歴として保存され得るが、現行のrouting、受入、再実行の条件にしない。</td><td>履歴のhash記述と現行runtimeのhash要求を明確に分離する。</td></tr>
+      </tbody>
+    </table>
+    <div class="callout stop"><strong>適用範囲:</strong> これらは「hashを使うかどうか」の好みではなく、今後のAI実行基盤と成果物の生成ルールです。保護対象hashの安全境界を弱める変更だけは、A95の判定に加えて従来のfail-closedとHuman Gateを維持します。</div>
+  </section>
+
+  <section id="a95">
+    <h2>7. A95保護hashポリシーガード</h2>
+    <p>A95は、文書manifestを追加するAgentではありません。新しい文書、計画、ソース、テスト、受入条件、AI部品に「廃止した管理hashを再び入れようとする記述」がないかを、候補語句と周辺の目的だけから超軽量に判定します。</p>
+    <h3>7.1 発火するタイミング</h3>
+    <table>
+      <thead><tr><th>発火対象</th><th>例</th><th>通常確認</th></tr></thead>
+      <tbody>
+        <tr><td>新規文書</td><td>新しいMarkdown、HTML、計画、依頼prompt。</td><td>metadata、schema、link、path、Secret、状態 + A95。</td></tr>
+        <tr><td>大幅変更</td><td>章構成、受入条件、AI基盤仕様、HTMLテンプレートの変更。</td><td>既存リンク・状態・Unknownの確認 + A95。</td></tr>
+        <tr><td>ソース・テスト変更</td><td>保存、result、replay、quality gate、fixture境界の変更。</td><td>テストとprotected境界 + A95。</td></tr>
+        <tr><td>AI部品変更</td><td>Skill、Agent、Orchestrator、runtime receipt schema。</td><td>完全名、固定model、trigger、path、schema、fallback + A95。</td></tr>
+      </tbody>
+    </table>
+    <h3>7.2 出力</h3>
+    <p>A95の出力は、hash値を含まない小さなJSONです。</p>
+    <pre>{
+  "decision": "ALLOW | NEEDS_HUMAN_GATE | BLOCKED",
+  "targets": ["relative/path"],
+  "candidates": [
+    {
+      "path": "relative/path",
+      "location": "候補箇所",
+      "category": "PROTECTED | MANAGEMENT | UNKNOWN",
+      "reason": "用途と直接境界",
+      "suggestion": "次の修正またはHuman Gate"
+    }
+  ],
+  "required_action": "次に行うこと"
 }</pre>
-<pre>{
-  "code_id": "DEMO_CODE_001",
-  "path": "src/example.py",
-  "symbol": "demo_function",
-  "language": "python",
-  "parser_status": "PASS",
-  "source_hash": "sha256:DEMO_ONLY"
-}</pre>
-<pre>{
-  "from": "DEMO_REQUIREMENT_01",
-  "relation": "implemented_by",
-  "to": "DEMO_CODE_001",
-  "evidence": "DEMO_ARTIFACT_001"
-}</pre>
-<p>artifactは説明書、codeは実装の部品、relation graphはどれがどれを支えるかを表します。pathだけでIDを作るとrenameで追跡が切れるため、stable IDと旧pathの履歴を分けて保持します。</p>
-<h2 id="changes">4. 変更の処理シーケンス</h2>
-<div class="flow"><div class="step">変更検知<br>path・hashを取得</div><div class="arrow">→</div><div class="step">分類<br>新規・軽微・大幅・構造</div><div class="arrow">→</div><div class="step">A07または決定的parser</div><div class="arrow">→</div><div class="step">validator</div><div class="arrow">→</div><div class="step">receipt保存</div><div class="arrow">→</div><div class="step">allowlistだけを次工程へ</div></div>
-<table><tr><th>変更</th><th>必須処理</th><th>停止条件</th></tr><tr><td>新規文書</td><td>A07が1ファイルをstrict JSON判定。PASS後にrecord_add。</td><td>A07 unavailable、schema不正、Secret検知</td></tr><tr><td>軽微変更</td><td>source_hashを更新し、metadata_unchangedかrecord_updateを判定。</td><td>hash不一致、判定不能</td></tr><tr><td>大幅変更</td><td>A07の更新要否判定後、必要なら再抽出・record_update。</td><td>旧索引を新しいと扱えない場合</td></tr><tr><td>ソース構造変更</td><td>言語別parserで決定的再解析。未対応はPARTIAL。</td><td>解析範囲不明、巨大ファイル、Secret</td></tr><tr><td>rename</td><td>旧stable IDを残し、新pathを履歴へ追加。関係を付け替える。</td><td>旧新対応が確認できない場合</td></tr><tr><td>delete</td><td>削除せずstatus=DELETEDと履歴化。関係を壊さない。</td><td>削除理由・証跡がない場合</td></tr></table>
-<h2 id="a07">5. A07: 1ファイルstrict JSON判断</h2>
-<p>A07（ContextManifestMaintainer）は、1回につき1ファイルだけを受け取り、本文全体を横断して勝手に書き換える担当ではありません。入力にはpath、変更種別、source_hash、許可されたメタデータだけを渡します。返却は機械検証できるstrict JSONです。</p>
-<pre>{
-  "decision": "record_add",
-  "path": "doc/example/design.html",
-  "source_hash": "sha256:DEMO_ONLY",
-  "reason": "新規の管理対象HTML",
-  "validator": "PASS",
-  "secret_detected": false
-}</pre>
-<table><tr><th>decision</th><th>意味</th></tr><tr><td><code>record_add</code></td><td>新しいrecordを追加する</td></tr><tr><td><code>record_update</code></td><td>構造または本文由来の索引を更新する</td></tr><tr><td><code>metadata_unchanged</code></td><td>構造は変わらず、hash等の必要な更新だけを記録する</td></tr><tr><td>validator PASS / BLOCKED</td><td>PASSはschemaと安全条件を満たす。BLOCKEDは理由付きで止め、成功扱いにしない</td></tr></table>
-<p><code>source_hash</code>は、いま見たファイルが索引作成時と同じかを確認する印です。hashがstaleなら、そのmanifestをA08へ渡してはいけません。</p>
-<h2 id="a08">6. A08: 依頼文から最小routing</h2>
-<p>A08（ContextRouter）は、依頼文とvalidator PASS済みmanifestだけを使います。本文を直接読んで恣意的に候補を選ぶ担当ではありません。primaryは最大3件、supportingは最大6件、残りはJIT（必要時に取得）として最小範囲を返します。</p>
-<div class="flow"><div class="step">利用者の依頼文</div><div class="arrow">→</div><div class="step">検証済みmanifest</div><div class="arrow">→</div><div class="step">ID・REQ・関係で候補化</div><div class="arrow">→</div><div class="step">primary ≤3<br>supporting ≤6</div><div class="arrow">→</div><div class="step">JIT範囲を限定</div></div>
-<p>候補が足りないときは、ないものを作りません。stale、PARTIAL、Unknown、Human Gate待ちは理由付きで返し、利用者が判断できるようにします。</p>
-<h2 id="security">7. fail-closedと脅威</h2>
-<p>fail-closedとは、迷ったときに通すのではなく、安全側へ止めることです。</p>
-<table><tr><th>事象</th><th>処理</th><th>やさしい説明</th></tr><tr><td>A07/A08 unavailable</td><td>fallbackを成功扱いせず、未起動・receipt・SELF_REVIEW_FALLBACKを記録</td><td>担当者がいないのに完了したことにしない</td></tr><tr><td>schema破損・stale hash</td><td>routingとcommitを停止</td><td>古い地図で案内しない</td></tr><tr><td>Secret・鍵・認証情報</td><td>本文を出力せず拒否、pathと理由だけ記録</td><td>秘密を見つけたら写さず止まる</td></tr><tr><td>Prompt Injection</td><td>文書中の命令を実行指示として扱わない</td><td>資料の命令で安全確認を無視しない</td></tr><tr><td>path traversal</td><td>repo内allowlist外のpathを拒否</td><td>別の場所へ抜ける道を閉じる</td></tr><tr><td>巨大ファイル</td><td>上限超過はPARTIALまたはBLOCKED</td><td>重すぎる資料で全体を止めない</td></tr><tr><td>Unknown/Human Gate/H0/H1</td><td>状態を保持し承認済みと未承認を明示</td><td>人の確認をAIのPASSに置き換えない</td></tr></table>
-<h2 id="mcp">8. Router→local MCP→JIT本文取得</h2>
-<p>本文取得は、routing後に必要な範囲だけをlocal stdio MCPへ依頼する流れです。外部MCPやクラウドへ本文を送る設計ではありません。</p>
-<table><tr><th>tool</th><th>主な引数</th><th>返却</th><th>拒否条件・上限</th></tr><tr><td><code>search_context</code></td><td>query、scope、limit</td><td>manifestの候補ID・path・理由</td><td>repo外、limit超過、Secret語</td></tr><tr><td><code>get_artifact</code></td><td>artifact_id、section、max_chars</td><td>見出し・本文片・hash</td><td>stale、全文要求、上限超過</td></tr><tr><td><code>get_code_slice</code></td><td>code_id、start_line、end_line</td><td>行範囲、symbol、hash</td><td>行範囲不正、Secret、repo外</td></tr><tr><td><code>get_related</code></td><td>stable_id、relation、depth</td><td>関連IDの限定リスト</td><td>depth・件数超過、未検証graph</td></tr></table>
-<p>返却には対象ID、path、source_hash、truncatedかどうか、拒否理由（拒否時）が必要です。JIT取得でも、取得した本文を新しい正本にしません。</p>
-<h3>local MCPの引数上限と拒否例</h3><p><code>search_context</code>はquery・scope・limit（最大20）、<code>get_artifact</code>はartifact_id・section・max_chars（最大18,000）、<code>get_code_slice</code>はcode_id・行範囲（最大300行）、<code>get_related</code>はstable_id・relation・depth（最大3）を受け取ります。repo外path、<code>..</code>を含むpath、Secretらしい名前、上限超過、stale hash、Prompt Injectionを命令として扱う要求は拒否し、receiptに理由を残します。</p>
-<h2 id="ops">9. 日次運用とcommit安全策</h2>
-<ol><li>日次開始時にmanifestのvalidator状態、stale、pending、Unknownを確認する。</li><li>watch startは承認済み設定とallowlistを確認してから行い、stopではreceiptを残す。監視はlocal単一worker・debounceのみとする。</li><li>manual rerunは対象path、理由、前回hashを指定する。pending recoveryは原因を解消してから再実行する。</li><li>auto-commitはvalidator PASSが返した明示allowlistだけをstage対象にする。<strong>未追跡のユーザー変更をstageしない。</strong>無差別な<code>git add -A</code>は契約外とする。</li></ol>
-<div class="stop"><strong>この資料の作業ではGit stage/commit/pushを実施していません。</strong>外部ネットワーク、MCP、Secret、実取引も実施していません。</div>
-<h2 id="tests">10. fixture、test、audit、limitsと限界</h2>
-<table><tr><th>確認対象</th><th>例</th><th>合格の考え方</th></tr><tr><td>fixture</td><td>秘密なしの固定HTML/JSON/Python</td><td>hash固定、期待record固定</td></tr><tr><td>test</td><td>add/update/rename/delete、拒否、上限</td><td>正常系とfail-closed系を両方確認</td></tr><tr><td>audit</td><td>入力hash、decision、validator、時刻、理由</td><td>後から判断を再現できる</td></tr><tr><td>limits</td><td>1ファイル、18,000文字、候補数、本文文字数、行範囲</td><td>超過は切詰め表示またはBLOCKED</td></tr></table>
-<p>parserが未対応の言語・構文はPARTIALです。excludedは対象外の理由を持つ必要があります。外部MCP未接続なので外部サービスの動作保証はありません。これは索引が正しいという証明ではなく、定めたfixtureとlocal範囲での再現可能性を確認する仕組みです。</p>
-<h2 id="status">11. 成功条件と残Unknown</h2>
-<div class="ok"><strong>確認済み:</strong> CTXMAP-H1は2026-08-15承認済み。CTX-10正式HTMLの構成、リンク、fail-closed方針、A07/A08境界、追跡IDをこの資料に記録しました。</div>
-<div class="stop"><strong>未実行・未許可:</strong> WSL依存検証、外部サービス接続、Secret利用、実取引、外部本文送信。これらをPASSや完了とは表現しません。</div>
-<table><tr><th>Unknown</th><th>内容</th><th>再開条件</th></tr><tr><td>CTXMAP-UNK-01</td><td>追加parserや依存の要否</td><td>候補名・用途・ライセンス・外部取得要否を人が確認</td></tr><tr><td>CTXMAP-UNK-02</td><td>WSL隔離品質Gateの実機証跡</td><td>対象Run、fixture hash、host isolationを固定入口で検証</td></tr><tr><td>CTXMAP-UNK-03</td><td>外部MCPを将来接続する場合の認証・データ境界</td><td>別Human Gate、Secret管理、送信禁止範囲を承認</td></tr></table>
-<h2 id="faq">12. FAQ・トラブルシューティング・用語・追跡</h2>
-<h3>FAQ</h3><p><strong>Q.全文検索だけではだめですか。</strong><br>A.検索は候補語を探す道具です。CTXMAPは正本、hash、関係、状態を合わせて安全に読む範囲を絞ります。</p><p><strong>Q. A07が止まったら手作業でPASSにできますか。</strong><br>A.できません。fallback receiptを残し、独立実行済みと偽らず、Human Gateへ戻します。</p><p><strong>Q.削除recordは消しますか。</strong><br>A.消さずにDELETED履歴として残します。過去の要件追跡を壊さないためです。</p>
-<h3>トラブルシューティング</h3><table><tr><th>症状</th><th>見る場所</th><th>対応</th></tr><tr><td>routing候補が0件</td><td>query、scope、manifest validator</td><td>依頼語を具体化し、staleやexcluded理由を確認</td></tr><tr><td>本文が短い</td><td>truncated、max_chars、section</td><td>必要な見出しだけをJIT再取得</td></tr><tr><td>更新がpending</td><td>A07 receipt、source_hash</td><td>hashとschemaを検証し、原因解消後にmanual rerun</td></tr><tr><td>commitが止まる</td><td>allowlist、Secret、未追跡差分</td><td>停止を維持し、ユーザー変更を混ぜない</td></tr></table>
-<h3>用語集</h3><table><tr><th>用語</th><th>意味</th></tr><tr><td>manifest</td><td>本文ではなく参照用の構造情報の一覧</td></tr><tr><td>relation graph</td><td>要件・設計・コード・証跡のつながり</td></tr><tr><td>JIT</td><td>必要になった時だけ限定範囲を読む</td></tr><tr><td>PARTIAL</td><td>解析できた範囲はあるが全体を保証できない状態</td></tr><tr><td>fail-closed</td><td>不明・危険なら通さず止める安全方式</td></tr></table>
-<h3>REQ/DEC/UNK/ART追跡</h3><table><tr><th>ID群</th><th>この資料での接続</th></tr><tr><td>REQ-CTXMAP-01〜</td><td>全文読みの非効率、最小routing、秘密防止の要求</td></tr><tr><td>CTXMAP-DEC-01〜</td><td>stable ID、hash、A07 strict JSON、fail-closed</td></tr><tr><td>CTXMAP-UNK-01〜03</td><td>parser、WSL、外部MCPの未確定事項</td></tr><tr><td>ART-CTX10-DOC-001</td><td>本HTML。入口は<a href="../index.html">doc/index.html</a></td></tr></table>
-<h2 id="links">13. 関連リンク</h2><ul><li><a href="../index.html">doc/index.html（正式HTML総合入口）</a></li><li><a href="../../plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md">CTXMAP全体導入実行計画書</a></li><li><a href="../../plan/context_index/CTXMAP-H1_approval.json">CTXMAP-H1承認証跡</a></li><li><a href="../../plan/context_index/runtime/CTX-10_preflight_gate_report.json">CTX-10 preflight PASS</a></li><li><a href="../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></li><li><a href="../../context/artifact_manifest.json">artifact manifest</a> / <a href="../../context/code_manifest.json">code manifest</a> / <a href="../../context/relation_graph.json">relation graph</a></li></ul>
-<h2 id="history">14. 変更履歴</h2><table><tr><th>日付</th><th>版</th><th>内容</th></tr><tr><td>2026-08-15</td><td>v0.1</td><td>CTX-10正式HTMLを新規作成。A07/A08、manifest、MCP、運用、安全停止、Unknown、追跡、関連リンクを収録。独立レビュー済みとは扱わない。</td></tr></table>
-<footer class="foot"><small>本資料は設計と説明のためのものです。Human Gate、Unknown、未許可の外部接続、Secret、実取引をPASSに偽装しません。</small></footer>
-</main></body></html>
+    <table>
+      <thead><tr><th>出力</th><th>意味</th><th>次の行動</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag green">ALLOW</span></td><td>protected目的・直接因果・停止範囲が明記されている、またはhash候補がない。</td><td>通常の非hash確認を続ける。protected hashは本体側のfail-closedを維持する。</td></tr>
+        <tr><td><span class="tag amber">NEEDS_HUMAN_GATE</span></td><td>用途不明、仕様衝突、保護条件の説明不足。</td><td>推測で追加・削除せず、Human Gateへ登録する。</td></tr>
+        <tr><td><span class="tag red">BLOCKED</span></td><td>管理用hashの取得、保存、比較、stale停止、hash retryを再導入しようとしている。</td><td>管理経路を削除または非hashへ書き換える。hash不一致retryはしない。</td></tr>
+      </tbody>
+    </table>
+    <h3>7.3 A95がしないこと</h3>
+    <ul class="checklist stop-list">
+      <li>hash値を計算、読み取り、表示、保存、比較しない。</li>
+      <li>新しい文書manifest、hash台帳、receipt hashを作らない。</li>
+      <li>stale判定やhash不一致を理由に再生成・再取得・再試行しない。</li>
+      <li>A07/A08の文章manifest責務を復活させない。</li>
+      <li>Secret、外部I/O、Broker、Live、Human Gate、Unknown、Critical/Highの確認を省略しない。</li>
+    </ul>
+  </section>
+
+  <section id="operations">
+    <h2>8. 実務チェックリスト</h2>
+    <p>作業の種類ごとに、次の最小確認だけを行います。管理hashの一致を追加の完了条件にしないことが重要です。</p>
+    <h3>8.1 新しいMarkdown / HTMLを追加する場合</h3>
+    <ol class="checklist">
+      <li>保存先が許可された相対pathである。</li>
+      <li>UTF-8、サイズ、Secret path、Secret本文に問題がない。</li>
+      <li>title、文書ID、作成日、状態、見出し、目的、Unknown、関連リンクがある。</li>
+      <li>正式HTMLなら <code>doc/index.html</code> から到達できる。</li>
+      <li>新規または大幅変更ならA95を静的発火する。</li>
+      <li>管理hash、manifest hash、stale、hash retryを追加していない。</li>
+    </ol>
+    <h3>8.2 ソースコード / テストを変更する場合</h3>
+    <ol class="checklist">
+      <li>対象pathと変更範囲が明確で、repo外へ出ていない。</li>
+      <li>schema、API、状態、例外、テストの変更を確認する。</li>
+      <li>hash候補がある場合はprotected目的・直接因果・停止範囲を記載する。</li>
+      <li>result/evidence/file identityなど管理hashを新規生成していない。</li>
+      <li>protected hashを削除・弱体化していない。失敗テストは無視しない。</li>
+      <li>外部I/O、Secret、Broker、Liveを実行していない。</li>
+    </ol>
+    <h3>8.3 Phase / Stepの計画や受入条件を変更する場合</h3>
+    <ol class="checklist">
+      <li>複数ステップ、直接実行prompt、完全なAI部品名、固定model、fallbackを記載する。</li>
+      <li>受入条件はpath、schema、link、state、scope、test、review、Human Gateで表す。</li>
+      <li>管理hash一致、receipt hash、diff hash、stale、hash retryを受入条件にしない。</li>
+      <li>用途不明のhashはA95でNEEDS_HUMAN_GATEにする。</li>
+      <li>runtime spawn/waitができなければ、未起動Agent、agent_id=N/A、independent=false、SELF_REVIEW_FALLBACKを記録する。</li>
+    </ol>
+    <h3>8.4 AI部品を追加・変更する場合</h3>
+    <ol class="checklist">
+      <li>既存部品を調べ、最小変更または新設理由を明記する。</li>
+      <li>Skillのfrontmatter、Agent JSON、Orchestrator JSON、model、effort、trigger、input/output schemaを確認する。</li>
+      <li>A95を静的に発火し、A07/A08の文章manifest責務が戻っていないことを確認する。</li>
+      <li>AI foundation HTML、settings、AGENTS、README、doc/indexの必要な導線を更新する。</li>
+      <li>JSON、HTML、link、path、Secret、状態、dispatch receiptを確認する。</li>
+    </ol>
+  </section>
+
+  <section id="fail-closed">
+    <h2>9. 停止条件、Human Gate、rollback</h2>
+    <h3>9.1 何が起きたら止まるか</h3>
+    <table>
+      <thead><tr><th>条件</th><th>状態</th><th>対応</th></tr></thead>
+      <tbody>
+        <tr><td>repo外path、path traversal、Secret path、Secret本文</td><td><span class="tag red">BLOCKED</span></td><td>本文を返さず、対象と再開条件を報告する。</td></tr>
+        <tr><td>JSON schema、HTML構造、link、状態が不明</td><td><span class="tag amber">PARTIAL / BLOCKED</span></td><td>推測で補完せず、関連文書を更新する。</td></tr>
+        <tr><td>用途不明のhash、checksum、identity digest</td><td><span class="tag amber">NEEDS_HUMAN_GATE</span></td><td>protectedとも管理とも断定せず、人間の判断を待つ。</td></tr>
+        <tr><td>管理hashの不一致・stale</td><td><span class="tag blue">廃止対象</span></td><td>不一致retryをしない。管理経路を非hashへ修正する。</td></tr>
+        <tr><td>protected data/replay/state hashの不一致</td><td><span class="tag red">FAIL-CLOSED</span></td><td>データ、resume、replay、実行を止め、原因を報告する。</td></tr>
+        <tr><td>Critical/High、Unknownの無断Pass、Human Gate未承認</td><td><span class="tag red">BLOCKED</span></td><td>本線へ引き渡さず、統合台帳に登録または更新する。</td></tr>
+      </tbody>
+    </table>
+    <h3>9.2 rollbackの考え方</h3>
+    <p>今回のrollbackは、廃止した管理hashフローを復活させることではありません。新しい非hash変更に問題があった場合、次の順で戻します。</p>
+    <ol>
+      <li>問題のある変更を対象pathと状態で特定する。hash一致は条件にしない。</li>
+      <li>直前のprotected-only実装または設定へ戻す。履歴資料や旧receiptを現行受入へ再利用しない。</li>
+      <li>安全・データ・再現性のprotected境界が保たれているかを専用テストで確認する。</li>
+      <li>管理hashを復活させず、関連するAI基盤文書・入口文書・Unknown台帳を更新する。</li>
+      <li>外部I/O、Secret、Live、Brokerの実行が必要なら、別のHuman Gateと承認を得る。</li>
+    </ol>
+    <div class="callout stop"><strong>重要:</strong> 「hashが一致しないから元に戻す」ではありません。「安全なprotected境界を壊した変更を、対象と状態を見て戻す」です。管理hashはrollbackのトリガーにも使いません。</div>
+  </section>
+
+  <section id="history">
+    <h2>10. 旧制度と現在の扱い</h2>
+    <p>過去のmanifest、receipt、Evidence、generated context JSONには、移行前に作られたhashフィールドやhash値が残っている場合があります。これは過去の判断を読み返すための履歴であり、現行runtimeが新しく生成・比較する対象ではありません。</p>
+    <table>
+      <thead><tr><th>過去のもの</th><th>現在の扱い</th></tr></thead>
+      <tbody>
+        <tr><td>旧artifact/code manifestのhashフィールド</td><td>legacy/historyとして読むことはあるが、現行routing、受入、再実行の条件に再利用しない。</td></tr>
+        <tr><td>旧validator・watcher・auto-commitのhash判定</td><td>通常経路では起動しない。現行の完了条件にしない。</td></tr>
+        <tr><td>旧plan・receipt・Evidenceのhash記述</td><td>削除・改ざんせず、発見時点の履歴として扱う。現行の判断は更新済み文書を正本とする。</td></tr>
+        <tr><td>旧hash不一致の停止理由</td><td>現行の管理作業retryへ引き継がない。protected目的が別途証明できる場合だけ、本体側のprotected境界で扱う。</td></tr>
+      </tbody>
+    </table>
+    <div class="callout info"><strong>歴史と現行を混同しない:</strong> 古いhashがファイルに存在することと、現在のフローがhashを要求していることは別です。現行資料では、旧制度を「実行禁止の履歴」として明示し、今後の担当者が誤って再発火しないようにします。</div>
+  </section>
+
+  <section id="faq">
+    <h2>11. よくある質問</h2>
+    <h3>Q1. hashを全部消したのですか？</h3>
+    <p>いいえ。文書管理・参照効率化・証跡・ファイル同一性・差分許可だけのhashを廃止しました。raw data、fixture、replay、engine/stateなど、直接の安全・データ・再現性を守るprotected hashは各本体側に残します。</p>
+    <h3>Q2. manifestというファイルが残っているのは廃止と矛盾しませんか？</h3>
+    <p>矛盾しません。現在のmanifestはtitle、見出し、path、関係、状態などのmetadata indexです。廃止したのは、そのmetadataへ管理hashを付けて一致確認を繰り返す運用です。</p>
+    <h3>Q3. 新しい文書を追加したら何をすればよいですか？</h3>
+    <p>path、UTF-8、Secret、title、見出し、目的、link、状態を確認し、正式HTMLならindexへリンクします。新規・大幅変更ならA95を静的に発火します。管理hashの取得やmanifest hashの追加は不要です。</p>
+    <h3>Q4. A95がBLOCKEDを返したらhashを取り直せばよいですか？</h3>
+    <p>いいえ。A95のBLOCKEDは管理hashの再導入を意味します。hashを取り直さず、path、schema、state、semantic ID、reviewなどへ書き換えます。</p>
+    <h3>Q5. A95がNEEDS_HUMAN_GATEを返したら誰かが勝手にALLOWしてよいですか？</h3>
+    <p>よくありません。用途不明hashは、安全・データ・再現性への直接因果と失敗時停止範囲を人間が判断するまで現行経路に入れません。</p>
+    <h3>Q6. protected hashが不一致になったらretryしますか？</h3>
+    <p>管理作業のretryはしません。protected hashはデータや再現性を守る本体のfail-closed条件なので、対象処理を停止し、原因と再開条件を報告します。再実行が業務上必要な場合も、原因を解決した後に本体の仕様に従って判断します。</p>
+    <h3>Q7. tokenと時間はどう減るのですか？</h3>
+    <p>全ファイルのhashを取り、失敗時に再試行する工程をなくし、metadata検索で主資料と補助資料を先に絞ることで減らします。token消費量を推測して記録するのではなく、必要ならruntime側の利用量計測を別途追加します。</p>
+  </section>
+
+  <section id="references">
+    <h2>12. 正式な参照先</h2>
+    <p>この資料は全体像の説明です。実際の作業では、対象に応じて次の正本を参照してください。</p>
+    <table>
+      <thead><tr><th>目的</th><th>正本</th></tr></thead>
+      <tbody>
+        <tr><td>今後のhash追加禁止ルール</td><td><a href="../../settings/ai_component_rules.md">settings/ai_component_rules.md</a>（HASH-FUTURE-01〜08）</td></tr>
+        <tr><td>入口とAI実行ルール</td><td><a href="../../AGENTS.md">AGENTS.md</a>、<a href="../../README.md">README.md</a></td></tr>
+        <tr><td>保護hash静的ガードの手順</td><td><a href="../../.codex/skills/autotrade_skill_protected_hash_policy_guard_v0_1/SKILL.md">protected hash policy guard Skill</a>、<a href="../../.codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json">A95 Agent JSON</a></td></tr>
+        <tr><td>CTXMAPの対象範囲</td><td><a href="../../context/context_policy.json">context/context_policy.json</a></td></tr>
+        <tr><td>metadata生成・routing</td><td><a href="../../scripts/context_index/build_context_index.py">build_context_index.py</a>、<a href="../../scripts/context_index/build_code_manifest.py">build_code_manifest.py</a>、<a href="../../scripts/context_index/context_router.py">context_router.py</a>、<a href="../../scripts/context_index/context_mcp_server.py">context_mcp_server.py</a></td></tr>
+        <tr><td>計画と実行記録</td><td><a href="../../plan/hash管理廃止_保護hash限定_全体導入実行計画書_v0.1_2026-08-15.md">全体導入実行計画書</a>、<a href="../../plan/hash_management_execution/step07_protected_hash_guard.md">Step 07記録</a>、<a href="../../plan/hash_management_execution/step08_nonhash_pilot_report.md">Step 08パイロット記録</a></td></tr>
+        <tr><td>現在のBlocked・Unknown・Human Gate</td><td><a href="../00_全Phase残課題Blocked統合台帳.html">全Phase残課題・Blocked統合台帳</a></td></tr>
+      </tbody>
+    </table>
+    <div class="callout current"><strong>最終受入:</strong> この資料、コード、AI部品、計画の完了は、管理hashの一致では判定しません。HTML・JSON・link・path・schema・Secret・state・テスト・レビュー・protected境界・Human Gate・Unknownの状態を、対象範囲に応じて確認します。</div>
+  </section>
+
+  <footer>
+    <p><a href="#top">ページ先頭へ戻る</a>　|　<a href="../index.html">ドキュメントインデックス</a></p>
+    <p class="small">旧制度の説明は履歴理解のために残します。旧hashを現行の受入・routing・retry条件へ再利用しないでください。</p>
+  </footer>
+</main>
+</body>
+</html>

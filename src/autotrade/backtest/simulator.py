@@ -112,15 +112,6 @@ def generate_performance_input(value: dict[str, Any]) -> dict[str, Any]:
             "events": events,
         }
         input_sha256 = canonical_hash(input_payload)
-        manifest_sha256 = canonical_hash(
-            {
-                "schema_version": "p3-performance-manifest-v1",
-                "seed": seed,
-                "input_sha256": input_sha256,
-                "derived_bar_sha256s": derived_bar_hashes,
-                "calendar_years": years,
-            }
-        )
         return {
             "generator_version": fixture["generator_version"],
             "schema_version": "p3-performance-input-v1",
@@ -130,7 +121,6 @@ def generate_performance_input(value: dict[str, Any]) -> dict[str, Any]:
             "events": tuple(events),
             "input_sha256": input_sha256,
             "derived_bar_sha256s": tuple(derived_bar_hashes),
-            "manifest_sha256": manifest_sha256,
         }
     return {"deterministic": value.get("markets") == 5 and value.get("years") == [2024, 2025]}
 

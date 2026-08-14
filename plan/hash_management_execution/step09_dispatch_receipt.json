@@ -1,0 +1,75 @@
+{
+  "step_id": "Step 09",
+  "status": "COMPLETED_WITH_RUNTIME_FALLBACK",
+  "purpose": "Create and hand off the detailed HTML explanation for the protected-hash-only document and source reference system.",
+  "authority": {
+    "management_hash_checks": "FORCE_SKIPPED_BY_USER_AUTHORITY",
+    "protected_hashes": "MUST_REMAIN_WITH_PURPOSE_AND_FAIL_CLOSED_BEHAVIOR",
+    "management_hash_retry": "DISABLED",
+    "script_authority_applied": true
+  },
+  "runtime_dispatch": {
+    "state": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "reason": "collab spawn failed: agent thread limit reached",
+    "orchestrator": {
+      "name": "AutoTradeProject_DesignDocSet_Orchestrator_v0_1",
+      "agent_id": "N/A",
+      "model": "gpt-5.6-terra",
+      "status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    "agents": [
+      {"name": "AutoTrade_A80_DocumentIntegrator_v0_1", "agent_id": "N/A", "model": "gpt-5.6-luna", "reasoning_effort": "low", "status": "NOT_STARTED", "independent": false, "review_mode": "SELF_REVIEW_FALLBACK"},
+      {"name": "AutoTrade_A81_DesignDocSetWriter_v0_1", "agent_id": "N/A", "model": "gpt-5.6-luna", "status": "NOT_STARTED", "independent": false, "review_mode": "SELF_REVIEW_FALLBACK"},
+      {"name": "AutoTrade_A90_DesignReviewer_v0_1", "agent_id": "N/A", "model": "gpt-5.6-luna", "status": "NOT_STARTED", "independent": false, "review_mode": "SELF_REVIEW_FALLBACK"},
+      {"name": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1", "agent_id": "N/A", "model": "gpt-5.6-luna", "reasoning_effort": "low", "status": "NOT_STARTED", "independent": false, "review_mode": "SELF_REVIEW_FALLBACK"}
+    ]
+  },
+  "deliverables": {
+    "detailed_html": "COMPLETED",
+    "index_link": "COMPLETED",
+    "future_rules_hash_future_01_to_08": "DOCUMENTED",
+    "management_hash_values_recorded": false,
+    "management_hash_retry_count": 0,
+    "protected_hash_boundary": "RETAINED"
+  },
+  "verification": {
+    "html_link_audit": "PASS: 30 relative links resolved",
+    "concrete_hash_values_in_html": 0,
+    "required_content_audit": "PASS",
+    "ai_foundation_tests": "7 passed",
+    "quality_gate_contract_tests": "57 passed",
+    "target_application_market_data_backtest_strategy_tests": "389 passed",
+    "full_pytest": "493 passed, 91 skipped",
+    "ruff": "PASS",
+    "pilot_reference": "Step 08: 55 passed",
+    "external_io": "NOT_RUN_BY_BOUNDARY",
+    "secret_or_live_execution": "NOT_RUN_BY_BOUNDARY",
+    "wsl_execution": "NOT_RUN_BY_BOUNDARY"
+  },
+  "changed_files": [
+    "doc/ai_foundation/21_資料コード参照基盤システム詳細解説.html",
+    "doc/index.html",
+    "plan/hash_management_execution/step09_final_handoff_report.md",
+    "tests/quality_gate/test_component_contracts.py",
+    ".codex/agents/AutoTrade_A110_PythonTestEngineer_v0_1.json",
+    ".codex/agents/AutoTrade_A120_PythonImplementer_v0_1.json",
+    ".codex/agents/AutoTrade_A130_VerificationEngineer_v0_1.json",
+    ".codex/agents/AutoTrade_A140_DebugEngineer_v0_1.json",
+    ".codex/agents/AutoTrade_A150_PythonCodeReviewer_v0_1.json",
+    ".codex/agents/AutoTrade_A160_TradingSecurityReviewer_v0_1.json",
+    ".codex/skills/autotrade_skill_debug_recovery_v0_1/SKILL.md",
+    ".codex/skills/autotrade_skill_python_test_quality_v0_1/SKILL.md",
+    ".codex/skills/autotrade_skill_python_implementation_v0_1/SKILL.md",
+    ".codex/skills/autotrade_skill_python_code_review_v0_1/SKILL.md",
+    "scripts/quality_gate/build_p3_poc_reference.py",
+    "tests/engine_poc/test_p3_run_contract.py",
+    "tests/phase4/test_p4_red_contract.py"
+  ],
+  "notes": [
+    "The HTML is a self-contained local explanation and uses no external URL or asset.",
+    "The word manifest may appear as a metadata index or historical term; current management-hash creation and comparison are not required.",
+    "Independent runtime execution was unavailable because the agent thread limit was reached; fallback is explicitly disclosed."
+  ]
+}

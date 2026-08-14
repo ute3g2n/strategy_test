@@ -5,6 +5,12 @@
 対象Phase: Phase 2 Market Data基盤  
 状態: v0.6 / P2-05の実績を反映してP2-06以降を再編済み
 
+## HASH-FUTURE-01〜08／Step 05 現行運用ルール
+
+この計画の現行実行では、文章管理、差分許可、Evidence・baseline・manifestの同一性確認だけを目的とする管理用hashを計算・保存・照合しない。ユーザー委譲により、管理用hashのstale停止・不一致retryは強制スキップして完了する。固定fixture、実Data／Raw、依存供給網、Replay、結果決定性など安全・データ・再現性に直接必要なprotected hashは、目的・対象・失敗時停止を明記した場合だけ維持し、不一致時はfail-closedで停止する。過去hashは履歴としてのみ扱い、現行受入条件へ再利用しない。
+
+以下の直接実行プロンプトとスクリプトへこのルールを継承する。成果物の存在・構造、対象path、固定command、テスト、レビュー、Unknown、Secret、外部I/O、Human Gate、protected hash結果で受入を判定し、管理用hashの代替としてchecksum、fingerprint、UUID、mtimeを追加しない。Agent未起動は独立実行済みとせず、`RUNTIME_DISPATCH_FALLBACK_REQUIRED` として記録する。
+
 参照:
 
 - `doc/requirements/01_自動トレードシステム要件定義書.html`
@@ -653,7 +659,7 @@ Phase 2のData Quality / Replayテスト設計を作成し、未実装の品質�
 2. 欠損、重複、時刻逆行、異常価格、異常出来高、checksum不一致、degraded品質警告を、入力fixture・期待するfail-closed結果・Signal停止条件まで表にする。
 3. 同一`data_version`、`catalog_version`、fixture hash、code revisionで同一の`MarketEvent`系列を再現するReplay contractを定義する。現時点で未実装の`MarketEvent`は、期待値をREDテストとして固定する。
 4. Look-ahead、未来のroll情報、可変な現在時刻、fixture後出し変更を拒否するテストを定義する。Catalog Resolverの既存テストを壊さず、同じUTC・固定snapshot規則を使う。
-5. `RUN-P2-IC-001-WSL`の実行方式を基準に、新規scopeのtarget_paths、固定4 Gate、fixture hash、Manifest、証跡先を設計する。既存RunのManifestを流用して対象外コードを検査しない。
+5. `RUN-P2-IC-001-WSL`の実行方式を基準に、新規scopeのtarget_paths、固定4 Gate、protected fixture hash、Manifest構造、証跡先を設計する。管理用Manifest hashは扱わない。既存RunのManifestを流用して対象外コードを検査しない。
 6. `tests/market_data/`へテストを先に追加し、P2-07の実装前にREDであること、または境界が純粋関数だけの場合は実装済み部分がGREENであることをJSON/Markdown証跡へ残す。
 
 レビュー:
@@ -706,7 +712,7 @@ P2-05で未実装だったMarket Dataコアを、P2-06で固定したREDテス�
 作業:
 1. Raw入力の不変参照・checksum、Normalized BarのUTC時刻・InstrumentId・quality_flags、DataVersion、MarketEventを明示的な型として実装する。
 2. 小型fixture専用のRaw / Normalized Storeを実装する。同じversionへの異なる内容の上書き、checksum不一致、品質不良入力はfail-closedにする。
-3. Run Manifestに`data_version`、`catalog_version`、fixture hash、code revision、品質結果を記録する最小境界を実装する。既存のquality-gate Manifestと責務を混同しない。
+3. Run Manifestに`data_version`、`catalog_version`、protected fixture hash、code revision、品質結果を記録する最小境界を実装する。Manifest自体の管理hashは記録せず、既存のquality-gate Manifestと責務を混同しない。
 4. P2-06のREDをGREENにし、実装外の仕様はskipやダミー成功で隠さずUnknownとして残す。
 5. `RUN-P2-DQR-001`をtrusted scopeへ登録し、固定4 GateをWSL `networkingMode=none`で実行する。既存`RUN-P2-IC-001-WSL`のPASSを新規コードの合格証跡に流用しない。
 6. P2-D09 `doc/phase2/05_実装方針/05_Market_Data実装方針.html` を作成し、実装済み・未実装・外部I/O禁止・証跡へのリンクを明記して`doc/index.html`を更新する。

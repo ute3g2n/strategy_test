@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Literal
 
-from .config import condition_sha256, validate_config
-from .contracts import BacktestConfig, FailureView, PreflightCheck, PreflightReport, canonical_hash
+from .config import validate_config
+from .contracts import BacktestConfig, FailureView, PreflightCheck, PreflightReport
 
 
 def preflight_run(config: BacktestConfig) -> PreflightReport:
@@ -48,10 +48,8 @@ def preflight_run(config: BacktestConfig) -> PreflightReport:
     )
     status: Literal["PASS", "STOPPED"] = "PASS" if not errors else "STOPPED"
     failure = None if not errors else FailureView(errors[0], f"P4-REASON-{errors[0]}", recovery_required=False)
-    payload = {
-        "status": status,
-        "checks": [check.__dict__ for check in checks],
-        "condition_sha256": condition_sha256(config),
-        "failure": failure.__dict__ if failure else None,
-    }
-    return PreflightReport(status, tuple(checks), canonical_hash(payload), failure)
+    # The condition identity is protected and is computed at run creation.
+    # The preflight report itself is a transient structured result, not a
+    # management artifact that needs a digest.
+    del config
+    return PreflightReport(status, tuple(checks), None, failure)

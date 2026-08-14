@@ -29,7 +29,8 @@
 </head>
 <body>
 <main>
-  <h1>Phase 2–5 本実装 AI 実行基盤設計書</h1>
+<h1>Phase 2–5 本実装 AI 実行基盤設計書</h1>
+<section class="note"><strong>2026-08-15 現行hashルール:</strong> 実装Runのscope、fixture、外部接続、Secret、Human Gateは維持するが、管理用change/diff/baseline/manifest/evidence hashの一致は要求しない。新規・大幅変更はA95の静的判定へ渡す。</section>
 
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D18<br>
@@ -99,7 +100,7 @@
 
   <h2>4. 共通 Run Manifest と状態遷移</h2>
   <p>Run Manifest は各実装単位の入力と証跡を一意に結び付ける。以下の必須項目を埋められない場合は、実装を開始せず Unknown として記録する。</p>
-  <div class="note"><strong>実装同期:</strong> 実体は JSON のみを受理する。必須項目は <code>orchestrator</code>、<code>agents</code>、<code>skills</code>、<code>input_fixture(name/version/checksum)</code>、<code>data_version</code>、<code>baseline_ref</code>、<code>change_hash</code>、<code>human_gate_policy</code> を含む。<code>human_gate_approved</code> の自己申告は受理せず、証跡直下の <code>human-gate/approval.json</code> を照合する。</div>
+  <div class="note"><strong>実装同期:</strong> 実体は JSON のみを受理する。必須項目は <code>orchestrator</code>、<code>agents</code>、<code>skills</code>、<code>input_fixture(name/version/checksum)</code>、<code>data_version</code>、<code>baseline_ref</code>、<code>human_gate_policy</code> を含む。<code>change_hash</code> や管理用Evidence hashは現行入力・受入条件に含めない。<code>human_gate_approved</code> の自己申告は受理せず、承認はworktree外の人間チャネルで行う。</div>
   <div class="note"><strong>図とテキストの区別:</strong> 次の黒い枠は機械可読な Run Manifest の項目例であり、図ではない。その直後の状態遷移ブロックが、Mermaid によりブラウザ上で図として描画される状態遷移図である。</div>
   <pre>run_id: RUN-P{phase}-{step}-{timestamp}
 phase_id: Phase 2 | Phase 3 | Phase 4 | Phase 5
@@ -317,8 +318,8 @@ evidence_root: tests/evidence/{phase_id}/{run_id}/</pre>
   <table>
     <thead><tr><th>証跡</th><th>保存先</th><th>必須内容</th></tr></thead>
     <tbody>
-      <tr><td>Run Manifest</td><td><code>tests/evidence/{phase_id}/{run_id}/run-manifest.json</code></td><td>Phase、Step、REQ/DD、対象範囲、完全名、fixture、data_version、baseline/change hash、Gate方針。</td></tr>
-      <tr><td>Human Gate</td><td><code>tests/evidence/{phase_id}/{run_id}/human-gate/approval.json</code></td><td>run_id・change_hash・承認者・時刻・decision・残件を照合する。自己申告 boolean は不可。</td></tr>
+      <tr><td>Run Manifest</td><td><code>tests/evidence/{phase_id}/{run_id}/run-manifest.json</code></td><td>Phase、Step、REQ/DD、対象範囲、完全名、fixture、data_version、baseline ref、Gate方針。管理用change/diff hashは保持・照合しない。</td></tr>
+      <tr><td>Human Gate</td><td><code>tests/evidence/{phase_id}/{run_id}/human-gate/approval.json</code></td><td>run_id・承認者・時刻・decision・残件・Unknownを人間チャネルで扱う。自己申告 boolean と管理用hash一致は不可。</td></tr>
       <tr><td>テスト</td><td><code>tests/evidence/{phase_id}/{run_id}/test/</code></td><td>red/green、コマンド、終了コード、coverage、fixture checksum。</td></tr>
       <tr><td>デバッグ</td><td><code>tests/evidence/{phase_id}/{run_id}/debug/</code></td><td>失敗署名、再現、原因仮説、修正、再検証、反復回数。</td></tr>
       <tr><td>レビュー</td><td><code>tests/evidence/{phase_id}/{run_id}/reviews/</code></td><td>Finding、重大度、対象行、採否、A150/A160の再レビュー。</td></tr>

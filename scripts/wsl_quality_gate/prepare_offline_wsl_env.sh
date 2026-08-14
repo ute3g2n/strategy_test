@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+# Step 04 authority: management change/diff/Evidence/baseline hashes are
+# forcibly skipped. --require-hashes, requirements_sha256, and wheel hashes
+# protect the offline dependency supply chain and reproducible environment;
+# failures remain fail-closed and are not retried as management checks.
+
 repository_path="${1:?repository path is required}"
 wheelhouse="${2:?approved Linux wheelhouse is required}"
 run_id="${3:-RUN-P2-IC-001-WSL}"

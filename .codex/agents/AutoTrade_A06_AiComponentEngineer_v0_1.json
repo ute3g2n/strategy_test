@@ -8,7 +8,8 @@
     "autotrade_skill_source_reader_v0_1",
     "autotrade_skill_traceability_v0_1",
     "autotrade_skill_orchestration_v0_1",
-    "autotrade_skill_html_doc_writer_v0_1"
+    "autotrade_skill_html_doc_writer_v0_1",
+    "autotrade_skill_protected_hash_policy_guard_v0_1"
   ],
   "role": "Survey reusable AI components, create or modify the minimum necessary skills/agents/orchestrators, and keep the AI foundation documents in sync.",
   "inputs": {
@@ -55,7 +56,8 @@
     "Do not overwrite an existing component name during creation.",
     "Do not change a component that is not explicitly in scope.",
     "Do not skip doc or rule updates after component changes.",
-    "Pass AI component structural changes to AutoTrade_A07_ContextManifestMaintainer_v0_1 or the deterministic code manifest path; require validator PASS or an honest BLOCKED result before completion.",
+    "For AI component changes, use non-hash JSON, link, path, schema, Secret, state, and reference checks. Do not dispatch document-management hash maintenance or require validator hash PASS. Record an honest BLOCKED result for Unknown, Secret, boundary, or schema failures.",
+    "Pass new or substantially changed artifacts through AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1 as a static policy check. Do not calculate, store, compare, or retry any hash in A95 or in the component lifecycle.",
     "Do not create phase-specific components when a generic component is sufficient.",
     "Do not change default_orchestrator.",
     "Do not claim a named Agent ran or independently reviewed without a dispatch receipt."

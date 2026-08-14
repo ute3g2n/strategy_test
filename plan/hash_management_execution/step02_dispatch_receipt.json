@@ -1,0 +1,110 @@
+{
+  "schema": "hash-management-migration-dispatch-receipt-v0.1",
+  "plan": "hash管理廃止_保護hash限定_全体導入実行計画書_v0.1_2026-08-15",
+  "step": "Step 02",
+  "status": "COMPLETED_WITH_REMEDIATION",
+  "runtime_backend": "multi_agent_v1",
+  "management_hash_policy": "disabled_by_user_authority",
+  "user_authority": "文章管理基盤と廃止対象の管理用hashチェックを強制スキップして完了する。protected safety/data/reproducibility hash、Secret、Human Gate、Unknown、Critical/High、対象範囲、権限境界は維持する。",
+  "root_orchestrator": {
+    "name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+    "json_path": ".codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json",
+    "agent_id": "N/A",
+    "model": "gpt-5.6-terra",
+    "status": "NOT_STARTED",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK",
+    "reason": "multi_agent_v1のagent thread limitによりroot dispatch不能。ローカル実装・構文・非hash機能テスト・コード境界レビューで継続し、独立Orchestrator実行済みとは扱わない。"
+  },
+  "agents": [
+    {
+      "name": "AutoTrade_A120_PythonImplementer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A120_PythonImplementer_v0_1.json",
+      "agent_id": "N/A",
+      "model": "gpt-5.6-luna",
+      "status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A130_VerificationEngineer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A130_VerificationEngineer_v0_1.json",
+      "agent_id": "N/A",
+      "model": "gpt-5.6-luna",
+      "status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A140_DebugEngineer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A140_DebugEngineer_v0_1.json",
+      "agent_id": "N/A",
+      "model": "gpt-5.6-luna",
+      "status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A150_PythonCodeReviewer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A150_PythonCodeReviewer_v0_1.json",
+      "agent_id": "N/A",
+      "model": "gpt-5.6-luna",
+      "status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A160_TradingSecurityReviewer_v0_1.json",
+      "agent_id": "N/A",
+      "model": "gpt-5.6-luna",
+      "status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    }
+  ],
+  "nested_dispatch": {
+    "status": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "reason": "multi_agent_v1 agent thread limit",
+    "unstarted_agents_are_not_independent_evidence": true
+  },
+  "implementation_scope": [
+    "scripts/context_index/common.py",
+    "scripts/context_index/build_context_index.py",
+    "scripts/context_index/build_code_manifest.py",
+    "scripts/context_index/detect_context_delta.py",
+    "scripts/context_index/detect_code_delta.py",
+    "scripts/context_index/validate_context_index.py",
+    "scripts/context_index/context_watch.py",
+    "scripts/context_index/check_context_gate.py",
+    "scripts/context_index/context_router.py",
+    "scripts/context_index/context_mcp_server.py",
+    "scripts/context_index/query_context.py",
+    "scripts/context_index/run_context_maintenance.py",
+    "auto-commit.sh",
+    "context/artifact_manifest.schema.json",
+    "context/code_manifest.schema.json",
+    "context/maintenance_receipt.schema.json",
+    "context/a07_decision.schema.json",
+    "tests/context_index/test_nonhash_runtime.py"
+  ],
+  "non_hash_validation": [
+    "Python compile: scripts/context_index全体 PASS",
+    "JSON schema/runtime artifact parse PASS",
+    "context validator: valid=true, errors=[]",
+    "metadata builder、maintenance、router、MCP、Gate、watcher、auto-commit機能確認 PASS",
+    "tests/context_index: 10 passed, 91 skipped（廃止済み管理hash契約のlegacyテストを明示skip）",
+    "新設非hash runtime test: 7 passed",
+    "新規Markdown・大幅変更相当・source変更・Secret拒否を非hash経路で確認"
+  ],
+  "protected_boundaries": [
+    "path traversal、symlink/reparse、scope、UTF-8、file size、Secret、prompt injection、bounded rangeを維持",
+    "H1未承認はwatcher/Gateで停止",
+    "外部ネットワーク、WSL、Live、Broker、Secret、Git自動commit/pushは実行しない"
+  ],
+  "legacy_policy": "旧context manifest/receiptのsource_hashは履歴互換のため読み取り可能だが、active builder・validator・router・MCP・maintenanceは生成・比較・受入条件として使用しない。",
+  "remaining_unknowns": [
+    "既存context JSONを一括metadata-onlyへ再生成する時期と差分量はStep 08/09で判断する。"
+  ],
+  "hash_receipt_fields": "管理用hash値・manifest hash・snapshot hash・差分hash・受領hashはユーザー権限により生成・保存していない。"
+}

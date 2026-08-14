@@ -9,8 +9,8 @@ from autotrade.application.quality_contract import is_fail_closed
 
 
 def test_csv_output_is_relative_and_atomic(tmp_path: Path) -> None:
-    digest = atomic_csv_output(tmp_path, "run-1/result.csv", [{"id": "1", "value": "ok"}], ("id", "value"))
-    assert digest.startswith("sha256:")
+    publication = atomic_csv_output(tmp_path, "run-1/result.csv", [{"id": "1", "value": "ok"}], ("id", "value"))
+    assert publication is None
     assert (tmp_path / "run-1/result.csv").read_text(encoding="utf-8") == "id,value\n1,ok\n"
 
 
@@ -21,4 +21,4 @@ def test_csv_path_escape_is_rejected(tmp_path: Path) -> None:
 
 def test_fail_closed_reason_ids_are_not_silent_success() -> None:
     assert is_fail_closed("STALE_REVISION")
-    assert is_fail_closed("MANIFEST_MISMATCH")
+    assert is_fail_closed("PROTECTED_INPUT_MISMATCH")

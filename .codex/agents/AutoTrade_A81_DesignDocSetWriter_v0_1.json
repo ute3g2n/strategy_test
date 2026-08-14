@@ -8,7 +8,8 @@
     "autotrade_skill_source_reader_v0_1",
     "autotrade_skill_traceability_v0_1",
     "autotrade_skill_html_doc_writer_v0_1",
-    "autotrade_skill_revision_integration_v0_1"
+    "autotrade_skill_revision_integration_v0_1",
+    "autotrade_skill_protected_hash_policy_guard_v0_1"
   ],
   "role": "Create and update coherent sets of formal HTML design documents within a phase, keeping common metadata, traceability, links, unknowns, review history, and doc/index.html in sync.",
   "inputs": {
@@ -28,6 +29,7 @@
     "Do not leave formal HTML documents unlinked from doc/index.html.",
     "Do not remove unresolved unknowns or residual risks during revision integration.",
     "Do not output secrets, API keys, credentials, or account identifiers.",
-    "Do not use phase-specific components unless the prompt explicitly justifies them."
+    "Do not use phase-specific components unless the prompt explicitly justifies them.",
+    "Use A95 for static detection of prohibited management-hash reintroduction. Do not create manifests, hash receipts, or hash retry flows for document sets."
   ]
 }

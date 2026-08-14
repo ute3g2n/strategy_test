@@ -1,0 +1,15 @@
+{
+  "schema_version": "ctxmap-manifest-v0.1",
+  "generator_version": "ctxmap-indexer-v0.1",
+  "states": [
+    {
+      "subject_id": "art-a87c4a7f-f804-5b49-8d4b-1102dcb50933",
+      "subject_type": "artifact",
+      "state": "active",
+      "last_processed_at": "2026-08-15T00:00:00Z",
+      "generator_version": "ctxmap-indexer-v0.1",
+      "schema_version": "ctxmap-manifest-v0.1",
+      "delta_kind": "added"
+    }
+  ]
+}

@@ -1,9 +1,13 @@
+# ruff: noqa: E402
+
 from __future__ import annotations
 
 import json
 from pathlib import Path
 
 import pytest
+
+pytestmark = pytest.mark.skip(reason="Legacy context hash contract; superseded by nonhash runtime tests")
 from scripts.context_index.build_context_index import (
     PolicyViolation,
     build_index,

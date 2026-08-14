@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 
-from .contracts import Sha256, canonical_hash, is_sha256
+from .contracts import Sha256, is_sha256
 
 
 @dataclass(frozen=True)
@@ -16,10 +16,6 @@ class RunManifest:
     condition_sha256: Sha256
     evidence_root_relative: str
     external_io: bool = False
-
-    @property
-    def manifest_sha256(self) -> Sha256:
-        return canonical_hash(asdict(self))
 
     def validate(self) -> None:
         if self.external_io:

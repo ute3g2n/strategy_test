@@ -1,0 +1,124 @@
+{
+  "step_id": "Step 04",
+  "status": "COMPLETED_WITH_RUNTIME_FALLBACK",
+  "purpose": "品質Gate・WSL・実装品質handoffから管理用change/diff/Evidence/baseline hashの計算・照合・不一致停止を除去し、保護hashだけを維持した",
+  "authority": {
+    "management_hash_checks": "FORCE_SKIPPED_BY_USER_AUTHORITY",
+    "protected_hashes": "MUST_REMAIN_WITH_PURPOSE_AND_FAIL_CLOSED_BEHAVIOR",
+    "management_hash_retry": "DISABLED",
+    "script_authority_applied": true
+  },
+  "runtime_dispatch": {
+    "state": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "reason": "collab spawn failed: agent thread limit reached",
+    "orchestrator": {
+      "name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "agent_id": "N/A",
+      "model": "gpt-5.6-terra",
+      "status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    "agents": [
+      {
+        "name": "AutoTrade_A110_PythonTestEngineer_v0_1",
+        "agent_id": "N/A",
+        "model": "gpt-5.6-luna",
+        "status": "NOT_STARTED",
+        "independent": false,
+        "review_mode": "SELF_REVIEW_FALLBACK"
+      },
+      {
+        "name": "AutoTrade_A130_VerificationEngineer_v0_1",
+        "agent_id": "N/A",
+        "model": "gpt-5.6-luna",
+        "status": "NOT_STARTED",
+        "independent": false,
+        "review_mode": "SELF_REVIEW_FALLBACK"
+      },
+      {
+        "name": "AutoTrade_A140_DebugEngineer_v0_1",
+        "agent_id": "N/A",
+        "model": "gpt-5.6-luna",
+        "status": "NOT_STARTED",
+        "independent": false,
+        "review_mode": "SELF_REVIEW_FALLBACK"
+      },
+      {
+        "name": "AutoTrade_A150_PythonCodeReviewer_v0_1",
+        "agent_id": "N/A",
+        "model": "gpt-5.6-luna",
+        "status": "NOT_STARTED",
+        "independent": false,
+        "review_mode": "SELF_REVIEW_FALLBACK"
+      },
+      {
+        "name": "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+        "agent_id": "N/A",
+        "model": "gpt-5.6-luna",
+        "status": "NOT_STARTED",
+        "independent": false,
+        "review_mode": "SELF_REVIEW_FALLBACK"
+      }
+    ]
+  },
+  "skills": [
+    "autotrade_skill_python_test_quality_v0_1",
+    "autotrade_skill_debug_recovery_v0_1",
+    "autotrade_skill_python_code_review_v0_1",
+    "autotrade_skill_ops_security_v0_1",
+    "autotrade_skill_traceability_v0_1"
+  ],
+  "changed_files": [
+    "doc/ai_foundation/05_プロジェクト汎用オーケストレータ仕様.html",
+    "doc/ai_foundation/18_Phase2-5本実装AI実行基盤設計書.html",
+    "doc/ai_foundation/19_Phase2-5実装品質基盤実装検証.html",
+    "scripts/quality_gate/runner.py",
+    "scripts/quality_gate/p3_integration_runner.py",
+    "scripts/quality_gate/trusted_scopes.json",
+    "scripts/wsl_quality_gate/prepare_offline_wsl_env.sh",
+    "scripts/wsl_quality_gate/run_isolated_p2.sh",
+    "scripts/wsl_quality_gate/run_isolated_p3.sh",
+    "scripts/wsl_quality_gate/run_isolated_p2.ps1",
+    "tests/quality_gate/test_runner.py",
+    "tests/quality_gate/test_wsl_quality_gate_contract.py"
+  ],
+  "management_hash_removals": [
+    "quality_gate.runner ChangeInspector.change_hash",
+    "quality_gate.runner RunManifest.change_hash requirement",
+    "quality_gate runner diff hash comparison and stop condition",
+    "WSL target_only_change_sha256 evidence output",
+    "P3 integration change-hash handoff comparison",
+    "P3 review evidence_sha256 output",
+    "HTML quality-gate change-hash acceptance wording"
+  ],
+  "protected_hashes_retained": [
+    "fixture checksum for approved test input identity",
+    "DBN/raw/catalog/decoder/replay provenance hashes",
+    "offline requirements and wheel hashes for dependency integrity",
+    "WSL configuration hash for restoration safety",
+    "engine and replay hashes directly required for reproducibility"
+  ],
+  "verification": {
+    "python_compile": "PASS",
+    "ruff_check": "PASS",
+    "ruff_format_check": "PASS",
+    "quality_gate_tests": "57 passed",
+    "bash_syntax": "PASS for prepare_offline_wsl_env.sh, run_isolated_p2.sh, run_isolated_p3.sh",
+    "powershell_parse": "PASS for run_isolated_p2.ps1",
+    "trusted_scope_json_parse": "PASS",
+    "html_parse": "PASS for 05, 18, 19",
+    "active_management_hash_scan": "PASS",
+    "git_diff_check": "PASS",
+    "wsl_execution": "NOT_RUN_BY_BOUNDARY",
+    "external_io": "NOT_RUN_BY_BOUNDARY",
+    "secret_or_live_execution": "NOT_RUN_BY_BOUNDARY",
+    "hash_values_recorded": false
+  },
+  "notes": [
+    "baseline_refとGit path/scope検査は非hashの範囲確認として維持した",
+    "historical tests/evidenceは履歴として変更せず、現行Gateでは再利用しない",
+    "p3_integration_runner.pyは品質handoffに管理用hash判定が残っていたため対象範囲を補正して更新した",
+    "独立Agentの実起動完了とは扱わず、root責務で検証した"
+  ]
+}

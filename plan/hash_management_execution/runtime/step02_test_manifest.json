@@ -1,0 +1,42 @@
+{
+  "schema_version": "ctxmap-manifest-v0.1",
+  "generator_version": "ctxmap-indexer-v0.1",
+  "artifacts": [
+    {
+      "artifact_id": "art-a87c4a7f-f804-5b49-8d4b-1102dcb50933",
+      "kind": "managed_document",
+      "status": "active",
+      "relative_path": "plan/hash_management_execution/step00_migration_state.md",
+      "schema_version": "ctxmap-manifest-v0.1",
+      "generator_version": "ctxmap-indexer-v0.1",
+      "first_seen_at": "2026-08-15T00:00:00Z",
+      "updated_at": "2026-08-15T00:00:00Z",
+      "title": "Step 00 移行状態",
+      "headings": [
+        {
+          "level": 1,
+          "text": "Step 00 移行状態",
+          "line": 1
+        },
+        {
+          "level": 2,
+          "text": "実行確認",
+          "line": 15
+        },
+        {
+          "level": 2,
+          "text": "未解決事項",
+          "line": 23
+        }
+      ],
+      "trace_ids": [],
+      "local_links": [],
+      "summary": "- 状態: COMPLETED_WITH_REMEDIATION",
+      "purpose": "Step 00 移行状態",
+      "triggers": [],
+      "relation_ids": [],
+      "line_count": 26,
+      "byte_size": 1599
+    }
+  ]
+}

@@ -14,6 +14,12 @@
 | 正本の置場 | 本計画は `plan/`、将来の正式設計書は `doc/phase4/`、実行ログは `plan/phase4/ログ/`、機械証跡は `tests/evidence/phase4/<RunId>/`。 |
 | 改訂 | 2026-08-12 改訂4。改訂3の実ランタイム起動契約を継承し、Coordinatorから子Agentを起動できない環境でも、起動不能を明示したローカル・フォールバック実行へ継続できるよう、P4-04C以降の各直接実行プロンプトを修正する。 |
 
+## HASH-FUTURE-01〜08／Step 05 現行運用ルール
+
+本計画の現行実行では、文章管理、差分許可、Evidence・baseline・manifestの同一性確認だけを目的とする管理用hashを計算・保存・照合しない。ユーザー委譲により、管理用hashのstale停止・不一致retryは強制スキップして完了する。fixture、raw/input、依存artifact、Replay、結果決定性など安全・データ・再現性へ直接因果のあるprotected hashは、目的・対象・失敗時停止を明記して維持し、不一致時はfail-closedで停止する。過去の管理hashは履歴として残すが、現行受入条件へ再利用しない。
+
+P4-04C以降の全プロンプトとスクリプトへこの権限を適用する。成果物の存在・構造、対象path、固定command、テスト、レビュー、Unknown、Secret、外部I/O、Human Gate、protected hash結果で受入を判定し、管理hashの代替としてfingerprint、UUID、mtime、別名checksumを追加しない。Agent未起動は独立実行済みと報告せず、`RUNTIME_DISPATCH_FALLBACK_REQUIRED` として記録する。
+
 ## 1. 結論と発火制御
 
 Phase 4 は、既存のReplay／Fill／Cost／Roll／Gap／Calendar／Holdout／Turtle／Manifest／固定fixtureを、**固定ローカル入力だけ**で利用できるProduct/Application境界へ接続するPhaseである。主対象は型付き設定、事前検査、Run／Job／Queue、単一Backtest、Sweep、Result、Evidence、固定ダミーによるUI接続、ローカル保存、停止・取消・再開の契約である。実装前に、P4で扱う全APIと既存21画面を漏れなく設計・追跡し、P4対象外画面も理由・次Phase・Gateを明示して未設計のまま残さない。
@@ -83,7 +89,7 @@ flowchart LR
 - Broker接続、注文、Paper、Live、実資金、口座、Secret、認証情報、Cloud、外部公開、端末・通信中継
 - 実Cost／Slippage／Gap、正式Calendar、実市場の長期性能、利益性・頑健性の採用
 - 実数量、証拠金、損失上限、Account、Portfolio、OMS、Risk実値の決定
-- Core凍結範囲の無承認変更、入力／fixture／Manifestのhash不一致、Look-ahead、保存不一致、Idempotency未定義
+- Core凍結範囲の無承認変更、protected input／fixture hash不一致、Look-ahead、保存不一致、Idempotency未定義。管理用Manifest／差分hash不一致は停止条件にしない。
 
 ## 4. Core再利用境界
 
@@ -94,7 +100,7 @@ flowchart LR
 | `src/autotrade/strategy/` | Generic Strategy／Turtleの固定契約と版参照を利用する。 | Turtle規則の変更、実市場成績への一般化。 |
 | Core外の新Product/Application層 | P4-03で承認した責務・依存方向・保存境界に限り追加する。 | Coreへ逆依存するUI、Workerからの外部副作用、未設計の任意ファイル書込み。 |
 
-P4-01は開始時にCore source／tests／fixturesのManifestを再照合し、P4-06〜09は終了時にも再照合する。差分がゼロでなければ、差分の正当性を推測せず `P4-CORE-CHANGE-REQUIRED` として停止する。
+P4-01は開始時にCore source／tests／fixturesの対象path・構造・protected入力を確認し、P4-06〜09は終了時にも同じ非hash確認を行う。Core sourceの無承認変更が見つかれば、差分の正当性を推測せず `P4-CORE-CHANGE-REQUIRED` として停止する。管理用差分hashの計算・一致確認は行わない。
 
 ## 5. Unknown、Blocked、後続Phaseへの送り先
 
@@ -114,7 +120,7 @@ P4-01は開始時にCore source／tests／fixturesのManifestを再照合し、P
 
 | Step | 正式HTML候補 | 計画・ログ候補 | Evidence候補 |
 |---|---|---|---|
-| P4-01 | `doc/phase4/01_要件追跡/01_Phase4入力・Core再利用確認.html` | `plan/phase4/ログ/P4-01_入力・Core再利用確認_YYYY-MM-DD.md` | hash照合だけを記録する場合は対象Runなし。 |
+| P4-01 | `doc/phase4/01_要件追跡/01_Phase4入力・Core再利用確認.html` | `plan/phase4/ログ/P4-01_入力・Core再利用確認_YYYY-MM-DD.md` | protected input／fixture hashを確認する場合だけ対象Runを記録する。管理用hash照合だけのRunは作らない。 |
 | P4-02 | `doc/phase4/01_要件追跡/02_Phase4要件・UC・UI・Test追跡マトリクス.html` | `plan/phase4/ログ/P4-02_追跡範囲確定_YYYY-MM-DD.md` | 対象外。 |
 | P4-03 | `doc/phase4/02_実装詳細設計/03_ProductApplication_Backtest実装詳細設計書.html` | `plan/phase4/ログ/P4-03_詳細設計_YYYY-MM-DD.md` | 対象外。 |
 | P4-04A | `doc/phase4/02_実装詳細設計/04_ProductApplication_API詳細設計書.html` | `plan/phase4/ログ/P4-04A_API詳細設計_YYYY-MM-DD.md` | 対象Runなし。API契約、失敗、冪等性、UI結線、テストIDを設計する。 |
@@ -122,8 +128,8 @@ P4-01は開始時にCore source／tests／fixturesのManifestを再照合し、P
 | P4-04C | `doc/phase4/02_実装詳細設計/06_ProductApplication_UI全21画面詳細設計書.html` | `plan/phase4/ログ/P4-04C_UI全21画面詳細設計_YYYY-MM-DD.md` | 対象Runなし。21画面と10 UI状態の扱い、P4対象・境界・後続Gateを設計する。 |
 | P4-04D | `doc/phase4/03_品質設計/04_Phase4テスト戦略・RunManifest設計.html` | `plan/phase4/ログ/P4-04D_RED・品質設計_YYYY-MM-DD.md` | `tests/evidence/phase4/<設計済みRunId>/` の構造だけを設計し、最小REDだけを追加する。 |
 | P4-05 | `doc/phase4/04_レビュー/05_Phase4詳細設計レビュー・改訂記録.html` | `plan/phase4/ログ/P4-05_設計レビュー_YYYY-MM-DD.md` | Review findings／採否表。 |
-| P4-06〜08 | P4-03、P4-04A〜Dの設計書を改訂するときだけ更新。P4-08は `doc/phase4/03_品質設計/05_P4-08_UI接続・VisualA11y検証.html` を正式検証HTMLとして追加。 | `plan/phase4/ログ/P4-0X_実装ログ_YYYY-MM-DD.md` | `tests/evidence/phase4/<RunId>/`。Run ID・target scope・fixture hash・approvalを登録後にだけ作成。 |
-| P4-09 | `doc/phase4/04_レビュー/06_Phase4統合品質・独立レビュー.html` | `plan/phase4/ログ/P4-09_統合品質・独立レビュー_YYYY-MM-DD.md` | `tests/evidence/phase4/<RunId>/dispatch、manifest、verification、self-review、hash、Gate結果。 |
+| P4-06〜08 | P4-03、P4-04A〜Dの設計書を改訂するときだけ更新。P4-08は `doc/phase4/03_品質設計/05_P4-08_UI接続・VisualA11y検証.html` を正式検証HTMLとして追加。 | `plan/phase4/ログ/P4-0X_実装ログ_YYYY-MM-DD.md` | `tests/evidence/phase4/<RunId>/`。Run ID・target scope・protected fixture hash・approvalを登録後にだけ作成。 |
+| P4-09 | `doc/phase4/04_レビュー/06_Phase4統合品質・独立レビュー.html` | `plan/phase4/ログ/P4-09_統合品質・独立レビュー_YYYY-MM-DD.md` | `tests/evidence/phase4/<RunId>/dispatch、manifest、verification、self-review、protected結果、Gate結果。 |
 | P4-10 | `doc/phase4/05_完了/07_Phase4完了判定・Phase5計画引渡し.html` | `plan/phase4/ログ/P4-10_完了・引渡し_2026-08-12.md` | `tests/evidence/phase4/RUN-P4-04D-001/p4-10-*`、P4-H2承認記録、`plan/phase4/Phase5計画入力一覧_2026-08-12.md`。 |
 
 ## 7. 使用するAI部品
@@ -145,7 +151,7 @@ Orchestratorは `gpt-5.6-terra` を使う。各AgentはそのJSON実体に固定
 | Gate | 現在状態 | 承認対象 | 承認後に許可される範囲 | 明示的に許可しないこと |
 |---|---|---|---|---|
 | `P4-H0` | `APPROVED（2026-08-11）` | 本計画、P4の固定local scope、Core凍結、P4-01〜05の設計・RED範囲。改訂2でP4-04A（API）→P4-04B（DB／ER）→P4-04C（UI）→P4-04D（RED）へ分割して明文化した。 | P4-01〜05。入力照合、追跡、API詳細設計、DB／Persistence詳細設計・ER図、全21画面UI詳細設計、RED test・Run Manifest設計、レビュー。 | 実装、依存導入、実行Run、外部I/O、Core変更、Broker／Secret／Paper／Live／実資金／Cloud。 |
-| `P4-H1` | `APPROVED（2026-08-12）` | P4-03、P4-04A〜D、P4-05のレビュー済み詳細設計、DB／ER／migration／transaction設計、RED、Core差分0、全P4 API inventory、21画面coverage register、対象Run ID／target_paths／fixture hash／trusted scope、実装範囲。承認記録は `tests/evidence/phase4/RUN-P4-04D-001/human-gate-p4-h1.md`。 | P4-06〜09のローカル実装・固定fixture試験・全P4対象画面のUI検証。対象Runは `RUN-P4-04D-001`、target-onlyで実行する。WSL品質Gateはhost outbound isolation確認後だけ実行する。 | P4-10、未登録Run、外部I/O、未固定依存の取得、Core変更、実市場Data、Broker／Secret／Paper／Live／実資金／Cloud。 |
+| `P4-H1` | `APPROVED（2026-08-12）` | P4-03、P4-04A〜D、P4-05のレビュー済み詳細設計、DB／ER／migration／transaction設計、RED、Core差分0、全P4 API inventory、21画面coverage register、対象Run ID／target_paths／protected fixture hash／trusted scope、実装範囲。承認記録は `tests/evidence/phase4/RUN-P4-04D-001/human-gate-p4-h1.md`。管理用Manifest／Evidence hashは承認対象にしない。 | P4-06〜09のローカル実装・固定fixture試験・全P4対象画面のUI検証。対象Runは `RUN-P4-04D-001`、target-onlyで実行する。WSL品質Gateはhost outbound isolation確認後だけ実行する。 | P4-10、未登録Run、外部I/O、未固定依存の取得、Core変更、実市場Data、Broker／Secret／Paper／Live／実資金／Cloud。 |
 | `P4-H2` | `APPROVED（2026-08-12）` | P4-09の最終候補、REQ／UC／Test／Evidence追跡、Core差分、品質・レビュー、残Unknown、Phase 5境界。承認記録は `tests/evidence/phase4/RUN-P4-04D-001/human-gate-p4-h2.md`。 | P4-10の完了記録・台帳同期・Phase 5計画入力引渡し。 | Phase 5実装・外部Data取得、Broker／Secret／Paper／Live／実資金／Cloud。 |
 
 各Gateの現在状態、対象、期限、再開条件、証拠先は統合台帳を唯一の正本とする。改訂2は、運用者がP4-04BへDB／Persistence詳細設計とER図を追加し、後続Stepを繰り下げる計画修正を指示したことを記録するものであり、P4-H0の設計・RED以外の権限を増やさない。P4-H1では、実行を許す `RunId` も同じ承認文言または紐付く承認記録に明記する。
@@ -170,14 +176,14 @@ Orchestratorは `gpt-5.6-terra` を使う。各AgentはそのJSON実体に固定
 
 ## 10. 共通品質・安全規則
 
-1. すべてのStepで、開始前と終了前に統合台帳、P4 Gate状態、対象の入力hash、Core差分を確認する。
+1. すべてのStepで、開始前と終了前に統合台帳、P4 Gate状態、対象の保護入力hash、Core差分（path・構造・状態）を確認する。管理用差分hashは確認しない。
 2. Code変更があるStepでは、`AutoTrade_A110_PythonTestEngineer_v0_1` がREDを先に固定し、`AutoTrade_A120_PythonImplementer_v0_1` が最小実装を行う。REDなしの実装は受け入れない。
 3. WSL隔離品質Gateは `scripts/wsl_quality_gate/run_test.ps1` だけを入口とし、`scripts/quality_gate/trusted_scopes.json` に登録済みのRun ID・固定コマンド・target_pathsだけを使う。host outbound isolationが確認できなければ `BLOCKED` とする。
 4. P4ではWindows正本 `C:\project\strategy_test` のみを編集する。WSL cloneは通常編集しない。必要な隔離実行の条件が揃った場合も、プロジェクト規則の事前確認・可逆退避・`git pull --ff-only`以外の同期は禁止する。
 5. UIの正式合否は固定 `@playwright/test`、Storybook、Vitest／axeで判定する。ローカル探索以外のAI向けCLI、外部SaaS、外部通信、匿名でないデータを使わない。
 6. 各正式HTMLの追加・更新では、`doc/index.html`、相対リンク、anchor、読みやすさ、印刷、Mermaidの同義文章を同時に確認する。
 7. `Critical` または `High` の未解決Findingは、次のStep・Human Gateへ進めない。Medium／Lowは採否・責任・期限・証拠先を明記し、UnknownをPASSへ変換しない。
-8. 完了前に `git diff --check`、対象差分、Secret・鍵・個人情報の混入、機械検証結果、Evidence hashを確認する。既存ユーザー変更は混ぜない。
+8. 完了前に `git diff --check`、対象差分、Secret・鍵・個人情報の混入、機械検証結果、Evidenceの存在・構造・状態を確認する。Evidenceファイルの管理hashは計算しない。既存ユーザー変更は混ぜない。
 
 ## 11. P4の追跡完成条件
 
@@ -185,7 +191,7 @@ P4-09でP4-H2候補と呼べるのは、次のすべてを満たすときだけ�
 
 - P4対象のREQ、UC、Screen、State、Test、Evidence、Gateが一対多を含めて追跡可能で、孤立・無根拠の項目がない。
 - 単一BacktestとSweepは別の入力、状態、結果、Evidence、取消・失敗・再開条件を持ち、同条件Runの表示と内部履歴が分離される。
-- Data／Strategy／Config／Risk参照、Manifest、Core版、fixture hash、結果hash、Evidence hashがRunへ保存され、入力不一致では開始しない。
+- Data／Strategy／Config／Risk参照、Manifestの構造、Core版、protected fixture hash、protected結果hashがRunへ保存され、protected入力不一致では開始しない。Evidence hashは保存・受入条件にしない。
 - API、UI、Worker、Persistence、ファイル出力、CSV Jobの契約を固定local入力で検証し、保存不一致、重複、Idempotency不明、未来参照、Risk参照欠落をFail-closedで扱う。
 - `P4-04A`のAPI inventoryが、P4で公開するcommand、query、file／CSV、Evidence、状態通知の全契約を漏れなく収容し、各APIに型、必須性、失敗、冪等性、副作用、状態遷移、version、UI利用箇所、Test／Evidenceがある。
 - `P4-04B`のDB・Persistence詳細設計が、P4-04Aの全API、Run／Job／Queue／Checkpoint／Result／Evidence／CSV／Audit／Idempotencyの保存先、ER図、PK／FK、unique、index、transaction、migration、lock／lease、保持、復旧、Core ResultStore／file境界を収容する。
@@ -212,7 +218,7 @@ P4-09でP4-H2候補と呼べるのは、次のすべてを満たすときだけ�
 | `P4-PLAN-F-007` | High | 「全画面」をP4対象Subsetだけと誤読すると、対象外画面が無根拠に実装されたり、未設計のまま残る。 | 全21画面をcoverage registerへ入れる。P4対象画面は実装仕様、P4対象外画面は固定`UNAPPROVED`／`OUT_OF_SCOPE`境界、理由、後続Phase、Gateを個別に定義する。 |
 | `P4-PLAN-F-008` | Critical | Orchestrator／Agentの完全名をプロンプトへ列挙するだけでは、Codex実ランタイムのサブエージェント起動、独立レビュー、固定modelの適用を保証できず、ルートAgentの自己適用を誤って完了扱いする危険がある。さらに、Coordinatorから子Agentを起動できない環境では、起動不能だけで設計・実装全体が停止する。 | P4-04C以降の各プロンプトで実ランタイム起動を第一選択として要求し、起動できたAgentだけを実行証跡へ記録する。起動不能時は `DISPATCH_MODE=LOCAL_FALLBACK_NO_SUBAGENTS` へ切り替え、Agentごとの責務・レビュー観点をルート実行Agentがチェックリストで適用する。未起動を独立レビュー済みと偽らず、起動不能自体は停止条件にしない。一方、Gate、スコープ、Secret／外部I/O、Critical／High、UnknownのPassは従来どおり停止する。 |
 
-判定（2026-08-12実行後）: `COMPLETED_P4-09_P4-H2_BLOCKED`。ユーザーの「P4-H1を承認します。P4-06以降のプロンプトを順番に実行して下さい。」を受領し、P4-05で提示済みの `RUN-P4-04D-001`、target_paths、fixture hash、trusted scopeを承認記録へ固定した。P4-04C（全21画面UI）、P4-04D（RED／Run Manifest）、P4-05（統合レビュー・改訂・P4-H1提出候補）、P4-06（typed Application／Persistence／Run／Job／Queue、RED→GREEN、target quality）、P4-07（単一Backtest／Sweep／Result／Evidence／全19 API、RED→GREEN、target quality）、P4-08（固定UI契約、21画面、13画面×10状態、PC／mobile、axe、screenshots、外部通信0）、P4-09（API／DB／UI統合品質、Evidence再照合、P4-H2候補判定）が完了した。P4-09はCoordinatorを起動したが子Agentのspawn／wait backendが未提供だったため `LOCAL_FALLBACK_NO_SUBAGENTS` を記録し、未起動を独立実行と偽らずroot fallbackの責務チェックリストで確認した。P4-06〜08のEvidence hash、target quality、Core差分0を再確認した一方、font／OS renderingは`UNK-P4-UI-002`、host outbound isolationは`UNK-P4-04D-004`として保持する。P4-H2未承認かつhost isolation未確認のためP4-10は実行しない。
+判定（2026-08-12実行後）: `COMPLETED_P4-09_P4-H2_BLOCKED`。ユーザーの「P4-H1を承認します。P4-06以降のプロンプトを順番に実行して下さい。」を受領し、P4-05で提示済みの `RUN-P4-04D-001`、target_paths、protected fixture hash、trusted scopeを承認記録へ固定した。P4-04C（全21画面UI）、P4-04D（RED／Run Manifest）、P4-05（統合レビュー・改訂・P4-H1提出候補）、P4-06（typed Application／Persistence／Run／Job／Queue、RED→GREEN、target quality）、P4-07（単一Backtest／Sweep／Result／Evidence／全19 API、RED→GREEN、target quality）、P4-08（固定UI契約、21画面、13画面×10状態、PC／mobile、axe、screenshots、外部通信0）、P4-09（API／DB／UI統合品質、Evidence再照合、P4-H2候補判定）が完了した。P4-09はCoordinatorを起動したが子Agentのspawn／wait backendが未提供だったため `LOCAL_FALLBACK_NO_SUBAGENTS` を記録し、未起動を独立実行と偽らずroot fallbackの責務チェックリストで確認した。旧Evidence hashやtarget差分hashは履歴として保持するが、現行受入では再利用しない。font／OS renderingは`UNK-P4-UI-002`、host outbound isolationは`UNK-P4-04D-004`として保持する。P4-H2未承認かつhost isolation未確認のためP4-10は実行しない。
 
 ## 14. Step別の直接実行プロンプト
 
@@ -228,10 +234,10 @@ Model: Orchestratorはgpt-5.6-terra。各Agentは定義JSONに固定されたmod
 Skills: autotrade_skill_source_reader_v0_1, autotrade_skill_traceability_v0_1, autotrade_skill_html_doc_writer_v0_1, autotrade_skill_design_review_v0_1
 発火制御: 統合台帳でP4-H0=APPROVEDを確認してから実行する。P4-H1/P4-H2は不要。外部I/O、依存取得、Core変更、WSL操作、実行Runは発火しない。
 入力: 正式要件v2 HTML/Markdown、RQV2 Phase4ロードマップ、Phase4引渡し入力一覧、RQV2既存Core再利用基準線、追跡マトリクス、統合台帳、Phase1〜3の正式成果物と既存Evidence。
-実施: Core source 36件と関連tests/fixtures 58件のManifest/hash、既存Evidenceの状態、RQV2-H3、UNK-P3-01/05/07、Q-243、RQV2-BLK-001を再照合する。doc/phase4/01_要件追跡/01_Phase4入力・Core再利用確認.html と plan/phase4/ログ/P4-01_入力・Core再利用確認_YYYY-MM-DD.md を作成する。P4で再利用する公開境界、凍結対象、入力優先順位、P4外へ送る項目を明記し、doc/index.htmlへ導線を追加する。
+実施: Core source 36件と関連tests/fixtures 58件の対象path・構造・protected input、既存Evidenceの状態、RQV2-H3、UNK-P3-01/05/07、Q-243、RQV2-BLK-001を再確認する。管理用Manifest／Evidence hashは計算しない。doc/phase4/01_要件追跡/01_Phase4入力・Core再利用確認.html と plan/phase4/ログ/P4-01_入力・Core再利用確認_YYYY-MM-DD.md を作成する。P4で再利用する公開境界、凍結対象、入力優先順位、P4外へ送る項目を明記し、doc/index.htmlへ導線を追加する。
 レビュー: AutoTrade_A90_DesignReviewer_v0_1がFindings firstで、hash不足、Core状態の一般化、UnknownのPASS化、外部I/O混入、リンク不足を確認する。指摘は同Stepで改訂し、Critical/High=0にする。
-完了条件: 入力hash、Core Manifest、再利用状態、未知事項、停止条件、正式HTML/ログ/doc indexの導線が相互に一致する。Coreと既存fixtureに差分を作らない。
-停止条件: hash不一致、Core差分、必要入力欠落、台帳のGate不整合、外部Data/Broker/Secret/Paper/Live/Cloud/実資金の要求または混入、Critical/High未解決。
+完了条件: 保護入力hash、Core Manifest構造、再利用状態、未知事項、停止条件、正式HTML/ログ/doc indexの導線が相互に一致する。Coreと既存fixtureに差分を作らない。
+停止条件: protected input／fixture hash不一致、Core差分、必要入力欠落、台帳のGate不整合、外部Data/Broker/Secret/Paper/Live/Cloud/実資金の要求または混入、Critical/High未解決。管理用hash不一致は停止条件にしない。
 ```
 
 ### P4-02 P4要件・UC・UI・Test追跡の確定
@@ -311,7 +317,7 @@ Skills: autotrade_skill_implementation_detail_design_v0_1, autotrade_skill_imple
 入力: P4-01/P4-02/P4-03の正式HTMLとログ、P4-04A API詳細設計、正式要件v2、統合台帳、既存Backtest／ResultStore／Runner／Experiment／fixture契約、P4-03のSQLite WAL／Migration・AtomicResultStore・CSV・Evidence・状態・冪等性ADR、AF-D14/AF-D16/AF-D17、doc/index.html。
 実施: Product/Applicationのmetadata DBと、既存Core ResultStore／Evidence／CSV fileの責務を分離したDB詳細設計書を作成する。Run、RunCondition、RunStateTransition、Job、QueueItem、Checkpoint、ResultReference、EvidenceReference、SweepParent、SweepMember、CsvJob、IdempotencyRecord、AuditEvent、HoldoutAssessment、SchemaMigration等の保存単位を漏れなく抽出し、各tableの所有モジュール、目的、column、型、必須／nullable、default、PK、FK、unique、check、index、version、保持、削除／archive、Secret境界を定義する。
 ER図はMermaidのerDiagramで作成し、親子、1対1、1対多、optional参照、履歴append-only、file reference、Core ResultStoreとの境界を図示する。ER図直後にエンティティ間受渡し表を置き、各関係の意味、FK、所有者、作成／更新者、状態不変条件、破損時の停止条件を日本語で記載する。別にmetadata／Core／file／Evidenceの境界図と正常／失敗transaction sequenceを置き、それぞれ直後に受渡し表を置く。
-全P4 API-P4-IDについて、read/write table、transaction境界、commit順、idempotency record、expected revision、lease／fencing、optimistic lock、同時実行、retry、recovery、audit event、Evidence hashの対応を一対一以上で結ぶ。API-P4-003/004/007/010/011/016/019、worker、ResultStore、CSV atomic outputの書込みを中心に、partial write、crash、marker／hash不一致、migration不整合、stale revision、duplicate requestをFail-closedで定義する。
+全P4 API-P4-IDについて、read/write table、transaction境界、commit順、idempotency record、expected revision、lease／fencing、optimistic lock、同時実行、retry、recovery、audit event、Evidenceの構造・状態の対応を一対一以上で結ぶ。API-P4-003/004/007/010/011/016/019、worker、ResultStore、CSV atomic outputの書込みを中心に、partial write、crash、protected marker／result hash不一致、migration不整合、stale revision、duplicate requestをFail-closedで定義する。管理用Evidence hash不一致は停止条件にしない。
 logical schemaとSQLite候補のphysical schemaを分け、P4-03の条件付きADRを勝手に実装確定へ変換しない。table／column／index／constraintの根拠、migration version、up/downまたはforward-only方針、transaction isolation、WAL適用範囲、backup／restoreのP4外境界、保持期間のUnknownを記載する。Core ResultStoreのresult本文をmetadata DBへ複製しない。任意path、UNC、reparse、Secret、外部DB、Cloud、ORM／migration依存の追加は設計許可に含めない。
 DB詳細設計の全テストを、schema／migration、FK／unique／check、transaction rollback、idempotency、state transition、lease／fencing、checkpoint、sweep partial failure、CSV Job、Evidence、concurrent write、crash recovery、secret／path boundary、API-P4-ID、REQ／UC／Test／Evidenceへ接続する。TEST-P4-DB-IDを付与し、固定local dummyでの入力、操作、期待、停止条件、Evidenceを文章で定義する。DBを実際に作成・migration実行・pytest実行しない。
 P4-04Bで決定できないtable、retention、backup、concurrency、SQLite version、migration方式はUnknown ID、決定者、期限、後続Phase／Gate、未決時の停止条件を記録し、仮値でPassにしない。
@@ -371,11 +377,11 @@ Skills: autotrade_skill_test_strategy_v0_1, autotrade_skill_golden_test_v0_1, au
 発火制御: P4-H0=APPROVED、P4-04A/P4-04B/P4-04C完了を確認してから実行する。必要最小のRED test追加は許可されるが、実装、依存取得、未登録Run、外部I/O、Core変更、UIソース変更、WSL操作は発火しない。
 入力: P4-02追跡、P4-03詳細設計、P4-04A API詳細設計、P4-04B DB・Persistence詳細設計／ER図、P4-04C UI全21画面詳細設計、Core基準線、scripts/quality_gate/trusted_scopes.json、scripts/wsl_quality_gate/run_test.ps1、ui/mockの既存テスト設定、既存固定fixture/Golden/Replay契約、統合台帳。
 実施: API-P4-ID、SCREEN-01〜21、UISTATE全10種、REQ、UC、P4-03のTEST-P4-APP-001〜045、P4-04BのTEST-P4-DB-IDを、RED、Golden／Replay、API/File契約、schema／migration、FK／unique／check、transaction rollback、Persistence／Idempotency、Cancel／Stop／Retry／Checkpoint、Manifest mismatch、Risk参照欠落、Look-ahead、保存不一致、Sweep部分失敗、CSV非同期、UI主要状態、keyboard／focus／a11y、PC／スマートフォンvisual、Failure injectionへ一対一以上で結ぶ。P4対象外画面・APIは、UNAPPROVED／OUT_OF_SCOPE表示と外部副作用ゼロをテストするだけとし、機能実装を要求しない。
-将来のRun ID、target_paths、固定fixture hash、期待出力、Evidence構造、approved user declaration、trusted scope登録手順、Windows/WSLの実行条件を明記する。API／DB／UIの全coverage registerとTest IDをP4-H1提出表へ接続し、P4-04A〜Cで未定義のAPI、DB保存先、画面、状態、Testを発見したらREDを追加する前に設計へ戻す。必要最小のRED testsだけを追加し、REDであること、コマンド、exit code、fixture checksum、対象外をログへ記録する。REDは品質GateのPASSではなく、P4-H1後の実装開始前提である。
+将来のRun ID、target_paths、固定fixtureのprotected hash、期待出力、Evidence構造、approved user declaration、trusted scope登録手順、Windows/WSLの実行条件を明記する。管理用hashは明記しない。API／DB／UIの全coverage registerとTest IDをP4-H1提出表へ接続し、P4-04A〜Cで未定義のAPI、DB保存先、画面、状態、Testを発見したらREDを追加する前に設計へ戻す。必要最小のRED testsだけを追加し、REDであること、コマンド、exit code、fixture checksum、対象外をログへ記録する。REDは品質GateのPASSではなく、P4-H1後の実装開始前提である。
 doc/phase4/03_品質設計/04_Phase4テスト戦略・RunManifest設計.html と plan/phase4/ログ/P4-04D_RED・品質設計_YYYY-MM-DD.md を作成し、doc/index.htmlへ導線を追加する。Evidence構造はtests/evidence/phase4/<設計済みRunId>/の設計だけに留め、unregistered Runを起動しない。
-レビュー: AutoTrade_A91_ImplementationDetailReviewer_v0_1とAutoTrade_A90_DesignReviewer_v0_1が、RED先行、API／DB／UI coverage、対象Run承認、target-only、host outbound isolation、fixture hash、外部I/O禁止、Unknownを監査する。AutoTrade_A171_UiVisualQaReviewer_v0_1がvisual/a11yの設計済みTest／Evidenceと、未実行をPASSにしない記録を監査する。
+レビュー: AutoTrade_A91_ImplementationDetailReviewer_v0_1とAutoTrade_A90_DesignReviewer_v0_1が、RED先行、API／DB／UI coverage、対象Run承認、target-only、host outbound isolation、protected fixture hash、外部I/O禁止、Unknownを監査する。管理用Manifest／Evidence hashは監査条件にしない。AutoTrade_A171_UiVisualQaReviewer_v0_1がvisual/a11yの設計済みTest／Evidenceと、未実行をPASSにしない記録を監査する。
 完了条件: P4-H1が承認できる粒度で、P4-04Aの全API、P4-04Bの全DB／ER／Persistence契約、P4-04Cの全21画面・全状態判定、RED、Run Manifest、trusted scope、Evidence、停止条件、対象Run承認の方法が揃う。Critical/High=0。
-停止条件: REDなし、API／画面／状態のcoverage不足、target_pathsまたはfixture hash不明、未登録Runの起動、host isolation未確認、外部接続/Secret/実Dataの要求、Core変更、Critical/High未解決。
+停止条件: REDなし、API／画面／状態のcoverage不足、target_pathsまたはprotected fixture hash不明、未登録Runの起動、host isolation未確認、外部接続/Secret/実Dataの要求、Core変更、Critical/High未解決。管理用hash不明は停止条件にしない。
 ```
 
 ### P4-05 API／DB／全画面UI詳細設計を含む統合レビュー・改訂・P4-H1提出
@@ -424,7 +430,7 @@ Skills: autotrade_skill_python_test_quality_v0_1, autotrade_skill_python_impleme
 入力: P4-03詳細設計、P4-04A API詳細設計、P4-04B DB・Persistence詳細設計／ER図、P4-04C UI全21画面詳細設計、P4-04D RED/Run Manifest、P4-05レビュー、承認済みP4-H1、Core基準線、trusted_scopes.json、固定fixture。
 実施: REDを先に実行してから、承認済みのProduct/Application層だけに型付きConfig/Data/Strategy/Risk参照、Preflight、Run/Job/Queue状態、取消/停止/再試行/Checkpoint、P4-04Bで定義したschema／migration／repository／transaction／監査記録／ローカルPersistence、P4-04Aで定義した基底canonical APIのDTO／application service／failure contractを最小実装する。HTTP server／routeは、P4-H1の承認範囲、依存固定案、target_pathsに明示された場合だけ実装し、未承認ならin-process contractで止める。Risk実値・Account・Order・外部Adapterを実装しない。Core source 36件を変更しない。実装ログ、Run Manifest、Evidenceをtests/evidence/phase4/<RunId>/に保存する。
 レビュー: A130が対象Runの機械検証・hash・scopeを確認し、A150がPython品質、A160が取引安全・外部副作用・Secret・Fail-closedを独立レビューする。失敗はA140が上限付きで原因別に最小修正し、再検証する。
-完了条件: RED→GREEN、対象scope内の品質Gate、P4-04Bのschema／migration／transaction／保存／Idempotency／停止契約、P4-04Aの基底API IDに対応するDTO／failure contract、Core差分0、Critical/High=0、Evidence hashが揃う。WSL品質Gateはrun_test.ps1だけを使い、host outbound isolation未確認ならBLOCKEDとして止める。
+完了条件: RED→GREEN、対象scope内の品質Gate、P4-04Bのschema／migration／transaction／保存／Idempotency／停止契約、P4-04Aの基底API IDに対応するDTO／failure contract、Core差分0、Critical/High=0、Evidenceの存在・構造・状態が揃う。protected hashは目的と失敗時停止付きで確認し、管理用Evidence hashは要求しない。WSL品質Gateはrun_test.ps1だけを使い、host outbound isolation未確認ならBLOCKEDとして止める。
 停止条件: P4-H1または対象Run承認なし、REDなし、未承認のAPI transport／依存追加、Core変更、未登録scope、外部I/O/Secret、Risk実値/Order導入、品質Gate失敗、Critical/High未解決。
 ```
 
@@ -447,10 +453,10 @@ Skills: autotrade_skill_python_test_quality_v0_1, autotrade_skill_python_impleme
 6. Coordinator／子Agentの起動不能、model不一致、Agent出力欠落、`wait_agent` 利用不能は、フォールバック記録と責務チェックリスト・自己レビューが完了する限り、単独では停止条件にしない。Human Gate未承認、実装範囲逸脱、Secret／外部I/O、Core変更禁止違反、Critical／High未解決、UnknownのPass、必須成果物・テスト・Evidenceの欠落は、フォールバック中もFail-closedで停止する。
 発火制御: P4-H1=APPROVED、P4-06完了、対象Run承認、Core差分0を確認してから実行する。外部Data/Broker/Paper/Live/Secret/実資金/Cloudは発火しない。
 入力: P4-03詳細設計、P4-04A API詳細設計、P4-04B DB・Persistence詳細設計／ER図、P4-04C UI全21画面詳細設計、P4-04D RED/Run Manifest、P4-06実装/Evidence、固定Core API、固定fixture、承認済みP4-H1。
-実施: 単一BacktestとSweepを別Runとして接続し、入力固定、Preflight、Queue、進捗、取消、部分失敗、上限付き再試行、checkpoint再開、5指標、Chart/取引明細、全件表/CSV Job、同条件Run履歴、Holdout境界、Result/Evidence hashを設計どおり実装する。P4-04Bのschema／migration／repository／transaction／file境界に従ってPersistenceを実装し、P4-04Aの全API-P4-IDをinventoryとtable／read-write契約へ突合する。P4実装対象のcommand、query、file／CSV、Evidence、Failure contractをすべて実装または設計どおりUNSUPPORTEDにする。固定Coreの出力を利用し、実市場Data・実Cost・正式Calendar・実Risk値を導入しない。必要なRED/GREEN、Golden/Replay、API/File契約、Failure injectionを実行する。
+実施: 単一BacktestとSweepを別Runとして接続し、入力固定、Preflight、Queue、進捗、取消、部分失敗、上限付き再試行、checkpoint再開、5指標、Chart/取引明細、全件表/CSV Job、同条件Run履歴、Holdout境界、protected Result hashを設計どおり実装する。Evidenceは内容・状態・構造で扱い、Evidence hashは追加しない。P4-04Bのschema／migration／repository／transaction／file境界に従ってPersistenceを実装し、P4-04Aの全API-P4-IDをinventoryとtable／read-write契約へ突合する。P4実装対象のcommand、query、file／CSV、Evidence、Failure contractをすべて実装または設計どおりUNSUPPORTEDにする。固定Coreの出力を利用し、実市場Data・実Cost・正式Calendar・実Risk値を導入しない。必要なRED/GREEN、Golden/Replay、API/File契約、Failure injectionを実行する。
 レビュー: A130がRun/Manifest/fixture/Evidenceの一致、A150がコード品質・差分、A160がLook-ahead、Idempotency、誤った副作用、Secret混入、Fail-closedを確認する。
 完了条件: 単一/Sweepの入力・状態・結果・Evidenceが固定条件で再現でき、異常系が停止または設計済み再開へ遷移する。全API-P4-IDに実装状態、contract test、Error／Reason ID、Evidenceがあり、UIが未定義のAPIを呼ばない。Core差分0、Critical/High=0。
-停止条件: API inventoryの未実装または無根拠な追加、Manifest/fixture/hash不一致、Look-ahead、保存不一致、Idempotency不明、Holdout再利用、外部I/O、Core変更、品質Gate失敗、Critical/High未解決。
+停止条件: API inventoryの未実装または無根拠な追加、Manifest構造またはprotected fixture／input／result hash不一致、Look-ahead、保存不一致、Idempotency不明、Holdout再利用、外部I/O、Core変更、品質Gate失敗、Critical/High未解決。管理用hash不一致では停止しない。
 ```
 
 ### P4-08 全P4対象画面の固定ダミーUI接続・visual／a11y検証
@@ -497,10 +503,10 @@ Skills: autotrade_skill_python_test_quality_v0_1, autotrade_skill_python_code_re
 6. Coordinator／子Agentの起動不能、model不一致、Agent出力欠落、`wait_agent` 利用不能は、フォールバック記録と責務チェックリスト・自己レビューが完了する限り、単独では停止条件にしない。Human Gate未承認、実装範囲逸脱、Secret／外部I/O、Core変更禁止違反、Critical／High未解決、UnknownのPass、必須成果物・テスト・Evidenceの欠落は、フォールバック中もFail-closedで停止する。
 発火制御: P4-H1=APPROVED、P4-07/P4-08完了、承認済みRun IDとtrusted scopeを確認してから実行する。P4-H2はまだ承認しない。外部I/Oは発火しない。
 入力: P4-01〜08の正式成果物/ログ/Evidence、特にP4-04A API詳細設計・P4-04B DB・Persistence詳細設計／ER図・P4-04C UI全21画面詳細設計・P4-04D品質設計、Core基準線、Git差分、trusted scope、Run Manifest、統合台帳、P4-H2判定基準。
-実施: REQ→UC→Screen/State→Test→Evidence→Gateの全追跡、P4-04Aの全API inventory、P4-04Bの全DB／ER／Persistence coverage、P4-04Cの21/21画面coverage registerと画面×状態表、API/UI/DB binding、単一/Sweep再現、Golden/Replay、API/File契約、Persistence、Worker、UI主要状態、Core差分、fixture/manifest/evidence hash、git diff --check、Secret/鍵/個人情報、外部通信0、レビューFindingを独立に検証する。table／key／transaction／migration／file境界とAPI／画面の保存契約の整合性も確認する。未実装・未試験・P4対象外・Unknownを区別し、未実行をPASSにしない。doc/phase4/04_レビュー/06_Phase4統合品質・独立レビュー.html とログを作り、doc/index.htmlへ導線を追加する。P4-H2へ、合格事項と未解決Unknown/Medium/Low/P5送り先を分離して提出する。
+実施: REQ→UC→Screen/State→Test→Evidence→Gateの全追跡、P4-04Aの全API inventory、P4-04Bの全DB／ER／Persistence coverage、P4-04Cの21/21画面coverage registerと画面×状態表、API/UI/DB binding、単一/Sweep再現、Golden/Replay、API/File契約、Persistence、Worker、UI主要状態、Core差分、protected fixture／input／result hash、Evidenceの存在・構造・状態、git diff --check、Secret/鍵/個人情報、外部通信0、レビューFindingを独立に検証する。管理用manifest／evidence hashは計算・比較しない。table／key／transaction／migration／file境界とAPI／画面の保存契約の整合性も確認する。未実装・未試験・P4対象外・Unknownを区別し、未実行をPASSにしない。doc/phase4/04_レビュー/06_Phase4統合品質・独立レビュー.html とログを作り、doc/index.htmlへ導線を追加する。P4-H2へ、合格事項と未解決Unknown/Medium/Low/P5送り先を分離して提出する。
 レビュー: A150/A160/A90/Red Teamが相互独立にFindings firstで監査する。Critical/Highは実装または設計Stepへ戻して閉鎖し、Medium/Lowは採否表へ残す。
-完了条件: P4の追跡完成条件を満たし、全API-P4-ID、全DB／ER／Persistence契約、全21画面の設計・実装・Test・Evidence状態が一致し、Core差分0、対象品質Gate PASS、Evidence hash、Critical/High=0、P4-H2の承認対象が揃う。P4-H2承認待ちとして停止する。
-停止条件: API、DB／ER／Persistence、または21画面coverageの未定義／不一致、未承認Run、host isolation未確認、Critical/High、外部I/O、Secret、Core差分、Evidence不整合、UnknownのPASS化。
+完了条件: P4の追跡完成条件を満たし、全API-P4-ID、全DB／ER／Persistence契約、全21画面の設計・実装・Test・Evidence状態が一致し、Core差分0、対象品質Gate PASS、protected結果、Critical/High=0、P4-H2の承認対象が揃う。P4-H2承認待ちとして停止する。管理用Evidence hashは完了条件にしない。
+停止条件: API、DB／ER／Persistence、または21画面coverageの未定義／不一致、未承認Run、host isolation未確認、Critical/High、外部I/O、Secret、Core差分、Evidenceの存在・構造・状態不整合、UnknownのPASS化。管理用hash不一致では停止しない。
 ```
 
 ### P4-10 完了記録・統合台帳同期・Phase 5計画引渡し

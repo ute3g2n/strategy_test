@@ -1,7 +1,7 @@
 ---
 name: autotrade_skill_python_implementation_v0_1
 description: 承認済み詳細設計とREDテストの範囲で、安全な最小Python実装を行う。
-ecc_source_commit: 623f2c020f052319657674e4e6c29ab5d0ad566b
+source_reference: historical upstream metadata; not used as a current integrity check
 ---
 
 # Python 実装

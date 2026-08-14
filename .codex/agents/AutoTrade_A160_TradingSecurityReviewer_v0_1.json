@@ -7,6 +7,6 @@
   "role": "Independently review external-input, Secret, order-path, data-integrity, prompt-injection, and fail-closed risks before a Human Gate.",
   "inputs": {"python_review": "A150 findings and verified diff.", "security_boundary": "Approved Adapter, Risk, Account, and Ops constraints."},
   "outputs": {"security_review": "Fail-closed recommendation, safety findings, and Human Gate requirements.", "evidence": "Trading security review under tests/evidence."},
-  "ecc_source_commit": "623f2c020f052319657674e4e6c29ab5d0ad566b",
+  "source_reference": "historical upstream metadata; not used as a current integrity check",
   "boundaries": "Do not connect to Broker or Live services, retrieve credentials, output Secret values, execute attack code, or automatically approve production trading."
 }

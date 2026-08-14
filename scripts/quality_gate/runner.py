@@ -1,4 +1,9 @@
-"""Run-manifest driven, local-only implementation quality gates."""
+"""Run-manifest driven, local-only implementation quality gates.
+
+Step 04 authority: management change/diff/Evidence/baseline hashes are
+intentionally not calculated, compared, or used as a retry/acceptance gate.
+Fixture and other direct safety/data/reproducibility hashes remain protected.
+"""
 
 from __future__ import annotations
 
@@ -20,7 +25,6 @@ MAX_TIMEOUT_SECONDS = 60
 TRUSTED_TARGET_PATHS = ("scripts/quality_gate", "tests/quality_gate")
 TRUSTED_SCOPE_REGISTRY_PATH = Path("scripts/quality_gate/trusted_scopes.json")
 LEGACY_BOOTSTRAP_RUN_ID = "RUN-P2-S2-001"
-HASH_EXCLUDED_PATH = "tests/evidence"
 
 
 class ManifestValidationError(ValueError):
@@ -53,8 +57,6 @@ class ChangeInspector(Protocol):
     def has_new_test_skip(
         self, project_root: Path, baseline_ref: str, paths: tuple[str, ...] | None = None
     ) -> bool: ...
-
-    def change_hash(self, project_root: Path, baseline_ref: str, paths: tuple[str, ...] | None = None) -> str: ...
 
 
 class NetworkIsolationProbe(Protocol):
@@ -150,24 +152,6 @@ class GitChangeInspector:
                 return True
         return False
 
-    def change_hash(self, project_root: Path, baseline_ref: str, paths: tuple[str, ...] | None = None) -> str:
-        pathspecs = list(paths) if paths else ["."]
-        evidence_exclusion = f":(exclude){HASH_EXCLUDED_PATH}/**"
-        if evidence_exclusion not in pathspecs:
-            pathspecs.append(evidence_exclusion)
-        diff = _git(project_root, ["diff", "--binary", baseline_ref, "--", *pathspecs])
-        untracked = _git_paths(project_root, pathspecs)
-        if diff.returncode or untracked is None:
-            raise OSError("git change hash failed")
-        digest = hashlib.sha256(diff.stdout.encode("utf-8"))
-        for relative in sorted(untracked):
-            if _within(_normal_path(relative, "未追跡パス"), HASH_EXCLUDED_PATH):
-                continue
-            path = project_root / relative
-            digest.update(relative.encode("utf-8"))
-            digest.update(path.read_bytes())
-        return f"sha256:{digest.hexdigest()}"
-
 
 @dataclass(frozen=True)
 class GateRecord:
@@ -196,7 +180,6 @@ class GateRunResult:
 @dataclass(frozen=True)
 class RunManifest:
     run_id: str
-    change_hash: str
     baseline_ref: str
     evidence_root: Path
     target_paths: tuple[str, ...]
@@ -304,7 +287,6 @@ class LocalQualityGateRunner:
             "design",
             "orchestrator",
             "data_version",
-            "change_hash",
             "baseline_ref",
             "human_gate_policy",
         ):
@@ -350,7 +332,6 @@ class LocalQualityGateRunner:
         review = _mapping(data.get("review"), "review")
         return RunManifest(
             run_id,
-            _required_nonempty_string(data, "change_hash"),
             _required_nonempty_string(data, "baseline_ref"),
             evidence_root,
             target_paths,
@@ -379,11 +360,6 @@ class LocalQualityGateRunner:
             changes = self._change_inspector.list_changes(self._project_root, manifest.baseline_ref, scoped_paths)
             if self._change_inspector.has_new_test_skip(self._project_root, manifest.baseline_ref, scoped_paths):
                 return "テストの skip 追加を検出しました"
-            if (
-                self._change_inspector.change_hash(self._project_root, manifest.baseline_ref, scoped_paths)
-                != manifest.change_hash
-            ):
-                return "change_hash が実際のローカル差分と一致しません"
         except OSError:
             return "変更範囲を検査できません"
         for change in changes:
@@ -493,21 +469,10 @@ def _validate_manifest_against_scope(
             raise ManifestValidationError("trusted fixture を読み取れません") from error
         if actual_checksum != expected_fixture.get("checksum"):
             raise ManifestValidationError("fixture checksum が trusted scope と一致しません")
-    change_hash = _required_nonempty_string(data, "change_hash")
-    if not _is_sha256(change_hash):
-        raise ManifestValidationError("P2 change_hash は sha256:<64桁hex> 形式です")
     unknowns = tuple(_string_list(data.get("unknowns"), "unknowns", allow_empty=True))
     expected_unknowns = tuple(_string_list(scope.get("unknowns"), "trusted unknowns", allow_empty=True))
     if unknowns != expected_unknowns:
         raise ManifestValidationError("unknowns が trusted scope と一致しません")
-
-
-def _is_sha256(value: str) -> bool:
-    return (
-        len(value) == 71
-        and value.startswith("sha256:")
-        and all(character in "0123456789abcdef" for character in value[7:])
-    )
 
 
 def _validated_checks(

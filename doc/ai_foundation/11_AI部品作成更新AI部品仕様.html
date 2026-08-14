@@ -21,7 +21,8 @@
 </head>
 <body>
 <main>
-  <h1>11 AI部品作成更新AI部品仕様</h1>
+<h1>11 AI部品作成更新AI部品仕様</h1>
+<section class="note"><strong>2026-08-15 現行hashルール:</strong> AI部品の新設・変更では <code>AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1</code> を静的に発火させる。A95はhash値、manifest、stale、fingerprint、retryを作らず、管理hashの再導入だけをBLOCKEDにする。</section>
   <section class="meta">
     <p><strong>文書ID:</strong> AF-D11<br>
     <strong>作成日:</strong> 2026-08-03<br>
@@ -63,7 +64,7 @@
 
   <h2>4.1 実ランタイム起動・Fallback</h2>
   <p>変更前に <code>multi_agent_v1__spawn_agent</code> と <code>multi_agent_v1__wait_agent</code> を確認し、<code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code> を固定modelで実spawnする。Coordinatorは依頼Promptの全Agentを個別spawnし、各Agent JSONのmodelを明示してwaitする。Orchestratorのagents map外の明示Agentも省略しない。</p>
-  <p>起動ごとにruntime backend、dispatch mode、orchestrator_agent_id、agent_id、JSON path、model、Skills、受付／完了status、出力参照、<code>independent</code>、<code>review_mode</code>、hashを保存する。nested spawn／waitが利用できない場合は <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、未起動Agent、理由、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を記録し、ルート責務チェックリストで継続する。未起動を独立実行済みと書かない。</p>
+  <p>起動ごとにruntime backend、dispatch mode、orchestrator_agent_id、agent_id、JSON path、model、Skills、受付／完了status、出力参照、<code>independent</code>、<code>review_mode</code>を保存する。管理・参照効率化・実行証跡目的のhashは保存しない。安全・データ・再現性に直結するhashは保護経路の意味ある結果として別途扱う。nested spawn／waitが利用できない場合は <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、未起動Agent、理由、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を記録し、ルート責務チェックリストで継続する。未起動を独立実行済みと書かない。</p>
 
   <h2>5. 相関図</h2>
   <pre>AutoTradeComponentLifecycle_Orchestrator_v0_1

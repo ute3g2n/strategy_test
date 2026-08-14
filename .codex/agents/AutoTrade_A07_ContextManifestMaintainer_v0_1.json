@@ -10,15 +10,15 @@
   ],
   "role": "判定済みの1文書入力から、context manifestの追加・更新要否をstrict JSONで返す軽量保守Agent。",
   "inputs": {
-    "single_file": "relative_path、kind、source_hash、構造化差分、既存レコード、Secret検査済みsafe_excerptを含む1ファイル入力。",
+    "single_file": "relative_path、kind、構造化差分、既存レコード、Secret検査済みsafe_excerptを含む1ファイル入力。管理用hashは含めない。",
     "request": "request_id、schema_version、generator_version、許可境界、human_gate_policy。"
   },
   "outputs": {
-    "manifest_decision": "artifact_id、action、summary、purpose、triggers、headings、relations、confidence、reason、source_hash、receiptだけを持つstrict JSON。",
-    "blocked_receipt": "対象外、Secret疑い、入力不整合、path違反、hash不一致、上限超過を理由付きで記録する。"
+    "manifest_decision": "artifact_id、action、summary、purpose、triggers、headings、relations、confidence、reason、receiptだけを持つstrict JSON。",
+    "blocked_receipt": "対象外、Secret疑い、入力不整合、path違反、上限超過、判断材料不足を理由付きで記録する。hash不一致は判定条件にしない。"
   },
   "output_schema": {
-    "required": ["artifact_id", "action", "summary", "purpose", "triggers", "headings", "relations", "confidence", "reason", "source_hash", "receipt"],
+    "required": ["artifact_id", "action", "summary", "purpose", "triggers", "headings", "relations", "confidence", "reason", "receipt"],
     "additionalProperties": false,
     "action_enum": ["record_add", "record_update", "metadata_unchanged", "blocked"],
     "safe_excerpt_max_chars": 18000
@@ -28,7 +28,7 @@
     "ネットワーク、外部MCP、Secret、認証情報、個人情報、外部本文送信を扱わない。",
     "任意path、repo外path、Git stage/commit/push、watcher起動、manifest直接書込みを行わない。",
     "新規文書をrecord_update、既存の大幅変更をmetadata_unchangedとして隠さない。",
-    "validator PASSまたは理由付きBLOCKEDなしに上位作業を完了扱いにしない。",
+    "schema、link、Secret、path、状態の非hash確認または理由付きBLOCKEDなしに上位作業を完了扱いにしない。管理用hashのPASSは要求しない。",
     "Unknown、timeout、未起動、schema不整合をPassにしない。"
   ],
   "runtime_policy": {

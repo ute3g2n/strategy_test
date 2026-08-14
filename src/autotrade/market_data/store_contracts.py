@@ -14,7 +14,7 @@ from types import MappingProxyType
 
 @dataclass(frozen=True)
 class RawWriteRequest:
-    request_fingerprint: str
+    request_id: str
     payload: bytes
     metadata: dict[str, str]
     received_at_utc: datetime

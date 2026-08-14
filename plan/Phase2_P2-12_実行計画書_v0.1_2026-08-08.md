@@ -5,6 +5,12 @@
 親計画: `plan/Phase2_実行計画書_v0.1_2026-08-04.md` のP2-11後続
 状態: 実行前。P2-12-01は着手可能、P2-12-02以降の実DBNを使う隔離検証にはH2-5の承認が必要。
 
+## HASH-FUTURE-01〜08／Step 05 現行運用ルール
+
+本計画では、文章管理、差分許可、Evidence・baseline・manifestの同一性確認だけを目的とする管理用hashを計算・保存・照合しない。ユーザー委譲により、管理用hashのstale停止・不一致retryは強制スキップして完了する。実DBN、raw/catalog、依存wheel、normalized/replay入力・出力の安全・データ・再現性に直接必要なprotected hashは、目的・対象・失敗時停止を明記して維持し、不一致時はfail-closedで停止する。過去hashは履歴として残すが、現行の管理Gateへ再利用しない。
+
+以下の全プロンプトとスクリプトへこの権限を適用する。成果物の存在・構造、path、固定command、テスト、レビュー、Unknown、Secret、外部I/O、Human Gate、protected hash結果で受入を判定し、管理hashの代替としてfingerprint、UUID、mtime、別名checksumを追加しない。Agent未起動は独立実行済みとせず、`RUNTIME_DISPATCH_FALLBACK_REQUIRED` として記録する。
+
 ## 1. 目的
 
 P2-08で最小取得した実DBN（`GLBX.MDP3` / `ohlcv-1m` / `MCL.FUT` / 1分）の内容を、外部提供元の型をCoreへ漏らさずに読み取り、UTC・銘柄ID・品質状態・Raw参照を持つ `NormalizedBar`、続いて `MarketEvent` へ変換する。実DBNを入力としたReplayを再現し、Data Gateを根拠付きで再判定する。
@@ -18,7 +24,7 @@ P2-08で最小取得した実DBN（`GLBX.MDP3` / `ohlcv-1m` / `MCL.FUT` / 1分�
 | 実DBN | Windows側の `tests/evidence/phase2/RUN-P2-DP-002/raw/mcl-fut-20260615T1200Z-1201Z.dbn` に存在。22,760 bytes、SHA-256は `8fd0286a477e073c83e8306c4e1a8ebec3af693141010563edd7e0ec1990b65e`。Git管理外。 | 読み取り専用で使う。checksum不一致なら直ちに停止し、変換結果を作らない。 |
 | Core側 | Raw / Normalized Store、QualityChecker、Manifest、fixture用MarketEvent、Catalog Resolverは実装済み。 | DBN decoder、Normalizer、MarketEvent生成の接続だけを追加する。既存のfixture契約を壊さない。 |
 | Python依存 | 通常のプロジェクト `.venv` にはDBN decoder用ライブラリが未導入。 | P2-12-01で公式仕様と採用候補を固定する。P2-12-02で使う版・wheel hashをH2-5承認後に固定する。 |
-| WSL | Git同期は可能だが、Git管理外の実DBNはWSLに存在しない。 | AIはコピーしない。H2-5承認後に人が隔離用の読取専用場所へ置き、runnerは存在・hashだけを確認する。 |
+| WSL | Git同期は可能だが、Git管理外の実DBNはWSLに存在しない。 | AIはコピーしない。H2-5承認後に人が隔離用の読取専用場所へ置き、runnerは存在とprotected input hashだけを確認する。管理用差分hashは扱わない。 |
 
 ### 2.1 対象外
 
@@ -63,7 +69,7 @@ flowchart LR
 | P2-D16 | 実DBN変換・Replay詳細設計書、変換表、REDテスト仕様 | `doc/phase2/09_実DBN変換/09_実DBN変換_Replay実装詳細設計書.html` |
 | P2-D17 | 実DBN変換・Replay検証結果 | `doc/phase2/09_実DBN変換/09_実DBN変換_Replay検証結果.html` |
 | P2-D18 | 実DBN変換の独立レビュー・Phase 2再判定 | `doc/phase2/09_実DBN変換/09_実DBN変換_独立レビューと再判定.html` |
-| Run証跡 | 実DBNのhash、依存の版/hash、Manifest、固定4 Gate、Replay出力、レビュー | `tests/evidence/phase2/RUN-P2-DBN-001/` |
+| Run証跡 | 実DBNのprotected hash、依存の版/hash、Manifest構造、固定4 Gate、Replay出力、レビュー | `tests/evidence/phase2/RUN-P2-DBN-001/` |
 | 実行ログ | 各ステップの実行内容、RED/GREEN、承認状態 | `plan/phase2/ログ/P2-12_*.md` |
 
 P2-D16からP2-D18のHTMLを追加したときは、必ず `doc/index.html` とPhase 2要件追跡マトリクスを更新する。
@@ -145,7 +151,7 @@ Phase Runbook:
 - step_id: P2-12-02
 - output_root: doc/phase2/09_実DBN変換/
 - log_root: plan/phase2/ログ/
-- run_id: RUN-P2-DBN-001（P2-12-01でtarget_paths、依存の版/hash、入力hashを設計し、H2-5承認後にtrusted scopeへ登録して使用する）
+- run_id: RUN-P2-DBN-001（P2-12-01でtarget_paths、依存の版とprotected hash、保護対象の入力hashを設計し、H2-5承認後にtrusted scopeへ登録して使用する。管理用差分hashは登録しない）
 - detail_boundary: P2-D16のREDテストを満たす最小のDBN decoder、Normalizer、MarketEvent生成、Raw/Normalized/Manifest接続だけを実装する。既存fixture、Catalog Resolver、Store契約を置換しない。
 - human_gate_policy: H2-5未承認なら、依存導入、実DBN読込、WSL入力配置、実DBN結合試験を開始しない。固定fixtureだけの純粋関数テストはGREENにできても、実DBN境界はUNKNOWNのままにする。
 
@@ -184,7 +190,7 @@ P2-D16とREDテストの範囲だけで、実DBNを安全にDecodedRecord、Norm
 
 完了条件:
 - P2-D16の実装対象REDテストがGREENである。
-- 実DBNのhash、decoder依存の版/hash、Manifest、Replay出力がRUN-P2-DBN-001に記録される。
+- 実DBNのprotected hash、decoder依存の版/hash、Manifest構造、Replay出力がRUN-P2-DBN-001に記録される。管理用Manifest／Evidence hashは記録しない。
 - 品質不良、decoder失敗、catalog不一致でSignal生成まで到達しない。
 - WSL実DBN検証はまだP2-12-03の対象として残る。
 ```
@@ -226,11 +232,11 @@ Phase Runbook:
 実DBNで決定的にReplayできることを、WindowsとWSL隔離環境で検証し、P2-D17を作成してください。
 
 作業:
-1. 新しいtrusted scopeがtarget_pathsだけを検査すること、固定4 Gate、実DBN SHA-256、decoder依存の版/hash、Manifest、証跡先を確認する。既存RUN-P2-RPL-001のManifestを流用しない。
+1. 新しいtrusted scopeがtarget_pathsだけを検査すること、固定4 Gate、実DBNのprotected SHA-256、decoder依存の版/hash、Manifest構造、証跡先を確認する。管理用Manifest hashは扱わず、既存RUN-P2-RPL-001のManifestを流用しない。
 2. Windows側で実DBNを一度変換し、NormalizedBar数、UTC範囲、instrument_id、quality flags、normalized content hash、data_version、MarketEvent系列を記録する。
 3. 同じ入力・catalog version・normalization version・decoder依存・code revisionから、同じManifestとMarketEvent系列が再現することを確認する。
 4. checksum不一致、DBN破損、未対応record、Catalog不一致、品質異常、未来時刻、非UTC時刻、内容改ざんを注入し、Data Gate FAILまたはUNKNOWN、Signal生成停止になることを確認する。
-5. WSL隔離実行では `networkingMode=none`、host isolation確認、formatter/lint/type/testの固定4 Gateを実行する。WSL側のDBN入力がない、hash不一致、依存wheelがない場合はBLOCKEDとして止め、Windowsの結果で代用しない。
+5. WSL隔離実行では `networkingMode=none`、host isolation確認、formatter/lint/type/testの固定4 Gateを実行する。WSL側のDBN入力がない、protected input／dependency hash不一致、依存wheelがない場合はBLOCKEDとして止め、Windowsの結果で代用しない。管理用hash不一致では停止しない。
 6. P2-D17、JSON/Markdown証跡、P2-09/P2-11既存証跡への更新関係を作る。Data GateをPASS/FAIL/UNKNOWNの根拠付きで記録する。
 
 レビュー:
@@ -241,7 +247,7 @@ Phase Runbook:
 完了条件:
 - WSL固定4 Gateと実DBN Replayが根拠付きで記録される。
 - Data GateがPASSでなければSignal生成とPhase 3への引渡しを禁止し、理由をBLK-P2-008へ更新する。
-- P2-D17が存在し、入力hash・依存版/hash・code revision・data_version・Replay出力を追跡できる。
+- P2-D17が存在し、保護対象の入力hash・依存版/hash・code revision・data_version・Replay出力を追跡できる。管理用Evidence／差分hashは追跡しない。
 ```
 
 ### P2-12-04 独立レビュー・Phase 2再判定
@@ -280,7 +286,7 @@ Phase Runbook:
 実DBN変換の採否、残課題、H2-3/H2-4で人が判断すべき内容をP2-D18として整理し、現在状態の正本を更新してください。
 
 作業:
-1. DBN decoderの依存閉じ込め、Raw hash、schema/record拒否、UTC、価格精度、catalog解決、Quality Gate、Manifest、Replay、WSL隔離の全観点をレビューする。
+1. DBN decoderの依存閉じ込め、Rawのprotected hash、schema/record拒否、UTC、価格精度、catalog解決、Quality Gate、Manifest構造、Replay、WSL隔離の全観点をレビューする。管理用Manifest／Evidence hashはレビュー条件にしない。
 2. Critical/Highを件数だけでなく、根拠・問題内容・修正方針・中学生でも分かる説明とともに表にする。説明列を増やさず、問題内容・修正方針の既存記述の下へ置く。
 3. Data Gate PASSかつCritical/High 0件なら、BLK-P2-008の解決可否とH2-3の承認文を提示する。どれか一つでも満たさなければ、BLK-P2-008を解決済みにせず、Signal停止とPhase 3への引渡し禁止を維持する。
 4. P2-D13、P2-D14、P2-D15、P2-D18、doc/index.html、Phase 2要件追跡、統合台帳を更新する。古い証跡は履歴として残し、現在の状態だけを統合台帳で更新する。

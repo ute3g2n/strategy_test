@@ -1,5 +1,32 @@
 {
   "version": 1,
+  "hash_policy": {
+    "management_hashes": "disabled",
+    "protected_hashes": [
+      {
+        "field": "fixture.checksum",
+        "purpose": "approved test input identity and reproducibility",
+        "on_failure": "BLOCKED"
+      },
+      {
+        "field": "dbn_requirements_sha256",
+        "purpose": "offline dependency supply-chain integrity",
+        "on_failure": "BLOCKED"
+      },
+      {
+        "field": "dbn_input.checksum",
+        "purpose": "protected raw input identity and immutability",
+        "on_failure": "BLOCKED"
+      }
+    ],
+    "forbidden_management_fields": [
+      "change_hash",
+      "target_only_change_sha256",
+      "evidence_hash",
+      "baseline_hash",
+      "manifest_fingerprint"
+    ]
+  },
   "scopes": {
     "RUN-P2-IC-001-WSL": {
       "phase_id": "phase2",

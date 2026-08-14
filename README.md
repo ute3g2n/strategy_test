@@ -72,6 +72,7 @@
   `AutoTrade_A81_DesignDocSetWriter_v0_1`
   `AutoTrade_A82_ImplementationDetailDesigner_v0_1`
   `AutoTrade_A90_DesignReviewer_v0_1`
+  `AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1`
   `AutoTrade_A91_ImplementationDetailReviewer_v0_1`
   `AutoTrade_A110_PythonTestEngineer_v0_1`
   `AutoTrade_A120_PythonImplementer_v0_1`
@@ -85,7 +86,7 @@
   `.codex/skills/autotrade_skill_*_v0_1/`
   Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を使います。
   AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を使います。
-  新規／大幅変更文書のmanifest保守では `autotrade_skill_context_manifest_maintenance_v0_1` と `AutoTrade_A07_ContextManifestMaintainer_v0_1` を使い、資料参照の絞り込みでは `autotrade_skill_context_routing_v0_1` と `AutoTrade_A08_ContextRouter_v0_1` を使います。A07は1ファイルの追加・更新判定、A08はvalidator済みmanifestからの候補選定だけを行い、本文の全量投入・Secret・外部I/O・Git書込みは行いません。
+  新規／大幅変更文書、計画、ソース、テスト、AI部品の管理hash再導入判定では `autotrade_skill_protected_hash_policy_guard_v0_1` と `AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1` を使います。A95はhash値、manifest、stale、fingerprint、hash retryを作らず、管理hashはBLOCKED、用途不明はNEEDS_HUMAN_GATE、直接の保護対象hashだけを目的・停止範囲付きでALLOWとします。A07/A08は文章manifest管理の通常経路から起動しません。
   UIモック作成では `AutoTradeProject_UiMock_Orchestrator_v0_1`、`AutoTrade_A170_UiMockEngineer_v0_1`、`AutoTrade_A171_UiVisualQaReviewer_v0_1` とUI専用Skill 3件を完全名で指定します。正式合否は固定 `@playwright/test`、Storybook、Vitest/axeで判定し、AI向けCLIは匿名ローカル探索に限定します。
   実装詳細設計では `autotrade_skill_implementation_detail_design_v0_1` と `autotrade_skill_implementation_detail_review_v0_1` を使います。
   Python本実装の品質ループでは `autotrade_skill_python_implementation_v0_1`、`autotrade_skill_python_test_quality_v0_1`、`autotrade_skill_debug_recovery_v0_1`、`autotrade_skill_python_code_review_v0_1` を明示指定します。実行証跡は `tests/evidence/{phase_id}/{run_id}/` に保存し、`scripts/quality_gate/` は `trusted_scopes.json` に登録されたRun IDの固定コマンドだけを実行します。`scope_mode=target_only` のRunは登録済みtarget_pathsだけを試験対象とし、対象外のHEAD/worktree差分では止めません。Phaseのtest subprocessはhost outbound isolation確認がない場合にBLOCKEDとします。
@@ -102,7 +103,7 @@ Skill、サブエージェント、オーケストレータの作成または変
 
 ### 資料・コード参照効率化
 
-新しいMarkdown／HTML文書はA07へ必ず渡し、既存文書の大幅変更もA07へ更新要否を判定させます。ソースコードの構造変更は決定的なコードmanifest更新へ渡します。どちらもvalidator PASS、または原因と再開条件を含む正直なBLOCKED receiptがない限り完了扱いにしません。日常保守では常時Orchestratorを起動せず、AI部品そのものの作成・変更だけをComponentLifecycleへ渡します。詳細な最終説明資料は、システム完成後に正式HTMLとして追加します。
+新しいMarkdown／HTML文書、既存文書の大幅変更、ソース・テスト・計画・AI部品の変更は、path、schema、link、Secret、状態、要件追跡の非hash確認とA95の静的ポリシー判定へ渡します。管理用manifest、hash取得、stale判定、hash照合、hash retry、hash receiptは完了条件にしません。日常保守では常時Orchestratorを起動せず、AI部品そのものの作成・変更だけをComponentLifecycleへ渡します。詳細な最終説明資料は、システム完成後に正式HTMLとして追加します。
 
 ### 実装詳細設計
 

@@ -20,7 +20,8 @@
 <body>
 <main>
   <p><a href="../index.html">ドキュメントインデックスへ戻る</a></p>
-  <h1>10 Phase実行計画書作成依頼プロンプト</h1>
+<h1>10 Phase実行計画書作成依頼プロンプト</h1>
+<p class="note"><strong>2026-08-15 現行hashルール:</strong> この依頼で管理hash、manifest hash、stale、hash retryを追加しない。新規・大幅変更の計画・プロンプト・受入条件はA95の静的判定へ渡し、用途不明はNEEDS_HUMAN_GATEとする。</p>
   <div class="meta">
     <p><strong>文書状態:</strong> v0.2 / <strong>作成日:</strong> 2026-08-12 / <strong>用途:</strong> 各Phase開始時に実行計画書を作成するための依頼プロンプト</p>
   </div>
@@ -31,7 +32,7 @@
     <ol>
       <li>ルートAgentは、<code>multi_agent_v1__spawn_agent</code> と <code>multi_agent_v1__wait_agent</code> の利用可否を最初に確認し、指定OrchestratorのJSON path、固定model、Phase／Step、入力・出力境界、Agents、Skillsを渡してCoordinatorを実spawnする。</li>
       <li>CoordinatorはPromptのAgents欄にある全Agentを一体ずつspawnし、各Agent JSON pathと定義JSONの固定modelをmodel引数へ明示してwaitする。Orchestratorのagents map外の明示Agentも省略しない。</li>
-      <li>受付status、完了status、orchestrator_agent_id、agent_id、JSON path、model、Skills、出力参照、入力hash、成果物／finding hash、<code>independent</code>、<code>review_mode</code>をログへ保存する。</li>
+      <li>受付status、完了status、orchestrator_agent_id、agent_id、JSON path、model、Skills、出力参照、<code>independent</code>、<code>review_mode</code>をログへ保存する。管理用hashは保存せず、安全・データ・再現性に直結するhashは保護経路の意味ある結果として別途扱う。</li>
       <li>spawn／waitが使えない場合は、<code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、<code>LOCAL_FALLBACK_NO_SUBAGENTS</code>、未起動Agent、理由、確認時刻、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を先に記録し、ルートが責務チェックリストで継続する。未起動を独立実行済みと書かない。</li>
     </ol>
   </section>
