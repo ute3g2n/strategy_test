@@ -6,7 +6,7 @@
   "exclude_dirs": [".git", "node_modules", ".venv", "third_party", "raw", "dist", "build", "coverage"],
   "exclude_paths": ["plan/context_index/CTX-00_対象パスハッシュ.tsv"],
   "max_file_bytes": 2000000,
-  "managed_source_roots": [".codex", "context", "scripts", "settings", "src", "tests", "plan"],
+  "managed_source_roots": [".codex", "context", "scripts", "settings", "src", "tests", "plan", "package.json", "auto-commit.sh", "auto-commit.cmd"],
   "managed_source_extensions": [".py", ".js", ".mjs", ".cjs", ".ts", ".tsx", ".ps1", ".sh", ".bash", ".cmd"],
   "managed_config_extensions": [".json", ".toml", ".yaml", ".yml"],
   "source_exclude_dirs": [".git", "node_modules", ".venv", "third_party", "raw", "dist", "build", "coverage"],

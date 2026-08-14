@@ -615,7 +615,7 @@
     {
       "subject_id": "art-30bcff41-4747-5e09-8c6d-2a3a826ee752",
       "subject_type": "artifact",
-      "source_hash": "7b19a667de9733ca646825c3fc1479350e3d9a356052f0bc4c7a0331bd7abbeb",
+      "source_hash": "a074d3e217a5cf9a8d5097d1da6a68dc455108501ca546066cc428418da6ba4d",
       "state": "active",
       "last_processed_at": "2026-08-14T00:00:00Z",
       "generator_version": "ctxmap-indexer-v0.1",
@@ -625,7 +625,7 @@
     {
       "subject_id": "art-d934f99d-9a60-5a4c-a031-4f99c54bb91c",
       "subject_type": "artifact",
-      "source_hash": "449308e12a3729cee07a1d98f4f4467148d4eb4ba170411184e67b63a04ba92a",
+      "source_hash": "ec0f37b393b159eebc541d80a1f11a62581a808fe06df7b502f225e14823e063",
       "state": "active",
       "last_processed_at": "2026-08-14T00:00:00Z",
       "generator_version": "ctxmap-indexer-v0.1",
@@ -2036,6 +2036,26 @@
       "subject_id": "art-53af86af-6785-54e6-8809-35be74471992",
       "subject_type": "artifact",
       "source_hash": "1d1796fa09a746ea83fb8571840df846ef221a410ad6183b96d7923bd602c400",
+      "state": "active",
+      "last_processed_at": "2026-08-14T00:00:00Z",
+      "generator_version": "ctxmap-indexer-v0.1",
+      "schema_version": "ctxmap-manifest-v0.1",
+      "delta_kind": "added"
+    },
+    {
+      "subject_id": "art-6b6a1f4c-7721-5b63-96c0-373cbbef19cc",
+      "subject_type": "artifact",
+      "source_hash": "b1ad7a34b854bb72a4a1f6c4194a3aa2eb86c01224ba857dc95a0e0d416a7084",
+      "state": "active",
+      "last_processed_at": "2026-08-14T00:00:00Z",
+      "generator_version": "ctxmap-indexer-v0.1",
+      "schema_version": "ctxmap-manifest-v0.1",
+      "delta_kind": "added"
+    },
+    {
+      "subject_id": "art-000f3319-0eca-52ec-b4b8-0fda47a3a70a",
+      "subject_type": "artifact",
+      "source_hash": "ce6691ef2860cb492e93144f9205f7181918809c257be825784ed0449242b7a6",
       "state": "active",
       "last_processed_at": "2026-08-14T00:00:00Z",
       "generator_version": "ctxmap-indexer-v0.1",

@@ -30,6 +30,9 @@ ui/mock/playwright-report/**/*.png
 dist/
 build/
 
+# Local CTXMAP gate/watch runtime state and reports
+plan/context_index/runtime/
+
 wheelhouse/
 third_party/
 

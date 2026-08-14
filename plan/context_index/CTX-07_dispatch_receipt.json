@@ -1,0 +1,154 @@
+{
+  "schema_version": "ctxmap.dispatch-receipt.v0.1",
+  "plan_id": "CTXMAP-PLAN-001",
+  "step_id": "CTX-07",
+  "recorded_at_utc": "2026-08-14T11:58:00Z",
+  "baseline_head": "809038b",
+  "human_gate": {
+    "id": "CTXMAP-H0",
+    "status": "APPROVED",
+    "approval_text": "承認する。続けて",
+    "approved_at": "2026-08-14",
+    "scope_note": "CTX-04からCTX-09までのローカル実装・検証を許可する。CTXMAP-H1承認前の常駐watcher、保存時自動A07呼出し、外部I/O、Secret処理は許可しない。"
+  },
+  "runtime_backend": "multi_agent_v1",
+  "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED__PARTIAL_RUNTIME_HANDOFF",
+  "skills": [
+    "autotrade_skill_context_manifest_maintenance_v0_1",
+    "autotrade_skill_python_implementation_v0_1",
+    "autotrade_skill_python_test_quality_v0_1",
+    "autotrade_skill_python_code_review_v0_1"
+  ],
+  "orchestrators": [
+    {
+      "agent_name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "json_path": ".codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json",
+      "model": "gpt-5.6-terra",
+      "agent_id": "019fffe4-8edb-7872-ad6e-7bf4936e82bb",
+      "accepted_status": "accepted",
+      "completion_status": "completed_handoff_only",
+      "output_reference": "gate fail-closed, H1-before-watcher, A07 pending, Git index invariant checklist",
+      "independent": false,
+      "review_mode": "COORDINATOR_HANDOFF_ONLY"
+    }
+  ],
+  "agents": [
+    {
+      "agent_name": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A07_ContextManifestMaintainer_v0_1.json",
+      "model": "gpt-5.1",
+      "agent_id": "N/A",
+      "accepted_status": "NOT_ACCEPTED",
+      "completion_status": "NOT_STARTED",
+      "output_reference": "spawn rejected: Unknown model gpt-5.1; no alternate model substituted",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A110_PythonTestEngineer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A110_PythonTestEngineer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "019fffe4-8f9f-7193-88a2-4ff8e9e07d12",
+      "accepted_status": "accepted",
+      "completion_status": "completed_checklist_only",
+      "output_reference": "CTX-07 test matrix and evidence hygiene checklist",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A120_PythonImplementer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A120_PythonImplementer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "019fffe4-f1cf-7d72-9882-d78cb5f9d5f9",
+      "accepted_status": "accepted",
+      "completion_status": "completed_handoff_only",
+      "output_reference": "allowlist, H1, serialized debounce, pending, local-only implementation checklist",
+      "independent": false,
+      "review_mode": "HANDOFF_ONLY"
+    },
+    {
+      "agent_name": "AutoTrade_A130_VerificationEngineer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A130_VerificationEngineer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "019fffe5-04e6-79b3-81b8-27075e943c95",
+      "accepted_status": "accepted",
+      "completion_status": "completed_checklist_only",
+      "output_reference": "pytest, coverage, manifest, hash, Git invariant, H1, trusted-scope checklist",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A150_PythonCodeReviewer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A150_PythonCodeReviewer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "019fffe5-4a77-7cf2-90cb-5683e7dbe994",
+      "accepted_status": "accepted",
+      "completion_status": "completed_findings_checklist_only",
+      "output_reference": "findings-first security and Windows/WSL path review checklist; no PASS claim",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    }
+  ],
+  "runtime_limitations": [
+    "The fixed A07 model gpt-5.1 was rejected as Unknown model; no alternate model was substituted.",
+    "The first parallel spawn reached the agent thread limit. The Orchestrator and A110 were accepted; A120, A130, and A150 were then individually spawned and waited after capacity was released.",
+    "All accepted runtime outputs were handoff/checklists only. No independent A150 review, independent nested dispatch, or closed-loop acceptance is claimed.",
+    "CTX-07 is not registered in scripts/quality_gate/trusted_scopes.json; WSL fixed four-Gate execution was not run.",
+    "The live Gate attempt for AGENTS.md/README.md stopped with A07_RUNTIME_UNAVAILABLE. The local manifest baseline was regenerated deterministically for testability; this is not an A07 semantic approval."
+  ],
+  "gate_attempt": {
+    "report": "plan/context_index/runtime/CTX-07_gate_report.json",
+    "status": "BLOCKED",
+    "reason_code": "A07_RUNTIME_UNAVAILABLE",
+    "pending_path": "plan/context_index/receipts/ctx-gate-a54ff182c7e8acf5.json",
+    "deterministic_manifest_rebuild": "PASS_WITH_CONDITIONAL_STATUS"
+  },
+  "verification": {
+    "red_evidence": "plan/context_index/CTX-07_RED_evidence.md",
+    "green_evidence": "plan/context_index/CTX-07_GREEN_evidence.md",
+    "pytest": "PASS: 73 passed",
+    "coverage": "PASS: 80.10%; fail-under 80%",
+    "ruff": "PASS",
+    "mypy": "PASS: 15 source files",
+    "compileall": "PASS",
+    "document_manifest_validation": "PASS: 423 active artifacts, errors=0",
+    "code_manifest_validation": "PASS: 254 artifacts, COMPLETE=217, PARTIAL=37, errors=0",
+    "relation_graph": "PASS_WITH_PARTIAL_STATUS: 3279 nodes, 6939 edges",
+    "routing_fixtures": "PASS: 10 cases, allowed primary sets matched",
+    "h1_start_rejection": "PASS: WATCH_START_REJECTED: H1_RECEIPT_MISSING",
+    "security_negative_tests": "PASS: Secret, path, symlink, UTF-8, allowlist, rename/delete, H1 and generated-loop cases",
+    "trusted_scope_fixed_four_gate": "NOT_RUN__TRUSTED_SCOPE_UNREGISTERED",
+    "independent_runtime_closed_loop": "FALLBACK_REQUIRED",
+    "critical_high_unknown_pass": "NOT_CLAIMED"
+  },
+  "component_hashes": {
+    "context_policy_sha256": "860cef8e76451149dbf9a03a477c3ce0fdfba27cd4d17065ef33091c7d009b21",
+    "artifact_manifest_sha256": "9dc8b27aab3b05050036d92fa61ef1e48476ebcd4e81ba0db451dac7806cbdb2",
+    "manifest_state_sha256": "29ec71b5b93c577a7a9eb3ab5787ff63b49ab47f52c35b8679660ca13edfb039",
+    "code_manifest_sha256": "4cfba3e27e2c482f43a2c95677b07cd3164271bc2ecf22151a03eb19c002e653",
+    "relation_graph_sha256": "f570c54c02ab3a8ae06cd40e8a576cfde5399ca712aee36e3802c2ddaefdb023",
+    "package_json_sha256": "884dc3f85c192d7200490079158a9fad3226ea28a8057877151b492e57a5fc7d",
+    "auto_commit_sh_sha256": "f93254c959e47c44bf7da080dc30a605db76a7ff125b1795d25251aabaf40e01",
+    "auto_commit_cmd_sha256": "74211b6fd9a8b6663f8be523a85e53d3cb595e66d4757cb3ca41efb97420f446",
+    "context_gate_sha256": "d3ce40aec42f76f1395c6f785ded4809c9d9046e3ac206678c9580b19aa46341",
+    "context_watch_sha256": "09d71068944f764a9965cb0cb810103b572734d93861a0c2a1729067dd941ab5",
+    "watch_start_sha256": "9ddb7ba4627c99488d74a14c69c990177ea6bc818e649e1085e6e90a9ba283d8",
+    "watch_status_sha256": "f2dc6a9461ddb6cdbde3b329784bda757e5589d889d980b9f0246e3a3b76250a",
+    "watch_stop_sha256": "8783beaca6bad35e74b8d9bcb14b9c766eabe153935a8b56e559da3fc524c3b4",
+    "gate_tests_sha256": "64e45a76740c545c225cef44fe689de9e289984064276f2e71b665302d1791b8",
+    "red_evidence_sha256": "ce6691ef2860cb492e93144f9205f7181918809c257be825784ed0449242b7a6",
+    "green_evidence_sha256": "b1ad7a34b854bb72a4a1f6c4194a3aa2eb86c01224ba857dc95a0e0d416a7084",
+    "readme_sha256": "ec0f37b393b159eebc541d80a1f11a62581a808fe06df7b502f225e14823e063",
+    "agents_sha256": "a074d3e217a5cf9a8d5097d1da6a68dc455108501ca546066cc428418da6ba4d"
+  },
+  "snapshot": {
+    "artifact_count": 423,
+    "code_count": 254,
+    "code_complete_count": 217,
+    "code_partial_count": 37,
+    "relation_node_count": 3279,
+    "relation_edge_count": 6939
+  },
+  "acceptance_status": "CONDITIONAL__LOCAL_GREEN_A07_RUNTIME_BLOCKED_H1_WATCHER_DISABLED_TRUSTED_GATE_NOT_RUN",
+  "next_gate": "CTX-08"
+}

@@ -1,0 +1,21 @@
+{
+  "action": "blocked",
+  "dispatch": {
+    "agent_id": "N/A",
+    "agent_name": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+    "attempts": 1,
+    "backend": "multi_agent_v1",
+    "independent": false,
+    "model": "gpt-5.1",
+    "reason_code": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "review_mode": "SELF_REVIEW_FALLBACK",
+    "status": "FAILED"
+  },
+  "reason_code": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "AGENTS.md",
+  "request_id": "ctx-gate-a54ff182c7e8acf5",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "a074d3e217a5cf9a8d5097d1da6a68dc455108501ca546066cc428418da6ba4d",
+  "status": "BLOCKED"
+}

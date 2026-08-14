@@ -2377,6 +2377,80 @@
       "byte_size": 102
     },
     {
+      "code_id": "code-62787b80-739f-51ea-afec-b8b44b8a5ab3",
+      "kind": "managed_source",
+      "status": "active",
+      "relative_path": "auto-commit.cmd",
+      "source_hash": "74211b6fd9a8b6663f8be523a85e53d3cb595e66d4757cb3ca41efb97420f446",
+      "schema_version": "ctxmap-code-manifest-v0.1",
+      "generator_version": "ctxmap-code-indexer-v0.1",
+      "language": "shell",
+      "parser": "conservative-regex-v0.1",
+      "extraction_status": "PARTIAL",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "public_candidates": [],
+      "config": {},
+      "diagnostics": [
+        {
+          "code": "CONSERVATIVE_REGEX_ONLY",
+          "message": "shell grammar was not added"
+        }
+      ],
+      "line_count": 10,
+      "byte_size": 187
+    },
+    {
+      "code_id": "code-ab79ff79-a39a-529b-abec-f8148286c53e",
+      "kind": "managed_source",
+      "status": "active",
+      "relative_path": "auto-commit.sh",
+      "source_hash": "f93254c959e47c44bf7da080dc30a605db76a7ff125b1795d25251aabaf40e01",
+      "schema_version": "ctxmap-code-manifest-v0.1",
+      "generator_version": "ctxmap-code-indexer-v0.1",
+      "language": "shell",
+      "parser": "conservative-regex-v0.1",
+      "extraction_status": "PARTIAL",
+      "symbols": [
+        {
+          "name": "to_native_path",
+          "qualified_name": "to_native_path",
+          "kind": "function",
+          "line_start": 5,
+          "line_end": 5,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "to_python_path",
+          "qualified_name": "to_python_path",
+          "kind": "function",
+          "line_start": 22,
+          "line_end": 22,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        }
+      ],
+      "imports": [],
+      "exports": [],
+      "public_candidates": [
+        "to_native_path",
+        "to_python_path"
+      ],
+      "config": {},
+      "diagnostics": [
+        {
+          "code": "CONSERVATIVE_REGEX_ONLY",
+          "message": "shell grammar was not added"
+        }
+      ],
+      "line_count": 163,
+      "byte_size": 4050
+    },
+    {
       "code_id": "code-adebb43c-e991-5fbe-ace0-439039a949c2",
       "kind": "managed_config",
       "status": "active",
@@ -2480,7 +2554,7 @@
       "kind": "managed_config",
       "status": "active",
       "relative_path": "context/context_policy.json",
-      "source_hash": "8500b911e15abd713cfb84b019c1864033c8a6a3432cce7a1e3a946be84685e8",
+      "source_hash": "860cef8e76451149dbf9a03a477c3ce0fdfba27cd4d17065ef33091c7d009b21",
       "schema_version": "ctxmap-code-manifest-v0.1",
       "generator_version": "ctxmap-code-indexer-v0.1",
       "language": "json",
@@ -2519,7 +2593,7 @@
         }
       ],
       "line_count": 23,
-      "byte_size": 1418
+      "byte_size": 1471
     },
     {
       "code_id": "code-86008d3f-77ba-5448-832a-2e7d6a687a37",
@@ -2615,6 +2689,37 @@
       "diagnostics": [],
       "line_count": 106,
       "byte_size": 3512
+    },
+    {
+      "code_id": "code-596b24b1-91d2-5b30-aae9-c992c789c495",
+      "kind": "managed_config",
+      "status": "active",
+      "relative_path": "package.json",
+      "source_hash": "884dc3f85c192d7200490079158a9fad3226ea28a8057877151b492e57a5fc7d",
+      "schema_version": "ctxmap-code-manifest-v0.1",
+      "generator_version": "ctxmap-code-indexer-v0.1",
+      "language": "json",
+      "parser": "json-metadata-v0.1",
+      "extraction_status": "COMPLETE",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "public_candidates": [],
+      "config": {
+        "safe_top_level_keys": [
+          "devDependencies",
+          "name",
+          "private",
+          "scripts",
+          "version"
+        ],
+        "reference_paths": [],
+        "secret_key_count": 0,
+        "secret_value_count": 0
+      },
+      "diagnostics": [],
+      "line_count": 15,
+      "byte_size": 417
     },
     {
       "code_id": "code-c8d76d2e-2148-5690-a32a-867afd7017dd",
@@ -3851,6 +3956,562 @@
       "byte_size": 12743
     },
     {
+      "code_id": "code-4557ec23-5ee9-59e3-a2fa-6192da9d6c06",
+      "kind": "managed_source",
+      "status": "active",
+      "relative_path": "scripts/context_index/check_context_gate.py",
+      "source_hash": "d3ce40aec42f76f1395c6f785ded4809c9d9046e3ac206678c9580b19aa46341",
+      "schema_version": "ctxmap-code-manifest-v0.1",
+      "generator_version": "ctxmap-code-indexer-v0.1",
+      "language": "python",
+      "parser": "python-ast-v0.1",
+      "extraction_status": "COMPLETE",
+      "symbols": [
+        {
+          "name": "GateError",
+          "qualified_name": "GateError",
+          "kind": "class",
+          "line_start": 50,
+          "line_end": 51,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "GitChange",
+          "qualified_name": "GitChange",
+          "kind": "class",
+          "line_start": 55,
+          "line_end": 58,
+          "parent": null,
+          "decorators": [
+            "dynamic"
+          ],
+          "public": true
+        },
+        {
+          "name": "is_generated_path",
+          "qualified_name": "is_generated_path",
+          "kind": "method",
+          "line_start": 61,
+          "line_end": 65,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "_safe_json_read",
+          "qualified_name": "_safe_json_read",
+          "kind": "method",
+          "line_start": 68,
+          "line_end": 75,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_write_json_atomic",
+          "qualified_name": "_write_json_atomic",
+          "kind": "method",
+          "line_start": 78,
+          "line_end": 99,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_inside_root",
+          "qualified_name": "_inside_root",
+          "kind": "method",
+          "line_start": 102,
+          "line_end": 108,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_assert_no_reparse",
+          "qualified_name": "_assert_no_reparse",
+          "kind": "method",
+          "line_start": 111,
+          "line_end": 124,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_gate_target",
+          "qualified_name": "_gate_target",
+          "kind": "method",
+          "line_start": 127,
+          "line_end": 134,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_safe_path",
+          "qualified_name": "_safe_path",
+          "kind": "method",
+          "line_start": 137,
+          "line_end": 141,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_git_status",
+          "qualified_name": "_git_status",
+          "kind": "method",
+          "line_start": 144,
+          "line_end": 172,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_file_hash",
+          "qualified_name": "_file_hash",
+          "kind": "method",
+          "line_start": 175,
+          "line_end": 180,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "capture_worktree_snapshot",
+          "qualified_name": "capture_worktree_snapshot",
+          "kind": "method",
+          "line_start": 183,
+          "line_end": 196,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "_load_snapshot",
+          "qualified_name": "_load_snapshot",
+          "kind": "method",
+          "line_start": 199,
+          "line_end": 203,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_snapshot_changed_paths",
+          "qualified_name": "_snapshot_changed_paths",
+          "kind": "method",
+          "line_start": 206,
+          "line_end": 214,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_read_changed_list",
+          "qualified_name": "_read_changed_list",
+          "kind": "method",
+          "line_start": 217,
+          "line_end": 229,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_selected_changes",
+          "qualified_name": "_selected_changes",
+          "kind": "method",
+          "line_start": 232,
+          "line_end": 259,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_validate_h1_receipt",
+          "qualified_name": "_validate_h1_receipt",
+          "kind": "method",
+          "line_start": 262,
+          "line_end": 275,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "require_h1_approval",
+          "qualified_name": "require_h1_approval",
+          "kind": "method",
+          "line_start": 278,
+          "line_end": 282,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "_load_a07_responses",
+          "qualified_name": "_load_a07_responses",
+          "kind": "method",
+          "line_start": 285,
+          "line_end": 298,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_safe_read_target",
+          "qualified_name": "_safe_read_target",
+          "kind": "method",
+          "line_start": 301,
+          "line_end": 320,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_request_id",
+          "qualified_name": "_request_id",
+          "kind": "method",
+          "line_start": 323,
+          "line_end": 325,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_receipt_path",
+          "qualified_name": "_receipt_path",
+          "kind": "method",
+          "line_start": 328,
+          "line_end": 329,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_graph_valid",
+          "qualified_name": "_graph_valid",
+          "kind": "method",
+          "line_start": 332,
+          "line_end": 339,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_validate_all",
+          "qualified_name": "_validate_all",
+          "kind": "method",
+          "line_start": 342,
+          "line_end": 362,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_base_report",
+          "qualified_name": "_base_report",
+          "kind": "method",
+          "line_start": 365,
+          "line_end": 384,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "approved_paths_from_report",
+          "qualified_name": "approved_paths_from_report",
+          "kind": "method",
+          "line_start": 387,
+          "line_end": 404,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "run_gate",
+          "qualified_name": "run_gate",
+          "kind": "method",
+          "line_start": 407,
+          "line_end": 582,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "dispatcher",
+          "qualified_name": "run_gate.dispatcher",
+          "kind": "function",
+          "line_start": 502,
+          "line_end": 507,
+          "parent": "run_gate",
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "main",
+          "qualified_name": "main",
+          "kind": "method",
+          "line_start": 585,
+          "line_end": 636,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        }
+      ],
+      "imports": [
+        {
+          "kind": "from_import",
+          "module": "__future__",
+          "name": "annotations",
+          "alias": null,
+          "level": 0,
+          "line": 1
+        },
+        {
+          "kind": "import",
+          "module": "argparse",
+          "name": "argparse",
+          "alias": null,
+          "level": 0,
+          "line": 3
+        },
+        {
+          "kind": "import",
+          "module": "copy",
+          "name": "copy",
+          "alias": null,
+          "level": 0,
+          "line": 4
+        },
+        {
+          "kind": "import",
+          "module": "hashlib",
+          "name": "hashlib",
+          "alias": null,
+          "level": 0,
+          "line": 5
+        },
+        {
+          "kind": "import",
+          "module": "json",
+          "name": "json",
+          "alias": null,
+          "level": 0,
+          "line": 6
+        },
+        {
+          "kind": "import",
+          "module": "os",
+          "name": "os",
+          "alias": null,
+          "level": 0,
+          "line": 7
+        },
+        {
+          "kind": "import",
+          "module": "re",
+          "name": "re",
+          "alias": null,
+          "level": 0,
+          "line": 8
+        },
+        {
+          "kind": "import",
+          "module": "subprocess",
+          "name": "subprocess",
+          "alias": null,
+          "level": 0,
+          "line": 9
+        },
+        {
+          "kind": "import",
+          "module": "tempfile",
+          "name": "tempfile",
+          "alias": null,
+          "level": 0,
+          "line": 10
+        },
+        {
+          "kind": "from_import",
+          "module": "dataclasses",
+          "name": "dataclass",
+          "alias": null,
+          "level": 0,
+          "line": 11
+        },
+        {
+          "kind": "from_import",
+          "module": "pathlib",
+          "name": "Path",
+          "alias": null,
+          "level": 0,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "typing",
+          "name": "Any",
+          "alias": null,
+          "level": 0,
+          "line": 13
+        },
+        {
+          "kind": "from_import",
+          "module": "build_code_manifest",
+          "name": "build_code_manifest",
+          "alias": null,
+          "level": 1,
+          "line": 15
+        },
+        {
+          "kind": "from_import",
+          "module": "build_code_manifest",
+          "name": "validate_code_manifest",
+          "alias": null,
+          "level": 1,
+          "line": 15
+        },
+        {
+          "kind": "from_import",
+          "module": "build_relation_graph",
+          "name": "build_relation_graph",
+          "alias": null,
+          "level": 1,
+          "line": 16
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "ContextIndexError",
+          "alias": null,
+          "level": 1,
+          "line": 17
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "PolicyViolation",
+          "alias": null,
+          "level": 1,
+          "line": 17
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "discover_managed_paths",
+          "alias": null,
+          "level": 1,
+          "line": 17
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "is_managed_document",
+          "alias": null,
+          "level": 1,
+          "line": 17
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "load_policy",
+          "alias": null,
+          "level": 1,
+          "line": 17
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "normalize_relative_path",
+          "alias": null,
+          "level": 1,
+          "line": 17
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "scan_secret_content",
+          "alias": null,
+          "level": 1,
+          "line": 17
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "scan_secret_path",
+          "alias": null,
+          "level": 1,
+          "line": 17
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "sha256_bytes",
+          "alias": null,
+          "level": 1,
+          "line": 17
+        },
+        {
+          "kind": "from_import",
+          "module": "run_context_maintenance",
+          "name": "A07DispatchError",
+          "alias": null,
+          "level": 1,
+          "line": 28
+        },
+        {
+          "kind": "from_import",
+          "module": "run_context_maintenance",
+          "name": "maintain_document",
+          "alias": null,
+          "level": 1,
+          "line": 28
+        },
+        {
+          "kind": "from_import",
+          "module": "validate_context_index",
+          "name": "validate_manifest",
+          "alias": null,
+          "level": 1,
+          "line": 29
+        },
+        {
+          "kind": "from_import",
+          "module": "build_code_manifest",
+          "name": "discover_code_paths",
+          "alias": null,
+          "level": 1,
+          "line": 187
+        },
+        {
+          "kind": "from_import",
+          "module": "build_code_manifest",
+          "name": "is_managed_code_path",
+          "alias": null,
+          "level": 1,
+          "line": 441
+        }
+      ],
+      "exports": [],
+      "public_candidates": [
+        "GateError",
+        "GitChange",
+        "approved_paths_from_report",
+        "capture_worktree_snapshot",
+        "is_generated_path",
+        "main",
+        "require_h1_approval",
+        "run_gate",
+        "run_gate.dispatcher"
+      ],
+      "config": {},
+      "diagnostics": [],
+      "line_count": 640,
+      "byte_size": 24378
+    },
+    {
       "code_id": "code-31e4fd6d-d411-544e-b4d8-2e0dc7214652",
       "kind": "managed_source",
       "status": "active",
@@ -5085,6 +5746,278 @@
       "diagnostics": [],
       "line_count": 355,
       "byte_size": 13889
+    },
+    {
+      "code_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
+      "kind": "managed_source",
+      "status": "active",
+      "relative_path": "scripts/context_index/context_watch.py",
+      "source_hash": "09d71068944f764a9965cb0cb810103b572734d93861a0c2a1729067dd941ab5",
+      "schema_version": "ctxmap-code-manifest-v0.1",
+      "generator_version": "ctxmap-code-indexer-v0.1",
+      "language": "python",
+      "parser": "python-ast-v0.1",
+      "extraction_status": "COMPLETE",
+      "symbols": [
+        {
+          "name": "_runtime_path",
+          "qualified_name": "_runtime_path",
+          "kind": "function",
+          "line_start": 30,
+          "line_end": 31,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_write_pending",
+          "qualified_name": "_write_pending",
+          "kind": "function",
+          "line_start": 34,
+          "line_end": 44,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_append_event",
+          "qualified_name": "_append_event",
+          "kind": "function",
+          "line_start": 47,
+          "line_end": 51,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_acquire_lock",
+          "qualified_name": "_acquire_lock",
+          "kind": "function",
+          "line_start": 54,
+          "line_end": 62,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_changed_since",
+          "qualified_name": "_changed_since",
+          "kind": "function",
+          "line_start": 65,
+          "line_end": 75,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_python_executable",
+          "qualified_name": "_python_executable",
+          "kind": "function",
+          "line_start": 78,
+          "line_end": 79,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_run_gate",
+          "qualified_name": "_run_gate",
+          "kind": "function",
+          "line_start": 82,
+          "line_end": 107,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_run_auto_commit",
+          "qualified_name": "_run_auto_commit",
+          "kind": "function",
+          "line_start": 110,
+          "line_end": 132,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "process_event",
+          "qualified_name": "process_event",
+          "kind": "function",
+          "line_start": 135,
+          "line_end": 153,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "watch_loop",
+          "qualified_name": "watch_loop",
+          "kind": "function",
+          "line_start": 156,
+          "line_end": 183,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "main",
+          "qualified_name": "main",
+          "kind": "function",
+          "line_start": 186,
+          "line_end": 218,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        }
+      ],
+      "imports": [
+        {
+          "kind": "from_import",
+          "module": "__future__",
+          "name": "annotations",
+          "alias": null,
+          "level": 0,
+          "line": 1
+        },
+        {
+          "kind": "import",
+          "module": "argparse",
+          "name": "argparse",
+          "alias": null,
+          "level": 0,
+          "line": 3
+        },
+        {
+          "kind": "import",
+          "module": "json",
+          "name": "json",
+          "alias": null,
+          "level": 0,
+          "line": 4
+        },
+        {
+          "kind": "import",
+          "module": "os",
+          "name": "os",
+          "alias": null,
+          "level": 0,
+          "line": 5
+        },
+        {
+          "kind": "import",
+          "module": "subprocess",
+          "name": "subprocess",
+          "alias": null,
+          "level": 0,
+          "line": 6
+        },
+        {
+          "kind": "import",
+          "module": "sys",
+          "name": "sys",
+          "alias": null,
+          "level": 0,
+          "line": 7
+        },
+        {
+          "kind": "import",
+          "module": "time",
+          "name": "time",
+          "alias": null,
+          "level": 0,
+          "line": 8
+        },
+        {
+          "kind": "from_import",
+          "module": "pathlib",
+          "name": "Path",
+          "alias": null,
+          "level": 0,
+          "line": 9
+        },
+        {
+          "kind": "from_import",
+          "module": "typing",
+          "name": "Any",
+          "alias": null,
+          "level": 0,
+          "line": 10
+        },
+        {
+          "kind": "from_import",
+          "module": "check_context_gate",
+          "name": "DEFAULT_H1_RECEIPT",
+          "alias": null,
+          "level": 1,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "check_context_gate",
+          "name": "GateError",
+          "alias": null,
+          "level": 1,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "check_context_gate",
+          "name": "_inside_root",
+          "alias": null,
+          "level": 1,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "check_context_gate",
+          "name": "_write_json_atomic",
+          "alias": null,
+          "level": 1,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "check_context_gate",
+          "name": "capture_worktree_snapshot",
+          "alias": null,
+          "level": 1,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "check_context_gate",
+          "name": "is_generated_path",
+          "alias": null,
+          "level": 1,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "check_context_gate",
+          "name": "require_h1_approval",
+          "alias": null,
+          "level": 1,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "load_policy",
+          "alias": null,
+          "level": 1,
+          "line": 21
+        }
+      ],
+      "exports": [],
+      "public_candidates": [
+        "main",
+        "process_event",
+        "watch_loop"
+      ],
+      "config": {},
+      "diagnostics": [],
+      "line_count": 222,
+      "byte_size": 8620
     },
     {
       "code_id": "code-813d93ca-d051-553e-948d-81cc27701d28",
@@ -9955,7 +10888,7 @@
       "kind": "managed_source",
       "status": "active",
       "relative_path": "scripts/watch-start.js",
-      "source_hash": "4addadbd9219c7f38fb3b5003f799a92807ec4b5087e377310d3afa7d08d4f77",
+      "source_hash": "9ddb7ba4627c99488d74a14c69c990177ea6bc818e649e1085e6e90a9ba283d8",
       "schema_version": "ctxmap-code-manifest-v0.1",
       "generator_version": "ctxmap-code-indexer-v0.1",
       "language": "javascript",
@@ -9966,8 +10899,18 @@
           "name": "hasWatcher",
           "qualified_name": "hasWatcher",
           "kind": "function",
-          "line_start": 7,
-          "line_end": 7,
+          "line_start": 8,
+          "line_end": 8,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "pythonExecutable",
+          "qualified_name": "pythonExecutable",
+          "kind": "function",
+          "line_start": 25,
+          "line_end": 25,
           "parent": null,
           "decorators": [],
           "public": true
@@ -9976,8 +10919,8 @@
           "name": "psQuote",
           "qualified_name": "psQuote",
           "kind": "function",
-          "line_start": 29,
-          "line_end": 29,
+          "line_start": 47,
+          "line_end": 47,
           "parent": null,
           "decorators": [],
           "public": true
@@ -9994,17 +10937,26 @@
         },
         {
           "kind": "require",
-          "module": "node:path",
+          "module": "node:fs",
           "name": null,
           "alias": null,
           "level": 0,
           "line": 2
+        },
+        {
+          "kind": "require",
+          "module": "node:path",
+          "name": null,
+          "alias": null,
+          "level": 0,
+          "line": 3
         }
       ],
       "exports": [],
       "public_candidates": [
         "hasWatcher",
-        "psQuote"
+        "psQuote",
+        "pythonExecutable"
       ],
       "config": {},
       "diagnostics": [
@@ -10013,15 +10965,15 @@
           "message": "full parser dependency not added"
         }
       ],
-      "line_count": 49,
-      "byte_size": 1416
+      "line_count": 67,
+      "byte_size": 2087
     },
     {
       "code_id": "code-326dd597-4424-5af2-ac1c-e809a7cf256f",
       "kind": "managed_source",
       "status": "active",
       "relative_path": "scripts/watch-status.js",
-      "source_hash": "09b1d63bac7453d3fe36e70aa45c7aa2165ae2c9bb7c20b333299a863bff9351",
+      "source_hash": "f2dc6a9461ddb6cdbde3b329784bda757e5589d889d980b9f0246e3a3b76250a",
       "schema_version": "ctxmap-code-manifest-v0.1",
       "generator_version": "ctxmap-code-indexer-v0.1",
       "language": "javascript",
@@ -10048,14 +11000,14 @@
         }
       ],
       "line_count": 25,
-      "byte_size": 907
+      "byte_size": 979
     },
     {
       "code_id": "code-1631aa68-42b9-5712-bb99-7c354dba8e5b",
       "kind": "managed_source",
       "status": "active",
       "relative_path": "scripts/watch-stop.js",
-      "source_hash": "890a4387fa98649931e10e32189f468cf97a1e5b910ab63f34b99ba743a2bad6",
+      "source_hash": "8783beaca6bad35e74b8d9bcb14b9c766eabe153935a8b56e559da3fc524c3b4",
       "schema_version": "ctxmap-code-manifest-v0.1",
       "generator_version": "ctxmap-code-indexer-v0.1",
       "language": "javascript",
@@ -10082,7 +11034,7 @@
         }
       ],
       "line_count": 25,
-      "byte_size": 986
+      "byte_size": 1058
     },
     {
       "code_id": "code-8e03bd33-fcb5-5414-8422-860c2e57d47d",
@@ -25879,6 +26831,535 @@
       "byte_size": 12815
     },
     {
+      "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "kind": "managed_source",
+      "status": "active",
+      "relative_path": "tests/context_index/test_context_gate.py",
+      "source_hash": "64e45a76740c545c225cef44fe689de9e289984064276f2e71b665302d1791b8",
+      "schema_version": "ctxmap-code-manifest-v0.1",
+      "generator_version": "ctxmap-code-indexer-v0.1",
+      "language": "python",
+      "parser": "python-ast-v0.1",
+      "extraction_status": "PARTIAL",
+      "symbols": [
+        {
+          "name": "policy",
+          "qualified_name": "policy",
+          "kind": "function",
+          "line_start": 21,
+          "line_end": 43,
+          "parent": null,
+          "decorators": [
+            "dynamic"
+          ],
+          "public": true
+        },
+        {
+          "name": "write_file",
+          "qualified_name": "write_file",
+          "kind": "function",
+          "line_start": 46,
+          "line_end": 49,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "write_json",
+          "qualified_name": "write_json",
+          "kind": "function",
+          "line_start": 52,
+          "line_end": 54,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "prepare_index",
+          "qualified_name": "prepare_index",
+          "kind": "function",
+          "line_start": 57,
+          "line_end": 77,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "git",
+          "qualified_name": "git",
+          "kind": "function",
+          "line_start": 80,
+          "line_end": 83,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "init_git",
+          "qualified_name": "init_git",
+          "kind": "function",
+          "line_start": 86,
+          "line_end": 91,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "decision_for",
+          "qualified_name": "decision_for",
+          "kind": "function",
+          "line_start": 94,
+          "line_end": 108,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "gate_args",
+          "qualified_name": "gate_args",
+          "kind": "function",
+          "line_start": 111,
+          "line_end": 130,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_new_document_requires_a07_response_and_updates_only_explicit_outputs",
+          "qualified_name": "test_new_document_requires_a07_response_and_updates_only_explicit_outputs",
+          "kind": "function",
+          "line_start": 133,
+          "line_end": 159,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_major_document_change_without_a07_is_pending_and_does_not_touch_index",
+          "qualified_name": "test_major_document_change_without_a07_is_pending_and_does_not_touch_index",
+          "kind": "function",
+          "line_start": 162,
+          "line_end": 177,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_source_change_rebuilds_code_manifest_and_relation_graph",
+          "qualified_name": "test_source_change_rebuilds_code_manifest_and_relation_graph",
+          "kind": "function",
+          "line_start": 180,
+          "line_end": 193,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_secret_rename_and_delete_fail_closed",
+          "qualified_name": "test_secret_rename_and_delete_fail_closed",
+          "kind": "function",
+          "line_start": 196,
+          "line_end": 208,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_gate_rejects_out_of_scope_and_invalid_manifest_inputs",
+          "qualified_name": "test_gate_rejects_out_of_scope_and_invalid_manifest_inputs",
+          "kind": "function",
+          "line_start": 211,
+          "line_end": 221,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_gate_h1_requirement_fails_closed_before_work",
+          "qualified_name": "test_gate_h1_requirement_fails_closed_before_work",
+          "kind": "function",
+          "line_start": 224,
+          "line_end": 228,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_git_rename_status_is_parsed_and_blocked",
+          "qualified_name": "test_git_rename_status_is_parsed_and_blocked",
+          "kind": "function",
+          "line_start": 231,
+          "line_end": 240,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_generated_manifest_path_is_ignored_by_watch_loop",
+          "qualified_name": "test_generated_manifest_path_is_ignored_by_watch_loop",
+          "kind": "function",
+          "line_start": 243,
+          "line_end": 248,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_snapshot_tracks_only_hashes_and_detects_source_change",
+          "qualified_name": "test_snapshot_tracks_only_hashes_and_detects_source_change",
+          "kind": "function",
+          "line_start": 251,
+          "line_end": 263,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_gate_report_allowlist_is_revalidated",
+          "qualified_name": "test_gate_report_allowlist_is_revalidated",
+          "kind": "function",
+          "line_start": 266,
+          "line_end": 299,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_h1_invalid_receipts_are_rejected_without_fallback",
+          "qualified_name": "test_h1_invalid_receipts_are_rejected_without_fallback",
+          "kind": "function",
+          "line_start": 302,
+          "line_end": 308,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_symlink_target_is_rejected_when_platform_allows_symlinks",
+          "qualified_name": "test_symlink_target_is_rejected_when_platform_allows_symlinks",
+          "kind": "function",
+          "line_start": 311,
+          "line_end": 328,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_h1_start_is_rejected_until_approval_receipt_exists",
+          "qualified_name": "test_h1_start_is_rejected_until_approval_receipt_exists",
+          "kind": "function",
+          "line_start": 331,
+          "line_end": 342,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_watch_once_ignores_generated_event_and_watch_loop_serializes",
+          "qualified_name": "test_watch_once_ignores_generated_event_and_watch_loop_serializes",
+          "kind": "function",
+          "line_start": 345,
+          "line_end": 393,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_watch_loop_runs_one_local_cycle_and_records_auto_commit_pending",
+          "qualified_name": "test_watch_loop_runs_one_local_cycle_and_records_auto_commit_pending",
+          "kind": "function",
+          "line_start": 396,
+          "line_end": 435,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_watch_document_event_stays_pending_when_a07_is_unavailable",
+          "qualified_name": "test_watch_document_event_stays_pending_when_a07_is_unavailable",
+          "kind": "function",
+          "line_start": 438,
+          "line_end": 462,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_auto_commit_stages_only_gate_allowlist_and_never_user_untracked",
+          "qualified_name": "test_auto_commit_stages_only_gate_allowlist_and_never_user_untracked",
+          "kind": "function",
+          "line_start": 465,
+          "line_end": 492,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        }
+      ],
+      "imports": [
+        {
+          "kind": "from_import",
+          "module": "__future__",
+          "name": "annotations",
+          "alias": null,
+          "level": 0,
+          "line": 1
+        },
+        {
+          "kind": "import",
+          "module": "json",
+          "name": "json",
+          "alias": null,
+          "level": 0,
+          "line": 3
+        },
+        {
+          "kind": "import",
+          "module": "os",
+          "name": "os",
+          "alias": null,
+          "level": 0,
+          "line": 4
+        },
+        {
+          "kind": "import",
+          "module": "shutil",
+          "name": "shutil",
+          "alias": null,
+          "level": 0,
+          "line": 5
+        },
+        {
+          "kind": "import",
+          "module": "subprocess",
+          "name": "subprocess",
+          "alias": null,
+          "level": 0,
+          "line": 6
+        },
+        {
+          "kind": "import",
+          "module": "sys",
+          "name": "sys",
+          "alias": null,
+          "level": 0,
+          "line": 7
+        },
+        {
+          "kind": "from_import",
+          "module": "pathlib",
+          "name": "Path",
+          "alias": null,
+          "level": 0,
+          "line": 8
+        },
+        {
+          "kind": "from_import",
+          "module": "typing",
+          "name": "Any",
+          "alias": null,
+          "level": 0,
+          "line": 9
+        },
+        {
+          "kind": "import",
+          "module": "pytest",
+          "name": "pytest",
+          "alias": null,
+          "level": 0,
+          "line": 11
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.build_code_manifest",
+          "name": "build_code_manifest",
+          "alias": null,
+          "level": 0,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.build_context_index",
+          "name": "build_index",
+          "alias": null,
+          "level": 0,
+          "line": 13
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.build_context_index",
+          "name": "build_state",
+          "alias": null,
+          "level": 0,
+          "line": 13
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.build_relation_graph",
+          "name": "build_relation_graph",
+          "alias": null,
+          "level": 0,
+          "line": 14
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.check_context_gate",
+          "name": "main",
+          "alias": "gate_main",
+          "level": 0,
+          "line": 15
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.common",
+          "name": "stable_id",
+          "alias": null,
+          "level": 0,
+          "line": 16
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.context_watch",
+          "name": "main",
+          "alias": "context_watch_main",
+          "level": 0,
+          "line": 17
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.context_watch",
+          "name": "is_generated_path",
+          "alias": null,
+          "level": 0,
+          "line": 244
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.check_context_gate",
+          "name": "capture_worktree_snapshot",
+          "alias": null,
+          "level": 0,
+          "line": 254
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.context_watch",
+          "name": "_changed_since",
+          "alias": null,
+          "level": 0,
+          "line": 255
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.check_context_gate",
+          "name": "GateError",
+          "alias": null,
+          "level": 0,
+          "line": 267
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.check_context_gate",
+          "name": "approved_paths_from_report",
+          "alias": null,
+          "level": 0,
+          "line": 267
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.check_context_gate",
+          "name": "GateError",
+          "alias": null,
+          "level": 0,
+          "line": 303
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.check_context_gate",
+          "name": "require_h1_approval",
+          "alias": null,
+          "level": 0,
+          "line": 303
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.check_context_gate",
+          "name": "GateError",
+          "alias": null,
+          "level": 0,
+          "line": 346
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.context_watch",
+          "name": "_acquire_lock",
+          "alias": null,
+          "level": 0,
+          "line": 347
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.context_watch",
+          "name": "_changed_since",
+          "alias": null,
+          "level": 0,
+          "line": 347
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.context_watch",
+          "name": "_write_pending",
+          "alias": null,
+          "level": 0,
+          "line": 347
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.context_watch",
+          "name": "_run_auto_commit",
+          "alias": null,
+          "level": 0,
+          "line": 439
+        }
+      ],
+      "exports": [],
+      "public_candidates": [
+        "decision_for",
+        "gate_args",
+        "git",
+        "init_git",
+        "policy",
+        "prepare_index",
+        "test_auto_commit_stages_only_gate_allowlist_and_never_user_untracked",
+        "test_gate_h1_requirement_fails_closed_before_work",
+        "test_gate_rejects_out_of_scope_and_invalid_manifest_inputs",
+        "test_gate_report_allowlist_is_revalidated",
+        "test_generated_manifest_path_is_ignored_by_watch_loop",
+        "test_git_rename_status_is_parsed_and_blocked",
+        "test_h1_invalid_receipts_are_rejected_without_fallback",
+        "test_h1_start_is_rejected_until_approval_receipt_exists",
+        "test_major_document_change_without_a07_is_pending_and_does_not_touch_index",
+        "test_new_document_requires_a07_response_and_updates_only_explicit_outputs",
+        "test_secret_rename_and_delete_fail_closed",
+        "test_snapshot_tracks_only_hashes_and_detects_source_change",
+        "test_source_change_rebuilds_code_manifest_and_relation_graph",
+        "test_symlink_target_is_rejected_when_platform_allows_symlinks",
+        "test_watch_document_event_stays_pending_when_a07_is_unavailable",
+        "test_watch_loop_runs_one_local_cycle_and_records_auto_commit_pending",
+        "test_watch_once_ignores_generated_event_and_watch_loop_serializes",
+        "write_file",
+        "write_json"
+      ],
+      "config": {},
+      "diagnostics": [
+        {
+          "code": "SECRET_LIKE_CONTENT_OMITTED",
+          "message": "secret-like source content was not retained"
+        }
+      ],
+      "line_count": 492,
+      "byte_size": 19478
+    },
+    {
       "code_id": "code-b6791cf7-be73-5306-8626-2fced6a4184e",
       "kind": "managed_source",
       "status": "active",
@@ -34224,7 +35705,7 @@
   ],
   "diagnostics": [],
   "coverage": {
-    "discovered": 248,
-    "registered": 248
+    "discovered": 254,
+    "registered": 254
   }
 }

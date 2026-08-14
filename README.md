@@ -59,6 +59,8 @@
 - Agents:
   `AutoTrade_A05_PhaseExecutionPlanner_v0_1`
   `AutoTrade_A06_AiComponentEngineer_v0_1`
+  `AutoTrade_A07_ContextManifestMaintainer_v0_1`
+  `AutoTrade_A08_ContextRouter_v0_1`
   `AutoTrade_A10_RequirementsCurator_v0_1`
   `AutoTrade_A20_ArchitectureDomainArchitect_v0_1`
   `AutoTrade_A30_StrategyQaArchitect_v0_1`
@@ -83,6 +85,7 @@
   `.codex/skills/autotrade_skill_*_v0_1/`
   Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を使います。
   AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を使います。
+  新規／大幅変更文書のmanifest保守では `autotrade_skill_context_manifest_maintenance_v0_1` と `AutoTrade_A07_ContextManifestMaintainer_v0_1` を使い、資料参照の絞り込みでは `autotrade_skill_context_routing_v0_1` と `AutoTrade_A08_ContextRouter_v0_1` を使います。A07は1ファイルの追加・更新判定、A08はvalidator済みmanifestからの候補選定だけを行い、本文の全量投入・Secret・外部I/O・Git書込みは行いません。
   UIモック作成では `AutoTradeProject_UiMock_Orchestrator_v0_1`、`AutoTrade_A170_UiMockEngineer_v0_1`、`AutoTrade_A171_UiVisualQaReviewer_v0_1` とUI専用Skill 3件を完全名で指定します。正式合否は固定 `@playwright/test`、Storybook、Vitest/axeで判定し、AI向けCLIは匿名ローカル探索に限定します。
   実装詳細設計では `autotrade_skill_implementation_detail_design_v0_1` と `autotrade_skill_implementation_detail_review_v0_1` を使います。
   Python本実装の品質ループでは `autotrade_skill_python_implementation_v0_1`、`autotrade_skill_python_test_quality_v0_1`、`autotrade_skill_debug_recovery_v0_1`、`autotrade_skill_python_code_review_v0_1` を明示指定します。実行証跡は `tests/evidence/{phase_id}/{run_id}/` に保存し、`scripts/quality_gate/` は `trusted_scopes.json` に登録されたRun IDの固定コマンドだけを実行します。`scope_mode=target_only` のRunは登録済みtarget_pathsだけを試験対象とし、対象外のHEAD/worktree差分では止めません。Phaseのtest subprocessはhost outbound isolation確認がない場合にBLOCKEDとします。
@@ -96,6 +99,10 @@
 ### AI部品作成・変更
 
 Skill、サブエージェント、オーケストレータの作成または変更では、まず既存再利用を調査し、その後に実体更新、最後に仕様と導線を更新します。標準の依頼プロンプトは [AI部品作成更新依頼プロンプト](./doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html) を参照してください。
+
+### 資料・コード参照効率化
+
+新しいMarkdown／HTML文書はA07へ必ず渡し、既存文書の大幅変更もA07へ更新要否を判定させます。ソースコードの構造変更は決定的なコードmanifest更新へ渡します。どちらもvalidator PASS、または原因と再開条件を含む正直なBLOCKED receiptがない限り完了扱いにしません。日常保守では常時Orchestratorを起動せず、AI部品そのものの作成・変更だけをComponentLifecycleへ渡します。詳細な最終説明資料は、システム完成後に正式HTMLとして追加します。
 
 ### 実装詳細設計
 
@@ -157,7 +164,21 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\wsl_quality_ga
 
 ## 自動コミット監視
 
-このリポジトリには、ファイル変更を監視して自動的に `git commit` と `git push` を行う補助コマンドがあります。
+このリポジトリの自動コミット経路は、CTXMAP-H1の承認後だけ有効になるローカル監視です。監視の前段で
+`scripts.context_index.context_watch` が変更をまとめ、`check_context_gate.py` が文書・ソースのマニフェスト整合性、Secret、
+rename／削除、A07のpending状態を検査します。GateがPASSしない限り、`git add`、commit、pushは実行されません。
+
+H1の承認記録は `plan/context_index/CTXMAP-H1_approval.json` に、次の条件を満たす形で人間が保存します。
+
+```json
+{
+  "gate_id": "CTXMAP-H1",
+  "status": "APPROVED",
+  "approval_text": "CTXMAP-H1を承認します"
+}
+```
+
+このファイルがない、内容が違う、または `APPROVED` でない場合は、起動コマンド自身が説明付きで拒否します。承認記録をAIが作成したり、承認前に監視を試験起動したりしてはいけません。
 
 ### バックグラウンドで起動
 
@@ -183,10 +204,37 @@ npm run watch-stop
 npm run watch-commit
 ```
 
-停止するときは `Ctrl+C` を使います。
+前面起動もH1を確認してから、ローカルの単一workerとして実行します。イベントはdebounceされ、処理中は直列化されます。
+マニフェスト、receipt、Gate報告などの自己生成ファイルは次のイベントにしないため、自己更新ループを起こしません。
+
+### Gateだけを手動実行
+
+自動コミットを行わず、変更の検査とマニフェスト更新だけを行う場合は、変更集合を明示します。
+
+```bash
+python -m scripts.context_index.check_context_gate `
+  --root . `
+  --changed scripts/context_index/example.py `
+  --report plan/context_index/runtime/context_gate_report.json
+```
+
+Gateは `context/artifact_manifest.json`、`context/manifest_state.json`、`context/code_manifest.json`、
+`context/relation_graph.json`を必要に応じて更新し、判定を `plan/context_index/runtime/` に保存します。
+新規・大幅変更文書でA07が利用できない場合は `A07_RUNTIME_UNAVAILABLE` のpendingとして停止します。
+
+### 失敗時の手動復旧
+
+1. `plan/context_index/runtime/context_watch_pending.json` と `context_gate_report.json` で、Secret、A07、validator、rename／削除のどれで止まったかを確認します。
+2. 原因を直した後、同じ明示変更集合で `check_context_gate.py` を一度実行します。本文を外部へ送ったり、pendingを削除して成功扱いにしたりしません。
+3. Gateの `allowed_paths` だけを確認し、必要な場合に `auto-commit.sh --allowlist-file <path>` を実行します。既存の未追跡資料や既存stage変更は自動で混ぜません。
+4. 監視を止める場合は `npm run watch-stop`、PIDとログを確認する場合は `npm run watch-status` を使います。
+
+イベントログと復旧状態は `plan/context_index/runtime/`、前面／起動経路の標準ログは `watch-commit.log` と `watch-commit.err.log` に保存します。
+外部ネットワーク、外部MCP、永続サービス、Secret本文の送信はこの経路では行いません。
 
 ## 自動コミットの注意
 
-- `.git`、`node_modules`、`.env`、`.env.*`、`*.log` は監視対象外です。
-- 連続変更による過剰なコミットを避けるため、一定時間まとめてから実行します。
-- コミットメッセージは `auto: update by Codex [YYYY-MM-DD HH:MM:SS]` 形式です。
+- `.git`、`node_modules`、`.env`、`.env.*`、`*.log` と、Context Index自身の生成物は監視対象外です。
+- 連続変更はdebounce後にまとめますが、A07未起動・timeout・validator不合格は自動再試行せずpendingで閉じます。
+- `auto-commit.sh` は変更集合を受け取らない限り動作せず、`git add -- <明示path>`だけを使います。`git add -A`による既存ユーザー変更の混入は許可しません。
+- コミットメッセージは `auto: update by Codex [YYYY-MM-DD HH:MM:SS]` 形式です。pushはGate PASS後だけで、テストでは `--no-push` を使います。

@@ -52,6 +52,8 @@ WSL隔離品質ゲートの実行入口は `scripts/wsl_quality_gate/run_test.ps
 - 汎用Agents:
   `AutoTrade_A05_PhaseExecutionPlanner_v0_1`
   `AutoTrade_A06_AiComponentEngineer_v0_1`
+  `AutoTrade_A07_ContextManifestMaintainer_v0_1`
+  `AutoTrade_A08_ContextRouter_v0_1`
   `AutoTrade_A10_RequirementsCurator_v0_1`
   `AutoTrade_A20_ArchitectureDomainArchitect_v0_1`
   `AutoTrade_A30_StrategyQaArchitect_v0_1`
@@ -76,10 +78,14 @@ WSL隔離品質ゲートの実行入口は `scripts/wsl_quality_gate/run_test.ps
   `.codex/skills/autotrade_skill_*_v0_1/`
   Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を標準で使う。
   AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を標準で使う。
+  新規／大幅変更文書のmanifest保守では `autotrade_skill_context_manifest_maintenance_v0_1` と `AutoTrade_A07_ContextManifestMaintainer_v0_1` を使い、参照候補の選定では `autotrade_skill_context_routing_v0_1` と `AutoTrade_A08_ContextRouter_v0_1` を使う。A07は1文書の追加・更新判定だけ、A08はvalidator済みmanifestからのroutingだけを担当し、本文を直接読ませない。A07/A08はネットワーク、Secret、任意path、Git書込みを持たない。
   UIモック作成では `AutoTradeProject_UiMock_Orchestrator_v0_1`、`AutoTrade_A170_UiMockEngineer_v0_1`、`AutoTrade_A171_UiVisualQaReviewer_v0_1` とUI専用Skill 3件を完全名で指定する。正式合否は固定 `@playwright/test`、Storybook、Vitest/axeで判定し、AI向けCLIは匿名ローカル探索に限定する。
   実装詳細設計では `autotrade_skill_implementation_detail_design_v0_1` と `autotrade_skill_implementation_detail_review_v0_1` を標準で使う。
   Python本実装の品質ループでは `autotrade_skill_python_implementation_v0_1`、`autotrade_skill_python_test_quality_v0_1`、`autotrade_skill_debug_recovery_v0_1`、`autotrade_skill_python_code_review_v0_1` を明示指定で使う。
   実行証跡は `tests/evidence/{phase_id}/{run_id}/` に保存し、`scripts/quality_gate/` は `trusted_scopes.json` に登録されたRun IDの固定コマンドだけを実行する。`scope_mode=target_only` のRunは登録済みtarget_pathsだけを試験対象とし、対象外のHEAD/worktree差分では止めない。Phaseのtest subprocessはhost outbound isolation確認がない場合にBLOCKEDとする。
+  新規文書、大幅変更文書、構造変更コードは、文書作成・実装の完了前に `run_context_maintenance` または決定的コードmanifest更新へ渡し、validator PASSまたは理由付きBLOCKED receiptを保存する。A07の未起動を実行済みと偽らず、A08はmanifest本文を直接取得しない。
+- CTXMAPのcommit経路は `scripts/context_index/check_context_gate.py` を前段に置く。Gateはstage/commit/pushを自分で行わず、PASS時に返した明示allowlistだけを `auto-commit.sh` がstageする。Gate失敗時はGit indexを変更せず、A07 unavailable/timeout、Secret、rename/delete、validator不合格はpendingまたはBLOCKEDとして停止する。
+- `npm run watch-start`、`npm run watch-commit` は `plan/context_index/CTXMAP-H1_approval.json` の明示承認がない限り拒否する。監視は `scripts/context_index/context_watch.py` のローカル単一worker・debounce経路だけを使い、外部通信、永続サービス、Secret本文送信、自己生成manifestの再発火を許可しない。
 - Phase 1専用部品:
   `AutoTradePhase1_*`
   `autotrade_phase1_skill_*_v0_1`
