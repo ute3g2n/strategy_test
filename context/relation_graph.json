@@ -1072,6 +1072,12 @@
       "relative_path": "doc/phase5/00_実行計画/01_Phase5実行計画書.html"
     },
     {
+      "node_id": "art-71677596-cdb2-56b1-b54d-65170a992169",
+      "node_type": "document",
+      "label": "plan/context_index/reviews/CTX-09_findings.md",
+      "relative_path": "plan/context_index/reviews/CTX-09_findings.md"
+    },
+    {
       "node_id": "art-718be7b5-2ff4-55b4-8546-5f01626df589",
       "node_type": "document",
       "label": "doc/phase1/02_全体設計/02_システム全体構成設計書.html",
@@ -33374,6 +33380,14 @@
       "resolution": "unresolved",
       "evidence": "explicit",
       "target_ref": "doc/phase5/00_実行計画/tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1.md"
+    },
+    {
+      "source_id": "art-71677596-cdb2-56b1-b54d-65170a992169",
+      "target_id": "trace-2e63885d-2044-5d52-bdd5-02032a20adb9",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "CTXMAP-H1"
     },
     {
       "source_id": "art-718be7b5-2ff4-55b4-8546-5f01626df589",

@@ -22374,6 +22374,100 @@
       "byte_size": 4125
     },
     {
+      "artifact_id": "art-71677596-cdb2-56b1-b54d-65170a992169",
+      "kind": "managed_document",
+      "status": "active",
+      "relative_path": "plan/context_index/reviews/CTX-09_findings.md",
+      "source_hash": "9a2907b4de96f0262943204cd9ce9e60f55c5c4158e323cfe71e58de361568ad",
+      "schema_version": "ctxmap-manifest-v0.1",
+      "generator_version": "ctxmap-indexer-v0.1",
+      "first_seen_at": "2026-08-14T00:00:00Z",
+      "updated_at": "2026-08-14T00:00:00Z",
+      "title": "CTX-09 統合品質・独立レビュー Findings",
+      "headings": [
+        {
+          "level": 1,
+          "text": "CTX-09 統合品質・独立レビュー Findings",
+          "line": 1
+        },
+        {
+          "level": 2,
+          "text": "判定（Findings first）",
+          "line": 3
+        },
+        {
+          "level": 2,
+          "text": "Findings",
+          "line": 7
+        },
+        {
+          "level": 3,
+          "text": "CTX09-F-001 — High — Gate入力Pathのrepository confinement不足",
+          "line": 9
+        },
+        {
+          "level": 3,
+          "text": "CTX09-F-002 — High — Gate PASS後のallowlistにhash固定がなくTOCTOUが残る",
+          "line": 18
+        },
+        {
+          "level": 3,
+          "text": "CTX09-F-003 — High — A07 semantic confirmation未成立",
+          "line": 27
+        },
+        {
+          "level": 3,
+          "text": "CTX09-F-004 — Medium — stdio JSONL入力上限とprompt-injection境界が不十分",
+          "line": 36
+        },
+        {
+          "level": 3,
+          "text": "CTX09-F-005 — Medium — PARTIALと入口文書の状態同期不足",
+          "line": 45
+        },
+        {
+          "level": 3,
+          "text": "CTX09-F-006 — Medium — watcherがGate/commit失敗をプロセス終了状態へ伝播しない",
+          "line": 54
+        },
+        {
+          "level": 3,
+          "text": "CTX09-F-007 — Medium — 強制停止後のstale lock復旧が未定義",
+          "line": 63
+        },
+        {
+          "level": 2,
+          "text": "実行受領とフォールバック境界",
+          "line": 72
+        },
+        {
+          "level": 2,
+          "text": "ローカルフォールバック検証",
+          "line": 78
+        },
+        {
+          "level": 2,
+          "text": "H1判断",
+          "line": 93
+        },
+        {
+          "level": 2,
+          "text": "再開条件",
+          "line": 97
+        }
+      ],
+      "trace_ids": [
+        "CTXMAP-H1"
+      ],
+      "local_links": [],
+      "summary": "`CTXMAP-H1` は不適格。Highが3件未解決であり、固定Agent 4件の独立spawn/wait受領も成立していない。CTX-08の初回active document 425件に加え、今回のFindings文書を含む現在のactive document 426件について、A07固定モデル `gpt-5.1` の意味確認は未成立である。今回のレビューは、固定Orchestrator起動後に子Agent起動不能となったため、独立レビューではなく、明示された責任チェックリストとローカル読み取り監査によるフォールバックである。",
+      "purpose": "CTX-09 統合品質・独立レビュー Findings",
+      "triggers": [],
+      "relation_ids": [],
+      "line_count": 103,
+      "byte_size": 12010
+    },
+    {
       "artifact_id": "art-647317cf-d499-55d2-8e4e-ee00e6b9f771",
       "kind": "managed_document",
       "status": "active",

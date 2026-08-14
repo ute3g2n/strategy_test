@@ -2083,6 +2083,16 @@
       "delta_kind": "added"
     },
     {
+      "subject_id": "art-71677596-cdb2-56b1-b54d-65170a992169",
+      "subject_type": "artifact",
+      "source_hash": "9a2907b4de96f0262943204cd9ce9e60f55c5c4158e323cfe71e58de361568ad",
+      "state": "active",
+      "last_processed_at": "2026-08-14T00:00:00Z",
+      "generator_version": "ctxmap-indexer-v0.1",
+      "schema_version": "ctxmap-manifest-v0.1",
+      "delta_kind": "added"
+    },
+    {
       "subject_id": "art-647317cf-d499-55d2-8e4e-ee00e6b9f771",
       "subject_type": "artifact",
       "source_hash": "6ffdecaf12faee0fcc8c9f4f27df412902e46d3acc152821d1ecaf9ae64e7ecc",
