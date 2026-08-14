@@ -1,14 +1,22 @@
 {
-  "action": "metadata_unchanged",
+  "action": "record_update",
   "dispatch": {
-    "attempts": 0,
-    "status": "NOT_REQUIRED"
+    "agent_id": "01a001ec-0b1f-76c1-99ec-e3faf723f8d3",
+    "agent_name": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+    "attempts": 1,
+    "backend": "multi_agent_v1",
+    "independent": false,
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "low",
+    "review_mode": "SELF_REVIEW_FALLBACK",
+    "run_id": "ctx11-a07-plan-20260815",
+    "status": "completed"
   },
-  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "reason_code": "A07_DECISION_ACCEPTED",
   "recorded_at": "2026-08-14T00:00:00Z",
   "relative_path": "plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md",
   "request_id": "ctx-gate-0dcedd6bceb46696",
   "schema_version": "ctxmap-maintenance-receipt-v0.1",
-  "source_hash": "bcdb299fe14c15ae887a91c606909a15f841259909a48256a81be6a92fede4b4",
+  "source_hash": "2f04cb7ebd815ea46ad2942576d63008e08ee0da651bd58e590d8ec52507ce1b",
   "status": "PASS"
 }

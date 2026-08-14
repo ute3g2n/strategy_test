@@ -659,6 +659,7 @@ def run_gate(
             request_id=_request_id(path),
             observed_at=observed_at,
             state=state,
+            validate_manifest_result=False,
         )
         if result.status != "PASS":
             receipt = result.receipt

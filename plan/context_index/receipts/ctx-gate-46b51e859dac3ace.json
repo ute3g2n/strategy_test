@@ -9,14 +9,14 @@
     "model": "gpt-5.6-luna",
     "reasoning_effort": "low",
     "review_mode": "SELF_REVIEW_FALLBACK",
-    "run_id": "ctx10-a07-index-20260815",
+    "run_id": "ctx10-a07-new-detail-revision-20260815",
     "status": "completed"
   },
   "reason_code": "A07_DECISION_ACCEPTED",
   "recorded_at": "2026-08-14T00:00:00Z",
-  "relative_path": "doc/index.html",
-  "request_id": "ctx-gate-9beec5704068f479",
+  "relative_path": "doc/ai_foundation/21_資料コード参照基盤システム詳細解説.html",
+  "request_id": "ctx-gate-46b51e859dac3ace",
   "schema_version": "ctxmap-maintenance-receipt-v0.1",
-  "source_hash": "ff4a55b28cd7482a92321d7a6c31113800a8f989362c30263f8dc60e34aa9b5a",
+  "source_hash": "38991e13d4148836ed367c941c8996f7e4048bf1019074645f48859cdb73d6a8",
   "status": "PASS"
 }

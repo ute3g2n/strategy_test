@@ -1193,11 +1193,11 @@
       "subject_type": "artifact"
     },
     {
-      "delta_kind": "modified_minor",
+      "delta_kind": "record_update",
       "generator_version": "ctxmap-indexer-v0.1",
       "last_processed_at": "2026-08-14T00:00:00Z",
       "schema_version": "ctxmap-manifest-v0.1",
-      "source_hash": "bcdb299fe14c15ae887a91c606909a15f841259909a48256a81be6a92fede4b4",
+      "source_hash": "2f04cb7ebd815ea46ad2942576d63008e08ee0da651bd58e590d8ec52507ce1b",
       "state": "active",
       "subject_id": "art-478b3bbd-d8a8-5ee3-a7d0-0ef0433c3901",
       "subject_type": "artifact"
@@ -1787,7 +1787,7 @@
       "generator_version": "ctxmap-indexer-v0.1",
       "last_processed_at": "2026-08-14T00:00:00Z",
       "schema_version": "ctxmap-manifest-v0.1",
-      "source_hash": "e71800781871242342a62eb8ed4a89314db01bf97fcf2e65c5f5cf3fc7ffe07e",
+      "source_hash": "758aa7542dc84d99b2d5357ac91717a70c3ac76ef02acd87e807413227b47659",
       "state": "active",
       "subject_id": "art-71677596-cdb2-56b1-b54d-65170a992169",
       "subject_type": "artifact"
@@ -2643,11 +2643,11 @@
       "subject_type": "artifact"
     },
     {
-      "delta_kind": "modified_minor",
+      "delta_kind": "record_update",
       "generator_version": "ctxmap-indexer-v0.1",
       "last_processed_at": "2026-08-14T00:00:00Z",
       "schema_version": "ctxmap-manifest-v0.1",
-      "source_hash": "a90ad50eff7eabe2ed1c3507f5e9f6c6f54b126c6b2a69801c4ea63796120d19",
+      "source_hash": "ff4a55b28cd7482a92321d7a6c31113800a8f989362c30263f8dc60e34aa9b5a",
       "state": "active",
       "subject_id": "art-a4db3d62-a3b4-57a5-8598-b9e9f3163f7f",
       "subject_type": "artifact"
@@ -3083,6 +3083,16 @@
       "subject_type": "artifact"
     },
     {
+      "delta_kind": "record_update",
+      "generator_version": "ctxmap-indexer-v0.1",
+      "last_processed_at": "2026-08-14T00:00:00Z",
+      "schema_version": "ctxmap-manifest-v0.1",
+      "source_hash": "41c33c9bf0e7dfd259da561da0178d7da577d03a7c104072bf8b03898189eff1",
+      "state": "active",
+      "subject_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "subject_type": "artifact"
+    },
+    {
       "delta_kind": "modified_minor",
       "generator_version": "ctxmap-indexer-v0.1",
       "last_processed_at": "2026-08-14T00:00:00Z",
@@ -3150,6 +3160,16 @@
       "source_hash": "560677f4808a12d5a96e2f53a516689094718d73204f13bf678767e62e300832",
       "state": "active",
       "subject_id": "art-bd4ea5b0-886d-5688-8444-3dc961d1296a",
+      "subject_type": "artifact"
+    },
+    {
+      "delta_kind": "record_update",
+      "generator_version": "ctxmap-indexer-v0.1",
+      "last_processed_at": "2026-08-14T00:00:00Z",
+      "schema_version": "ctxmap-manifest-v0.1",
+      "source_hash": "38991e13d4148836ed367c941c8996f7e4048bf1019074645f48859cdb73d6a8",
+      "state": "active",
+      "subject_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
       "subject_type": "artifact"
     },
     {
@@ -3953,11 +3973,11 @@
       "subject_type": "artifact"
     },
     {
-      "delta_kind": "modified_minor",
+      "delta_kind": "record_update",
       "generator_version": "ctxmap-indexer-v0.1",
       "last_processed_at": "2026-08-14T00:00:00Z",
       "schema_version": "ctxmap-manifest-v0.1",
-      "source_hash": "6c4e4f6bc754e6c4dcbffd143fa68a48cdff568de42c197d37a08a3488819491",
+      "source_hash": "198de7c62b6bbbe65bdbe0f675562b401211e57c09f8527ba836d07ba46bc826",
       "state": "active",
       "subject_id": "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
       "subject_type": "artifact"

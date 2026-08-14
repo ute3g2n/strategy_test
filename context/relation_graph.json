@@ -2,6 +2,22 @@
   "diagnostics": [
     {
       "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "doc/ai_foundation/context/artifact_manifest.json"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "doc/ai_foundation/context/code_manifest.json"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "doc/ai_foundation/context/manifest_state.json"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "doc/ai_foundation/context/relation_graph.json"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
       "message": "doc/ai_foundation/doc/00_全Phase残課題Blocked統合台帳.html"
     },
     {
@@ -78,11 +94,23 @@
     },
     {
       "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "doc/ai_foundation/plan/context_index/CTXMAP-H1_approval.json"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "doc/ai_foundation/plan/context_index/runtime/CTX-10_preflight_gate_report.json"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
       "message": "doc/ai_foundation/plan/phase2-5_ai_foundation/00_互換性マトリクス.md"
     },
     {
       "code": "DOCUMENT_LINK_UNRESOLVED",
       "message": "doc/ai_foundation/plan/phase2-5_ai_foundation/00_導入台帳.md"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "doc/ai_foundation/plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md"
     },
     {
       "code": "DOCUMENT_LINK_UNRESOLVED",
@@ -167,6 +195,10 @@
     {
       "code": "DOCUMENT_LINK_UNRESOLVED",
       "message": "doc/doc/ai_foundation/19_Phase2-5実装品質基盤実装検証.html"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "doc/doc/ai_foundation/21_資料コード参照基盤システム詳細解説.html"
     },
     {
       "code": "DOCUMENT_LINK_UNRESOLVED",
@@ -2758,6 +2790,30 @@
     },
     {
       "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "doc/plan/context_index/CTX-10_dispatch_receipt.json"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "doc/plan/context_index/CTX-11_dispatch_receipt.json"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "doc/plan/context_index/CTX-11_最終受入・引渡し.md"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "doc/plan/context_index/CTXMAP-H1_approval.json"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "doc/plan/context_index/runtime/CTX-10_post_fixture_gate_report.json"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "doc/plan/context_index/runtime/CTX-11_final_precommit_gate_report.json"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
       "message": "doc/plan/phase2-5_ai_foundation/04_パイロット評価.md"
     },
     {
@@ -3446,6 +3502,10 @@
     },
     {
       "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "plan/context_index/doc/ai_foundation/21_資料コード参照基盤システム詳細解説.html"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
       "message": "plan/context_index/plan/context_index/CTX-03_RED_evidence.md"
     },
     {
@@ -3459,6 +3519,26 @@
     {
       "code": "DOCUMENT_LINK_UNRESOLVED",
       "message": "plan/context_index/plan/context_index/CTX-06_RED_evidence.md"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "plan/context_index/plan/context_index/CTX-09_A07_semantic_responses.json"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "plan/context_index/plan/context_index/CTX-11_dispatch_receipt.json"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "plan/context_index/plan/context_index/CTXMAP-H1_approval.json"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "plan/context_index/plan/context_index/runtime/CTX-10_post_fixture_gate_report.json"
+    },
+    {
+      "code": "DOCUMENT_LINK_UNRESOLVED",
+      "message": "plan/context_index/plan/context_index/runtime/CTX-11_final_precommit_gate_report.json"
     },
     {
       "code": "DOCUMENT_LINK_UNRESOLVED",
@@ -17434,6 +17514,14 @@
       "evidence": "explicit",
       "relation_type": "references_trace_id",
       "resolution": "resolved",
+      "source_id": "art-71677596-cdb2-56b1-b54d-65170a992169",
+      "target_id": "trace-6fc3ff61-151a-5dba-990e-63a5e4bcad0e",
+      "target_ref": "CTXMAP-H1_approval.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
       "source_id": "art-718be7b5-2ff4-55b4-8546-5f01626df589",
       "target_id": "trace-0dd8103b-27ab-52ab-b966-71c26b7c1adc",
       "target_ref": "REQ-Q03"
@@ -22300,6 +22388,14 @@
       "resolution": "unresolved",
       "source_id": "art-a4db3d62-a3b4-57a5-8598-b9e9f3163f7f",
       "target_id": null,
+      "target_ref": "doc/doc/ai_foundation/21_資料コード参照基盤システム詳細解説.html"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-a4db3d62-a3b4-57a5-8598-b9e9f3163f7f",
+      "target_id": null,
       "target_ref": "doc/doc/index.html"
     },
     {
@@ -26754,6 +26850,158 @@
       "evidence": "explicit",
       "relation_type": "references_trace_id",
       "resolution": "resolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": "trace-07f5c42a-93d1-51dd-a378-ff13967ab939",
+      "target_ref": "CTXMAP-AC-10"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": "trace-291b28a1-f239-5d75-bec0-9e0d0836eae9",
+      "target_ref": "CTXMAP-AC-01"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": "trace-2e63885d-2044-5d52-bdd5-02032a20adb9",
+      "target_ref": "CTXMAP-H1"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": "trace-4549ece6-1a44-5431-9ded-e539558139f1",
+      "target_ref": "CTXMAP-AC-06"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": "trace-5d171546-e994-53bf-af97-1caaa0d3f82d",
+      "target_ref": "CTXMAP-AC-07"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": "trace-5d59dc6c-33bc-5c3f-9cb6-681023c7d69c",
+      "target_ref": "CTXMAP-PLAN-001"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": "trace-6495adc8-383f-5dd8-acc6-40bafed7821d",
+      "target_ref": "CTXMAP-AC-08"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": "trace-6fc3ff61-151a-5dba-990e-63a5e4bcad0e",
+      "target_ref": "CTXMAP-H1_approval.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": "trace-9e9e6691-2488-58c5-9f35-a75ad1877459",
+      "target_ref": "CTXMAP-AC-04"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": "trace-b6dca7ba-5296-54ec-8e58-45e003f4b529",
+      "target_ref": "CTXMAP-AC-09"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": "trace-b8e257f5-7a0e-5ad0-9d96-b1dd96a5c507",
+      "target_ref": "CTXMAP-AC-05"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": "trace-c6f32f0b-b98c-5965-87f4-fbb523806510",
+      "target_ref": "CTXMAP-AC-02"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": "trace-e1bf8c3a-d549-5724-8500-768128eb458e",
+      "target_ref": "CTXMAP-AC-03"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": null,
+      "target_ref": "plan/context_index/doc/ai_foundation/21_資料コード参照基盤システム詳細解説.html"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": null,
+      "target_ref": "plan/context_index/plan/context_index/CTX-09_A07_semantic_responses.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": null,
+      "target_ref": "plan/context_index/plan/context_index/CTX-11_dispatch_receipt.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": null,
+      "target_ref": "plan/context_index/plan/context_index/CTXMAP-H1_approval.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": null,
+      "target_ref": "plan/context_index/plan/context_index/runtime/CTX-10_post_fixture_gate_report.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "target_id": null,
+      "target_ref": "plan/context_index/plan/context_index/runtime/CTX-11_final_precommit_gate_report.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
       "source_id": "art-bad3ec5c-7449-5da8-8a0d-63520c973956",
       "target_id": "trace-0005f34c-0bad-51f4-9830-21d1f0248aef",
       "target_ref": "UNK-13-05"
@@ -27365,6 +27613,142 @@
       "source_id": "art-bd4ea5b0-886d-5688-8444-3dc961d1296a",
       "target_id": "trace-7952360f-c443-54b3-8215-dc617b076e3d",
       "target_ref": "UNK-P2-09"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "target_id": "trace-3e65b561-9101-5dad-855b-0f78c84165a9",
+      "target_ref": "CTXMAP-UNK-01"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "target_id": "trace-537cdec0-00f4-5129-9225-0a5dff13005f",
+      "target_ref": "REQ-CTXMAP-01"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "target_id": "trace-55583c60-40ef-51c2-943e-778da034ca05",
+      "target_ref": "CTXMAP-D02"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "target_id": "trace-5c24abf9-e693-5f21-a985-5dbe548be689",
+      "target_ref": "CTXMAP-DEC-01"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "target_id": "trace-6500147c-79d0-5c2f-aa18-17391db4714c",
+      "target_ref": "CTXMAP-UNK-03"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "target_id": "trace-6fc3ff61-151a-5dba-990e-63a5e4bcad0e",
+      "target_ref": "CTXMAP-H1_approval.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "target_id": "trace-98022b66-b9c9-532f-877c-a44eaea0854a",
+      "target_ref": "CTXMAP-UNK-02"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "target_id": "trace-a7753a66-9bdb-57dd-8ff7-c2640231a693",
+      "target_ref": "ART-CTX10-DOC-001"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "target_id": null,
+      "target_ref": "doc/ai_foundation/context/artifact_manifest.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "target_id": null,
+      "target_ref": "doc/ai_foundation/context/code_manifest.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "target_id": null,
+      "target_ref": "doc/ai_foundation/context/manifest_state.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "target_id": null,
+      "target_ref": "doc/ai_foundation/context/relation_graph.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "target_id": null,
+      "target_ref": "doc/ai_foundation/doc/00_全Phase残課題Blocked統合台帳.html"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "target_id": null,
+      "target_ref": "doc/ai_foundation/doc/index.html"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "target_id": null,
+      "target_ref": "doc/ai_foundation/plan/context_index/CTXMAP-H1_approval.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "target_id": null,
+      "target_ref": "doc/ai_foundation/plan/context_index/runtime/CTX-10_preflight_gate_report.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "target_id": null,
+      "target_ref": "doc/ai_foundation/plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md"
     },
     {
       "evidence": "explicit",
@@ -33419,6 +33803,14 @@
       "relation_type": "references_trace_id",
       "resolution": "resolved",
       "source_id": "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
+      "target_id": "trace-6fc3ff61-151a-5dba-990e-63a5e4bcad0e",
+      "target_ref": "CTXMAP-H1_approval.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "references_trace_id",
+      "resolution": "resolved",
+      "source_id": "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
       "target_id": "trace-729de6c7-3541-545b-9154-08bdb1f9a434",
       "target_ref": "UNK-18-04"
     },
@@ -34229,6 +34621,54 @@
       "source_id": "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
       "target_id": null,
       "target_ref": "doc/plan/context_index/CTX-02_dispatch_receipt.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
+      "target_id": null,
+      "target_ref": "doc/plan/context_index/CTX-10_dispatch_receipt.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
+      "target_id": null,
+      "target_ref": "doc/plan/context_index/CTX-11_dispatch_receipt.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
+      "target_id": null,
+      "target_ref": "doc/plan/context_index/CTX-11_最終受入・引渡し.md"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
+      "target_id": null,
+      "target_ref": "doc/plan/context_index/CTXMAP-H1_approval.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
+      "target_id": null,
+      "target_ref": "doc/plan/context_index/runtime/CTX-10_post_fixture_gate_report.json"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "links_to",
+      "resolution": "unresolved",
+      "source_id": "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
+      "target_id": null,
+      "target_ref": "doc/plan/context_index/runtime/CTX-11_final_precommit_gate_report.json"
     },
     {
       "evidence": "explicit",
@@ -57907,6 +58347,14 @@
       "relation_type": "contains",
       "resolution": "resolved",
       "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_gate_batches_multiple_major_document_changes_before_final_validation",
+      "target_ref": "test_gate_batches_multiple_major_document_changes_before_final_validation"
+    },
+    {
+      "evidence": "explicit",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
       "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_gate_h1_requirement_fails_closed_before_work",
       "target_ref": "test_gate_h1_requirement_fails_closed_before_work"
     },
@@ -61834,6 +62282,12 @@
       "relative_path": "plan/phase2/ログ/P2-07_実装品質_2026-08-08.md"
     },
     {
+      "label": "plan/context_index/CTX-11_最終受入・引渡し.md",
+      "node_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "node_type": "document",
+      "relative_path": "plan/context_index/CTX-11_最終受入・引渡し.md"
+    },
+    {
       "label": "plan/requirements_update/RQU-13_未決定事項追加ヒアリング票_2026-08-11.md",
       "node_id": "art-bad3ec5c-7449-5da8-8a0d-63520c973956",
       "node_type": "document",
@@ -61874,6 +62328,12 @@
       "node_id": "art-bd4ea5b0-886d-5688-8444-3dc961d1296a",
       "node_type": "document",
       "relative_path": "plan/phase2/ログ/P2-01_実行ログ_2026-08-04.md"
+    },
+    {
+      "label": "doc/ai_foundation/21_資料コード参照基盤システム詳細解説.html",
+      "node_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "node_type": "document",
+      "relative_path": "doc/ai_foundation/21_資料コード参照基盤システム詳細解説.html"
     },
     {
       "label": ".codex/skills/autotrade_skill_ai_component_lifecycle_v0_1/SKILL.md",
@@ -73586,6 +74046,13 @@
     {
       "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
       "kind": "function",
+      "label": "test_gate_batches_multiple_major_document_changes_before_final_validation",
+      "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_gate_batches_multiple_major_document_changes_before_final_validation",
+      "node_type": "code_symbol"
+    },
+    {
+      "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "kind": "function",
       "label": "test_gate_h1_requirement_fails_closed_before_work",
       "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_gate_h1_requirement_fails_closed_before_work",
       "node_type": "code_symbol"
@@ -76683,6 +77150,11 @@
       "node_type": "trace_id"
     },
     {
+      "label": "REQ-CTXMAP-01",
+      "node_id": "trace-537cdec0-00f4-5129-9225-0a5dff13005f",
+      "node_type": "trace_id"
+    },
+    {
       "label": "UNK-18-10",
       "node_id": "trace-53897849-7994-5432-ad8c-467b89e43057",
       "node_type": "trace_id"
@@ -76740,6 +77212,11 @@
     {
       "label": "REQ-RQV2-Q-217",
       "node_id": "trace-54eb6b58-ef35-50fc-94c6-761098c354bf",
+      "node_type": "trace_id"
+    },
+    {
+      "label": "CTXMAP-D02",
+      "node_id": "trace-55583c60-40ef-51c2-943e-778da034ca05",
       "node_type": "trace_id"
     },
     {
@@ -77005,6 +77482,11 @@
     {
       "label": "REQ-RQV2-Q-164",
       "node_id": "trace-64eb81c2-3699-51bb-b140-272a04b70b09",
+      "node_type": "trace_id"
+    },
+    {
+      "label": "CTXMAP-UNK-03",
+      "node_id": "trace-6500147c-79d0-5c2f-aa18-17391db4714c",
       "node_type": "trace_id"
     },
     {
@@ -78480,6 +78962,11 @@
     {
       "label": "REQ-P2-BL02",
       "node_id": "trace-a75ccb50-01a6-522a-bc12-ecc4b474ce04",
+      "node_type": "trace_id"
+    },
+    {
+      "label": "ART-CTX10-DOC-001",
+      "node_id": "trace-a7753a66-9bdb-57dd-8ff7-c2640231a693",
       "node_type": "trace_id"
     },
     {

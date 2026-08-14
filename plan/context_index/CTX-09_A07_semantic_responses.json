@@ -3434,47 +3434,47 @@
     "doc/00_全Phase残課題Blocked統合台帳.html": {
       "artifact_id": "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
       "action": "record_update",
-      "summary": "全Phaseの残課題・Blocked・Unknown・Human Gateを統合管理する正本台帳であり、現在はCTX-09 Gate PASS、active document 426件、strict A07 response 426件、Critical/High 0を記録している。gpt-5.1不受理やruntime fallbackは履歴として保持し、現行実行経路はgpt-5.6-luna / lowで、CTXMAP-H1は未承認である。",
-      "purpose": "Phase 0以降の残課題、Blocked、Unknown、承認待ち、再開条件、証拠先を一元管理し、現在状態と履歴を分離して追跡可能にする。",
+      "summary": "CTXMAP-H1承認済み、CTX-10はFINAL GATE PASS／POST-REVISION PASS、CTX-11はA90のHigh 2件修正待ちでBLOCKED。High内容は旧数値の残存とCTX-11 Gate・A130証拠リンク不足。再開条件は文書3点同期、A07再登録、Gate PASS、A90再レビューでCritical/High=0、A150実行。WSL、外部I/O、Secret、実取引、独立child dispatchは未実行境界として維持し、旧状態と旧モデル記録は履歴として保持する。",
+      "purpose": "CTXMAP導入に関するHuman Gate、CTX-10／CTX-11の現在状態、High指摘、再開条件、未実行境界、履歴および証拠先を統合台帳の現在正本として管理する。",
       "triggers": [
-        "CTX-09現行Gate結果の更新",
-        "A07 strict response件数・Critical/High判定の更新",
-        "AI実行経路またはruntime状態の更新",
-        "Human Gate・承認待ち・Blocked・Unknownの状態変更",
-        "台帳の見出し、関連成果物、更新履歴の変更"
+        "CTXMAP-H1の承認状態変更時",
+        "CTX-10またはCTX-11のGate・レビュー結果更新時",
+        "A90 High指摘の修正・再レビュー時",
+        "A130またはA150の検証・レビュー証跡更新時",
+        "未実行境界、Unknown、Blocked、Human Gateの状態更新時"
       ],
       "headings": [
-        "最新の正本状態（2026-08-10）",
-        "資料・コード参照効率化施策の実行計画（2026-08-14）",
-        "全Phase 残課題・Blocked 統合台帳",
-        "1. まず、いまの状態",
-        "1.5 承認・認証が必要な事項の一覧",
-        "2. 直近Runの解決確認（P2-IC-001は停止中なし）",
-        "3. 期限まで安全に保留する課題",
-        "4. 解決済みの主な課題",
-        "5. Phaseごとの見方",
-        "6. これからの更新方法",
-        "7. 旧台帳と証拠の案内",
-        "8. 変更履歴",
-        "Phase 5 市場Data運用化・実証計画（2026-08-12）"
+        "CTXMAP / CTX-11 現在の正本状態（2026-08-15）",
+        "CTXMAP-H1",
+        "CTX-10",
+        "CTX-11",
+        "CTXMAP-UNK-01/02",
+        "変更履歴",
+        "人間承認・認証・外部利用許可の状態"
       ],
       "relations": [
+        "plan/context_index/CTXMAP-H1_approval.json",
+        "plan/context_index/runtime/CTX-10_post_fixture_gate_report.json",
+        "plan/context_index/CTX-10_dispatch_receipt.json",
+        "plan/context_index/CTX-11_最終受入・引渡し.md",
+        "plan/context_index/CTX-11_dispatch_receipt.json",
+        "plan/context_index/runtime/CTX-11_final_precommit_gate_report.json",
+        "plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md",
+        "plan/context_index/CTX-09_A07_semantic_responses.json",
         "doc/index.html",
-        "plan/資料参照効率化施策.md",
-        "plan/context_index/CTX-00_棚卸し・対象分類.md",
-        "plan/context_index/CTX-01_資料コード参照基盤詳細設計候補.md",
-        "plan/context_index/CTX-02_dispatch_receipt.json",
-        "doc/ai_foundation/19_Phase2-5実装品質基盤実装検証.html"
+        "AutoTrade_A130_VerificationEngineer_v0_1",
+        "AutoTrade_A90_DesignReviewer_v0_1",
+        "AutoTrade_A150_PythonCodeReviewer_v0_1"
       ],
-      "confidence": 0.99,
-      "reason": "既存manifestのartifact_idを維持し、対象HTMLの現行内容を再読して、履歴上のgpt-5.1・fallback・BLOCKEDと現在状態のgpt-5.6-luna / low、CTX-09 Gate PASS、426件strict A07 response、Critical/High 0、H1未承認を分離して反映するためrecord_updateとした。",
-      "source_hash": "6c4e4f6bc754e6c4dcbffd143fa68a48cdff568de42c197d37a08a3488819491",
+      "confidence": 0.98,
+      "reason": "対象HTMLをUTF-8バイト列として読み取り、実測SHA-256を計算した。CTXMAP-H1、CTX-10、CTX-11現行状態、A90 High指摘、再開条件、未実行境界、履歴、および指定されたローカル証拠参照を確認した。",
+      "source_hash": "198de7c62b6bbbe65bdbe0f675562b401211e57c09f8527ba836d07ba46bc826",
       "receipt": {
-        "agent_id": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+        "agent_id": "01a001ec-a747-7b03-9bb4-91e92bfdff70",
         "model": "gpt-5.6-luna",
         "reasoning_effort": "low",
         "status": "completed",
-        "run_id": "1239e9fb-ffd4-4de4-8f15-5d692fe70309"
+        "run_id": "ctx11-a07-ledger-final-20260815"
       }
     },
     "doc/ai_foundation/01_AI実行基盤現状棚卸し.html": {
@@ -5051,13 +5051,13 @@
       ],
       "confidence": 0.99,
       "reason": "UTF-8で対象ファイルを読み取り、現行タイトル、h1/h2見出し、主要な相対リンク、要件・Phase・AI基盤・Blocked・資料参照効率化施策の役割を確認した。既存レコードの要約・目的・発火条件・見出し・関係が不足しているためrecord_updateと判定した。提示されたsource_hashと一致する。",
-      "source_hash": "a90ad50eff7eabe2ed1c3507f5e9f6c6f54b126c6b2a69801c4ea63796120d19",
+      "source_hash": "ff4a55b28cd7482a92321d7a6c31113800a8f989362c30263f8dc60e34aa9b5a",
       "receipt": {
         "agent_id": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
         "model": "gpt-5.6-luna",
         "reasoning_effort": "low",
         "status": "completed",
-        "run_id": "ctx-semantic-runtime"
+        "run_id": "ctx10-a07-index-20260815"
       }
     },
     "doc/phase1/00_実行基盤/00_HTMLスタイルガイド.html": {
@@ -11646,18 +11646,19 @@
     "plan/context_index/reviews/CTX-09_findings.md": {
       "artifact_id": "art-71677596-cdb2-56b1-b54d-65170a992169",
       "action": "record_update",
-      "summary": "CTX-09 remediation status updated: F-001, F-002, F-003, F-004, F-006, and F-007 resolved; F-005 remains mitigated/medium. CTXMAP-H1 remains waiting for user approval.",
-      "purpose": "Record the current CTX-09 findings and strict A07 semantic-confirmation status.",
+      "summary": "CTX-09の現在状態では、F-001、F-002、F-003、F-004、F-006、F-007は解消済み、F-005はMediumの緩和状態である。CTXMAP-H1は2026-08-15に明示承認され、CTX-10へ進行可能となった。外部I/O、Secret、実取引、未実行WSL依存検証は禁止のままである。",
+      "purpose": "CTX-09の現在の品質・独立レビュー結果、A07 semantic confirmation、CTXMAP-H1承認状態、CTX-10 handoff条件を記録する。",
       "triggers": [
         "CTX-09 findings update",
         "A07 strict manifest maintenance",
-        "CTXMAP-H1 verification"
+        "CTXMAP-H1 approved",
+        "CTX-10 handoff"
       ],
       "headings": [
-        "CTX-09 remediation update",
-        "Runtime profile amendment",
-        "Current re-verification result",
-        "Current finding disposition"
+        "CTX-09 remediation update (2026-08-14)",
+        "Runtime profile amendment (2026-08-14)",
+        "Current re-verification result (2026-08-14, user-approved Luna profile)",
+        "CTXMAP-H1 approval and CTX-10 handoff (2026-08-15)"
       ],
       "relations": [
         "CTX09-F-001",
@@ -11667,17 +11668,20 @@
         "CTX09-F-005",
         "CTX09-F-006",
         "CTX09-F-007",
-        "CTXMAP-H1"
+        "CTXMAP-H1",
+        "plan/context_index/CTXMAP-H1_approval.json",
+        "plan/資料参照効率化施策.md",
+        "plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md"
       ],
       "confidence": 0.99,
-      "reason": "The source records the current remediation and re-verification status, including strict A07 coverage, source-hash checks, validator results, runtime profile, and remaining H1 approval conditions.",
-      "source_hash": "e71800781871242342a62eb8ed4a89314db01bf97fcf2e65c5f5cf3fc7ffe07e",
+      "reason": "現在欄と履歴欄を区別して確認した。旧WAITING、gpt-5.1、fallback、BLOCKEDの記述は履歴であり、現在の実行経路はgpt-5.6-luna/low、A07 strict response coverageは成立、H1は承認済みでCTX-10へ進行可能である。",
+      "source_hash": "758aa7542dc84d99b2d5357ac91717a70c3ac76ef02acd87e807413227b47659",
       "receipt": {
+        "agent_id": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
         "model": "gpt-5.6-luna",
         "reasoning_effort": "low",
         "status": "completed",
-        "run_id": "ctx09-a07-strict-01a000b9-7b0e-7e91-9f50-b12fcd463abe",
-        "agent_id": "01a000b9-7b0e-7e91-9f50-b12fcd463abe"
+        "run_id": "019ffff6-9a63-7bd3-8def-047b2d0f29f6"
       }
     },
     "plan/phase2-5_ai_foundation/00_互換性マトリクス.md": {
@@ -19140,16 +19144,15 @@
     },
     "plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md": {
       "artifact_id": "art-478b3bbd-d8a8-5ee3-a7d0-0ef0433c3901",
-      "action": "metadata_unchanged",
-      "summary": "資料参照効率化施策の全体導入計画。マニフェスト、コード索引、A07/A08、ローカルMCP、品質ゲート、Human Gate、CTX-00〜11の実行手順を定義する。",
-      "purpose": "必要な資料だけを安全に発見・参照するローカル基盤を導入し、既存の文書導線・追跡性・品質統制を維持する。",
+      "action": "record_update",
+      "summary": "資料参照効率化施策の全体導入計画。CTX-00からCTX-11までの実行手順、受入条件、AI部品、マニフェスト保守、ルーティング、ローカルMCP、Human Gate、レビュー、最終引渡しを定義する。",
+      "purpose": "全ドキュメント・ソースコードへのCTXMAP導入を段階的に実行し、新規文書・大幅変更文書のmanifest保守、コード索引、参照ルーティング、安全なcommit前Gate、最終HTML解説資料までを統制する。",
       "triggers": [
-        "新規文書の追加",
-        "文書の大幅変更",
-        "ソースコード構造変更",
-        "マニフェスト保守",
-        "依頼に基づく資料ルーティング",
-        "commit前の整合性検証"
+        "CTXMAP導入計画の実行・更新時",
+        "新規または大幅変更文書のmanifest再登録時",
+        "CTX-11最終受入・台帳同期・Git引渡し時",
+        "A07、A08、A90、A130、A150の証跡更新時",
+        "CTXMAP-H0またはCTXMAP-H1の状態変更時"
       ],
       "headings": [
         "1. 結論と到達状態",
@@ -19163,32 +19166,37 @@
         "3. 完成時の処理フロー",
         "4. Human Gate と未確定事項",
         "5. 実行Stepと依存関係",
+        "CTX-11 — 最終受入・台帳同期・コミット／プッシュ",
+        "CTX-10 — 自動保守の有効化と完成システム詳細解説HTML",
         "6. 全体受入基準",
         "7. 実行開始時の注意"
       ],
       "relations": [
-        "doc/index.html",
+        "plan/context_index/CTX-11_最終受入・引渡し.md",
+        "plan/context_index/runtime/CTX-11_final_precommit_gate_report.json",
+        "plan/context_index/CTX-11_dispatch_receipt.json",
+        "plan/context_index/CTX-09_A07_semantic_responses.json",
         "doc/00_全Phase残課題Blocked統合台帳.html",
+        "doc/ai_foundation/21_資料参照基盤システム詳細解説.html",
         "AutoTrade_A07_ContextManifestMaintainer_v0_1",
-        "AutoTrade_A08_ContextRouter_v0_1",
-        "autotrade_skill_context_manifest_maintenance_v0_1",
-        "autotrade_skill_context_routing_v0_1",
-        "context/",
-        "scripts/context_index/",
-        "tests/context_index/",
-        "CTXMAP-H0",
-        "CTXMAP-H1",
-        "CTX-00〜CTX-11"
+        "AutoTrade_A90_DesignReviewer_v0_1",
+        "AutoTrade_A150_PythonCodeReviewer_v0_1",
+        "context/artifact_manifest.json",
+        "context/code_manifest.json",
+        "context/relation_graph.json",
+        "scripts/context_index/check_context_gate.py",
+        "scripts/context_index/run_context_maintenance.py",
+        "doc/index.html"
       ],
       "confidence": 0.99,
-      "reason": "対象ファイルのみを読み取り、SHA-256を検証した結果、指定されたsource_hashと一致した。提供済みレコードのメタデータ変更は不要と判断した。",
-      "source_hash": "bcdb299fe14c15ae887a91c606909a15f841259909a48256a81be6a92fede4b4",
+      "reason": "対象ファイルをUTF-8バイト列で確認し、実測SHA-256を取得した。計画本文の目的、発火条件、主要見出し、CTX-11最終Gate、A07、A90、A150、dispatch receipt、統合台帳、詳細解説HTML、manifestおよびGate関連のローカル参照を確認した。",
+      "source_hash": "2f04cb7ebd815ea46ad2942576d63008e08ee0da651bd58e590d8ec52507ce1b",
       "receipt": {
-        "agent_id": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+        "agent_id": "01a001ec-0b1f-76c1-99ec-e3faf723f8d3",
         "model": "gpt-5.6-luna",
         "reasoning_effort": "low",
         "status": "completed",
-        "run_id": "ctx-semantic-runtime"
+        "run_id": "ctx11-a07-plan-20260815"
       }
     },
     "research/asset_selection/00_実行基盤/00_スキーマ辞書.md": {
@@ -20768,6 +20776,108 @@
         "reasoning_effort": "low",
         "status": "completed",
         "run_id": "ctx-semantic-runtime"
+      }
+    },
+    "doc/ai_foundation/21_資料コード参照基盤システム詳細解説.html": {
+      "artifact_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "action": "record_update",
+      "summary": "CTX-10既存HTMLの説明用サンプルIDをDEMO_*形式へ変更したため、既存recordを保持して更新する。",
+      "purpose": "リポジトリ内の管理対象資料を、本文転載ではなく構造情報・hash・関係・証跡に基づいて安全に参照するためのCTXMAP導入設計を説明する。Secret、認証情報、外部サービス本文、実取引データは対象外とする。",
+      "triggers": [
+        "CTX-10正式HTML資料の新規登録",
+        "CTXMAPの構造・manifest・relation graph・証跡の参照",
+        "A07の1ファイルstrict JSON判定とA08の最小routing設計の確認",
+        "安全停止、Human Gate、Unknown、外部接続境界の確認"
+      ],
+      "headings": [
+        "資料・コード参照基盤システム詳細解説",
+        "CTXMAPの目的、対象範囲、正本と証跡",
+        "三つの記録をダミーで理解する",
+        "変更の処理シーケンス",
+        "A07: 1ファイルstrict JSON判断",
+        "A08: 依頼文から最小routing",
+        "fail-closedと脅威",
+        "Router→local MCP→JIT本文取得",
+        "日次運用とcommit安全策",
+        "fixture、test、audit、limitsと限界",
+        "成功条件と残Unknown",
+        "FAQ・トラブルシューティング・用語・追跡",
+        "関連リンク",
+        "変更履歴"
+      ],
+      "relations": [
+        "doc/index.html",
+        "plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md",
+        "plan/context_index/CTXMAP-H1_approval.json",
+        "plan/context_index/runtime/CTX-10_preflight_gate_report.json",
+        "doc/00_全Phase残課題Blocked統合台帳.html",
+        "context/artifact_manifest.json",
+        "context/code_manifest.json",
+        "context/relation_graph.json",
+        "context/manifest_state.json",
+        "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+        "AutoTrade_A08_ContextRouter_v0_1",
+        "AutoTrade_A81_DesignDocSetWriter_v0_1"
+      ],
+      "confidence": 0.96,
+      "reason": "指定された1ファイルの実体を確認し、source_hashは入力値とSHA-256計算結果が一致した。文書は新規CTX-10正式HTMLであり、既存recordの更新ではなくrecord_addが適切。見出し、目的、関係リンク、安全境界を本文から抽出でき、Secret・個人情報・外部接続・実取引の実行や保存は確認されなかった。",
+      "source_hash": "38991e13d4148836ed367c941c8996f7e4048bf1019074645f48859cdb73d6a8",
+      "receipt": {
+        "agent_id": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+        "model": "gpt-5.6-luna",
+        "reasoning_effort": "low",
+        "status": "completed",
+        "run_id": "ctx10-a07-new-detail-revision-20260815"
+      }
+    },
+    "plan/context_index/CTX-11_最終受入・引渡し.md": {
+      "artifact_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "action": "record_update",
+      "summary": "CTX-11の最終受入・引渡し状況、manifest・code manifest・relation graph・A07/A08 routing・テスト結果、Gateおよび各レビュー証跡、未実行境界とGit停止条件を記録する文書。現在はA90 High 2件の修正待ちで、受入完了とGit操作を停止している。",
+      "purpose": "CTXMAP導入の最終受入判定に必要な現在値、証拠リンク、レビュー状態、残留リスク、再開条件を一元管理し、文書・実行計画・統合台帳・dispatch receipt間の整合性を引き渡す。",
+      "triggers": [
+        "CTX-11最終受入または引渡し時",
+        "manifest、code manifest、relation graph、A07/A08 routing、テスト結果、Gate結果の更新時",
+        "A130、A90、A150の検証・レビュー結果を反映するとき",
+        "A90のCritical/High指摘を修正し、再レビューへ進むとき",
+        "Git stage・commit・push前の最終確認時"
+      ],
+      "headings": [
+        "CTX-11 最終受入・引渡し",
+        "目的",
+        "現在状態（2026-08-15・現在の正本）",
+        "受入表",
+        "証拠リンクとruntime receipt",
+        "未実行境界・残留リスク",
+        "Git手順と未確定欄",
+        "変更履歴"
+      ],
+      "relations": [
+        "context/artifact_manifest.json",
+        "context/code_manifest.json",
+        "context/relation_graph.json",
+        "context/manifest_state.json",
+        "plan/context_index/CTX-09_A07_semantic_responses.json",
+        "plan/context_index/runtime/CTX-11_final_precommit_gate_report.json",
+        "plan/context_index/CTX-11_dispatch_receipt.json",
+        "plan/context_index/CTX-09_all_document_paths.txt",
+        "doc/00_全Phase残課題Blocked統合台帳.html",
+        "plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md",
+        "plan/context_index/CTX-01_資料コード参照基盤詳細設計候補.md",
+        "plan/context_index/CTX-10_dispatch_receipt.json",
+        "AutoTrade_A130_VerificationEngineer_v0_1",
+        "AutoTrade_A90_DesignReviewer_v0_1",
+        "AutoTrade_A150_PythonCodeReviewer_v0_1"
+      ],
+      "confidence": 0.99,
+      "reason": "対象ファイルをUTF-8バイト列として読み取り、実測SHA-256を計算した。本文の見出し、受入表、Gate、A130、A90、A150、CTX-11 receipt、manifestおよび関連台帳へのローカル参照を確認した。",
+      "source_hash": "41c33c9bf0e7dfd259da561da0178d7da577d03a7c104072bf8b03898189eff1",
+      "receipt": {
+        "agent_id": "01a001eb-7b0a-72e0-af33-c65e8855aa80",
+        "model": "gpt-5.6-luna",
+        "reasoning_effort": "low",
+        "status": "completed",
+        "run_id": "ctx11-a07-manifest-20260815"
       }
     }
   }

@@ -3844,328 +3844,20 @@
     },
     {
       "artifact_id": "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
-      "byte_size": 267907,
+      "byte_size": 271039,
       "first_seen_at": "2026-08-14T12:45:41Z",
       "generator_version": "ctxmap-indexer-v0.1",
       "headings": [
-        {
-          "level": 2,
-          "line": 74,
-          "text": "最新の正本状態（2026-08-10）"
-        },
-        {
-          "level": 2,
-          "line": 81,
-          "text": "資料・コード参照効率化施策の実行計画（2026-08-14）"
-        },
-        {
-          "level": 2,
-          "line": 96,
-          "text": "Q-277撤回と未決定事項の時期分類（RQU-19、2026-08-11）"
-        },
-        {
-          "level": 2,
-          "line": 122,
-          "text": "UI作成用AI基盤の外部調査・導入選定（2026-08-11）"
-        },
-        {
-          "level": 2,
-          "line": 148,
-          "text": "要件定義書追加更新・UIモックHTML作成 実行計画（2026-08-11）"
-        },
-        {
-          "level": 2,
-          "line": 164,
-          "text": "要件定義書v2 ゼロベース再作成 実行計画（2026-08-11）"
-        },
-        {
-          "level": 2,
-          "line": 178,
-          "text": "Phase 4 Product/Application・Backtest 実行計画（2026-08-12現在）"
-        },
-        {
-          "level": 2,
-          "line": 192,
-          "text": "P3-12最終状態（2026-08-10）"
-        },
-        {
-          "level": 2,
-          "line": 209,
-          "text": "要件定義書更新 RQU の現在状態（2026-08-10）"
-        },
-        {
-          "level": 2,
-          "line": 227,
-          "text": "要件追加ヒアリング RQU-16の追加補足（2026-08-11）"
-        },
-        {
-          "level": 2,
-          "line": 242,
-          "text": "要件追加ヒアリング RQU-17回答反映（2026-08-11）"
-        },
-        {
-          "level": 2,
-          "line": 270,
-          "text": "要件追加ヒアリング RQU-18回答反映（2026-08-11）"
-        },
-        {
-          "level": 2,
-          "line": 299,
-          "text": "統合台帳全体点検の実施（2026-08-09）"
-        },
-        {
-          "level": 2,
-          "line": 304,
-          "text": "統合台帳全体点検の実施（2026-08-10）"
-        },
-        {
-          "level": 2,
-          "line": 309,
-          "text": "Phase 3開始状態（P3-01完了時点・2026-08-09）"
-        },
-        {
-          "level": 2,
-          "line": 315,
-          "text": "H3-0承認とP3-02完了（H3-2承認前の履歴・2026-08-09）"
-        },
-        {
-          "level": 2,
-          "line": 320,
-          "text": "H3-2承認：LEANを主PoC候補として使う（2026-08-09）"
-        },
-        {
-          "level": 2,
-          "line": 325,
-          "text": "P3-03完了：Strategy / Turtle実装詳細設計（2026-08-09）"
-        },
-        {
-          "level": 2,
-          "line": 330,
-          "text": "P3-04完了：Backtest / Experiment実装詳細設計（2026-08-09）"
-        },
-        {
-          "level": 1,
-          "line": 335,
-          "text": "全Phase 残課題・Blocked 統合台帳"
-        },
-        {
-          "level": 2,
-          "line": 351,
-          "text": "1. まず、いまの状態"
-        },
-        {
-          "level": 2,
-          "line": 360,
-          "text": "1.5 承認・認証が必要な事項の一覧"
-        },
-        {
-          "level": 3,
-          "line": 392,
-          "text": "言葉の意味"
-        },
-        {
-          "level": 2,
-          "line": 404,
-          "text": "2. 直近Runの解決確認（P2-IC-001は停止中なし）"
-        },
-        {
-          "level": 3,
-          "line": 438,
-          "text": "2-1. BLK-RUN-001の解決内容"
-        },
-        {
-          "level": 3,
-          "line": 459,
-          "text": "2-2. BLK-RUN-002を詳しく説明すると"
-        },
-        {
-          "level": 3,
-          "line": 478,
-          "text": "2-3. BLK-RUN-003を詳しく説明すると"
-        },
-        {
-          "level": 2,
-          "line": 525,
-          "text": "3. 期限まで安全に保留する課題"
-        },
-        {
-          "level": 2,
-          "line": 566,
-          "text": "P3-12で解消した根本課題（2026-08-10）"
-        },
-        {
-          "level": 2,
-          "line": 588,
-          "text": "4. 解決済みの主な課題"
-        },
-        {
-          "level": 2,
-          "line": 611,
-          "text": "5. Phaseごとの見方"
-        },
-        {
-          "level": 2,
-          "line": 623,
-          "text": "6. これからの更新方法"
-        },
-        {
-          "level": 3,
-          "line": 632,
-          "text": "更新時の必須項目"
-        },
-        {
-          "level": 2,
-          "line": 642,
-          "text": "7. 旧台帳と証拠の案内"
-        },
-        {
-          "level": 2,
-          "line": 658,
-          "text": "8. 変更履歴"
-        },
-        {
-          "level": 2,
-          "line": 767,
-          "text": "最新方針の上書き（2026-08-09）"
-        },
-        {
-          "level": 2,
-          "line": 772,
-          "text": "UNK-P2-15の解消（2026-08-09）"
-        },
-        {
-          "level": 2,
-          "line": 778,
-          "text": "P2-12-03 最終状態（2026-08-09）"
-        },
-        {
-          "level": 2,
-          "line": 788,
-          "text": "P3-07 Backtest実装・検証の現状（2026-08-09）"
-        },
-        {
-          "level": 2,
-          "line": 802,
-          "text": "P3-08 Cost / Roll / Gap / Holdout契約実装の現状（2026-08-10）"
-        },
-        {
-          "level": 2,
-          "line": 810,
-          "text": "P3-08A LEAN依存固定・オフライン準備（2026-08-10）"
-        },
-        {
-          "level": 2,
-          "line": 818,
-          "text": "P3-09 取引エンジンPoCの現状（2026-08-10）"
-        },
-        {
-          "level": 2,
-          "line": 826,
-          "text": "P3-10 統合Replay / Golden / Bias検証の現状（2026-08-10）"
-        },
-        {
-          "level": 2,
-          "line": 837,
-          "text": "残課題の詳しい説明と現在の対応（2026-08-09）"
-        },
-        {
-          "level": 3,
-          "line": 840,
-          "text": "BLK-P2-004 / UNK-P2-05：品質が悪い日の扱い"
-        },
-        {
-          "level": 3,
-          "line": 847,
-          "text": "BLK-P2-005：費用と利用権限の最終記録"
-        },
-        {
-          "level": 3,
-          "line": 853,
-          "text": "BLK-P2-006：大容量データの保存先・保全"
-        },
-        {
-          "level": 3,
-          "line": 868,
-          "text": "BLK-P2-007 / UNK-P2-09：データ遅延の合否基準"
-        },
-        {
-          "level": 3,
-          "line": 874,
-          "text": "Phase 1・AI基盤の継続課題"
-        },
-        {
-          "level": 2,
-          "line": 879,
-          "text": "更新履歴 v4.5（2026-08-10）"
-        },
-        {
-          "level": 2,
-          "line": 889,
-          "text": "ユーザー決定の最新反映（2026-08-09）"
-        },
-        {
-          "level": 3,
-          "line": 890,
-          "text": "BLK-P2-004 / UNK-P2-05：警告付きで使用"
-        },
-        {
-          "level": 3,
-          "line": 894,
-          "text": "BLK-P2-005：プロジェクト内の費用・利用権限停止条件を廃止"
-        },
-        {
-          "level": 3,
-          "line": 898,
-          "text": "BLK-P2-006：保存方針を確定"
-        },
-        {
-          "level": 3,
-          "line": 902,
-          "text": "BLK-P2-007 / UNK-P2-09：一般的な遅延基準の調査結果"
-        },
-        {
-          "level": 2,
-          "line": 912,
-          "text": "H3-4承認の反映（2026-08-10）"
-        },
-        {
-          "level": 2,
-          "line": 918,
-          "text": "更新履歴 v4.6（2026-08-10）"
-        },
-        {
-          "level": 2,
-          "line": 923,
-          "text": "Phase 4 P4-H1承認とP4-06開始（2026-08-12）"
-        },
-        {
-          "level": 2,
-          "line": 929,
-          "text": "Phase 4 P4-07完了（2026-08-12）"
-        },
-        {
-          "level": 2,
-          "line": 936,
-          "text": "Phase 4 P4-08完了（2026-08-12）"
-        },
-        {
-          "level": 2,
-          "line": 943,
-          "text": "Phase 4 P4-09統合品質完了・P4-H2停止（2026-08-12）"
-        },
-        {
-          "level": 2,
-          "line": 950,
-          "text": "Phase 4 P4-10完了・Phase 5計画引渡し（2026-08-12）"
-        },
-        {
-          "level": 2,
-          "line": 958,
-          "text": "Phase 5 市場Data運用化・実証計画（2026-08-12）"
-        }
+        "CTXMAP / CTX-11 現在の正本状態（2026-08-15）",
+        "CTXMAP-H1",
+        "CTX-10",
+        "CTX-11",
+        "CTXMAP-UNK-01/02",
+        "変更履歴",
+        "人間承認・認証・外部利用許可の状態"
       ],
       "kind": "managed_document",
-      "line_count": 984,
+      "line_count": 998,
       "local_links": [
         "doc/ai_foundation/15_実装詳細設計AI基盤仕様.html",
         "doc/ai_foundation/18_Phase2-5本実装AI実行基盤設計書.html",
@@ -4218,6 +3910,12 @@
         "plan/context_index/CTX-01_受入・脅威・テスト設計.md",
         "plan/context_index/CTX-01_資料コード参照基盤詳細設計候補.md",
         "plan/context_index/CTX-02_dispatch_receipt.json",
+        "plan/context_index/CTX-10_dispatch_receipt.json",
+        "plan/context_index/CTX-11_dispatch_receipt.json",
+        "plan/context_index/CTX-11_最終受入・引渡し.md",
+        "plan/context_index/CTXMAP-H1_approval.json",
+        "plan/context_index/runtime/CTX-10_post_fixture_gate_report.json",
+        "plan/context_index/runtime/CTX-11_final_precommit_gate_report.json",
         "plan/phase2-5_ai_foundation/04_パイロット評価.md",
         "plan/phase2-5_ai_foundation/05_WSL2隔離品質ゲート構築_CodexCLI依頼プロンプト.md",
         "plan/phase2/台帳/P2-03R_DDカバレッジ台帳_2026-08-04.md",
@@ -4358,19 +4056,33 @@
         "tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1.md",
         "tests/quality_gate/test_runner.py"
       ],
-      "purpose": "全Phase 残課題・Blocked 統合台帳",
-      "relation_ids": [],
+      "purpose": "CTXMAP導入に関するHuman Gate、CTX-10／CTX-11の現在状態、High指摘、再開条件、未実行境界、履歴および証拠先を統合台帳の現在正本として管理する。",
+      "relation_ids": [
+        "plan/context_index/CTXMAP-H1_approval.json",
+        "plan/context_index/runtime/CTX-10_post_fixture_gate_report.json",
+        "plan/context_index/CTX-10_dispatch_receipt.json",
+        "plan/context_index/CTX-11_最終受入・引渡し.md",
+        "plan/context_index/CTX-11_dispatch_receipt.json",
+        "plan/context_index/runtime/CTX-11_final_precommit_gate_report.json",
+        "plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md",
+        "plan/context_index/CTX-09_A07_semantic_responses.json",
+        "doc/index.html",
+        "AutoTrade_A130_VerificationEngineer_v0_1",
+        "AutoTrade_A90_DesignReviewer_v0_1",
+        "AutoTrade_A150_PythonCodeReviewer_v0_1"
+      ],
       "relative_path": "doc/00_全Phase残課題Blocked統合台帳.html",
       "schema_version": "ctxmap-manifest-v0.1",
-      "source_hash": "6c4e4f6bc754e6c4dcbffd143fa68a48cdff568de42c197d37a08a3488819491",
+      "source_hash": "198de7c62b6bbbe65bdbe0f675562b401211e57c09f8527ba836d07ba46bc826",
       "status": "active",
-      "summary": "全Phase 残課題・Blocked 統合台帳",
+      "summary": "CTXMAP-H1承認済み、CTX-10はFINAL GATE PASS／POST-REVISION PASS、CTX-11はA90のHigh 2件修正待ちでBLOCKED。High内容は旧数値の残存とCTX-11 Gate・A130証拠リンク不足。再開条件は文書3点同期、A07再登録、Gate PASS、A90再レビューでCritical/High=0、A150実行。WSL、外部I/O、Secret、実取引、独立child dispatchは未実行境界として維持し、旧状態と旧モデル記録は履歴として保持する。",
       "title": "全Phase 残課題・Blocked 統合台帳",
       "trace_ids": [
-        "CTXMAP-PLAN-001",
-        "CTXMAP-H0",
+        "CTXMAP-H1_approval.json",
         "CTXMAP-H1",
         "CTXMAP-UNK-01",
+        "CTXMAP-PLAN-001",
+        "CTXMAP-H0",
         "CTXMAP-UNK-02",
         "DEC-01",
         "DEC-04",
@@ -4468,7 +4180,13 @@
         "UNK-P5-BINANCE-001",
         "UNK-P5-ALT-001"
       ],
-      "triggers": [],
+      "triggers": [
+        "CTXMAP-H1の承認状態変更時",
+        "CTX-10またはCTX-11のGate・レビュー結果更新時",
+        "A90 High指摘の修正・再レビュー時",
+        "A130またはA150の検証・レビュー証跡更新時",
+        "未実行境界、Unknown、Blocked、Human Gateの状態更新時"
+      ],
       "updated_at": "2026-08-14T00:00:00Z"
     },
     {
@@ -6057,8 +5775,81 @@
       "updated_at": "2026-08-14T00:00:00Z"
     },
     {
+      "artifact_id": "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+      "byte_size": 22944,
+      "first_seen_at": "2026-08-14T00:00:00Z",
+      "generator_version": "ctxmap-indexer-v0.1",
+      "headings": [
+        "資料・コード参照基盤システム詳細解説",
+        "CTXMAPの目的、対象範囲、正本と証跡",
+        "三つの記録をダミーで理解する",
+        "変更の処理シーケンス",
+        "A07: 1ファイルstrict JSON判断",
+        "A08: 依頼文から最小routing",
+        "fail-closedと脅威",
+        "Router→local MCP→JIT本文取得",
+        "日次運用とcommit安全策",
+        "fixture、test、audit、limitsと限界",
+        "成功条件と残Unknown",
+        "FAQ・トラブルシューティング・用語・追跡",
+        "関連リンク",
+        "変更履歴"
+      ],
+      "kind": "managed_document",
+      "line_count": 105,
+      "local_links": [
+        "context/artifact_manifest.json",
+        "context/code_manifest.json",
+        "context/manifest_state.json",
+        "context/relation_graph.json",
+        "doc/00_全Phase残課題Blocked統合台帳.html",
+        "doc/index.html",
+        "plan/context_index/CTXMAP-H1_approval.json",
+        "plan/context_index/runtime/CTX-10_preflight_gate_report.json",
+        "plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md"
+      ],
+      "purpose": "リポジトリ内の管理対象資料を、本文転載ではなく構造情報・hash・関係・証跡に基づいて安全に参照するためのCTXMAP導入設計を説明する。Secret、認証情報、外部サービス本文、実取引データは対象外とする。",
+      "relation_ids": [
+        "doc/index.html",
+        "plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md",
+        "plan/context_index/CTXMAP-H1_approval.json",
+        "plan/context_index/runtime/CTX-10_preflight_gate_report.json",
+        "doc/00_全Phase残課題Blocked統合台帳.html",
+        "context/artifact_manifest.json",
+        "context/code_manifest.json",
+        "context/relation_graph.json",
+        "context/manifest_state.json",
+        "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+        "AutoTrade_A08_ContextRouter_v0_1",
+        "AutoTrade_A81_DesignDocSetWriter_v0_1"
+      ],
+      "relative_path": "doc/ai_foundation/21_資料コード参照基盤システム詳細解説.html",
+      "schema_version": "ctxmap-manifest-v0.1",
+      "source_hash": "38991e13d4148836ed367c941c8996f7e4048bf1019074645f48859cdb73d6a8",
+      "status": "active",
+      "summary": "CTX-10既存HTMLの説明用サンプルIDをDEMO_*形式へ変更したため、既存recordを保持して更新する。",
+      "title": "資料・コード参照基盤システム詳細解説 | CTX-10",
+      "trace_ids": [
+        "ART-CTX10-DOC-001",
+        "CTXMAP-D02",
+        "CTXMAP-UNK-01",
+        "CTXMAP-UNK-02",
+        "CTXMAP-UNK-03",
+        "REQ-CTXMAP-01",
+        "CTXMAP-DEC-01",
+        "CTXMAP-H1_approval.json"
+      ],
+      "triggers": [
+        "CTX-10正式HTML資料の新規登録",
+        "CTXMAPの構造・manifest・relation graph・証跡の参照",
+        "A07の1ファイルstrict JSON判定とA08の最小routing設計の確認",
+        "安全停止、Human Gate、Unknown、外部接続境界の確認"
+      ],
+      "updated_at": "2026-08-14T00:00:00Z"
+    },
+    {
       "artifact_id": "art-a4db3d62-a3b4-57a5-8598-b9e9f3163f7f",
-      "byte_size": 34364,
+      "byte_size": 34605,
       "first_seen_at": "2026-08-14T12:45:41Z",
       "generator_version": "ctxmap-indexer-v0.1",
       "headings": [
@@ -6274,7 +6065,7 @@
         }
       ],
       "kind": "managed_document",
-      "line_count": 325,
+      "line_count": 329,
       "local_links": [
         "doc/00_全Phase残課題Blocked統合台帳.html",
         "doc/ai_foundation/01_AI実行基盤現状棚卸し.html",
@@ -6296,6 +6087,7 @@
         "doc/ai_foundation/17_実装詳細設計書作成依頼プロンプト.html",
         "doc/ai_foundation/18_Phase2-5本実装AI実行基盤設計書.html",
         "doc/ai_foundation/19_Phase2-5実装品質基盤実装検証.html",
+        "doc/ai_foundation/21_資料コード参照基盤システム詳細解説.html",
         "doc/index.html",
         "doc/phase1/00_実行基盤/00_HTMLスタイルガイド.html",
         "doc/phase1/00_実行基盤/00_HTML設計書テンプレート.html",
@@ -6433,13 +6225,54 @@
         "tests/evidence/phase5/RUN-P5-11-BLOCKED-H2-001/dispatch-receipt.json",
         "tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1.md"
       ],
-      "purpose": "ドキュメントインデックス",
-      "relation_ids": [],
+      "purpose": "読者が正式成果物と関連する計画・証跡へ効率的に到達し、現行の承認状態、停止条件、Phase範囲を確認できるようにする。",
+      "relation_ids": [
+        {
+          "target": "doc/00_全Phase残課題Blocked統合台帳.html",
+          "type": "local_link"
+        },
+        {
+          "target": "doc/requirements/01_自動トレードシステム要件定義書_v2.html",
+          "type": "local_link"
+        },
+        {
+          "target": "doc/ui_mock/01_自動トレードシステム_UIモック.html",
+          "type": "local_link"
+        },
+        {
+          "target": "doc/ai_foundation/",
+          "type": "local_link"
+        },
+        {
+          "target": "doc/phase1/",
+          "type": "local_link"
+        },
+        {
+          "target": "doc/phase2/",
+          "type": "local_link"
+        },
+        {
+          "target": "doc/phase3/",
+          "type": "local_link"
+        },
+        {
+          "target": "doc/phase4/",
+          "type": "local_link"
+        },
+        {
+          "target": "doc/phase5/",
+          "type": "local_link"
+        },
+        {
+          "target": "plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md",
+          "type": "local_link"
+        }
+      ],
       "relative_path": "doc/index.html",
       "schema_version": "ctxmap-manifest-v0.1",
-      "source_hash": "a90ad50eff7eabe2ed1c3507f5e9f6c6f54b126c6b2a69801c4ea63796120d19",
+      "source_hash": "ff4a55b28cd7482a92321d7a6c31113800a8f989362c30263f8dc60e34aa9b5a",
       "status": "active",
-      "summary": "ドキュメントインデックス",
+      "summary": "doc配下の正式HTML成果物、Phase別設計・検証資料、要件・UI・AI基盤・残課題・Blocked情報への入口を提供する総合インデックス。",
       "title": "ドキュメントインデックス",
       "trace_ids": [
         "REQ-002",
@@ -6465,7 +6298,11 @@
         "ART-ALT-DATA-DECISION-001",
         "DEC-P5-BINANCE-001"
       ],
-      "triggers": [],
+      "triggers": [
+        "正式HTML成果物を追加・更新したとき",
+        "Phase、要件、UI、AI基盤、検証、レビュー、残課題・Blockedの導線を確認するとき",
+        "資料参照効率化施策の成果物入口を確認するとき"
+      ],
       "updated_at": "2026-08-14T00:00:00Z"
     },
     {
@@ -22372,20 +22209,93 @@
       "updated_at": "2026-08-14T00:00:00Z"
     },
     {
+      "artifact_id": "art-ba1cd177-579a-504e-9a63-88b21b8a5479",
+      "byte_size": 5554,
+      "first_seen_at": "2026-08-14T00:00:00Z",
+      "generator_version": "ctxmap-indexer-v0.1",
+      "headings": [
+        "CTX-11 最終受入・引渡し",
+        "目的",
+        "現在状態（2026-08-15・現在の正本）",
+        "受入表",
+        "証拠リンクとruntime receipt",
+        "未実行境界・残留リスク",
+        "Git手順と未確定欄",
+        "変更履歴"
+      ],
+      "kind": "managed_document",
+      "line_count": 56,
+      "local_links": [
+        "doc/ai_foundation/21_資料コード参照基盤システム詳細解説.html",
+        "plan/context_index/CTX-09_A07_semantic_responses.json",
+        "plan/context_index/CTX-11_dispatch_receipt.json",
+        "plan/context_index/CTXMAP-H1_approval.json",
+        "plan/context_index/runtime/CTX-10_post_fixture_gate_report.json",
+        "plan/context_index/runtime/CTX-11_final_precommit_gate_report.json"
+      ],
+      "purpose": "CTXMAP導入の最終受入判定に必要な現在値、証拠リンク、レビュー状態、残留リスク、再開条件を一元管理し、文書・実行計画・統合台帳・dispatch receipt間の整合性を引き渡す。",
+      "relation_ids": [
+        "context/artifact_manifest.json",
+        "context/code_manifest.json",
+        "context/relation_graph.json",
+        "context/manifest_state.json",
+        "plan/context_index/CTX-09_A07_semantic_responses.json",
+        "plan/context_index/runtime/CTX-11_final_precommit_gate_report.json",
+        "plan/context_index/CTX-11_dispatch_receipt.json",
+        "plan/context_index/CTX-09_all_document_paths.txt",
+        "doc/00_全Phase残課題Blocked統合台帳.html",
+        "plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md",
+        "plan/context_index/CTX-01_資料コード参照基盤詳細設計候補.md",
+        "plan/context_index/CTX-10_dispatch_receipt.json",
+        "AutoTrade_A130_VerificationEngineer_v0_1",
+        "AutoTrade_A90_DesignReviewer_v0_1",
+        "AutoTrade_A150_PythonCodeReviewer_v0_1"
+      ],
+      "relative_path": "plan/context_index/CTX-11_最終受入・引渡し.md",
+      "schema_version": "ctxmap-manifest-v0.1",
+      "source_hash": "41c33c9bf0e7dfd259da561da0178d7da577d03a7c104072bf8b03898189eff1",
+      "status": "active",
+      "summary": "CTX-11の最終受入・引渡し状況、manifest・code manifest・relation graph・A07/A08 routing・テスト結果、Gateおよび各レビュー証跡、未実行境界とGit停止条件を記録する文書。現在はA90 High 2件の修正待ちで、受入完了とGit操作を停止している。",
+      "title": "CTX-11 最終受入・引渡し",
+      "trace_ids": [
+        "CTXMAP-PLAN-001",
+        "CTXMAP-H1",
+        "CTXMAP-H1_approval.json",
+        "CTXMAP-AC-01",
+        "CTXMAP-AC-02",
+        "CTXMAP-AC-03",
+        "CTXMAP-AC-04",
+        "CTXMAP-AC-05",
+        "CTXMAP-AC-06",
+        "CTXMAP-AC-07",
+        "CTXMAP-AC-08",
+        "CTXMAP-AC-09",
+        "CTXMAP-AC-10"
+      ],
+      "triggers": [
+        "CTX-11最終受入または引渡し時",
+        "manifest、code manifest、relation graph、A07/A08 routing、テスト結果、Gate結果の更新時",
+        "A130、A90、A150の検証・レビュー結果を反映するとき",
+        "A90のCritical/High指摘を修正し、再レビューへ進むとき",
+        "Git stage・commit・push前の最終確認時"
+      ],
+      "updated_at": "2026-08-14T00:00:00Z"
+    },
+    {
       "artifact_id": "art-71677596-cdb2-56b1-b54d-65170a992169",
-      "byte_size": 18665,
+      "byte_size": 19264,
       "first_seen_at": "2026-08-14T12:45:41Z",
       "generator_version": "ctxmap-indexer-v0.1",
       "headings": [
-        "CTX-09 remediation update",
-        "Runtime profile amendment",
-        "Current re-verification result",
-        "Current finding disposition"
+        "CTX-09 remediation update (2026-08-14)",
+        "Runtime profile amendment (2026-08-14)",
+        "Current re-verification result (2026-08-14, user-approved Luna profile)",
+        "CTXMAP-H1 approval and CTX-10 handoff (2026-08-15)"
       ],
       "kind": "managed_document",
-      "line_count": 154,
+      "line_count": 161,
       "local_links": [],
-      "purpose": "Record the current CTX-09 findings and strict A07 semantic-confirmation status.",
+      "purpose": "CTX-09の現在の品質・独立レビュー結果、A07 semantic confirmation、CTXMAP-H1承認状態、CTX-10 handoff条件を記録する。",
       "relation_ids": [
         "CTX09-F-001",
         "CTX09-F-002",
@@ -22394,21 +22304,26 @@
         "CTX09-F-005",
         "CTX09-F-006",
         "CTX09-F-007",
-        "CTXMAP-H1"
+        "CTXMAP-H1",
+        "plan/context_index/CTXMAP-H1_approval.json",
+        "plan/資料参照効率化施策.md",
+        "plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md"
       ],
       "relative_path": "plan/context_index/reviews/CTX-09_findings.md",
       "schema_version": "ctxmap-manifest-v0.1",
-      "source_hash": "e71800781871242342a62eb8ed4a89314db01bf97fcf2e65c5f5cf3fc7ffe07e",
+      "source_hash": "758aa7542dc84d99b2d5357ac91717a70c3ac76ef02acd87e807413227b47659",
       "status": "active",
-      "summary": "CTX-09 remediation status updated: F-001, F-002, F-003, F-004, F-006, and F-007 resolved; F-005 remains mitigated/medium. CTXMAP-H1 remains waiting for user approval.",
+      "summary": "CTX-09の現在状態では、F-001、F-002、F-003、F-004、F-006、F-007は解消済み、F-005はMediumの緩和状態である。CTXMAP-H1は2026-08-15に明示承認され、CTX-10へ進行可能となった。外部I/O、Secret、実取引、未実行WSL依存検証は禁止のままである。",
       "title": "CTX-09 統合品質・独立レビュー Findings",
       "trace_ids": [
-        "CTXMAP-H1"
+        "CTXMAP-H1",
+        "CTXMAP-H1_approval.json"
       ],
       "triggers": [
         "CTX-09 findings update",
         "A07 strict manifest maintenance",
-        "CTXMAP-H1 verification"
+        "CTXMAP-H1 approved",
+        "CTX-10 handoff"
       ],
       "updated_at": "2026-08-14T00:00:00Z"
     },
@@ -46853,161 +46768,52 @@
     },
     {
       "artifact_id": "art-478b3bbd-d8a8-5ee3-a7d0-0ef0433c3901",
-      "byte_size": 61125,
+      "byte_size": 62776,
       "first_seen_at": "2026-08-14T12:45:41Z",
       "generator_version": "ctxmap-indexer-v0.1",
       "headings": [
-        {
-          "level": 1,
-          "line": 1,
-          "text": "資料参照効率化施策 全体導入実行計画書"
-        },
-        {
-          "level": 2,
-          "line": 10,
-          "text": "1. 結論と到達状態"
-        },
-        {
-          "level": 2,
-          "line": 23,
-          "text": "2. 現状確認と設計判断"
-        },
-        {
-          "level": 3,
-          "line": 25,
-          "text": "2.1 既存資産として再利用するもの"
-        },
-        {
-          "level": 3,
-          "line": 35,
-          "text": "2.2 新規AI部品"
-        },
-        {
-          "level": 3,
-          "line": 52,
-          "text": "2.3 更新が必要な既存AI部品"
-        },
-        {
-          "level": 3,
-          "line": 63,
-          "text": "2.4 マニフェストとローカルツールの配置案"
-        },
-        {
-          "level": 3,
-          "line": 91,
-          "text": "2.5 管理対象の分類"
-        },
-        {
-          "level": 3,
-          "line": 104,
-          "text": "2.6 大幅変更の定義"
-        },
-        {
-          "level": 2,
-          "line": 112,
-          "text": "3. 完成時の処理フロー"
-        },
-        {
-          "level": 2,
-          "line": 133,
-          "text": "4. Human Gate と未確定事項"
-        },
-        {
-          "level": 2,
-          "line": 144,
-          "text": "5. 実行Stepと依存関係"
-        },
-        {
-          "level": 3,
-          "line": 160,
-          "text": "CTX-00 — 現状棚卸しと対象範囲の凍結"
-        },
-        {
-          "level": 3,
-          "line": 206,
-          "text": "CTX-01 — 参照基盤の詳細設計と受入基準"
-        },
-        {
-          "level": 3,
-          "line": 248,
-          "text": "Gate CTXMAP-H0 — 実装開始承認"
-        },
-        {
-          "level": 3,
-          "line": 252,
-          "text": "CTX-02 — AI部品の作成と既存部品・基盤仕様の同期"
-        },
-        {
-          "level": 3,
-          "line": 300,
-          "text": "CTX-03 — 決定的なマニフェスト基盤のRED設計と実装"
-        },
-        {
-          "level": 3,
-          "line": 343,
-          "text": "CTX-04 — 文書マニフェスト保守Agentの接続と失敗閉鎖"
-        },
-        {
-          "level": 3,
-          "line": 382,
-          "text": "CTX-05 — コードマニフェストと関係グラフ"
-        },
-        {
-          "level": 3,
-          "line": 416,
-          "text": "CTX-06 — ルーターとローカルstdio MCPのJIT参照"
-        },
-        {
-          "level": 3,
-          "line": 454,
-          "text": "CTX-07 — commit前ゲート・監視経路・運用安全化"
-        },
-        {
-          "level": 3,
-          "line": 493,
-          "text": "CTX-08 — 全ドキュメント・全ソースの初回マニフェスト化"
-        },
-        {
-          "level": 3,
-          "line": 529,
-          "text": "CTX-09 — 統合品質・独立レビュー・運用リハーサル"
-        },
-        {
-          "level": 3,
-          "line": 562,
-          "text": "Gate CTXMAP-H1 — 自動保守の有効化承認"
-        },
-        {
-          "level": 3,
-          "line": 566,
-          "text": "CTX-10 — 自動保守の有効化と完成システム詳細解説HTML"
-        },
-        {
-          "level": 3,
-          "line": 614,
-          "text": "CTX-11 — 最終受入・台帳同期・コミット／プッシュ"
-        },
-        {
-          "level": 2,
-          "line": 653,
-          "text": "6. 全体受入基準"
-        },
-        {
-          "level": 2,
-          "line": 668,
-          "text": "7. 実行開始時の注意"
-        }
+        "1. 結論と到達状態",
+        "2. 現状確認と設計判断",
+        "2.1 既存資産として再利用するもの",
+        "2.2 新規AI部品",
+        "2.3 更新が必要な既存AI部品",
+        "2.4 マニフェストとローカルツールの配置案",
+        "2.5 管理対象の分類",
+        "2.6 大幅変更の定義",
+        "3. 完成時の処理フロー",
+        "4. Human Gate と未確定事項",
+        "5. 実行Stepと依存関係",
+        "CTX-11 — 最終受入・台帳同期・コミット／プッシュ",
+        "CTX-10 — 自動保守の有効化と完成システム詳細解説HTML",
+        "6. 全体受入基準",
+        "7. 実行開始時の注意"
       ],
       "kind": "managed_document",
-      "line_count": 670,
+      "line_count": 681,
       "local_links": [],
-      "purpose": "資料参照効率化施策 全体導入実行計画書",
-      "relation_ids": [],
+      "purpose": "全ドキュメント・ソースコードへのCTXMAP導入を段階的に実行し、新規文書・大幅変更文書のmanifest保守、コード索引、参照ルーティング、安全なcommit前Gate、最終HTML解説資料までを統制する。",
+      "relation_ids": [
+        "plan/context_index/CTX-11_最終受入・引渡し.md",
+        "plan/context_index/runtime/CTX-11_final_precommit_gate_report.json",
+        "plan/context_index/CTX-11_dispatch_receipt.json",
+        "plan/context_index/CTX-09_A07_semantic_responses.json",
+        "doc/00_全Phase残課題Blocked統合台帳.html",
+        "doc/ai_foundation/21_資料参照基盤システム詳細解説.html",
+        "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+        "AutoTrade_A90_DesignReviewer_v0_1",
+        "AutoTrade_A150_PythonCodeReviewer_v0_1",
+        "context/artifact_manifest.json",
+        "context/code_manifest.json",
+        "context/relation_graph.json",
+        "scripts/context_index/check_context_gate.py",
+        "scripts/context_index/run_context_maintenance.py",
+        "doc/index.html"
+      ],
       "relative_path": "plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md",
       "schema_version": "ctxmap-manifest-v0.1",
-      "source_hash": "bcdb299fe14c15ae887a91c606909a15f841259909a48256a81be6a92fede4b4",
+      "source_hash": "2f04cb7ebd815ea46ad2942576d63008e08ee0da651bd58e590d8ec52507ce1b",
       "status": "active",
-      "summary": "- 計画ID: `CTXMAP-PLAN-001`",
+      "summary": "資料参照効率化施策の全体導入計画。CTX-00からCTX-11までの実行手順、受入条件、AI部品、マニフェスト保守、ルーティング、ローカルMCP、Human Gate、レビュー、最終引渡しを定義する。",
       "title": "資料参照効率化施策 全体導入実行計画書",
       "trace_ids": [
         "CTXMAP-PLAN-001",
@@ -47029,7 +46835,13 @@
         "CTXMAP-AC-09",
         "CTXMAP-AC-10"
       ],
-      "triggers": [],
+      "triggers": [
+        "CTXMAP導入計画の実行・更新時",
+        "新規または大幅変更文書のmanifest再登録時",
+        "CTX-11最終受入・台帳同期・Git引渡し時",
+        "A07、A08、A90、A130、A150の証跡更新時",
+        "CTXMAP-H0またはCTXMAP-H1の状態変更時"
+      ],
       "updated_at": "2026-08-14T00:00:00Z"
     },
     {

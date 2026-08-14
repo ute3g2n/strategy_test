@@ -424,3 +424,5 @@ research/中学生向け_第10章_現代風にモダナイズする一般的な�
 research/中学生向け_第11章_実装用ルールセット.md
 settings/ai_component_rules.md
 settings/language.md
+doc/ai_foundation/21_資料コード参照基盤システム詳細解説.html
+plan/context_index/CTX-11_最終受入・引渡し.md

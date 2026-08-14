@@ -77,6 +77,20 @@
     <p><strong>P3-11は実行済み、P3-12はH3-3未承認で停止中。</strong> P3-IR-001/002のHigh 2件、P3-IR-003/004のMedium 2件を記録した。P3-AC-03はBLOCKED、P3-AC-01/04はCONDITIONALであり、P3-D13/P3-D14、Phase 3完了、Phase 4引継ぎはまだ作成・承認していない。長期データ、実測cost/slippage、正式Calendar、利益採用、頑健性、Broker、Paper、Liveは未判定のまま維持する。</p>
     <p><small>やさしい説明: P3-10の試験自体は合格として記録されましたが、その後の詳しい点検で「休みの日の確認が足りない」「同じ試験の紙どうしが一致しない」という問題が見つかりました。人の承認と必要な修正が終わるまで、Phase 3完了とは言いません。</small></p>
   </section>
+  <section class="ok-note" id="ctxmap-ctx11-current-authoritative-20260815">
+    <h2>CTXMAP / CTX-11 現在の正本状態（2026-08-15）</h2>
+    <p><strong>これはCTX-11で同期した現在の正本である。</strong> CTXMAP-H1は<code>CTXMAP-H1_approval.json</code>の承認文言「CTXMAP-H1を承認します」により承認済み。CTX-10のfinal Gate／post-revision Gate、manifest validator、relation graph、A07/A08 routing、context_index tests、詳細解説HTML、A90 final re-reviewを確認した。旧CTX-09／CTX-10のBlocked、fallback、旧モデル記録は履歴として保持し、現在状態と混同しない。</p>
+    <table>
+      <thead><tr><th>ID</th><th>現在状態</th><th>残留境界・再開条件</th><th>証拠先</th></tr></thead>
+      <tbody>
+        <tr><td><code>CTXMAP-H1</code></td><td><span class="badge done">APPROVED (2026-08-15)</span></td><td>承認範囲はローカル自動保守の有効化。外部I/O、Secret、実取引、WSL、独立child dispatchは含めない。</td><td><a href="../plan/context_index/CTXMAP-H1_approval.json">approval</a></td></tr>
+        <tr><td><code>CTX-10</code></td><td><span class="badge done">FINAL GATE PASS / POST-REVISION PASS</span></td><td>PARTIAL/code diagnosticsはCOMPLETEに偽装せず、次回確認事項として残す。</td><td><a href="../plan/context_index/runtime/CTX-10_post_fixture_gate_report.json">Gate report</a><br><a href="../plan/context_index/CTX-10_dispatch_receipt.json">receipt</a></td></tr>
+        <tr><td><code>CTX-11</code></td><td><span class="badge stop">BLOCKED: A90 HIGH修正待ち</span></td><td>CTX-11 final GateはPASSだが、A90 High 2件（旧数値、CTX-11 Gate／A130証拠リンク不足）が残るためGitへ進めない。再開条件は文書3点の同期、A07再登録、Gate PASS、A90再レビュー（Critical/High=0）、A150実行。</td><td><a href="../plan/context_index/CTX-11_最終受入・引渡し.md">final acceptance</a><br><a href="../plan/context_index/CTX-11_dispatch_receipt.json">dispatch receipt</a><br><a href="../plan/context_index/runtime/CTX-11_final_precommit_gate_report.json">final Gate</a></td></tr>
+        <tr><td><code>CTXMAP-UNK-01/02</code></td><td><span class="badge wait">OPEN / 継続</span></td><td>構文抽出方式、巨大履歴・evidence・未追跡資料の索引範囲は後続確認。今回の受入で解消しない。</td><td><a href="../plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md">計画</a></td></tr>
+      </tbody>
+    </table>
+    <p><small>CTX-10 A90 final re-reviewは<code>PASS_WITH_NOTES</code>、Critical/High=0だが履歴である。CTX-11 A90はHigh 2件を検出し、現在は修正待ちである。旧欄・旧履歴は削除せず、履歴として参照する。</small></p>
+  </section>
   <section class="note" id="ctxmap-plan-current-20260814">
     <h2>資料・コード参照効率化施策の実行計画（2026-08-14）</h2>
     <p><strong><code>CTXMAP-PLAN-001 v0.1</code>のCTX-00棚卸しとCTX-01設計候補を作成し、<code>CTXMAP-H0</code>は2026-08-14、<code>CTXMAP-H1</code>は2026-08-15にユーザーが明示承認した。</strong> プロジェクト所有のMarkdown、HTML、ソースコード、AI部品・主要設定を、安定ID・要約・構造・関連・hashで扱うローカルマニフェスト基盤を計画した。CTX-09の現行再検証ではactive document 426件、strict A07 response 426件、Gate PASS、独立Reviewer実起動を確認した。過去のruntime fallbackと<code>gpt-5.1</code>不受理は履歴として保持し、現在のCTXMAP実行経路は<code>gpt-5.6-luna / low</code>へ同期済みである。CTXMAP-H1承認によりCTX-10の有効化・詳細解説HTML作成へ進むが、外部I/O、Secret、実取引、WSL未実行範囲は別境界として維持する。</p>

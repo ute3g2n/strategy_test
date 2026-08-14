@@ -2,29 +2,38 @@
   "schema_version": "ctxmap.dispatch-receipt.v0.1",
   "plan_id": "CTXMAP-PLAN-001",
   "step_id": "CTX-11",
-  "recorded_at_utc": "2026-08-14T00:00:00Z",
+  "recorded_at_utc": "2026-08-15T00:00:00Z",
   "current_state_updated_on": "2026-08-15",
-  "status": "BLOCKED",
+  "status": "BLOCKED_PENDING_A90_HIGH_REMEDIATION",
   "blocked_by": [
-    "CTX-10 is not started because the exact CTXMAP-H1 approval text is missing",
-    "WSL-dependent verification remains separately not run"
+    "WSL-dependent verification remains separately not run",
+    "external I/O, Secret, real trading, and independent child dispatch remain out of scope"
   ],
   "runtime": {
-    "dispatch_status": "NOT_STARTED_CTX10_AND_H1_PRECONDITION_BLOCKED",
+    "dispatch_status": "ORCHESTRATOR_CHILD_DISPATCH_UNAVAILABLE_ROOT_FALLBACK",
     "agent_id": "N/A",
     "independent": false,
-    "review_mode": "NOT_APPLICABLE"
+    "review_mode": "SELF_REVIEW_FALLBACK"
   },
   "finalization": {
-    "final_acceptance_document_created": false,
+    "final_acceptance_document_created": true,
     "commit_created": false,
     "push_performed": false
   },
-  "reopen_condition": "Receive exact CTXMAP-H1 approval, complete CTX-10, and satisfy every CTXMAP-AC-01 through CTXMAP-AC-10 condition before final integration.",
+  "reopen_condition": "Synchronize the three CTX-11 documents, re-register A07, rerun the CTX-11 final Gate to PASS, obtain A90 rereview with Critical/High=0, run A150, then perform Git status/diff/Secret checks.",
   "current_profile": {
     "a07": {"model": "gpt-5.6-luna", "reasoning_effort": "low"},
     "a08": {"model": "gpt-5.6-luna", "reasoning_effort": "low"},
-    "a80": {"model": "gpt-5.6-luna", "reasoning_effort": "low"}
+    "a80": {"model": "gpt-5.6-luna", "reasoning_effort": "low"},
+    "a130": {"model": "gpt-5.6-luna", "reasoning_effort": "low"},
+    "a90": {"model": "gpt-5.6-luna", "reasoning_effort": "low"},
+    "a150": {"model": "gpt-5.6-luna", "reasoning_effort": "low", "status": "NOT_STARTED"}
+  },
+  "agents": {
+    "a80": {"agent_id": "01a001da-efd4-7093-a168-2eb1c60e06c9", "model": "gpt-5.6-luna", "reasoning_effort": "low", "status": "completed", "root_correlation_run_id": "ctx11-a80-integration-20260815"},
+    "a130": {"agent_id": "01a001e4-eff7-7f33-a0ce-8e7857c125d1", "model": "gpt-5.6-luna", "reasoning_effort": "low", "status": "completed", "root_correlation_run_id": "ctx11-a130-verification-20260815", "verdict": "PASS"},
+    "a90": {"agent_id": "01a001e6-4dbd-79f1-9b6e-6da4cc70e874", "model": "gpt-5.6-luna", "reasoning_effort": "low", "status": "completed", "root_correlation_run_id": "ctx11-a90-review-20260815", "verdict": "FAIL", "high_findings": 2},
+    "a150": {"agent_id": "N/A", "model": "gpt-5.6-luna", "reasoning_effort": "low", "status": "NOT_STARTED", "root_correlation_run_id": "N/A"}
   },
   "historical_initial_state": {
     "blocked_by": [

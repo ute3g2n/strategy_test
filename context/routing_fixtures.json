@@ -26,9 +26,9 @@
       "case_id": "CTX06-RF-003",
       "request": "資料参照",
       "allowed_primary_ids": [
+        "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
         "art-4dcffebb-4ed3-5e31-b575-e9d174557fa1",
-        "art-e94b4880-7d50-527c-87d5-f92ff81dd862",
-        "art-99d39b45-ae03-5d0b-ba47-4ff9994afcb5"
+        "art-e94b4880-7d50-527c-87d5-f92ff81dd862"
       ],
       "reason": "参照基盤を構成するSkill・Agent・Orchestrator仕様"
     },
@@ -47,8 +47,8 @@
       "request": "Turtle",
       "allowed_primary_ids": [
         "art-d7fc5acf-702d-5dab-8012-7018b22bb359",
-        "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
-        "art-1f5e4dd4-e94a-5822-8962-af8a2b53c492"
+        "art-1f5e4dd4-e94a-5822-8962-af8a2b53c492",
+        "art-98d7e939-ffcf-5f59-8f2d-e5eee9e7f9e4"
       ],
       "reason": "Turtle戦略と設計上の残課題"
     },
@@ -66,9 +66,9 @@
       "case_id": "CTX06-RF-007",
       "request": "UIモック",
       "allowed_primary_ids": [
-        "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
         "art-4dcffebb-4ed3-5e31-b575-e9d174557fa1",
-        "art-e94b4880-7d50-527c-87d5-f92ff81dd862"
+        "art-e94b4880-7d50-527c-87d5-f92ff81dd862",
+        "art-99d39b45-ae03-5d0b-ba47-4ff9994afcb5"
       ],
       "reason": "UIモック・AI基盤・残課題を関係付きで確認"
     },
@@ -76,9 +76,9 @@
       "case_id": "CTX06-RF-008",
       "request": "要件定義",
       "allowed_primary_ids": [
-        "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
         "art-a4db3d62-a3b4-57a5-8598-b9e9f3163f7f",
-        "art-8d9559a8-f065-5410-9c61-ed67d67b666f"
+        "art-8d9559a8-f065-5410-9c61-ed67d67b666f",
+        "art-b915ff32-fc89-55e4-9d78-46da75fee658"
       ],
       "reason": "要件定義の入口・index・正式文書"
     },
@@ -86,9 +86,9 @@
       "case_id": "CTX06-RF-009",
       "request": "context_index",
       "allowed_primary_ids": [
-        "art-8d490418-9d29-5d1c-9b9b-e35be5959643",
-        "art-e52b7f98-f668-5318-8ef3-5cb7491ebf82",
-        "art-ecb74847-fb49-5cfd-8376-c350830061b1"
+        "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
+        "art-bd587ae4-16ca-5b7b-ad21-28a0d9ca12d3",
+        "art-8d490418-9d29-5d1c-9b9b-e35be5959643"
       ],
       "reason": "参照基盤の棚卸し・Unknown・受入設計"
     },

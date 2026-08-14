@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>資料・コード参照基盤システム詳細解説 | CTX-10</title>
+<meta name="description" content="CTXMAPによる資料・コード参照基盤を初心者向けに説明する正式設計資料">
+<style>
+:root{--ink:#172033;--muted:#536174;--line:#d9e0ea;--blue:#155eef;--pale:#f5f8fc;--warn:#fff7e6;--stop:#fff0f0;--ok:#eaf8ef}*{box-sizing:border-box}body{margin:0;background:#eef2f7;color:var(--ink);font-family:"Yu Gothic",Meiryo,system-ui,sans-serif;line-height:1.75}main{max-width:1180px;margin:0 auto;background:#fff;padding:42px 58px 80px;box-shadow:0 0 24px #22304418}h1{font-size:2.1rem;line-height:1.35;margin:0 0 12px}h2{margin-top:2.5rem;border-left:6px solid var(--blue);padding:8px 14px;background:var(--pale);font-size:1.45rem}h3{margin-top:1.8rem;border-bottom:2px solid var(--line);padding-bottom:5px}p{margin:.7rem 0}a{color:#0759c9}small,.muted{color:var(--muted)}.meta,.notice,.stop,.ok{border:1px solid var(--line);padding:15px 18px;margin:18px 0;border-radius:8px}.notice{background:#f7fbff}.stop{background:var(--stop);border-color:#e8bcbc}.ok{background:var(--ok);border-color:#b8ddc2}.toc{background:#f8fafc;border:1px solid var(--line);padding:18px 28px}.toc ol{columns:2}.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:18px 0}.step{flex:1 1 150px;min-height:72px;padding:12px;background:#edf4ff;border:1px solid #b9d0f8;border-radius:8px;text-align:center}.arrow{font-size:1.5rem;color:var(--blue)}table{border-collapse:collapse;width:100%;margin:12px 0;font-size:.94rem}th,td{border:1px solid var(--line);padding:9px 11px;vertical-align:top}th{background:#eef3fa;text-align:left}code,pre{font-family:Consolas,"Yu Gothic UI",monospace}code{background:#eef1f5;padding:2px 5px;border-radius:3px}pre{background:#172033;color:#f6f8fb;padding:16px;overflow:auto;border-radius:7px;font-size:.86rem;line-height:1.55}.tag{display:inline-block;padding:2px 8px;border-radius:12px;background:#e6efff;color:#174b9c;font-size:.82rem}.foot{border-top:1px solid var(--line);margin-top:40px;padding-top:15px}@media(max-width:700px){main{padding:25px 18px}.toc ol{columns:1}h1{font-size:1.65rem}.flow{display:block}.arrow{display:block;text-align:center}}@media print{body{background:#fff}main{box-shadow:none;max-width:none;padding:0}a{color:#000;text-decoration:none}pre{white-space:pre-wrap}}
+</style></head><body><main>
+<header><p class="tag">正式設計資料 / CTX-10 / ART-CTX10-DOC-001</p>
+<h1>資料・コード参照基盤システム詳細解説</h1>
+<p>大量の文書とソースコードから、必要な根拠だけを安全に取り出すためのローカル参照基盤を説明します。</p>
+<div class="meta"><strong>文書情報</strong><br>文書ID: CTXMAP-D02　|　作成日: 2026-08-15　|　状態: CTX-10正式HTML<br>対象: CTXMAP（Context Map）導入設計　|　作成担当: AutoTrade_A81_DesignDocSetWriter_v0_1<br>前提: CTXMAP-H1は2026-08-15承認済み。ただしWSL依存検証、外部サービス、Secret、実取引は未実行・未許可です。</div></header>
+<nav class="toc"><strong>ページ内目次</strong><ol>
+<li><a href="#purpose">なぜ参照基盤が必要か</a></li><li><a href="#ctxmap">CTXMAPの目的と正本</a></li><li><a href="#manifests">三つの記録</a></li><li><a href="#changes">変更処理シーケンス</a></li><li><a href="#a07">A07の判定</a></li><li><a href="#a08">A08の最小routing</a></li><li><a href="#security">安全停止と脅威</a></li><li><a href="#mcp">Routerから本文取得まで</a></li><li><a href="#ops">日次運用</a></li><li><a href="#tests">テストと限界</a></li><li><a href="#faq">FAQ・用語・追跡</a></li><li><a href="#history">変更履歴</a></li></ol></nav>
+<h2 id="purpose">1. なぜ参照基盤が必要か</h2>
+<p>プロジェクトには、Markdown、HTML、Python、TypeScript、PowerShellなどが増えます。毎回すべてを読む方法は、時間がかかり、重要な一箇所を見落としやすく、AIへ不要な内容まで渡す危険があります。</p>
+<table><tr><th>方法</th><th>得意なこと</th><th>苦手なこと</th></tr><tr><td>全文を読む</td><td>文脈を保つ</td><td>巨大化すると遅く、必要箇所の選択が難しい</td></tr><tr><td><code>doc/index.html</code></td><td>正式成果物の入口を一覧する</td><td>本文の該当段落やコード依存関係までは探さない</td></tr><tr><td>全文検索</td><td>単語の一致を探す</td><td>意味、重要度、最新版、関連資料を判断しない</td></tr><tr><td>要件追跡</td><td>REQ→設計→成果物→証跡を説明する</td><td>依頼に必要な本文の最小範囲を直接返さない</td></tr><tr><td>CTXMAP</td><td>正本の構造・hash・関係を使い、必要な候補を絞る</td><td>未解析・古いhash・Unknownを勝手に補完できない</td></tr></table>
+<p>CTXMAPは全文を置き換える検索ではなく、「どの正本を、どの理由で、どこまで読むか」を決める索引です。</p>
+<h2 id="ctxmap">2. CTXMAPの目的、対象範囲、正本と証跡</h2>
+<p>CTXMAPは、リポジトリ内の管理対象文書とソースコードを、本文そのものではなく参照に必要な構造情報として記録します。対象は許可されたrepo内pathです。Secret、認証情報、外部サービス本文、実取引データは対象外です。</p>
+<table><tr><th>種類</th><th>正本</th><th>役割</th></tr><tr><td>artifact manifest</td><td><a href="../../context/artifact_manifest.json">context/artifact_manifest.json</a></td><td>文書のtitle、見出し、ID、hash、用途、リンク等</td></tr><tr><td>code manifest</td><td><a href="../../context/code_manifest.json">context/code_manifest.json</a></td><td>コードのsymbol、定義位置、呼出し候補、解析状態等</td></tr><tr><td>relation graph</td><td><a href="../../context/relation_graph.json">context/relation_graph.json</a></td><td>REQ、文書、コード、test、evidenceの関係</td></tr><tr><td>状態・証跡</td><td><a href="../../context/manifest_state.json">context/manifest_state.json</a>、receipts</td><td>validator結果、source_hash、更新判断、停止理由</td></tr></table>
+<div class="notice"><strong>正本と証跡の違い:</strong> manifestは現在の索引、receiptはなぜその索引になったかです。証跡がないPASSは受け入れません。本文を索引にコピーしてSecretを増やすこともしません。</div>
+<h2 id="structure">2-1. 構成と役割を先に理解する</h2>
+<p>ここでは、どこに何があり、誰が判断するかを先に示します。正本は現在の状態、生成物は解析・検証の結果、禁止保存物はSecretや外部サービス本文です。</p>
+<pre>repo/
+├─ doc/                 正式HTMLとdoc/index.html
+├─ context/             manifestとrelation graphの正本
+├─ src/                 解析対象コード（例）
+├─ tests/               fixture・検証証跡
+└─ plan/context_index/  receipt・Human Gate・pending記録</pre>
+<div class="flow"><div class="step">依頼<br>何を知りたいか</div><div class="arrow">→</div><div class="step">A08 Router<br>候補を絞る</div><div class="arrow">→</div><div class="step">local MCP<br>許可範囲だけ取得</div><div class="arrow">→</div><div class="step">JIT<br>必要箇所だけ読む</div></div>
+<table><tr><th>役割</th><th>すること</th><th>しないこと</th></tr><tr><td>A07</td><td>1ファイル単位でstrict JSONを返し、追加・更新・保留を判断する</td><td>複数ファイルを横断して勝手に設計変更しない</td></tr><tr><td>A08</td><td>validator済みmanifestからprimary最大3、supporting最大6、残りはJIT候補に絞る</td><td>本文を直接読んで新しいmanifestを作らない、PATHやSecretを推測しない</td></tr><tr><td>local MCP</td><td>RouterのIDと許可pathに対して検索・本文・関係を返す</td><td>外部MCP、クラウド、認証情報、repo外pathへ接続しない</td></tr></table>
+<p>外部実行環境やCDNには依存せず、このHTMLの矢印と表で構成を説明します。構造が不明、manifestがstale、または上限を超える場合は、結果を増やさずPARTIALまたはBLOCKEDとして停止します。</p>
+<h2 id="manifests">3. 三つの記録をダミーで理解する</h2>
+<p>以下は秘密を含まない説明用ダミーです。実在の鍵、口座ID、個人情報を入れてはいけません。</p>
+<pre>{
+  "artifact_id": "DEMO_ARTIFACT_001",
+  "path": "doc/example/design.html",
+  "title": "例示設計書",
+  "source_hash": "sha256:DEMO_ONLY",
+  "status": "ACTIVE",
+  "extracted": ["h1", "h2", "DEMO_REQUIREMENT_01", "DEMO_DECISION_01"]
+}</pre>
+<pre>{
+  "code_id": "DEMO_CODE_001",
+  "path": "src/example.py",
+  "symbol": "demo_function",
+  "language": "python",
+  "parser_status": "PASS",
+  "source_hash": "sha256:DEMO_ONLY"
+}</pre>
+<pre>{
+  "from": "DEMO_REQUIREMENT_01",
+  "relation": "implemented_by",
+  "to": "DEMO_CODE_001",
+  "evidence": "DEMO_ARTIFACT_001"
+}</pre>
+<p>artifactは説明書、codeは実装の部品、relation graphはどれがどれを支えるかを表します。pathだけでIDを作るとrenameで追跡が切れるため、stable IDと旧pathの履歴を分けて保持します。</p>
+<h2 id="changes">4. 変更の処理シーケンス</h2>
+<div class="flow"><div class="step">変更検知<br>path・hashを取得</div><div class="arrow">→</div><div class="step">分類<br>新規・軽微・大幅・構造</div><div class="arrow">→</div><div class="step">A07または決定的parser</div><div class="arrow">→</div><div class="step">validator</div><div class="arrow">→</div><div class="step">receipt保存</div><div class="arrow">→</div><div class="step">allowlistだけを次工程へ</div></div>
+<table><tr><th>変更</th><th>必須処理</th><th>停止条件</th></tr><tr><td>新規文書</td><td>A07が1ファイルをstrict JSON判定。PASS後にrecord_add。</td><td>A07 unavailable、schema不正、Secret検知</td></tr><tr><td>軽微変更</td><td>source_hashを更新し、metadata_unchangedかrecord_updateを判定。</td><td>hash不一致、判定不能</td></tr><tr><td>大幅変更</td><td>A07の更新要否判定後、必要なら再抽出・record_update。</td><td>旧索引を新しいと扱えない場合</td></tr><tr><td>ソース構造変更</td><td>言語別parserで決定的再解析。未対応はPARTIAL。</td><td>解析範囲不明、巨大ファイル、Secret</td></tr><tr><td>rename</td><td>旧stable IDを残し、新pathを履歴へ追加。関係を付け替える。</td><td>旧新対応が確認できない場合</td></tr><tr><td>delete</td><td>削除せずstatus=DELETEDと履歴化。関係を壊さない。</td><td>削除理由・証跡がない場合</td></tr></table>
+<h2 id="a07">5. A07: 1ファイルstrict JSON判断</h2>
+<p>A07（ContextManifestMaintainer）は、1回につき1ファイルだけを受け取り、本文全体を横断して勝手に書き換える担当ではありません。入力にはpath、変更種別、source_hash、許可されたメタデータだけを渡します。返却は機械検証できるstrict JSONです。</p>
+<pre>{
+  "decision": "record_add",
+  "path": "doc/example/design.html",
+  "source_hash": "sha256:DEMO_ONLY",
+  "reason": "新規の管理対象HTML",
+  "validator": "PASS",
+  "secret_detected": false
+}</pre>
+<table><tr><th>decision</th><th>意味</th></tr><tr><td><code>record_add</code></td><td>新しいrecordを追加する</td></tr><tr><td><code>record_update</code></td><td>構造または本文由来の索引を更新する</td></tr><tr><td><code>metadata_unchanged</code></td><td>構造は変わらず、hash等の必要な更新だけを記録する</td></tr><tr><td>validator PASS / BLOCKED</td><td>PASSはschemaと安全条件を満たす。BLOCKEDは理由付きで止め、成功扱いにしない</td></tr></table>
+<p><code>source_hash</code>は、いま見たファイルが索引作成時と同じかを確認する印です。hashがstaleなら、そのmanifestをA08へ渡してはいけません。</p>
+<h2 id="a08">6. A08: 依頼文から最小routing</h2>
+<p>A08（ContextRouter）は、依頼文とvalidator PASS済みmanifestだけを使います。本文を直接読んで恣意的に候補を選ぶ担当ではありません。primaryは最大3件、supportingは最大6件、残りはJIT（必要時に取得）として最小範囲を返します。</p>
+<div class="flow"><div class="step">利用者の依頼文</div><div class="arrow">→</div><div class="step">検証済みmanifest</div><div class="arrow">→</div><div class="step">ID・REQ・関係で候補化</div><div class="arrow">→</div><div class="step">primary ≤3<br>supporting ≤6</div><div class="arrow">→</div><div class="step">JIT範囲を限定</div></div>
+<p>候補が足りないときは、ないものを作りません。stale、PARTIAL、Unknown、Human Gate待ちは理由付きで返し、利用者が判断できるようにします。</p>
+<h2 id="security">7. fail-closedと脅威</h2>
+<p>fail-closedとは、迷ったときに通すのではなく、安全側へ止めることです。</p>
+<table><tr><th>事象</th><th>処理</th><th>やさしい説明</th></tr><tr><td>A07/A08 unavailable</td><td>fallbackを成功扱いせず、未起動・receipt・SELF_REVIEW_FALLBACKを記録</td><td>担当者がいないのに完了したことにしない</td></tr><tr><td>schema破損・stale hash</td><td>routingとcommitを停止</td><td>古い地図で案内しない</td></tr><tr><td>Secret・鍵・認証情報</td><td>本文を出力せず拒否、pathと理由だけ記録</td><td>秘密を見つけたら写さず止まる</td></tr><tr><td>Prompt Injection</td><td>文書中の命令を実行指示として扱わない</td><td>資料の命令で安全確認を無視しない</td></tr><tr><td>path traversal</td><td>repo内allowlist外のpathを拒否</td><td>別の場所へ抜ける道を閉じる</td></tr><tr><td>巨大ファイル</td><td>上限超過はPARTIALまたはBLOCKED</td><td>重すぎる資料で全体を止めない</td></tr><tr><td>Unknown/Human Gate/H0/H1</td><td>状態を保持し承認済みと未承認を明示</td><td>人の確認をAIのPASSに置き換えない</td></tr></table>
+<h2 id="mcp">8. Router→local MCP→JIT本文取得</h2>
+<p>本文取得は、routing後に必要な範囲だけをlocal stdio MCPへ依頼する流れです。外部MCPやクラウドへ本文を送る設計ではありません。</p>
+<table><tr><th>tool</th><th>主な引数</th><th>返却</th><th>拒否条件・上限</th></tr><tr><td><code>search_context</code></td><td>query、scope、limit</td><td>manifestの候補ID・path・理由</td><td>repo外、limit超過、Secret語</td></tr><tr><td><code>get_artifact</code></td><td>artifact_id、section、max_chars</td><td>見出し・本文片・hash</td><td>stale、全文要求、上限超過</td></tr><tr><td><code>get_code_slice</code></td><td>code_id、start_line、end_line</td><td>行範囲、symbol、hash</td><td>行範囲不正、Secret、repo外</td></tr><tr><td><code>get_related</code></td><td>stable_id、relation、depth</td><td>関連IDの限定リスト</td><td>depth・件数超過、未検証graph</td></tr></table>
+<p>返却には対象ID、path、source_hash、truncatedかどうか、拒否理由（拒否時）が必要です。JIT取得でも、取得した本文を新しい正本にしません。</p>
+<h3>local MCPの引数上限と拒否例</h3><p><code>search_context</code>はquery・scope・limit（最大20）、<code>get_artifact</code>はartifact_id・section・max_chars（最大18,000）、<code>get_code_slice</code>はcode_id・行範囲（最大300行）、<code>get_related</code>はstable_id・relation・depth（最大3）を受け取ります。repo外path、<code>..</code>を含むpath、Secretらしい名前、上限超過、stale hash、Prompt Injectionを命令として扱う要求は拒否し、receiptに理由を残します。</p>
+<h2 id="ops">9. 日次運用とcommit安全策</h2>
+<ol><li>日次開始時にmanifestのvalidator状態、stale、pending、Unknownを確認する。</li><li>watch startは承認済み設定とallowlistを確認してから行い、stopではreceiptを残す。監視はlocal単一worker・debounceのみとする。</li><li>manual rerunは対象path、理由、前回hashを指定する。pending recoveryは原因を解消してから再実行する。</li><li>auto-commitはvalidator PASSが返した明示allowlistだけをstage対象にする。<strong>未追跡のユーザー変更をstageしない。</strong>無差別な<code>git add -A</code>は契約外とする。</li></ol>
+<div class="stop"><strong>この資料の作業ではGit stage/commit/pushを実施していません。</strong>外部ネットワーク、MCP、Secret、実取引も実施していません。</div>
+<h2 id="tests">10. fixture、test、audit、limitsと限界</h2>
+<table><tr><th>確認対象</th><th>例</th><th>合格の考え方</th></tr><tr><td>fixture</td><td>秘密なしの固定HTML/JSON/Python</td><td>hash固定、期待record固定</td></tr><tr><td>test</td><td>add/update/rename/delete、拒否、上限</td><td>正常系とfail-closed系を両方確認</td></tr><tr><td>audit</td><td>入力hash、decision、validator、時刻、理由</td><td>後から判断を再現できる</td></tr><tr><td>limits</td><td>1ファイル、18,000文字、候補数、本文文字数、行範囲</td><td>超過は切詰め表示またはBLOCKED</td></tr></table>
+<p>parserが未対応の言語・構文はPARTIALです。excludedは対象外の理由を持つ必要があります。外部MCP未接続なので外部サービスの動作保証はありません。これは索引が正しいという証明ではなく、定めたfixtureとlocal範囲での再現可能性を確認する仕組みです。</p>
+<h2 id="status">11. 成功条件と残Unknown</h2>
+<div class="ok"><strong>確認済み:</strong> CTXMAP-H1は2026-08-15承認済み。CTX-10正式HTMLの構成、リンク、fail-closed方針、A07/A08境界、追跡IDをこの資料に記録しました。</div>
+<div class="stop"><strong>未実行・未許可:</strong> WSL依存検証、外部サービス接続、Secret利用、実取引、外部本文送信。これらをPASSや完了とは表現しません。</div>
+<table><tr><th>Unknown</th><th>内容</th><th>再開条件</th></tr><tr><td>CTXMAP-UNK-01</td><td>追加parserや依存の要否</td><td>候補名・用途・ライセンス・外部取得要否を人が確認</td></tr><tr><td>CTXMAP-UNK-02</td><td>WSL隔離品質Gateの実機証跡</td><td>対象Run、fixture hash、host isolationを固定入口で検証</td></tr><tr><td>CTXMAP-UNK-03</td><td>外部MCPを将来接続する場合の認証・データ境界</td><td>別Human Gate、Secret管理、送信禁止範囲を承認</td></tr></table>
+<h2 id="faq">12. FAQ・トラブルシューティング・用語・追跡</h2>
+<h3>FAQ</h3><p><strong>Q.全文検索だけではだめですか。</strong><br>A.検索は候補語を探す道具です。CTXMAPは正本、hash、関係、状態を合わせて安全に読む範囲を絞ります。</p><p><strong>Q. A07が止まったら手作業でPASSにできますか。</strong><br>A.できません。fallback receiptを残し、独立実行済みと偽らず、Human Gateへ戻します。</p><p><strong>Q.削除recordは消しますか。</strong><br>A.消さずにDELETED履歴として残します。過去の要件追跡を壊さないためです。</p>
+<h3>トラブルシューティング</h3><table><tr><th>症状</th><th>見る場所</th><th>対応</th></tr><tr><td>routing候補が0件</td><td>query、scope、manifest validator</td><td>依頼語を具体化し、staleやexcluded理由を確認</td></tr><tr><td>本文が短い</td><td>truncated、max_chars、section</td><td>必要な見出しだけをJIT再取得</td></tr><tr><td>更新がpending</td><td>A07 receipt、source_hash</td><td>hashとschemaを検証し、原因解消後にmanual rerun</td></tr><tr><td>commitが止まる</td><td>allowlist、Secret、未追跡差分</td><td>停止を維持し、ユーザー変更を混ぜない</td></tr></table>
+<h3>用語集</h3><table><tr><th>用語</th><th>意味</th></tr><tr><td>manifest</td><td>本文ではなく参照用の構造情報の一覧</td></tr><tr><td>relation graph</td><td>要件・設計・コード・証跡のつながり</td></tr><tr><td>JIT</td><td>必要になった時だけ限定範囲を読む</td></tr><tr><td>PARTIAL</td><td>解析できた範囲はあるが全体を保証できない状態</td></tr><tr><td>fail-closed</td><td>不明・危険なら通さず止める安全方式</td></tr></table>
+<h3>REQ/DEC/UNK/ART追跡</h3><table><tr><th>ID群</th><th>この資料での接続</th></tr><tr><td>REQ-CTXMAP-01〜</td><td>全文読みの非効率、最小routing、秘密防止の要求</td></tr><tr><td>CTXMAP-DEC-01〜</td><td>stable ID、hash、A07 strict JSON、fail-closed</td></tr><tr><td>CTXMAP-UNK-01〜03</td><td>parser、WSL、外部MCPの未確定事項</td></tr><tr><td>ART-CTX10-DOC-001</td><td>本HTML。入口は<a href="../index.html">doc/index.html</a></td></tr></table>
+<h2 id="links">13. 関連リンク</h2><ul><li><a href="../index.html">doc/index.html（正式HTML総合入口）</a></li><li><a href="../../plan/資料参照効率化施策_全体導入実行計画書_v0.1_2026-08-14.md">CTXMAP全体導入実行計画書</a></li><li><a href="../../plan/context_index/CTXMAP-H1_approval.json">CTXMAP-H1承認証跡</a></li><li><a href="../../plan/context_index/runtime/CTX-10_preflight_gate_report.json">CTX-10 preflight PASS</a></li><li><a href="../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></li><li><a href="../../context/artifact_manifest.json">artifact manifest</a> / <a href="../../context/code_manifest.json">code manifest</a> / <a href="../../context/relation_graph.json">relation graph</a></li></ul>
+<h2 id="history">14. 変更履歴</h2><table><tr><th>日付</th><th>版</th><th>内容</th></tr><tr><td>2026-08-15</td><td>v0.1</td><td>CTX-10正式HTMLを新規作成。A07/A08、manifest、MCP、運用、安全停止、Unknown、追跡、関連リンクを収録。独立レビュー済みとは扱わない。</td></tr></table>
+<footer class="foot"><small>本資料は設計と説明のためのものです。Human Gate、Unknown、未許可の外部接続、Secret、実取引をPASSに偽装しません。</small></footer>
+</main></body></html>

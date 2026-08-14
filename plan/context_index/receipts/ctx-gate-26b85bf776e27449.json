@@ -1,14 +1,22 @@
 {
-  "action": "metadata_unchanged",
+  "action": "record_update",
   "dispatch": {
-    "attempts": 0,
-    "status": "NOT_REQUIRED"
+    "agent_id": "01a001ec-a747-7b03-9bb4-91e92bfdff70",
+    "agent_name": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+    "attempts": 1,
+    "backend": "multi_agent_v1",
+    "independent": false,
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "low",
+    "review_mode": "SELF_REVIEW_FALLBACK",
+    "run_id": "ctx11-a07-ledger-final-20260815",
+    "status": "completed"
   },
-  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "reason_code": "A07_DECISION_ACCEPTED",
   "recorded_at": "2026-08-14T00:00:00Z",
   "relative_path": "doc/00_全Phase残課題Blocked統合台帳.html",
   "request_id": "ctx-gate-26b85bf776e27449",
   "schema_version": "ctxmap-maintenance-receipt-v0.1",
-  "source_hash": "6c4e4f6bc754e6c4dcbffd143fa68a48cdff568de42c197d37a08a3488819491",
+  "source_hash": "198de7c62b6bbbe65bdbe0f675562b401211e57c09f8527ba836d07ba46bc826",
   "status": "PASS"
 }

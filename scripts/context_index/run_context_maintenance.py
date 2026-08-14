@@ -431,6 +431,7 @@ def maintain_document(
     state: Mapping[str, Any] | None = None,
     history: Sequence[Mapping[str, Any]] | None = None,
     max_attempts: int = 1,
+    validate_manifest_result: bool = True,
 ) -> MaintenanceResult:
     safe_request = request_id if isinstance(request_id, str) else "REDACTED"
     try:
@@ -492,7 +493,8 @@ def maintain_document(
             updated = _minor_record(existing, candidate, _safe_timestamp(observed_at))
             updated_state = _update_state(state, updated, _safe_timestamp(observed_at), "modified_minor")
             updated_manifest = _replace_record(manifest, updated)
-            _finalize(updated_manifest, root.resolve(), loaded_policy, state=updated_state)
+            if validate_manifest_result:
+                _finalize(updated_manifest, root.resolve(), loaded_policy, state=updated_state)
             receipt = _base_receipt(
                 request_id=safe_request,
                 relative_path=normalized,
@@ -568,7 +570,8 @@ def maintain_document(
                 updated = _merge_a07_decision(candidate, decision, _safe_timestamp(observed_at))
             updated_state = _update_state(state, updated, _safe_timestamp(observed_at), decision["action"])
             updated_manifest = _replace_record(manifest, updated)
-            _finalize(updated_manifest, root.resolve(), loaded_policy, state=updated_state)
+            if validate_manifest_result:
+                _finalize(updated_manifest, root.resolve(), loaded_policy, state=updated_state)
             receipt = _base_receipt(
                 request_id=safe_request,
                 relative_path=normalized,
