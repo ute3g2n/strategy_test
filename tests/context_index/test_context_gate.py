@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import shutil
 import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -221,6 +223,54 @@ def test_gate_rejects_out_of_scope_and_invalid_manifest_inputs(
     assert json.loads(paths["report"].read_text(encoding="utf-8"))["reason_code"] == "JSON_INPUT_INVALID"
 
 
+def test_gate_rejects_external_control_input_paths(
+    tmp_path: Path, policy: dict[str, object]
+) -> None:
+    write_file(tmp_path, "docs/guide.md", "# Guide\nbody\n")
+    paths = prepare_index(tmp_path, policy)
+    init_git(tmp_path)
+    outside = tmp_path.parent / f"{tmp_path.name}-external-input.txt"
+    outside.write_text("docs/guide.md\n", encoding="utf-8")
+
+    assert gate_main(gate_args(paths, "docs/guide.md", "--changed-list", str(outside))) == 1
+    assert json.loads(paths["report"].read_text(encoding="utf-8"))["reason_code"] == (
+        "INPUT_PATH_OUTSIDE_REPOSITORY"
+    )
+
+    write_file(tmp_path, "docs/new.md", "# New\nbody\n")
+    response_path = tmp_path.parent / f"{tmp_path.name}-external-a07.json"
+    write_json(response_path, {"responses": {}})
+    assert gate_main(gate_args(paths, "docs/new.md", "--a07-responses", str(response_path))) == 1
+    assert json.loads(paths["report"].read_text(encoding="utf-8"))["reason_code"] == (
+        "INPUT_PATH_OUTSIDE_REPOSITORY"
+    )
+
+    snapshot_path = tmp_path.parent / f"{tmp_path.name}-external-snapshot.json"
+    write_json(snapshot_path, {"schema_version": "ctxmap-snapshot-v0.1", "paths": {}})
+    baseline_args = [
+        "--root",
+        str(paths["root"]),
+        "--policy",
+        str(paths["policy"]),
+        "--manifest",
+        str(paths["manifest"]),
+        "--state",
+        str(paths["state"]),
+        "--code-manifest",
+        str(paths["code"]),
+        "--relation-graph",
+        str(paths["graph"]),
+        "--report",
+        str(paths["report"]),
+        "--baseline-snapshot",
+        str(snapshot_path),
+    ]
+    assert gate_main(baseline_args) == 1
+    assert json.loads(paths["report"].read_text(encoding="utf-8"))["reason_code"] == (
+        "INPUT_PATH_OUTSIDE_REPOSITORY"
+    )
+
+
 def test_gate_h1_requirement_fails_closed_before_work(tmp_path: Path, policy: dict[str, object]) -> None:
     write_file(tmp_path, "docs/guide.md", "# Guide\nbody\n")
     paths = prepare_index(tmp_path, policy)
@@ -264,19 +314,36 @@ def test_snapshot_tracks_only_hashes_and_detects_source_change(
 
 
 def test_gate_report_allowlist_is_revalidated(tmp_path: Path, policy: dict[str, object]) -> None:
-    from scripts.context_index.check_context_gate import GateError, approved_paths_from_report
+    from scripts.context_index.check_context_gate import (
+        GateError,
+        approved_paths_from_report,
+        verify_index_matches_report,
+    )
 
     report = tmp_path / "report.json"
+    write_file(tmp_path, "docs/guide.md", "# Guide\nbody\n")
     write_json(
         report,
         {
             "schema_version": "ctxmap-gate-report-v0.1",
             "status": "PASS",
             "allowed_paths": ["docs/guide.md"],
+            "approved_hashes": {
+                "docs/guide.md": hashlib.sha256(b"# Guide\nbody\n").hexdigest()
+            },
         },
     )
-    write_file(tmp_path, "docs/guide.md", "# Guide\nbody\n")
     assert approved_paths_from_report(report, tmp_path) == ["docs/guide.md"]
+    with pytest.raises(GateError, match="GATE_CONTENT_CHANGED"):
+        write_file(tmp_path, "docs/guide.md", "# Changed\nbody\n")
+        approved_paths_from_report(report, tmp_path)
+    write_file(tmp_path, "docs/guide.md", "# Guide\nbody\n")
+    init_git(tmp_path)
+    write_file(tmp_path, "docs/guide.md", "# Tampered\nbody\n")
+    git(tmp_path, "add", "--", "docs/guide.md")
+    write_file(tmp_path, "docs/guide.md", "# Guide\nbody\n")
+    with pytest.raises(GateError, match="GATE_INDEX_CONTENT_CHANGED"):
+        verify_index_matches_report(report, tmp_path)
     write_json(
         report,
         {
@@ -297,6 +364,37 @@ def test_gate_report_allowlist_is_revalidated(tmp_path: Path, policy: dict[str, 
     )
     with pytest.raises(GateError, match="GATE_REPORT_NOT_APPROVED"):
         approved_paths_from_report(report, tmp_path)
+
+
+def test_watch_loop_propagates_event_failure_to_process_exit(
+    tmp_path: Path, policy: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import scripts.context_index.context_watch as context_watch
+
+    write_json(tmp_path / "context" / "context_policy.json", policy)
+    snapshots = iter(
+        [
+            {"schema_version": "ctxmap-snapshot-v0.1", "paths": {}},
+            {
+                "schema_version": "ctxmap-snapshot-v0.1",
+                "paths": {"docs/guide.md": {"exists": True, "sha256": "changed"}},
+            },
+        ]
+    )
+    monkeypatch.setattr(context_watch, "capture_worktree_snapshot", lambda *_args: next(snapshots))
+    monkeypatch.setattr(context_watch, "process_event", lambda *_args: 1)
+    args = SimpleNamespace(
+        policy=Path("context/context_policy.json"),
+        h1_receipt=Path("h1.json"),
+        max_cycles=1,
+        poll_interval=0.01,
+        debounce=0.0,
+        a07_responses=None,
+        no_commit=True,
+        no_push=True,
+    )
+
+    assert context_watch.watch_loop(tmp_path, args) == 1
 
 
 def test_h1_invalid_receipts_are_rejected_without_fallback(tmp_path: Path) -> None:
