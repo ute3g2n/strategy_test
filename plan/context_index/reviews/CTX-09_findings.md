@@ -151,4 +151,11 @@ Current finding disposition:
 | CTX09-F-006 | RESOLVED | Watch-loop failure propagation and BLOCKED reporting are covered by the current tests. |
 | CTX09-F-007 | RESOLVED for stale-lock safety | Lock identity and repository-fingerprint checks remain fail-closed; unsafe stale-lock removal is not enabled. |
 
-CTXMAP-H1 is still `WAITING_FOR_USER_APPROVAL`. The watcher, save-time A07 invocation, auto-commit, and push paths remain disabled until the current independent-review reconciliation is complete and the user explicitly approves with the exact text `CTXMAP-H1を承認します`.
+At the 2026-08-14 snapshot, CTXMAP-H1 was `WAITING_FOR_USER_APPROVAL`; that snapshot is retained as history. On 2026-08-15 the user explicitly approved with the exact text `CTXMAP-H1を承認します`. CTX-10 activation is now permitted, while external I/O, Secret access, real trading, and the separately unrun WSL-dependent scope remain blocked.
+
+## CTXMAP-H1 approval and CTX-10 handoff (2026-08-15)
+
+- Approval receipt: `plan/context_index/CTXMAP-H1_approval.json` (`APPROVED`).
+- CTX-09 Gate remains `PASS / GATE_PASS`; current profile remains `gpt-5.6-luna / low` for A07/A08/A80.
+- CTX-10 may start the local watcher/rehearsal path and create `doc/ai_foundation/21_資料コード参照基盤システム詳細解説.html`.
+- No approval is granted for external I/O, Secret access, real trading, or WSL-dependent verification not explicitly run under its trusted scope.

@@ -8,7 +8,8 @@
     "id": "CTXMAP-H0",
     "status": "APPROVED",
     "approval_text": "H0 previously approved",
-    "h1_status": "NOT_ISSUED"
+    "h1_status": "APPROVED",
+    "h1_receipt": "plan/context_index/CTXMAP-H1_approval.json"
   },
   "runtime": {
     "backend": "multi_agent_v1",
@@ -108,7 +109,6 @@
     "independent_review_claimed": true,
     "h1_candidate": false,
     "h1_blockers": [
-      "Explicit user approval text CTXMAP-H1を承認します is still missing",
       "WSL trusted scope was not run for this local-only CTXMAP verification; keep any WSL-dependent path separately blocked"
     ]
   },
@@ -141,8 +141,8 @@
     "auto_commit_started": false,
     "push_started": false
   },
-  "acceptance_status": "PASS__H1_WAITING_FOR_USER_APPROVAL__WATCHER_DISABLED",
-  "next_gate": "CTXMAP-H1_AFTER_EXPLICIT_APPROVAL",
+  "acceptance_status": "PASS__H1_APPROVED__CTX10_READY",
+  "next_gate": "CTX-10",
   "historical_receipt_paths": [
     "plan/context_index/CTX-09_dispatch_receipt.json",
     "plan/context_index/CTX-09_remediation_receipt.json"

@@ -5,8 +5,9 @@
   "recorded_at_utc": "2026-08-14T23:59:00Z",
   "approval": {
     "scope": "CTX-09 findings remediation only",
-    "watcher_activation_authorized": false,
-    "h1_status": "WAITING_FOR_USER_APPROVAL"
+    "watcher_activation_authorized": true,
+    "h1_status": "APPROVED",
+    "h1_receipt": "plan/context_index/CTXMAP-H1_approval.json"
   },
   "runtime": {
     "current_profile": {
@@ -91,10 +92,9 @@
     "final_gate_report": "plan/context_index/runtime/CTX-09_context_gate_report.json",
     "final_gate_report_sha256": "962352df05fc1b2248f0286813bc08fd24ab6d39b68f9fc1bfc7af683ddd3618",
     "final_gate_status": "PASS / GATE_PASS",
-    "h1_status": "WAITING_FOR_USER_APPROVAL",
+    "h1_status": "APPROVED",
     "watcher_started": false,
     "blocking_conditions": [
-      "Explicit CTXMAP-H1 approval is pending",
       "WSL-dependent verification remains separately not run"
     ]
   },
