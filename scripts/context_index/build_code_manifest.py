@@ -24,6 +24,8 @@ from .common import (
 
 CODE_MANIFEST_SCHEMA_VERSION = "ctxmap-code-manifest-v0.1"
 CODE_GENERATOR_VERSION = "ctxmap-code-indexer-v0.1"
+PARTIAL_REMEDIATION_OWNER = "AutoTrade_A06_AiComponentEngineer_v0_1"
+PARTIAL_REMEDIATION_DEADLINE = "2026-08-21"
 _CODE_EXTENSIONS = [".py", ".js", ".mjs", ".cjs", ".ts", ".tsx", ".ps1", ".sh", ".bash", ".cmd"]
 _CONFIG_EXTENSIONS = [".json", ".toml", ".yaml", ".yml"]
 _SECRET_KEY_RE = re.compile(
@@ -274,7 +276,7 @@ def _base_record(
     )
     exports = sorted(set(exports or []))
     diagnostics = sorted(diagnostics or [], key=lambda item: (str(item.get("code", "")), str(item.get("message", ""))))
-    return {
+    record = {
         "code_id": code_id,
         "kind": kind,
         "status": "active" if extraction_status != "BLOCKED" else "blocked",
@@ -294,6 +296,14 @@ def _base_record(
         "line_count": len(data.decode("utf-8").splitlines()) if data else 0,
         "byte_size": len(data),
     }
+    if extraction_status == "PARTIAL":
+        record["remediation"] = {
+            "status": "OPEN",
+            "owner": PARTIAL_REMEDIATION_OWNER,
+            "deadline": PARTIAL_REMEDIATION_DEADLINE,
+            "acceptance": "parser-specific diagnostics are resolved or explicitly accepted with a dated review receipt",
+        }
+    return record
 
 
 def _extract_python(relative_path: str, data: bytes, text: str, existing: Mapping[str, Any] | None) -> dict[str, Any]:
