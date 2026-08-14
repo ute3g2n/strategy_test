@@ -7,6 +7,7 @@
   "exclude_paths": ["plan/context_index/CTX-00_対象パスハッシュ.tsv"],
   "max_file_bytes": 2000000,
   "major_change_ratio": 0.2,
+  "a07_min_confidence": 0.7,
   "secret_path_patterns": [".env", ".pem", ".key", "id_rsa", "credentials"],
   "secret_content_patterns": [
     "-----BEGIN [A-Z ]*PRIVATE KEY-----",

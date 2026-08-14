@@ -1,0 +1,131 @@
+{
+  "schema_version": "ctxmap.dispatch-receipt.v0.1",
+  "plan_id": "CTXMAP-PLAN-001",
+  "step_id": "CTX-04",
+  "recorded_at_utc": "2026-08-14T00:50:00Z",
+  "baseline_head": "2570bb27ab5afe6ee8f2026ff0af6c4890ad15ba",
+  "human_gate": {
+    "id": "CTXMAP-H0",
+    "status": "APPROVED",
+    "approval_text": "承認する。続けて",
+    "approved_at": "2026-08-14",
+    "scope_note": "CTX-04からCTX-09までのローカル実装・検証を許可する。CTXMAP-H1承認前の常駐watcher、保存時自動A07呼出し、外部I/O、Secret処理は許可しない。"
+  },
+  "runtime_backend": "multi_agent_v1",
+  "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED__ROOT_DIRECT_ATTEMPTS",
+  "orchestrators": [
+    {
+      "agent_name": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+      "json_path": ".codex/orchestrators/AutoTradeComponentLifecycle_Orchestrator_v0_1.json",
+      "model": "gpt-5.6-terra",
+      "agent_id": "019ffda5-d5e2-78c1-bc68-e42cb8142397",
+      "accepted_status": "accepted",
+      "completion_status": "completed_handoff_only",
+      "output_reference": "A07 contract, existing Skill synchronization, fail-closed, and receipt checklist",
+      "independent": false,
+      "review_mode": "COORDINATOR_HANDOFF_ONLY"
+    },
+    {
+      "agent_name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "json_path": ".codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json",
+      "model": "gpt-5.6-terra",
+      "agent_id": "019ffda5-d689-7e22-892c-7b9ea442a697",
+      "accepted_status": "accepted",
+      "completion_status": "completed_handoff_only",
+      "output_reference": "RED/GREEN, local quality, fixed-Gate boundary, and security checklist",
+      "independent": false,
+      "review_mode": "COORDINATOR_HANDOFF_ONLY"
+    }
+  ],
+  "agents": [
+    {
+      "agent_name": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A07_ContextManifestMaintainer_v0_1.json",
+      "model": "gpt-5.1",
+      "agent_id": "N/A",
+      "accepted_status": "NOT_ACCEPTED",
+      "completion_status": "NOT_STARTED",
+      "output_reference": "spawn rejected: Unknown model gpt-5.1; no alternate model substituted",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A120_PythonImplementer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A120_PythonImplementer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "019ffda6-537f-7712-b57f-0733bebbfe30",
+      "accepted_status": "accepted",
+      "completion_status": "completed_handoff_only",
+      "output_reference": "implementation boundary, payload allowlist, deterministic update, fail-closed, and no silent substitution checklist",
+      "independent": false,
+      "review_mode": "HANDOFF_ONLY"
+    },
+    {
+      "agent_name": "AutoTrade_A110_PythonTestEngineer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A110_PythonTestEngineer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "019ffda7-0f93-7bd2-8b67-9672df3e01ac",
+      "accepted_status": "accepted",
+      "completion_status": "completed_handoff_only",
+      "output_reference": "20-case CTX-04 integration test matrix; local fixture implementation covers the required classes",
+      "independent": false,
+      "review_mode": "HANDOFF_ONLY"
+    },
+    {
+      "agent_name": "AutoTrade_A130_VerificationEngineer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A130_VerificationEngineer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "019ffda7-f9c4-7551-b1ed-f256ae19d873",
+      "accepted_status": "accepted",
+      "completion_status": "completed_checklist_only",
+      "output_reference": "local command and trusted-scope boundary checklist; no fixed four-Gate PASS claimed",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A150_PythonCodeReviewer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A150_PythonCodeReviewer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "019ffda8-d66f-7c60-99ca-16f29bc09d38",
+      "accepted_status": "accepted",
+      "completion_status": "completed_findings_checklist_only",
+      "output_reference": "findings-first path, receipt leakage, schema, replay, exception, and dependency checklist; no independent diff review claimed",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    }
+  ],
+  "runtime_limitations": [
+    "The first parallel attempts for A120/A110/A130/A150 hit the agent thread limit; each was then individually spawned and waited after the completed Orchestrators were closed.",
+    "A07 fixed model gpt-5.1 was unavailable; no alternate model was used as a silent substitute.",
+    "The Orchestrators returned handoff checklists only; nested child dispatch was not independently verifiable.",
+    "A130 and A150 returned checklists only; no independent verification or independent code review is claimed.",
+    "CTX-04 has no registered trusted scope in scripts/quality_gate/trusted_scopes.json; WSL fixed four-Gate execution was intentionally not run."
+  ],
+  "verification": {
+    "red_evidence": "plan/context_index/CTX-04_RED_evidence.md",
+    "green_evidence": "plan/context_index/CTX-04_GREEN_evidence.md",
+    "pytest": "PASS: 34 passed",
+    "coverage": "PASS: 87.01%; fail-under 80%",
+    "ruff": "PASS",
+    "mypy": "PASS: 9 source files",
+    "compileall": "PASS",
+    "context_schema_json": "PASS",
+    "git_diff_check": "PASS",
+    "new_document_a07_required": "PASS_INTEGRATION_FIXTURE_AND_BLOCKED_RUNTIME",
+    "major_document_a07_required": "PASS_INTEGRATION_FIXTURE_AND_BLOCKED_RUNTIME",
+    "small_change_deterministic_hash_update": "PASS",
+    "sanitized_receipt": "PASS",
+    "trusted_scope_fixed_four_gate": "NOT_RUN__TRUSTED_SCOPE_UNREGISTERED",
+    "independent_runtime_closed_loop": "FALLBACK_REQUIRED",
+    "critical_high_unknown_pass": "NOT_CLAIMED"
+  },
+  "component_hashes": {
+    "context_policy_sha256": "e0c4c5299054ecdb79a90ab65c1ac6aef443dbcee46d6d3cdaacb5082a50b3e6",
+    "a07_decision_schema_sha256": "a6406aa3080e3b8e02b5668a7dc1d5cbd857fea60635a622ac8ccb1a4a3cdc6a",
+    "maintenance_receipt_schema_sha256": "5ce857ffbe8bd74e51fdcb3dfc371d662abb0bf2e81ec9c09dca627dd607ab17",
+    "run_context_maintenance_sha256": "fd04846ccd59f98cf3bb5af7b97d4a49e13d3fda1eb329915ecd945b552a13b4",
+    "green_evidence_sha256": "7b52de50f16d1ad5e13672390fd2eb32e508b8c96a2867dacd3f7fd6ce370359"
+  },
+  "acceptance_status": "CONDITIONAL__LOCAL_GREEN_A07_RUNTIME_BLOCKED_TRUSTED_GATE_NOT_RUN_RUNTIME_FALLBACK",
+  "next_gate": "CTX-05"
+}

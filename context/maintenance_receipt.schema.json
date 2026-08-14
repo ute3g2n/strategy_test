@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ctxmap-maintenance-receipt-v0.1",
+  "title": "CTXMAP sanitized maintenance receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "request_id",
+    "relative_path",
+    "source_hash",
+    "action",
+    "status",
+    "reason_code",
+    "recorded_at"
+  ],
+  "properties": {
+    "schema_version": {"const": "ctxmap-maintenance-receipt-v0.1"},
+    "request_id": {"type": "string", "maxLength": 128},
+    "relative_path": {"type": ["string", "null"]},
+    "source_hash": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+    "action": {
+      "type": "string",
+      "enum": [
+        "record_add",
+        "record_update",
+        "metadata_unchanged",
+        "idempotent_replay",
+        "renamed",
+        "deleted",
+        "blocked"
+      ]
+    },
+    "status": {"type": "string", "enum": ["PASS", "BLOCKED"]},
+    "reason_code": {"type": "string", "maxLength": 128},
+    "recorded_at": {"type": "string", "maxLength": 64},
+    "before_path": {"type": "string", "maxLength": 512},
+    "dispatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "backend": {"type": "string", "maxLength": 128},
+        "agent_name": {"type": "string", "maxLength": 128},
+        "model": {"type": "string", "maxLength": 64},
+        "status": {"type": "string", "maxLength": 64},
+        "attempts": {"type": "integer", "minimum": 0, "maximum": 3},
+        "agent_id": {"type": "string", "maxLength": 128},
+        "independent": {"type": "boolean"},
+        "review_mode": {"type": "string", "maxLength": 128},
+        "reason_code": {"type": "string", "maxLength": 128},
+        "run_id": {"type": "string", "maxLength": 128}
+      }
+    }
+  }
+}
