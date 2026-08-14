@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ctxmap-relation-graph-v0.1",
+  "title": "Context relation graph",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "generator_version", "status", "nodes", "edges", "diagnostics"],
+  "properties": {
+    "schema_version": {"const": "ctxmap-relation-graph-v0.1"},
+    "generator_version": {"type": "string", "minLength": 1},
+    "status": {"enum": ["COMPLETE", "PARTIAL", "BLOCKED"]},
+    "nodes": {"type": "array", "items": {"type": "object"}},
+    "edges": {"type": "array", "items": {"type": "object"}},
+    "diagnostics": {"type": "array", "items": {"type": "object"}}
+  }
+}

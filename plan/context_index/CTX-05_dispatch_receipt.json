@@ -1,0 +1,110 @@
+{
+  "schema_version": "ctxmap.dispatch-receipt.v0.1",
+  "plan_id": "CTXMAP-PLAN-001",
+  "step_id": "CTX-05",
+  "recorded_at_utc": "2026-08-14T01:20:00Z",
+  "baseline_head": "9df0d7760256a79d3ff1368c0b991d109b3c7b36",
+  "human_gate": {
+    "id": "CTXMAP-H0",
+    "status": "APPROVED",
+    "approval_text": "承認する。続けて",
+    "approved_at": "2026-08-14",
+    "scope_note": "CTX-04からCTX-09までのローカル実装・検証を許可する。CTXMAP-H1承認前の常駐watcher、保存時自動A07呼出し、外部I/O、Secret処理は許可しない。"
+  },
+  "runtime_backend": "multi_agent_v1",
+  "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED__ROOT_DIRECT_ATTEMPTS",
+  "orchestrators": [
+    {
+      "agent_name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "json_path": ".codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json",
+      "model": "gpt-5.6-terra",
+      "agent_id": "019ffdb2-de2a-75f3-95f3-71ffcbb72120",
+      "accepted_status": "accepted",
+      "completion_status": "completed_handoff_only",
+      "output_reference": "CTX-05 RED/GREEN boundary, implementation quality, dependency, and fixed-Gate checklist",
+      "independent": false,
+      "review_mode": "COORDINATOR_HANDOFF_ONLY"
+    }
+  ],
+  "agents": [
+    {
+      "agent_name": "AutoTrade_A110_PythonTestEngineer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A110_PythonTestEngineer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "019ffdb3-1f72-7e61-a226-a067a6bdbd2c",
+      "accepted_status": "accepted",
+      "completion_status": "completed_checklist_only",
+      "output_reference": "CTX-05 required fixture and regression checklist",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A120_PythonImplementer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A120_PythonImplementer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "019ffdb3-f388-7cb0-bfad-4555eece36d1",
+      "accepted_status": "accepted",
+      "completion_status": "completed_checklist_only",
+      "output_reference": "implementation boundary and no-new-dependency checklist",
+      "independent": false,
+      "review_mode": "HANDOFF_ONLY"
+    },
+    {
+      "agent_name": "AutoTrade_A130_VerificationEngineer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A130_VerificationEngineer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "019ffdb4-91dc-7452-9839-21e4d3a9091f",
+      "accepted_status": "accepted",
+      "completion_status": "completed_checklist_only",
+      "output_reference": "local quality, PARTIAL honesty, trusted-scope, and fixed-Gate checklist",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A150_PythonCodeReviewer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A150_PythonCodeReviewer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "019ffdb5-c2fd-7872-8c11-d12564650f70",
+      "accepted_status": "accepted",
+      "completion_status": "completed_findings_checklist_only",
+      "output_reference": "findings-first code, secret, determinism, and schema checklist",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    }
+  ],
+  "runtime_limitations": [
+    "All Orchestrator and Agent results were recorded as handoff/checklists; independent nested dispatch and independent A150 diff review are not claimed.",
+    "The fixed model/runtime limitation and fallback policy from CTX-04 remain in force; no model was silently substituted for a required fixed component.",
+    "CTX-05 has no registered trusted scope in scripts/quality_gate/trusted_scopes.json; WSL fixed four-Gate execution was intentionally not run."
+  ],
+  "verification": {
+    "red_evidence": "plan/context_index/CTX-05_RED_evidence.md",
+    "green_evidence": "plan/context_index/CTX-05_GREEN_evidence.md",
+    "pytest": "PASS: 44 passed",
+    "coverage": "PASS: 80.04%; fail-under 80%",
+    "ruff": "PASS",
+    "mypy": "PASS: 10 source files",
+    "compileall": "PASS",
+    "context_schema_json": "PASS",
+    "code_manifest_generation": "PASS: 243 artifacts, status PARTIAL",
+    "relation_graph_generation": "PASS: 1628 nodes, 2282 edges, status PARTIAL",
+    "code_manifest_validation": "PASS: valid=True, errors=0, status PARTIAL",
+    "secret_output_scan": "PASS: known fixture values absent",
+    "trusted_scope_fixed_four_gate": "NOT_RUN__TRUSTED_SCOPE_UNREGISTERED",
+    "independent_runtime_closed_loop": "FALLBACK_REQUIRED",
+    "critical_high_unknown_pass": "NOT_CLAIMED"
+  },
+  "component_hashes": {
+    "context_policy_sha256": "8500b911e15abd713cfb84b019c1864033c8a6a3432cce7a1e3a946be84685e8",
+    "code_manifest_schema_sha256": "45ec1f9513374c42ee12c8a71d66bf4e3330514b6acaf9c280e20f971eceebd9",
+    "relation_graph_schema_sha256": "b8c0ccf17a561bf738fcfd6eacc972703ba7a1dcb3bac45b49801b9ebd3e8b2d",
+    "build_code_manifest_sha256": "89e79bda1689afc5f344934e3d78c1585b19b6b2191f80f8ad1dae489993cf97",
+    "build_relation_graph_sha256": "add606ed8b22863d960dc9f322d3c5cd6ccb68a6a6db9ec85918a3b967228de7",
+    "detect_code_delta_sha256": "c6b939b1614c4c9ab949eb9f8fe05ef11ab95d5f34d47c8d97be9bc2d7e6e0d5",
+    "code_manifest_sha256": "f11ea6700e6f00d4c3610721b7f57aa1306b610a5982d8ab921329d5343facd6",
+    "relation_graph_sha256": "2fc7a9338bd393185fb4b4e4247d2cf85bd7dc90d50feb8f982cb831d539cf3b",
+    "green_evidence_sha256": "dd4f3dbb5b1fa076241ef3d6d02a3dd19dc397c5e85728336858aff1e0da7c80"
+  },
+  "acceptance_status": "CONDITIONAL__LOCAL_GREEN_PARTIAL_ANALYSIS_TRUSTED_GATE_NOT_RUN_RUNTIME_FALLBACK",
+  "next_gate": "CTX-06"
+}
