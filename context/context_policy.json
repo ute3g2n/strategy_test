@@ -1,0 +1,16 @@
+{
+  "schema_version": "ctxmap-policy-v0.1",
+  "generator_version": "ctxmap-indexer-v0.1",
+  "managed_extensions": [".md", ".html"],
+  "managed_roots": ["README.md", "AGENTS.md", "doc", "plan", "research", "settings", ".codex"],
+  "exclude_dirs": [".git", "node_modules", ".venv", "third_party", "raw", "dist", "build", "coverage"],
+  "exclude_paths": ["plan/context_index/CTX-00_対象パスハッシュ.tsv"],
+  "max_file_bytes": 2000000,
+  "major_change_ratio": 0.2,
+  "secret_path_patterns": [".env", ".pem", ".key", "id_rsa", "credentials"],
+  "secret_content_patterns": [
+    "-----BEGIN [A-Z ]*PRIVATE KEY-----",
+    "\\bAKIA[0-9A-Z]{16}\\b",
+    "(?i)\\b(?:api[_-]?key|secret[_-]?key|password|token)\\s*[:=]\\s*['\\\"]?[A-Za-z0-9/+=_-]{8,}"
+  ]
+}

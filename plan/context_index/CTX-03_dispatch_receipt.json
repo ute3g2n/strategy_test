@@ -1,0 +1,106 @@
+{
+  "schema_version": "ctxmap.dispatch-receipt.v0.1",
+  "plan_id": "CTXMAP-PLAN-001",
+  "step_id": "CTX-03",
+  "recorded_at_utc": "2026-08-14T00:25:00Z",
+  "baseline_head": "af538344a1eec95f6a6f828b7d121fec0027c22a",
+  "human_gate": {
+    "id": "CTXMAP-H0",
+    "status": "APPROVED",
+    "approval_text": "承認する。続けて",
+    "approved_at": "2026-08-14",
+    "scope_note": "CTX-03からCTX-09までの実行を許可する。CTXMAP-H1承認前のwatcher常駐起動、A07保存時自動呼出し、外部I/O、Secret処理は許可しない。"
+  },
+  "runtime_backend": "multi_agent_v1",
+  "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED__ROOT_DIRECT_ATTEMPTS",
+  "orchestrator": {
+    "agent_name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+    "json_path": ".codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json",
+    "model": "gpt-5.6-terra",
+    "agent_id": "019ffd98-d90e-70f1-8431-ebe696a71105",
+    "accepted_status": "accepted",
+    "completion_status": "completed_handoff_only",
+    "output_reference": "CTX-03 execution checklist returned; nested child dispatch was not independently verifiable",
+    "independent": false,
+    "review_mode": "COORDINATOR_HANDOFF_ONLY"
+  },
+  "agents": [
+    {
+      "agent_name": "AutoTrade_A110_PythonTestEngineer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A110_PythonTestEngineer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "skills": ["autotrade_skill_python_test_quality_v0_1"],
+      "agent_id": "019ffd99-2bd0-7b53-8391-0e817601b3e1",
+      "accepted_status": "accepted",
+      "completion_status": "completed_handoff_only",
+      "output_reference": "TDD RED-first checklist returned; RED evidence was independently recorded by the root task",
+      "independent": false,
+      "review_mode": "HANDOFF_ONLY"
+    },
+    {
+      "agent_name": "AutoTrade_A120_PythonImplementer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A120_PythonImplementer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "skills": ["autotrade_skill_python_implementation_v0_1", "autotrade_skill_debug_recovery_v0_1"],
+      "agent_id": "019ffd99-2c73-7730-a698-c2c9400dd241",
+      "accepted_status": "accepted",
+      "completion_status": "completed_handoff_only",
+      "output_reference": "minimal implementation boundary checklist returned; implementation was verified by local tests",
+      "independent": false,
+      "review_mode": "HANDOFF_ONLY"
+    },
+    {
+      "agent_name": "AutoTrade_A130_VerificationEngineer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A130_VerificationEngineer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "skills": ["autotrade_skill_python_test_quality_v0_1", "autotrade_skill_ops_security_v0_1"],
+      "agent_id": "019ffd9a-0345-7bf3-9b29-732a5598cf11",
+      "accepted_status": "accepted",
+      "completion_status": "completed_checklist_only",
+      "output_reference": "local quality command and trusted-scope boundary checklist returned; fixed 4-Gate not claimed",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A150_PythonCodeReviewer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A150_PythonCodeReviewer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "skills": ["autotrade_skill_python_code_review_v0_1", "autotrade_skill_ops_security_v0_1"],
+      "agent_id": "019ffd9a-03fb-7661-b11e-3a20d0b9562c",
+      "accepted_status": "accepted",
+      "completion_status": "completed_findings_checklist_only",
+      "output_reference": "path/security/reproducibility review checklist returned; no independent diff review was completed",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    }
+  ],
+  "runtime_limitations": [
+    "Coordinator nested child dispatch was not available as an independently verifiable closed loop; root direct attempts are recorded as fallback.",
+    "No alternate model was substituted for this step, and all requested CTX-03 agent fixed models were available for handoff attempts.",
+    "The trusted scope for CTX-03 was not registered in scripts/quality_gate/trusted_scopes.json; WSL isolation and fixed four-Gate execution were intentionally not run.",
+    "A130 and A150 returned checklists only; independent verification and independent code review are not claimed."
+  ],
+  "verification": {
+    "red_to_green": "PASS",
+    "pytest": "PASS: 18 passed",
+    "coverage": "PASS: 90.12%; fail-under 80%",
+    "ruff": "PASS",
+    "mypy": "PASS: 7 source files",
+    "compileall": "PASS",
+    "json_parse": "PASS",
+    "git_diff_check": "PASS",
+    "trusted_scope_fixed_four_gate": "NOT_RUN__TRUSTED_SCOPE_UNREGISTERED",
+    "independent_runtime_closed_loop": "FALLBACK_REQUIRED",
+    "critical_high_unknown_pass": "NOT_CLAIMED"
+  },
+  "component_hashes": {
+    "context_policy_sha256": "9a19cdccf1bd4c9cf73e6d020ae9fa298288a0cb6130cf14d9605e4fe4d4c4ba",
+    "artifact_manifest_schema_sha256": "08167152c7fd814b40b24cc791990e994ac3fa1031ed6ea6a89b3540c96b6a4f",
+    "build_context_index_sha256": "57b214c0023344213976d8ebaee98a3c210ef8d81bc1d307db4256514dd3077",
+    "detect_context_delta_sha256": "986dff9169456c9e9a0aeb181cd7e9f4b78df746b152a86aa907227e8de39599",
+    "validate_context_index_sha256": "a26ed2c1a0da4928cdf0a26cbc4fbb2a3acd578d29836b4f8986563be0c204fa",
+    "query_context_sha256": "faf5a6787521bcd8a8325f23b558e126a6838169b7630a6f3a934bf005865187"
+  },
+  "acceptance_status": "CONDITIONAL__LOCAL_GREEN_TRUSTED_GATE_NOT_RUN_RUNTIME_FALLBACK",
+  "next_gate": "CTX-04"
+}
