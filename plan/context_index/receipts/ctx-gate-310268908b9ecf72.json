@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase3/08_エンジンPoC/01_P3-09_LEAN実enginePoC結果.html",
+  "request_id": "ctx-gate-310268908b9ecf72",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "c8ffc2d9cbad7b5ca1103baec202d637867cf6d796158e207066e14382f4fb65",
+  "status": "PASS"
+}

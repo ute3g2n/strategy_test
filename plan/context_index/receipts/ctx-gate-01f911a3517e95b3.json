@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "research/asset_selection/12_レッドチーム監査/12_レッドチーム監査ルール_v0.1_2026-08-02.md",
+  "request_id": "ctx-gate-01f911a3517e95b3",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "4a330b17b3cdd015df96f1fe4593c67825ef525f0f352369458465c594e69809",
+  "status": "PASS"
+}

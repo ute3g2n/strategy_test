@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase2/04_ロール連続足/04_Roll_Rule_Continuous_Signal設計書.html",
+  "request_id": "ctx-gate-534b70a48c61c8c9",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "665f1d4f5f51083d06cf9e57972c1d809d5893ea7b154f9bf1c5649d0733ac95",
+  "status": "PASS"
+}

@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "research/asset_selection/10_頑健性バックテスト/研究用ハーネス/README.md",
+  "request_id": "ctx-gate-e1671c519705c9eb",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "7309630f0f9455d67fd4edc64eedfa8a61c11969571c93c76600e236bbc132e0",
+  "status": "PASS"
+}

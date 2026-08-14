@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase3/03_Strategy詳細設計/03_Strategy_Turtle実装詳細設計書.html",
+  "request_id": "ctx-gate-f3be842804bae431",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "fb4b164efd24cddd53ba4a6c5ae5ee5e8d809fcb7ff18800e83ca832c211fe29",
+  "status": "PASS"
+}

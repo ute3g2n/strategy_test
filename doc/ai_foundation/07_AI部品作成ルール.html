@@ -70,7 +70,7 @@
     <li>Phase専用部品を使う場合は、理由、利用期限、凍結条件をプロンプトまたは仕様書に明記する。</li>
     <li>現行の汎用AutoTrade Orchestrator 6件は <code>gpt-5.6-terra</code> を使用する。サブエージェントのモデルはAgent JSONの個別定義を維持し、オーケストレータのモデル変更で変更してはならない。</li>
     <li>Phase 1の凍結済みOrchestratorと <code>default_orchestrator</code> は、このモデル割当ルールの変更対象外とする。</li>
-    <li>完全名の列挙、JSON読込、Skill適用、ルートAgentの自己レビューは起動証跡ではない。直接PromptはOrchestrator実spawn、指定Agent全件の個別spawn、固定model、wait完了、receipt保存を要求する。</li>
+    <li>完全名の列挙、JSON読込、Skill適用、ルートAgentの自己レビューは起動証跡ではない。直接PromptはOrchestrator実spawn、指定Agent全件の個別spawn、固定model、定義された場合の <code>reasoning_effort</code>、wait完了、receipt保存を要求する。</li>
     <li>spawn／waitまたは固定model受理ができない場合は、<code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、未起動Agent、理由、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を記録して継続する。起動不能を独立実行済みと偽らない。</li>
     <li>Human Gate未承認、外部I/O、Secret、UnknownのPass、Critical／High、必須Evidence欠落はFallback中も停止する。</li>
   </ul>
@@ -80,6 +80,9 @@
     <li>Skill / Agent / Orchestrator の作成または変更では、標準として <code>AutoTradeComponentLifecycle_Orchestrator_v0_1</code>、<code>AutoTrade_A06_AiComponentEngineer_v0_1</code>、<code>autotrade_skill_ai_component_lifecycle_v0_1</code> を使用する。</li>
     <li>既存の調査には <code>source_reader</code>、追跡には <code>traceability</code>、HTML追従には <code>html_doc_writer</code>、レビューには <code>design_review</code> を再利用する。</li>
     <li>依頼プロンプトの標準雛形は <code>doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html</code> を参照する。</li>
+    <li>CTXMAPの新規／大幅変更文書は <code>autotrade_skill_context_manifest_maintenance_v0_1</code> と <code>AutoTrade_A07_ContextManifestMaintainer_v0_1</code> へ1ファイル単位で渡す。A07のvalidator PASSまたは理由付きBLOCKED receiptなしに完了扱いにしない。</li>
+    <li>参照依頼は <code>autotrade_skill_context_routing_v0_1</code> と <code>AutoTrade_A08_ContextRouter_v0_1</code> を使い、validator済みmanifestだけから主資料1〜3件、補助資料0〜6件、JIT範囲を選ぶ。本文を直接読ませない。</li>
+    <li>日常保守で常時Orchestratorを起動せず、ソースコードの構造変更は決定的コードmanifest更新へ渡す。A07/A08にネットワーク、Secret、任意path、Git書込みを与えない。</li>
   </ul>
 
   <h2>4.2 設計書セット作成標準部品</h2>
@@ -153,7 +156,7 @@ Phase Runbook:
     </tbody>
   </table>
 
-  <h2>9. UIモック専用ルールの追加履歴</h2>
+  <h2>10. UIモック専用ルールの追加履歴</h2>
   <table>
     <thead><tr><th>版</th><th>日付</th><th>変更</th><th>状態</th></tr></thead>
     <tbody>

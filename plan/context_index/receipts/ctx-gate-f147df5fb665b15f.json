@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase1/09_非機能要件/09_設定Secrets環境分離設計書.html",
+  "request_id": "ctx-gate-f147df5fb665b15f",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "8fa649292fcc7d72c20597f55b3841bf7cb1248ca56542c45d4a9fbfa4623c19",
+  "status": "PASS"
+}

@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "research/asset_selection/10_頑健性バックテスト/10_研究用ハーネス方針_v0.1_2026-08-02.md",
+  "request_id": "ctx-gate-e48db647be050596",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "2e0bbadebdf9d8622049ab12f097690a39b046a23d6a036d5e507303534ec032",
+  "status": "PASS"
+}

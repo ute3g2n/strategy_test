@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "research/asset_selection/11_ポートフォリオ選定/11_ポートフォリオ選定ルール_v0.1_2026-08-02.md",
+  "request_id": "ctx-gate-33df93afe738c53b",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "90c020e9986066d988f942cc222afe0363419936ab948e7e24c85cf3026d3e49",
+  "status": "PASS"
+}

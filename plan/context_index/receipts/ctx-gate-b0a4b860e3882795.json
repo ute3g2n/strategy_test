@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase2/09_実DBN変換/09_実DBN_Replay隔離検証結果.html",
+  "request_id": "ctx-gate-b0a4b860e3882795",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "a9843a4de39de376e04ce811055d3ec8c90078b568ac46e74234e4e6e6d78a2d",
+  "status": "PASS"
+}

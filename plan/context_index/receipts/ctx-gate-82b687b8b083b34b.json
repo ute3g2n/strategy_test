@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "research/asset_selection/07_データベンダー/07_無料データ代替調査_v0.1_2026-08-02.md",
+  "request_id": "ctx-gate-82b687b8b083b34b",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "d2bfc7e7dc6e1489ddd3860c6326f41e6ba2161e8fc2b521f33571c50eb92c13",
+  "status": "PASS"
+}

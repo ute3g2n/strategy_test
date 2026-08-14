@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "plan/ai_foundation/AF-05_実装詳細設計AI基盤更新ログ_2026-08-04.md",
+  "request_id": "ctx-gate-b732cc10cc16819b",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "a1428203eb95a99849b9b13771b2b010e4c5101138dfdcf655250ba919c946d1",
+  "status": "PASS"
+}

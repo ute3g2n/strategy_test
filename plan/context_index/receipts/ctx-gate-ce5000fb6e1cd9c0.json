@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase1/03_ドメイン設計/03_ドメイン分割設計書.html",
+  "request_id": "ctx-gate-ce5000fb6e1cd9c0",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "53e36539d6e87b51b29438559663a081bd8faecfb9c0fbeec5aafa61152895e8",
+  "status": "PASS"
+}

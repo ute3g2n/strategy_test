@@ -310,9 +310,62 @@ def _load_a07_responses(path: Path | None) -> dict[str, dict[str, Any]]:
     if not isinstance(raw, dict):
         raise GateError("A07_RESPONSES_INVALID")
     result: dict[str, dict[str, Any]] = {}
+    required_keys = {
+        "artifact_id",
+        "action",
+        "summary",
+        "purpose",
+        "triggers",
+        "headings",
+        "relations",
+        "confidence",
+        "reason",
+        "source_hash",
+        "receipt",
+    }
     for key, item in raw.items():
         normalized = _safe_path(str(key))
         if not isinstance(item, dict):
+            raise GateError("A07_RESPONSES_INVALID")
+        if set(item) != required_keys:
+            raise GateError("A07_RESPONSES_INVALID")
+        if not isinstance(item.get("artifact_id"), str) or not _SAFE_IDENTIFIER_RE.fullmatch(
+            item["artifact_id"]
+        ):
+            raise GateError("A07_RESPONSES_INVALID")
+        if item.get("action") not in {"record_add", "record_update", "metadata_unchanged"}:
+            raise GateError("A07_RESPONSES_INVALID")
+        if not all(isinstance(item.get(field), str) for field in ("summary", "purpose", "reason")):
+            raise GateError("A07_RESPONSES_INVALID")
+        if not all(isinstance(item.get(field), list) for field in ("triggers", "headings", "relations")):
+            raise GateError("A07_RESPONSES_INVALID")
+        confidence = item.get("confidence")
+        if isinstance(confidence, bool) or not isinstance(confidence, (int, float)):
+            raise GateError("A07_RESPONSES_INVALID")
+        if not 0.70 <= float(confidence) <= 1.0:
+            raise GateError("A07_RESPONSES_INVALID")
+        if not isinstance(item.get("source_hash"), str) or not re.fullmatch(
+            r"[a-f0-9]{64}", item["source_hash"]
+        ):
+            raise GateError("A07_RESPONSES_INVALID")
+        receipt = item.get("receipt")
+        if not isinstance(receipt, dict) or set(receipt) != {
+            "agent_id",
+            "model",
+            "reasoning_effort",
+            "status",
+            "run_id",
+        }:
+            raise GateError("A07_RESPONSES_INVALID")
+        if (
+            not all(isinstance(receipt.get(field), str) for field in receipt)
+            or receipt["model"] != "gpt-5.6-luna"
+            or receipt["reasoning_effort"] != "low"
+            or receipt["status"] != "completed"
+            or receipt["run_id"] in {"", "N/A"}
+            or not _SAFE_IDENTIFIER_RE.fullmatch(receipt["agent_id"])
+            or not _SAFE_IDENTIFIER_RE.fullmatch(receipt["run_id"])
+        ):
             raise GateError("A07_RESPONSES_INVALID")
         result[normalized] = copy.deepcopy(item)
     return result
@@ -611,6 +664,15 @@ def run_gate(
             receipt = result.receipt
             receipt_path = _receipt_path(root, _request_id(path))
             _write_json_atomic(receipt_path, receipt)
+            report["receipts"].append(
+                {
+                    "path": receipt_path.relative_to(root).as_posix(),
+                    "source_hash": receipt.get("source_hash"),
+                    "action": receipt.get("action"),
+                    "status": receipt.get("status"),
+                    "reason_code": receipt.get("reason_code"),
+                }
+            )
             reason = str(receipt.get("reason_code", "MAINTENANCE_FAILED"))
             if reason == "RUNTIME_DISPATCH_FALLBACK_REQUIRED":
                 reason = "A07_RUNTIME_UNAVAILABLE"
@@ -626,6 +688,15 @@ def run_gate(
         state = result.state
         receipt_path = _receipt_path(root, _request_id(path))
         receipt_records.append((receipt_path, result.receipt))
+        report["receipts"].append(
+            {
+                "path": receipt_path.relative_to(root).as_posix(),
+                "source_hash": result.receipt.get("source_hash"),
+                "action": result.receipt.get("action"),
+                "status": result.receipt.get("status"),
+                "reason_code": result.receipt.get("reason_code"),
+            }
+        )
         report["document_actions"].append({"path": path, "action": result.action, "status": result.status})
 
     if source_paths:

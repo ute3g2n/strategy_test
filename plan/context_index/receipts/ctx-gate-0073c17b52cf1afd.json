@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "plan/requirements_update/reviews/RQU-09B_最終再レビュー結果.md",
+  "request_id": "ctx-gate-0073c17b52cf1afd",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "efb24812b9a39cfed5b1fee588dc9160ebb7df9c9f9210719e35283b37f90b02",
+  "status": "PASS"
+}

@@ -231,7 +231,7 @@ Rules:
   <p>図中の汎用AutoTrade Orchestratorはすべて <code>gpt-5.6-terra</code> を使用する。図中のサブエージェントは、それぞれのAgent JSONに定義されたモデルを維持する。Phase 1の凍結証跡と <code>default_orchestrator</code> は、このモデル割当変更の対象外である。</p>
 
   <h2>4.2 実ランタイム発火の相関</h2>
-  <p>直接Prompt → root実行Agent → <code>multi_agent_v1__spawn_agent</code> → 指定Orchestrator → Coordinator → 指定Agent全件の個別spawn → <code>multi_agent_v1__wait_agent</code> → receipt／成果物、という順を正本とする。完全名・JSON・Skill・自己レビューは起動の代替ではない。子起動不能時は <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、未起動Agent、理由、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を保存してルート責務チェックリストへ継続する。</p>
+  <p>直接Prompt → root実行Agent → <code>multi_agent_v1__spawn_agent</code> → 指定Orchestrator → Coordinator → 指定Agent全件の個別spawn → <code>multi_agent_v1__wait_agent</code> → receipt／成果物、という順を正本とする。各Agent JSONのmodelを渡し、<code>reasoning_effort</code>は定義された場合だけ渡す。完全名・JSON・Skill・自己レビューは起動の代替ではない。子起動不能時は <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、未起動Agent、理由、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を保存してルート責務チェックリストへ継続する。</p>
 
   <h2>5. 利用判断フロー</h2>
   <pre>Need a component?
@@ -305,7 +305,24 @@ Rules:
     </tbody>
   </table>
 
-  <h2>8. UIモック専用導線の追加履歴</h2>
+  <h2>8. CTX-02 資料参照効率化の発火導線</h2>
+  <pre>文書の新規追加または大幅変更
+  |
+  +-- 1ファイル境界・Secret検査・hash検証
+        |
+        +-- AutoTrade_A07_ContextManifestMaintainer_v0_1
+        |      +-- record_add / record_update / metadata_unchanged / blocked
+        |      +-- validator PASS または理由付きBLOCKED receipt
+        |
+        +-- validator済みmanifest + 利用者依頼
+               +-- AutoTrade_A08_ContextRouter_v0_1
+                      +-- primary 1〜3件 / supporting 0〜6件 / JIT範囲 / 不足情報
+
+ソースコードの構造変更はA07へ本文を渡さず、決定的なコードmanifest/index更新へ送る。
+日常保守で常時Orchestratorを起動せず、AI部品自体の変更だけComponentLifecycleへ戻す。</pre>
+  <p>A07/A08はネットワーク、Secret、任意path、Git書込み、本文全量保存を持たない。runtime未起動や固定model不受理は<code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>としてreceiptへ残す。</p>
+
+  <h2>9. UIモック専用導線の追加履歴</h2>
   <table>
     <thead><tr><th>版</th><th>日付</th><th>変更</th><th>状態</th></tr></thead>
     <tbody>

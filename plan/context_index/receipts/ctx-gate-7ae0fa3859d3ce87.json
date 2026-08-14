@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "plan/requirements_update/RQV2-11_Phase4以降再編ロードマップ_HTML再作成プロンプト_2026-08-12.md",
+  "request_id": "ctx-gate-7ae0fa3859d3ce87",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "517be4b8bc4372f20443422812054c236c458f312dacc26d464f7e7b8af4a2ac",
+  "status": "PASS"
+}

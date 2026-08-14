@@ -1,0 +1,593 @@
+{
+  "schema_version": "ctx09-independent-review-v0.1",
+  "scope": {
+    "gate_report": "plan/context_index/runtime/CTX-09_context_gate_report.json",
+    "a07_responses": "plan/context_index/CTX-09_A07_semantic_responses.json",
+    "manifest": "context/artifact_manifest.json",
+    "code_manifest": "context/code_manifest.json",
+    "relation_graph": "context/relation_graph.json"
+  },
+  "review_runs": [
+    {
+      "run_id": "ctx09-independent-review",
+      "historical": true,
+      "reviewers": [
+        {
+          "reviewer": "AutoTrade_A90_DesignReviewer_v0_1",
+          "agent_id": "01a000a8-1d8d-78c1-b6db-1d937b4bb7a6",
+          "runtime": {
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true
+          },
+          "response": {
+            "reviewer": "AutoTrade_A90_DesignReviewer_v0_1",
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true,
+            "scope": [
+              "指定されたCTX-09関連manifest、Gate report、A07 semantic responses、receipts、findings、runtime profile、rules、scripts/context_indexを読み取り専用で確認",
+              "426件のactive document metadataとA07 semantic responseの整合性確認",
+              "H1前提およびA07/A08/A80 runtime profile確認"
+            ],
+            "findings": [
+              {
+                "severity": "HIGH",
+                "code": "CTX09-F-003",
+                "summary": "426件のA07 semantic responsesは存在するが、正式receipt群は426件すべてmetadata_unchangedで、semantic confirmationのvalidator・source-hash突合を受入証跡として確認できない。",
+                "evidence": "context/artifact_manifest.jsonはactive artifacts 426件。CTX-09_A07_semantic_responses.jsonはresponses 426件、model gpt-5.6-luna 426件。ただしplan/context_index/receipts/は426件すべてstatus PASS・action metadata_unchangedで、Gate reportのreceiptsは空配列。",
+                "recommendation": "426件すべてについてA07 strict decision、source_hash一致、validator PASS、永続receiptを個別に突合し、成功・BLOCKED・未登録件数を一致させる。"
+              },
+              {
+                "severity": "HIGH",
+                "code": "CTX09-RUNTIME-001",
+                "summary": "現在のruntime profile要件がA07/A08/A80のAgent JSON定義で一貫していない。",
+                "evidence": "A07定義にはmodel=gpt-5.6-luna、reasoning_effort=lowがある。一方A08およびA80定義にはトップレベルのmodelとreasoning_effortがない。",
+                "recommendation": "A07/A08/A80すべての定義、spawn入力、receiptでmodel=gpt-5.6-lunaとreasoning_effort=lowを固定し、validatorで三者一致を確認する。"
+              },
+              {
+                "severity": "HIGH",
+                "code": "CTX09-H1-001",
+                "summary": "CTXMAP-H1は不適格。Gate自体はPASSだが、H1受入条件を満たさない。",
+                "evidence": "Gate report statusはPASSだが、code_manifestはPARTIAL（COMPLETE 217、PARTIAL 38）。CTX-09 findingsはHigh未解決3件、独立spawn/wait受領未成立、H1阻止を記録している。",
+                "recommendation": "High findings、semantic confirmation、runtime profile整合、独立review receipt、Human Gate承認をすべて成立させるまでH1をBLOCKEDとして維持する。"
+              },
+              {
+                "severity": "HIGH",
+                "code": "CTX09-F-001",
+                "summary": "Gate入力Pathのrepository confinement不足が未解消。",
+                "evidence": "CTX-09_findings.mdはcheck_context_gate.pyのchanged-list、A07 responses、baseline snapshot入力に共通のrepository confinementがないと指摘し、OPEN/H1阻止としている。",
+                "recommendation": "全入力Pathを読み取り前に共通fail-closed confinementで検証し、絶対Path、UNC、traversal、symlink/reparse、repo外Pathを拒否する。"
+              },
+              {
+                "severity": "HIGH",
+                "code": "CTX09-F-002",
+                "summary": "Gate PASS後のallowlistに内容hash固定がなくTOCTOUが残る。",
+                "evidence": "CTX-09_findings.mdはGate reportのallowed_pathsがPathのみで、stage直前の再hashおよびreport integrity確認がないと指摘し、OPEN/H1阻止としている。",
+                "recommendation": "対象Path、生成manifest、A07 receipt、Gate reportのhashを固定し、stage前後およびpush前に再検証して不一致時はindex無変更でBLOCKEDにする。"
+              },
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-META-001",
+                "summary": "426件の意味メタデータは構造上存在するが、relationsやtriggersの品質と正式な受入証跡の対応が不明確。",
+                "evidence": "A07 semantic responsesは426件、relations非空323件、triggersは個別応答に存在するが空配列もある。Gate reportはdocument_manifest validのみを示し、semantic receiptの一覧を返していない。",
+                "recommendation": "各レコードのsummary、purpose、triggers、headings、relations、confidence、source_hashをvalidatorで検証し、正式receipt indexと1対1で結合する。"
+              },
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-F-005",
+                "summary": "code manifestのPARTIAL状態はGate validでも、H1受入上の扱いは完了していない。",
+                "evidence": "Gate validatorはcode_manifest valid=trueだがstatus=PARTIAL、countsはCOMPLETE 217/PARTIAL 38。",
+                "recommendation": "38件それぞれにowner、期限、受入可否、再確認条件を統合台帳と入口文書へ同期し、PARTIALをCOMPLETEへ推測昇格させない。"
+              }
+            ],
+            "decision": "BLOCKED",
+            "unknowns": [
+              "A07 semantic responses 426件が実runtimeで生成されたか、または既存ファイルから投入されたかを示すspawn/wait受領証跡。",
+              "A08/A80の実runtime spawn時にmodelとreasoning_effortが渡されたことを示すreceipt。",
+              "CTX-09 findingsのF-001、F-002、F-003が実装・再試験済みかを示す新しい検証証跡。",
+              "H1の人間承認receipt。"
+            ],
+            "receipt": {
+              "model": "gpt-5.6-luna",
+              "reasoning_effort": "low",
+              "status": "completed",
+              "run_id": "ctx09-independent-review"
+            }
+          },
+          "run_id": "ctx09-independent-review"
+        },
+        {
+          "reviewer": "AutoTrade_A130_VerificationEngineer_v0_1",
+          "agent_id": "01a000a8-1e5c-7be1-8fb4-be6d20170ed8",
+          "runtime": {
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true
+          },
+          "response": {
+            "reviewer": "AutoTrade_A130_VerificationEngineer_v0_1",
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true,
+            "scope": "CTX-09 local read-only review",
+            "findings": [
+              {
+                "severity": "HIGH",
+                "code": "CTX09-V-001",
+                "summary": "Gate reportはPASSだがreceiptsが空で、A07 semantic confirmationのvalidator証跡がない。",
+                "evidence": "CTX-09_context_gate_report.json: status=PASS、target_paths=426、allowed_paths=855、approved_hashes=855、receipts=[]。A07 responsesは426件だが、個別validator結果は確認できず、2件はagent_id欠落。",
+                "recommendation": "全426件についてsource hash、strict receipt、validator PASSを生成・永続化し、欠落時はfail-closedでBLOCKEDにする。"
+              },
+              {
+                "severity": "HIGH",
+                "code": "CTX09-V-002",
+                "summary": "code_manifestとrelation_graphがPARTIALのままで、Gate PASSと整合しない。",
+                "evidence": "code_manifest.json: status=PARTIAL、COMPLETE=217、PARTIAL=38。relation_graph.json: status=PARTIAL、diagnostics=1043。Gate validatorもcode_manifest status=PARTIALを返している。",
+                "recommendation": "PARTIALの受入条件・owner・期限・再確認証跡を満たすまでH1および後続有効化を阻止する。"
+              },
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-V-003",
+                "summary": "pytest PASSはレビュー文書上の記載のみで、指定範囲内に実行証跡がない。",
+                "evidence": "CTX-09_findings.mdには73 passed、coverage 80.10%、fail-under 80とあるが、指定されたreceipt/runtime/report内にpytest実行receiptまたは証跡ファイルは確認できない。",
+                "recommendation": "pytestコマンド、終了コード、対象範囲、coverage、証跡パスをreceiptへ固定し、未確認時はPASS扱いしない。"
+              }
+            ],
+            "decision": "BLOCKED",
+            "unknowns": [
+              "Gate reportのreceiptsが空である理由と、426件のvalidator結果の保存先が不明。",
+              "pytest 73 passedの実行環境・対象範囲・証跡ファイルを指定範囲から確認できない。",
+              "固定Reviewerの独立spawn/wait受領は、既存Findings記載どおり未成立。"
+            ],
+            "receipt": {
+              "model": "gpt-5.6-luna",
+              "reasoning_effort": "low",
+              "status": "completed",
+              "run_id": "ctx09-independent-review"
+            }
+          },
+          "run_id": "ctx09-independent-review"
+        },
+        {
+          "reviewer": "AutoTrade_A150_PythonCodeReviewer_v0_1",
+          "agent_id": "01a000a8-1f60-77d1-85df-c314cd16e5c1",
+          "runtime": {
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true
+          },
+          "response": {
+            "reviewer": "AutoTrade_A150_PythonCodeReviewer_v0_1",
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true,
+            "scope": "Read-only review of specified CTX-09 manifests, gate report, semantic responses, receipts, findings, agent definitions, and scripts/context_index Python files.",
+            "findings": [
+              {
+                "severity": "HIGH",
+                "code": "CTX09-PY-001",
+                "summary": "A07 semantic response receipt integrity is inconsistent.",
+                "evidence": "CTX-09_A07_semantic_responses.json contains 426 responses, including 8 receipts with run_id=N/A and 2 receipts without agent_id; statuses are 424 completed and 2 success.",
+                "recommendation": "Enforce one strict receipt schema requiring agent_id, model, reasoning_effort, status, and non-placeholder run_id for every response; reject incomplete receipts before Gate PASS."
+              },
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-PY-002",
+                "summary": "The Python path checks remain vulnerable to TOCTOU between confinement validation and file access.",
+                "evidence": "scripts/context_index/common.py resolves and validates paths before subsequent read_bytes calls; scripts/context_index/run_context_maintenance.py separately resolves output paths and later writes them. No atomic descriptor-based open or post-open identity verification was found in the inspected code paths.",
+                "recommendation": "Use confined directory handles or equivalent no-follow/reparse-safe opens, verify file identity and hash immediately before use, and revalidate output targets at write time."
+              },
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-PY-003",
+                "summary": "Manifest validation compares active registered paths without normalizing them.",
+                "evidence": "validate_context_index.py builds registered_active from record['relative_path'] directly, while discovered paths are normalized; equivalent slash or traversal-normalized representations can produce false UNREGISTERED_DOCUMENT errors or inconsistent scope accounting.",
+                "recommendation": "Normalize every manifest path before duplicate, registered, discovered, and relation comparisons, and fail closed on normalization ambiguity."
+              }
+            ],
+            "decision": "PASS_WITH_OPEN_ITEMS",
+            "unknowns": [
+              "No runtime agent_id was available for this independent review.",
+              "No tests were executed; this review is based only on inspected local files and strict JSON parsing.",
+              "The specified receipts directory was inspected by listing and hashing files, but receipt content was not independently revalidated against every referenced artifact hash."
+            ],
+            "receipt": {
+              "model": "gpt-5.6-luna",
+              "reasoning_effort": "low",
+              "status": "completed",
+              "run_id": "ctx09-independent-review"
+            }
+          },
+          "run_id": "ctx09-independent-review"
+        },
+        {
+          "reviewer": "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+          "agent_id": "01a000a8-2045-7422-a274-3fb9629b7976",
+          "runtime": {
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true
+          },
+          "response": {
+            "reviewer": "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true,
+            "scope": "CTX-09 read-only security review of specified manifests, gate report, semantic responses, receipts, findings, agent definitions, and scripts/context_index.",
+            "findings": [
+              {
+                "severity": "HIGH",
+                "code": "CTX09-F-001",
+                "summary": "Gate入力Pathのrepository confinement不足",
+                "evidence": "plan/context_index/reviews/CTX-09_findings.md identifies check_context_gate.py inputs --changed-list, --a07-responses, and --baseline-snapshot as lacking pre-read repository confinement.",
+                "recommendation": "Resolve and validate every input path inside the repository root before reading; reject absolute, UNC, traversal, symlink/reparse, missing, and repository-external paths fail-closed."
+              },
+              {
+                "severity": "HIGH",
+                "code": "CTX09-F-002",
+                "summary": "Gate PASS後のallowlistにhash固定がなくTOCTOUが残る",
+                "evidence": "CTX-09 findings report states the PASS allowlist lacks per-path and report integrity hashes before auto-commit staging.",
+                "recommendation": "Persist and revalidate path hashes, report hash, receipt hashes, and index blob hashes immediately before staging, committing, and pushing; block on any mismatch."
+              },
+              {
+                "severity": "HIGH",
+                "code": "CTX09-F-003",
+                "summary": "A07 semantic confirmation未成立",
+                "evidence": "CTX-09 findings report states 426 active documents lack strict fixed-model A07 semantic receipts and the required independent child-agent spawn/wait receipts were not established.",
+                "recommendation": "Keep H1 blocked until fixed-model A07 receipts, validator PASS, source-hash matching, relation evidence, and complete receipt indexing are present."
+              },
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-F-004",
+                "summary": "stdio JSONL入力上限とprompt-injection境界が不十分",
+                "evidence": "CTX-09 findings report identifies missing pre-decode input byte limits in context_mcp_server.py and incomplete prompt-injection handling for metadata and non-English variants.",
+                "recommendation": "Enforce raw-line byte limits before JSON decoding and classify or reject untrusted metadata/body content using multilingual injection fixtures."
+              },
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-F-006",
+                "summary": "watcherがGate/commit失敗をプロセス終了状態へ伝播しない",
+                "evidence": "CTX-09 findings report identifies context_watch.py watch_loop() dropping process_event() failure results and returning success-like continuation.",
+                "recommendation": "Propagate failures as non-zero termination or explicit stopped state, with bounded retries and auditable pending/error state."
+              },
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-F-007",
+                "summary": "強制停止後のstale lock復旧が未定義",
+                "evidence": "CTX-09 findings report identifies forced watcher termination paths that can bypass lock cleanup without PID, timestamp, root-fingerprint, and safe stale-lock recovery checks.",
+                "recommendation": "Record lock ownership metadata, verify process and root identity, and require safe stale-lock recovery with no unconditional deletion."
+              }
+            ],
+            "decision": "BLOCKED",
+            "unknowns": [
+              "指定されたplan/context_index/receipts/にはCTX-09名の個別receiptが見当たらず、独立spawn/waitの実ランタイム受領を確認できない。",
+              "Gate reportはPASSだが、既存レビュー証跡にはHigh 3件OPENおよびH1不適格が記録されているため、Gate PASSだけでは安全受入を証明できない。",
+              "今回のレビューではテスト実行、Git操作、外部I/O、Secret取得を行っていない。"
+            ],
+            "receipt": {
+              "model": "gpt-5.6-luna",
+              "reasoning_effort": "low",
+              "status": "completed",
+              "run_id": "ctx09-independent-review"
+            }
+          },
+          "run_id": "ctx09-independent-review"
+        }
+      ]
+    },
+    {
+      "run_id": "ctx09-independent-review-final",
+      "historical": false,
+      "reviewers": [
+        {
+          "reviewer": "AutoTrade_A90_DesignReviewer_v0_1",
+          "agent_id": "01a000c1-846d-7e22-ab8d-cd2ec95de297",
+          "runtime": {
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true
+          },
+          "response": {
+            "reviewer": "AutoTrade_A90_DesignReviewer_v0_1",
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true,
+            "scope": [
+              "指定されたCTX-09関連ファイルを読み取り専用で確認",
+              "426件のmanifest・A07応答・Gate証跡を厳密なPython JSON解析で確認",
+              "A07/A08/A80 runtime profile、現行Findings再検証結果、relation graph、context_index scriptsを確認"
+            ],
+            "findings": [
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-META-001",
+                "summary": "426件の意味メタデータとA07 strict応答は現行Gateで整合しているが、relationsやtriggersの品質は構造・型・件数までの確認であり、意味的妥当性の個別レビュー証跡は確認していない。",
+                "evidence": "artifact_manifest.jsonはactive managed_document 426件でsummary、purpose、triggers、headings、relation_ids、source_hashを全件保持。A07 responsesも426件、全件completed、source hash一致、非プレースホルダーreceipt。Gate reportはtarget_paths 426、receipts 426、document_manifest valid=true。",
+                "recommendation": "今後、relations・triggersの意味品質を必要範囲でサンプリングまたは明示的validator受入条件として固定する。"
+              },
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-F-005",
+                "summary": "code manifestとrelation graphはGate上validだが、code manifestはPARTIALのままであり、完了状態ではない。",
+                "evidence": "context/code_manifest.jsonはstatus=PARTIAL、255件中COMPLETE 217、PARTIAL 38。relation_graph.jsonはstatus=PARTIAL、diagnostics 1043。Gate reportもcode_manifest valid=trueかつstatus=PARTIALを保持している。現行Findingsは38件をMITIGATED / MEDIUMとしている。",
+                "recommendation": "38件のowner、期限、受入条件、再確認証跡を維持し、PARTIALをCOMPLETEへ推測昇格させない。"
+              },
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-PY-TOCTOU-001",
+                "summary": "現行Gate入力境界とallowlist hash検証は解消済みだが、descriptor-levelのTOCTOU対策は未完了の追跡項目である。",
+                "evidence": "現行FindingsはF-001をcurrent gate input pathについてRESOLVED、F-002をlocal wrapper pathについてRESOLVEDとし、scripts/context_index/check_context_gate.pyはrepository confinement、symlink/reparse拒否、approved hash検証を実装している。一方、current dispositionは広範なdescriptor-level TOCTOU hardeningをMedium follow-upとして明記している。",
+                "recommendation": "将来の広範なwrapper展開時は、読み取り・再hash・allowlist・staged bytes検証の境界をdescriptorまたは同等の再検証方式で維持する。"
+              }
+            ],
+            "decision": "PASS_WITH_OPEN_ITEMS",
+            "unknowns": [
+              "H1の人間承認receiptは確認していない。現行FindingsではCTXMAP-H1はWAITING_FOR_USER_APPROVAL。",
+              "pytest等の実行結果は今回実行しておらず、Findingsの現行記載を証跡として確認しただけである。",
+              "426件のsemantic metadataの意味的妥当性を全件人手レビューした証拠は確認していない。"
+            ],
+            "receipt": {
+              "model": "gpt-5.6-luna",
+              "reasoning_effort": "low",
+              "status": "completed",
+              "run_id": "ctx09-independent-review-final"
+            }
+          },
+          "run_id": "ctx09-independent-review-final"
+        },
+        {
+          "reviewer": "AutoTrade_A130_VerificationEngineer_v0_1",
+          "agent_id": "01a000c1-8524-7212-8121-cf5a21fa314d",
+          "runtime": {
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true
+          },
+          "response": {
+            "reviewer": "AutoTrade_A130_VerificationEngineer_v0_1",
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true,
+            "scope": "CTX-09 read-only review of specified manifests, Gate report, A07 responses, receipts, findings, agent definitions, and scripts/context_index.",
+            "findings": [
+              {
+                "severity": "INFO",
+                "code": "CTX09-GATE-001",
+                "summary": "Current Gate report is PASS.",
+                "evidence": "plan/context_index/runtime/CTX-09_context_gate_report.json has status PASS and reason_code GATE_PASS; target_paths=426, receipts=426, approved_hashes=855, pending=null.",
+                "recommendation": "Retain the current Gate report and its approved hash bindings."
+              },
+              {
+                "severity": "INFO",
+                "code": "CTX09-A07-001",
+                "summary": "Current re-verification records complete A07 coverage for all 426 active documents.",
+                "evidence": "The final Current re-verification result states 426/426 strict A07 decisions, matching source hashes, validator results, and non-placeholder Luna/low receipts. The receipts directory contains 426 JSON files, all status PASS.",
+                "recommendation": "Preserve one-to-one receipt and source-hash traceability."
+              },
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-CODE-001",
+                "summary": "Code manifest and relation graph remain PARTIAL despite valid Gate validation.",
+                "evidence": "code_manifest.json status=PARTIAL with 217 COMPLETE and 38 PARTIAL; relation_graph.json status=PARTIAL with 1043 diagnostics. The Gate validator reports both as valid, not complete.",
+                "recommendation": "Keep the 38 PARTIAL records tracked with owner, deadline, acceptance condition, and revalidation evidence; do not promote them implicitly."
+              },
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-TEST-001",
+                "summary": "The stated pytest result is recorded but was not independently executed in this review.",
+                "evidence": "The final Current re-verification result records 93 passed and 80.01% coverage. This review performed no test execution, and no separate pytest execution receipt was among the specifically inspected JSON reports.",
+                "recommendation": "Retain a durable command, exit-code, scope, coverage, and evidence-path receipt for the 93-test result."
+              },
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-H1-001",
+                "summary": "Human Gate approval remains outstanding.",
+                "evidence": "The final Current re-verification result states CTXMAP-H1 is WAITING_FOR_USER_APPROVAL and requires the exact approval text CTXMAP-H1を承認します.",
+                "recommendation": "Keep watcher, save-time A07 invocation, auto-commit, and push paths disabled until explicit H1 approval."
+              },
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-FOLLOWUP-001",
+                "summary": "Broader hardening items remain open as follow-up work.",
+                "evidence": "The final disposition marks F-005 MITIGATED/MEDIUM with 38 PARTIAL records and notes broader descriptor-level TOCTOU hardening and additional multilingual fixtures as remaining enhancements.",
+                "recommendation": "Track these follow-ups separately and verify them before treating CTX-09 as fully closed."
+              }
+            ],
+            "decision": "PASS_WITH_OPEN_ITEMS",
+            "unknowns": [
+              "H1 user approval has not been provided in the inspected evidence.",
+              "The reported pytest 93 passed and 80.01% coverage was not independently rerun during this read-only review.",
+              "The 38 PARTIAL code records are validly tracked but not COMPLETE.",
+              "Descriptor-level TOCTOU hardening and additional multilingual prompt-injection fixtures remain follow-up conditions."
+            ],
+            "receipt": {
+              "model": "gpt-5.6-luna",
+              "reasoning_effort": "low",
+              "status": "completed",
+              "run_id": "ctx09-independent-review-final"
+            }
+          },
+          "run_id": "ctx09-independent-review-final"
+        },
+        {
+          "reviewer": "AutoTrade_A150_PythonCodeReviewer_v0_1",
+          "agent_id": "01a000c1-85fa-76e2-b446-08179344a8d7",
+          "runtime": {
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true
+          },
+          "response": {
+            "reviewer": "AutoTrade_A150_PythonCodeReviewer_v0_1",
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true,
+            "scope": "指定されたCTX-09関連ファイル、receipts、reviews、Agent定義、scripts/context_indexを読み取り専用で確認。厳密JSON解析、A07 receipt、path confinement、TOCTOU、Gate/Python実装品質を再検証。",
+            "findings": [
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-PY-TOCTOU-001",
+                "summary": "パス検証後のファイルアクセスに、descriptor-levelのTOCTOU防止が残存課題としてある。",
+                "evidence": "Current re-verification resultはF-001を現行Gate入力経路について解消済みとする一方、descriptor-level TOCTOU hardeningをMedium follow-upとして明記している。今回確認したGate reportはper-path SHA-256とapproved-path/index verificationを示すが、汎用的な全ファイルアクセスについてatomicなdescriptor identity bindingまでは確認できない。",
+                "recommendation": "no-follow/reparse-safeなdescriptorベースのopen、またはopen後のidentity検証と直前hash再確認を全対象経路へ適用し、差異時はfail-closedで停止する。"
+              },
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-PY-PARTIAL-001",
+                "summary": "code manifestは有効だがPARTIAL状態の記録が残る。",
+                "evidence": "Current Gate reportはPASS、code manifest validatorはvalid=trueだがstatus=PARTIALで、COMPLETE=217、PARTIAL=38。Current re-verification resultも38件をMITIGATED / MEDIUMとして扱い、COMPLETEへ昇格していない。",
+                "recommendation": "38件のowner、期限、acceptance condition、再確認証跡を統合台帳・入口文書・validator結果で継続同期し、PARTIALを暗黙に受入済みと扱わない。"
+              }
+            ],
+            "decision": "PASS_WITH_OPEN_ITEMS",
+            "unknowns": [
+              "指定されたファイルの読み取りと厳密JSON解析は実施したが、pytest等のテストは実行していない。",
+              "current Gate reportで426件のA07 responseと426件のreceipt entry、855件のapproved_hashesが確認できるが、全receiptと実ファイルの再ハッシュをこのレビューで再実行していない。",
+              "Gate入力経路外を含むdescriptor-level TOCTOU対策の実装完了範囲は、指定資料だけでは確定できない。"
+            ],
+            "receipt": {
+              "model": "gpt-5.6-luna",
+              "reasoning_effort": "low",
+              "status": "completed",
+              "run_id": "ctx09-independent-review-final"
+            }
+          },
+          "run_id": "ctx09-independent-review-final"
+        },
+        {
+          "reviewer": "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+          "agent_id": "01a000c1-86d6-7b92-95ae-1cf5c8fc47c2",
+          "runtime": {
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true
+          },
+          "response": {
+            "reviewer": "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true,
+            "scope": [
+              "context/artifact_manifest.json",
+              "context/code_manifest.json",
+              "context/relation_graph.json",
+              "plan/context_index/runtime/CTX-09_context_gate_report.json",
+              "plan/context_index/CTX-09_A07_semantic_responses.json",
+              "plan/context_index/CTX-09_independent_review_receipts.json",
+              "plan/context_index/receipts/",
+              "plan/context_index/reviews/CTX-09_findings.md",
+              "settings/ai_component_rules.md",
+              ".codex/agents/AutoTrade_A07_ContextManifestMaintainer_v0_1.json",
+              ".codex/agents/AutoTrade_A08_ContextRouter_v0_1.json",
+              ".codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json",
+              "scripts/context_index/"
+            ],
+            "findings": [
+              {
+                "severity": "HIGH",
+                "code": "CTX09-F-003",
+                "summary": "A07 semantic confirmation remains unresolved.",
+                "evidence": "The current re-verification section marks CTX09-F-003 OPEN/HIGH and states that strict A07 receipts and validator results for the active document set are still pending.",
+                "recommendation": "Produce and validate the required A07 strict semantic receipts for the active document set; keep H1 ineligible until completion."
+              },
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-F-005",
+                "summary": "Code manifest remains PARTIAL and selected agent records retain open secret-metadata diagnostics.",
+                "evidence": "context/code_manifest.json is PARTIAL; the A07, A08, and A80 records are PARTIAL with SECRET_METADATA_OMITTED diagnostics and OPEN remediation status.",
+                "recommendation": "Resolve or explicitly accept the parser-specific diagnostics with dated security evidence before treating coverage as complete."
+              },
+              {
+                "severity": "MEDIUM",
+                "code": "CTX09-RUNTIME-FALLBACK",
+                "summary": "Requested independent child-reviewer runtime dispatch was unavailable.",
+                "evidence": "The final review section records RUNTIME_DISPATCH_FALLBACK_REQUIRED with agent_id=N/A, independent=false, and SELF_REVIEW_FALLBACK for the child reviewers; the independent review receipt file records the coordinator receipt but does not establish successful child-agent independence.",
+                "recommendation": "Run the specified reviewers through spawn/wait and retain per-agent completion receipts before claiming runtime-independent review completion."
+              }
+            ],
+            "decision": "BLOCKED",
+            "unknowns": [
+              "Whether the current A07 semantic receipts and validators will cover all 426 active document records without omission.",
+              "Whether the open secret-metadata diagnostics represent only safely omitted metadata or an unresolved parser exposure.",
+              "Whether the watcher and auto-save paths remain fail-closed under all runtime failure and stale-lock recovery conditions after the recorded fixes."
+            ],
+            "receipt": {
+              "model": "gpt-5.6-luna",
+              "reasoning_effort": "low",
+              "status": "completed",
+              "run_id": "ctx09-independent-review-final"
+            }
+          },
+          "run_id": "ctx09-independent-review-final"
+        }
+      ]
+    },
+    {
+      "run_id": "ctx09-independent-review-focused",
+      "historical": false,
+      "reviewers": [
+        {
+          "reviewer": "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+          "agent_id": "01a000c3-497f-7bc0-9f9c-5c6b7d981b37",
+          "runtime": {
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true
+          },
+          "response": {
+            "reviewer": "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+            "independent": true,
+            "scope": "CTX-09 current re-verification only",
+            "findings": [],
+            "decision": "PASS_WITH_OPEN_ITEMS",
+            "unknowns": [
+              "Medium: PARTIAL 38",
+              "Medium: descriptor-level TOCTOU hardening",
+              "Medium: additional multilingual fixtures",
+              "H1 approval remains WAITING_FOR_USER_APPROVAL",
+              "Historical findings are not current findings"
+            ],
+            "receipt": {
+              "model": "gpt-5.6-luna",
+              "reasoning_effort": "low",
+              "status": "completed",
+              "run_id": "ctx09-independent-review-focused"
+            }
+          },
+          "run_id": "ctx09-independent-review-focused"
+        }
+      ]
+    }
+  ],
+  "coordinator_validation": {
+    "final_spawned": 4,
+    "final_completed": 4,
+    "focused_security_spawned": 1,
+    "focused_security_completed": 1,
+    "independent": true,
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "low",
+    "note": "Current canonical evidence is the final re-verification section plus the current Gate report. Historical fallback/open rows are retained as history and are not current disposition."
+  }
+}

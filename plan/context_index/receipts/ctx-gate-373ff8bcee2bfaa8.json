@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": ".codex/skills/autotrade_skill_revision_integration_v0_1/SKILL.md",
+  "request_id": "ctx-gate-373ff8bcee2bfaa8",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "bb59693846e3f2117ebdce81cc998b668b23fb4c03060a71206d4135318b02d6",
+  "status": "PASS"
+}

@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "plan/requirements_update/RQU-02_AI部品適合性判定_2026-08-10.md",
+  "request_id": "ctx-gate-f9dcc6b7c5e841f1",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "42742f945999c705d1252b7bfd4fe9213144e65e6152b584151075cdd49c5c60",
+  "status": "PASS"
+}

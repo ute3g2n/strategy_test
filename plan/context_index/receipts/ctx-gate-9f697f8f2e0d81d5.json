@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/ai_foundation/10_Phase実行計画書作成依頼プロンプト.html",
+  "request_id": "ctx-gate-9f697f8f2e0d81d5",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "ae8b194db2c15f64489db87c027b39f3fd5f44eb945f013d4a80a5cad0727508",
+  "status": "PASS"
+}

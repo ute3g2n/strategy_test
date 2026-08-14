@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase1/11_ロードマップ/11_Phase2以降ロードマップ.html",
+  "request_id": "ctx-gate-4f017e976aa75f1d",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "33cb8e4bb28359a96beff34feb4fc97a490f1dc03ce351a6c5fbf86902c4f9e3",
+  "status": "PASS"
+}

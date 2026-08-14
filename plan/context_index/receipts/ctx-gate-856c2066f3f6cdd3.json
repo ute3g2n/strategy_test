@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "plan/context_index/CTX-01_受入・脅威・テスト設計.md",
+  "request_id": "ctx-gate-856c2066f3f6cdd3",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "e62cfebbbc379fa6050e1f864cc60f1efb4132094b988772dc42b475d096efcc",
+  "status": "PASS"
+}

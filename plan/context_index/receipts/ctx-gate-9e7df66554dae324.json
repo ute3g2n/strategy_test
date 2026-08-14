@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "research/asset_selection/00_実行基盤/00_実行基盤説明.md",
+  "request_id": "ctx-gate-9e7df66554dae324",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "19fbb550205007f3e115fe8dda5aeb82d32d961a3ece2e5faec761851924723a",
+  "status": "PASS"
+}

@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "plan/context_index/CTX-00_棚卸し・対象分類.md",
+  "request_id": "ctx-gate-1839dd0b4d7b4905",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "3ca2e58d22d5b600654a38c6e9604f1631c2494615518de35460d0af24cb5feb",
+  "status": "PASS"
+}

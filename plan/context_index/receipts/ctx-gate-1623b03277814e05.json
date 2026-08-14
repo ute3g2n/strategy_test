@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/ai_foundation/06_AI部品相関図発火制御図.html",
+  "request_id": "ctx-gate-1623b03277814e05",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "c23156503ff554e335cc0d6ed8c0f033891abd8ecc46df7f4cb4cf793a06e697",
+  "status": "PASS"
+}

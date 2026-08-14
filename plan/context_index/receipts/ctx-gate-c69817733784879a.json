@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase5/02_データ詳細設計/02_Data_Catalog_Provider_DataContract詳細設計書.html",
+  "request_id": "ctx-gate-c69817733784879a",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "73f8e3290eba9f583d8609c30eaadae581d4ba6359248a35b23c89b7dcb37011",
+  "status": "PASS"
+}

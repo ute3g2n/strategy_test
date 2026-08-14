@@ -83,7 +83,7 @@
       <tr><td><code>display_name</code></td><td>Auto Trade Component Lifecycle Orchestrator v0.1</td></tr>
       <tr><td><code>model</code></td><td><code>gpt-5.6-terra</code></td></tr>
       <tr><td><code>purpose</code></td><td>既存AI部品の再利用調査から、新規作成または変更、関連仕様追従更新までを統括する。</td></tr>
-      <tr><td><code>agents</code></td><td><code>AutoTrade_A06_AiComponentEngineer_v0_1</code> を主担当とし、必要に応じて <code>AutoTrade_A10</code>, <code>AutoTrade_A80</code>, <code>AutoTrade_A90</code> を使う。</td></tr>
+      <tr><td><code>agents</code></td><td><code>AutoTrade_A06_AiComponentEngineer_v0_1</code> を主担当とし、必要に応じて <code>AutoTrade_A10</code>, <code>AutoTrade_A80</code>, <code>AutoTrade_A90</code> を使う。CTXMAPの文書保守では <code>AutoTrade_A07_ContextManifestMaintainer_v0_1</code> と <code>AutoTrade_A08_ContextRouter_v0_1</code> を明示的に組み合わせる。</td></tr>
       <tr><td><code>global_constraints</code></td><td>既存部品調査を先行、仕様追従更新必須、完全名明記、HTMLは <code>doc/</code>、計画・ログは <code>plan/</code>、<code>default_orchestrator</code> は変更禁止。</td></tr>
       <tr><td><code>stop_conditions</code></td><td>作成時の名前衝突、変更対象未存在、仕様追従不能、UnknownのPass要求、<code>default_orchestrator</code> 変更要求。</td></tr>
     </tbody>
@@ -148,7 +148,7 @@
   <p>本書の6つの汎用オーケストレータはすべて <code>gpt-5.6-terra</code> を使用する。サブエージェントのモデルは各Agent JSONの個別定義を正本とし、本オーケストレータの変更によって書き換えない。Phase 1の凍結済み <code>AutoTradePhase1_Orchestrator_v0_1</code> と <code>default_orchestrator</code> は対象外である。</p>
 
   <h2>4.1 実ランタイム起動契約</h2>
-  <p>Orchestratorは、Promptの完全名を読んだだけではAgentを実行したと扱わない。ルート実行AgentがOrchestratorを <code>multi_agent_v1__spawn_agent</code> で起動し、CoordinatorがPrompt指定の全Agentを個別spawnしてwaitする。各Agent JSONの固定modelをmodel引数へ明示し、orchestrator_agent_id、agent_id、JSON path、model、Skills、受付／完了status、出力参照、独立性、review modeを保存する。nested runtimeが利用できない場合は <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code> と <code>SELF_REVIEW_FALLBACK</code>を開示してルート責務チェックリストへ継続し、未起動を独立レビュー済みと書かない。Gate未承認、外部I/O、Secret、UnknownのPass、Critical／Highは別途停止する。</p>
+  <p>Orchestratorは、Promptの完全名を読んだだけではAgentを実行したと扱わない。ルート実行AgentがOrchestratorを <code>multi_agent_v1__spawn_agent</code> で起動し、CoordinatorがPrompt指定の全Agentを個別spawnしてwaitする。各Agent JSONの固定modelと <code>reasoning_effort</code> をそれぞれ引数へ明示し、orchestrator_agent_id、agent_id、JSON path、model、reasoning_effort、Skills、受付／完了status、出力参照、独立性、review modeを保存する。nested runtimeが利用できない場合は <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code> と <code>SELF_REVIEW_FALLBACK</code>を開示してルート責務チェックリストへ継続し、未起動を独立レビュー済みと書かない。Gate未承認、外部I/O、Secret、UnknownのPass、Critical／Highは別途停止する。</p>
 
   <h2>4. 管理責務</h2>
   <table>
@@ -199,7 +199,10 @@
     </tbody>
   </table>
 
-  <h2>8. UIモック専用オーケストレータの追加履歴</h2>
+  <h2>8. CTX-02 資料参照効率化の統合契約</h2>
+  <p>新規文書と大幅変更文書はA07へ1ファイル単位で渡し、validator PASSまたは理由付きBLOCKED receiptを受領するまで完了扱いにしない。A08はvalidator済みmanifest snapshotだけを使う。日常の保存監視は軽量Agentと決定的ローカルGateで行い、新しい常時Orchestratorは作らない。CTXMAP現行経路のA07/A08/A80は <code>gpt-5.6-luna</code>、<code>reasoning_effort=low</code> を使用する。固定profile受理不能、timeout、子Agent未起動は、実行済みや独立レビュー済みと表現しない。</p>
+
+  <h2>9. UIモック専用オーケストレータの追加履歴</h2>
   <table>
     <thead><tr><th>版</th><th>日付</th><th>変更</th><th>状態</th></tr></thead>
     <tbody>

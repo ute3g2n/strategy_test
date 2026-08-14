@@ -1,0 +1,123 @@
+{
+  "schema_version": "ctxmap.dispatch-receipt.v0.1",
+  "plan_id": "CTXMAP-PLAN-001",
+  "step_id": "CTX-02",
+  "recorded_at_utc": "2026-08-14T00:05:37.4235377Z",
+  "baseline_head": "5a96f1832ab15814d9262ee32489b672ab9df0e6",
+  "human_gate": {
+    "id": "CTXMAP-H0",
+    "status": "APPROVED",
+    "approval_text": "承認する。続けて",
+    "approved_at": "2026-08-14",
+    "scope_note": "CTX-02以降の計画実行を許可する。監視有効化、外部I/O、Secret、MCP本番登録、Unknownの解消、H1承認を含まない。"
+  },
+  "runtime_backend": "multi_agent_v1",
+  "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED__ROOT_DIRECT_ATTEMPTS",
+  "orchestrator": {
+    "agent_name": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+    "json_path": ".codex/orchestrators/AutoTradeComponentLifecycle_Orchestrator_v0_1.json",
+    "model": "gpt-5.6-terra",
+    "agent_id": "019ffd8d-4439-7ff3-8bd5-3b22573d80ad",
+    "accepted_status": "accepted",
+    "completion_status": "completed_handoff_only",
+    "output_reference": "runtime handoff checklist returned; no child dispatch or file mutation performed",
+    "independent": false,
+    "review_mode": "COORDINATOR_HANDOFF_ONLY"
+  },
+  "agents": [
+    {
+      "agent_name": "AutoTrade_A06_AiComponentEngineer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A06_AiComponentEngineer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "skills": ["autotrade_skill_ai_component_lifecycle_v0_1", "autotrade_skill_source_reader_v0_1", "autotrade_skill_traceability_v0_1", "autotrade_skill_orchestration_v0_1", "autotrade_skill_html_doc_writer_v0_1"],
+      "agent_id": "019ffd8d-e1c9-71e3-838d-630316db9a96",
+      "accepted_status": "accepted",
+      "completion_status": "completed_handoff_only",
+      "output_reference": "reuse assessment and boundary checklist returned in runtime notification",
+      "independent": false,
+      "review_mode": "HANDOFF_ONLY"
+    },
+    {
+      "agent_name": "AutoTrade_A10_RequirementsCurator_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "skills": ["autotrade_skill_source_reader_v0_1", "autotrade_skill_traceability_v0_1", "autotrade_skill_html_doc_writer_v0_1"],
+      "agent_id": "019ffd8e-0ad0-7822-8bfc-82581dbeeed2",
+      "accepted_status": "accepted",
+      "completion_status": "completed_handoff_only",
+      "output_reference": "requirements, scope, Unknown, and traceability checklist returned in runtime notification",
+      "independent": false,
+      "review_mode": "HANDOFF_ONLY"
+    },
+    {
+      "agent_name": "AutoTrade_A80_DocumentIntegrator_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json",
+      "model": "gpt-5.1",
+      "skills": ["autotrade_skill_html_doc_writer_v0_1", "autotrade_skill_revision_integration_v0_1", "autotrade_skill_traceability_v0_1"],
+      "agent_id": "N/A",
+      "accepted_status": "NOT_ACCEPTED",
+      "completion_status": "NOT_STARTED",
+      "output_reference": "spawn rejected: Unknown model gpt-5.1; available models did not include gpt-5.1",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A90_DesignReviewer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "skills": ["autotrade_skill_design_review_v0_1", "autotrade_skill_red_team_review_v0_1", "autotrade_skill_traceability_v0_1"],
+      "agent_id": "019ffd95-7bc2-70f2-b447-233a0e76ca00",
+      "accepted_status": "accepted",
+      "completion_status": "TIMEOUT_THEN_SHUTDOWN",
+      "output_reference": "wait timed out after post-creation validity attempt; no independent findings received",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A07_ContextManifestMaintainer_v0_1.json",
+      "model": "gpt-5.1",
+      "skills": ["autotrade_skill_context_manifest_maintenance_v0_1", "autotrade_skill_traceability_v0_1"],
+      "agent_id": "N/A",
+      "accepted_status": "NOT_ACCEPTED",
+      "completion_status": "NOT_STARTED",
+      "output_reference": "post-creation fixed-model validity spawn rejected: Unknown model gpt-5.1",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A08_ContextRouter_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A08_ContextRouter_v0_1.json",
+      "model": "gpt-5.1",
+      "skills": ["autotrade_skill_context_routing_v0_1", "autotrade_skill_traceability_v0_1"],
+      "agent_id": "N/A",
+      "accepted_status": "NOT_ACCEPTED",
+      "completion_status": "NOT_STARTED",
+      "output_reference": "post-creation fixed-model validity spawn rejected: Unknown model gpt-5.1",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    }
+  ],
+  "runtime_limitations": [
+    "Coordinator nested child dispatch was not available as an independently verifiable closed loop; root direct attempts are recorded as fallback.",
+    "gpt-5.1 was unavailable in the current runtime; no alternate model was substituted.",
+    "A90 post-creation wait timed out and was shut down; no independent review pass is claimed.",
+    "Skill Creator quick_validate.py was not run because the available Python environment lacks yaml; no dependency was installed."
+  ],
+  "verification": {
+    "json_parse": "PASS",
+    "skill_frontmatter_and_line_limit": "PASS",
+    "name_collision": "PASS",
+    "static_reference_paths": "PASS",
+    "default_orchestrator_unchanged": "PASS",
+    "independent_runtime_closed_loop": "FALLBACK_REQUIRED",
+    "critical_high_unknown_pass": "NOT_CLAIMED"
+  },
+  "component_hashes": {
+    "plan_sha256": "f22964c62050b4d19410f481f06b74370b641b2c4b5b407adba3a454020bbff4",
+    "a07_json_sha256": "793295126dd322bac494ee415eb7f682fc6312c7a0793ad40e3f77dd7856d50a",
+    "a08_json_sha256": "be20d94b529ff9df423ecc0103949f166d24c922f64596c70d17562b0dd76cfa"
+  },
+  "acceptance_status": "CONDITIONAL__STATIC_SYNC_PASS_RUNTIME_FALLBACK",
+  "next_gate": "CTX-03"
+}

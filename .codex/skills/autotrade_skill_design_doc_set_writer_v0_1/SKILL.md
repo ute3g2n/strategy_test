@@ -22,6 +22,7 @@ Phase内で複数の設計書HTMLを作成するときに、単体文書の寄�
 - 相互リンク、doc/index.html更新案
 - Unknown台帳、設計判断ID、成果物ID対応表
 - レビュー履歴、採否表、残課題
+- 文書ごとの `run_context_maintenance` 引き渡しとmanifest receipt
 
 ## 禁止事項
 - 正式HTML成果物を単独で孤立させること
@@ -30,6 +31,7 @@ Phase内で複数の設計書HTMLを作成するときに、単体文書の寄�
 - UnknownをPass扱いすること
 - Secret、API key、Account IDなどの秘匿情報をHTMLやログへ出すこと
 - 外部CDNに依存するHTMLを正式成果物にすること
+- A07のmanifest判定またはvalidator失敗を隠してセット完了にすること
 
 ## 品質チェック
 - すべてのHTML成果物が `doc/index.html` から到達できる
@@ -37,6 +39,7 @@ Phase内で複数の設計書HTMLを作成するときに、単体文書の寄�
 - 設計判断ID、Unknown ID、成果物IDが重複せず追跡可能である
 - 同一Phase内の設計書間で用語、責務、保存先、Gateが矛盾していない
 - レビュー指摘の採用、部分採用、保留、却下が理由付きで記録される
+- 新規HTMLと大幅変更HTMLをA07へ1ファイル単位で渡し、validator PASSまたは理由付きBLOCKEDをセットの完了条件へ含める
 
 ## Phase依存パラメータ
 - `phase_id`

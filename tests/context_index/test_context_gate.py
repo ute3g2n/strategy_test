@@ -111,6 +111,7 @@ def decision_for(path: str, source_hash: str, existing: dict[str, Any] | None, a
             "model": "gpt-5.6-luna",
             "reasoning_effort": "low",
             "status": "completed",
+            "run_id": "ctx-fixture",
         },
     }
 
@@ -165,7 +166,48 @@ def test_new_document_requires_a07_response_and_updates_only_explicit_outputs(
         item["relative_path"] == "docs/new.md"
         for item in json.loads(paths["manifest"].read_text(encoding="utf-8"))["artifacts"]
     )
+    assert len(report["receipts"]) == 1
     assert not any("safe_excerpt" in item for item in report.get("receipts", []))
+
+
+def test_gate_rejects_a07_response_with_incomplete_strict_receipt(
+    tmp_path: Path, policy: dict[str, object]
+) -> None:
+    write_file(tmp_path, "docs/guide.md", "# Guide\noriginal\n")
+    paths = prepare_index(tmp_path, policy)
+    write_file(tmp_path, "docs/new.md", "# New\nnew document\n")
+    source_hash = hashlib.sha256((tmp_path / "docs/new.md").read_bytes()).hexdigest()
+    bad = decision_for("docs/new.md", source_hash, None, "record_add")
+    bad["receipt"].pop("run_id")
+    response_path = tmp_path / "a07.json"
+    write_json(response_path, {"responses": {"docs/new.md": bad}})
+
+    assert gate_main(
+        gate_args(paths, "docs/new.md", "--a07-responses", "a07.json")
+    ) == 1
+    assert json.loads(paths["report"].read_text(encoding="utf-8"))["reason_code"] == (
+        "A07_RESPONSES_INVALID"
+    )
+
+
+def test_gate_rejects_a07_response_with_non_array_relations(
+    tmp_path: Path, policy: dict[str, object]
+) -> None:
+    write_file(tmp_path, "docs/guide.md", "# Guide\noriginal\n")
+    paths = prepare_index(tmp_path, policy)
+    write_file(tmp_path, "docs/new.md", "# New\nnew document\n")
+    source_hash = hashlib.sha256((tmp_path / "docs/new.md").read_bytes()).hexdigest()
+    bad = decision_for("docs/new.md", source_hash, None, "record_add")
+    bad["relations"] = {"upstream": ["docs/guide.md"]}
+    response_path = tmp_path / "a07.json"
+    write_json(response_path, {"responses": {"docs/new.md": bad}})
+
+    assert gate_main(
+        gate_args(paths, "docs/new.md", "--a07-responses", "a07.json")
+    ) == 1
+    assert json.loads(paths["report"].read_text(encoding="utf-8"))["reason_code"] == (
+        "A07_RESPONSES_INVALID"
+    )
 
 
 def test_major_document_change_without_a07_is_pending_and_does_not_touch_index(

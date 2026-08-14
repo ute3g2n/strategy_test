@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase1/10_テスト品質/10_テスト戦略品質Gate設計書.html",
+  "request_id": "ctx-gate-13958cee0e20cbd4",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "8941f0cfd12064d33769d6a12ca92ba065a2f79c323f1c628979a64210cb3296",
+  "status": "PASS"
+}

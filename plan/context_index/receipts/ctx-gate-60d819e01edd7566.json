@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase1/07_実行モデル/07_取引エンジンPoC評価設計書.html",
+  "request_id": "ctx-gate-60d819e01edd7566",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "f2bde53e49b72dd6a9d04a1e55efb5510c80c893421443c72b083952d8c40039",
+  "status": "PASS"
+}

@@ -30,7 +30,7 @@
   </section>
 
   <h2>1. 目的</h2>
-  <p>本書は、プロジェクト汎用サブエージェント <code>AutoTrade_Axx_*_v0_1</code> の責務、入力、出力、使用Skill、推奨モデル、境界条件を定義する。Phase 1の15体構成を整理し、現在は汎用Agent 22体（RQU-UI-04でA170/A171を追加）として運用する。Skillは小粒度のまま組み合わせる。</p>
+  <p>本書は、プロジェクト汎用サブエージェント <code>AutoTrade_Axx_*_v0_1</code> の責務、入力、出力、使用Skill、推奨モデル、境界条件を定義する。Phase 1の15体構成を整理し、現在は汎用Agent 24体（RQU-UI-04でA170/A171、CTX-02でA07/A08を追加）として運用する。Skillは小粒度のまま組み合わせる。</p>
 
   <h2>2. 共通仕様</h2>
   <table>
@@ -60,7 +60,7 @@
       <tr><td><code>AutoTrade_A50_AdapterArchitect_v0_1</code></td><td>Broker Adapter、Market Data Adapter、外部ID境界。</td><td>共通モデル、外部仕様、実行モデル。</td><td>Adapter境界、変換方針、IDマッピング、障害時挙動。</td><td><code>adapter_boundary</code>, <code>official_research</code>, <code>traceability</code></td><td><code>gpt-5.6-luna</code></td><td>外部API詳細を全固定しない。外部IDをコア正本にしない。</td></tr>
       <tr><td><code>AutoTrade_A60_RiskAccountArchitect_v0_1</code></td><td>Portfolio、Risk、Account、OMS責務境界。</td><td>注文、約定、口座、ポジション、Risk要件。</td><td>責務分離、正本管理、Risk override、復旧条件。</td><td><code>risk_account_design</code>, <code>domain_modeling</code>, <code>traceability</code></td><td><code>gpt-5.6-luna</code></td><td>Riskを任意機能にしない。Strategyに口座正本を持たせない。</td></tr>
       <tr><td><code>AutoTrade_A70_OpsSecurityArchitect_v0_1</code></td><td>監視、Secrets、環境分離、安全停止、運用設計。</td><td>非機能要件、環境、障害シナリオ、セキュリティ制約。</td><td>Ops/Security設計、Kill Switch方針、Secret方針、監査方針。</td><td><code>ops_security</code>, <code>red_team_review</code>, <code>traceability</code></td><td><code>gpt-5.6-luna</code></td><td>Secretを出力しない。Fail-openを許容しない。</td></tr>
-      <tr><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>HTML設計書、index更新、レビュー反映、変更履歴。</td><td>設計アウトライン、レビュー指摘、既存HTML、リンク方針。</td><td>HTML成果物、index更新、採否表、変更履歴。</td><td><code>html_doc_writer</code>, <code>revision_integration</code>, <code>traceability</code></td><td><code>gpt-5.1</code></td><td>正式HTMLを孤立させない。未解決リスクを削除しない。</td></tr>
+      <tr><td><code>AutoTrade_A80_DocumentIntegrator_v0_1</code></td><td>HTML設計書、index更新、レビュー反映、変更履歴。</td><td>設計アウトライン、レビュー指摘、既存HTML、リンク方針。</td><td>HTML成果物、index更新、採否表、変更履歴。</td><td><code>html_doc_writer</code>, <code>revision_integration</code>, <code>traceability</code></td><td><code>gpt-5.6-luna / low</code></td><td>正式HTMLを孤立させない。未解決リスクを削除しない。</td></tr>
       <tr><td><code>AutoTrade_A81_DesignDocSetWriter_v0_1</code></td><td>Phase内の複数HTML設計書をセットとして作成・更新し、共通メタ、相互リンク、Unknown、レビュー履歴、doc/index導線を揃える。</td><td>Phase Runbook、成果物一覧、文書アウトライン、既存HTML、レビュー指摘、リンク方針。</td><td>HTML設計書セット、index更新案、追跡ID対応表、採否表、残課題。</td><td><code>design_doc_set_writer</code>, <code>source_reader</code>, <code>traceability</code>, <code>html_doc_writer</code>, <code>revision_integration</code></td><td><code>gpt-5.6-luna</code></td><td>領域設計者やレビュアーを置き換えない。正式HTMLを孤立させない。Unknownや残リスクを削除しない。</td></tr>
       <tr><td><code>AutoTrade_A82_ImplementationDetailDesigner_v0_1</code></td><td>承認済みの設計判断を、AF-D16に従う日本語説明、受渡し名を矢印に付けたMermaid図、モジュール間データ受渡し表、実装対象のモジュール、型付き契約、保存構造、失敗系、疑似コード、全テストへ落とし込む。</td><td>要件追跡、領域設計、対象リポジトリ、実装制約、Phase Runbook、AF-D16、AF-D17。</td><td>DD-01からDD-12、平易な表の前置き、受渡しの用途・停止条件、文章化した試験仕様を満たす実装詳細設計書、コード例、受入条件。</td><td><code>implementation_detail_design</code>, <code>source_reader</code>, <code>traceability</code></td><td><code>gpt-5.6-luna</code></td><td>要件判断を勝手に変更しない。未承認SDKやSecretを仮定しない。実装対象が未確定ならUnknownとして停止する。Mermaid以外の図、長文で見切れるノード、受渡し内容がない構造図、単語だけの試験表を作らない。</td></tr>
       <tr><td><code>AutoTrade_A90_DesignReviewer_v0_1</code></td><td>整合性レビュー、Red Teamレビュー、未確定事項監査。</td><td>対象HTML、要件、Phase Runbook、成果物一覧。</td><td>整合性指摘、Red Team指摘、重大度、修正提案。</td><td><code>design_review</code>, <code>red_team_review</code>, <code>traceability</code></td><td><code>gpt-5.6-luna</code></td><td>Findings first。Unknownを承認しない。安全停止漏れを見逃さない。</td></tr>
@@ -97,7 +97,17 @@
     </tbody>
   </table>
 
-  <h2>6. UIモック専用Agentの追加履歴</h2>
+  <h2>6. CTX-02 資料参照効率化Agent</h2>
+  <table>
+    <thead><tr><th>完全名</th><th>責務</th><th>モデル</th><th>境界条件</th></tr></thead>
+    <tbody>
+      <tr><td><code>AutoTrade_A07_ContextManifestMaintainer_v0_1</code></td><td>1文書の追加・大幅変更を判定し、manifestレコードとreceiptのstrict JSONを返す。</td><td><code>gpt-5.6-luna / low</code></td><td>safe_excerptは18,000文字以下。ネットワーク、Secret、任意path、本文全量、Git書込みを禁止し、対象外や入力不正は<code>blocked</code>にする。</td></tr>
+      <tr><td><code>AutoTrade_A08_ContextRouter_v0_1</code></td><td>検証済みmanifestだけから主資料・補助資料・JIT範囲を選ぶ。本文を読まない。</td><td><code>gpt-5.6-luna / low</code></td><td>主資料1〜3件、補助資料0〜6件。stale hash、未検証manifest、path境界不明は推測せず停止する。</td></tr>
+    </tbody>
+  </table>
+  <p>両Agentは日常保守向けの軽量部品であり、独立レビューやGit操作を担当しない。固定modelがランタイムで受理されない場合は、未起動を成功扱いにせず<code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>として記録する。</p>
+
+  <h2>7. UIモック専用Agentの追加履歴</h2>
   <table>
     <thead><tr><th>版</th><th>日付</th><th>変更</th><th>状態</th></tr></thead>
     <tbody>

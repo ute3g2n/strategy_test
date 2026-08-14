@@ -2,75 +2,91 @@
   "schema_version": "ctxmap.dispatch-receipt.v0.1",
   "plan_id": "CTXMAP-PLAN-001",
   "step_id": "CTX-09",
-  "recorded_at_utc": "2026-08-14T11:13:12Z",
+  "recorded_at_utc": "2026-08-14T23:59:00Z",
   "baseline_head": "7e66042",
   "human_gate": {
     "id": "CTXMAP-H0",
     "status": "APPROVED",
-    "approval_text": "承認する。続けて",
+    "approval_text": "H0 previously approved",
     "h1_status": "NOT_ISSUED"
   },
   "runtime": {
     "backend": "multi_agent_v1",
-    "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED__CHILD_REVIEWERS_UNAVAILABLE",
-    "orchestrator": {
-      "agent_name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
-      "json_path": ".codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json",
-      "model": "gpt-5.6-terra",
-      "agent_id": "019ffff6-9a63-7bd3-8def-047b2d0f29f6",
-      "spawn_status": "ACCEPTED",
-      "wait_status": "COMPLETED",
-      "status": "CHECKLIST_AND_FALLBACK_FINDINGS",
-      "independent": false,
-      "review_mode": "COORDINATOR_HANDOFF_ONLY",
-      "fallback_reason": "The orchestrator reported that child spawn/wait was unavailable in its runtime context."
+    "dispatch_mode": "RUNTIME_EXECUTED__LUNA_LOW",
+    "current_profile": {
+      "a07": {
+        "agent_name": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+        "model": "gpt-5.6-luna",
+        "reasoning_effort": "low"
+      },
+      "a08": {
+        "agent_name": "AutoTrade_A08_ContextRouter_v0_1",
+        "model": "gpt-5.6-luna",
+        "reasoning_effort": "low"
+      },
+      "a80": {
+        "agent_name": "AutoTrade_A80_DocumentIntegrator_v0_1",
+        "model": "gpt-5.6-luna",
+        "reasoning_effort": "low"
+      }
     },
-    "agents": [
-      {
-        "agent_name": "AutoTrade_A150_PythonCodeReviewer_v0_1",
-        "json_path": ".codex/agents/AutoTrade_A150_PythonCodeReviewer_v0_1.json",
-        "model": "gpt-5.6-luna",
-        "agent_id": "N/A",
-        "spawn_status": "UNAVAILABLE",
-        "wait_status": "UNAVAILABLE",
-        "independent": false,
-        "review_mode": "SELF_REVIEW_FALLBACK",
-        "reason_code": "RUNTIME_DISPATCH_FALLBACK_REQUIRED"
-      },
-      {
-        "agent_name": "AutoTrade_A160_TradingSecurityReviewer_v0_1",
-        "json_path": ".codex/agents/AutoTrade_A160_TradingSecurityReviewer_v0_1.json",
-        "model": "gpt-5.6-luna",
-        "agent_id": "N/A",
-        "spawn_status": "UNAVAILABLE",
-        "wait_status": "UNAVAILABLE",
-        "independent": false,
-        "review_mode": "SELF_REVIEW_FALLBACK",
-        "reason_code": "RUNTIME_DISPATCH_FALLBACK_REQUIRED"
-      },
+    "a07_batch": {
+      "active_documents": 426,
+      "spawned": 426,
+      "wait_completed": 426,
+      "strict_responses": 426,
+      "source_hash_matched": 426,
+      "validator_pass": 426
+    },
+    "independent_reviewers": [
       {
         "agent_name": "AutoTrade_A90_DesignReviewer_v0_1",
-        "json_path": ".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json",
+        "agent_id": "01a000c1-846d-7e22-ab8d-cd2ec95de297",
         "model": "gpt-5.6-luna",
-        "agent_id": "N/A",
-        "spawn_status": "UNAVAILABLE",
-        "wait_status": "UNAVAILABLE",
-        "independent": false,
-        "review_mode": "SELF_REVIEW_FALLBACK",
-        "reason_code": "RUNTIME_DISPATCH_FALLBACK_REQUIRED"
+        "reasoning_effort": "low",
+        "status": "COMPLETED",
+        "independent": true
       },
       {
         "agent_name": "AutoTrade_A130_VerificationEngineer_v0_1",
-        "json_path": ".codex/agents/AutoTrade_A130_VerificationEngineer_v0_1.json",
+        "agent_id": "01a000c1-8524-7212-8121-cf5a21fa314d",
         "model": "gpt-5.6-luna",
-        "agent_id": "N/A",
-        "spawn_status": "UNAVAILABLE",
-        "wait_status": "UNAVAILABLE",
-        "independent": false,
-        "review_mode": "SELF_REVIEW_FALLBACK",
-        "reason_code": "RUNTIME_DISPATCH_FALLBACK_REQUIRED"
+        "reasoning_effort": "low",
+        "status": "COMPLETED",
+        "independent": true
+      },
+      {
+        "agent_name": "AutoTrade_A150_PythonCodeReviewer_v0_1",
+        "agent_id": "01a000c1-85fa-76e2-b446-08179344a8d7",
+        "model": "gpt-5.6-luna",
+        "reasoning_effort": "low",
+        "status": "COMPLETED",
+        "independent": true
+      },
+      {
+        "agent_name": "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+        "agent_id": "01a000c1-86d6-7b92-95ae-1cf5c8fc47c2",
+        "model": "gpt-5.6-luna",
+        "reasoning_effort": "low",
+        "status": "COMPLETED",
+        "independent": true
+      },
+      {
+        "agent_name": "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+        "agent_id": "01a000c3-497f-7bc0-9f9c-5c6b7d981b37",
+        "model": "gpt-5.6-luna",
+        "reasoning_effort": "low",
+        "status": "COMPLETED",
+        "independent": true,
+        "run_id": "ctx09-independent-review-focused"
       }
-    ]
+    ],
+    "historical_initial_runtime": {
+      "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED__CHILD_REVIEWERS_UNAVAILABLE",
+      "a07_probe_model": "gpt-5.1",
+      "a07_probe_status": "UNKNOWN_MODEL",
+      "retained_as_history": true
+    }
   },
   "review": {
     "findings_locator": "plan/context_index/reviews/CTX-09_findings.md",
@@ -85,49 +101,50 @@
     ],
     "severity_counts": {
       "Critical": 0,
-      "High": 3,
+      "High": 0,
       "Medium": 4,
       "Low": 0
     },
-    "independent_review_claimed": false,
+    "independent_review_claimed": true,
     "h1_candidate": false,
     "h1_blockers": [
-      "High findings remain open",
-      "Fixed child Reviewer and Verification Agent receipts are unavailable",
-      "A07 gpt-5.1 semantic confirmation for 426 active documents is unavailable",
-      "WSL trusted scope for CTX execution is not registered"
+      "Explicit user approval text CTXMAP-H1を承認します is still missing",
+      "WSL trusted scope was not run for this local-only CTXMAP verification; keep any WSL-dependent path separately blocked"
     ]
   },
   "coverage_snapshot": {
     "active_documents": 426,
-    "code_records": 254,
+    "strict_a07_responses": 426,
+    "receipt_entries": 426,
+    "code_records": 255,
     "code_complete": 217,
-    "code_partial": 37,
+    "code_partial": 38,
     "code_blocked": 0,
-    "relation_nodes": 3282,
-    "relation_edges": 6940,
+    "relation_nodes": 3312,
+    "relation_edges": 6976,
     "routing_fixture_cases": 10
   },
-  "component_hashes": {
-    "artifact_manifest_sha256": "f2cd25ed5fe6bd68e4fed6c69bb50ebb98b576740c0ec621d45b0c3b9a1c0b55",
-    "code_manifest_sha256": "4cfba3e27e2c482f43a2c95677b07cd3164271bc2ecf22151a03eb19c002e653",
-    "relation_graph_sha256": "d96aaf87240b0dafbe56eaad4650aee2d27e8339d7e1e966d47221be69f1705e",
-    "routing_fixtures_sha256": "8603630a836be85eb6ebd5e372bf95dbde03539701d6c74569902683477803c7",
-    "findings_sha256": "9a2907b4de96f0262943204cd9ce9e60f55c5c4158e323cfe71e58de361568ad"
-  },
   "local_verification": {
+    "gate_report": "plan/context_index/runtime/CTX-09_context_gate_report.json",
+    "gate_status": "PASS / GATE_PASS",
+    "gate_report_sha256": "962352df05fc1b2248f0286813bc08fd24ab6d39b68f9fc1bfc7af683ddd3618",
+    "gate_target_documents": 426,
+    "gate_receipts": 426,
+    "gate_allowed_paths": 855,
     "document_validator": "PASS: active=426, errors=0",
-    "code_validator": "PASS: records=254, COMPLETE=217, PARTIAL=37, BLOCKED=0, errors=0",
+    "code_validator": "PASS: records=255, COMPLETE=217, PARTIAL=38, BLOCKED=0, errors=0",
+    "pytest": "PASS: 93 passed, coverage=80.01%, fail-under=80",
     "routing_fixture": "PASS: 10 cases",
-    "pytest": "PASS: 73 passed, coverage=80.10%, fail-under=80",
-    "ruff": "PASS",
-    "mypy": "PASS: 15 source files",
-    "compileall": "PASS",
-    "wsl_trusted_scope": "NOT_RUN: CTX Run is not registered",
     "external_io": "NOT_USED",
     "secret_access": "NOT_USED",
-    "worktree_mutation": "review findings and receipt only; no source or Git index mutation"
+    "watcher_started": false,
+    "auto_commit_started": false,
+    "push_started": false
   },
-  "acceptance_status": "BLOCKED__H1_INELIGIBLE__HIGH_FINDINGS_AND_INDEPENDENT_RUNTIME_RECEIPTS_MISSING",
-  "next_gate": "CTXMAP-H1_AFTER_REVIEW_REMEDIATION"
+  "acceptance_status": "PASS__H1_WAITING_FOR_USER_APPROVAL__WATCHER_DISABLED",
+  "next_gate": "CTXMAP-H1_AFTER_EXPLICIT_APPROVAL",
+  "historical_receipt_paths": [
+    "plan/context_index/CTX-09_dispatch_receipt.json",
+    "plan/context_index/CTX-09_remediation_receipt.json"
+  ]
 }

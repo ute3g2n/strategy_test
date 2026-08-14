@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase2/03_市場データ詳細設計/06_Raw_Normalized_Store詳細設計書.html",
+  "request_id": "ctx-gate-95bfe92d7c5827a7",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "00510876902eb888f94e8d23e8dcf25509918793a41605f295c56302cc973799",
+  "status": "PASS"
+}

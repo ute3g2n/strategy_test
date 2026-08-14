@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase3/07_頑健性検証/08_Cost_Roll_Gap_Holdout検証結果.html",
+  "request_id": "ctx-gate-2749e517ba855c9a",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "c6d7a713d6b56779cd6333538058c7c5b13031041ce3ee17a78ff92f762ae36a",
+  "status": "PASS"
+}

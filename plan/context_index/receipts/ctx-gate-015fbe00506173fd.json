@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase2/03_市場データ詳細設計/07_Instrument_Catalog詳細設計書.html",
+  "request_id": "ctx-gate-015fbe00506173fd",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "b68e043ad4e4bf973470bcdcd51adfba8c307aa19339f394201be1729a027c10",
+  "status": "PASS"
+}

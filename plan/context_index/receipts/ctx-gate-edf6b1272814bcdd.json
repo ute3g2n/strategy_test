@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "research/asset_selection/08_構造スコア/08_上位5件_公式確認レポート_v0.1_2026-08-02.md",
+  "request_id": "ctx-gate-edf6b1272814bcdd",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "d8e758d9fcff3c07e326093a7b839b84e4dafe03f42c1394b66f2803b69fc099",
+  "status": "PASS"
+}

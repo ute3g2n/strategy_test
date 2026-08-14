@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase4/02_実装詳細設計/06_ProductApplication_UI全21画面詳細設計書.html",
+  "request_id": "ctx-gate-39ae751b2ac63021",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "471d636847b2768a26288a00910b6f2c8ed15936f35a4967930f5a831bd71e67",
+  "status": "PASS"
+}

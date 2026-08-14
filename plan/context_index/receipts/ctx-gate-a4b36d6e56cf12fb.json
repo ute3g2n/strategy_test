@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase5/05_実証/07_P5-DATA-G1推奨入力値・やさしい説明.html",
+  "request_id": "ctx-gate-a4b36d6e56cf12fb",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "a54c17dbb0a258eda8b17e5cd62224cb1ccbe87c9a371815cc536dd6aa77d6e3",
+  "status": "PASS"
+}

@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase5/02_データ詳細設計/03_Data_Raw_Normalized_Quality_Calendar_Provenance詳細設計書.html",
+  "request_id": "ctx-gate-801d663b67f0defe",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "fbac2b509d80ccd262bfb16e0f89af4a70809411b24ccef12ef585f0b915269e",
+  "status": "PASS"
+}

@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase1/05_戦略設計/05_Turtle_Golden_test設計書.html",
+  "request_id": "ctx-gate-956ee7c01ff08f71",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "ee707c0f9cda915e9492a3c06d27937c41d09cc3f146f51fe608e2250b13eb30",
+  "status": "PASS"
+}

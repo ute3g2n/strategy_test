@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase3/05_テスト設計/05_Golden_Biasテスト設計書.html",
+  "request_id": "ctx-gate-5bd73196156bfe75",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "2f02c3f6270dfc05711739a3cd12b71cee163661cf8667a93404947b48173a12",
+  "status": "PASS"
+}

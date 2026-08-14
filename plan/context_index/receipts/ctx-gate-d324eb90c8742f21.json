@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "plan/phase2-5_ai_foundation/00_互換性マトリクス.md",
+  "request_id": "ctx-gate-d324eb90c8742f21",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "6ffdecaf12faee0fcc8c9f4f27df412902e46d3acc152821d1ecaf9ae64e7ecc",
+  "status": "PASS"
+}

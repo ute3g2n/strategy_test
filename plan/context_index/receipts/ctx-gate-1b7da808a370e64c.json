@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "research/中学生向け_第05章_ピラミッディング.md",
+  "request_id": "ctx-gate-1b7da808a370e64c",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "a3ab2a314871db2baa67d07c8e770c6e1b3822c4d826884515eff3b4437d6378",
+  "status": "PASS"
+}

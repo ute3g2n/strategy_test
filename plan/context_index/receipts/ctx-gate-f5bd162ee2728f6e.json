@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "plan/requirements_update/reviews/RQU-06R_詳細設計接続レビュー.md",
+  "request_id": "ctx-gate-f5bd162ee2728f6e",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "f77bd11d62c5a99b47f777f6c1fd54dfa783fd9861f4f81d0f03a5edb21c2737",
+  "status": "PASS"
+}

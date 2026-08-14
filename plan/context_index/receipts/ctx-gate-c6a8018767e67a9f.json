@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "research/中学生向け_第04章_エントリールール.md",
+  "request_id": "ctx-gate-c6a8018767e67a9f",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "61e1011b411fc9857c1e15447869132fa118fc821cd0b45e5c8320e7ba52a009",
+  "status": "PASS"
+}

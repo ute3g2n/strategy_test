@@ -47,7 +47,7 @@
   </table>
 
   <h2>3.1 実ランタイム起動契約</h2>
-  <p>Phase計画およびAI部品変更に使うSkillは、完全名の列挙や自己適用だけをAgent実行の証拠にしない。直接Promptは <code>multi_agent_v1__spawn_agent</code> と <code>multi_agent_v1__wait_agent</code> を使ったOrchestrator実spawn、Prompt指定Agent全件の個別spawn、Agent JSON固定model、wait完了、receipt保存を要求する。nested runtimeが利用できない場合は <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を記録し、責務チェックリストで継続する。起動不能を独立レビュー済みと表現せず、Human Gate、外部I/O、Secret、UnknownのPass、Critical／HighはFail-closedで扱う。</p>
+  <p>Phase計画およびAI部品変更に使うSkillは、完全名の列挙や自己適用だけをAgent実行の証拠にしない。直接Promptは <code>multi_agent_v1__spawn_agent</code> と <code>multi_agent_v1__wait_agent</code> を使ったOrchestrator実spawn、Prompt指定Agent全件の個別spawn、Agent JSON固定model、定義された場合の <code>reasoning_effort</code>、wait完了、receipt保存を要求する。effort未定義のAgentにはruntime既定値を勝手に上書きしない。nested runtimeが利用できない場合は <code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>review_mode=SELF_REVIEW_FALLBACK</code>を記録し、責務チェックリストで継続する。起動不能を独立レビュー済みと表現せず、Human Gate、外部I/O、Secret、UnknownのPass、Critical／HighはFail-closedで扱う。</p>
 
   <h2>3. Skill一覧</h2>
   <table>
@@ -118,7 +118,17 @@ unknown_policy: Unknown must not pass</pre>
     <li><a href="./15_実装詳細設計AI基盤仕様.html">AF-D15 実装詳細設計AI基盤仕様</a></li>
   </ul>
 
-  <h2>7. UIモック専用Skillの追加履歴</h2>
+  <h2>8. CTX-02 資料参照効率化Skill</h2>
+  <table>
+    <thead><tr><th>Skill完全名</th><th>責務</th><th>入力境界</th><th>出力・停止条件</th></tr></thead>
+    <tbody>
+      <tr><td><code>autotrade_skill_context_manifest_maintenance_v0_1</code></td><td>新規Markdown／HTMLのmanifest追加、または既存文書の大幅変更に対する更新要否を1ファイル単位で判定する。</td><td>相対path、kind、source_hash、構造化差分、既存レコード、Secret検査済みsafe_excerpt（最大18,000文字）。</td><td><code>record_add</code>、<code>record_update</code>、<code>metadata_unchanged</code>、<code>blocked</code>のstrict JSON。ネットワーク、Secret、任意path、Git書込み、本文全量保存を禁止する。</td></tr>
+      <tr><td><code>autotrade_skill_context_routing_v0_1</code></td><td>validator済みmanifestと依頼文から、参照する主資料・補助資料・JIT取得範囲を最小選定する。</td><td>manifest snapshot、snapshot hash、依頼文、許可path境界だけ。本文・コード本文は受け取らない。</td><td>主資料1〜3件、補助資料0〜6件、選定理由、不足情報、receipt。stale hashや境界不明は推測せず停止する。</td></tr>
+    </tbody>
+  </table>
+  <p>この2つは日常の軽量保守部品であり、保存のたびに常時Orchestratorを起動しない。A07の結果はvalidator PASSまたは理由付きBLOCKEDを受領して初めて上位作業の完了判定へ使う。</p>
+
+  <h2>9. UIモック専用Skillの追加履歴</h2>
   <table>
     <thead><tr><th>版</th><th>日付</th><th>変更</th><th>状態</th></tr></thead>
     <tbody>

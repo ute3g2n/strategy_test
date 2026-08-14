@@ -35,11 +35,21 @@
 - 作成ステップでない場合は、既存部品で代替せず、不足部品名を報告して停止する。
 - `default_orchestrator` は明示承認なしに変更しない。
 
+### 資料・コード参照効率化の専用部品
+
+- 新規の管理対象Markdown／HTML文書は、`autotrade_skill_context_manifest_maintenance_v0_1` と `AutoTrade_A07_ContextManifestMaintainer_v0_1` へ1ファイル単位で渡し、`record_add`を返すまで完了扱いにしない。
+- 既存文書の大幅変更は同じA07へ渡し、`record_update` または `metadata_unchanged` を返させる。小変更でも決定的なhash更新を省略しない。
+- `AutoTrade_A08_ContextRouter_v0_1` と `autotrade_skill_context_routing_v0_1` は、validator PASS済みのmanifestと依頼文だけを受け取り、主資料1〜3件、補助資料0〜6件、JIT取得範囲、不足情報を返す。本文を直接読ませない。
+- A07/A08はネットワーク、外部MCP、Secret、任意path、Git stage／commit／push、本文全量保存を禁止する。入力不整合、Secret疑い、stale hash、境界不明は`blocked`またはfail-closedとする。
+- CTXMAPの現行実行経路であるA07、A08、A80は、Agent JSONの `model=gpt-5.6-luna`、`reasoning_effort=low` を正本とし、runtime dispatchとsanitized receiptにも同じ値を記録する。過去のPhase／CTX receiptは履歴として保持し、現在状態へ書き換えない。
+- 文書作成、設計書セット作成、Python実装、AI部品変更の導線は、該当差分を`run_context_maintenance`または決定的コード解析へ渡し、validator PASSまたは正直なBLOCKED receiptなしに完了宣言しない。
+- この専用部品は日常の軽量保守用であり、保存のたびに常時Orchestratorを起動しない。AI部品自体の作成・変更だけは`AutoTradeComponentLifecycle_Orchestrator_v0_1`で統制する。
+
 ### 実ランタイム起動・待機・Fallback契約
 
 - 完全名の列挙、JSONの読込、Skillの適用、ルートAgentの自己レビューは、Orchestrator／Agentの起動証跡ではない。
-- 直接実行プロンプトは、変更前に `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を確認し、指定Orchestratorを固定modelで実spawnする。CoordinatorはPromptで明示された全Agentを一体ずつ、各Agent JSONの固定modelを `model` 引数へ渡してspawnし、waitする。Orchestratorの `agents` map外の明示Agentも省略しない。
-- 起動証跡には `runtime_backend`、`dispatch_mode`、`orchestrator_agent_id`、AgentごとのJSON path、model、Skills、`agent_id`、受付／完了status、出力参照、`independent`、`review_mode`を含める。
+- 直接実行プロンプトは、変更前に `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を確認し、指定Orchestratorを固定modelで実spawnする。CoordinatorはPromptで明示された全Agentを一体ずつ、各Agent JSONの固定modelを `model` 引数へ渡してspawnし、`reasoning_effort` が定義されている場合だけ同引数へ渡してwaitする。未定義のeffortはruntime既定値を勝手に上書きせず、receiptへ `null` を記録する。Orchestratorの `agents` map外の明示Agentも省略しない。
+- 起動証跡には `runtime_backend`、`dispatch_mode`、`orchestrator_agent_id`、AgentごとのJSON path、model、`reasoning_effort`、Skills、`agent_id`、受付／完了status、出力参照、`independent`、`review_mode`を含める。
 - spawn／wait、固定model受理、子出力取得ができない場合は `RUNTIME_DISPATCH_FALLBACK_REQUIRED`、未起動Agent、理由、`agent_id=N/A`、`independent=false`、`review_mode=SELF_REVIEW_FALLBACK`を先に記録し、ルートの責務チェックリストで継続する。起動不能は単独の停止条件にしないが、未起動を独立実行済みと偽らない。
 - Human Gate未承認、外部I/O／Secret／費用／実資金の範囲逸脱、UnknownのPass、Critical／High未解決、必須Evidence欠落、`default_orchestrator`変更はFallback中もFail-closedで停止する。
 

@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase1/03_ドメイン設計/03_モジュール責務データフロー設計書.html",
+  "request_id": "ctx-gate-29e6aaf831b0ccd8",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "faa2e36ec6ba70388f5ee6c1db8fe7be03687b04ddf6fc797de9ec9f5719aa03",
+  "status": "PASS"
+}

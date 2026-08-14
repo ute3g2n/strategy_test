@@ -31,7 +31,7 @@
     ],
     "rules": [
       "The root executor must spawn AutoTradeComponentLifecycle_Orchestrator_v0_1 before mutation.",
-      "The Coordinator must spawn every explicitly named Agent one by one using the model from that Agent JSON and wait for completion.",
+      "The Coordinator must spawn every explicitly named Agent one by one using the model from that Agent JSON and wait for completion. If the Agent JSON defines reasoning_effort, pass that value explicitly; otherwise do not override the runtime default and record null in the receipt.",
       "Agents outside the Orchestrator agents map must still be attempted when explicitly named in the prompt.",
       "If nested spawn/wait is unavailable, record RUNTIME_DISPATCH_FALLBACK_REQUIRED, agent_id=N/A, independent=false, and review_mode=SELF_REVIEW_FALLBACK before continuing.",
       "Never claim independent execution or review without a matching receipt."
@@ -43,6 +43,7 @@
       "agent_id",
       "json_path",
       "model",
+      "reasoning_effort",
       "accepted_status",
       "completion_status",
       "output_reference",
@@ -54,6 +55,7 @@
     "Do not overwrite an existing component name during creation.",
     "Do not change a component that is not explicitly in scope.",
     "Do not skip doc or rule updates after component changes.",
+    "Pass AI component structural changes to AutoTrade_A07_ContextManifestMaintainer_v0_1 or the deterministic code manifest path; require validator PASS or an honest BLOCKED result before completion.",
     "Do not create phase-specific components when a generic component is sufficient.",
     "Do not change default_orchestrator.",
     "Do not claim a named Agent ran or independently reviewed without a dispatch receipt."

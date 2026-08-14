@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "plan/phase4/ログ/P4-04D_RED・品質設計_2026-08-12.md",
+  "request_id": "ctx-gate-77643606d96a6bb2",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "774e84e991030b41cf8f6330ed822a341434a679327bba56bd44263081e99012",
+  "status": "PASS"
+}

@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "plan/phase2-5_ai_foundation/07_WindowsCodex引継ぎプロンプト.md",
+  "request_id": "ctx-gate-c371849eadf5f7a5",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "4eaa2b8aa46834b9eddf19cf1a5e894ff6374018ff43502c0fb1940b8f6fec9e",
+  "status": "PASS"
+}

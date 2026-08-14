@@ -1,48 +1,52 @@
 {
-  "schema_version": "ctxmap-remediation-receipt-v0.1",
+  "schema_version": "ctxmap-remediation-receipt.v0.1",
   "plan_id": "CTXMAP-PLAN-001",
   "step_id": "CTX-09-remediation",
-  "recorded_at_utc": "2026-08-14T00:00:00Z",
+  "recorded_at_utc": "2026-08-14T23:59:00Z",
   "approval": {
-    "approval_text": "承認します。続けて",
     "scope": "CTX-09 findings remediation only",
-    "watcher_activation_authorized": false
+    "watcher_activation_authorized": false,
+    "h1_status": "WAITING_FOR_USER_APPROVAL"
   },
-  "implementation_commits": [
-    "8d9b20f",
-    "1dfa8a6",
-    "2723692",
-    "222bb01",
-    "4501ca4"
-  ],
   "runtime": {
-    "orchestrator": {
-      "agent_name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
-      "model": "gpt-5.6-terra",
-      "agent_id": "01a00005-fd5f-7940-a268-7715cdd49c55",
-      "status": "COMPLETED_WITH_FALLBACK",
-      "independent": false,
-      "review_mode": "SELF_REVIEW_FALLBACK"
+    "current_profile": {
+      "a07": {
+        "model": "gpt-5.6-luna",
+        "reasoning_effort": "low"
+      },
+      "a08": {
+        "model": "gpt-5.6-luna",
+        "reasoning_effort": "low"
+      },
+      "a80": {
+        "model": "gpt-5.6-luna",
+        "reasoning_effort": "low"
+      }
+    },
+    "a07_strict_batch": {
+      "documents": 426,
+      "completed": 426,
+      "strict_valid": 426
     },
     "child_reviewers": {
-      "status": "UNAVAILABLE",
-      "agent_id": "N/A",
-      "independent": false,
-      "reason_code": "RUNTIME_DISPATCH_FALLBACK_REQUIRED"
+      "status": "COMPLETED",
+      "independent": true,
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "low",
+      "receipts_locator": "plan/context_index/CTX-09_independent_review_receipts.json"
     },
-    "a07_exact_model_probe": {
-      "agent_name": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+    "historical_a07_exact_model_probe": {
       "model": "gpt-5.1",
       "status": "REJECTED",
       "reason_code": "UNKNOWN_MODEL",
-      "substitute_model_accepted": false
+      "retained_as_history": true
     }
   },
   "finding_status": {
     "CTX09-F-001": "RESOLVED",
     "CTX09-F-002": "RESOLVED_LOCAL_WRAPPER",
-    "CTX09-F-003": "OPEN_HIGH",
-    "CTX09-F-004": "RESOLVED",
+    "CTX09-F-003": "RESOLVED",
+    "CTX09-F-004": "RESOLVED_LOCAL_BOUNDARY",
     "CTX09-F-005": "MITIGATED_MEDIUM",
     "CTX09-F-006": "RESOLVED",
     "CTX09-F-007": "RESOLVED_STALE_LOCK_SAFETY"
@@ -53,19 +57,25 @@
       "active": 426,
       "errors": 0
     },
+    "a07": {
+      "status": "PASS",
+      "strict_responses": 426,
+      "source_hash_matched": 426,
+      "receipts": 426
+    },
     "code_manifest": {
       "status": "PASS",
       "manifest_status": "PARTIAL",
-      "registered": 254,
+      "registered": 255,
       "complete": 217,
-      "partial": 37,
+      "partial": 38,
       "blocked": 0
     },
     "relation_graph": {
       "status": "VALIDATED",
       "manifest_status": "PARTIAL",
-      "nodes": 3307,
-      "edges": 6968
+      "nodes": 3312,
+      "edges": 6976
     },
     "routing_fixture": {
       "status": "PASS",
@@ -73,20 +83,20 @@
     },
     "pytest": {
       "status": "PASS",
-      "tests": 87,
-      "coverage_percent": 80.17
-    },
-    "ruff": "PASS",
-    "mypy": "PASS",
-    "compileall": "PASS"
+      "tests": 93,
+      "coverage_percent": 80.01
+    }
   },
   "gate_decision": {
-    "h1_status": "INELIGIBLE",
+    "final_gate_report": "plan/context_index/runtime/CTX-09_context_gate_report.json",
+    "final_gate_report_sha256": "962352df05fc1b2248f0286813bc08fd24ab6d39b68f9fc1bfc7af683ddd3618",
+    "final_gate_status": "PASS / GATE_PASS",
+    "h1_status": "WAITING_FOR_USER_APPROVAL",
     "watcher_started": false,
     "blocking_conditions": [
-      "CTX09-F-003 exact gpt-5.1 semantic confirmation unavailable",
-      "independent child reviewer receipts unavailable",
-      "trusted scope registration for this remediation run is not established"
+      "Explicit CTXMAP-H1 approval is pending",
+      "WSL-dependent verification remains separately not run"
     ]
-  }
+  },
+  "historical_note": "The prior fallback receipt and gpt-5.1 UNKNOWN_MODEL probe remain historical evidence and are superseded by the current profile and current verification fields."
 }

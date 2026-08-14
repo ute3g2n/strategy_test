@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase4/03_品質設計/05_P4-08_UI接続・VisualA11y検証.html",
+  "request_id": "ctx-gate-11fe9b6769cdbcff",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "d747171d6d9a53d47077c1ccf3648eadb2adfa0d4db01f60060ee160c0bc68c0",
+  "status": "PASS"
+}

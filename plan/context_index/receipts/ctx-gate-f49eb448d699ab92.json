@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "research/中学生向け_第09章_現代市場における有効性と注意点.md",
+  "request_id": "ctx-gate-f49eb448d699ab92",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "6335226b9ad38f7b0ead5f350cb25075f806a812eab1d3769058a326e48c308f",
+  "status": "PASS"
+}

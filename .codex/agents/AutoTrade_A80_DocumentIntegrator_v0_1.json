@@ -23,6 +23,14 @@
   "boundaries": [
     "Do not leave formal HTML artifacts unlinked from doc/index.html.",
     "Do not remove unresolved risks from final documents.",
-    "Do not rely on external CDN assets."
-  ]
+    "Do not rely on external CDN assets.",
+    "Do not use network, secrets, arbitrary paths, or Git stage/commit/push."
+  ],
+  "runtime_policy": {
+    "network": false,
+    "secret_read": false,
+    "git_write": false,
+    "arbitrary_path_read": false,
+    "full_body_persistence": false
+  }
 }

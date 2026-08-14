@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/ai_foundation/05_プロジェクト汎用オーケストレータ仕様.html",
+  "request_id": "ctx-gate-6762068565ba95d2",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "786810421fc422e824a433ad2d5e62d4f9cdfe3af61da8a1c4de0d633a34b3af",
+  "status": "PASS"
+}

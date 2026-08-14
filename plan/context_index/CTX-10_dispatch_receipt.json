@@ -3,23 +3,27 @@
   "plan_id": "CTXMAP-PLAN-001",
   "step_id": "CTX-10",
   "recorded_at_utc": "2026-08-14T00:00:00Z",
+  "current_state_updated_on": "2026-08-15",
   "status": "BLOCKED",
   "human_gate": {
     "id": "CTXMAP-H1",
-    "status": "NOT_ISSUED",
+    "status": "WAITING_FOR_APPROVAL",
     "required_approval_text": "CTXMAP-H1を承認します",
-    "received_text": "承認します。続けて"
+    "received_text": "承認します。続けて",
+    "approval_satisfied": false
   },
   "preflight": {
     "watch_start_check": "BLOCKED",
     "watch_start_reason": "H1_RECEIPT_MISSING",
-    "critical_high_findings": 1,
-    "high_finding_ids": ["CTX09-F-003"],
-    "independent_review_receipts": "UNAVAILABLE",
-    "full_manifest_validator": "PASS"
+    "critical_high_findings": 0,
+    "high_finding_ids": [],
+    "independent_review_receipts": "COMPLETED_RUNTIME_INDEPENDENT",
+    "full_manifest_validator": "PASS",
+    "ctx09_gate_report": "plan/context_index/runtime/CTX-09_context_gate_report.json",
+    "ctx09_gate_report_sha256": "962352df05fc1b2248f0286813bc08fd24ab6d39b68f9fc1bfc7af683ddd3618"
   },
   "runtime": {
-    "dispatch_status": "NOT_STARTED_PRECONDITION_BLOCKED",
+    "dispatch_status": "NOT_STARTED_H1_PRECONDITION_BLOCKED",
     "agent_id": "N/A",
     "independent": false,
     "review_mode": "NOT_APPLICABLE"
@@ -32,7 +36,19 @@
   },
   "reopen_conditions": [
     "Create a valid CTXMAP-H1 approval receipt with the exact required approval text.",
-    "Resolve CTX09-F-003 using the exact fixed gpt-5.1 A07 runtime; do not substitute a model.",
-    "Obtain truthful independent reviewer spawn/wait receipts or record a new approved governance decision."
-  ]
+    "Keep WSL-dependent verification separately blocked until its trusted scope is explicitly run and evidenced."
+  ],
+  "current_profile": {
+    "a07": {"model": "gpt-5.6-luna", "reasoning_effort": "low"},
+    "a08": {"model": "gpt-5.6-luna", "reasoning_effort": "low"},
+    "a80": {"model": "gpt-5.6-luna", "reasoning_effort": "low"}
+  },
+  "historical_initial_state": {
+    "status": "BLOCKED",
+    "critical_high_findings": 1,
+    "high_finding_ids": ["CTX09-F-003"],
+    "independent_review_receipts": "UNAVAILABLE",
+    "fixed_model": "gpt-5.1",
+    "retained_as_history": true
+  }
 }

@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html",
+  "request_id": "ctx-gate-e2cb0f968fe20531",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "1f8df304292ffa7e3c6b6f761d5fa4f7536ab56e4ae4519b8d364f7d70d25f84",
+  "status": "PASS"
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": "ctxmap-human-gate-receipt.v0.1",
+  "gate_id": "CTXMAP-H1",
+  "status": "APPROVED",
+  "approval_text": "CTXMAP-H1を承認します",
+  "approved_on": "2026-08-15",
+  "scope": "CTX-10 and CTX-11 execution; local context maintenance activation and final handoff",
+  "external_io": false,
+  "secret_access": false,
+  "watcher_activation": true,
+  "note": "WSL-dependent verification remains separately blocked unless its trusted scope is explicitly run."
+}

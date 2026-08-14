@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase3/07_頑健性検証/10_P3-10_統合Replay_Golden_Bias検証結果.html",
+  "request_id": "ctx-gate-f43b40980dff0b41",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "42d8aa682b437af3527d515fb4e7c0a41f924965ece51389fcaa25036ed1fd7f",
+  "status": "PASS"
+}

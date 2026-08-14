@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "plan/phase5/ログ/P5-08_無料・低価格市場データ代替調査_2026-08-13.md",
+  "request_id": "ctx-gate-7d9d6f3f6ec4a2fb",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "f2d93cb68dd1ed2fe787b9b5be182a4560fba5a49077da451dec5529292e7dc1",
+  "status": "PASS"
+}

@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "plan/requirements_update/evidence/mermaid/RQU-04_mermaid_probe.html",
+  "request_id": "ctx-gate-1653e83c107e99a2",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "aa117aefd78b3c16655794d0e63db598539f85fb8d6c42297fe9c2c9ff9f1da8",
+  "status": "PASS"
+}

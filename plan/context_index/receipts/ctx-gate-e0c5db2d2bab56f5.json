@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase5/03_品質設計/04_Phase5_DataQuality_Cost_Holdout_Test_RunManifest設計.html",
+  "request_id": "ctx-gate-e0c5db2d2bab56f5",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "1c7d23d29519dc82216ae936b50a02ef8a7dcbaf8aaf28469460bceb5d9cdd7c",
+  "status": "PASS"
+}

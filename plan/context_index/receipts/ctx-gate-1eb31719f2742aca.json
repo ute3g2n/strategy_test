@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "research/asset_selection/06_ハードゲート/06_除外と証拠不足レポート_v0.1_2026-08-02.md",
+  "request_id": "ctx-gate-1eb31719f2742aca",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "9a9a32c05994791e73c64999bf53d8b51729518616641868e54f9f9e4413a44e",
+  "status": "PASS"
+}

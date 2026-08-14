@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase2/05_実装方針/06_Databento取得プロトコルdry-run.html",
+  "request_id": "ctx-gate-d041bfbbaba48ba0",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "5a549a0220d86762c4741ca3705d434798bc479c4f6e851768117f7cb08e5b2b",
+  "status": "PASS"
+}

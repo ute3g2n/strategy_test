@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase3/02_エンジン調査/02_取引エンジン公式仕様確認結果.html",
+  "request_id": "ctx-gate-caf6eea5a4529621",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "bc68a3951b024a565b725245b58d744f95e9628536f80c7125f6ffb4cc19e1d0",
+  "status": "PASS"
+}

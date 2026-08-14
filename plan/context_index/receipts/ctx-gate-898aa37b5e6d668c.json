@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "plan/requirements_update/RQU-04_C4章構成図解仕様用語辞書_2026-08-10.md",
+  "request_id": "ctx-gate-898aa37b5e6d668c",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "bd5bdb5b8e978af215a9b8f19354b58ea04d2f1760d6071d4388a8cd22259a65",
+  "status": "PASS"
+}

@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "plan/phase2-5_ai_foundation/04_パイロット評価.md",
+  "request_id": "ctx-gate-06ae506fbd54d35c",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "71019e238d1e277145bbc0eb6246ad4db65fc8cfc9443dac524939e3aa2b1c33",
+  "status": "PASS"
+}

@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "research/asset_selection/10_頑健性バックテスト/研究用ハーネス/runs/latest/p10_protocol_completion_report.md",
+  "request_id": "ctx-gate-6414fdda1886e859",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "532c1cffe3e6eb957b4f9aaade5b17df8389566cabf202189866c8a0fbac536f",
+  "status": "PASS"
+}

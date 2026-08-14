@@ -110,10 +110,45 @@ This section is the current status after the user-approved remediation pass. The
 |---|---|---|
 | CTX09-F-001 | RESOLVED | Gate control inputs reject absolute paths and require repository-relative, non-reparse files. |
 | CTX09-F-002 | RESOLVED for the local wrapper path | PASS reports contain per-file SHA-256 values and the report SHA-256 is bound from Gate output through allowlist validation and the staged-index check. |
-| CTX09-F-003 | OPEN / HIGH | The exact `gpt-5.1` A07 runtime probe was rejected as `Unknown model`; no substitute model is accepted as semantic confirmation. H1 remains ineligible. |
+| CTX09-F-003 | OPEN / HIGH — re-verification pending | The user-authorized current CTXMAP profile is now `gpt-5.6-luna` with `reasoning_effort=low` for A07/A08/A80. This removes the old `Unknown model gpt-5.1` dispatch mismatch, but semantic confirmation is not resolved until the A07 strict receipts and validator results are produced for the active document set. H1 remains ineligible. |
 | CTX09-F-004 | RESOLVED | JSONL request lines are byte-bounded and Japanese/English prompt-injection metadata is rejected or omitted. |
 | CTX09-F-005 | MITIGATED / MEDIUM | `doc/index.html` now states CTX-10 BLOCKED and H1 pending. PARTIAL code records now carry owner, deadline, and acceptance metadata. |
 | CTX09-F-006 | RESOLVED | Watch-loop event failures propagate as nonzero process results and record BLOCKED state. |
 | CTX09-F-007 | RESOLVED for stale-lock safety | Lock metadata includes schema, PID, start time, repository fingerprint, and process-start marker; recovery is fail-closed on invalid, active, mismatched, or reused identities. |
 
 The remediation re-review still ran with `RUNTIME_DISPATCH_FALLBACK_REQUIRED`: the requested independent child reviewers were unavailable (`agent_id=N/A`, `independent=false`). This is not counted as independent review completion. CTX-10/CTX-11 must not activate the watcher while F-003 and the independent-review/runtime conditions remain unresolved.
+
+## Runtime profile amendment (2026-08-14)
+
+The user explicitly authorized replacing the unavailable `gpt-5.1` profile with `gpt-5.6-luna` at `reasoning_effort=low`. The change is limited to the current CTXMAP execution path: A07 document maintenance, A08 manifest-only routing, and A80 final HTML/document integration. Historical receipts and frozen Phase 1 records retain their original model values as evidence of what actually ran.
+
+The following consistency points are now required before F-003 can be closed:
+
+1. A07/A08/A80 Agent JSON definitions must contain `model=gpt-5.6-luna` and `reasoning_effort=low`.
+2. `multi_agent_v1__spawn_agent` must receive `model=gpt-5.6-luna` and `reasoning_effort=low`; a receipt must preserve both values.
+3. The active document set must receive strict A07 decisions, source-hash checks, and validator results. A model profile change alone is not semantic confirmation.
+4. Independent reviewer receipts, H1 approval, and all other fail-closed conditions remain separate requirements.
+
+## Current re-verification result (2026-08-14, user-approved Luna profile)
+
+The historical findings and the first fallback-review notes above are retained as evidence. The current verification snapshot is the following:
+
+- Runtime profile: `AutoTrade_A07_ContextManifestMaintainer_v0_1`, `AutoTrade_A08_ContextRouter_v0_1`, and `AutoTrade_A80_DocumentIntegrator_v0_1` all declare `model=gpt-5.6-luna` and `reasoning_effort=low`. The runtime tests and the 426 A07 response records use the same pair.
+- A07 strict response coverage: 426/426 active documents. Every response has the required keys, numeric confidence, matching source hash, array-valued `triggers`/`headings`/`relations`, and a completed receipt with non-placeholder `agent_id`, `run_id`, `model=gpt-5.6-luna`, and `reasoning_effort=low`.
+- Gate evidence: `plan/context_index/runtime/CTX-09_context_gate_report.json` is `PASS / GATE_PASS`; target documents 426; receipt entries 426; unique receipt paths 426; allowlisted paths 855; document manifest valid; code manifest valid with `COMPLETE=217`, `PARTIAL=38`; relation graph valid with 3312 nodes and 6976 edges.
+- Local machine verification: `pytest tests/context_index -q --cov=scripts/context_index --cov-report=term` completed with 93 passed and 80.01% coverage.
+- Independent runtime review: A90, A130, A150, and A160 were each separately spawned and waited to completion with `independent=true`, `model=gpt-5.6-luna`, and `reasoning_effort=low`. Their raw findings are preserved in `plan/context_index/CTX-09_independent_review_receipts.json`. Findings that refer to the pre-reverification report are historical and must be reconciled against the current report above.
+
+Current finding disposition:
+
+| Finding | Current status | Evidence / remaining condition |
+|---|---|---|
+| CTX09-F-001 | RESOLVED for the current gate input path | `_repo_input_file` and reparse checks reject absolute, external, traversal, symlink, and reparse control paths; the external-input regression tests pass. Broader descriptor-level TOCTOU hardening remains a Medium follow-up. |
+| CTX09-F-002 | RESOLVED for the local wrapper path | The PASS report records per-path SHA-256 values and the approved-path/index verification functions bind report and staged bytes. Any future broader deployment wrapper must preserve the same rehash boundary. |
+| CTX09-F-003 | RESOLVED | All 426 strict A07 decisions, source-hash checks, validator results, and non-placeholder Luna/low receipts are present and Gate-validated. Independent review completion is recorded separately and does not get conflated with A07 confirmation. |
+| CTX09-F-004 | RESOLVED for the implemented local boundary | JSONL input limits and Japanese/English prompt-injection metadata handling are covered by the current implementation and regression tests. Additional multilingual fixtures remain a Medium enhancement. |
+| CTX09-F-005 | MITIGATED / MEDIUM | 38 PARTIAL code records remain; each carries owner, deadline, acceptance condition, and validator `valid=true`. They are not silently promoted to COMPLETE. |
+| CTX09-F-006 | RESOLVED | Watch-loop failure propagation and BLOCKED reporting are covered by the current tests. |
+| CTX09-F-007 | RESOLVED for stale-lock safety | Lock identity and repository-fingerprint checks remain fail-closed; unsafe stale-lock removal is not enabled. |
+
+CTXMAP-H1 is still `WAITING_FOR_USER_APPROVAL`. The watcher, save-time A07 invocation, auto-commit, and push paths remain disabled until the current independent-review reconciliation is complete and the user explicitly approves with the exact text `CTXMAP-H1を承認します`.

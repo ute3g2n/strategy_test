@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase1/04_共通モデル/04_イベント注文口座ID時系列設計書.html",
+  "request_id": "ctx-gate-902043bc02df960f",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "b57e308915d4465a9f7210672f822415dcc41cc97da9ad307350ee1d0a1e19b9",
+  "status": "PASS"
+}

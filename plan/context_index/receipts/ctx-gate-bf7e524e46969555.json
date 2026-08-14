@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "plan/phase5/ログ/P5-09_Quality_Calendar_Cost_Gap期間分割_Holdout_2026-08-12.md",
+  "request_id": "ctx-gate-bf7e524e46969555",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "af12c176b2c5192632c0f6d26906ba9c27411e1ab1a1e23931f3a0669e12b358",
+  "status": "PASS"
+}

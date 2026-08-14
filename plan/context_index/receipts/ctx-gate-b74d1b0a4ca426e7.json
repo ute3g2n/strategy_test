@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": ".codex/skills/formula-free-explainer/SKILL.md",
+  "request_id": "ctx-gate-b74d1b0a4ca426e7",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "d3078962542b2918d9c5ba96ac3e0c3769c585387d0c72399984938bb80071e0",
+  "status": "PASS"
+}

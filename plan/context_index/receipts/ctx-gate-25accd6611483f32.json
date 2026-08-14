@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "research/中学生向け_第08章_ドローダウン対策.md",
+  "request_id": "ctx-gate-25accd6611483f32",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "5f6aae2ee8953e1d5d1c35cce8e9ed40c3224339854f79101458bcca965aac2b",
+  "status": "PASS"
+}

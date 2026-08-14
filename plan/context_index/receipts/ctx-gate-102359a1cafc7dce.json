@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase5/06_方針転換/02_Binance_Data_Vision方針転換・Crypto暫定対象.html",
+  "request_id": "ctx-gate-102359a1cafc7dce",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "a04de669eb2179b1a22b84ee337fd8d64683fb508a027e717fc26dddc3611d81",
+  "status": "PASS"
+}

@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "plan/backtest_and_turtles_full_chat_history.md",
+  "request_id": "ctx-gate-df98f358514fa281",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "e58ba69761f6121a39511ecb03bb817b699e83c4cd615353babcd5af3ec718b3",
+  "status": "PASS"
+}

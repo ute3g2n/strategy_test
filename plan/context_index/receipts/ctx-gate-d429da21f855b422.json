@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/requirements/01_自動トレードシステム要件定義書_v2.html",
+  "request_id": "ctx-gate-d429da21f855b422",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "97e248a36f71514b7c6312e614be04b82d5eae358541e195167e9611c14027fa",
+  "status": "PASS"
+}

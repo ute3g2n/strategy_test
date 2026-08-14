@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/phase1/06_アダプター境界/06_Adapter境界設計書.html",
+  "request_id": "ctx-gate-9beac28fc4a58c79",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "d46cf20f082357ec94b9d4c128641214ec80f1015e9075ef96fead81186a0f52",
+  "status": "PASS"
+}

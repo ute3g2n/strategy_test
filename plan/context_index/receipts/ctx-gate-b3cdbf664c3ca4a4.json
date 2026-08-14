@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "research/中学生向け_第06章_リスク管理とストップロス.md",
+  "request_id": "ctx-gate-b3cdbf664c3ca4a4",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "10b7c28db111e5e8473983478c3746c5d254ec4122667527feb6c2cc48aefc5e",
+  "status": "PASS"
+}

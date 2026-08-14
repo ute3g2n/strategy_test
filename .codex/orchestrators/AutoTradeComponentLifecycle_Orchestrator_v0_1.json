@@ -28,7 +28,7 @@
       "multi_agent_v1__wait_agent"
     ],
     "root_dispatch": "ルートAgentは、対象ファイルを変更する前に本OrchestratorのJSON path、model=gpt-5.6-terra、change_scope、入力、出力、Agents、Skillsを渡してCoordinatorを実spawnし、orchestrator_agent_idと受付statusを保存する。",
-    "coordinator_dispatch": "CoordinatorはPromptで明示された全Agentを一体ずつspawnし、Agent JSON pathと定義JSONのmodelをmodel引数に明示する。Orchestrator JSONのagents map外でも省略せず起動試行し、全件をwaitして完了statusと出力参照を保存する。",
+    "coordinator_dispatch": "CoordinatorはPromptで明示された全Agentを一体ずつspawnし、Agent JSON pathと定義JSONのmodelをmodel引数に明示する。定義JSONにreasoning_effortがある場合だけ同引数へ渡し、未定義の場合は推論努力量を勝手に上書きせずreceiptへnullを記録する。Orchestrator JSONのagents map外でも省略せず起動試行し、全件をwaitして完了statusと出力参照を保存する。",
     "fallback_policy": "spawn／wait、固定model受理、または子出力取得ができない場合はRUNTIME_DISPATCH_FALLBACK_REQUIRED、未起動Agent、理由、agent_id=N/A、independent=false、review_mode=SELF_REVIEW_FALLBACKを先に記録する。起動不能は単独停止条件にせず、ルートが責務チェックリストを適用して継続する。ただしUnknownのPass、仕様追従欠落、default変更、Critical／High未解決は停止する。",
     "receipt_required": [
       "runtime_backend",
@@ -37,6 +37,7 @@
       "agent_name",
       "agent_json_path",
       "agent_model",
+      "agent_reasoning_effort",
       "skills",
       "agent_id",
       "accepted_status",
@@ -50,6 +51,14 @@
     "A06": {
       "file": ".codex/agents/AutoTrade_A06_AiComponentEngineer_v0_1.json",
       "primary_skill": "autotrade_skill_ai_component_lifecycle_v0_1"
+    },
+    "A07": {
+      "file": ".codex/agents/AutoTrade_A07_ContextManifestMaintainer_v0_1.json",
+      "primary_skill": "autotrade_skill_context_manifest_maintenance_v0_1"
+    },
+    "A08": {
+      "file": ".codex/agents/AutoTrade_A08_ContextRouter_v0_1.json",
+      "primary_skill": "autotrade_skill_context_routing_v0_1"
     },
     "A10": {
       "file": ".codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json",
@@ -66,6 +75,8 @@
   },
   "skills": [
     "autotrade_skill_ai_component_lifecycle_v0_1",
+    "autotrade_skill_context_manifest_maintenance_v0_1",
+    "autotrade_skill_context_routing_v0_1",
     "autotrade_skill_source_reader_v0_1",
     "autotrade_skill_traceability_v0_1",
     "autotrade_skill_orchestration_v0_1",
@@ -80,6 +91,8 @@
     "Decide whether the request is create, modify, or create-by-composition.",
     "Create or modify only the explicitly named skill, agent, orchestrator, and config entries.",
     "Update AI foundation HTML docs, rules, and doc/index.html in the same run.",
+    "Connect new-document and major-document-change handoffs to AutoTrade_A07_ContextManifestMaintainer_v0_1; require validator PASS or an honest BLOCKED result before completion.",
+    "Use AutoTrade_A08_ContextRouter_v0_1 only with a validator-approved manifest snapshot; do not make it a body-reading agent.",
     "Run a review for over-creation, missing sync updates, and name-control mistakes.",
     "Record residual risks and any blocked collisions.",
     "Continue with the declared fallback checklist when nested child dispatch is unavailable; never hide the fallback."

@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "doc/ai_foundation/09_Phase実行計画作成AI部品仕様.html",
+  "request_id": "ctx-gate-abf53d895bb9adc5",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "771199f8779fa8a216f1ae29f06cd4b304a93af786f5816966670362d433f4ea",
+  "status": "PASS"
+}

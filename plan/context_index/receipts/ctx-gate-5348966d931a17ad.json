@@ -1,0 +1,14 @@
+{
+  "action": "metadata_unchanged",
+  "dispatch": {
+    "attempts": 0,
+    "status": "NOT_REQUIRED"
+  },
+  "reason_code": "SMALL_CHANGE_DETERMINISTIC_UPDATE",
+  "recorded_at": "2026-08-14T00:00:00Z",
+  "relative_path": "plan/phase2-5_ai_foundation/06_WSL2隔離品質ゲート_Windows引継ぎコンテキスト.md",
+  "request_id": "ctx-gate-5348966d931a17ad",
+  "schema_version": "ctxmap-maintenance-receipt-v0.1",
+  "source_hash": "c3c22401863c374520400450e0710e9edf0f8ef4bf9099d1f589e3d7a9e5535e",
+  "status": "PASS"
+}
