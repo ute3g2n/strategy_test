@@ -106,7 +106,12 @@ def decision_for(path: str, source_hash: str, existing: dict[str, Any] | None, a
         "confidence": 0.95,
         "reason": "fixture decision",
         "source_hash": source_hash,
-        "receipt": {"agent_id": "fixture-a07", "model": "gpt-5.1", "status": "completed"},
+        "receipt": {
+            "agent_id": "fixture-a07",
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
+            "status": "completed",
+        },
     }
 
 

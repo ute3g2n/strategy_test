@@ -27,6 +27,8 @@ from .validate_context_index import validate_manifest
 
 MAINTENANCE_SCHEMA_VERSION = "ctxmap-maintenance-receipt-v0.1"
 A07_ACTIONS = {"record_add", "record_update", "metadata_unchanged", "blocked"}
+A07_MODEL = "gpt-5.6-luna"
+A07_REASONING_EFFORT = "low"
 _A07_REQUIRED_KEYS = {
     "artifact_id",
     "action",
@@ -40,7 +42,16 @@ _A07_REQUIRED_KEYS = {
     "source_hash",
     "receipt",
 }
-_SAFE_RECEIPT_KEYS = {"agent_id", "model", "status", "run_id", "backend", "review_mode", "independent"}
+_SAFE_RECEIPT_KEYS = {
+    "agent_id",
+    "model",
+    "reasoning_effort",
+    "status",
+    "run_id",
+    "backend",
+    "review_mode",
+    "independent",
+}
 _SAFE_IDENTIFIER_RE = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
 _SAFE_TIMESTAMP_RE = re.compile(r"^[0-9T:Z+._-]{1,64}$")
 _HASH_RE = re.compile(r"^[a-f0-9]{64}$")
@@ -381,7 +392,8 @@ def _safe_dispatch_info(
     value: dict[str, Any] = {
         "backend": "multi_agent_v1",
         "agent_name": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
-        "model": "gpt-5.1",
+        "model": A07_MODEL,
+        "reasoning_effort": A07_REASONING_EFFORT,
         "status": status,
         "attempts": attempts,
         "agent_id": "N/A",

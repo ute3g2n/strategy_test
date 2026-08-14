@@ -1,0 +1,41 @@
+{
+  "name": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+  "display_name": "Auto Trade Context Manifest Maintainer",
+  "model": "gpt-5.6-luna",
+  "reasoning_effort": "low",
+  "skill": "autotrade_skill_context_manifest_maintenance_v0_1",
+  "skills": [
+    "autotrade_skill_context_manifest_maintenance_v0_1",
+    "autotrade_skill_traceability_v0_1"
+  ],
+  "role": "判定済みの1文書入力から、context manifestの追加・更新要否をstrict JSONで返す軽量保守Agent。",
+  "inputs": {
+    "single_file": "relative_path、kind、source_hash、構造化差分、既存レコード、Secret検査済みsafe_excerptを含む1ファイル入力。",
+    "request": "request_id、schema_version、generator_version、許可境界、human_gate_policy。"
+  },
+  "outputs": {
+    "manifest_decision": "artifact_id、action、summary、purpose、triggers、headings、relations、confidence、reason、source_hash、receiptだけを持つstrict JSON。",
+    "blocked_receipt": "対象外、Secret疑い、入力不整合、path違反、hash不一致、上限超過を理由付きで記録する。"
+  },
+  "output_schema": {
+    "required": ["artifact_id", "action", "summary", "purpose", "triggers", "headings", "relations", "confidence", "reason", "source_hash", "receipt"],
+    "additionalProperties": false,
+    "action_enum": ["record_add", "record_update", "metadata_unchanged", "blocked"],
+    "safe_excerpt_max_chars": 18000
+  },
+  "boundaries": [
+    "文書1ファイル以外を入力しない。ソースコードは決定的コード解析へ渡す。",
+    "ネットワーク、外部MCP、Secret、認証情報、個人情報、外部本文送信を扱わない。",
+    "任意path、repo外path、Git stage/commit/push、watcher起動、manifest直接書込みを行わない。",
+    "新規文書をrecord_update、既存の大幅変更をmetadata_unchangedとして隠さない。",
+    "validator PASSまたは理由付きBLOCKEDなしに上位作業を完了扱いにしない。",
+    "Unknown、timeout、未起動、schema不整合をPassにしない。"
+  ],
+  "runtime_policy": {
+    "network": false,
+    "secret_read": false,
+    "git_write": false,
+    "arbitrary_path_read": false,
+    "full_body_persistence": false
+  }
+}

@@ -68,7 +68,8 @@ def decision_for(payload: dict[str, Any], *, action: str | None = None, confiden
         "source_hash": payload["source_hash"],
         "receipt": {
             "agent_id": "fixture-a07",
-            "model": "gpt-5.1",
+            "model": "gpt-5.6-luna",
+            "reasoning_effort": "low",
             "status": "completed",
             "run_id": "fixture-run",
         },
