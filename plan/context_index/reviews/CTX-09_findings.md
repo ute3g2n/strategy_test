@@ -101,3 +101,19 @@
 3. F-004〜F-007を修正または、owner・期限・証拠・Secret境界を弱めない採否記録付きで残留リスク化する。
 4. 固定Reviewer 4件を個別spawn/waitし、同一fixtureで再レビューする。起動不能なら独立レビュー済みと記録しない。
 5. `CTXMAP-H1を承認します` の明示承認があるまでwatcherを起動しない。
+
+## CTX-09 remediation update (2026-08-14)
+
+This section is the current status after the user-approved remediation pass. The original finding text above is retained as historical evidence.
+
+| Finding | Current status | Evidence / remaining condition |
+|---|---|---|
+| CTX09-F-001 | RESOLVED | Gate control inputs reject absolute paths and require repository-relative, non-reparse files. |
+| CTX09-F-002 | RESOLVED for the local wrapper path | PASS reports contain per-file SHA-256 values and the report SHA-256 is bound from Gate output through allowlist validation and the staged-index check. |
+| CTX09-F-003 | OPEN / HIGH | The exact `gpt-5.1` A07 runtime probe was rejected as `Unknown model`; no substitute model is accepted as semantic confirmation. H1 remains ineligible. |
+| CTX09-F-004 | RESOLVED | JSONL request lines are byte-bounded and Japanese/English prompt-injection metadata is rejected or omitted. |
+| CTX09-F-005 | MITIGATED / MEDIUM | `doc/index.html` now states CTX-09 remediation and H1 pending. PARTIAL code records now carry owner, deadline, and acceptance metadata. |
+| CTX09-F-006 | RESOLVED | Watch-loop event failures propagate as nonzero process results and record BLOCKED state. |
+| CTX09-F-007 | RESOLVED for stale-lock safety | Lock metadata includes schema, PID, start time, repository fingerprint, and process-start marker; recovery is fail-closed on invalid, active, mismatched, or reused identities. |
+
+The remediation re-review still ran with `RUNTIME_DISPATCH_FALLBACK_REQUIRED`: the requested independent child reviewers were unavailable (`agent_id=N/A`, `independent=false`). This is not counted as independent review completion. CTX-10/CTX-11 must not activate the watcher while F-003 and the independent-review/runtime conditions remain unresolved.

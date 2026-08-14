@@ -6063,7 +6063,7 @@
       "kind": "managed_document",
       "status": "active",
       "relative_path": "doc/index.html",
-      "source_hash": "3311a072a5cba388166b49576b01a1c99b7a153fd6a6a00ad25d5c79b06ce0ac",
+      "source_hash": "bca3d1985d3e225c547b5fd2f51be64b07a8af2dba4769a372e9391c17c083a4",
       "schema_version": "ctxmap-manifest-v0.1",
       "generator_version": "ctxmap-indexer-v0.1",
       "first_seen_at": "2026-08-14T00:00:00Z",
@@ -6468,7 +6468,7 @@
       "triggers": [],
       "relation_ids": [],
       "line_count": 325,
-      "byte_size": 34351
+      "byte_size": 34365
     },
     {
       "artifact_id": "art-09c557ad-fe80-5e5e-b590-d68aba816af8",
@@ -22378,7 +22378,7 @@
       "kind": "managed_document",
       "status": "active",
       "relative_path": "plan/context_index/reviews/CTX-09_findings.md",
-      "source_hash": "9a2907b4de96f0262943204cd9ce9e60f55c5c4158e323cfe71e58de361568ad",
+      "source_hash": "fadd7872d33a94d0f513303d5a3ad1fba4145a57b34e4cbbdda5ccab0ed40d00",
       "schema_version": "ctxmap-manifest-v0.1",
       "generator_version": "ctxmap-indexer-v0.1",
       "first_seen_at": "2026-08-14T00:00:00Z",
@@ -22454,6 +22454,11 @@
           "level": 2,
           "text": "再開条件",
           "line": 97
+        },
+        {
+          "level": 2,
+          "text": "CTX-09 remediation update (2026-08-14)",
+          "line": 105
         }
       ],
       "trace_ids": [
@@ -22464,8 +22469,8 @@
       "purpose": "CTX-09 統合品質・独立レビュー Findings",
       "triggers": [],
       "relation_ids": [],
-      "line_count": 103,
-      "byte_size": 12010
+      "line_count": 119,
+      "byte_size": 13800
     },
     {
       "artifact_id": "art-647317cf-d499-55d2-8e4e-ee00e6b9f771",

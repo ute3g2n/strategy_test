@@ -464,6 +464,114 @@ def test_lock_recovery_rejects_pid_reuse(
     assert lock.exists()
 
 
+def test_lock_process_identity_failure_is_fail_closed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import scripts.context_index.context_watch as context_watch
+
+    assert context_watch._process_start_marker(0) is None
+    monkeypatch.setattr(context_watch, "_process_start_marker", lambda _pid: None)
+    with pytest.raises(context_watch.GateError, match="WATCH_PROCESS_IDENTITY_UNAVAILABLE"):
+        context_watch._lock_metadata(tmp_path)
+    monkeypatch.setattr(context_watch.os, "name", "posix")
+    assert context_watch._process_start_marker(999_999_999) is None
+
+
+def test_windows_process_start_marker_handles_api_outcomes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import scripts.context_index.context_watch as context_watch
+
+    class FakeFunction:
+        def __init__(self, result: object) -> None:
+            self.result = result
+            self.argtypes = None
+            self.restype = None
+
+        def __call__(self, *args: object) -> object:
+            if callable(self.result):
+                return self.result(*args)
+            return self.result
+
+    class FakeKernel:
+        def __init__(self, handle: int, times_result: object) -> None:
+            self.OpenProcess = FakeFunction(handle)
+            self.GetProcessTimes = FakeFunction(times_result)
+            self.CloseHandle = FakeFunction(True)
+
+    monkeypatch.setattr(context_watch.os, "name", "nt")
+    monkeypatch.setattr(context_watch.ctypes, "WinDLL", lambda *_args, **_kwargs: FakeKernel(0, False))
+    assert context_watch._process_start_marker(12345) is None
+
+    monkeypatch.setattr(context_watch.ctypes, "WinDLL", lambda *_args, **_kwargs: FakeKernel(1, False))
+    assert context_watch._process_start_marker(12345) is None
+
+    def fill_creation(_handle: Any, creation: Any, *_args: Any) -> bool:
+        creation._obj.dwHighDateTime = 1
+        creation._obj.dwLowDateTime = 2
+        return True
+
+    monkeypatch.setattr(
+        context_watch.ctypes,
+        "WinDLL",
+        lambda *_args, **_kwargs: FakeKernel(1, fill_creation),
+    )
+    assert context_watch._process_start_marker(12345) == str((1 << 32) | 2)
+
+    monkeypatch.setattr(
+        context_watch.ctypes,
+        "WinDLL",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError("kernel32 unavailable")),
+    )
+    assert context_watch._process_start_marker(12345) is None
+
+
+@pytest.mark.parametrize(
+    ("payload", "reason"),
+    [
+        ([], "WATCH_LOCK_INVALID"),
+        ({"schema_version": "wrong"}, "WATCH_LOCK_INVALID"),
+        ({"schema_version": "ctxmap-watch-lock-v0.2", "pid": 0}, "WATCH_LOCK_INVALID"),
+        (
+            {"schema_version": "ctxmap-watch-lock-v0.2", "pid": 1, "started_at": ""},
+            "WATCH_LOCK_INVALID",
+        ),
+        (
+            {
+                "schema_version": "ctxmap-watch-lock-v0.2",
+                "pid": 1,
+                "started_at": "2026-08-14T00:00:00Z",
+                "root_fingerprint": "0" * 64,
+            },
+            "WATCH_LOCK_ROOT_MISMATCH",
+        ),
+        (
+            {
+                "schema_version": "ctxmap-watch-lock-v0.2",
+                "pid": 1,
+                "started_at": "2026-08-14T00:00:00Z",
+                "root_fingerprint": "__ROOT__",
+                "process_start_marker": "",
+            },
+            "WATCH_LOCK_INVALID",
+        ),
+    ],
+)
+def test_lock_recovery_rejects_invalid_metadata(
+    tmp_path: Path, payload: object, reason: str
+) -> None:
+    import scripts.context_index.context_watch as context_watch
+
+    if isinstance(payload, dict) and payload.get("root_fingerprint") == "__ROOT__":
+        payload = {**payload, "root_fingerprint": context_watch._root_fingerprint(tmp_path)}
+    lock = tmp_path / context_watch.LOCK_PATH
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    lock.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(context_watch.GateError, match=reason):
+        context_watch.recover_stale_lock(tmp_path)
+
+
 def test_h1_invalid_receipts_are_rejected_without_fallback(tmp_path: Path) -> None:
     from scripts.context_index.check_context_gate import GateError, require_h1_approval
 

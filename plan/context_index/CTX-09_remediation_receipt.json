@@ -1,0 +1,92 @@
+{
+  "schema_version": "ctxmap-remediation-receipt-v0.1",
+  "plan_id": "CTXMAP-PLAN-001",
+  "step_id": "CTX-09-remediation",
+  "recorded_at_utc": "2026-08-14T00:00:00Z",
+  "approval": {
+    "approval_text": "承認します。続けて",
+    "scope": "CTX-09 findings remediation only",
+    "watcher_activation_authorized": false
+  },
+  "implementation_commits": [
+    "8d9b20f",
+    "1dfa8a6",
+    "2723692",
+    "222bb01",
+    "4501ca4"
+  ],
+  "runtime": {
+    "orchestrator": {
+      "agent_name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "model": "gpt-5.6-terra",
+      "agent_id": "01a00005-fd5f-7940-a268-7715cdd49c55",
+      "status": "COMPLETED_WITH_FALLBACK",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    "child_reviewers": {
+      "status": "UNAVAILABLE",
+      "agent_id": "N/A",
+      "independent": false,
+      "reason_code": "RUNTIME_DISPATCH_FALLBACK_REQUIRED"
+    },
+    "a07_exact_model_probe": {
+      "agent_name": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+      "model": "gpt-5.1",
+      "status": "REJECTED",
+      "reason_code": "UNKNOWN_MODEL",
+      "substitute_model_accepted": false
+    }
+  },
+  "finding_status": {
+    "CTX09-F-001": "RESOLVED",
+    "CTX09-F-002": "RESOLVED_LOCAL_WRAPPER",
+    "CTX09-F-003": "OPEN_HIGH",
+    "CTX09-F-004": "RESOLVED",
+    "CTX09-F-005": "MITIGATED_MEDIUM",
+    "CTX09-F-006": "RESOLVED",
+    "CTX09-F-007": "RESOLVED_STALE_LOCK_SAFETY"
+  },
+  "quality": {
+    "document_manifest": {
+      "status": "PASS",
+      "active": 426,
+      "errors": 0
+    },
+    "code_manifest": {
+      "status": "PASS",
+      "manifest_status": "PARTIAL",
+      "registered": 254,
+      "complete": 217,
+      "partial": 37,
+      "blocked": 0
+    },
+    "relation_graph": {
+      "status": "VALIDATED",
+      "manifest_status": "PARTIAL",
+      "nodes": 3307,
+      "edges": 6968
+    },
+    "routing_fixture": {
+      "status": "PASS",
+      "cases": 10
+    },
+    "pytest": {
+      "status": "PASS",
+      "tests": 87,
+      "coverage_percent": 80.17
+    },
+    "ruff": "PASS",
+    "mypy": "PASS",
+    "compileall": "PASS"
+  },
+  "gate_decision": {
+    "h1_status": "INELIGIBLE",
+    "watcher_started": false,
+    "blocking_conditions": [
+      "CTX09-F-003 exact gpt-5.1 semantic confirmation unavailable",
+      "independent child reviewer receipts unavailable",
+      "trusted scope registration for this remediation run is not established"
+    ]
+  }
+}

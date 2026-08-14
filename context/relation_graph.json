@@ -3256,7 +3256,7 @@
       "node_type": "code_symbol",
       "label": "_acquire_lock",
       "code_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
-      "kind": "function"
+      "kind": "method"
     },
     {
       "node_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::_append_event",
@@ -3270,12 +3270,47 @@
       "node_type": "code_symbol",
       "label": "_changed_since",
       "code_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
+      "kind": "method"
+    },
+    {
+      "node_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::_load_lock_metadata",
+      "node_type": "code_symbol",
+      "label": "_load_lock_metadata",
+      "code_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
+      "kind": "method"
+    },
+    {
+      "node_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::_lock_metadata",
+      "node_type": "code_symbol",
+      "label": "_lock_metadata",
+      "code_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
+      "kind": "method"
+    },
+    {
+      "node_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::_process_start_marker",
+      "node_type": "code_symbol",
+      "label": "_process_start_marker",
+      "code_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
       "kind": "function"
+    },
+    {
+      "node_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::_process_start_marker._FileTime",
+      "node_type": "code_symbol",
+      "label": "_process_start_marker._FileTime",
+      "code_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
+      "kind": "class"
     },
     {
       "node_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::_python_executable",
       "node_type": "code_symbol",
       "label": "_python_executable",
+      "code_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
+      "kind": "method"
+    },
+    {
+      "node_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::_root_fingerprint",
+      "node_type": "code_symbol",
+      "label": "_root_fingerprint",
       "code_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
       "kind": "function"
     },
@@ -3284,14 +3319,14 @@
       "node_type": "code_symbol",
       "label": "_run_auto_commit",
       "code_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
-      "kind": "function"
+      "kind": "method"
     },
     {
       "node_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::_run_gate",
       "node_type": "code_symbol",
       "label": "_run_gate",
       "code_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
-      "kind": "function"
+      "kind": "method"
     },
     {
       "node_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::_runtime_path",
@@ -3312,28 +3347,28 @@
       "node_type": "code_symbol",
       "label": "main",
       "code_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
-      "kind": "function"
+      "kind": "method"
     },
     {
       "node_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::process_event",
       "node_type": "code_symbol",
       "label": "process_event",
       "code_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
-      "kind": "function"
+      "kind": "method"
     },
     {
       "node_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::recover_stale_lock",
       "node_type": "code_symbol",
       "label": "recover_stale_lock",
       "code_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
-      "kind": "function"
+      "kind": "method"
     },
     {
       "node_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::watch_loop",
       "node_type": "code_symbol",
       "label": "watch_loop",
       "code_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
-      "kind": "function"
+      "kind": "method"
     },
     {
       "node_id": "code-0ce182bb-b4a2-5695-b292-580033fa8c1a",
@@ -10572,13 +10607,6 @@
       "kind": "function"
     },
     {
-      "node_id": "code-ab79ff79-a39a-529b-abec-f8148286c53e::symbol::to_python_path",
-      "node_type": "code_symbol",
-      "label": "to_python_path",
-      "code_id": "code-ab79ff79-a39a-529b-abec-f8148286c53e",
-      "kind": "function"
-    },
-    {
       "node_id": "code-ac45f8d7-8219-55b8-8d69-27b45c033f7d",
       "node_type": "code_file",
       "label": "tests/phase4/test_p4_red_contract.py",
@@ -13551,7 +13579,7 @@
       "node_type": "code_symbol",
       "label": "test_auto_commit_stages_only_gate_allowlist_and_never_user_untracked",
       "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
-      "kind": "function"
+      "kind": "method"
     },
     {
       "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_gate_h1_requirement_fails_closed_before_work",
@@ -13600,12 +13628,33 @@
       "node_type": "code_symbol",
       "label": "test_h1_invalid_receipts_are_rejected_without_fallback",
       "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
-      "kind": "function"
+      "kind": "method"
     },
     {
       "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_h1_start_is_rejected_until_approval_receipt_exists",
       "node_type": "code_symbol",
       "label": "test_h1_start_is_rejected_until_approval_receipt_exists",
+      "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "kind": "method"
+    },
+    {
+      "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_lock_process_identity_failure_is_fail_closed",
+      "node_type": "code_symbol",
+      "label": "test_lock_process_identity_failure_is_fail_closed",
+      "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "kind": "function"
+    },
+    {
+      "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_lock_recovery_rejects_invalid_metadata",
+      "node_type": "code_symbol",
+      "label": "test_lock_recovery_rejects_invalid_metadata",
+      "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "kind": "method"
+    },
+    {
+      "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_lock_recovery_rejects_pid_reuse",
+      "node_type": "code_symbol",
+      "label": "test_lock_recovery_rejects_pid_reuse",
       "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
       "kind": "function"
     },
@@ -13656,14 +13705,14 @@
       "node_type": "code_symbol",
       "label": "test_symlink_target_is_rejected_when_platform_allows_symlinks",
       "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
-      "kind": "function"
+      "kind": "method"
     },
     {
       "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_watch_document_event_stays_pending_when_a07_is_unavailable",
       "node_type": "code_symbol",
       "label": "test_watch_document_event_stays_pending_when_a07_is_unavailable",
       "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
-      "kind": "function"
+      "kind": "method"
     },
     {
       "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_watch_loop_propagates_event_failure_to_process_exit",
@@ -13677,14 +13726,63 @@
       "node_type": "code_symbol",
       "label": "test_watch_loop_runs_one_local_cycle_and_records_auto_commit_pending",
       "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
-      "kind": "function"
+      "kind": "method"
     },
     {
       "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_watch_once_ignores_generated_event_and_watch_loop_serializes",
       "node_type": "code_symbol",
       "label": "test_watch_once_ignores_generated_event_and_watch_loop_serializes",
       "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "kind": "method"
+    },
+    {
+      "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_windows_process_start_marker_handles_api_outcomes",
+      "node_type": "code_symbol",
+      "label": "test_windows_process_start_marker_handles_api_outcomes",
+      "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
       "kind": "function"
+    },
+    {
+      "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_windows_process_start_marker_handles_api_outcomes.FakeFunction",
+      "node_type": "code_symbol",
+      "label": "test_windows_process_start_marker_handles_api_outcomes.FakeFunction",
+      "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "kind": "class"
+    },
+    {
+      "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_windows_process_start_marker_handles_api_outcomes.FakeFunction.__call__",
+      "node_type": "code_symbol",
+      "label": "test_windows_process_start_marker_handles_api_outcomes.FakeFunction.__call__",
+      "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "kind": "method"
+    },
+    {
+      "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_windows_process_start_marker_handles_api_outcomes.FakeFunction.__init__",
+      "node_type": "code_symbol",
+      "label": "test_windows_process_start_marker_handles_api_outcomes.FakeFunction.__init__",
+      "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "kind": "method"
+    },
+    {
+      "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_windows_process_start_marker_handles_api_outcomes.FakeKernel",
+      "node_type": "code_symbol",
+      "label": "test_windows_process_start_marker_handles_api_outcomes.FakeKernel",
+      "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "kind": "class"
+    },
+    {
+      "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_windows_process_start_marker_handles_api_outcomes.FakeKernel.__init__",
+      "node_type": "code_symbol",
+      "label": "test_windows_process_start_marker_handles_api_outcomes.FakeKernel.__init__",
+      "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "kind": "method"
+    },
+    {
+      "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_windows_process_start_marker_handles_api_outcomes.fill_creation",
+      "node_type": "code_symbol",
+      "label": "test_windows_process_start_marker_handles_api_outcomes.fill_creation",
+      "code_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "kind": "method"
     },
     {
       "node_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::write_file",
@@ -56844,11 +56942,51 @@
     },
     {
       "source_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
+      "target_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::_load_lock_metadata",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "_load_lock_metadata"
+    },
+    {
+      "source_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
+      "target_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::_lock_metadata",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "_lock_metadata"
+    },
+    {
+      "source_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
+      "target_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::_process_start_marker",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "_process_start_marker"
+    },
+    {
+      "source_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
+      "target_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::_process_start_marker._FileTime",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "_process_start_marker._FileTime"
+    },
+    {
+      "source_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
       "target_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::_python_executable",
       "relation_type": "contains",
       "resolution": "resolved",
       "evidence": "explicit",
       "target_ref": "_python_executable"
+    },
+    {
+      "source_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
+      "target_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035::symbol::_root_fingerprint",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "_root_fingerprint"
     },
     {
       "source_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
@@ -56945,6 +57083,14 @@
       "resolution": "external",
       "evidence": "explicit",
       "target_ref": "argparse"
+    },
+    {
+      "source_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
+      "target_id": null,
+      "relation_type": "imports",
+      "resolution": "external",
+      "evidence": "explicit",
+      "target_ref": "ctypes"
     },
     {
       "source_id": "code-0ac07515-d1b3-5818-bce8-7ec36ffc5035",
@@ -68843,14 +68989,6 @@
       "target_ref": "to_native_path"
     },
     {
-      "source_id": "code-ab79ff79-a39a-529b-abec-f8148286c53e",
-      "target_id": "code-ab79ff79-a39a-529b-abec-f8148286c53e::symbol::to_python_path",
-      "relation_type": "contains",
-      "resolution": "resolved",
-      "evidence": "explicit",
-      "target_ref": "to_python_path"
-    },
-    {
       "source_id": "code-ac45f8d7-8219-55b8-8d69-27b45c033f7d",
       "target_id": "code-ac45f8d7-8219-55b8-8d69-27b45c033f7d::symbol::make_config",
       "relation_type": "contains",
@@ -73916,6 +74054,30 @@
     },
     {
       "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_lock_process_identity_failure_is_fail_closed",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "test_lock_process_identity_failure_is_fail_closed"
+    },
+    {
+      "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_lock_recovery_rejects_invalid_metadata",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "test_lock_recovery_rejects_invalid_metadata"
+    },
+    {
+      "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_lock_recovery_rejects_pid_reuse",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "test_lock_recovery_rejects_pid_reuse"
+    },
+    {
+      "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
       "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_major_document_change_without_a07_is_pending_and_does_not_touch_index",
       "relation_type": "contains",
       "resolution": "resolved",
@@ -74001,6 +74163,62 @@
       "resolution": "resolved",
       "evidence": "explicit",
       "target_ref": "test_watch_once_ignores_generated_event_and_watch_loop_serializes"
+    },
+    {
+      "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_windows_process_start_marker_handles_api_outcomes",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "test_windows_process_start_marker_handles_api_outcomes"
+    },
+    {
+      "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_windows_process_start_marker_handles_api_outcomes.FakeFunction",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "test_windows_process_start_marker_handles_api_outcomes.FakeFunction"
+    },
+    {
+      "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_windows_process_start_marker_handles_api_outcomes.FakeFunction.__call__",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "test_windows_process_start_marker_handles_api_outcomes.FakeFunction.__call__"
+    },
+    {
+      "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_windows_process_start_marker_handles_api_outcomes.FakeFunction.__init__",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "test_windows_process_start_marker_handles_api_outcomes.FakeFunction.__init__"
+    },
+    {
+      "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_windows_process_start_marker_handles_api_outcomes.FakeKernel",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "test_windows_process_start_marker_handles_api_outcomes.FakeKernel"
+    },
+    {
+      "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_windows_process_start_marker_handles_api_outcomes.FakeKernel.__init__",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "test_windows_process_start_marker_handles_api_outcomes.FakeKernel.__init__"
+    },
+    {
+      "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
+      "target_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25::symbol::test_windows_process_start_marker_handles_api_outcomes.fill_creation",
+      "relation_type": "contains",
+      "resolution": "resolved",
+      "evidence": "explicit",
+      "target_ref": "test_windows_process_start_marker_handles_api_outcomes.fill_creation"
     },
     {
       "source_id": "code-e7a487d5-88fd-59e9-87d9-7869f11aad25",
