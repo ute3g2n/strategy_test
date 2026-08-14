@@ -2063,6 +2063,26 @@
       "delta_kind": "added"
     },
     {
+      "subject_id": "art-607cea7a-667e-5ad1-bd40-21c57592234a",
+      "subject_type": "artifact",
+      "source_hash": "a3fd53ac8ea9f759a935a729f0975002837ffc641b2bab19a215d432c36b9866",
+      "state": "active",
+      "last_processed_at": "2026-08-14T00:00:00Z",
+      "generator_version": "ctxmap-indexer-v0.1",
+      "schema_version": "ctxmap-manifest-v0.1",
+      "delta_kind": "added"
+    },
+    {
+      "subject_id": "art-b45d5266-ceaa-5583-8525-e3b90d37c2a1",
+      "subject_type": "artifact",
+      "source_hash": "86dc411f5689f72046e5d02c3e8d891d768f67d13f25991680e82310a4930593",
+      "state": "active",
+      "last_processed_at": "2026-08-14T00:00:00Z",
+      "generator_version": "ctxmap-indexer-v0.1",
+      "schema_version": "ctxmap-manifest-v0.1",
+      "delta_kind": "added"
+    },
+    {
       "subject_id": "art-647317cf-d499-55d2-8e4e-ee00e6b9f771",
       "subject_type": "artifact",
       "source_hash": "6ffdecaf12faee0fcc8c9f4f27df412902e46d3acc152821d1ecaf9ae64e7ecc",

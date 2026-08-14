@@ -22275,6 +22275,105 @@
       "byte_size": 1336
     },
     {
+      "artifact_id": "art-607cea7a-667e-5ad1-bd40-21c57592234a",
+      "kind": "managed_document",
+      "status": "active",
+      "relative_path": "plan/context_index/CTX-08_不確実レコード一覧.md",
+      "source_hash": "a3fd53ac8ea9f759a935a729f0975002837ffc641b2bab19a215d432c36b9866",
+      "schema_version": "ctxmap-manifest-v0.1",
+      "generator_version": "ctxmap-indexer-v0.1",
+      "first_seen_at": "2026-08-14T00:00:00Z",
+      "updated_at": "2026-08-14T00:00:00Z",
+      "title": "CTX-08 不確実レコード一覧",
+      "headings": [
+        {
+          "level": 1,
+          "text": "CTX-08 不確実レコード一覧",
+          "line": 1
+        },
+        {
+          "level": 2,
+          "text": "判定",
+          "line": 3
+        },
+        {
+          "level": 2,
+          "text": "集計",
+          "line": 7
+        },
+        {
+          "level": 2,
+          "text": "PARTIALの扱い",
+          "line": 17
+        },
+        {
+          "level": 2,
+          "text": "A07再開手順",
+          "line": 21
+        }
+      ],
+      "trace_ids": [],
+      "local_links": [],
+      "summary": "CTX-08のA07固定runtimeが利用できなかったため、active document全件について、意味要約・目的・発火条件・relationsのA07確認状態は `UNCONFIRMED_A07_RUNTIME_UNAVAILABLE` とする。これは本文の欠落や捏造を意味せず、決定的抽出された見出し、hash、path、local linkをsemantic approvalと混同しないための状態である。",
+      "purpose": "CTX-08 不確実レコード一覧",
+      "triggers": [],
+      "relation_ids": [],
+      "line_count": 28,
+      "byte_size": 1921
+    },
+    {
+      "artifact_id": "art-b45d5266-ceaa-5583-8525-e3b90d37c2a1",
+      "kind": "managed_document",
+      "status": "active",
+      "relative_path": "plan/context_index/CTX-08_初回全量化レポート.md",
+      "source_hash": "86dc411f5689f72046e5d02c3e8d891d768f67d13f25991680e82310a4930593",
+      "schema_version": "ctxmap-manifest-v0.1",
+      "generator_version": "ctxmap-indexer-v0.1",
+      "first_seen_at": "2026-08-14T00:00:00Z",
+      "updated_at": "2026-08-14T00:00:00Z",
+      "title": "CTX-08 初回全量マニフェスト化レポート",
+      "headings": [
+        {
+          "level": 1,
+          "text": "CTX-08 初回全量マニフェスト化レポート",
+          "line": 1
+        },
+        {
+          "level": 2,
+          "text": "1. 実行概要",
+          "line": 3
+        },
+        {
+          "level": 2,
+          "text": "2. 対象範囲と境界",
+          "line": 9
+        },
+        {
+          "level": 2,
+          "text": "3. coverageと品質結果",
+          "line": 18
+        },
+        {
+          "level": 2,
+          "text": "4. A07 runtime状態",
+          "line": 28
+        },
+        {
+          "level": 2,
+          "text": "5. 再現コマンドと証拠",
+          "line": 34
+        }
+      ],
+      "trace_ids": [],
+      "local_links": [],
+      "summary": "CTX-00でmanaged対象としたMarkdown、HTML、ソースコード、設定を、ローカル決定的抽出で一回走査した。本文を外部へ送信せず、文書本文をrouter入力へ渡さず、生成物とruntime状態は索引対象の境界から分離した。",
+      "purpose": "CTX-08 初回全量マニフェスト化レポート",
+      "triggers": [],
+      "relation_ids": [],
+      "line_count": 43,
+      "byte_size": 4125
+    },
+    {
       "artifact_id": "art-647317cf-d499-55d2-8e4e-ee00e6b9f771",
       "kind": "managed_document",
       "status": "active",

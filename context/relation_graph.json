@@ -964,6 +964,12 @@
       "relative_path": ".codex/skills/autotrade_phase1_skill_poc_design_v0_1/SKILL.md"
     },
     {
+      "node_id": "art-607cea7a-667e-5ad1-bd40-21c57592234a",
+      "node_type": "document",
+      "label": "plan/context_index/CTX-08_不確実レコード一覧.md",
+      "relative_path": "plan/context_index/CTX-08_不確実レコード一覧.md"
+    },
+    {
       "node_id": "art-613390ba-76ef-557c-8d93-850aedff0dbd",
       "node_type": "document",
       "label": "plan/phase2/ログ/P2-04_ロール連続足設計_2026-08-05.md",
@@ -1766,6 +1772,12 @@
       "node_type": "document",
       "label": "doc/phase1/00_実行基盤/00_レビュー観点チェックリスト.html",
       "relative_path": "doc/phase1/00_実行基盤/00_レビュー観点チェックリスト.html"
+    },
+    {
+      "node_id": "art-b45d5266-ceaa-5583-8525-e3b90d37c2a1",
+      "node_type": "document",
+      "label": "plan/context_index/CTX-08_初回全量化レポート.md",
+      "relative_path": "plan/context_index/CTX-08_初回全量化レポート.md"
     },
     {
       "node_id": "art-b567a409-6eb1-5ae6-af4e-596fe1f75047",

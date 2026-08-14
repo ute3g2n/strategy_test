@@ -1,0 +1,100 @@
+{
+  "schema_version": "ctxmap.dispatch-receipt-index.v0.1",
+  "plan_id": "CTXMAP-PLAN-001",
+  "step_id": "CTX-08",
+  "recorded_at_utc": "2026-08-14T12:18:00Z",
+  "baseline_head": "912c38d",
+  "human_gate": {
+    "id": "CTXMAP-H0",
+    "status": "APPROVED",
+    "approval_text": "承認する。続けて",
+    "scope_note": "CTX-04からCTX-09までのローカル実装・検証を許可する。CTXMAP-H1承認前の常駐watcher、保存時自動A07呼出し、外部I/O、Secret処理は許可しない。"
+  },
+  "runtime": {
+    "backend": "multi_agent_v1",
+    "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED__A07_A08_UNAVAILABLE",
+    "orchestrator": {
+      "agent_name": "AutoTradeProject_Orchestrator_v0_1",
+      "json_path": ".codex/orchestrators/AutoTradeProject_Orchestrator_v0_1.json",
+      "model": "gpt-5.6-terra",
+      "agent_id": "019ffff0-ae59-7150-8b50-975b913e8ab3",
+      "status": "completed_checklist_only",
+      "independent": false,
+      "review_mode": "COORDINATOR_HANDOFF_ONLY"
+    },
+    "agents": [
+      {
+        "agent_name": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+        "model": "gpt-5.1",
+        "agent_id": "N/A",
+        "status": "NOT_ACCEPTED",
+        "reason_code": "UNKNOWN_MODEL",
+        "independent": false,
+        "review_mode": "SELF_REVIEW_FALLBACK"
+      },
+      {
+        "agent_name": "AutoTrade_A08_ContextRouter_v0_1",
+        "model": "gpt-5.1",
+        "agent_id": "N/A",
+        "status": "NOT_ACCEPTED",
+        "reason_code": "UNKNOWN_MODEL",
+        "independent": false,
+        "review_mode": "SELF_REVIEW_FALLBACK"
+      },
+      {
+        "agent_name": "AutoTrade_A130_VerificationEngineer_v0_1",
+        "model": "gpt-5.6-luna",
+        "agent_id": "019ffff0-af7a-7440-9fb6-947f00e50bfb",
+        "status": "completed_checklist_only",
+        "independent": false,
+        "review_mode": "SELF_REVIEW_FALLBACK"
+      }
+    ]
+  },
+  "document_receipt_index": {
+    "manifest_locator": "context/artifact_manifest.json",
+    "active_document_count": 425,
+    "a07_receipt_count": 0,
+    "status": "BLOCKED_FOR_ALL_ACTIVE_DOCUMENTS",
+    "reason_code": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "agent_id": "N/A",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK",
+    "entry_rule": "Each active document in the manifest is covered by this aggregate blocked entry; no document is represented as A07-completed.",
+    "resume_condition": "A07 strict JSON receipt per document, source hash match, validator PASS, receipt persistence, and routing fixture PASS."
+  },
+  "source_manifest": {
+    "manifest_locator": "context/code_manifest.json",
+    "artifact_count": 254,
+    "complete_count": 217,
+    "partial_count": 37,
+    "blocked_count": 0,
+    "unregistered_count": 0,
+    "extraction_status": "DETERMINISTIC_LOCAL_PASS_WITH_PARTIAL_RECORDS"
+  },
+  "relation_graph": {
+    "locator": "context/relation_graph.json",
+    "status": "PARTIAL",
+    "node_count": 3281,
+    "edge_count": 6939
+  },
+  "verification": {
+    "document_validator": "PASS: 425 active, errors=0",
+    "code_validator": "PASS: 254, COMPLETE=217, PARTIAL=37, errors=0",
+    "routing_fixture": "PASS: 10 cases",
+    "trusted_scope_fixed_four_gate": "NOT_RUN__TRUSTED_SCOPE_UNREGISTERED",
+    "external_io": "NOT_USED",
+    "body_sent_outside_repository": "NOT_USED",
+    "semantic_a07_completion": "NOT_CLAIMED"
+  },
+  "component_hashes": {
+    "artifact_manifest_sha256": "f7a2b8498224000ca4e62f6b48ba422d0c63bb70e518757e58a29bbd9a1284e7",
+    "code_manifest_sha256": "4cfba3e27e2c482f43a2c95677b07cd3164271bc2ecf22151a03eb19c002e653",
+    "relation_graph_sha256": "33089aa745ad7411f249ed0d70aacfb81156c407dac444544f8a5331c551e59c",
+    "routing_fixtures_sha256": "8603630a836be85eb6ebd5e372bf95dbde03539701d6c74569902683477803c7",
+    "full_report_sha256": "86dc411f5689f72046e5d02c3e8d891d768f67d13f25991680e82310a4930593",
+    "uncertain_records_sha256": "a3fd53ac8ea9f759a935a729f0975002837ffc641b2bab19a215d432c36b9866"
+  },
+  "acceptance_status": "CONDITIONAL__DETERMINISTIC_FULL_COVERAGE_A07_RUNTIME_BLOCKED_SEMANTIC_CONFIRMATION_PENDING",
+  "next_gate": "CTX-09"
+}
