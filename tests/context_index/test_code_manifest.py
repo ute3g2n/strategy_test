@@ -72,6 +72,12 @@ def test_python_syntax_error_is_partial_without_source_excerpt(tmp_path: Path, p
     record = extract_code_file(tmp_path, "src/broken.py", policy)
     assert record["extraction_status"] == "PARTIAL"
     assert any(item["code"] == "PYTHON_SYNTAX_ERROR" for item in record["diagnostics"])
+    assert record["remediation"] == {
+        "status": "OPEN",
+        "owner": "AutoTrade_A06_AiComponentEngineer_v0_1",
+        "deadline": "2026-08-21",
+        "acceptance": "parser-specific diagnostics are resolved or explicitly accepted with a dated review receipt",
+    }
     assert "do-not-output" not in json.dumps(record)
 
 
