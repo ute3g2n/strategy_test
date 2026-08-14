@@ -1,0 +1,106 @@
+{
+  "schema_version": "ctxmap-routing-fixtures-v0.1",
+  "generator_version": "ctxmap-router-v0.1",
+  "cases": [
+    {
+      "case_id": "CTX06-RF-001",
+      "request": "AI部品",
+      "allowed_primary_ids": [
+        "art-30bcff41-4747-5e09-8c6d-2a3a826ee752",
+        "art-d934f99d-9a60-5a4c-a031-4f99c54bb91c",
+        "art-66d3ca00-a078-53d7-b5ab-ba3124d4c319"
+      ],
+      "reason": "AI部品の作成・運用ルールの正本候補"
+    },
+    {
+      "case_id": "CTX06-RF-002",
+      "request": "外部Data",
+      "allowed_primary_ids": [
+        "art-9c3a7a8f-cf56-5284-8824-0c3755f0a3f5",
+        "art-c93c62f8-3d6f-5792-b72a-d842051e9564",
+        "art-5724b010-6294-5d6c-b18e-3cba8c5e6683"
+      ],
+      "reason": "Phase 5外部Data Gateの正本・計画・ログ"
+    },
+    {
+      "case_id": "CTX06-RF-003",
+      "request": "資料参照",
+      "allowed_primary_ids": [
+        "art-4dcffebb-4ed3-5e31-b575-e9d174557fa1",
+        "art-e94b4880-7d50-527c-87d5-f92ff81dd862",
+        "art-99d39b45-ae03-5d0b-ba47-4ff9994afcb5"
+      ],
+      "reason": "参照基盤を構成するSkill・Agent・Orchestrator仕様"
+    },
+    {
+      "case_id": "CTX06-RF-004",
+      "request": "Python品質",
+      "allowed_primary_ids": [
+        "art-e5b5f03e-3a33-5863-9fac-a57222a6c429",
+        "art-f3b35519-f9d2-5c09-8b28-82a0e6c54363",
+        "art-3b3fa7b8-f168-5590-a62b-58c62e11a9b2"
+      ],
+      "reason": "Pythonテスト・品質基盤の仕様と評価"
+    },
+    {
+      "case_id": "CTX06-RF-005",
+      "request": "Turtle",
+      "allowed_primary_ids": [
+        "art-d7fc5acf-702d-5dab-8012-7018b22bb359",
+        "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
+        "art-1f5e4dd4-e94a-5822-8962-af8a2b53c492"
+      ],
+      "reason": "Turtle戦略と設計上の残課題"
+    },
+    {
+      "case_id": "CTX06-RF-006",
+      "request": "Phase5",
+      "allowed_primary_ids": [
+        "art-5d4e1ed0-4803-553a-8328-ca255fbcd7e1",
+        "art-6f74c6b4-db2d-5d1c-9828-d3f430ccf0fc",
+        "art-ff82e8a8-6877-5293-84c5-2dc3a0436814"
+      ],
+      "reason": "Phase 5の完了引渡し・計画・要件追跡"
+    },
+    {
+      "case_id": "CTX06-RF-007",
+      "request": "UIモック",
+      "allowed_primary_ids": [
+        "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
+        "art-4dcffebb-4ed3-5e31-b575-e9d174557fa1",
+        "art-e94b4880-7d50-527c-87d5-f92ff81dd862"
+      ],
+      "reason": "UIモック・AI基盤・残課題を関係付きで確認"
+    },
+    {
+      "case_id": "CTX06-RF-008",
+      "request": "要件定義",
+      "allowed_primary_ids": [
+        "art-eb174cff-142b-5cf2-954c-4a56fdbc298c",
+        "art-a4db3d62-a3b4-57a5-8598-b9e9f3163f7f",
+        "art-8d9559a8-f065-5410-9c61-ed67d67b666f"
+      ],
+      "reason": "要件定義の入口・index・正式文書"
+    },
+    {
+      "case_id": "CTX06-RF-009",
+      "request": "context_index",
+      "allowed_primary_ids": [
+        "art-8d490418-9d29-5d1c-9b9b-e35be5959643",
+        "art-e52b7f98-f668-5318-8ef3-5cb7491ebf82",
+        "art-ecb74847-fb49-5cfd-8376-c350830061b1"
+      ],
+      "reason": "参照基盤の棚卸し・Unknown・受入設計"
+    },
+    {
+      "case_id": "CTX06-RF-010",
+      "request": "安全停止",
+      "allowed_primary_ids": [
+        "art-718be7b5-2ff4-55b4-8546-5f01626df589",
+        "art-b6b092f6-38e8-5c11-a1b9-46ba9cc4b4a6",
+        "art-39b3144f-4061-534f-9498-8d9115d853d7"
+      ],
+      "reason": "安全停止・非機能・運用設計"
+    }
+  ]
+}

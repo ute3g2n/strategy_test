@@ -10,6 +10,7 @@ from scripts.context_index.build_code_manifest import (
     validate_code_manifest,
 )
 from scripts.context_index.build_relation_graph import build_relation_graph
+from scripts.context_index.build_relation_graph import main as relation_graph_main
 from scripts.context_index.detect_code_delta import detect_code_delta
 
 
@@ -217,3 +218,60 @@ def test_code_delta_distinguishes_comment_only_and_structure_changes(tmp_path: P
     structure_after = build_code_manifest(tmp_path, policy, observed_at="2026-08-14T00:00:00Z")
     structure_delta = detect_code_delta(comment_after, structure_after)
     assert structure_delta[0]["change_kind"] == "modified_structural"
+
+
+def test_code_delta_handles_added_deleted_unique_rename_and_ambiguous_hash() -> None:
+    old = {
+        "artifacts": [
+            {"code_id": "code-old", "relative_path": "src/old.py", "source_hash": "a" * 64},
+            {"code_id": "code-delete", "relative_path": "src/delete.py", "source_hash": "b" * 64},
+        ]
+    }
+    new = {
+        "artifacts": [
+            {"code_id": "code-new", "relative_path": "src/new.py", "source_hash": "a" * 64},
+            {"code_id": "code-add", "relative_path": "src/add.py", "source_hash": "c" * 64},
+        ]
+    }
+    changes = detect_code_delta(old, new)
+    assert {item["change_kind"] for item in changes} == {"renamed", "added", "deleted"}
+
+    ambiguous_old = {
+        "artifacts": [
+            {"code_id": "code-a", "relative_path": "src/a.py", "source_hash": "d" * 64},
+            {"code_id": "code-b", "relative_path": "src/b.py", "source_hash": "d" * 64},
+        ]
+    }
+    ambiguous_new = {
+        "artifacts": [
+            {"code_id": "code-c", "relative_path": "src/c.py", "source_hash": "d" * 64},
+            {"code_id": "code-d", "relative_path": "src/d.py", "source_hash": "d" * 64},
+        ]
+    }
+    assert all(item["change_kind"] != "renamed" for item in detect_code_delta(ambiguous_old, ambiguous_new))
+
+
+def test_relation_graph_cli_writes_graph_and_redacts_invalid_input(tmp_path: Path) -> None:
+    code_manifest = tmp_path / "code.json"
+    output = tmp_path / "relation.json"
+    code_manifest.write_text(
+        json.dumps(
+            {
+                "artifacts": [
+                    {
+                        "code_id": "code-1",
+                        "relative_path": "src/a.py",
+                        "symbols": [],
+                        "imports": [],
+                        "extraction_status": "COMPLETE",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert relation_graph_main(["--code-manifest", str(code_manifest), "--output", str(output)]) == 0
+    result = json.loads(output.read_text(encoding="utf-8"))
+    assert result["schema_version"] == "ctxmap-relation-graph-v0.1"
+    code_manifest.write_text("not-json", encoding="utf-8")
+    assert relation_graph_main(["--code-manifest", str(code_manifest), "--output", str(output)]) == 1

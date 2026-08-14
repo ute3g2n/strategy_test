@@ -2588,6 +2588,35 @@
       "byte_size": 686
     },
     {
+      "code_id": "code-5ec585d2-9400-503f-a96f-9b1fea71d0ee",
+      "kind": "managed_config",
+      "status": "active",
+      "relative_path": "context/routing_fixtures.json",
+      "source_hash": "8603630a836be85eb6ebd5e372bf95dbde03539701d6c74569902683477803c7",
+      "schema_version": "ctxmap-code-manifest-v0.1",
+      "generator_version": "ctxmap-code-indexer-v0.1",
+      "language": "json",
+      "parser": "json-metadata-v0.1",
+      "extraction_status": "COMPLETE",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "public_candidates": [],
+      "config": {
+        "safe_top_level_keys": [
+          "cases",
+          "generator_version",
+          "schema_version"
+        ],
+        "reference_paths": [],
+        "secret_key_count": 0,
+        "secret_value_count": 0
+      },
+      "diagnostics": [],
+      "line_count": 106,
+      "byte_size": 3512
+    },
+    {
       "code_id": "code-c8d76d2e-2148-5690-a32a-867afd7017dd",
       "kind": "managed_source",
       "status": "active",
@@ -4183,6 +4212,879 @@
       "diagnostics": [],
       "line_count": 273,
       "byte_size": 10558
+    },
+    {
+      "code_id": "code-4000f251-fea2-55f6-92ab-682d3dbe716b",
+      "kind": "managed_source",
+      "status": "active",
+      "relative_path": "scripts/context_index/context_cli.py",
+      "source_hash": "736aa1266a95c2f36843dde6f0f0b8b5c88108ac1e8d46bca45ade9758976ec8",
+      "schema_version": "ctxmap-code-manifest-v0.1",
+      "generator_version": "ctxmap-code-indexer-v0.1",
+      "language": "python",
+      "parser": "python-ast-v0.1",
+      "extraction_status": "COMPLETE",
+      "symbols": [
+        {
+          "name": "_common",
+          "qualified_name": "_common",
+          "kind": "function",
+          "line_start": 13,
+          "line_end": 18,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_server",
+          "qualified_name": "_server",
+          "kind": "function",
+          "line_start": 21,
+          "line_end": 28,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "main",
+          "qualified_name": "main",
+          "kind": "function",
+          "line_start": 31,
+          "line_end": 109,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        }
+      ],
+      "imports": [
+        {
+          "kind": "from_import",
+          "module": "__future__",
+          "name": "annotations",
+          "alias": null,
+          "level": 0,
+          "line": 1
+        },
+        {
+          "kind": "import",
+          "module": "argparse",
+          "name": "argparse",
+          "alias": null,
+          "level": 0,
+          "line": 3
+        },
+        {
+          "kind": "import",
+          "module": "json",
+          "name": "json",
+          "alias": null,
+          "level": 0,
+          "line": 4
+        },
+        {
+          "kind": "from_import",
+          "module": "pathlib",
+          "name": "Path",
+          "alias": null,
+          "level": 0,
+          "line": 5
+        },
+        {
+          "kind": "from_import",
+          "module": "typing",
+          "name": "Any",
+          "alias": null,
+          "level": 0,
+          "line": 6
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "ContextIndexError",
+          "alias": null,
+          "level": 1,
+          "line": 8
+        },
+        {
+          "kind": "from_import",
+          "module": "context_mcp_server",
+          "name": "ContextMcpServer",
+          "alias": null,
+          "level": 1,
+          "line": 9
+        },
+        {
+          "kind": "from_import",
+          "module": "context_router",
+          "name": "load_router_snapshot",
+          "alias": null,
+          "level": 1,
+          "line": 10
+        },
+        {
+          "kind": "from_import",
+          "module": "context_router",
+          "name": "route_request",
+          "alias": null,
+          "level": 1,
+          "line": 10
+        }
+      ],
+      "exports": [],
+      "public_candidates": [
+        "main"
+      ],
+      "config": {},
+      "diagnostics": [],
+      "line_count": 113,
+      "byte_size": 4608
+    },
+    {
+      "code_id": "code-2d1847bf-e51f-5c41-b353-c1cbffe07854",
+      "kind": "managed_source",
+      "status": "active",
+      "relative_path": "scripts/context_index/context_mcp_server.py",
+      "source_hash": "e6dba7bf743e281978dd886fa9d21b9670d8cbd4cf653bc0cb2490c50a270d27",
+      "schema_version": "ctxmap-code-manifest-v0.1",
+      "generator_version": "ctxmap-code-indexer-v0.1",
+      "language": "python",
+      "parser": "python-ast-v0.1",
+      "extraction_status": "COMPLETE",
+      "symbols": [
+        {
+          "name": "McpRejected",
+          "qualified_name": "McpRejected",
+          "kind": "class",
+          "line_start": 34,
+          "line_end": 35,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "_require_mapping",
+          "qualified_name": "_require_mapping",
+          "kind": "method",
+          "line_start": 38,
+          "line_end": 41,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_limit",
+          "qualified_name": "_limit",
+          "kind": "method",
+          "line_start": 44,
+          "line_end": 47,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_safe_id",
+          "qualified_name": "_safe_id",
+          "kind": "method",
+          "line_start": 50,
+          "line_end": 53,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_safe_path",
+          "qualified_name": "_safe_path",
+          "kind": "method",
+          "line_start": 56,
+          "line_end": 62,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_manifest_result",
+          "qualified_name": "_manifest_result",
+          "kind": "method",
+          "line_start": 65,
+          "line_end": 87,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "ContextMcpServer",
+          "qualified_name": "ContextMcpServer",
+          "kind": "class",
+          "line_start": 90,
+          "line_end": 511,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "__init__",
+          "qualified_name": "ContextMcpServer.__init__",
+          "kind": "method",
+          "line_start": 93,
+          "line_end": 114,
+          "parent": "ContextMcpServer",
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_index_records",
+          "qualified_name": "ContextMcpServer._index_records",
+          "kind": "method",
+          "line_start": 117,
+          "line_end": 129,
+          "parent": "ContextMcpServer",
+          "decorators": [
+            "staticmethod"
+          ],
+          "public": false
+        },
+        {
+          "name": "from_paths",
+          "qualified_name": "ContextMcpServer.from_paths",
+          "kind": "method",
+          "line_start": 132,
+          "line_end": 154,
+          "parent": "ContextMcpServer",
+          "decorators": [
+            "classmethod"
+          ],
+          "public": true
+        },
+        {
+          "name": "_record_path",
+          "qualified_name": "ContextMcpServer._record_path",
+          "kind": "method",
+          "line_start": 156,
+          "line_end": 169,
+          "parent": "ContextMcpServer",
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_read_verified",
+          "qualified_name": "ContextMcpServer._read_verified",
+          "kind": "method",
+          "line_start": 171,
+          "line_end": 200,
+          "parent": "ContextMcpServer",
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "search_context",
+          "qualified_name": "ContextMcpServer.search_context",
+          "kind": "method",
+          "line_start": 202,
+          "line_end": 232,
+          "parent": "ContextMcpServer",
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "_range_from_input",
+          "qualified_name": "ContextMcpServer._range_from_input",
+          "kind": "method",
+          "line_start": 234,
+          "line_end": 283,
+          "parent": "ContextMcpServer",
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_bounded_content",
+          "qualified_name": "ContextMcpServer._bounded_content",
+          "kind": "method",
+          "line_start": 286,
+          "line_end": 290,
+          "parent": "ContextMcpServer",
+          "decorators": [
+            "staticmethod"
+          ],
+          "public": false
+        },
+        {
+          "name": "_max_chars",
+          "qualified_name": "ContextMcpServer._max_chars",
+          "kind": "method",
+          "line_start": 292,
+          "line_end": 295,
+          "parent": "ContextMcpServer",
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "get_artifact",
+          "qualified_name": "ContextMcpServer.get_artifact",
+          "kind": "method",
+          "line_start": 297,
+          "line_end": 321,
+          "parent": "ContextMcpServer",
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "_registered_code_range",
+          "qualified_name": "ContextMcpServer._registered_code_range",
+          "kind": "method",
+          "line_start": 323,
+          "line_end": 338,
+          "parent": "ContextMcpServer",
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "get_code_slice",
+          "qualified_name": "ContextMcpServer.get_code_slice",
+          "kind": "method",
+          "line_start": 340,
+          "line_end": 400,
+          "parent": "ContextMcpServer",
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "get_related",
+          "qualified_name": "ContextMcpServer.get_related",
+          "kind": "method",
+          "line_start": 402,
+          "line_end": 456,
+          "parent": "ContextMcpServer",
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "dispatch",
+          "qualified_name": "ContextMcpServer.dispatch",
+          "kind": "method",
+          "line_start": 458,
+          "line_end": 495,
+          "parent": "ContextMcpServer",
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "serve_stdio",
+          "qualified_name": "ContextMcpServer.serve_stdio",
+          "kind": "method",
+          "line_start": 497,
+          "line_end": 511,
+          "parent": "ContextMcpServer",
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "main",
+          "qualified_name": "main",
+          "kind": "method",
+          "line_start": 514,
+          "line_end": 538,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        }
+      ],
+      "imports": [
+        {
+          "kind": "from_import",
+          "module": "__future__",
+          "name": "annotations",
+          "alias": null,
+          "level": 0,
+          "line": 1
+        },
+        {
+          "kind": "import",
+          "module": "argparse",
+          "name": "argparse",
+          "alias": null,
+          "level": 0,
+          "line": 3
+        },
+        {
+          "kind": "import",
+          "module": "json",
+          "name": "json",
+          "alias": null,
+          "level": 0,
+          "line": 4
+        },
+        {
+          "kind": "import",
+          "module": "re",
+          "name": "re",
+          "alias": null,
+          "level": 0,
+          "line": 5
+        },
+        {
+          "kind": "import",
+          "module": "sys",
+          "name": "sys",
+          "alias": null,
+          "level": 0,
+          "line": 6
+        },
+        {
+          "kind": "from_import",
+          "module": "collections.abc",
+          "name": "Mapping",
+          "alias": null,
+          "level": 0,
+          "line": 7
+        },
+        {
+          "kind": "from_import",
+          "module": "collections.abc",
+          "name": "Sequence",
+          "alias": null,
+          "level": 0,
+          "line": 7
+        },
+        {
+          "kind": "from_import",
+          "module": "pathlib",
+          "name": "Path",
+          "alias": null,
+          "level": 0,
+          "line": 8
+        },
+        {
+          "kind": "from_import",
+          "module": "typing",
+          "name": "Any",
+          "alias": null,
+          "level": 0,
+          "line": 9
+        },
+        {
+          "kind": "from_import",
+          "module": "typing",
+          "name": "TextIO",
+          "alias": null,
+          "level": 0,
+          "line": 9
+        },
+        {
+          "kind": "from_import",
+          "module": "build_code_manifest",
+          "name": "load_code_policy",
+          "alias": null,
+          "level": 1,
+          "line": 11
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "ContextIndexError",
+          "alias": null,
+          "level": 1,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "PolicyViolation",
+          "alias": null,
+          "level": 1,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "ensure_repo_path",
+          "alias": null,
+          "level": 1,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "is_managed_document",
+          "alias": null,
+          "level": 1,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "normalize_relative_path",
+          "alias": null,
+          "level": 1,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "scan_secret_content",
+          "alias": null,
+          "level": 1,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "scan_secret_path",
+          "alias": null,
+          "level": 1,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "sha256_bytes",
+          "alias": null,
+          "level": 1,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "context_router",
+          "name": "_query_terms",
+          "alias": null,
+          "level": 1,
+          "line": 22
+        },
+        {
+          "kind": "from_import",
+          "module": "context_router",
+          "name": "_record_text",
+          "alias": null,
+          "level": 1,
+          "line": 22
+        },
+        {
+          "kind": "from_import",
+          "module": "context_router",
+          "name": "load_router_snapshot",
+          "alias": null,
+          "level": 1,
+          "line": 22
+        },
+        {
+          "kind": "from_import",
+          "module": "build_code_manifest",
+          "name": "is_managed_code_path",
+          "alias": null,
+          "level": 1,
+          "line": 162
+        }
+      ],
+      "exports": [],
+      "public_candidates": [
+        "ContextMcpServer",
+        "ContextMcpServer.dispatch",
+        "ContextMcpServer.from_paths",
+        "ContextMcpServer.get_artifact",
+        "ContextMcpServer.get_code_slice",
+        "ContextMcpServer.get_related",
+        "ContextMcpServer.search_context",
+        "ContextMcpServer.serve_stdio",
+        "McpRejected",
+        "main"
+      ],
+      "config": {},
+      "diagnostics": [],
+      "line_count": 542,
+      "byte_size": 21994
+    },
+    {
+      "code_id": "code-0ffb11d0-c051-5a7c-9e28-5253a8c09801",
+      "kind": "managed_source",
+      "status": "active",
+      "relative_path": "scripts/context_index/context_router.py",
+      "source_hash": "5c2440b5a1b8dfedd74ba2b9428a61dd750d99771c00c1eb1772008eba3a5c80",
+      "schema_version": "ctxmap-code-manifest-v0.1",
+      "generator_version": "ctxmap-code-indexer-v0.1",
+      "language": "python",
+      "parser": "python-ast-v0.1",
+      "extraction_status": "COMPLETE",
+      "symbols": [
+        {
+          "name": "RouterRejected",
+          "qualified_name": "RouterRejected",
+          "kind": "class",
+          "line_start": 31,
+          "line_end": 32,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "_records",
+          "qualified_name": "_records",
+          "kind": "method",
+          "line_start": 35,
+          "line_end": 39,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_query_terms",
+          "qualified_name": "_query_terms",
+          "kind": "method",
+          "line_start": 42,
+          "line_end": 54,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_safe_request_id",
+          "qualified_name": "_safe_request_id",
+          "kind": "method",
+          "line_start": 57,
+          "line_end": 62,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_record_id",
+          "qualified_name": "_record_id",
+          "kind": "method",
+          "line_start": 65,
+          "line_end": 70,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_record_text",
+          "qualified_name": "_record_text",
+          "kind": "method",
+          "line_start": 73,
+          "line_end": 105,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_score_record",
+          "qualified_name": "_score_record",
+          "kind": "method",
+          "line_start": 108,
+          "line_end": 113,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_record_kind",
+          "qualified_name": "_record_kind",
+          "kind": "method",
+          "line_start": 116,
+          "line_end": 118,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_all_records",
+          "qualified_name": "_all_records",
+          "kind": "method",
+          "line_start": 121,
+          "line_end": 128,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_validate_snapshot",
+          "qualified_name": "_validate_snapshot",
+          "kind": "method",
+          "line_start": 131,
+          "line_end": 158,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_relation_neighbors",
+          "qualified_name": "_relation_neighbors",
+          "kind": "method",
+          "line_start": 161,
+          "line_end": 175,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "_jit_range",
+          "qualified_name": "_jit_range",
+          "kind": "method",
+          "line_start": 178,
+          "line_end": 228,
+          "parent": null,
+          "decorators": [],
+          "public": false
+        },
+        {
+          "name": "route_request",
+          "qualified_name": "route_request",
+          "kind": "method",
+          "line_start": 231,
+          "line_end": 306,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "load_router_snapshot",
+          "qualified_name": "load_router_snapshot",
+          "kind": "method",
+          "line_start": 309,
+          "line_end": 355,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        }
+      ],
+      "imports": [
+        {
+          "kind": "from_import",
+          "module": "__future__",
+          "name": "annotations",
+          "alias": null,
+          "level": 0,
+          "line": 1
+        },
+        {
+          "kind": "import",
+          "module": "json",
+          "name": "json",
+          "alias": null,
+          "level": 0,
+          "line": 3
+        },
+        {
+          "kind": "import",
+          "module": "re",
+          "name": "re",
+          "alias": null,
+          "level": 0,
+          "line": 4
+        },
+        {
+          "kind": "from_import",
+          "module": "collections.abc",
+          "name": "Mapping",
+          "alias": null,
+          "level": 0,
+          "line": 5
+        },
+        {
+          "kind": "from_import",
+          "module": "pathlib",
+          "name": "Path",
+          "alias": null,
+          "level": 0,
+          "line": 6
+        },
+        {
+          "kind": "from_import",
+          "module": "typing",
+          "name": "Any",
+          "alias": null,
+          "level": 0,
+          "line": 7
+        },
+        {
+          "kind": "from_import",
+          "module": "build_code_manifest",
+          "name": "validate_code_manifest",
+          "alias": null,
+          "level": 1,
+          "line": 9
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "ContextIndexError",
+          "alias": null,
+          "level": 1,
+          "line": 10
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "PolicyViolation",
+          "alias": null,
+          "level": 1,
+          "line": 10
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "ensure_repo_path",
+          "alias": null,
+          "level": 1,
+          "line": 10
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "load_policy",
+          "alias": null,
+          "level": 1,
+          "line": 10
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "normalize_relative_path",
+          "alias": null,
+          "level": 1,
+          "line": 10
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "sha256_bytes",
+          "alias": null,
+          "level": 1,
+          "line": 10
+        },
+        {
+          "kind": "from_import",
+          "module": "common",
+          "name": "stable_id",
+          "alias": null,
+          "level": 1,
+          "line": 10
+        },
+        {
+          "kind": "from_import",
+          "module": "validate_context_index",
+          "name": "load_manifest_file",
+          "alias": null,
+          "level": 1,
+          "line": 19
+        },
+        {
+          "kind": "from_import",
+          "module": "validate_context_index",
+          "name": "validate_manifest",
+          "alias": null,
+          "level": 1,
+          "line": 19
+        }
+      ],
+      "exports": [],
+      "public_candidates": [
+        "RouterRejected",
+        "load_router_snapshot",
+        "route_request"
+      ],
+      "config": {},
+      "diagnostics": [],
+      "line_count": 355,
+      "byte_size": 13889
     },
     {
       "code_id": "code-813d93ca-d051-553e-948d-81cc27701d28",
@@ -24722,7 +25624,7 @@
       "kind": "managed_source",
       "status": "active",
       "relative_path": "tests/context_index/test_code_manifest.py",
-      "source_hash": "9c01c612c1154996655cfa3f336b91ccea458fccad77fb4630f5156266f5e260",
+      "source_hash": "92412402a807727716fe366602fd8c45f2848e4366ffcff500dbde398629f33f",
       "schema_version": "ctxmap-code-manifest-v0.1",
       "generator_version": "ctxmap-code-indexer-v0.1",
       "language": "python",
@@ -24733,8 +25635,8 @@
           "name": "policy",
           "qualified_name": "policy",
           "kind": "function",
-          "line_start": 17,
-          "line_end": 35,
+          "line_start": 18,
+          "line_end": 36,
           "parent": null,
           "decorators": [
             "dynamic"
@@ -24745,8 +25647,8 @@
           "name": "write_file",
           "qualified_name": "write_file",
           "kind": "function",
-          "line_start": 38,
-          "line_end": 41,
+          "line_start": 39,
+          "line_end": 42,
           "parent": null,
           "decorators": [],
           "public": true
@@ -24755,8 +25657,8 @@
           "name": "test_python_ast_extracts_nested_symbols_imports_decorators_and_ranges",
           "qualified_name": "test_python_ast_extracts_nested_symbols_imports_decorators_and_ranges",
           "kind": "function",
-          "line_start": 44,
-          "line_end": 66,
+          "line_start": 45,
+          "line_end": 67,
           "parent": null,
           "decorators": [],
           "public": true
@@ -24765,8 +25667,8 @@
           "name": "test_python_syntax_error_is_partial_without_source_excerpt",
           "qualified_name": "test_python_syntax_error_is_partial_without_source_excerpt",
           "kind": "function",
-          "line_start": 69,
-          "line_end": 74,
+          "line_start": 70,
+          "line_end": 75,
           "parent": null,
           "decorators": [],
           "public": true
@@ -24775,8 +25677,8 @@
           "name": "test_typescript_javascript_are_conservative_partial_and_ignore_dynamic_import",
           "qualified_name": "test_typescript_javascript_are_conservative_partial_and_ignore_dynamic_import",
           "kind": "function",
-          "line_start": 77,
-          "line_end": 92,
+          "line_start": 78,
+          "line_end": 93,
           "parent": null,
           "decorators": [],
           "public": true
@@ -24785,8 +25687,8 @@
           "name": "test_powershell_and_shell_extract_only_explicit_functions_and_sources",
           "qualified_name": "test_powershell_and_shell_extract_only_explicit_functions_and_sources",
           "kind": "function",
-          "line_start": 95,
-          "line_end": 107,
+          "line_start": 96,
+          "line_end": 108,
           "parent": null,
           "decorators": [],
           "public": true
@@ -24795,8 +25697,8 @@
           "name": "test_json_config_omits_secret_keys_values_and_keeps_safe_metadata",
           "qualified_name": "test_json_config_omits_secret_keys_values_and_keeps_safe_metadata",
           "kind": "function",
-          "line_start": 110,
-          "line_end": 133,
+          "line_start": 111,
+          "line_end": 134,
           "parent": null,
           "decorators": [],
           "public": true
@@ -24805,8 +25707,8 @@
           "name": "test_build_manifest_is_deterministic_and_validates_hashes_and_exclusions",
           "qualified_name": "test_build_manifest_is_deterministic_and_validates_hashes_and_exclusions",
           "kind": "function",
-          "line_start": 136,
-          "line_end": 150,
+          "line_start": 137,
+          "line_end": 151,
           "parent": null,
           "decorators": [],
           "public": true
@@ -24815,8 +25717,8 @@
           "name": "test_relation_graph_resolves_cycles_and_marks_missing_targets",
           "qualified_name": "test_relation_graph_resolves_cycles_and_marks_missing_targets",
           "kind": "function",
-          "line_start": 153,
-          "line_end": 162,
+          "line_start": 154,
+          "line_end": 163,
           "parent": null,
           "decorators": [],
           "public": true
@@ -24825,8 +25727,8 @@
           "name": "test_relation_graph_links_document_trace_and_local_link_metadata",
           "qualified_name": "test_relation_graph_links_document_trace_and_local_link_metadata",
           "kind": "function",
-          "line_start": 165,
-          "line_end": 180,
+          "line_start": 166,
+          "line_end": 181,
           "parent": null,
           "decorators": [],
           "public": true
@@ -24835,8 +25737,8 @@
           "name": "test_rename_preserves_code_id_and_ambiguous_hash_is_not_silently_selected",
           "qualified_name": "test_rename_preserves_code_id_and_ambiguous_hash_is_not_silently_selected",
           "kind": "function",
-          "line_start": 183,
-          "line_end": 206,
+          "line_start": 184,
+          "line_end": 207,
           "parent": null,
           "decorators": [],
           "public": true
@@ -24845,8 +25747,28 @@
           "name": "test_code_delta_distinguishes_comment_only_and_structure_changes",
           "qualified_name": "test_code_delta_distinguishes_comment_only_and_structure_changes",
           "kind": "function",
-          "line_start": 209,
-          "line_end": 219,
+          "line_start": 210,
+          "line_end": 220,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_code_delta_handles_added_deleted_unique_rename_and_ambiguous_hash",
+          "qualified_name": "test_code_delta_handles_added_deleted_unique_rename_and_ambiguous_hash",
+          "kind": "function",
+          "line_start": 223,
+          "line_end": 251,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_relation_graph_cli_writes_graph_and_redacts_invalid_input",
+          "qualified_name": "test_relation_graph_cli_writes_graph_and_redacts_invalid_input",
+          "kind": "function",
+          "line_start": 254,
+          "line_end": 277,
           "parent": null,
           "decorators": [],
           "public": true
@@ -24919,11 +25841,19 @@
         },
         {
           "kind": "from_import",
+          "module": "scripts.context_index.build_relation_graph",
+          "name": "main",
+          "alias": "relation_graph_main",
+          "level": 0,
+          "line": 13
+        },
+        {
+          "kind": "from_import",
           "module": "scripts.context_index.detect_code_delta",
           "name": "detect_code_delta",
           "alias": null,
           "level": 0,
-          "line": 13
+          "line": 14
         }
       ],
       "exports": [],
@@ -24931,10 +25861,12 @@
         "policy",
         "test_build_manifest_is_deterministic_and_validates_hashes_and_exclusions",
         "test_code_delta_distinguishes_comment_only_and_structure_changes",
+        "test_code_delta_handles_added_deleted_unique_rename_and_ambiguous_hash",
         "test_json_config_omits_secret_keys_values_and_keeps_safe_metadata",
         "test_powershell_and_shell_extract_only_explicit_functions_and_sources",
         "test_python_ast_extracts_nested_symbols_imports_decorators_and_ranges",
         "test_python_syntax_error_is_partial_without_source_excerpt",
+        "test_relation_graph_cli_writes_graph_and_redacts_invalid_input",
         "test_relation_graph_links_document_trace_and_local_link_metadata",
         "test_relation_graph_resolves_cycles_and_marks_missing_targets",
         "test_rename_preserves_code_id_and_ambiguous_hash_is_not_silently_selected",
@@ -24943,8 +25875,8 @@
       ],
       "config": {},
       "diagnostics": [],
-      "line_count": 219,
-      "byte_size": 10431
+      "line_count": 277,
+      "byte_size": 12815
     },
     {
       "code_id": "code-b6791cf7-be73-5306-8626-2fced6a4184e",
@@ -25812,6 +26744,426 @@
       ],
       "line_count": 509,
       "byte_size": 18517
+    },
+    {
+      "code_id": "code-8af0d678-7e5b-551e-9b67-e27b1d7bf17a",
+      "kind": "managed_source",
+      "status": "active",
+      "relative_path": "tests/context_index/test_context_router_mcp.py",
+      "source_hash": "1121b7471aa7d603402b06b61851a5da08a8a94f0f2b2bbdacc786cf31d1dcc3",
+      "schema_version": "ctxmap-code-manifest-v0.1",
+      "generator_version": "ctxmap-code-indexer-v0.1",
+      "language": "python",
+      "parser": "python-ast-v0.1",
+      "extraction_status": "PARTIAL",
+      "symbols": [
+        {
+          "name": "write_file",
+          "qualified_name": "write_file",
+          "kind": "function",
+          "line_start": 16,
+          "line_end": 19,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "record_hash",
+          "qualified_name": "record_hash",
+          "kind": "function",
+          "line_start": 22,
+          "line_end": 23,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "policy",
+          "qualified_name": "policy",
+          "kind": "function",
+          "line_start": 27,
+          "line_end": 44,
+          "parent": null,
+          "decorators": [
+            "dynamic"
+          ],
+          "public": true
+        },
+        {
+          "name": "manifests",
+          "qualified_name": "manifests",
+          "kind": "function",
+          "line_start": 48,
+          "line_end": 126,
+          "parent": null,
+          "decorators": [
+            "dynamic"
+          ],
+          "public": true
+        },
+        {
+          "name": "test_router_uses_manifest_only_and_limits_primary_and_supporting",
+          "qualified_name": "test_router_uses_manifest_only_and_limits_primary_and_supporting",
+          "kind": "function",
+          "line_start": 129,
+          "line_end": 153,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_router_fails_closed_for_unverified_or_oversized_snapshot_request",
+          "qualified_name": "test_router_fails_closed_for_unverified_or_oversized_snapshot_request",
+          "kind": "function",
+          "line_start": 156,
+          "line_end": 172,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_mcp_search_is_manifest_only_and_enforces_limits",
+          "qualified_name": "test_mcp_search_is_manifest_only_and_enforces_limits",
+          "kind": "function",
+          "line_start": 175,
+          "line_end": 189,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_mcp_get_artifact_reads_only_registered_safe_range_and_rejects_injection",
+          "qualified_name": "test_mcp_get_artifact_reads_only_registered_safe_range_and_rejects_injection",
+          "kind": "function",
+          "line_start": 192,
+          "line_end": 234,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_mcp_get_code_slice_requires_registered_symbol_and_safe_bounds",
+          "qualified_name": "test_mcp_get_code_slice_requires_registered_symbol_and_safe_bounds",
+          "kind": "function",
+          "line_start": 237,
+          "line_end": 251,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_mcp_rejects_unknown_ids_external_paths_secrets_and_bad_graph_queries",
+          "qualified_name": "test_mcp_rejects_unknown_ids_external_paths_secrets_and_bad_graph_queries",
+          "kind": "function",
+          "line_start": 254,
+          "line_end": 327,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_mcp_dispatch_is_json_safe_and_does_not_expose_server_transport",
+          "qualified_name": "test_mcp_dispatch_is_json_safe_and_does_not_expose_server_transport",
+          "kind": "function",
+          "line_start": 330,
+          "line_end": 358,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_repository_routing_fixtures_keep_expected_primary_sets",
+          "qualified_name": "test_repository_routing_fixtures_keep_expected_primary_sets",
+          "kind": "function",
+          "line_start": 361,
+          "line_end": 370,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_context_cli_dispatches_all_bounded_commands_without_network",
+          "qualified_name": "test_context_cli_dispatches_all_bounded_commands_without_network",
+          "kind": "function",
+          "line_start": 373,
+          "line_end": 425,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "FakeServer",
+          "qualified_name": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer",
+          "kind": "class",
+          "line_start": 376,
+          "line_end": 396,
+          "parent": "test_context_cli_dispatches_all_bounded_commands_without_network",
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "from_paths",
+          "qualified_name": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.from_paths",
+          "kind": "method",
+          "line_start": 378,
+          "line_end": 379,
+          "parent": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer",
+          "decorators": [
+            "classmethod"
+          ],
+          "public": true
+        },
+        {
+          "name": "search_context",
+          "qualified_name": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.search_context",
+          "kind": "method",
+          "line_start": 381,
+          "line_end": 382,
+          "parent": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer",
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "get_artifact",
+          "qualified_name": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.get_artifact",
+          "kind": "method",
+          "line_start": 384,
+          "line_end": 387,
+          "parent": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer",
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "get_code_slice",
+          "qualified_name": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.get_code_slice",
+          "kind": "method",
+          "line_start": 389,
+          "line_end": 390,
+          "parent": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer",
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "get_related",
+          "qualified_name": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.get_related",
+          "kind": "method",
+          "line_start": 392,
+          "line_end": 393,
+          "parent": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer",
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "serve_stdio",
+          "qualified_name": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.serve_stdio",
+          "kind": "method",
+          "line_start": 395,
+          "line_end": 396,
+          "parent": "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer",
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "test_mcp_main_and_stdio_redact_malformed_requests",
+          "qualified_name": "test_mcp_main_and_stdio_redact_malformed_requests",
+          "kind": "method",
+          "line_start": 428,
+          "line_end": 449,
+          "parent": null,
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "FakeServer",
+          "qualified_name": "test_mcp_main_and_stdio_redact_malformed_requests.FakeServer",
+          "kind": "class",
+          "line_start": 429,
+          "line_end": 435,
+          "parent": "test_mcp_main_and_stdio_redact_malformed_requests",
+          "decorators": [],
+          "public": true
+        },
+        {
+          "name": "from_paths",
+          "qualified_name": "test_mcp_main_and_stdio_redact_malformed_requests.FakeServer.from_paths",
+          "kind": "method",
+          "line_start": 431,
+          "line_end": 432,
+          "parent": "test_mcp_main_and_stdio_redact_malformed_requests.FakeServer",
+          "decorators": [
+            "classmethod"
+          ],
+          "public": true
+        },
+        {
+          "name": "serve_stdio",
+          "qualified_name": "test_mcp_main_and_stdio_redact_malformed_requests.FakeServer.serve_stdio",
+          "kind": "method",
+          "line_start": 434,
+          "line_end": 435,
+          "parent": "test_mcp_main_and_stdio_redact_malformed_requests.FakeServer",
+          "decorators": [],
+          "public": true
+        }
+      ],
+      "imports": [
+        {
+          "kind": "from_import",
+          "module": "__future__",
+          "name": "annotations",
+          "alias": null,
+          "level": 0,
+          "line": 1
+        },
+        {
+          "kind": "import",
+          "module": "hashlib",
+          "name": "hashlib",
+          "alias": null,
+          "level": 0,
+          "line": 3
+        },
+        {
+          "kind": "import",
+          "module": "io",
+          "name": "io",
+          "alias": null,
+          "level": 0,
+          "line": 4
+        },
+        {
+          "kind": "import",
+          "module": "json",
+          "name": "json",
+          "alias": null,
+          "level": 0,
+          "line": 5
+        },
+        {
+          "kind": "from_import",
+          "module": "pathlib",
+          "name": "Path",
+          "alias": null,
+          "level": 0,
+          "line": 6
+        },
+        {
+          "kind": "from_import",
+          "module": "typing",
+          "name": "Any",
+          "alias": null,
+          "level": 0,
+          "line": 7
+        },
+        {
+          "kind": "import",
+          "module": "pytest",
+          "name": "pytest",
+          "alias": null,
+          "level": 0,
+          "line": 9
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index",
+          "name": "context_cli",
+          "alias": null,
+          "level": 0,
+          "line": 10
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index",
+          "name": "context_mcp_server",
+          "alias": null,
+          "level": 0,
+          "line": 10
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.common",
+          "name": "ContextIndexError",
+          "alias": null,
+          "level": 0,
+          "line": 11
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.context_mcp_server",
+          "name": "ContextMcpServer",
+          "alias": null,
+          "level": 0,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.context_mcp_server",
+          "name": "McpRejected",
+          "alias": null,
+          "level": 0,
+          "line": 12
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.context_router",
+          "name": "RouterRejected",
+          "alias": null,
+          "level": 0,
+          "line": 13
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.context_router",
+          "name": "load_router_snapshot",
+          "alias": null,
+          "level": 0,
+          "line": 13
+        },
+        {
+          "kind": "from_import",
+          "module": "scripts.context_index.context_router",
+          "name": "route_request",
+          "alias": null,
+          "level": 0,
+          "line": 13
+        }
+      ],
+      "exports": [],
+      "public_candidates": [
+        "manifests",
+        "policy",
+        "record_hash",
+        "test_context_cli_dispatches_all_bounded_commands_without_network",
+        "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer",
+        "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.from_paths",
+        "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.get_artifact",
+        "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.get_code_slice",
+        "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.get_related",
+        "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.search_context",
+        "test_context_cli_dispatches_all_bounded_commands_without_network.FakeServer.serve_stdio",
+        "test_mcp_dispatch_is_json_safe_and_does_not_expose_server_transport",
+        "test_mcp_get_artifact_reads_only_registered_safe_range_and_rejects_injection",
+        "test_mcp_get_code_slice_requires_registered_symbol_and_safe_bounds",
+        "test_mcp_main_and_stdio_redact_malformed_requests",
+        "test_mcp_main_and_stdio_redact_malformed_requests.FakeServer",
+        "test_mcp_main_and_stdio_redact_malformed_requests.FakeServer.from_paths",
+        "test_mcp_main_and_stdio_redact_malformed_requests.FakeServer.serve_stdio",
+        "test_mcp_rejects_unknown_ids_external_paths_secrets_and_bad_graph_queries",
+        "test_mcp_search_is_manifest_only_and_enforces_limits",
+        "test_repository_routing_fixtures_keep_expected_primary_sets",
+        "test_router_fails_closed_for_unverified_or_oversized_snapshot_request",
+        "test_router_uses_manifest_only_and_limits_primary_and_supporting",
+        "write_file"
+      ],
+      "config": {},
+      "diagnostics": [
+        {
+          "code": "SECRET_LIKE_CONTENT_OMITTED",
+          "message": "secret-like source content was not retained"
+        }
+      ],
+      "line_count": 449,
+      "byte_size": 19202
     },
     {
       "code_id": "code-8e81a6ad-9bf9-5304-a488-8e26f4c44730",
@@ -32872,7 +34224,7 @@
   ],
   "diagnostics": [],
   "coverage": {
-    "discovered": 243,
-    "registered": 243
+    "discovered": 248,
+    "registered": 248
   }
 }

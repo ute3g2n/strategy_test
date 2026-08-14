@@ -1,0 +1,162 @@
+{
+  "schema_version": "ctxmap.dispatch-receipt.v0.1",
+  "plan_id": "CTXMAP-PLAN-001",
+  "step_id": "CTX-06",
+  "recorded_at_utc": "2026-08-14T10:33:06Z",
+  "baseline_head": "4a8141dd41286ea6818b49c39d9a9901c8919fae",
+  "human_gate": {
+    "id": "CTXMAP-H0",
+    "status": "APPROVED",
+    "approval_text": "承認する。続けて",
+    "approved_at": "2026-08-14",
+    "scope_note": "CTX-04からCTX-09までのローカル実装・検証を許可する。CTXMAP-H1承認前の常駐watcher、保存時自動A07呼出し、外部I/O、Secret処理は許可しない。"
+  },
+  "runtime_backend": "multi_agent_v1",
+  "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED__ROOT_DIRECT_ATTEMPTS",
+  "skills": [
+    "autotrade_skill_context_routing_v0_1",
+    "autotrade_skill_context_manifest_maintenance_v0_1",
+    "autotrade_skill_python_implementation_v0_1",
+    "autotrade_skill_python_test_quality_v0_1",
+    "autotrade_skill_python_code_review_v0_1"
+  ],
+  "orchestrators": [
+    {
+      "agent_name": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+      "json_path": ".codex/orchestrators/AutoTradeComponentLifecycle_Orchestrator_v0_1.json",
+      "model": "gpt-5.6-terra",
+      "agent_id": "019fffc6-2154-7262-b026-e3b93e13bbb5",
+      "accepted_status": "accepted",
+      "completion_status": "completed_handoff_only",
+      "output_reference": "A08 contract, A07 fallback, manifest-only input, and stdio/path/Secret boundary checklist",
+      "independent": false,
+      "review_mode": "COORDINATOR_HANDOFF_ONLY"
+    },
+    {
+      "agent_name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "json_path": ".codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json",
+      "model": "gpt-5.6-terra",
+      "agent_id": "019fffc6-21fa-7ff3-8ee3-ecd9eb4eb161",
+      "accepted_status": "accepted",
+      "completion_status": "completed_handoff_only",
+      "output_reference": "RED/GREEN, security negative cases, fixture regression, and fixed-Gate limitation checklist",
+      "independent": false,
+      "review_mode": "COORDINATOR_HANDOFF_ONLY"
+    }
+  ],
+  "agents": [
+    {
+      "agent_name": "AutoTrade_A08_ContextRouter_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A08_ContextRouter_v0_1.json",
+      "model": "gpt-5.1",
+      "agent_id": "N/A",
+      "accepted_status": "NOT_ACCEPTED",
+      "completion_status": "NOT_STARTED",
+      "output_reference": "spawn rejected: Unknown model gpt-5.1; no alternate model substituted",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A07_ContextManifestMaintainer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A07_ContextManifestMaintainer_v0_1.json",
+      "model": "gpt-5.1",
+      "agent_id": "N/A",
+      "accepted_status": "NOT_ACCEPTED",
+      "completion_status": "NOT_STARTED",
+      "output_reference": "spawn rejected: Unknown model gpt-5.1; no alternate model substituted",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A120_PythonImplementer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A120_PythonImplementer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "019fffc7-43b0-7c81-98da-8d16f042defb",
+      "accepted_status": "accepted",
+      "completion_status": "completed_handoff_only",
+      "output_reference": "minimal implementation boundary, no-dependency, fail-closed, and TDD checklist",
+      "independent": false,
+      "review_mode": "HANDOFF_ONLY"
+    },
+    {
+      "agent_name": "AutoTrade_A110_PythonTestEngineer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A110_PythonTestEngineer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "019fffc7-445e-7f22-9448-f218fb6e7dce",
+      "accepted_status": "accepted",
+      "completion_status": "completed_checklist_only",
+      "output_reference": "CTX-06 44-case test matrix including security, stdio, range, stale hash, and fixture regression",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A130_VerificationEngineer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A130_VerificationEngineer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "019fffc8-6419-70c0-a763-84bcc6194639",
+      "accepted_status": "accepted",
+      "completion_status": "completed_checklist_only",
+      "output_reference": "local quality, manifest validation, evidence scope, and trusted-scope limitation checklist",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A150_PythonCodeReviewer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A150_PythonCodeReviewer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "019fffc8-64c4-7e12-9b70-ecda1bf56080",
+      "accepted_status": "accepted",
+      "completion_status": "completed_findings_checklist_only",
+      "output_reference": "findings-first path traversal, Secret, prompt injection, stale hash, stdio, and test-gap checklist",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    }
+  ],
+  "runtime_limitations": [
+    "A08 and A07 fixed model gpt-5.1 were unavailable; both spawn attempts returned Unknown model and were recorded as agent_id=N/A without a silent alternate.",
+    "The Orchestrators and individual Agents returned handoff/checklists only. No independent nested dispatch or independent A150 review is claimed.",
+    "The initial A130/A150 spawn attempt hit the agent thread limit; both were individually spawned and waited after capacity was released.",
+    "CTX-06 has no registered trusted scope in scripts/quality_gate/trusted_scopes.json; WSL fixed four-Gate execution was intentionally not run."
+  ],
+  "verification": {
+    "red_evidence": "plan/context_index/CTX-06_RED_evidence.md",
+    "green_evidence": "plan/context_index/CTX-06_GREEN_evidence.md",
+    "pytest": "PASS: 56 passed",
+    "coverage": "PASS: 80.28%; fail-under 80%",
+    "ruff": "PASS",
+    "mypy": "PASS: 13 source files",
+    "compileall": "PASS",
+    "context_json": "PASS",
+    "document_manifest_validation": "PASS: 421 active artifacts, errors=0",
+    "code_manifest_validation": "PASS: 248 artifacts, COMPLETE=214, PARTIAL=34, errors=0",
+    "relation_graph": "PASS: PARTIAL, 3202 nodes, 6824 edges",
+    "routing_fixtures": "PASS: 10 cases, allowed primary sets matched",
+    "stdio_smoke": "PASS: JSONL dispatch, no HTTP listener",
+    "security_negative_tests": "PASS: traversal, external path, Secret, prompt injection, stale hash, invalid UTF-8, bounds, unknown IDs",
+    "trusted_scope_fixed_four_gate": "NOT_RUN__TRUSTED_SCOPE_UNREGISTERED",
+    "independent_runtime_closed_loop": "FALLBACK_REQUIRED",
+    "critical_high_unknown_pass": "NOT_CLAIMED"
+  },
+  "component_hashes": {
+    "context_policy_sha256": "8500b911e15abd713cfb84b019c1864033c8a6a3432cce7a1e3a946be84685e8",
+    "artifact_manifest_sha256": "e635d9ba471252cdff56217a4ba9f3f3a2eb51aadf73d25f4a232c53fc73aaa6",
+    "manifest_state_sha256": "bc26feb71dfa4a356bb3e96a956b17238ae585050a1535bd5ab1444db19d172f",
+    "code_manifest_sha256": "19388cfda9f40c43af268b3f5b769c5ddc9b7348d5d21f8a9e92e000d904758b",
+    "relation_graph_sha256": "e421f670e0d4e4c12bd62694030d2ea18f707ac4b975b02a7c2f27d760418692",
+    "routing_fixtures_sha256": "8603630a836be85eb6ebd5e372bf95dbde03539701d6c74569902683477803c7",
+    "context_router_sha256": "5c2440b5a1b8dfedd74ba2b9428a61dd750d99771c00c1eb1772008eba3a5c80",
+    "context_mcp_server_sha256": "e6dba7bf743e281978dd886fa9d21b9670d8cbd4cf653bc0cb2490c50a270d27",
+    "context_cli_sha256": "736aa1266a95c2f36843dde6f0f0b8b5c88108ac1e8d46bca45ade9758976ec8",
+    "red_evidence_sha256": "1d1796fa09a746ea83fb8571840df846ef221a410ad6183b96d7923bd602c400",
+    "green_evidence_sha256": "5c009fc57b5fa2092bf404a790b3a3d7f5a5955ae8d7027566f6076348c22873"
+  },
+  "snapshot": {
+    "manifest_snapshot_hash": "0ac349618cff5e7a7b2713ad62ad618564d9dfb7a1213a8711aec19896882d0a",
+    "artifact_count": 421,
+    "code_count": 248,
+    "relation_node_count": 3202,
+    "relation_edge_count": 6824
+  },
+  "acceptance_status": "CONDITIONAL__LOCAL_GREEN_MANIFEST_VALID_PARTIAL_CODE_ANALYSIS_A07_A08_RUNTIME_BLOCKED_TRUSTED_GATE_NOT_RUN",
+  "next_gate": "CTX-07"
+}
