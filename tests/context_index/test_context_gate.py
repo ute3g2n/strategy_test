@@ -170,6 +170,53 @@ def test_new_document_requires_a07_response_and_updates_only_explicit_outputs(
     assert not any("safe_excerpt" in item for item in report.get("receipts", []))
 
 
+def test_gate_batches_multiple_major_document_changes_before_final_validation(
+    tmp_path: Path, policy: dict[str, object]
+) -> None:
+    write_file(tmp_path, "docs/first.md", "# First\nold first\n")
+    write_file(tmp_path, "docs/second.md", "# Second\nold second\n")
+    paths = prepare_index(tmp_path, policy)
+    before = json.loads(paths["manifest"].read_text(encoding="utf-8"))
+
+    write_file(tmp_path, "docs/first.md", "# First revised\n" + ("first body " * 40) + "\n")
+    write_file(tmp_path, "docs/second.md", "# Second revised\n" + ("second body " * 40) + "\n")
+
+    responses: dict[str, dict[str, Any]] = {}
+    for relative_path in ("docs/first.md", "docs/second.md"):
+        source_hash = hashlib.sha256(
+            (tmp_path / relative_path).read_bytes()
+        ).hexdigest()
+        existing = next(
+            item for item in before["artifacts"] if item["relative_path"] == relative_path
+        )
+        responses[relative_path] = decision_for(
+            relative_path, source_hash, existing, "record_update"
+        )
+    response_path = tmp_path / "a07-batch.json"
+    write_json(response_path, {"responses": responses})
+
+    assert (
+        gate_main(
+            gate_args(
+                paths,
+                "docs/first.md",
+                "--changed",
+                "docs/second.md",
+                "--a07-responses",
+                "a07-batch.json",
+            )
+        )
+        == 0
+    )
+    report = json.loads(paths["report"].read_text(encoding="utf-8"))
+    assert report["status"] == "PASS"
+    assert report["reason_code"] == "GATE_PASS"
+    assert {item["path"] for item in report["document_actions"]} == {
+        "docs/first.md",
+        "docs/second.md",
+    }
+
+
 def test_gate_rejects_a07_response_with_incomplete_strict_receipt(
     tmp_path: Path, policy: dict[str, object]
 ) -> None:
