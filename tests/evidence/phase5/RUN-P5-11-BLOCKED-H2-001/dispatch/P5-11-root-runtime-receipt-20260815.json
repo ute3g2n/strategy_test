@@ -1,0 +1,55 @@
+{
+  "schema_version": "runtime-dispatch-receipt-v1",
+  "phase_id": "PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12",
+  "step_id": "P5-11",
+  "plan_id": "P5-PLAN-001",
+  "run_id": "RUN-P5-11-BLOCKED-H2-001",
+  "recorded_at": "2026-08-15T19:54:51+09:00",
+  "decision": "P5-11_BLOCKED_P5_H2_NOT_APPROVED",
+  "runtime": {
+    "availability_checked": [
+      "multi_agent_v1__spawn_agent",
+      "multi_agent_v1__wait_agent"
+    ],
+    "availability_result": "AVAILABLE_FOR_ROOT_ORCHESTRATOR_ONLY",
+    "dispatch_state": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "fallback_state": "LOCAL_FALLBACK_NO_SUBAGENTS",
+    "reason": "The root runtime exposed and used the required spawn/wait tools for the Coordinator. The Coordinator reported that child dispatch was unavailable. No substitute Orchestrator, model, or Agent was used."
+  },
+  "orchestrator": {
+    "name": "AutoTradeProject_DesignDocSet_Orchestrator_v0_1",
+    "json_path": "C:/project/strategy_test/.codex/orchestrators/AutoTradeProject_DesignDocSet_Orchestrator_v0_1.json",
+    "model": "gpt-5.6-terra",
+    "agent_id": "01a00509-fa5e-7703-9d93-b2c18b77b59b",
+    "spawn_status": "COMPLETED",
+    "wait_status": "COMPLETED",
+    "output_ref": "tests/evidence/phase5/RUN-P5-11-BLOCKED-H2-001/dispatch/P5-11-child-runtime-receipt-20260815.json",
+    "fallback_reason": "Coordinator child dispatch unavailable; see child receipt for every unstarted Agent.",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK"
+  },
+  "preflight": {
+    "p5_h2": "NOT_APPROVED_HUMAN_GATE_REQUIRED",
+    "p5_10": "INTEGRATED_REVIEW_COMPLETE_WITH_OPEN_UNKNOWN",
+    "open_unknowns": [
+      "provider_terms_unknown",
+      "p5_08_host_isolation_not_verified",
+      "child_agents_not_started",
+      "execution_cost_not_measured"
+    ],
+    "critical_findings": 0,
+    "high_findings": 0,
+    "completion_html_created": false,
+    "p6_input_created": false,
+    "completion_declared": false
+  },
+  "side_effects": {
+    "external_io": false,
+    "secret_access": false,
+    "additional_data_acquisition": false,
+    "provider_change": false,
+    "symbol_expansion": false,
+    "broker_paper_live_real_funds": false,
+    "core_p4_db_cloud_change": false
+  }
+}
