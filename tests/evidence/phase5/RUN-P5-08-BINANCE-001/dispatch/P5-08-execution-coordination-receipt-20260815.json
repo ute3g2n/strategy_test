@@ -1,0 +1,112 @@
+{
+  "schema_version": "runtime-dispatch-receipt-v1",
+  "phase_id": "PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12",
+  "step_id": "P5-08",
+  "run_id": "RUN-P5-08-BINANCE-001",
+  "recorded_at": "2026-08-15T17:32:01+09:00",
+  "decision": "P5-08_EXECUTION_COORDINATION_RECORDED_NO_EXTERNAL_IO",
+  "runtime": {
+    "availability_checked": [
+      "multi_agent_v1__spawn_agent",
+      "multi_agent_v1__wait_agent"
+    ],
+    "dispatch_state": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "fallback_state": "LOCAL_FALLBACK_NO_SUBAGENTS",
+    "reason": "The required multi_agent_v1 spawn/wait tools are not available in this runtime session."
+  },
+  "operator_waiver": {
+    "status": "RECORDED",
+    "scope": "RUN-P5-08-BINANCE-001 only",
+    "waived_start_preconditions": [
+      "Provider terms precondition",
+      "Pre/post host-isolation communication-evidence precondition"
+    ],
+    "facts_not_reclassified": {
+      "provider_terms_status": "UNKNOWN",
+      "host_isolation_status": "NOT_VERIFIED"
+    },
+    "evidence_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/operator-waiver-20260815.md"
+  },
+  "coordinator": {
+    "orchestrator_name": "AutoTradeProject_Orchestrator_v0_1",
+    "orchestrator_json_path": "C:/project/strategy_test/.codex/orchestrators/AutoTradeProject_Orchestrator_v0_1.json",
+    "orchestrator_model": "gpt-5.6-terra",
+    "orchestrator_agent_id": "N/A",
+    "spawn_status": "UNAVAILABLE",
+    "wait_status": "UNAVAILABLE",
+    "output_ref": null,
+    "fallback_reason": "multi_agent_v1__spawn_agent and multi_agent_v1__wait_agent are unavailable in this runtime session.",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK"
+  },
+  "fixed_name_policy": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1 is a fixed Agent proper name. Do not create, calculate, compare, store, or retry a management hash because of this name.",
+  "children": [
+    {
+      "agent_name": "AutoTrade_A10_RequirementsCurator_v0_1",
+      "agent_json_path": "C:/project/strategy_test/.codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json",
+      "agent_model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "UNAVAILABLE",
+      "wait_status": "UNAVAILABLE",
+      "output_ref": null,
+      "fallback_reason": "Coordinator child dispatch is unavailable because multi_agent_v1 spawn/wait tools are unavailable.",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A50_AdapterArchitect_v0_1",
+      "agent_json_path": "C:/project/strategy_test/.codex/agents/AutoTrade_A50_AdapterArchitect_v0_1.json",
+      "agent_model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "UNAVAILABLE",
+      "wait_status": "UNAVAILABLE",
+      "output_ref": null,
+      "fallback_reason": "Coordinator child dispatch is unavailable because multi_agent_v1 spawn/wait tools are unavailable.",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A70_OpsSecurityArchitect_v0_1",
+      "agent_json_path": "C:/project/strategy_test/.codex/agents/AutoTrade_A70_OpsSecurityArchitect_v0_1.json",
+      "agent_model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "UNAVAILABLE",
+      "wait_status": "UNAVAILABLE",
+      "output_ref": null,
+      "fallback_reason": "Coordinator child dispatch is unavailable because multi_agent_v1 spawn/wait tools are unavailable.",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A90_DesignReviewer_v0_1",
+      "agent_json_path": "C:/project/strategy_test/.codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json",
+      "agent_model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "UNAVAILABLE",
+      "wait_status": "UNAVAILABLE",
+      "output_ref": null,
+      "fallback_reason": "Coordinator child dispatch is unavailable because multi_agent_v1 spawn/wait tools are unavailable.",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1",
+      "agent_json_path": "C:/project/strategy_test/.codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json",
+      "agent_model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "UNAVAILABLE",
+      "wait_status": "UNAVAILABLE",
+      "output_ref": null,
+      "fallback_reason": "Coordinator child dispatch is unavailable because multi_agent_v1 spawn/wait tools are unavailable.",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    }
+  ],
+  "side_effects": {
+    "binance_external_io": false,
+    "provider_access": false,
+    "api_key_or_secret_read": false,
+    "data_acquired": false,
+    "provider_data_cost_usd": 0
+  }
+}
