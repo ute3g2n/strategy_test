@@ -1,0 +1,32 @@
+{
+  "schema_version": "p5-08-binance-host-isolation-check-v1",
+  "check_id": "P5-08-HOST-ISOLATION-CHECK-20260815-001",
+  "checked_at": "2026-08-15T08:19:14Z",
+  "status": "NOT_VERIFIED",
+  "scope": "P5-08 external Binance Data Vision run",
+  "external_io_performed": false,
+  "api_key_or_secret_read": false,
+  "method": "read-only Windows Firewall, network interface, and WSL state inspection",
+  "commands": [
+    "Get-NetFirewallProfile | Select Name,Enabled,DefaultInboundAction,DefaultOutboundAction",
+    "Get-NetIPConfiguration | Select InterfaceAlias,IPv4DefaultGateway,IPv6DefaultGateway,DnsServer",
+    "Get-NetFirewallRule -Direction Outbound -Enabled True -Action Block",
+    "Get-NetFirewallRule/Get-NetFirewallPortFilter/Get-NetFirewallAddressFilter/Get-NetFirewallApplicationFilter for the active outbound block rules",
+    "wsl -l -v"
+  ],
+  "observations": [
+    "Domain, Private, and Public firewall profiles were Enabled=True; DefaultOutboundAction was NotConfigured.",
+    "codex_sandbox_offline_block_outbound was Enabled=True, Direction=Outbound, Action=Block, Protocol=Any, LocalPort=Any, RemotePort=Any, Program=Any, and covered non-loopback IPv4/IPv6 ranges.",
+    "The active Wi-Fi interface had a default gateway; WSL distributions Ubuntu-24.04 and docker-desktop were Stopped.",
+    "No controlled execution namespace with a data.binance.vision:443 allow-only rule and pre/post execution evidence was established.",
+    "No network probe or Binance request was sent during this check."
+  ],
+  "decision": "Keep host-isolation.json status NOT_VERIFIED. The current all-outbound block is not equivalent to the required provider-only allowlist and cannot authorize --mode execute.",
+  "does_not_prove": [
+    "provider terms",
+    "data availability",
+    "source-data completeness",
+    "Normalized quality",
+    "P5-08 PASS"
+  ]
+}

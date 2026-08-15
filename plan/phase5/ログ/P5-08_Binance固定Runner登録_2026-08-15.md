@@ -41,6 +41,20 @@
 - `normalization_status=NOT_EXECUTED`
 - `quality_status=NOT_EXECUTED`
 
+## 実行前確認（2026-08-15）
+
+登録後、私が外部通信なしで次の確認を実施した。
+
+- Binance公式README／Spot API FAQ／Product Terms noticeを確認した。公開Data、API key不要、Klineのmicrosecond timestamp、`.CHECKSUM`、archive更新可能性は確認できた。
+- ただし、READMEのMIT表記を市場Dataそのものの再配布許諾へ拡張できる明示根拠はなく、取得Dataの保持・再配布条件は`UNKNOWN`のままとした。
+- Windows Firewall／network／WSL状態を読み取り専用で確認した。`codex_sandbox_offline_block_outbound` がAny protocol／Any port／Any programで非loopback outboundをBlockし、WSL distroはStoppedだった。
+- この状態は「Binanceだけ許可する隔離」ではなく、P5-08に必要なprovider-only allowlistのpre／post実行証拠でもない。ネットワークprobe、Binance request、API key／Secret readは0件。
+
+確認Evidence：
+
+- [Provider利用条件確認](../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/provider-terms-review-20260815.md)
+- [Host isolation確認](../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/host-isolation-check-20260815.json)
+
 このため「登録完了」と「P5-08実行可能」「P5-08 PASS」は分離する。UnknownをPass化していない。
 
 ## Runtime dispatch

@@ -42,9 +42,9 @@
   "approval_evidence": "tests/evidence/phase5/RUN-P5-DATA-G1-BINANCE-APPROVED-001/human-gate-p5-data-g1-binance-amendment.md",
   "provider_terms": {
     "status": "UNKNOWN",
-    "evidence_ref": null,
+    "evidence_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/provider-terms-review-20260815.md",
     "required_before_execute": true,
-    "note": "利用・保持・再配布条件の確認は登録後の実行前Gateで行う。UnknownをPass化しない。"
+    "note": "公開取得・API key不要・checksum手順は公式情報で確認したが、取得Dataの保持・再配布許諾は確定できない。UnknownをPass化しない。"
   },
   "cost_policy": {
     "provider_data_cost_usd": 0,

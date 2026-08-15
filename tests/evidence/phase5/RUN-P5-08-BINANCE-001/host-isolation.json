@@ -14,7 +14,10 @@
   "protected_integrity_policy": "Raw source-data hash is used only for reproducibility; document management hash is prohibited.",
   "verification_method": "capture pre/post host network policy and the run execution ID before enabling --mode execute",
   "evidence_required_before_execute": true,
-  "reason_not_verified": "登録時点では外部通信を行っていないため、OSレベルのhost isolationは未取得。",
+  "last_checked_at": "2026-08-15T08:19:14Z",
+  "verification_attempt_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/host-isolation-check-20260815.json",
+  "reason_not_verified": "読み取り専用のWindows確認を実施したが、現ホストは全外向き通信を拒否するsandbox firewall ruleが有効であり、data.binance.visionだけを許可する実行環境・pre/post証拠は取得できなかった。",
+  "verification_observation": "Windows Firewall profileは有効、DefaultOutboundActionはNotConfigured。codex_sandbox_offline_block_outboundはAny protocol／Any port／Any programで非loopbackのIPv4／IPv6宛てoutboundをBlock。WSL distroはStopped。",
   "does_not_prove": [
     "provider terms",
     "data completeness",

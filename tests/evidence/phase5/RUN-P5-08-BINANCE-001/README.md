@@ -19,6 +19,8 @@ Binance Data Vision の Spot Kline 1m を使うP5-08の固定登録ルートで�
 - `runner-registration.json`: 固定Runnerと固定command
 - `allowlist.json`: `data.binance.vision:443` のHTTPS許可先
 - `host-isolation.json`: 現時点は `NOT_VERIFIED`
+- `host-isolation-check-20260815.json`: 読み取り専用のWindows確認結果。全外向きBlockであり、Binance-only allowlistの証拠ではないため `NOT_VERIFIED`
+- `provider-terms-review-20260815.md`: Binance公式情報の確認結果。公開取得/API key不要/checksumは確認したが、Data保持・再配布許諾は `UNKNOWN`
 - `preflight/registration-preflight.json`: local dry-run結果
 
 ## 実行前に残るGate

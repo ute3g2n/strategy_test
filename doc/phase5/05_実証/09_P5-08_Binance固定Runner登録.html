@@ -52,8 +52,8 @@
 
   <h2>4. 残っているGate</h2>
   <table>
-    <tr><th>Host isolation</th><td><code>NOT_VERIFIED</code>。OSレベルの送信先制限と実行ID付きpre／post証拠が必要。</td></tr>
-    <tr><th>Provider terms</th><td><code>UNKNOWN</code>。利用・保持・再配布条件を確認するまでUnknownのまま停止。</td></tr>
+    <tr><th>Host isolation</th><td><code>NOT_VERIFIED</code>。2026-08-15に読み取り専用で確認した結果、現ホストは全外向き通信Blockであり、<code>data.binance.vision:443</code>だけを許可する実行環境・pre／post証拠ではなかった。<a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/host-isolation-check-20260815.json">確認Evidence</a></td></tr>
+    <tr><th>Provider terms</th><td><code>UNKNOWN</code>。公式情報で公開取得、API key不要、checksum手順は確認したが、取得Dataの保持・再配布許諾は確定できなかった。<a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/provider-terms-review-20260815.md">確認記録</a></td></tr>
     <tr><th>実Data Evidence</th><td>Raw ZIP、<code>.CHECKSUM</code>、展開CSV、Normalized、Quality、Calendar、Cost／Gap、Holdoutは未取得・未判定。</td></tr>
     <tr><th>レビュー</th><td>Coordinator配下の子Agentは起動不能fallbackであり、独立レビュー済みとは扱わない。</td></tr>
   </table>
