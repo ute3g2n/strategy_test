@@ -15,7 +15,7 @@
 
 Phase 5は、P4で作成したProduct/ApplicationのData接続点を引き継ぎ、市場Dataを対象・契約・来歴・品質・Calendar・Cost／Slippage／Gap・長期期間・Holdout／Walk-forwardまで再現可能なEvidenceへ変換するPhaseである。計画作成時の初期5候補（MCL、M6A、MZC、MZS、MZW）は履歴として保持するが、2026-08-14の運用者指示により初期運用候補から外し、Binance Data VisionのCrypto暫定対象（BTCUSDT、ETHUSDT）へスコープを変更した。
 
-ただし、P4-H2はP5開始承認ではない。この計画を作成した時点では、外部Providerへの接続、費用発生、Secret参照、外部I/O、実Data取得、Broker／Paper／Live、実資金、Cloudを開始しない。P5-H0、P5-H1、P5-DATA-G1、P5-H2を分離し、承認範囲を越える発火を禁止する。2026-08-13の旧P5-DATA-G1（Databento範囲）は履歴として保持し、2026-08-14のProvider変更後はBinance用の新しいP5-DATA-G1 amendmentが必要である。費用事前見積り必須ルールは廃止済みだが、Runner・対象・利用条件・外部Run Evidence不足のためP5-08以降は停止中である。
+ただし、P4-H2はP5開始承認ではない。この計画を作成した時点では、外部Providerへの接続、費用発生、Secret参照、外部I/O、実Data取得、Broker／Paper／Live、実資金、Cloudを開始しない。P5-H0、P5-H1、P5-DATA-G1、P5-H2を分離し、承認範囲を越える発火を禁止する。2026-08-13の旧P5-DATA-G1（Databento範囲）は履歴として保持し、2026-08-14のProvider変更後はBinance用の新しいP5-DATA-G1 amendmentへ切り替えた。P5-08は固定RunnerでRaw／checksum／展開CSVを取得済み、P5-09はlocal quality evidenceを生成済み、P5-10は統合レビューまで完了している。一方、Provider利用条件、P5-08 host isolation、child Agent未起動、未測定execution costはOpenのため、P5-H2候補とP5-11は停止中である。費用事前見積り必須ルールは廃止済みである。
 
 ### 1.1 2026-08-14 Binance Data Visionスコープ改訂
 
@@ -127,8 +127,8 @@ Phase 5は、P4で作成したProduct/ApplicationのData接続点を引き継ぎ
 | P5-05 | 詳細設計レビュー、改訂、再レビュー、P5-H1候補 | P5-01〜04 | P5-H0 | 不可 | 統合レビューHTML、ログ |
 | P5-H1 | ローカル固定ダミー実装・品質の開始承認 | P5-05 | 人間承認 | 不可 | 承認記録 |
 | P5-06 | 固定local Data contract／QualityのRED→GREEN・品質Gate | P5-H1 | `PASS` | 不可 | 正式4 Gate、host isolation、fixture pre/postの保護hash一致、wrapper exit 0 |
-| P5-07 | 外部Data Gate準備、承認対象表、台帳同期 | P5-06 | 申請表完了・P5-DATA-G1待ち | 不可 | `P5-EXTERNAL-WORKER-UNKNOWN`を保持。外部I/OはP5-DATA-G1承認まで開始しない |
-| P5-DATA-G1 | Binance Data Vision Provider専用外部Data Gate amendment | P5-07 | 新しい人間承認 | `BINANCE_AMENDMENT_REQUIRED` | 旧Databento承認は履歴。`BTCUSDT`／`ETHUSDT`、Spot、1m、UTC、24/7、公開Data費用0、API key／Secret非使用、固定Runner／request／allowlistを新Gateで固定 |
+| P5-07 | 外部Data Gate準備、承認対象表、台帳同期 | P5-06 | 完了（旧Databento範囲を履歴化、Binance amendmentへ切替） | 不可 | `P5-EXTERNAL-WORKER-UNKNOWN`を保持。現行の外部取得はBinance amendmentの承認範囲でのみ実施 |
+| P5-DATA-G1 | Binance Data Vision Provider専用外部Data Gate amendment | P5-07 | `APPROVED`（Binance amendment） | `BINANCE_AMENDMENT_APPROVED` | 旧Databento承認は履歴。`BTCUSDT`／`ETHUSDT`、Spot、1m、UTC、24/7、公開Data費用0、API key／Secret非使用、固定Runner／request／allowlistを固定。Provider利用条件とhost isolationは事実としてUnknown／Not verifiedのまま |
 | P5-08 | Binance暫定対象の限定Data取得・Raw／Normalized Evidence | Binance用P5-DATA-G1 amendment、運用者waiver | `RAW_AND_EXPANDED_CSV_ACQUIRED` | 実施済み（36件） | `RUN-P5-08-BINANCE-001`に月次Spot Kline 1m ZIP、`.CHECKSUM`、展開CSVを保存。Provider条件とhost isolation通信証拠はこのRunの開始前提から除外したが、事実はUNKNOWN／NOT_VERIFIEDのまま。Normalized／QualityはP5-09で実施 |
 | P5-09 | Crypto Spot Quality／Calendar適用／Cost／Gap／期間分割／Holdout実証 | P5-08 Binance Raw Evidence | `QUALITY_EVIDENCE_COMPLETE_WITH_OPEN_UNKNOWN` | 実施済み（local quality evidence） | `RUN-P5-09-BINANCE-001`で2銘柄各753,120本、gap／重複／補間0、UTC D1／H4／H1／M30／M15、Cost／Gap、Holdout分割を記録。Provider条件、P5-08 host isolation、child Agent未起動はUnknownとして未解消 |
 | P5-10 | Binance対象の統合・独立レビュー、Unknown再分類、P5-H2候補 | P5-08、P5-09 | `INTEGRATED_REVIEW_COMPLETE_WITH_OPEN_UNKNOWN` | 不可 | REQ/UC/Test/Evidenceを統合し、機械品質・Calendar・splitを再照合。Provider条件、P5-08 host isolation、child Agent未起動、未測定execution costをOpenとして保持し、P5-H2候補は不成立 |
@@ -534,5 +534,5 @@ Phase 5の完了判定は、Binance Data Visionの`BTCUSDT`／`ETHUSDT` Spot His
 | 2026-08-14 | v0.2 scope amendment | 運用者の決定を受領し、ProviderをBinance Data Visionへ変更、旧CME Micro futures 5件を初期運用候補から外し、BTCUSDT／ETHUSDTを暫定対象へ変更。旧Databento Gateを履歴化し、Binance用P5-DATA-G1 amendment、request、Runner、checksum／hash EvidenceをP5-08再開条件へ追加した。 |
 | 2026-08-15 | v0.3 execution-plan amendment | P5-08〜P5-11の実行条件をBinance Spot／BTCUSDT・ETHUSDT／1m月次ZIP／UTC／`CRYPTO_24_7_UTC`へ具体化。API key／Secret非使用、公開Data費用0、`.CHECKSUM`のデータ完全性検証、CryptoではDST／休場／限月／Rollを適用外とする品質判定、Binance専用Run ID／Evidence、P6引渡し範囲を明記した。各直接PromptへA95の固定model／Skill指定を追加し、管理用hashは受入条件から除外した。 |
   | 2026-08-15 | v0.4 P5-08 operator-waiver execution | 運用者決定により、`RUN-P5-08-BINANCE-001`の開始前提からProvider利用条件の事前確認と実行前後host-isolation通信証拠を除外した。事実はUNKNOWN／NOT_VERIFIEDのまま保持し、固定RunnerでBTCUSDT／ETHUSDTの18月分、Raw ZIP／`.CHECKSUM`／展開CSV 36件を取得した。Normalized／Quality／Calendar／Cost／Gap／HoldoutはP5-09へ残した。 |
-| 2026-08-15 | v0.5 P5-10 integrated review | P5-08/09のBinance Evidenceを統合し、REQ/UC/Test/Evidence、UTC Calendar、Cost/Gap、期間分割/Holdout、P6境界を再照合した。Provider条件、P5-08 host isolation、child dispatch、未測定execution costをOpenで保持し、P5-H2候補は作成しなかった。 |
-  | 2026-08-15 | v0.5 P5-09 quality-evidence execution | `RUN-P5-09-BINANCE-001`でP5-08展開CSVを入力に、schema／timestamp／OHLCV／単調性／重複／gap、UTC D1／H4／H1／M30／M15、`CRYPTO_24_7_UTC`、Cost／Gap、train／validation／holdoutをlocal検証した。機械Gateは完了したが、Provider条件、P5-08 host isolation、子Agent未起動をUnknownとして保持し、P5-10統合レビュー待ちとした。 |
+| 2026-08-15 | v0.5 P5-09 quality-evidence execution | `RUN-P5-09-BINANCE-001`でP5-08展開CSVを入力に、schema／timestamp／OHLCV／単調性／重複／gap、UTC D1／H4／H1／M30／M15、`CRYPTO_24_7_UTC`、Cost／Gap、train／validation／holdoutをlocal検証した。機械Gateは完了したが、Provider条件、P5-08 host isolation、子Agent未起動をUnknownとして保持し、P5-10統合レビュー待ちとした。 |
+| 2026-08-15 | v0.6 P5-10 integrated review | P5-08/09のBinance Evidenceを統合し、REQ/UC/Test/Evidence、UTC Calendar、Cost/Gap、期間分割/Holdout、P6境界を再照合した。Provider条件、P5-08 host isolation、child dispatch、未測定execution costをOpenで保持し、P5-H2候補は作成しなかった。 |

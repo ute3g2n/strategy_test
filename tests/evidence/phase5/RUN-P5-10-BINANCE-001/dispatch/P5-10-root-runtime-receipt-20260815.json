@@ -1,0 +1,41 @@
+{
+  "schema_version": "runtime-dispatch-receipt-v1",
+  "phase_id": "PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12",
+  "step_id": "P5-10",
+  "run_id": "RUN-P5-10-BINANCE-001",
+  "recorded_at": "2026-08-15T19:34:46+09:00",
+  "decision": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+  "runtime": {
+    "availability_checked": [
+      "multi_agent_v1__spawn_agent",
+      "multi_agent_v1__wait_agent"
+    ],
+    "availability_result": "AVAILABLE_FOR_ROOT_ORCHESTRATOR_ONLY",
+    "dispatch_state": "LOCAL_FALLBACK_NO_SUBAGENTS",
+    "reason": "The root runtime exposed the required spawn/wait tools and successfully dispatched and waited for the Coordinator. The Coordinator reported that child dispatch was unavailable. No substitute orchestrator, model, or Agent was used."
+  },
+  "orchestrator": {
+    "name": "AutoTradeProject_DesignDocSet_Orchestrator_v0_1",
+    "json_path": "C:/project/strategy_test/.codex/orchestrators/AutoTradeProject_DesignDocSet_Orchestrator_v0_1.json",
+    "model": "gpt-5.6-terra",
+    "agent_id": "01a004f2-eae3-7550-a654-719d72792dd8",
+    "spawn_status": "COMPLETED",
+    "wait_status": "COMPLETED",
+    "output_ref": "tests/evidence/phase5/RUN-P5-10-BINANCE-001/dispatch/P5-10-child-runtime-receipt-20260815.json",
+    "fallback_reason": "Coordinator child dispatch unavailable; see child receipt for every unstarted Agent",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK"
+  },
+  "scope": {
+    "input_ref": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/execution-finish-20260815.json",
+    "symbols": ["BTCUSDT", "ETHUSDT"],
+    "market": "Binance Spot",
+    "source_timeframe": "1m",
+    "timezone": "UTC",
+    "calendar": "CRYPTO_24_7_UTC",
+    "derived_timeframes": ["D1", "H4", "H1", "M30", "M15"],
+    "external_network": false,
+    "api_key_or_secret_read": false
+  },
+  "work_boundary": "Root Coordinator dispatch and wait were completed. The seven named child Agents were not started; local fallback review is not independent review."
+}

@@ -34,9 +34,9 @@
     <tr><td><code>P5-10-F-003</code></td><td>Medium</td><td class="open">OPEN</td><td>指定7 Agentはruntime機能不足で未起動。独立レビューではない。A80のPrompt指定modelとJSON宣言modelにも差があり、代替modelは用いていない。</td></tr>
     <tr><td><code>P5-10-F-004</code></td><td>Medium</td><td class="open">OPEN</td><td>fee、slippage、内部金銭コストは<code>NOT_MEASURED</code>。実注文・約定をしていないためゼロや実測値に補完しない。P6の該当Gateで別扱いとする。</td></tr>
     <tr><td><code>P5-10-F-005</code></td><td>Medium</td><td class="pass">CLOSED</td><td>P5-10自身の外部I/O、Secret/API key読取、Provider変更、symbol追加、注文、Broker、Paper、Live、実資金、Core、P4 DB、Cloud変更は0件。</td></tr>
-    <tr><td><code>P5-10-F-006</code></td><td>Medium</td><td class="open">OPEN</td><td>A95静的判定は新規HTMLとログでALLOW。dispatch receiptは必須Agent識別子を静的語句として扱い<code>NEEDS_HUMAN_GATE</code>になった。文書・ログ・受領記録の同一性を管理する仕組みは存在しない。</td></tr>
+    <tr><td><code>P5-10-F-006</code></td><td>Medium</td><td class="pass">CLOSED</td><td>管理用identity機構は追加していない。A95の静的確認はpath／schema／link／state／Secret境界だけを対象とし、管理用hashを受入条件にしていない。</td></tr>
   </table>
-  <p><strong>Critical=0、High=0。</strong>ただしMedium Openがあるため、P5-H2候補は成立しない。UnknownをPASSへ変更していない。</p>
+  <p><strong>Critical=0、High=0。</strong>Medium Open（Provider条件、host isolation、child dispatch、未測定execution cost）があるため、P5-H2候補は成立しない。UnknownをPASSへ変更していない。</p>
 
   <h2>2. 対象と統合結論</h2>
   <p>統合対象はBinance Data Vision historicalの<code>BTCUSDT</code>／<code>ETHUSDT</code>、Crypto Spot、1m基底、UTC、<code>CRYPTO_24_7_UTC</code>、期間<code>2025-02-24T00:00:00Z</code>以上<code>2026-08-01T00:00:00Z</code>未満だけである。旧Databento／CME 5候補のEvidenceは現行Binance実証へ読み替えない。</p>
@@ -79,13 +79,13 @@
   </table>
 
   <h2>6. dispatch・A95静的判定</h2>
-  <p>このruntimeには指定spawn/wait機能がなく、Orchestratorと7 Agentは未起動である。全員の<code>agent_id=N/A</code>、model、JSON path、wait状態、fallback理由は<a href="../../../tests/evidence/phase5/RUN-P5-10-BINANCE-001/dispatch-receipt.json">dispatch receipt</a>に記録した。独立実行・独立レビューを主張しない。</p>
-  <p>A95相当の静的確認では、path/schema/link/state/Secretを確認する。Raw source-dataのintegrity recordは完全性・再現性に直接必要な範囲だけに限定し、不一致ならP5-H2審査を停止する。文書・ログ・受領記録の同一性を管理する仕組みは追加していない。</p>
+  <p>root runtimeは指定Orchestratorを実spawnしてwaitした。Coordinator配下のchild dispatchが利用できず、7 Agentは未起動である。rootの<code>agent_id=01a004f2-eae3-7550-a654-719d72792dd8</code>、Orchestratorのmodel／JSON path、child各Agentのmodel／JSON path／<code>agent_id=N/A</code>、wait状態、fallback理由は<a href="../../../tests/evidence/phase5/RUN-P5-10-BINANCE-001/dispatch/P5-10-root-runtime-receipt-20260815.json">root receipt</a>／<a href="../../../tests/evidence/phase5/RUN-P5-10-BINANCE-001/dispatch/P5-10-child-runtime-receipt-20260815.json">child receipt</a>／<a href="../../../tests/evidence/phase5/RUN-P5-10-BINANCE-001/dispatch-receipt.json">統合receipt</a>に記録した。独立実行・独立レビューを主張しない。</p>
+  <p>A95相当の静的確認では、path/schema/link/state/Secretを確認する。Raw source-dataのintegrity recordは完全性・再現性に直接必要な範囲だけに限定し、不一致ならP5-H2審査を停止する。文書・ログ・受領記録の管理用identity機構は追加していない。</p>
 
   <h2>7. 関連リンク</h2>
   <ul>
     <li><a href="../05_実証/09_P5-08_Binance固定Runner登録.html">P5-08固定Runner・Raw Evidence</a> / <a href="../05_実証/10_P5-09_Binance品質・Calendar・Cost_Gap・Holdout.html">P5-09品質Evidence</a></li>
-    <li><a href="../../../plan/phase5/ログ/P5-10_統合品質レビュー・P6引渡し候補_2026-08-15.md">P5-10実行ログ</a> / <a href="../../../tests/evidence/phase5/RUN-P5-10-BINANCE-001/dispatch-receipt.json">P5-10 dispatch receipt</a></li>
+    <li><a href="../../../plan/phase5/ログ/P5-10_統合品質レビュー・P6引渡し候補_2026-08-15.md">P5-10実行ログ</a> / <a href="../../../tests/evidence/phase5/RUN-P5-10-BINANCE-001/dispatch/P5-10-root-runtime-receipt-20260815.json">root receipt</a> / <a href="../../../tests/evidence/phase5/RUN-P5-10-BINANCE-001/dispatch/P5-10-child-runtime-receipt-20260815.json">child receipt</a> / <a href="../../../tests/evidence/phase5/RUN-P5-10-BINANCE-001/dispatch-receipt.json">統合receipt</a></li>
     <li><a href="../../../plan/Phase5_実行計画書_v0.1_2026-08-12.md">Phase5計画</a> / <a href="../../../doc/00_全Phase残課題Blocked統合台帳.html">統合台帳</a> / <a href="../../index.html">doc index</a></li>
   </ul>
   <p class="small">更新日: 2026-08-15 Asia/Tokyo。P5-H2の明示承認前にP5-11を開始しない。</p>
