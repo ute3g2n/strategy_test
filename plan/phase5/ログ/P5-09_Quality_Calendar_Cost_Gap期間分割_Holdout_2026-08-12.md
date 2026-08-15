@@ -1,5 +1,7 @@
 # P5-09 Quality／Calendar／Cost／Gap／期間分割／Holdout実証
 
+> **2026-08-15 scope amendment note:** 本ログは2026-08-12時点の旧Databento／CME先物スコープで記録した履歴である。本文の`P5-DATA-G1=APPROVED`、DST／Roll、全hash、旧Run IDは現行Binance実行の承認・入力・再開条件ではない。現行P5-09は、Binance Data Visionの`BTCUSDT`／`ETHUSDT` Spot Kline 1m、UTC、`CRYPTO_24_7_UTC`、`.CHECKSUM`、Crypto固有の欠損分類、Binance用`P5-DATA-G1-BINANCE-AMENDMENT-001`、`RUN-P5-08-BINANCE-001`完了を前提にする。旧ログを現行Evidenceへ自動読み替えない。
+
 - Step ID: `P5-09`
 - Phase ID: `PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12`
 - Plan: `P5-PLAN-001`
