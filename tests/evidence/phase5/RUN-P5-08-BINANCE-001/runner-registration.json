@@ -1,8 +1,10 @@
 {
   "schema_version": "p5-08-binance-runner-registration-v1",
   "status": "REGISTERED_NOT_EXECUTED",
+  "last_execution_status": "RAW_AND_EXPANDED_CSV_ACQUIRED",
+  "last_execution_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/execution-summary.json",
   "runner_id": "P5-EXT-BINANCE-VISION-SPOT-001",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "phase_id": "PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12",
   "step_id": "P5-08",
   "run_id": "RUN-P5-08-BINANCE-001",

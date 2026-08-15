@@ -1,0 +1,735 @@
+{
+  "api_key_or_secret_read": false,
+  "external_io_performed": true,
+  "normalized_status": "NOT_EXECUTED",
+  "note": "This acquisition runner does not publish Normalized or Quality PASS evidence.",
+  "provider": "binance_data_vision",
+  "quality_status": "NOT_EXECUTED",
+  "results": [
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-02.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-02.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-02.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-02.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 40320,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-02"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2025-02/BTCUSDT-1m-2025-02.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2025-02"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-03.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-03.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-03.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-03.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-03"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2025-03/BTCUSDT-1m-2025-03.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2025-03"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-04.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-04.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-04.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-04.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 43200,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-04"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2025-04/BTCUSDT-1m-2025-04.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2025-04"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-05.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-05.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-05.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-05.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-05"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2025-05/BTCUSDT-1m-2025-05.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2025-05"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-06.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-06.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-06.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-06.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 43200,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-06"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2025-06/BTCUSDT-1m-2025-06.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2025-06"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-07.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-07.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-07.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-07.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-07"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2025-07/BTCUSDT-1m-2025-07.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2025-07"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-08.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-08.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-08.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-08.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-08"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2025-08/BTCUSDT-1m-2025-08.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2025-08"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-09.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-09.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-09.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-09.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 43200,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-09"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2025-09/BTCUSDT-1m-2025-09.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2025-09"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-10.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-10.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-10.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-10.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-10"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2025-10/BTCUSDT-1m-2025-10.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2025-10"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-11.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-11.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-11.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-11.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 43200,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-11"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2025-11/BTCUSDT-1m-2025-11.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2025-11"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-12.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-12.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2025-12.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-12.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-12"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2025-12/BTCUSDT-1m-2025-12.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2025-12"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2026-01.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-01.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2026-01.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-01.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2026-01"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2026-01/BTCUSDT-1m-2026-01.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2026-01"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2026-02.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-02.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2026-02.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-02.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 40320,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2026-02"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2026-02/BTCUSDT-1m-2026-02.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2026-02"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2026-03.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-03.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2026-03.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-03.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2026-03"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2026-03/BTCUSDT-1m-2026-03.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2026-03"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2026-04.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-04.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2026-04.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-04.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 43200,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2026-04"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2026-04/BTCUSDT-1m-2026-04.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2026-04"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2026-05.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-05.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2026-05.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-05.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2026-05"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2026-05/BTCUSDT-1m-2026-05.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2026-05"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2026-06.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-06.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2026-06.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-06.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 43200,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2026-06"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2026-06/BTCUSDT-1m-2026-06.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2026-06"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2026-07.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-07.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/BTCUSDT/2026-07.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-07.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "BTCUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2026-07"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/BTCUSDT/2026-07/BTCUSDT-1m-2026-07.csv",
+      "source_checksum_verified": true,
+      "symbol": "BTCUSDT",
+      "year_month": "2026-07"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-02.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-02.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-02.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-02.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 40320,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-02"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2025-02/ETHUSDT-1m-2025-02.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2025-02"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-03.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-03.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-03.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-03.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-03"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2025-03/ETHUSDT-1m-2025-03.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2025-03"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-04.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-04.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-04.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-04.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 43200,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-04"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2025-04/ETHUSDT-1m-2025-04.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2025-04"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-05.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-05.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-05.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-05.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-05"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2025-05/ETHUSDT-1m-2025-05.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2025-05"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-06.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-06.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-06.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-06.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 43200,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-06"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2025-06/ETHUSDT-1m-2025-06.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2025-06"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-07.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-07.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-07.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-07.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-07"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2025-07/ETHUSDT-1m-2025-07.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2025-07"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-08.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-08.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-08.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-08.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-08"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2025-08/ETHUSDT-1m-2025-08.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2025-08"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-09.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-09.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-09.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-09.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 43200,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-09"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2025-09/ETHUSDT-1m-2025-09.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2025-09"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-10.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-10.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-10.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-10.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-10"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2025-10/ETHUSDT-1m-2025-10.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2025-10"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-11.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-11.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-11.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-11.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 43200,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-11"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2025-11/ETHUSDT-1m-2025-11.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2025-11"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-12.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-12.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2025-12.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-12.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2025-12"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2025-12/ETHUSDT-1m-2025-12.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2025-12"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2026-01.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-01.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2026-01.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-01.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2026-01"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2026-01/ETHUSDT-1m-2026-01.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2026-01"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2026-02.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-02.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2026-02.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-02.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 40320,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2026-02"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2026-02/ETHUSDT-1m-2026-02.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2026-02"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2026-03.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-03.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2026-03.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-03.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2026-03"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2026-03/ETHUSDT-1m-2026-03.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2026-03"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2026-04.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-04.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2026-04.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-04.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 43200,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2026-04"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2026-04/ETHUSDT-1m-2026-04.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2026-04"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2026-05.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-05.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2026-05.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-05.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2026-05"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2026-05/ETHUSDT-1m-2026-05.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2026-05"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2026-06.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-06.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2026-06.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-06.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 43200,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2026-06"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2026-06/ETHUSDT-1m-2026-06.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2026-06"
+    },
+    {
+      "archive_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2026-07.zip",
+      "archive_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-07.zip",
+      "checksum_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/ETHUSDT/2026-07.zip.CHECKSUM",
+      "checksum_url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-07.zip.CHECKSUM",
+      "csv": {
+        "duplicate_count": 0,
+        "gap_count_observed": 0,
+        "row_count": 44640,
+        "symbol": "ETHUSDT",
+        "timestamp_units": [
+          "microseconds"
+        ],
+        "year_month": "2026-07"
+      },
+      "expanded_csv_path": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/ETHUSDT/2026-07/ETHUSDT-1m-2026-07.csv",
+      "source_checksum_verified": true,
+      "symbol": "ETHUSDT",
+      "year_month": "2026-07"
+    }
+  ],
+  "run_id": "RUN-P5-08-BINANCE-001",
+  "runner_id": "P5-EXT-BINANCE-VISION-SPOT-001",
+  "runner_version": "0.2.0",
+  "schema_version": "p5-08-binance-acquisition-result-v1",
+  "status": "RAW_AND_EXPANDED_CSV_ACQUIRED"
+}

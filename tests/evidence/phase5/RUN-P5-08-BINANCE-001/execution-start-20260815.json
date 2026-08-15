@@ -1,0 +1,30 @@
+{
+  "schema_version": "p5-08-binance-execution-start-v1",
+  "run_id": "RUN-P5-08-BINANCE-001",
+  "phase_id": "PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12",
+  "step_id": "P5-08",
+  "started_at": "2026-08-15T08:37:12Z",
+  "mode": "execute",
+  "command_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/runner-registration.json",
+  "provider": "binance_data_vision",
+  "scope": {
+    "symbols": ["BTCUSDT", "ETHUSDT"],
+    "market_segment": "spot",
+    "base_interval": "1m",
+    "period_start_utc": "2025-02-24T00:00:00Z",
+    "period_end_utc_exclusive": "2026-08-01T00:00:00Z"
+  },
+  "operator_waiver_applied": {
+    "provider_terms_precondition": true,
+    "host_isolation_evidence_precondition": true,
+    "evidence_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/operator-waiver-20260815.md"
+  },
+  "factual_states_at_start": {
+    "provider_terms_status": "UNKNOWN",
+    "host_isolation_status": "NOT_VERIFIED"
+  },
+  "api_key_or_secret_read": false,
+  "external_io_performed_before_start": false,
+  "expected_destination": "https://data.binance.vision:443",
+  "note": "This receipt records explicit execute start under the operator waiver. It is not a Provider-terms PASS or host-isolation PASS."
+}

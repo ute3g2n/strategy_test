@@ -1,0 +1,100 @@
+{
+  "schema_version": "runtime-dispatch-receipt-v1",
+  "phase_id": "PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12",
+  "step_id": "P5-08",
+  "run_id": "RUN-P5-08-BINANCE-001",
+  "recorded_at": "2026-08-15T17:40:00+09:00",
+  "decision": "P5-08_EXECUTION_COORDINATION_ROOT_SPAWN_WAIT_COMPLETED_CHILD_FALLBACK",
+  "runtime": {
+    "availability_checked": [
+      "multi_agent_v1__spawn_agent",
+      "multi_agent_v1__wait_agent"
+    ],
+    "dispatch_state": "ROOT_SPAWN_COMPLETED_CHILD_DISPATCH_FALLBACK",
+    "fallback_state": "LOCAL_FALLBACK_NO_SUBAGENTS",
+    "reason": "The root runtime spawned and waited for the Coordinator successfully. The Coordinator reported that its child dispatch tools were unavailable, so the named child Agents were not independently started."
+  },
+  "root_orchestrator": {
+    "orchestrator_name": "AutoTradeProject_Orchestrator_v0_1",
+    "orchestrator_json_path": "C:/project/strategy_test/.codex/orchestrators/AutoTradeProject_Orchestrator_v0_1.json",
+    "model": "gpt-5.6-terra",
+    "agent_id": "01a0048b-c0e4-77d1-a5f9-3f6008e8cd31",
+    "spawn_status": "COMPLETED",
+    "wait_status": "COMPLETED",
+    "output_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/dispatch/P5-08-execution-coordination-receipt-20260815.json",
+    "fallback_reason": "Coordinator child dispatch unavailable",
+    "independent": false,
+    "review_mode": "COORDINATOR_FALLBACK"
+  },
+  "children": [
+    {
+      "agent_name": "AutoTrade_A10_RequirementsCurator_v0_1",
+      "agent_json_path": "C:/project/strategy_test/.codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "UNAVAILABLE",
+      "wait_status": "UNAVAILABLE",
+      "output_ref": null,
+      "fallback_reason": "Coordinator child dispatch unavailable",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A50_AdapterArchitect_v0_1",
+      "agent_json_path": "C:/project/strategy_test/.codex/agents/AutoTrade_A50_AdapterArchitect_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "UNAVAILABLE",
+      "wait_status": "UNAVAILABLE",
+      "output_ref": null,
+      "fallback_reason": "Coordinator child dispatch unavailable",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A70_OpsSecurityArchitect_v0_1",
+      "agent_json_path": "C:/project/strategy_test/.codex/agents/AutoTrade_A70_OpsSecurityArchitect_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "UNAVAILABLE",
+      "wait_status": "UNAVAILABLE",
+      "output_ref": null,
+      "fallback_reason": "Coordinator child dispatch unavailable",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A90_DesignReviewer_v0_1",
+      "agent_json_path": "C:/project/strategy_test/.codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "UNAVAILABLE",
+      "wait_status": "UNAVAILABLE",
+      "output_ref": null,
+      "fallback_reason": "Coordinator child dispatch unavailable",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1",
+      "agent_json_path": "C:/project/strategy_test/.codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "UNAVAILABLE",
+      "wait_status": "UNAVAILABLE",
+      "output_ref": null,
+      "fallback_reason": "Coordinator child dispatch unavailable",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    }
+  ],
+  "operator_waiver_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/operator-waiver-20260815.md",
+  "side_effects": {
+    "binance_external_io": true,
+    "provider_access": true,
+    "api_key_or_secret_read": false,
+    "data_acquired": true,
+    "normalized": false,
+    "quality_evidence": false
+  }
+}

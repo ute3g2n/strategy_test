@@ -24,8 +24,8 @@
 <main>
   <p><a href="../../index.html">doc/index.html</a> ／ Phase 5 ／ 05 実証</p>
   <h1>P5-08 Binance固定Runner登録</h1>
-  <p class="lead">P5-DATA-G1のBinance amendment承認後に、P5-08の外部実行前契約を固定登録した記録です。</p>
-  <p><span class="state">REGISTERED_NOT_EXECUTED</span> 外部通信・実Data取得・API key／Secret読取は、この登録作業では行っていません。</p>
+  <p class="lead">P5-DATA-G1のBinance amendment承認後に固定Runnerを登録し、運用者waiverの範囲内でP5-08のRaw／展開CSV取得まで完了した記録です。</p>
+  <p><span class="state">RAW_AND_EXPANDED_CSV_ACQUIRED_UNDER_OPERATOR_WAIVER</span> 36件の月次ZIP、checksum、展開CSVを取得しました。API key／Secretは読んでいません。Normalized／Qualityは後続P5-09です。</p>
 
   <h2>1. 固定対象</h2>
   <table>
@@ -42,19 +42,20 @@
     <li><a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/request.json"><code>request.json</code></a>：symbol、Spot、1m、期間、URL、保存先、停止条件。</li>
     <li><a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/runner-registration.json"><code>runner-registration.json</code></a>：固定Runner ID、固定command、実行範囲。</li>
     <li><a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/allowlist.json"><code>allowlist.json</code></a>：HTTPSの許可先を <code>data.binance.vision:443</code> だけに限定。</li>
-    <li><a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/host-isolation.json"><code>host-isolation.json</code></a>：OS／host isolationは未検証として固定。</li>
-    <li><a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-REGISTRATION-20260815-001/dispatch-receipt.json">dispatch receipt</a>：Coordinator実起動と子Agent未起動fallbackを記録。</li>
+    <li><a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/host-isolation.json"><code>host-isolation.json</code></a>：OS／host isolationの事実は<code>NOT_VERIFIED</code>。このRunでは運用者waiverで開始前提から除外。</li>
+    <li><a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/operator-waiver-20260815.md">operator waiver</a>：Provider利用条件と実行前後host-isolation通信証拠を、このRunの開始前提から除外した記録。</li>
+    <li><a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/dispatch/P5-08-root-runtime-receipt-20260815.json">root dispatch receipt</a>：rootのCoordinator spawn／wait完了と、子Agent未起動fallbackを記録。</li>
   </ul>
 
   <h2>3. 固定Runnerの安全境界</h2>
   <p><a href="../../../scripts/phase5_external_data/run_binance_data_vision.py">Runner本体</a>は、通常のdry-runでは固定JSONを読むだけです。環境変数を参照せず、API key／Secretを読まず、リダイレクトとProxyを拒否します。</p>
-  <div class="note">実行モードは明示的な <code>--mode execute</code> が必要です。ただし、host isolationがVERIFIEDで、Providerの利用・保持・再配布条件がCONFIRMEDになるまでRunnerは停止します。</div>
+  <div class="note">実行モードは明示的な <code>--mode execute</code> が必要です。このRunでは運用者waiverが有効な場合だけ実行を許可しました。waiverがあっても、host isolation=<code>NOT_VERIFIED</code>、Provider terms=<code>UNKNOWN</code>という事実は確認済みへ変換していません。</div>
 
   <h2>4. 残っているGate</h2>
   <table>
     <tr><th>Host isolation</th><td><code>NOT_VERIFIED</code>。2026-08-15に読み取り専用で確認した結果、現ホストは全外向き通信Blockであり、<code>data.binance.vision:443</code>だけを許可する実行環境・pre／post証拠ではなかった。<a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/host-isolation-check-20260815.json">確認Evidence</a></td></tr>
     <tr><th>Provider terms</th><td><code>UNKNOWN</code>。公式情報で公開取得、API key不要、checksum手順は確認したが、取得Dataの保持・再配布許諾は確定できなかった。<a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/provider-terms-review-20260815.md">確認記録</a></td></tr>
-    <tr><th>実Data Evidence</th><td>Raw ZIP、<code>.CHECKSUM</code>、展開CSV、Normalized、Quality、Calendar、Cost／Gap、Holdoutは未取得・未判定。</td></tr>
+    <tr><th>実Data Evidence</th><td>Raw ZIP 36件、<code>.CHECKSUM</code> 36件、展開CSV 36件を取得。checksum不一致・timestamp unit不一致・重複・対象範囲違反は各0件。Normalized、Quality、Calendar、Cost／Gap、Holdoutは未実行。</td></tr>
     <tr><th>レビュー</th><td>Coordinator配下の子Agentは起動不能fallbackであり、独立レビュー済みとは扱わない。</td></tr>
   </table>
 
@@ -62,6 +63,7 @@
   <ul>
     <li><a href="../../../tests/evidence/phase5/RUN-P5-DATA-G1-BINANCE-APPROVED-001/human-gate-p5-data-g1-binance-amendment.md">P5-DATA-G1 Binance amendment承認記録</a></li>
     <li><a href="../06_方針転換/02_Binance_Data_Vision方針転換・Crypto暫定対象.html">Binance方針転換・Crypto暫定対象</a></li>
+    <li><a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/execution-summary.json">取得実行サマリ</a> ／ <a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/execution-finish-20260815.json">完了Evidence</a></li>
     <li><a href="../../../plan/phase5/ログ/P5-08_Binance固定Runner登録_2026-08-15.md">登録ログ</a></li>
   </ul>
 </main>

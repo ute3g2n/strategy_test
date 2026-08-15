@@ -1,14 +1,12 @@
-from __future__ import annotations
-
 """Raw source-data hash checks protect reproducibility only; no management hash is tested."""
+
+from __future__ import annotations
 
 import json
 from pathlib import Path
 
 import pytest
-
 from scripts.phase5_external_data import run_binance_data_vision as runner
-
 
 EVIDENCE_ROOT = Path("tests/evidence/phase5/RUN-P5-08-BINANCE-001")
 
@@ -34,7 +32,7 @@ def test_fixed_request_is_spot_only_and_has_expected_months() -> None:
     assert request["market_segment"] == "spot"
 
 
-def test_dry_run_is_local_and_reports_unverified_gates() -> None:
+def test_dry_run_is_local_and_reports_operator_waived_gates() -> None:
     request, registration, allowlist, isolation = fixed_inputs()
 
     report = runner.build_dry_run_report(request, registration, allowlist, isolation)
@@ -42,9 +40,13 @@ def test_dry_run_is_local_and_reports_unverified_gates() -> None:
     assert report["status"] == "REGISTERED_NOT_EXECUTED"
     assert report["external_io_performed"] is False
     assert report["api_key_or_secret_read"] is False
-    assert report["ready_for_external_io"] is False
-    assert "HOST_ISOLATION_NOT_VERIFIED" in report["blocking_reasons"]
-    assert "PROVIDER_TERMS_UNKNOWN" in report["blocking_reasons"]
+    assert report["ready_for_external_io"] is True
+    assert report["blocking_reasons"] == []
+    assert report["host_isolation_status"] == "NOT_VERIFIED"
+    assert report["host_isolation_gate"] == "OPERATOR_WAIVED"
+    assert report["provider_terms_status"] == "UNKNOWN"
+    assert report["provider_terms_gate"] == "OPERATOR_WAIVED"
+    assert report["operator_waiver_applied"] is True
 
 
 def test_archive_and_checksum_urls_are_exactly_allowlisted() -> None:
@@ -62,9 +64,10 @@ def test_archive_and_checksum_urls_are_exactly_allowlisted() -> None:
         )
 
 
-def test_execute_requires_verified_isolation_and_confirmed_terms() -> None:
+def test_execute_still_requires_the_operator_waiver_when_facts_are_unverified() -> None:
     request, registration, allowlist, isolation = fixed_inputs()
 
+    isolation.pop("operator_waiver", None)
     with pytest.raises(runner.ContractError, match="HOST_ISOLATION_NOT_VERIFIED"):
         runner.execute_acquisition(request, registration, allowlist, isolation)
 

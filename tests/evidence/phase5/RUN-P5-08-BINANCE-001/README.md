@@ -1,36 +1,53 @@
 # RUN-P5-08-BINANCE-001
 
-Binance Data Vision の Spot Kline 1m を使うP5-08の固定登録ルートです。
+Binance Data VisionのSpot Kline 1mを、P5-08の固定Runnerで取得した実行証跡です。
 
-現在状態は `REGISTERED_NOT_EXECUTED` です。今回の登録では、外部通信、実Data取得、API key／Secret読取、Normalized生成、Quality判定を行っていません。
+## 実行結果
 
-## 固定対象
+- 状態：`RAW_AND_EXPANDED_CSV_ACQUIRED`
+- 対象：`BTCUSDT`、`ETHUSDT`
+- 期間：2025-02-24T00:00:00Z以上、2026-08-01T00:00:00Z未満
+- 対象月：2025-02〜2026-07、各18月
+- 取得件数：36件（2 symbol × 18月）
+- 成果物：Raw ZIP 36件、`.CHECKSUM` 36件、展開CSV 36件、未完了`.part` 0件
+- 合計サイズ：319,477,441 bytes
+- checksum不一致：0件
+- timestamp unit不一致：0件
+- 重複timestamp：0件
+- symbol／月範囲違反：0件
+- API key／Secret読取：`false`
+- Provider data cost：`0 USD`
+- Normalized：`NOT_EXECUTED`
+- Quality：`NOT_EXECUTED`
 
-- `BTCUSDT`、`ETHUSDT`
-- Spot、月次ZIP、1m
-- `2025-02-24T00:00:00Z` 以上、`2026-08-01T00:00:00Z` 未満
-- UTC / `CRYPTO_24_7_UTC`
-- `https://data.binance.vision/data/spot/monthly/klines/{symbol}/1m/{symbol}-1m-{YYYY-MM}.zip`
-- 同じURLの `.CHECKSUM`
+## 運用者waiver
 
-## 登録ファイル
+このRunでは、運用者の明示決定により次の2項目を開始前提から除外しました。
 
-- `request.json`: 固定要求、期間、symbol、対象path、停止条件
-- `runner-registration.json`: 固定Runnerと固定command
-- `allowlist.json`: `data.binance.vision:443` のHTTPS許可先
-- `host-isolation.json`: 現時点は `NOT_VERIFIED`
-- `host-isolation-check-20260815.json`: 読み取り専用のWindows確認結果。全外向きBlockであり、Binance-only allowlistの証拠ではないため `NOT_VERIFIED`
-- `provider-terms-review-20260815.md`: Binance公式情報の確認結果。公開取得/API key不要/checksumは確認したが、Data保持・再配布許諾は `UNKNOWN`
-- `preflight/registration-preflight.json`: local dry-run結果
+1. Provider利用条件の事前確認
+2. 実行前後のhost-isolation通信証拠
 
-## 実行前に残るGate
+これは事実の再分類ではありません。Provider termsは`UNKNOWN`、host isolationは`NOT_VERIFIED`のままです。waiverはこのRunの開始判定にだけ適用し、P5-09以降の品質・利用条件・レビューの合否を自動的に満たすものではありません。
 
-Provider利用・保持・再配布条件の確認と、OS／host isolationの実証が終わるまで `--mode execute` は停止します。Normalized／Qualityは取得後の別Gateであり、このRunnerの登録だけでPASSにしません。
+参照：[`operator-waiver-20260815.md`](operator-waiver-20260815.md)
 
-## 固定dry-run
+## 主な証跡
 
-```powershell
-python scripts/phase5_external_data/run_binance_data_vision.py --mode dry-run --request tests/evidence/phase5/RUN-P5-08-BINANCE-001/request.json --registration tests/evidence/phase5/RUN-P5-08-BINANCE-001/runner-registration.json --allowlist tests/evidence/phase5/RUN-P5-08-BINANCE-001/allowlist.json --host-isolation tests/evidence/phase5/RUN-P5-08-BINANCE-001/host-isolation.json --output tests/evidence/phase5/RUN-P5-08-BINANCE-001/preflight/registration-preflight.json
-```
+- [`request.json`](request.json)
+- [`runner-registration.json`](runner-registration.json)
+- [`allowlist.json`](allowlist.json)
+- [`host-isolation.json`](host-isolation.json)
+- [`execution-start-20260815.json`](execution-start-20260815.json)
+- [`execution-finish-20260815.json`](execution-finish-20260815.json)
+- [`execution-summary.json`](execution-summary.json)
+- [`preflight/registration-preflight.json`](preflight/registration-preflight.json)
+- [`root runtime receipt`](dispatch/P5-08-root-runtime-receipt-20260815.json)
+- [`Coordinator receipt`](dispatch/P5-08-execution-coordination-receipt-20260815.json)
 
-`--mode execute` は今回の登録作業では実行していません。
+## 対象外
+
+Binance Futures、Funding、Liquidation、Tick、Order book、REST API主経路、Broker、Paper、Live、実資金、実Risk値、Cloud、Core、P4 DB、API key／Secret値は対象外です。
+
+## 次のGate
+
+P5-09でNormalized、D1／H4／H1／M30／M15、`CRYPTO_24_7_UTC`、Quality、Cost／Gap、Holdoutを検証します。このREADMEと取得サマリだけではP5-08全体PASS、P5-H2、Live利用を宣言しません。

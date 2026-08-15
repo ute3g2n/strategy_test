@@ -13,7 +13,13 @@
   "api_key_or_secret_read": false,
   "protected_integrity_policy": "Raw source-data hash is used only for reproducibility; document management hash is prohibited.",
   "verification_method": "capture pre/post host network policy and the run execution ID before enabling --mode execute",
-  "evidence_required_before_execute": true,
+  "evidence_required_before_execute": false,
+  "operator_waiver_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/operator-waiver-20260815.md",
+  "operator_waiver": {
+    "status": "RECORDED",
+    "scope": "RUN-P5-08-BINANCE-001",
+    "decision": "START_PRECONDITION_WAIVED"
+  },
   "last_checked_at": "2026-08-15T08:19:14Z",
   "verification_attempt_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/host-isolation-check-20260815.json",
   "reason_not_verified": "読み取り専用のWindows確認を実施したが、現ホストは全外向き通信を拒否するsandbox firewall ruleが有効であり、data.binance.visionだけを許可する実行環境・pre/post証拠は取得できなかった。",

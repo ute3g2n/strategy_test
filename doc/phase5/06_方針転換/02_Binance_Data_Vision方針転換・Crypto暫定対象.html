@@ -48,7 +48,7 @@
     <h2>1. 今回の決定を一言でいうと</h2>
     <p><strong>市場Data Providerの方向をDatabentoからBinance Data Visionの公開アーカイブへ変更し、初期運用の銘柄候補は従来のCME Micro futures 5件をいったん白紙化する。</strong></p>
     <p>現時点で履歴に具体的に書かれているCrypto銘柄だけを、初期運用の暫定対象として <code>BTCUSDT</code> と <code>ETHUSDT</code> にする。「主要アルトコイン」は分類名であり、具体的な銘柄名ではないため、勝手にBNB・SOL・XRPなどを追加しない。</p>
-    <p>これはProviderとData対象の設計方針を変更する決定であり、実Dataのダウンロード、外部通信、Secret読取、実運用、注文、Broker、Paper、Liveを開始する許可ではない。旧DatabentoのP5-DATA-G1承認は履歴として残し、P5-08にはBinance用の新しい申請範囲・request・Runner・Evidence rootが必要である。</p>
+    <p>これはProviderとData対象の設計方針を変更する決定であり、この文書単体では実Dataのダウンロード、外部通信、Secret読取、実運用、注文、Broker、Paper、Liveを開始する許可ではない。旧DatabentoのP5-DATA-G1承認は履歴として残し、後続のBinance用P5-DATA-G1、request、Runner、Evidence root、運用者waiverを別途記録する。</p>
   </section>
 
   <section>
@@ -67,7 +67,7 @@
 
   <section>
     <h2>3. Binance公式情報で確認できたこと</h2>
-    <p>確認日はすべて2026-08-14。公式一次情報のURLを固定し、実Dataはダウンロードしていない。</p>
+    <p>確認日はすべて2026-08-14。この調査時点では公式一次情報のURLを固定し、実Dataはダウンロードしていない。後続のP5-08実行結果は別Run Evidenceへ記録する。</p>
     <table>
       <thead><tr><th>確認項目</th><th>公式情報</th><th>P5への意味</th></tr></thead>
       <tbody>
@@ -101,7 +101,7 @@
         <tr><td>時間・Calendar</td><td>保存・集計はUTC、<code>CRYPTO_24_7_UTC</code>。休場カレンダーは置かない。</td><td>Crypto SpotはCMEの休日・DST・限月・Rollを適用しない。データがない区間は自動ゼロ埋めせず、欠損・取引停止・配布欠落を別分類する。</td><td><span class="badge wait">VERSION／HASH要確認</span></td></tr>
         <tr><td>対象期間</td><td><code>2025-02-24T00:00:00Z</code>以上、<code>2026-08-01T00:00:00Z</code>未満を比較用に暫定継承。</td><td>旧P5の共通比較期間を維持して差分を小さくする。Binanceの利用可能な全履歴を採用する決定ではない。長期期間は別判断。</td><td><span class="badge wait">INHERITED／再承認要</span></td></tr>
         <tr><td>Timestamp</td><td>Spotの2025-01-01以降はmicroseconds想定。Manifestにunitを固定し、UTC datetimeへ変換。</td><td>公式READMEの注意書きに対応。millisecondsとして誤読すると、時間が1000倍ずれてQuality停止になる。</td><td><span class="badge done">REQUIRED</span></td></tr>
-        <tr><td>Raw保存</td><td><code>RUN-P5-08-BINANCE-001/raw/spot/klines/1m/{symbol}/{YYYY-MM}.zip</code> と同名<code>.CHECKSUM</code>、展開後CSVのhash。</td><td>取得元・配布月・checksum・展開内容を残し、上書き禁止。旧Databento Evidence rootと混ぜない。</td><td><span class="badge wait">NEW REQUEST／RUN要作成</span></td></tr>
+        <tr><td>Raw保存</td><td><code>RUN-P5-08-BINANCE-001/raw/spot/klines/1m/{symbol}/{YYYY-MM}.zip</code> と同名<code>.CHECKSUM</code>、展開後CSV。</td><td>取得元・配布月・checksum・展開内容を残し、上書き禁止。旧Databento Evidence rootと混ぜない。P5-08で36月次成果物を取得済み。</td><td><span class="badge done">P5-08 RAW_ACQUIRED</span></td></tr>
         <tr><td>Normalized</td><td><code>P5-NORMALIZED-BAR-v1.0.0</code>を再利用。symbol、quote asset、bar start/end UTC、OHLCV、raw／checksum hash、quality refを必須。</td><td>ProviderのCSV列やtimestamp unitをCoreへ漏らさず、P4のNormalizedDatasetRef／DataGateDecisionへ接続できる。</td><td><span class="badge done">DESIGN FIT</span></td></tr>
         <tr><td>Cost</td><td>Providerの公開アーカイブData料金は <strong>0 USD</strong>。外部費用を前提にしない。内部の保存・通信・実行上限は別途budget control。</td><td>DatabentoのGB課金を廃止する方向と一致。ただし無料は品質・保存費用・利用条件の無条件保証ではない。</td><td><span class="badge done">PROVIDER_COST_0 / INTERNAL_UNKNOWN</span></td></tr>
         <tr><td>Quality</td><td>checksum、月次ファイルの存在、CSV列数、timestamp単調性、重複、OHLC整合、1分間隔の欠損、月次／日次境界を検査。</td><td>公式アーカイブは後日更新される可能性がある。部分取得やhash不一致を下流へ渡さない。</td><td><span class="badge wait">実Dataで未実証</span></td></tr>
@@ -122,7 +122,7 @@
         <tr><td><code>REQ-V2-0027/0028</code></td><td><code>UC-V2-008/011〜014</code></td><td>TimeframeBinding／ManifestTimeframeEntry／CalendarVersionRef</td><td><code>TEST-P5-01-TIMEFRAME-001/002</code></td><td><code>P5-EV-01-TIMEFRAME-TRACE-001</code>、UTC／1m→上位足</td><td><code>P5-DATA-G1-BINANCE-AMENDMENT-001</code></td></tr>
         <tr><td><code>REQ-V2-0029/0032</code></td><td><code>UC-V2-009〜014/054</code></td><td>RawDatasetRef／NormalizedDatasetRef／QualityReport／StopDecision</td><td><code>TEST-P5-01-QUALITY-001〜003</code></td><td>ZIP／checksum／CSV／Normalized hash、欠損・重複レポート</td><td><code>P5-DATA-G1-BINANCE-AMENDMENT-001</code> → P5-08／P5-09</td></tr>
         <tr><td><code>REQ-V2-0030</code></td><td><code>UC-V2-014/034</code></td><td>DataManifest／CalendarVersionRef／ProviderFileRef／HashRef</td><td><code>TEST-P5-01-MANIFEST-001</code></td><td>URL、月、symbol、unit、checksum、取得時点</td><td><code>P5-DATA-G1-BINANCE-AMENDMENT-001</code></td></tr>
-        <tr><td><code>REQ-V2-0031/0091</code></td><td><code>UC-V2-003/009/013/041〜050/067</code></td><td>ExternalAcquisitionRequest／ProviderCapability／AcquisitionMode</td><td><code>TEST-P5-01-EXTERNAL-BOUNDARY-001</code></td><td>Data Vision allowlist、Secret非使用、通信監査</td><td>新Gate承認後のP5-08のみ。外部I/Oは未開始。</td></tr>
+        <tr><td><code>REQ-V2-0031/0091</code></td><td><code>UC-V2-003/009/013/041〜050/067</code></td><td>ExternalAcquisitionRequest／ProviderCapability／AcquisitionMode</td><td><code>TEST-P5-01-EXTERNAL-BOUNDARY-001</code></td><td>Data Vision allowlist、Secret非使用、実行状態</td><td>新Gate承認後のP5-08で外部I/Oを実施済み。通信監査の代わりに実行Evidenceへ外部I/O有無を記録し、host通信証拠はwaiverで開始条件から除外。</td></tr>
         <tr><td><code>REQ-V2-0044/0096</code>、<code>UNK-P3-05</code></td><td><code>UC-V2-024/025/030〜032</code></td><td>CostAssumptionSet／SlippageObservation／GapRuleVersion</td><td><code>TEST-P5-01-COST-GAP-BOUNDARY-001</code></td><td>Provider費用0、内部費用、Spot fee／slippage仮定を分離</td><td>P5-DATA-G1 amendment／P5-H2</td></tr>
         <tr><td><code>REQ-V2-0054/0055</code></td><td><code>UC-V2-032/033/035</code></td><td>PeriodSplitManifest／HoldoutAssessment／WalkForwardWindow</td><td><code>TEST-P5-01-HOLDOUT-001/002</code></td><td>期間hash、train／validation／holdout、再利用拒否</td><td>P5-DATA-G1 amendment／P5-H2</td></tr>
       </tbody>
@@ -136,12 +136,12 @@
       <tbody>
         <tr><td><code>UNK-P5-BINANCE-001</code></td><td>Spotを暫定採用したが、ユーザーが将来Futuresを意図していないことの明示。</td><td><span class="badge unknown">OPEN</span></td><td>Binance Spotの新Gateへ固定。Futuresは別Gateに分離。</td></tr>
         <tr><td><code>UNK-P5-BINANCE-002</code></td><td>「主要アルトコイン」の具体名が入力にない。</td><td><span class="badge unknown">OPEN</span></td><td>具体的なsymbol、market segment、期間、採否を別の対象表へ登録。</td></tr>
-        <tr><td><code>UNK-P5-BINANCE-003</code></td><td>BTCUSDT／ETHUSDTの対象期間における実ファイル存在、最初・最後のtimestamp、欠損。</td><td><span class="badge unknown">OPEN</span></td><td>P5-08の実Data取得時にURL、checksum、件数、範囲を確認。</td></tr>
+        <tr><td><code>UNK-P5-BINANCE-003</code></td><td>BTCUSDT／ETHUSDTの対象期間における最初・最後のtimestamp、欠損。</td><td><span class="badge unknown">OPEN／Raw取得済み</span></td><td>P5-09でCSVのtimestamp範囲、欠損、Normalized／Qualityを確認する。URL、checksum、件数、symbol／月範囲はP5-08で確認済み。</td></tr>
         <tr><td><code>UNK-P5-BINANCE-004</code></td><td>アーカイブ更新差分、月次／日次の不一致、利用条件・再配布条件。</td><td><span class="badge unknown">OPEN</span></td><td>取得時hashと公式更新情報を固定し、再配布せず利用条件を確認。</td></tr>
         <tr><td><code>P5-EXTERNAL-WORKER-UNKNOWN</code></td><td>Binance向け固定Runner、request、target scope、Evidence root、host isolation。</td><td><span class="badge unknown">OPEN</span></td><td>新Runnerと新Runのlocal dry-run、target-only、通信監査、Evidence rootを作成。</td></tr>
       </tbody>
     </table>
-    <div class="box stop"><strong>停止:</strong> 新しいBinance用P5-DATA-G1 amendment、固定request、Runner、対象ファイルhash、実行前Evidenceが揃うまでP5-08は開始しない。旧Databentoの承認・request・RunnerをBinanceへ読み替えない。実Dataを取得していない状態を、Data Quality PASSや初期運用可能の証拠にしない。</div>
+    <div class="box stop"><strong>停止:</strong> 新しいBinance用P5-DATA-G1 amendment、固定request、Runner、対象ファイルchecksum、waiver又は必要な実行前Evidenceが揃わない場合はP5-08を開始しない。旧Databentoの承認・request・RunnerをBinanceへ読み替えない。P5-08でRawを取得済みでも、Normalized／Data Quality PASSや初期運用可能の証拠にはしない。</div>
     <p><strong>非対象:</strong> CME／Databentoの再取得、Binance Futures、他取引所の統合、Tick／Order book、Funding／Liquidation、Broker、Paper、Live、実資金、実Risk、Secret値、Cloud、Core、P4 DB／migration、実注文。</p>
   </section>
 
@@ -150,8 +150,8 @@
     <ol>
       <li>この文書の <code>BTCUSDT</code>、<code>ETHUSDT</code>、Spot、1m、期間、UTC、保存先を新しいP5-DATA-G1 amendmentへ転記する。</li>
       <li>旧Databento requestとは別に <code>RUN-P5-08-BINANCE-001</code> とrequestを作り、Data VisionのURL template、対象月、checksum検証、target pathsを固定する。</li>
-      <li>実行前に、Runnerの固定性、外部通信allowlist、Secret非使用、保存先、利用条件、停止条件を確認する。</li>
-      <li>承認済み範囲で初めて最小の限定取得を行い、ZIP／checksum／展開CSV／Normalized／Quality／Manifestを同じRunへ束ねる。</li>
+      <li>実行前に、Runnerの固定性、外部通信allowlist、Secret非使用、保存先、停止条件を確認し、Provider利用条件とhost通信証拠の開始前提をwaiverで除外した事実を別記録する。</li>
+      <li>承認済み範囲で限定取得を行い、P5-08でZIP／checksum／展開CSVを取得済み。Normalized／Quality／Manifestは後続Gateで同じRunへ束ねる。</li>
       <li>P5-09で品質・Calendar・Cost／Gap・期間分割・Holdoutを検証し、未取得・未確認の項目をPASSへしない。</li>
     </ol>
   </section>

@@ -43,8 +43,14 @@
   "provider_terms": {
     "status": "UNKNOWN",
     "evidence_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/provider-terms-review-20260815.md",
-    "required_before_execute": true,
-    "note": "公開取得・API key不要・checksum手順は公式情報で確認したが、取得Dataの保持・再配布許諾は確定できない。UnknownをPass化しない。"
+    "required_before_execute": false,
+    "operator_waiver_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/operator-waiver-20260815.md",
+    "operator_waiver": {
+      "status": "RECORDED",
+      "scope": "RUN-P5-08-BINANCE-001",
+      "decision": "START_PRECONDITION_WAIVED"
+    },
+    "note": "公開取得・API key不要・checksum手順は公式情報で確認したが、取得Dataの保持・再配布許諾はUNKNOWNのまま。運用者がこのRunの開始条件からProvider利用条件を除外した。"
   },
   "cost_policy": {
     "provider_data_cost_usd": 0,
@@ -69,8 +75,7 @@
   },
   "stop_conditions": [
     "P5_DATA_G1_APPROVAL_EVIDENCE_MISSING",
-    "HOST_ISOLATION_NOT_VERIFIED",
-    "PROVIDER_TERMS_UNKNOWN",
+    "OPERATOR_WAIVER_MISSING_OR_SCOPE_MISMATCH",
     "URL_ALLOWLIST_MISMATCH",
     "承認範囲外のsymbol、market segment、endpoint、期間",
     "API key／Secret読取または環境変数参照",

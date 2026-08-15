@@ -6,7 +6,8 @@ the HTTPS allowlist, target paths, approval evidence, and the host-isolation
 status without opening a network connection or reading environment variables.
 
 External I/O is available only with the explicit ``--mode execute`` flag and
-only after the registered host-isolation and provider-terms gates are verified.
+only after the registered host-isolation and provider-terms gates are verified,
+or after a matching, explicit operator waiver for this fixed Run is recorded.
 The runner is limited to public Binance Spot monthly Kline 1m ZIP archives for
 BTCUSDT and ETHUSDT.  It has no API-key, Secret, Broker, Paper, Live, order,
 Cloud, or Core write path.
@@ -47,7 +48,7 @@ DEFAULT_ISOLATION = DEFAULT_EVIDENCE_ROOT / "host-isolation.json"
 DEFAULT_OUTPUT = DEFAULT_EVIDENCE_ROOT / "preflight" / "registration-preflight.json"
 
 RUNNER_ID = "P5-EXT-BINANCE-VISION-SPOT-001"
-RUNNER_VERSION = "0.1.0"
+RUNNER_VERSION = "0.2.0"
 RUN_ID = "RUN-P5-08-BINANCE-001"
 PHASE_ID = "PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12"
 STEP_ID = "P5-08"
@@ -60,6 +61,9 @@ EXPECTED_END = "2026-08-01T00:00:00Z"
 EXPECTED_CALENDAR = "CRYPTO_24_7_UTC"
 MAX_DOWNLOAD_BYTES = 2 * 1024 * 1024 * 1024
 CHECKSUM_PATTERN = re.compile(r"\b[0-9a-fA-F]{64}\b")
+OPERATOR_WAIVER_REF = (
+    "tests/evidence/phase5/RUN-P5-08-BINANCE-001/operator-waiver-20260815.md"
+)
 
 
 class ContractError(RuntimeError):
@@ -294,6 +298,61 @@ def validate_isolation(isolation: dict[str, Any]) -> str:
     return str(status)
 
 
+def operator_waiver_is_recorded(
+    value: dict[str, Any], *, requirement_key: str, required_marker: str
+) -> bool:
+    """Validate an explicit start-precondition waiver without reclassifying facts."""
+
+    if value.get(requirement_key) is not False:
+        return False
+    if value.get("operator_waiver_ref") != OPERATOR_WAIVER_REF:
+        return False
+    waiver = value.get("operator_waiver")
+    if not isinstance(waiver, dict):
+        return False
+    if waiver.get("status") != "RECORDED" or waiver.get("scope") != RUN_ID:
+        return False
+    try:
+        waiver_path = repo_path(OPERATOR_WAIVER_REF, label="operator_waiver_ref")
+        text = waiver_path.read_text(encoding="utf-8")
+    except (ContractError, OSError):
+        return False
+    return (
+        RUN_ID in text
+        and required_marker in text
+        and "このRun" in text
+        and "waiver" in text.lower()
+    )
+
+
+def start_gates(
+    request: dict[str, Any], isolation: dict[str, Any]
+) -> tuple[bool, str, bool, str]:
+    """Return provider and host start-gate decisions while retaining factual states."""
+
+    isolation_status = validate_isolation(isolation)
+    host_verified = isolation_status == "VERIFIED"
+    host_waived = operator_waiver_is_recorded(
+        isolation,
+        requirement_key="evidence_required_before_execute",
+        required_marker="host-isolation通信証拠",
+    )
+    terms = request.get("provider_terms")
+    if not isinstance(terms, dict):
+        terms = {}
+    terms_confirmed = terms.get("status") == "CONFIRMED"
+    terms_waived = operator_waiver_is_recorded(
+        terms,
+        requirement_key="required_before_execute",
+        required_marker="Provider利用条件の事前確認",
+    )
+    return host_verified or host_waived, (
+        "VERIFIED" if host_verified else "OPERATOR_WAIVED" if host_waived else "BLOCKED"
+    ), terms_confirmed or terms_waived, (
+        "CONFIRMED" if terms_confirmed else "OPERATOR_WAIVED" if terms_waived else "BLOCKED"
+    )
+
+
 def approval_is_recorded(request: dict[str, Any]) -> bool:
     approval_ref = request.get("approval_evidence")
     if not isinstance(approval_ref, str):
@@ -320,13 +379,13 @@ def build_dry_run_report(
     validate_registration(registration)
     validate_allowlist(allowlist)
     isolation_status = validate_isolation(isolation)
+    host_ready, host_gate, terms_ready, terms_gate = start_gates(request, isolation)
     blocking_reasons: list[str] = []
     if not approval_is_recorded(request):
         blocking_reasons.append("P5_DATA_G1_APPROVAL_EVIDENCE_MISSING")
-    if isolation_status != "VERIFIED":
+    if not host_ready:
         blocking_reasons.append("HOST_ISOLATION_NOT_VERIFIED")
-    terms = request.get("provider_terms")
-    if not isinstance(terms, dict) or terms.get("status") != "CONFIRMED":
+    if not terms_ready:
         blocking_reasons.append("PROVIDER_TERMS_UNKNOWN")
     return {
         "schema_version": "p5-08-binance-registration-preflight-v1",
@@ -353,8 +412,11 @@ def build_dry_run_report(
         "redirect_policy": allowlist["redirect_policy"],
         "proxy_policy": allowlist["proxy_policy"],
         "host_isolation_status": isolation_status,
+        "host_isolation_gate": host_gate,
         "approval_evidence_recorded": approval_is_recorded(request),
         "provider_terms_status": request.get("provider_terms", {}).get("status"),
+        "provider_terms_gate": terms_gate,
+        "operator_waiver_applied": host_gate == "OPERATOR_WAIVED" or terms_gate == "OPERATOR_WAIVED",
         "ready_for_external_io": not blocking_reasons,
         "blocking_reasons": blocking_reasons,
         "raw_integrity_policy": "downloaded ZIP must match sibling .CHECKSUM; direct source-data identity only",
@@ -511,12 +573,12 @@ def execute_acquisition(
     months = validate_request(request)
     validate_registration(registration)
     validate_allowlist(allowlist)
-    if validate_isolation(isolation) != "VERIFIED":
+    host_ready, _host_gate, terms_ready, _terms_gate = start_gates(request, isolation)
+    if not host_ready:
         raise ContractError("HOST_ISOLATION_NOT_VERIFIED")
     if not approval_is_recorded(request):
         raise ContractError("P5_DATA_G1_APPROVAL_EVIDENCE_MISSING")
-    terms = request.get("provider_terms")
-    if not isinstance(terms, dict) or terms.get("status") != "CONFIRMED":
+    if not terms_ready:
         raise ContractError("PROVIDER_TERMS_UNKNOWN")
 
     targets = request["target_paths"]
@@ -598,7 +660,12 @@ def main(argv: Iterable[str] | None = None) -> int:
         else:
             report = execute_acquisition(request, registration, allowlist, isolation)
         write_json(output_path, report)
-        print(json.dumps({"status": report["status"], "output": str(output_path.relative_to(REPO_ROOT))}, ensure_ascii=False))
+        print(
+            json.dumps(
+                {"status": report["status"], "output": str(output_path.relative_to(REPO_ROOT))},
+                ensure_ascii=False,
+            )
+        )
         return 0 if args.mode == "dry-run" or report["status"] == "RAW_AND_EXPANDED_CSV_ACQUIRED" else 1
     except ContractError as exc:
         print(f"P5-08 Binance runner blocked: {exc}", file=sys.stderr)

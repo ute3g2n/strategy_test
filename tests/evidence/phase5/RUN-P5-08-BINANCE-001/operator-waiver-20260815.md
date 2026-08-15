@@ -25,3 +25,7 @@
 - 既存preflight: `tests/evidence/phase5/RUN-P5-08-BINANCE-001/preflight/registration-preflight.json`
 - 既存Runner: `scripts/phase5_external_data/run_binance_data_vision.py`
 - 今回のdispatch receipt: `tests/evidence/phase5/RUN-P5-08-BINANCE-001/dispatch/P5-08-execution-coordination-receipt-20260815.json`
+
+## 後続の実行結果
+
+このwaiver記録の作成自体は外部I/Oを行わない。waiver適用後の別の明示`--mode execute`で、Raw ZIP／`.CHECKSUM`／展開CSV 36件を取得した。取得結果は[`execution-finish-20260815.json`](execution-finish-20260815.json)と[`execution-summary.json`](execution-summary.json)を参照する。Provider terms=`UNKNOWN`、host isolation=`NOT_VERIFIED`は維持している。

@@ -1,0 +1,39 @@
+{
+  "schema_version": "p5-08-binance-execution-finish-v1",
+  "run_id": "RUN-P5-08-BINANCE-001",
+  "phase_id": "PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12",
+  "step_id": "P5-08",
+  "finished_at": "2026-08-15T08:39:03Z",
+  "execution_summary_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/execution-summary.json",
+  "status": "RAW_AND_EXPANDED_CSV_ACQUIRED",
+  "external_io_performed": true,
+  "api_key_or_secret_read": false,
+  "provider_data_cost_usd": 0,
+  "scope_result": {
+    "symbols": ["BTCUSDT", "ETHUSDT"],
+    "month_count": 18,
+    "result_count": 36,
+    "zip_count": 36,
+    "checksum_count": 36,
+    "expanded_csv_count": 36,
+    "partial_file_count": 0,
+    "total_bytes": 319477441
+  },
+  "integrity_result": {
+    "source_checksum_failures": 0,
+    "timestamp_unit_failures": 0,
+    "duplicate_timestamp_failures": 0,
+    "symbol_scope_failures": 0,
+    "month_scope_failures": 0
+  },
+  "factual_states": {
+    "provider_terms_status": "UNKNOWN",
+    "host_isolation_status": "NOT_VERIFIED",
+    "provider_terms_gate": "OPERATOR_WAIVED",
+    "host_isolation_gate": "OPERATOR_WAIVED",
+    "normalized_status": "NOT_EXECUTED",
+    "quality_status": "NOT_EXECUTED"
+  },
+  "network_evidence_status": "WAIVED_BY_OPERATOR",
+  "next_gate": "P5-09_NORMALIZED_QUALITY_CALENDAR_COST_GAP_HOLDOUT"
+}

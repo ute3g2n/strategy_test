@@ -4,7 +4,7 @@
 - Phase: `PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12`
 - Run: `RUN-P5-08-BINANCE-001`
 - Date: `2026-08-15`
-- Decision: `P5-08_FIXED_REGISTRATION_COMPLETE_EXTERNAL_EXECUTION_NOT_STARTED`
+- Decision: `P5-08_RAW_AND_EXPANDED_CSV_ACQUIRED_OPERATOR_WAIVER`
 
 ## 実施内容
 
@@ -16,12 +16,12 @@
 - `tests/evidence/phase5/RUN-P5-08-BINANCE-001/runner-registration.json`
 - `tests/evidence/phase5/RUN-P5-08-BINANCE-001/allowlist.json`
 - `tests/evidence/phase5/RUN-P5-08-BINANCE-001/host-isolation.json`
-- `tests/evidence/phase5/RUN-P5-08-BINANCE-001/registration-receipt.json`
+- `tests/evidence/phase5/RUN-P5-08-BINANCE-001/operator-waiver-20260815.md`
 - `scripts/phase5_external_data/run_binance_data_vision.py`
 
 ## 安全境界
 
-- dry-runが既定で、外部通信は0件。
+- dry-runが既定。今回のexecuteは運用者waiverと明示コマンドにより、固定範囲へ限定した。
 - API key／Secretの値と環境変数は読まない。
 - 許可先はHTTPSの `data.binance.vision:443` だけ。ProxyとRedirectは拒否する。
 - Spot monthly Kline 1m ZIPと同一URLの`.CHECKSUM`だけを対象とする。
@@ -35,9 +35,10 @@
 - `external_io_performed=false`
 - `data_acquired=false`
 - `api_key_or_secret_read=false`
-- `ready_for_external_io=false`
-- `HOST_ISOLATION_NOT_VERIFIED`
-- `PROVIDER_TERMS_UNKNOWN`
+- `ready_for_external_io=true`
+- `host_isolation_gate=OPERATOR_WAIVED`（事実は`NOT_VERIFIED`）
+- `provider_terms_gate=OPERATOR_WAIVED`（事実は`UNKNOWN`）
+- `operator_waiver_applied=true`
 - `normalization_status=NOT_EXECUTED`
 - `quality_status=NOT_EXECUTED`
 
@@ -55,7 +56,7 @@
 - [Provider利用条件確認](../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/provider-terms-review-20260815.md)
 - [Host isolation確認](../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/host-isolation-check-20260815.json)
 
-このため「登録完了」と「P5-08実行可能」「P5-08 PASS」は分離する。UnknownをPass化していない。
+このため「開始前提のwaiver」「外部取得完了」「P5-08全体PASS」は分離する。Provider条件とhost isolationはUnknown／未検証のままであり、Normalized／Qualityを未実行のためP5-08全体PASSとはしていない。
 
 ## Runtime dispatch
 
@@ -67,11 +68,23 @@ Rootは`multi_agent_v1__spawn_agent`で`AutoTradeProject_Orchestrator_v0_1`（�
 
 独立Agent実行・独立レビュー済みとは記載しない。
 
-証跡：`tests/evidence/phase5/RUN-P5-08-BINANCE-REGISTRATION-20260815-001/dispatch-receipt.json`
+証跡：[`root runtime receipt`](../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/dispatch/P5-08-root-runtime-receipt-20260815.json)、[`Coordinator receipt`](../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/dispatch/P5-08-execution-coordination-receipt-20260815.json)
 
-## P5-08の実行前に必要な残作業
+## 実行結果（2026-08-15）
 
-1. Binanceの利用・保持・再配布条件を確認し、`provider_terms`をCONFIRMEDにする。
-2. OS／host isolationを実行ID付きで取得し、`host-isolation.json`をVERIFIEDに更新する。
-3. 明示的にexecuteを開始する。ただし、今回の登録作業では実行していない。
-4. Raw ZIP、`.CHECKSUM`、展開CSVを取得後、別途Normalized／Quality／Calendar／Cost／Gap／Holdout Evidenceを作成する。
+運用者waiverを適用したうえで、固定Runnerの`--mode execute`を実行した。
+
+- [開始Evidence](../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/execution-start-20260815.json)
+- [完了Evidence](../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/execution-finish-20260815.json)
+- [取得サマリ](../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/execution-summary.json)
+- 対象：`BTCUSDT`／`ETHUSDT` × 18月 = 36件
+- 成果物：Raw ZIP 36件、`.CHECKSUM` 36件、展開CSV 36件、未完了`.part` 0件
+- 検証：checksum不一致0、timestamp unit不一致0、重複timestamp 0、symbol／月範囲違反0
+- API key／Secret読取：`false`。Provider data cost：`0 USD`
+- `normalized_status=NOT_EXECUTED`、`quality_status=NOT_EXECUTED`
+
+## 実行後の残作業
+
+1. P5-09でRaw／展開CSVからNormalized、D1／H4／H1／M30／M15、Quality、`CRYPTO_24_7_UTC`、Cost／Gap、Holdout Evidenceを作成する。
+2. Provider条件=`UNKNOWN`、host isolation=`NOT_VERIFIED`をPassへ変換せず、waiver適用事実とともに台帳へ保持する。
+3. 子Agent未起動fallbackを独立レビュー済みと表記せず、P5-09以降のレビュー実行時に新しいdispatch receiptを保存する。
