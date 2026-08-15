@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P5-10 Phase5統合品質・P6引渡し候補</title>
+  <style>
+    :root { color-scheme: light; --ink:#182230; --muted:#526174; --line:#cbd5e1; --bg:#f7fafc; --card:#fff; --ok:#166534; --warn:#9a3412; --bad:#991b1b; --blue:#1d4ed8; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { max-width:1180px; margin:0 auto; padding:32px 22px 64px; }
+    h1,h2,h3 { line-height:1.25; } h1 { font-size:2rem; margin-bottom:.25rem; } h2 { margin-top:2.4rem; border-bottom:2px solid var(--line); padding-bottom:.35rem; }
+    .meta,.note { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 20px; } .meta p { margin:.25rem 0; }
+    .status { font-weight:700; color:var(--warn); } .pass { color:var(--ok); font-weight:700; } .open { color:var(--warn); font-weight:700; }
+    table { width:100%; border-collapse:collapse; background:var(--card); margin:1rem 0; } th,td { text-align:left; vertical-align:top; border:1px solid var(--line); padding:.65rem; } th { background:#eaf1fb; }
+    code { overflow-wrap:anywhere; } a { color:var(--blue); } .small { color:var(--muted); font-size:.92rem; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Phase 5 統合品質・P6引渡し候補</h1>
+  <div class="meta">
+    <p><strong>文書ID:</strong> <code>P5-ART-10-INTEGRATED-QUALITY-001</code></p>
+    <p><strong>Step / Run:</strong> <code>P5-10</code> / <code>RUN-P5-10-BINANCE-001</code></p>
+    <p><strong>作成日:</strong> 2026-08-15 Asia/Tokyo</p>
+    <p><strong>状態:</strong> <span class="status">INTEGRATED_REVIEW_COMPLETE_WITH_OPEN_UNKNOWN</span></p>
+    <p><strong>P5-H2:</strong> <span class="open">NOT_A_CANDIDATE_HUMAN_GATE_NOT_CREATED</span>。この文書は承認書でもP6開始承認書でもない。</p>
+  </div>
+
+  <h2>1. Findings first</h2>
+  <table>
+    <tr><th>ID</th><th>重大度</th><th>状態</th><th>確認結果・処置</th></tr>
+    <tr><td><code>P5-10-F-001</code></td><td>Medium</td><td class="open">OPEN</td><td>Providerの利用・保持・再配布条件は<code>UNKNOWN</code>。P5-08開始時のwaiverはP5-H2のPASSではない。P5-H2審査前に運用者／Data ownerが根拠付きで再判定する。</td></tr>
+    <tr><td><code>P5-10-F-002</code></td><td>Medium</td><td class="open">OPEN</td><td>P5-08外部取得Runのhost isolationは<code>NOT_VERIFIED</code>。P5-09は外部通信をしていないため置換不能。P5-H2審査前にOps ownerが承認範囲と照合する。</td></tr>
+    <tr><td><code>P5-10-F-003</code></td><td>Medium</td><td class="open">OPEN</td><td>指定7 Agentはruntime機能不足で未起動。独立レビューではない。A80のPrompt指定modelとJSON宣言modelにも差があり、代替modelは用いていない。</td></tr>
+    <tr><td><code>P5-10-F-004</code></td><td>Medium</td><td class="open">OPEN</td><td>fee、slippage、内部金銭コストは<code>NOT_MEASURED</code>。実注文・約定をしていないためゼロや実測値に補完しない。P6の該当Gateで別扱いとする。</td></tr>
+    <tr><td><code>P5-10-F-005</code></td><td>Medium</td><td class="pass">CLOSED</td><td>P5-10自身の外部I/O、Secret/API key読取、Provider変更、symbol追加、注文、Broker、Paper、Live、実資金、Core、P4 DB、Cloud変更は0件。</td></tr>
+    <tr><td><code>P5-10-F-006</code></td><td>Medium</td><td class="open">OPEN</td><td>A95静的判定は新規HTMLとログでALLOW。dispatch receiptは必須Agent識別子を静的語句として扱い<code>NEEDS_HUMAN_GATE</code>になった。文書・ログ・受領記録の同一性を管理する仕組みは存在しない。</td></tr>
+  </table>
+  <p><strong>Critical=0、High=0。</strong>ただしMedium Openがあるため、P5-H2候補は成立しない。UnknownをPASSへ変更していない。</p>
+
+  <h2>2. 対象と統合結論</h2>
+  <p>統合対象はBinance Data Vision historicalの<code>BTCUSDT</code>／<code>ETHUSDT</code>、Crypto Spot、1m基底、UTC、<code>CRYPTO_24_7_UTC</code>、期間<code>2025-02-24T00:00:00Z</code>以上<code>2026-08-01T00:00:00Z</code>未満だけである。旧Databento／CME 5候補のEvidenceは現行Binance実証へ読み替えない。</p>
+  <table>
+    <tr><th>領域</th><th>確認済みEvidence</th><th>判定</th></tr>
+    <tr><td>Raw・来歴</td><td>36 ZIP、36 source-data integrity record、36展開CSV。integrity/timestamp/duplicate/symbol/monthの失敗0。不一致ならP5-H2審査を停止する。</td><td class="pass">範囲内で一致</td></tr>
+    <tr><td>品質</td><td>各symbol 753,120本、gap 0、重複0、zero-fill 0、補間0。schema/timestamp/OHLCV PASS。</td><td class="pass">機械品質PASS</td></tr>
+    <tr><td>Calendar・派生Data</td><td>UTC境界でD1=523、H4=3,138、H1=12,552、M30=25,104、M15=50,208（各symbol）。</td><td class="pass">PASS</td></tr>
+    <tr><td>Cost・Gap</td><td>Provider Data cost 0 USD、observed gap 0。fee/slippage/internal financial costは未測定。</td><td class="open">部分的に確認</td></tr>
+    <tr><td>期間・Holdout</td><td>Train 2025-02-24〜2026-01-01、Validation 2026-01-01〜2026-04-01、Holdout 2026-04-01〜2026-08-01（UTC）。overlap/future PASS、holdout tuning未使用。</td><td class="pass">PASS</td></tr>
+  </table>
+
+  <h2>3. REQ → UC → Test → Evidence → Gate</h2>
+  <table>
+    <tr><th>REQ / UC</th><th>対象</th><th>Test</th><th>Evidence</th><th>Gate</th></tr>
+    <tr><td><code>REQ-V2-0029/0030/0031</code><br><code>UC-V2-009〜016</code></td><td>Raw/Normalized/Quality</td><td>schema、timestamp、OHLCV、gap、duplicates</td><td><a href="../../../tests/evidence/phase5/RUN-P5-09-BINANCE-001/quality/quality-report.json">quality report</a></td><td class="pass">P5-09 machine gates PASS</td></tr>
+    <tr><td><code>REQ-V2-0044/0096</code><br><code>UC-V2-024/025/030〜032</code></td><td>Cost/Gap</td><td>実測・仮定・未測定の分離</td><td><a href="../../../tests/evidence/phase5/RUN-P5-09-BINANCE-001/quality/cost-gap.json">cost-gap</a></td><td>fee/slippageは未測定</td></tr>
+    <tr><td><code>REQ-V2-0054/0055</code><br><code>UC-V2-032/033/035</code></td><td>期間分割/Holdout</td><td>overlap、future、holdout reuse</td><td><a href="../../../tests/evidence/phase5/RUN-P5-09-BINANCE-001/quality/period-split.json">period split</a></td><td class="pass">PASS</td></tr>
+    <tr><td><code>REQ-V2-0105/0106</code><br><code>UC-V2-036〜068</code></td><td>Trace/Unknown/Gate</td><td>Evidence path、状態、Unknown非PASS</td><td><a href="../../../tests/evidence/phase5/RUN-P5-09-BINANCE-001/evidence-index.json">Evidence index</a> / <a href="../../../doc/00_全Phase残課題Blocked統合台帳.html">統合台帳</a></td><td class="open">Open Unknown継続</td></tr>
+  </table>
+
+  <h2>4. P6引渡し候補と境界</h2>
+  <table>
+    <tr><th>引渡し候補</th><th>P6で守る境界</th></tr>
+    <tr><td>BTCUSDT/ETHUSDT Spot、1m基底、UTC、<code>CRYPTO_24_7_UTC</code>、D1/H4/H1/M30/M15</td><td>P5-H2の明示承認前は候補に留める。Futures、Funding、Liquidation、他symbolへ拡張しない。</td></tr>
+    <tr><td>Raw/Normalized/Quality/Calendar/Cost-Gap/period split Evidence</td><td>欠損はzero-fillせずFail-closed。holdoutをtuningへ再利用しない。戦略性能の証明へ読み替えない。</td></tr>
+    <tr><td>Provider 0 USD・observed gap 0</td><td>fee/slippage/内部金銭コスト/実Riskへ読み替えない。</td></tr>
+    <tr><td>Open Unknownと停止条件</td><td>Provider terms、host isolation、独立reviewを解消またはGateで扱うまで、外部運用・注文経路を開始しない。</td></tr>
+  </table>
+  <p>Broker、Paper、Live、実資金、実Risk、Cloud、利益性はこのP5-10のPASS対象外であり、P6へ承認済みとして渡さない。</p>
+
+  <h2>5. レビュー履歴・採否</h2>
+  <table>
+    <tr><th>レビュー観点</th><th>結果</th><th>採否</th></tr>
+    <tr><td>外部I/O / Secret / Adapter境界</td><td>P5-10自身は外部副作用0。P5-08の外部取得事実とP5-09 local-onlyを分離。</td><td>採用</td></tr>
+    <tr><td>Calendar / Cost / Gap</td><td>Crypto 24/7を適用。CME固有規則を適用しない。未測定costをPASSにしない。</td><td>採用</td></tr>
+    <tr><td>Look-ahead / Holdout</td><td>境界・overlap・future・holdout未利用をEvidenceで確認。戦略実行は範囲外。</td><td>採用</td></tr>
+    <tr><td>Unknown / P6 boundary</td><td>4件のMedium Openを台帳へ残し、P5-H2候補を不成立とする。</td><td>採用</td></tr>
+    <tr><td>独立レビュー</td><td>child Agent未起動。自己レビューであり独立レビューではない。</td><td>保留</td></tr>
+  </table>
+
+  <h2>6. dispatch・A95静的判定</h2>
+  <p>このruntimeには指定spawn/wait機能がなく、Orchestratorと7 Agentは未起動である。全員の<code>agent_id=N/A</code>、model、JSON path、wait状態、fallback理由は<a href="../../../tests/evidence/phase5/RUN-P5-10-BINANCE-001/dispatch-receipt.json">dispatch receipt</a>に記録した。独立実行・独立レビューを主張しない。</p>
+  <p>A95相当の静的確認では、path/schema/link/state/Secretを確認する。Raw source-dataのintegrity recordは完全性・再現性に直接必要な範囲だけに限定し、不一致ならP5-H2審査を停止する。文書・ログ・受領記録の同一性を管理する仕組みは追加していない。</p>
+
+  <h2>7. 関連リンク</h2>
+  <ul>
+    <li><a href="../05_実証/09_P5-08_Binance固定Runner登録.html">P5-08固定Runner・Raw Evidence</a> / <a href="../05_実証/10_P5-09_Binance品質・Calendar・Cost_Gap・Holdout.html">P5-09品質Evidence</a></li>
+    <li><a href="../../../plan/phase5/ログ/P5-10_統合品質レビュー・P6引渡し候補_2026-08-15.md">P5-10実行ログ</a> / <a href="../../../tests/evidence/phase5/RUN-P5-10-BINANCE-001/dispatch-receipt.json">P5-10 dispatch receipt</a></li>
+    <li><a href="../../../plan/Phase5_実行計画書_v0.1_2026-08-12.md">Phase5計画</a> / <a href="../../../doc/00_全Phase残課題Blocked統合台帳.html">統合台帳</a> / <a href="../../index.html">doc index</a></li>
+  </ul>
+  <p class="small">更新日: 2026-08-15 Asia/Tokyo。P5-H2の明示承認前にP5-11を開始しない。</p>
+</main>
+</body>
+</html>

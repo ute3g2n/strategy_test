@@ -1,0 +1,115 @@
+{
+  "schema_version": "p5-10-runtime-dispatch-receipt-v1",
+  "phase_id": "PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12",
+  "step_id": "P5-10",
+  "run_id": "RUN-P5-10-BINANCE-001",
+  "recorded_at": "2026-08-15T12:00:00+09:00",
+  "status": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+  "dispatch_mode": "LOCAL_FALLBACK_NO_SUBAGENTS",
+  "orchestrator": {
+    "name": "AutoTradeProject_DesignDocSet_Orchestrator_v0_1",
+    "json_path": ".codex/orchestrators/AutoTradeProject_DesignDocSet_Orchestrator_v0_1.json",
+    "fixed_model": "gpt-5.6-terra",
+    "agent_id": "N/A",
+    "spawn_status": "UNAVAILABLE",
+    "wait_status": "UNAVAILABLE",
+    "output_ref": "plan/phase5/ログ/P5-10_統合品質レビュー・P6引渡し候補_2026-08-15.md",
+    "fallback_reason": "The current runtime exposes neither multi_agent_v1__spawn_agent nor multi_agent_v1__wait_agent.",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK"
+  },
+  "children": [
+    {
+      "agent_name": "AutoTrade_A10_RequirementsCurator_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json",
+      "fixed_model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "UNAVAILABLE",
+      "wait_status": "UNAVAILABLE",
+      "output_ref": "N/A",
+      "fallback_reason": "Child dispatch backend unavailable.",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A50_AdapterArchitect_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A50_AdapterArchitect_v0_1.json",
+      "fixed_model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "UNAVAILABLE",
+      "wait_status": "UNAVAILABLE",
+      "output_ref": "N/A",
+      "fallback_reason": "Child dispatch backend unavailable.",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A70_OpsSecurityArchitect_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A70_OpsSecurityArchitect_v0_1.json",
+      "fixed_model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "UNAVAILABLE",
+      "wait_status": "UNAVAILABLE",
+      "output_ref": "N/A",
+      "fallback_reason": "Child dispatch backend unavailable.",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A80_DocumentIntegrator_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json",
+      "requested_fixed_model": "gpt-5.1",
+      "declared_json_model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "UNAVAILABLE",
+      "wait_status": "UNAVAILABLE",
+      "output_ref": "N/A",
+      "fallback_reason": "Child dispatch backend unavailable; requested model and current JSON declared model also differ, so no model substitution was made.",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A81_DesignDocSetWriter_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A81_DesignDocSetWriter_v0_1.json",
+      "fixed_model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "UNAVAILABLE",
+      "wait_status": "UNAVAILABLE",
+      "output_ref": "N/A",
+      "fallback_reason": "Child dispatch backend unavailable.",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A90_DesignReviewer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json",
+      "fixed_model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "UNAVAILABLE",
+      "wait_status": "UNAVAILABLE",
+      "output_ref": "N/A",
+      "fallback_reason": "Child dispatch backend unavailable.",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json",
+      "fixed_model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "spawn_status": "UNAVAILABLE",
+      "wait_status": "UNAVAILABLE",
+      "output_ref": "N/A",
+      "fallback_reason": "Child dispatch backend unavailable.",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    }
+  ],
+  "fallback_responsibility_checklist": [
+    "Inputs, Evidence paths, JSON structure, statuses, HTML links, and ledger state were checked locally.",
+    "External I/O, API key or Secret reads, Provider changes, symbol expansion, orders, Broker, Paper, Live, real funds, Core, P4 DB, and Cloud changes were not performed.",
+    "Findings-first review covered Data, Calendar, Cost/Gap, holdout/look-ahead, gates, Unknowns, and the P6 boundary.",
+    "No unstarted Agent is represented as independently executed or independently reviewed.",
+    "The A95 static policy check uses only path, schema, link, state, and Secret checks; it creates no document-management identity mechanism."
+  ]
+}

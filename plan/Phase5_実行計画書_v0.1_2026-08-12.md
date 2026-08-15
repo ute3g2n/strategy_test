@@ -131,11 +131,11 @@ Phase 5は、P4で作成したProduct/ApplicationのData接続点を引き継ぎ
 | P5-DATA-G1 | Binance Data Vision Provider専用外部Data Gate amendment | P5-07 | 新しい人間承認 | `BINANCE_AMENDMENT_REQUIRED` | 旧Databento承認は履歴。`BTCUSDT`／`ETHUSDT`、Spot、1m、UTC、24/7、公開Data費用0、API key／Secret非使用、固定Runner／request／allowlistを新Gateで固定 |
 | P5-08 | Binance暫定対象の限定Data取得・Raw／Normalized Evidence | Binance用P5-DATA-G1 amendment、運用者waiver | `RAW_AND_EXPANDED_CSV_ACQUIRED` | 実施済み（36件） | `RUN-P5-08-BINANCE-001`に月次Spot Kline 1m ZIP、`.CHECKSUM`、展開CSVを保存。Provider条件とhost isolation通信証拠はこのRunの開始前提から除外したが、事実はUNKNOWN／NOT_VERIFIEDのまま。Normalized／QualityはP5-09で実施 |
 | P5-09 | Crypto Spot Quality／Calendar適用／Cost／Gap／期間分割／Holdout実証 | P5-08 Binance Raw Evidence | `QUALITY_EVIDENCE_COMPLETE_WITH_OPEN_UNKNOWN` | 実施済み（local quality evidence） | `RUN-P5-09-BINANCE-001`で2銘柄各753,120本、gap／重複／補間0、UTC D1／H4／H1／M30／M15、Cost／Gap、Holdout分割を記録。Provider条件、P5-08 host isolation、child Agent未起動はUnknownとして未解消 |
-| P5-10 | Binance対象の統合・独立レビュー、Unknown再分類、P5-H2候補 | P5-08、P5-09 | `READY_FOR_P5-10_REVIEW` | 不可 | P5-09の機械Evidenceは揃ったが、P5-10の統合レビューは未実施。UnknownをPassにせず、P5-H2候補を作成しない |
-| P5-H2 | Binance対象P5完了・P6引渡し承認 | P5-10 | `HUMAN_GATE_REQUIRED` | 不可 | `BTCUSDT`／`ETHUSDT` Spot範囲の実証Evidence、P6引渡し表、Unknown再分類がなく、承認対象未成立 |
-| P5-11 | Binance対象の完了記録、台帳同期、P6計画入力引渡し | P5-H2 | `BLOCKED` | 不可 | P5-H2未承認、P5-10候補なし。Binance Data contract／Calendar適用／Cost・Gap／停止条件の完了HTML・P6入力なし |
+| P5-10 | Binance対象の統合・独立レビュー、Unknown再分類、P5-H2候補 | P5-08、P5-09 | `INTEGRATED_REVIEW_COMPLETE_WITH_OPEN_UNKNOWN` | 不可 | REQ/UC/Test/Evidenceを統合し、機械品質・Calendar・splitを再照合。Provider条件、P5-08 host isolation、child Agent未起動、未測定execution costをOpenとして保持し、P5-H2候補は不成立 |
+| P5-H2 | Binance対象P5完了・P6引渡し承認 | P5-10 | `HUMAN_GATE_REQUIRED` | 不可 | P5-10のP6引渡し候補は作成済みだが、Open Unknownと人間の明示承認がないため承認対象は未成立 |
+| P5-11 | Binance対象の完了記録、台帳同期、P6計画入力引渡し | P5-H2 | `BLOCKED` | 不可 | P5-H2未承認。P5-10候補は承認前の文書に留まり、P5-11の完了HTML・P6計画入力は作成しない |
 
-P5-01とP5-02はP5-01完了後にP5-02を開始する。P5-03、P5-04はP5-02の契約骨子を前提に逐次実行する。P5-05でレビューを閉じるまでP5-H1へ進まない。P5-08は`P5-DATA-G1-BINANCE-AMENDMENT-001=APPROVED`、固定Runner、request、allowlist、運用者waiverが揃った後に発火する。Provider利用条件の事前確認と実行前後host-isolation通信証拠は、`RUN-P5-08-BINANCE-001`の開始前提から除外した。P5-09はP5-08のBinance Raw／展開CSVを入力にlocal quality evidenceを生成済みである。P5-10は、P5-09に残るUnknownをPassへ再分類せず、統合レビューを行うまでP5-H2候補を作らない。
+P5-01とP5-02はP5-01完了後にP5-02を開始する。P5-03、P5-04はP5-02の契約骨子を前提に逐次実行する。P5-05でレビューを閉じるまでP5-H1へ進まない。P5-08は`P5-DATA-G1-BINANCE-AMENDMENT-001=APPROVED`、固定Runner、request、allowlist、運用者waiverが揃った後に発火する。Provider利用条件の事前確認と実行前後host-isolation通信証拠は、`RUN-P5-08-BINANCE-001`の開始前提から除外した。P5-09はP5-08のBinance Raw／展開CSVを入力にlocal quality evidenceを生成済みである。P5-10は統合レビューを完了したが、残るUnknownをPassへ再分類せず、P5-H2候補は不成立とした。
 
 ## 8. 使用AI部品と固定model
 
@@ -534,4 +534,5 @@ Phase 5の完了判定は、Binance Data Visionの`BTCUSDT`／`ETHUSDT` Spot His
 | 2026-08-14 | v0.2 scope amendment | 運用者の決定を受領し、ProviderをBinance Data Visionへ変更、旧CME Micro futures 5件を初期運用候補から外し、BTCUSDT／ETHUSDTを暫定対象へ変更。旧Databento Gateを履歴化し、Binance用P5-DATA-G1 amendment、request、Runner、checksum／hash EvidenceをP5-08再開条件へ追加した。 |
 | 2026-08-15 | v0.3 execution-plan amendment | P5-08〜P5-11の実行条件をBinance Spot／BTCUSDT・ETHUSDT／1m月次ZIP／UTC／`CRYPTO_24_7_UTC`へ具体化。API key／Secret非使用、公開Data費用0、`.CHECKSUM`のデータ完全性検証、CryptoではDST／休場／限月／Rollを適用外とする品質判定、Binance専用Run ID／Evidence、P6引渡し範囲を明記した。各直接PromptへA95の固定model／Skill指定を追加し、管理用hashは受入条件から除外した。 |
   | 2026-08-15 | v0.4 P5-08 operator-waiver execution | 運用者決定により、`RUN-P5-08-BINANCE-001`の開始前提からProvider利用条件の事前確認と実行前後host-isolation通信証拠を除外した。事実はUNKNOWN／NOT_VERIFIEDのまま保持し、固定RunnerでBTCUSDT／ETHUSDTの18月分、Raw ZIP／`.CHECKSUM`／展開CSV 36件を取得した。Normalized／Quality／Calendar／Cost／Gap／HoldoutはP5-09へ残した。 |
+| 2026-08-15 | v0.5 P5-10 integrated review | P5-08/09のBinance Evidenceを統合し、REQ/UC/Test/Evidence、UTC Calendar、Cost/Gap、期間分割/Holdout、P6境界を再照合した。Provider条件、P5-08 host isolation、child dispatch、未測定execution costをOpenで保持し、P5-H2候補は作成しなかった。 |
   | 2026-08-15 | v0.5 P5-09 quality-evidence execution | `RUN-P5-09-BINANCE-001`でP5-08展開CSVを入力に、schema／timestamp／OHLCV／単調性／重複／gap、UTC D1／H4／H1／M30／M15、`CRYPTO_24_7_UTC`、Cost／Gap、train／validation／holdoutをlocal検証した。機械Gateは完了したが、Provider条件、P5-08 host isolation、子Agent未起動をUnknownとして保持し、P5-10統合レビュー待ちとした。 |
