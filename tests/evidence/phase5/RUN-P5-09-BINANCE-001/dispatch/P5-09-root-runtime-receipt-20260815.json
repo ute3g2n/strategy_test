@@ -1,0 +1,41 @@
+{
+  "schema_version": "runtime-dispatch-receipt-v1",
+  "phase_id": "PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12",
+  "step_id": "P5-09",
+  "run_id": "RUN-P5-09-BINANCE-001",
+  "recorded_at": "2026-08-15T18:40:56+09:00",
+  "decision": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+  "runtime": {
+    "availability_checked": [
+      "multi_agent_v1__spawn_agent",
+      "multi_agent_v1__wait_agent"
+    ],
+    "availability_result": "UNAVAILABLE",
+    "dispatch_state": "LOCAL_FALLBACK_NO_SUBAGENTS",
+    "reason": "The active root runtime does not expose multi_agent_v1__spawn_agent or multi_agent_v1__wait_agent. No substitute orchestrator, model, or Agent was used."
+  },
+  "root_orchestrator": {
+    "orchestrator_name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+    "orchestrator_json_path": "C:/project/strategy_test/.codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json",
+    "model": "gpt-5.6-terra",
+    "agent_id": "N/A",
+    "spawn_status": "UNAVAILABLE",
+    "wait_status": "UNAVAILABLE",
+    "output_ref": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/dispatch/P5-09-child-runtime-receipt-20260815.json",
+    "fallback_reason": "multi_agent_v1 spawn/wait tools unavailable in active root runtime",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK"
+  },
+  "scope": {
+    "input_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/execution-finish-20260815.json",
+    "symbols": ["BTCUSDT", "ETHUSDT"],
+    "market": "Binance Spot",
+    "source_timeframe": "1m",
+    "timezone": "UTC",
+    "calendar": "CRYPTO_24_7_UTC",
+    "derived_timeframes": ["D1", "H4", "H1", "M30", "M15"],
+    "external_network": false,
+    "api_key_or_secret_read": false
+  },
+  "work_boundary": "Coordinator dispatch status and child outputs only. The root will perform local P5-09 quality implementation after this receipt; this receipt does not claim P5-09 PASS or independent review."
+}
