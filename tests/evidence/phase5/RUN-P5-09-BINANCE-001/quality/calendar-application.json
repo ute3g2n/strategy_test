@@ -1,0 +1,15 @@
+{
+  "applied_calendar": "CRYPTO_24_7_UTC",
+  "cme_futures_rules": {
+    "dst": "N/A",
+    "expiry": "N/A",
+    "holiday": "N/A",
+    "roll": "N/A",
+    "short_day": "N/A"
+  },
+  "gap_policy": "No zero fill; observed gaps are classified and stop downstream use.",
+  "schema_version": "p5-09-calendar-application-v1",
+  "spot_crypto_rule": "Continuous 24/7 UTC; no exchange holiday, DST, shortened day, expiry, or futures roll transformation.",
+  "status": "PASS",
+  "timezone": "UTC"
+}

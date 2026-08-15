@@ -1,0 +1,25 @@
+{
+  "api_key_or_secret_read": false,
+  "calendar_status": "PASS",
+  "cost_gap_status": "PASS_WITH_NO_OBSERVED_GAPS",
+  "critical_findings": [],
+  "external_io_performed": false,
+  "factual_states": {
+    "child_agents": "NOT_STARTED",
+    "host_isolation_status": "NOT_VERIFIED_INHERITED_FROM_P5_08",
+    "p5_09_external_network": "NOT_USED",
+    "provider_terms_status": "UNKNOWN_INHERITED_FROM_P5_08"
+  },
+  "finished_at": "2026-08-15T10:17:25Z",
+  "high_findings": [],
+  "next_gate": "P5-10_REVIEW_AND_INTEGRATION",
+  "normalized_status": "GENERATED",
+  "period_split_status": "PASS",
+  "phase_id": "PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12",
+  "quality_status": "QUALITY_GATES_PASS_WITH_OPEN_UNKNOWN",
+  "run_id": "RUN-P5-09-BINANCE-001",
+  "schema_version": "p5-09-execution-finish-v1",
+  "source_checksum_status": "ALL_SOURCE_ARCHIVES_VERIFIED_BY_P5_08",
+  "status": "QUALITY_EVIDENCE_COMPLETE_WITH_OPEN_UNKNOWN",
+  "step_id": "P5-09"
+}

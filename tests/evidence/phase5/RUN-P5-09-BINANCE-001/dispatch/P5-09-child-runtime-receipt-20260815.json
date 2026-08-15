@@ -6,7 +6,7 @@
   "recorded_at": "2026-08-15T18:40:56+09:00",
   "decision": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
   "fallback_state": "LOCAL_FALLBACK_NO_SUBAGENTS",
-  "reason": "The active root runtime does not expose multi_agent_v1__spawn_agent or multi_agent_v1__wait_agent. The listed Agents were not started and none is represented as independently executed or independently reviewed.",
+  "reason": "The root successfully dispatched and waited for the Coordinator, but the Coordinator reported that child spawn/wait was unavailable. The listed Agents were not started and none is represented as independently executed or independently reviewed.",
   "children": [
     {
       "sequence": 1,
@@ -17,7 +17,7 @@
       "spawn_status": "UNAVAILABLE",
       "wait_status": "UNAVAILABLE",
       "output_ref": null,
-      "fallback_reason": "multi_agent_v1 spawn/wait tools unavailable in active root runtime",
+      "fallback_reason": "Coordinator child spawn/wait unavailable",
       "independent": false,
       "review_mode": "SELF_REVIEW_FALLBACK"
     },
@@ -30,7 +30,7 @@
       "spawn_status": "UNAVAILABLE",
       "wait_status": "UNAVAILABLE",
       "output_ref": null,
-      "fallback_reason": "multi_agent_v1 spawn/wait tools unavailable in active root runtime",
+      "fallback_reason": "Coordinator child spawn/wait unavailable",
       "independent": false,
       "review_mode": "SELF_REVIEW_FALLBACK"
     },
@@ -43,7 +43,7 @@
       "spawn_status": "UNAVAILABLE",
       "wait_status": "UNAVAILABLE",
       "output_ref": null,
-      "fallback_reason": "multi_agent_v1 spawn/wait tools unavailable in active root runtime",
+      "fallback_reason": "Coordinator child spawn/wait unavailable",
       "independent": false,
       "review_mode": "SELF_REVIEW_FALLBACK"
     },
@@ -56,7 +56,7 @@
       "spawn_status": "UNAVAILABLE",
       "wait_status": "UNAVAILABLE",
       "output_ref": null,
-      "fallback_reason": "multi_agent_v1 spawn/wait tools unavailable in active root runtime",
+      "fallback_reason": "Coordinator child spawn/wait unavailable",
       "independent": false,
       "review_mode": "SELF_REVIEW_FALLBACK"
     },
@@ -69,7 +69,7 @@
       "spawn_status": "UNAVAILABLE",
       "wait_status": "UNAVAILABLE",
       "output_ref": null,
-      "fallback_reason": "multi_agent_v1 spawn/wait tools unavailable in active root runtime",
+      "fallback_reason": "Coordinator child spawn/wait unavailable",
       "independent": false,
       "review_mode": "SELF_REVIEW_FALLBACK"
     },
@@ -82,7 +82,7 @@
       "spawn_status": "UNAVAILABLE",
       "wait_status": "UNAVAILABLE",
       "output_ref": null,
-      "fallback_reason": "multi_agent_v1 spawn/wait tools unavailable in active root runtime",
+      "fallback_reason": "Coordinator child spawn/wait unavailable",
       "independent": false,
       "review_mode": "SELF_REVIEW_FALLBACK"
     },
@@ -95,7 +95,7 @@
       "spawn_status": "UNAVAILABLE",
       "wait_status": "UNAVAILABLE",
       "output_ref": null,
-      "fallback_reason": "multi_agent_v1 spawn/wait tools unavailable in active root runtime",
+      "fallback_reason": "Coordinator child spawn/wait unavailable",
       "independent": false,
       "review_mode": "SELF_REVIEW_FALLBACK"
     }

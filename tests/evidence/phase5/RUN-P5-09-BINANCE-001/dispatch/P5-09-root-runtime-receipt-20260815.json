@@ -10,19 +10,19 @@
       "multi_agent_v1__spawn_agent",
       "multi_agent_v1__wait_agent"
     ],
-    "availability_result": "UNAVAILABLE",
+    "availability_result": "AVAILABLE_FOR_ROOT_ORCHESTRATOR_ONLY",
     "dispatch_state": "LOCAL_FALLBACK_NO_SUBAGENTS",
-    "reason": "The active root runtime does not expose multi_agent_v1__spawn_agent or multi_agent_v1__wait_agent. No substitute orchestrator, model, or Agent was used."
+    "reason": "The root runtime exposed multi_agent_v1__spawn_agent and multi_agent_v1__wait_agent and used them for the Coordinator. The Coordinator reported that child dispatch was unavailable. No substitute orchestrator, model, or Agent was used."
   },
   "root_orchestrator": {
     "orchestrator_name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
     "orchestrator_json_path": "C:/project/strategy_test/.codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json",
     "model": "gpt-5.6-terra",
-    "agent_id": "N/A",
-    "spawn_status": "UNAVAILABLE",
-    "wait_status": "UNAVAILABLE",
+    "agent_id": "01a004cb-44c2-74a3-a9d5-6b46fbc94c3a",
+    "spawn_status": "COMPLETED",
+    "wait_status": "COMPLETED",
     "output_ref": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/dispatch/P5-09-child-runtime-receipt-20260815.json",
-    "fallback_reason": "multi_agent_v1 spawn/wait tools unavailable in active root runtime",
+    "fallback_reason": "Coordinator child dispatch unavailable; see child receipt for all unstarted Agents",
     "independent": false,
     "review_mode": "SELF_REVIEW_FALLBACK"
   },

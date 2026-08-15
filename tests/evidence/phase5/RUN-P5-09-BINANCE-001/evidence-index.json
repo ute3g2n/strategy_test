@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "id": "P5-09-EV-NORMALIZED",
+      "path": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized",
+      "status": "GENERATED"
+    },
+    {
+      "id": "P5-09-EV-DERIVED",
+      "path": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/derived",
+      "status": "GENERATED"
+    },
+    {
+      "id": "P5-09-EV-QUALITY",
+      "path": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/quality/quality-report.json",
+      "status": "QUALITY_GATES_PASS_WITH_OPEN_UNKNOWN"
+    },
+    {
+      "id": "P5-09-EV-CALENDAR",
+      "path": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/quality/calendar-application.json",
+      "status": "PASS"
+    },
+    {
+      "id": "P5-09-EV-COST-GAP",
+      "path": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/quality/cost-gap.json",
+      "status": "PASS_WITH_NO_OBSERVED_GAPS"
+    },
+    {
+      "id": "P5-09-EV-SPLIT-HOLDOUT",
+      "path": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/quality/period-split.json",
+      "status": "PASS"
+    },
+    {
+      "id": "P5-09-EV-STOP",
+      "path": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/stop-decision.json",
+      "status": "RECORDED"
+    },
+    {
+      "id": "P5-09-EV-DISPATCH",
+      "path": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/dispatch",
+      "status": "FALLBACK_RECORDED"
+    }
+  ],
+  "run_id": "RUN-P5-09-BINANCE-001",
+  "schema_version": "p5-09-evidence-index-v1",
+  "status": "QUALITY_GATES_PASS_WITH_OPEN_UNKNOWN",
+  "unknowns_are_not_pass": true
+}

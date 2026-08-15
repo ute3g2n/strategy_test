@@ -1,0 +1,76 @@
+{
+  "boundaries": {
+    "api_key_or_secret": false,
+    "broker_paper_live": false,
+    "core_p4_db": false,
+    "external_network": false,
+    "profitability": false
+  },
+  "critical_findings": [],
+  "high_findings": [],
+  "input": {
+    "calendar": "CRYPTO_24_7_UTC",
+    "expanded_csv_root": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded",
+    "period_utc": {
+      "end_exclusive": "2026-08-01T00:00:00Z",
+      "start": "2025-02-24T00:00:00Z"
+    },
+    "source_checksum_evidence": {
+      "entry_count": 36,
+      "source_finish_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/execution-finish-20260815.json",
+      "source_summary_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/execution-summary.json",
+      "status": "ALL_SOURCE_ARCHIVES_VERIFIED_BY_P5_08",
+      "verification_boundary": "Protected source-data checksum is used only for source-data integrity; do not use it as document identity."
+    },
+    "source_run_id": "RUN-P5-08-BINANCE-001",
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ]
+  },
+  "outputs": {
+    "calendar": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/quality/calendar-application.json",
+    "cost_gap": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/quality/cost-gap.json",
+    "derived_format": "CSV with explicit header; complete UTC buckets only",
+    "normalized_format": "gzip CSV with explicit header",
+    "period_split": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/quality/period-split.json",
+    "quality_report": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/quality/quality-report.json",
+    "regeneration": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/regeneration-procedure.md"
+  },
+  "phase_id": "PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12",
+  "run_id": "RUN-P5-09-BINANCE-001",
+  "runtime": {
+    "child_receipt": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/dispatch/P5-09-child-runtime-receipt-20260815.json",
+    "independent_agents": false,
+    "review_mode": "SELF_REVIEW_FALLBACK",
+    "root_orchestrator_receipt": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/dispatch/P5-09-root-runtime-receipt-20260815.json"
+  },
+  "schema_version": "p5-09-run-manifest-v1",
+  "scope_mode": "target_only",
+  "status": "QUALITY_GATES_PASS_WITH_OPEN_UNKNOWN",
+  "step_id": "P5-09",
+  "target_paths": [
+    "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized",
+    "tests/evidence/phase5/RUN-P5-09-BINANCE-001/derived",
+    "tests/evidence/phase5/RUN-P5-09-BINANCE-001/quality",
+    "tests/evidence/phase5/RUN-P5-09-BINANCE-001/stop-decision.json"
+  ],
+  "trusted_scope": {
+    "reproducibility_identity": "source Run ID, fixed period/symbol/timeframe contract, source paths, row counts, and output paths",
+    "source_data_identity": "P5-08 archive checksum verification and fixed relative source paths"
+  },
+  "unknowns": [
+    {
+      "fact": "P5-08 provider terms status remains UNKNOWN; P5-09 does not reinterpret it.",
+      "id": "UNK-P5-BINANCE-TERMS-INHERITED",
+      "reopen_condition": "Human/provider terms decision before any redistribution or operational use.",
+      "status": "OPEN_NOT_PASS"
+    },
+    {
+      "fact": "The seven named child Agents were not spawned; this run uses root fallback self-review only.",
+      "id": "UNK-P5-DISPATCH-CHILD-001",
+      "reopen_condition": "Available child dispatch and completed receipts for the specified Agents.",
+      "status": "OPEN_NOT_PASS"
+    }
+  ]
+}

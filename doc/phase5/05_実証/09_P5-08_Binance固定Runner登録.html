@@ -25,7 +25,7 @@
   <p><a href="../../index.html">doc/index.html</a> ／ Phase 5 ／ 05 実証</p>
   <h1>P5-08 Binance固定Runner登録</h1>
   <p class="lead">P5-DATA-G1のBinance amendment承認後に固定Runnerを登録し、運用者waiverの範囲内でP5-08のRaw／展開CSV取得まで完了した記録です。</p>
-  <p><span class="state">RAW_AND_EXPANDED_CSV_ACQUIRED_UNDER_OPERATOR_WAIVER</span> 36件の月次ZIP、checksum、展開CSVを取得しました。API key／Secretは読んでいません。Normalized／Qualityは後続P5-09です。</p>
+  <p><span class="state">RAW_AND_EXPANDED_CSV_ACQUIRED_UNDER_OPERATOR_WAIVER</span> 36件の月次ZIP、checksum、展開CSVを取得しました。API key／Secretは読んでいません。P5-09でNormalized／Quality／Calendar／Cost・Gap／Holdoutのlocal Evidence生成まで完了し、P5-10統合レビューへ引き渡しました。</p>
 
   <h2>1. 固定対象</h2>
   <table>
@@ -55,7 +55,7 @@
   <table>
     <tr><th>Host isolation</th><td><code>NOT_VERIFIED</code>。2026-08-15に読み取り専用で確認した結果、現ホストは全外向き通信Blockであり、<code>data.binance.vision:443</code>だけを許可する実行環境・pre／post証拠ではなかった。<a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/host-isolation-check-20260815.json">確認Evidence</a></td></tr>
     <tr><th>Provider terms</th><td><code>UNKNOWN</code>。公式情報で公開取得、API key不要、checksum手順は確認したが、取得Dataの保持・再配布許諾は確定できなかった。<a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/provider-terms-review-20260815.md">確認記録</a></td></tr>
-    <tr><th>実Data Evidence</th><td>Raw ZIP 36件、<code>.CHECKSUM</code> 36件、展開CSV 36件を取得。checksum不一致・timestamp unit不一致・重複・対象範囲違反は各0件。Normalized、Quality、Calendar、Cost／Gap、Holdoutは未実行。</td></tr>
+    <tr><th>実Data Evidence</th><td>Raw ZIP 36件、<code>.CHECKSUM</code> 36件、展開CSV 36件を取得。checksum不一致・timestamp unit不一致・重複・対象範囲違反は各0件。P5-09でNormalized、Quality、Calendar、Cost／Gap、Holdoutのlocal Evidenceを生成済み。Provider条件、P5-08 host isolation、子Agent未起動はUnknownとして保持。</td></tr>
     <tr><th>レビュー</th><td>Coordinator配下の子Agentは起動不能fallbackであり、独立レビュー済みとは扱わない。</td></tr>
   </table>
 

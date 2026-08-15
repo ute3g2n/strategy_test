@@ -1,0 +1,23 @@
+{
+  "api_key_or_secret_read": false,
+  "environment_variables_read": false,
+  "external_io_performed": false,
+  "host_isolation_fact": "NOT_VERIFIED_INHERITED_FROM_P5_08; NO_EXTERNAL_PROCESS_OR_NETWORK_USED_BY_P5_09",
+  "phase_id": "PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12",
+  "run_id": "RUN-P5-09-BINANCE-001",
+  "schema_version": "p5-09-execution-start-v1",
+  "scope": {
+    "asset": "crypto",
+    "base_interval": "1m",
+    "calendar": "CRYPTO_24_7_UTC",
+    "market_segment": "spot",
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ]
+  },
+  "source_run_id": "RUN-P5-08-BINANCE-001",
+  "started_at": "2026-08-15T10:15:53Z",
+  "status": "STARTED_LOCAL_ONLY",
+  "step_id": "P5-09"
+}

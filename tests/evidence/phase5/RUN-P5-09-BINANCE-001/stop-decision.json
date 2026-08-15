@@ -1,0 +1,13 @@
+{
+  "decision": "LOCAL_QUALITY_CONTINUES_WITH_OPEN_UNKNOWN",
+  "machine_stops": [],
+  "no_future_data": true,
+  "no_imputation": true,
+  "open_unknowns_not_passed": [
+    "Provider terms inherited UNKNOWN",
+    "child dispatch unavailable",
+    "host isolation not verified for P5-08 external acquisition"
+  ],
+  "run_id": "RUN-P5-09-BINANCE-001",
+  "schema_version": "p5-09-stop-decision-v1"
+}

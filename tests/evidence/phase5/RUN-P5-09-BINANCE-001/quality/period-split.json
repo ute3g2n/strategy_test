@@ -1,0 +1,42 @@
+{
+  "boundaries_utc": {
+    "holdout": [
+      "2026-04-01T00:00:00Z",
+      "2026-08-01T00:00:00Z"
+    ],
+    "train": [
+      "2025-02-24T00:00:00Z",
+      "2026-01-01T00:00:00Z"
+    ],
+    "validation": [
+      "2026-01-01T00:00:00Z",
+      "2026-04-01T00:00:00Z"
+    ]
+  },
+  "boundary_check": "PASS",
+  "calendar": "CRYPTO_24_7_UTC",
+  "expected_rows_per_symbol": 753120,
+  "future_reference_check": "PASS",
+  "holdout_reuse": "NOT_USED_FOR_TUNING",
+  "holdout_status": "ISOLATED_AND_NOT_CONSUMED_BY_THIS_DATA_STEP",
+  "overlap_check": "PASS",
+  "row_counts_by_symbol": {
+    "BTCUSDT": {
+      "holdout": 175680,
+      "train": 447840,
+      "validation": 129600
+    },
+    "ETHUSDT": {
+      "holdout": 175680,
+      "train": 447840,
+      "validation": 129600
+    }
+  },
+  "schema_version": "p5-09-period-split-evidence-v1",
+  "source_ref": "RUN-P5-09-BINANCE-001/quality/period-split.json",
+  "walk_forward": {
+    "reason": "P5-09 verifies reproducible split boundaries; strategy parameter fitting and performance evaluation are out of scope.",
+    "status": "BOUNDARIES_ONLY_NOT_STRATEGY_EXECUTED",
+    "windows": []
+  }
+}

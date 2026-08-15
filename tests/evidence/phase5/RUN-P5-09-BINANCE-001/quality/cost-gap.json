@@ -1,0 +1,45 @@
+{
+  "cost_gap_unknowns": [
+    "Internal financial cost was not measured; it is not represented as zero."
+  ],
+  "gap_classification": {
+    "calendar": "CRYPTO_24_7_UTC",
+    "distribution_missing": "NOT_OBSERVED",
+    "imputation_count": 0,
+    "market_missing": "NOT_OBSERVED",
+    "observed_gaps_by_symbol": {
+      "BTCUSDT": [],
+      "ETHUSDT": []
+    },
+    "out_of_scope": "Filtered rows outside the approved period; never imputed.",
+    "zero_fill_count": 0
+  },
+  "internal_usage": {
+    "external_io_performed": false,
+    "financial_cost": "NOT_MEASURED",
+    "local_run_duration_seconds": 92.047,
+    "network_bytes": 0,
+    "p5_09_output_bytes": 99938675,
+    "source_expanded_bytes": 244225713
+  },
+  "provider_data_cost": {
+    "basis": "P5-08 public Binance Data Vision archive evidence",
+    "measurement": "RECORDED",
+    "value_usd": 0
+  },
+  "schema_version": "p5-09-cost-gap-evidence-v1",
+  "spot_fee_slippage": {
+    "assumption_measured_separation": "P5-09 does not create numeric assumptions or claim measured execution cost.",
+    "fee": {
+      "basis": "No exchange execution in P5-09",
+      "status": "NOT_MEASURED",
+      "value": null
+    },
+    "slippage": {
+      "basis": "No order or fill in P5-09",
+      "status": "NOT_MEASURED",
+      "value": null
+    }
+  },
+  "status": "PASS_WITH_NO_OBSERVED_GAPS"
+}

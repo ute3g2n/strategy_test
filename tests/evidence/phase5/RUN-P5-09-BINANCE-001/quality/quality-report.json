@@ -1,0 +1,255 @@
+{
+  "checksum_evidence": {
+    "entry_count": 36,
+    "source_finish_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/execution-finish-20260815.json",
+    "source_summary_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/execution-summary.json",
+    "status": "ALL_SOURCE_ARCHIVES_VERIFIED_BY_P5_08",
+    "verification_boundary": "Protected source-data checksum is used only for source-data integrity; do not use it as document identity."
+  },
+  "critical_findings": [],
+  "gates": [
+    {
+      "evidence": "quality/quality-report.json",
+      "gate_id": "P5-09-SCHEMA-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": "quality/quality-report.json",
+      "gate_id": "P5-09-TIMESTAMP-002",
+      "status": "PASS"
+    },
+    {
+      "evidence": "quality/quality-report.json",
+      "gate_id": "P5-09-OHLCV-003",
+      "status": "PASS"
+    },
+    {
+      "evidence": "quality/calendar-application.json",
+      "gate_id": "P5-09-CALENDAR-004",
+      "status": "PASS"
+    },
+    {
+      "evidence": "quality/quality-report.json",
+      "gate_id": "P5-09-DERIVED-005",
+      "status": "PASS"
+    },
+    {
+      "evidence": "quality/period-split.json",
+      "gate_id": "P5-09-SPLIT-006",
+      "status": "PASS"
+    },
+    {
+      "evidence": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/execution-summary.json",
+      "gate_id": "P5-09-SOURCE-CHECKSUM-007",
+      "status": "PASS"
+    },
+    {
+      "evidence": "execution-finish-20260815.json",
+      "gate_id": "P5-09-HOST-008",
+      "status": "NOT_APPLICABLE_LOCAL_ONLY"
+    },
+    {
+      "evidence": "../RUN-P5-08-BINANCE-001/execution-finish-20260815.json",
+      "gate_id": "P5-09-PROVIDER-TERMS-009",
+      "status": "UNKNOWN"
+    },
+    {
+      "evidence": "dispatch/P5-09-child-runtime-receipt-20260815.json",
+      "gate_id": "P5-09-INDEPENDENT-REVIEW-010",
+      "status": "UNKNOWN"
+    }
+  ],
+  "high_findings": [],
+  "profitability_or_live_claim": "NOT_EVALUATED",
+  "schema_version": "p5-09-quality-evidence-v1",
+  "scope": {
+    "asset": "crypto",
+    "base_interval": "1m",
+    "calendar": "CRYPTO_24_7_UTC",
+    "derived_intervals": [
+      "D1",
+      "H4",
+      "H1",
+      "M30",
+      "M15"
+    ],
+    "market_segment": "spot",
+    "period_utc": {
+      "end_exclusive": "2026-08-01T00:00:00Z",
+      "start": "2025-02-24T00:00:00Z"
+    },
+    "provider": "binance_data_vision",
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ]
+  },
+  "split_evidence_ref": "quality/period-split.json",
+  "status": "QUALITY_GATES_PASS_WITH_OPEN_UNKNOWN",
+  "symbol_results": {
+    "BTCUSDT": {
+      "derived_bar_counts": {
+        "D1": 523,
+        "H1": 12552,
+        "H4": 3138,
+        "M15": 50208,
+        "M30": 25104
+      },
+      "derived_paths": {
+        "D1": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/derived/BTCUSDT/BTCUSDT-D1.csv",
+        "H1": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/derived/BTCUSDT/BTCUSDT-H1.csv",
+        "H4": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/derived/BTCUSDT/BTCUSDT-H4.csv",
+        "M15": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/derived/BTCUSDT/BTCUSDT-M15.csv",
+        "M30": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/derived/BTCUSDT/BTCUSDT-M30.csv"
+      },
+      "duplicate_count": 0,
+      "expected_source_row_count": 753120,
+      "first_bar_utc": "2025-02-24T00:00:00Z",
+      "gaps": [],
+      "imputed_rows": 0,
+      "incomplete_buckets": {},
+      "last_bar_utc": "2026-07-31T23:59:00Z",
+      "month_counts": {
+        "2025-02": 7200,
+        "2025-03": 44640,
+        "2025-04": 43200,
+        "2025-05": 44640,
+        "2025-06": 43200,
+        "2025-07": 44640,
+        "2025-08": 44640,
+        "2025-09": 43200,
+        "2025-10": 44640,
+        "2025-11": 43200,
+        "2025-12": 44640,
+        "2026-01": 44640,
+        "2026-02": 40320,
+        "2026-03": 44640,
+        "2026-04": 43200,
+        "2026-05": 44640,
+        "2026-06": 43200,
+        "2026-07": 44640
+      },
+      "normalized_file_count": 18,
+      "normalized_paths": [
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2025-02/BTCUSDT-1m-2025-02.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2025-03/BTCUSDT-1m-2025-03.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2025-04/BTCUSDT-1m-2025-04.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2025-05/BTCUSDT-1m-2025-05.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2025-06/BTCUSDT-1m-2025-06.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2025-07/BTCUSDT-1m-2025-07.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2025-08/BTCUSDT-1m-2025-08.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2025-09/BTCUSDT-1m-2025-09.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2025-10/BTCUSDT-1m-2025-10.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2025-11/BTCUSDT-1m-2025-11.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2025-12/BTCUSDT-1m-2025-12.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2026-01/BTCUSDT-1m-2026-01.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2026-02/BTCUSDT-1m-2026-02.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2026-03/BTCUSDT-1m-2026-03.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2026-04/BTCUSDT-1m-2026-04.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2026-05/BTCUSDT-1m-2026-05.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2026-06/BTCUSDT-1m-2026-06.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2026-07/BTCUSDT-1m-2026-07.csv.gz"
+      ],
+      "quality_status": "PASS",
+      "source_file_bytes": 123323251,
+      "source_interval": "1m",
+      "source_row_count": 753120,
+      "split_row_counts": {
+        "holdout": 175680,
+        "train": 447840,
+        "validation": 129600
+      },
+      "symbol": "BTCUSDT",
+      "zero_filled_rows": 0
+    },
+    "ETHUSDT": {
+      "derived_bar_counts": {
+        "D1": 523,
+        "H1": 12552,
+        "H4": 3138,
+        "M15": 50208,
+        "M30": 25104
+      },
+      "derived_paths": {
+        "D1": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/derived/ETHUSDT/ETHUSDT-D1.csv",
+        "H1": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/derived/ETHUSDT/ETHUSDT-H1.csv",
+        "H4": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/derived/ETHUSDT/ETHUSDT-H4.csv",
+        "M15": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/derived/ETHUSDT/ETHUSDT-M15.csv",
+        "M30": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/derived/ETHUSDT/ETHUSDT-M30.csv"
+      },
+      "duplicate_count": 0,
+      "expected_source_row_count": 753120,
+      "first_bar_utc": "2025-02-24T00:00:00Z",
+      "gaps": [],
+      "imputed_rows": 0,
+      "incomplete_buckets": {},
+      "last_bar_utc": "2026-07-31T23:59:00Z",
+      "month_counts": {
+        "2025-02": 7200,
+        "2025-03": 44640,
+        "2025-04": 43200,
+        "2025-05": 44640,
+        "2025-06": 43200,
+        "2025-07": 44640,
+        "2025-08": 44640,
+        "2025-09": 43200,
+        "2025-10": 44640,
+        "2025-11": 43200,
+        "2025-12": 44640,
+        "2026-01": 44640,
+        "2026-02": 40320,
+        "2026-03": 44640,
+        "2026-04": 43200,
+        "2026-05": 44640,
+        "2026-06": 43200,
+        "2026-07": 44640
+      },
+      "normalized_file_count": 18,
+      "normalized_paths": [
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2025-02/ETHUSDT-1m-2025-02.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2025-03/ETHUSDT-1m-2025-03.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2025-04/ETHUSDT-1m-2025-04.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2025-05/ETHUSDT-1m-2025-05.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2025-06/ETHUSDT-1m-2025-06.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2025-07/ETHUSDT-1m-2025-07.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2025-08/ETHUSDT-1m-2025-08.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2025-09/ETHUSDT-1m-2025-09.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2025-10/ETHUSDT-1m-2025-10.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2025-11/ETHUSDT-1m-2025-11.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2025-12/ETHUSDT-1m-2025-12.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2026-01/ETHUSDT-1m-2026-01.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2026-02/ETHUSDT-1m-2026-02.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2026-03/ETHUSDT-1m-2026-03.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2026-04/ETHUSDT-1m-2026-04.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2026-05/ETHUSDT-1m-2026-05.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2026-06/ETHUSDT-1m-2026-06.csv.gz",
+        "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/ETHUSDT/2026-07/ETHUSDT-1m-2026-07.csv.gz"
+      ],
+      "quality_status": "PASS",
+      "source_file_bytes": 120902462,
+      "source_interval": "1m",
+      "source_row_count": 753120,
+      "split_row_counts": {
+        "holdout": 175680,
+        "train": 447840,
+        "validation": 129600
+      },
+      "symbol": "ETHUSDT",
+      "zero_filled_rows": 0
+    }
+  },
+  "unknowns": [
+    {
+      "fact": "P5-08 provider terms status remains UNKNOWN; P5-09 does not reinterpret it.",
+      "id": "UNK-P5-BINANCE-TERMS-INHERITED",
+      "reopen_condition": "Human/provider terms decision before any redistribution or operational use.",
+      "status": "OPEN_NOT_PASS"
+    },
+    {
+      "fact": "The seven named child Agents were not spawned; this run uses root fallback self-review only.",
+      "id": "UNK-P5-DISPATCH-CHILD-001",
+      "reopen_condition": "Available child dispatch and completed receipts for the specified Agents.",
+      "status": "OPEN_NOT_PASS"
+    }
+  ]
+}

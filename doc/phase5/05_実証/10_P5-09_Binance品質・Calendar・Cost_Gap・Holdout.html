@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P5-09 Binance品質・Calendar・Cost/Gap・Holdout実証</title>
+  <style>
+    :root { color-scheme: light; --ink:#20243a; --muted:#5f667e; --line:#d9deee; --panel:#f5f7fc; --blue:#4054c7; --green:#087443; --amber:#8a5a00; --red:#a31d1d; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:#fff; font-family:Segoe UI, system-ui, sans-serif; line-height:1.65; }
+    main { max-width:1180px; margin:0 auto; padding:32px 24px 72px; }
+    h1 { margin:0 0 8px; font-size:2rem; }
+    h2 { margin-top:34px; border-bottom:2px solid var(--line); padding-bottom:6px; }
+    h3 { margin-top:24px; }
+    .lead { color:var(--muted); }
+    .state { display:inline-block; padding:4px 10px; border-radius:999px; background:#fff1cf; color:var(--amber); font-weight:700; }
+    .ok { border-left:5px solid var(--green); background:#ecfdf3; padding:12px 16px; }
+    .warn { border-left:5px solid var(--amber); background:#fff8db; padding:12px 16px; }
+    .stop { border-left:5px solid var(--red); background:#fff1f0; padding:12px 16px; }
+    table { width:100%; border-collapse:collapse; margin:14px 0 22px; }
+    th, td { border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top; }
+    th { width:24%; background:var(--panel); }
+    code { background:var(--panel); border-radius:4px; padding:1px 4px; overflow-wrap:anywhere; }
+    a { color:var(--blue); }
+    .scroll { overflow-x:auto; }
+    .small { color:var(--muted); font-size:.9rem; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">doc/index.html</a> ・ Phase 5 ・ 05 実証</p>
+  <h1>P5-09 Binance品質・Calendar・Cost/Gap・Holdout実証</h1>
+  <p class="lead">P5-08で取得したBinance Spot Kline 1分足を、ローカルだけで正規化し、UTC時間足・品質・欠損・Cost/Gap・期間分割を検査した証拠書である。</p>
+  <p><span class="state">QUALITY_EVIDENCE_COMPLETE_WITH_OPEN_UNKNOWN</span></p>
+
+  <section class="warn">
+    <strong>Findings first：</strong> Critical=0、High=0。機械品質Gateは完了したが、P5-08から引き継いだProvider利用・保持条件=UNKNOWN、外部取得Runのhost isolation=NOT_VERIFIED、指定child Agent未起動=OPEN_NOT_PASSである。これらをPassへ再分類せず、P5-H2承認や再配布許可へ一般化しない。
+  </section>
+
+  <h2>1. Runと対象</h2>
+  <table>
+    <tr><th>Step / Run</th><td><code>P5-09</code> / <code>RUN-P5-09-BINANCE-001</code></td></tr>
+    <tr><th>入力</th><td><code>RUN-P5-08-BINANCE-001</code> の展開済み月次CSV 36件。P5-08のsource checksum検証結果を参照。</td></tr>
+    <tr><th>対象</th><td>Binance Data Vision、Crypto Spot、<code>BTCUSDT</code>・<code>ETHUSDT</code>、1m。</td></tr>
+    <tr><th>期間</th><td><code>2025-02-24T00:00:00Z</code> 以上、<code>2026-08-01T00:00:00Z</code> 未満。</td></tr>
+    <tr><th>時間とCalendar</th><td>UTC、<code>CRYPTO_24_7_UTC</code>。CME futuresのDST・休場・短縮日・限月・Rollは適用外。</td></tr>
+    <tr><th>実行境界</th><td>P5-09は外部通信0、環境変数読取0、API key/Secret読取0、Broker/Paper/Live/Core/P4 DB変更0。</td></tr>
+  </table>
+
+  <h2>2. 品質結果</h2>
+  <div class="scroll">
+  <table>
+    <tr><th>検査</th><th>BTCUSDT</th><th>ETHUSDT</th><th>Gate</th></tr>
+    <tr><td>1分足本数</td><td>753,120</td><td>753,120</td><td>PASS</td></tr>
+    <tr><td>最初 / 最後のbar</td><td>2025-02-24 00:00 / 2026-07-31 23:59 UTC</td><td>同左</td><td>PASS</td></tr>
+    <tr><td>timestamp unit / UTC / 1分間隔</td><td>microseconds / UTC / 連続</td><td>microseconds / UTC / 連続</td><td>PASS</td></tr>
+    <tr><td>重複・逆行</td><td>0</td><td>0</td><td>PASS</td></tr>
+    <tr><td>OHLCV不整合</td><td>0</td><td>0</td><td>PASS</td></tr>
+    <tr><td>観測gap / zero-fill / imputation</td><td>0 / 0 / 0</td><td>0 / 0 / 0</td><td>PASS</td></tr>
+    <tr><td>source checksum</td><td colspan="2">P5-08の36/36エントリがverified。P5-09は管理用identity digestを作成しない。</td><td>PASS</td></tr>
+  </table>
+  </div>
+  <p>Normalizedは明示header付きgzip CSVとして月単位に保存し、Derivedは完全なUTC bucketだけをCSVへ出力した。欠損がある場合はゼロ埋めせず、下流利用を停止する設計である。</p>
+
+  <h2>3. 1mからの時間足生成</h2>
+  <table>
+    <tr><th>時間足</th><th>1銘柄あたりのbar数</th><th>1barの入力本数</th><th>集計</th></tr>
+    <tr><td>D1</td><td>523</td><td>1,440</td><td>Open=先頭、High=max、Low=min、Close=末尾、Volume系=合計</td></tr>
+    <tr><td>H4</td><td>3,138</td><td>240</td><td>同上</td></tr>
+    <tr><td>H1</td><td>12,552</td><td>60</td><td>同上</td></tr>
+    <tr><td>M30</td><td>25,104</td><td>30</td><td>同上</td></tr>
+    <tr><td>M15</td><td>50,208</td><td>15</td><td>同上</td></tr>
+  </table>
+  <p class="small">時間足の境界はUNIX epoch基準のUTC境界であり、ローカル時刻やDSTによるずれを入れていない。</p>
+
+  <h2>4. Calendar・Cost・Gap</h2>
+  <table>
+    <tr><th>項目</th><th>今回の記録</th><th>扱い</th></tr>
+    <tr><td>Calendar</td><td><code>CRYPTO_24_7_UTC</code>を適用。CME固有規則はN/A。</td><td>PASS</td></tr>
+    <tr><td>Provider公開Data費用</td><td>0 USD（P5-08公開アーカイブ取得の記録）。</td><td>記録値。内部費用と混同しない。</td></tr>
+    <tr><td>内部使用量</td><td>入力展開CSV 244,225,713 bytes、P5-09出力約99,938,675 bytes、ローカル処理時間約92.047秒、外部network bytes 0。</td><td>実行時に測定。金額は未測定。</td></tr>
+    <tr><td>Spot fee / slippage</td><td>注文・約定を実行していないため未測定。数値仮定も今回作成していない。</td><td>未測定を0やPassにしない。</td></tr>
+    <tr><td>Gap</td><td>両銘柄とも観測0。将来gapが出た場合は市場欠損か配布欠落かを不明のまま分類し、補間しない。</td><td>PASS（観測gapなし）</td></tr>
+  </table>
+
+  <h2>5. 期間分割・Holdout</h2>
+  <table>
+    <tr><th>区間</th><th>UTC境界</th><th>1銘柄あたり1m本数</th><th>用途</th></tr>
+    <tr><td>Train</td><td>2025-02-24 00:00 ～ 2026-01-01 00:00</td><td>447,840</td><td>学習用区間</td></tr>
+    <tr><td>Validation</td><td>2026-01-01 00:00 ～ 2026-04-01 00:00</td><td>129,600</td><td>選択・確認用区間</td></tr>
+    <tr><td>Holdout</td><td>2026-04-01 00:00 ～ 2026-08-01 00:00</td><td>175,680</td><td>最終評価用。今回の品質処理では未消費</td></tr>
+  </table>
+  <p class="ok">境界の順序、重複なし、範囲内、未来参照なしを確認した。P5-09では戦略パラメータ調整・収益性評価・Walk-forward実行は行わず、Walk-forwardは「境界定義のみ」と記録した。</p>
+
+  <h2>6. REQ → UC → Data object → Test → Evidence → Gate</h2>
+  <div class="scroll">
+  <table>
+    <tr><th>REQ</th><th>UC</th><th>Data object</th><th>Test</th><th>Evidence</th><th>Gate</th></tr>
+    <tr><td><code>REQ-V2-0029/0030/0031</code></td><td><code>UC-V2-009〜016</code></td><td>RawDatasetRef / NormalizedDatasetRef / QualityReport</td><td>schema・timestamp・OHLCV・gap</td><td><a href="../../../tests/evidence/phase5/RUN-P5-09-BINANCE-001/quality/quality-report.json">quality-report.json</a> / normalized / derived</td><td>P5-09 quality machine gates</td></tr>
+    <tr><td><code>REQ-V2-0044/0096</code></td><td><code>UC-V2-024/025/030〜032</code></td><td>CostAssumptionSet / SlippageObservation / GapRuleVersion</td><td>実測・仮定・未測定の分離</td><td><a href="../../../tests/evidence/phase5/RUN-P5-09-BINANCE-001/quality/cost-gap.json">cost-gap.json</a></td><td>Cost/Gap boundary</td></tr>
+    <tr><td><code>REQ-V2-0054/0055</code></td><td><code>UC-V2-032/033/035</code></td><td>PeriodSplitManifest / HoldoutAssessment / BoundaryCheck</td><td>重複・gap・future・holdout再利用</td><td><a href="../../../tests/evidence/phase5/RUN-P5-09-BINANCE-001/quality/period-split.json">period-split.json</a></td><td>Split/Holdout gate</td></tr>
+    <tr><td><code>REQ-V2-0105/0106</code></td><td><code>UC-V2-036〜068</code></td><td>UnknownRegisterEntry / TraceLink / GateDecisionRef</td><td>UnknownをPassにしない・双方向追跡</td><td><a href="../../../tests/evidence/phase5/RUN-P5-09-BINANCE-001/evidence-index.json">evidence-index.json</a> / stop-decision / ledger</td><td>Open Unknownを継続</td></tr>
+  </table>
+  </div>
+
+  <h2>7. 停止条件・Unknown・レビュー</h2>
+  <ul>
+    <li>今回のローカル機械検査ではchecksum不一致、timestamp不明、Spot/Futures混入、Calendar不明、欠損補完、未来Data、holdout汚染、Critical/Highは検出しなかった。</li>
+    <li>Provider利用・保持・再配布条件はP5-08から引き継いだ <code>UNKNOWN</code>。外部取得Runのhost isolationは <code>NOT_VERIFIED</code>。P5-09自身は外部通信を行っていないため、これらを品質PASSへ変換しない。</li>
+    <li>指定child Agent 7体は起動できず、独立実行・独立レビュー済みとは記載しない。root fallback self-reviewとして扱う。</li>
+    <li>P5-10の統合レビューとP5-H2の承認は未完了。P5-09の機械品質EvidenceだけでP5全体PASS、再配布許可、Broker/Paper/Live適合、利益性を主張しない。</li>
+  </ul>
+
+  <h2>8. Evidence・再生成・dispatch</h2>
+  <ul>
+    <li><a href="../../../tests/evidence/phase5/RUN-P5-09-BINANCE-001/README.md">Run README</a> / <a href="../../../tests/evidence/phase5/RUN-P5-09-BINANCE-001/manifest.json">manifest</a> / <a href="../../../tests/evidence/phase5/RUN-P5-09-BINANCE-001/evidence-index.json">Evidence index</a></li>
+    <li><a href="../../../tests/evidence/phase5/RUN-P5-09-BINANCE-001/execution-finish-20260815.json">execution finish</a> / <a href="../../../tests/evidence/phase5/RUN-P5-09-BINANCE-001/stop-decision.json">stop decision</a> / <a href="../../../tests/evidence/phase5/RUN-P5-09-BINANCE-001/regeneration-procedure.md">再生成手順</a></li>
+    <li><a href="../../../tests/evidence/phase5/RUN-P5-09-BINANCE-001/dispatch/P5-09-root-runtime-receipt-20260815.json">root receipt</a>（Coordinator spawn/wait完了） / <a href="../../../tests/evidence/phase5/RUN-P5-09-BINANCE-001/dispatch/P5-09-child-runtime-receipt-20260815.json">child receipt</a>（7体未起動fallback）</li>
+    <li><a href="../../../scripts/phase5_external_data/run_binance_quality.py">P5-09 local quality runner</a> / <a href="../../../tests/phase5_external_data/test_binance_quality.py">fixed fixture tests</a> / <a href="../../../plan/phase5/ログ/P5-09_Quality_Calendar_Cost_Gap期間分割_Holdout_2026-08-15.md">実行ログ</a></li>
+  </ul>
+  <p class="small">更新日: 2026-08-15 Asia/Tokyo。対象はBinance Spot Historicalのローカル品質Evidenceに限定する。</p>
+</main>
+</body>
+</html>
