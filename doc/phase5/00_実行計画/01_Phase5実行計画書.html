@@ -25,13 +25,13 @@
     <strong>計画ID:</strong> P5-PLAN-001<br>
     <strong>Phase ID:</strong> PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12<br>
     <strong>作成日:</strong> 2026-08-12（Asia/Tokyo）<br>
-    <strong>状態:</strong> P5-11_BLOCKED_P5_H2_NOT_APPROVED<br>
+    <strong>状態:</strong> P5-11_COMPLETE_WITH_OPEN_UNKNOWN<br>
     <strong>正本:</strong> <a href="../../../plan/Phase5_実行計画書_v0.1_2026-08-12.md">plan/Phase5_実行計画書_v0.1_2026-08-12.md</a></p>
   </div>
 
   <section class="note">
     <h2>1. この計画の効力</h2>
-    <p>P4-H2はP5の計画入力引渡しだけを承認しており、外部Data取得、Provider、Secret、費用、外部I/Oを承認していない。P5-H1承認範囲で固定local dummyのRED→GREENと正式WSL隔離品質Gateを完了し、P5-07で旧Databentoの申請履歴を保存した。2026-08-14の方針変更により、旧Databento範囲は履歴となり、Binance Data Visionの新しい<code>P5-DATA-G1-BINANCE-AMENDMENT-001</code>が必要である。費用事前見積り必須ルールは廃止した。P5-08のRaw／展開CSV取得とP5-09のlocal品質Evidence生成に続き、P5-10の統合レビューを完了した。Provider条件、P5-08 host isolation、子Agent未起動、未測定execution costはOpenのままで、P5-H2候補は不成立、P5-11はP5-H2未承認でBLOCKEDである。P5-H2、追加の外部Data実行、Provider実接続、Secret、費用、Broker、Paper、Live、実資金、実Risk、Cloudは未開始のまま保持する。</p>
+    <p>P4-H2はP5の計画入力引渡しだけを承認しており、外部Data取得、Provider、Secret、費用、外部I/Oを承認していない。P5-H1承認範囲で固定local dummyのRED→GREENと正式WSL隔離品質Gateを完了し、P5-07で旧Databentoの申請履歴を保存した。2026-08-14の方針変更により、旧Databento範囲は履歴となり、Binance Data Visionの新しい<code>P5-DATA-G1-BINANCE-AMENDMENT-001</code>へ切り替えた。費用事前見積り必須ルールは廃止した。P5-08のRaw／展開CSV取得とP5-09のlocal品質Evidence生成に続き、P5-10の統合レビューを完了した。運用者はP5-H2を、Provider条件、P5-08 host isolation、子Agent未起動、未測定execution costをOpenのまま残す条件付きで承認した。P5-11は承認範囲内で完了HTML、P6計画入力、ログ、dispatch receiptを作成済みである。追加の外部Data実行、Provider実接続、Secret、費用、Broker、Paper、Live、実資金、実Risk、Cloudは未開始のまま保持する。</p>
     <p>現行暫定対象はBinance Spotの <code>BTCUSDT</code>、<code>ETHUSDT</code>。基底DataはSpot Kline <code>1m</code>月次ZIP、保存・集計はUTC、Calendarは<code>CRYPTO_24_7_UTC</code>とする。API key／Secretは使用せず、Provider公開Data費用は0 USDとして扱い、内部保存・通信・実行usageは別監査する。旧初期5候補（MCL／M6A／MZC／MZS／MZW）は履歴として保持し、初期運用候補から外す。P5-08〜P5-11は、固定仮定と実測値、公開Dataのchecksum、Raw／Normalized／Quality／Cost／Gap／Holdout Evidenceを分けて扱い、利益性、Broker、Paper、Live、実資金はP5の完了判定に含めない。</p>
     <div class="note"><strong>2026-08-14 scope amendment:</strong> Provider変更とCrypto暫定対象の根拠は <a href="../06_方針転換/02_Binance_Data_Vision方針転換・Crypto暫定対象.html">Binance Data Vision方針転換・Crypto暫定対象</a>、<a href="../../../plan/phase5/ログ/P5-08_Binance_Data_Vision方針転換・Crypto暫定対象_2026-08-14.md">決定ログ</a>に固定する。旧承認のDatabento request／RunnerをBinanceへ読み替えない。</div>
   </section>
@@ -51,7 +51,7 @@
         <tr><td>P5-08</td><td>BTCUSDT／ETHUSDT Spot Kline 1m月次ZIPの限定取得、Raw／展開CSV Evidence</td><td>Binance amendment、固定Runner／request、allowlist、運用者waiver</td><td>実施済み（36件）。Provider条件とhost isolationはUnknown／未検証のまま</td></tr>
         <tr><td>P5-09</td><td>Crypto Quality、<code>CRYPTO_24_7_UTC</code>適用、Cost／Gap、期間分割／Holdout実証</td><td>P5-08のchecksum／Raw／展開CSV</td><td><code>QUALITY_EVIDENCE_COMPLETE_WITH_OPEN_UNKNOWN</code>。local品質Evidence生成済み。Provider条件、host isolation、子Agent未起動はUnknown</td></tr>
         <tr><td>P5-10</td><td>Binance対象の統合レビュー、Unknown再分類、P5-H2候補</td><td>P5-08／09の実証Evidence</td><td><code>INTEGRATED_REVIEW_COMPLETE_WITH_OPEN_UNKNOWN</code>。P5-H2候補は不成立</td></tr>
-        <tr><td>P5-H2→P5-11</td><td>Binance対象の完了承認、完了記録、P6引渡し</td><td>人間の明示承認</td><td>P5-H2未承認のためBLOCKED</td></tr>
+        <tr><td>P5-H2→P5-11</td><td>Binance対象の完了承認、完了記録、P6引渡し</td><td>人間の明示承認</td><td>P5-H2条件付き承認済み。残存Unknownを明記し、P5-11完了HTML／P6計画入力／dispatch receiptを作成済み</td></tr>
       </tbody>
     </table>
   </section>
@@ -92,8 +92,8 @@
 
   <section class="stop">
     <h2>5. Unknownと停止</h2>
-    <p><code>UNK-P3-01</code>（長期Data）、<code>UNK-P3-05</code>（Cost／Slippage／Gap）、<code>UNK-P3-07</code>（Crypto Calendar適用）、<code>UNK-P4-UI-002</code>（font／OS baseline）、Binance利用・保持条件、P5-08 host isolation、P5-09 child dispatch、<code>UNK-P5-BINANCE-001〜004</code>は未解消・未承認として扱う。固定RunnerはP5-08で実行済みだが、起動不能の子Agentを独立実行・独立レビュー済みとは扱わない。<code>UNK-P4-04D-004</code>（host outbound isolation）はP5-06正式Evidenceで解消済みだが、外部Data実行のhost isolationへ一般化しない。</p>
-    <p>対象、期間、Spot階層、checksum、timestamp unit、通信、保存、利用条件、Calendar適用、期間分割、取得Runnerが未確定の場合、P5-DATA-G1またはP5-08を開始しない。P4固定fixtureや旧Databento／CME EvidenceからBinanceの実Data値を推定しない。Unknownを仮値でPassにしない。</p>
+    <p><code>UNK-P3-01</code>（長期Data）、<code>UNK-P3-05</code>（Cost／Slippage／Gap）、<code>UNK-P3-07</code>（Crypto Calendar適用）、<code>UNK-P4-UI-002</code>（font／OS baseline）、Binance利用・保持条件、P5-08 host isolation、P5-09 child dispatch、<code>UNK-P5-BINANCE-001〜004</code>は未解消・未承認として扱う。P5-H2は残存Unknown・停止条件付きで承認済みだが、UnknownをPassへ変更していない。固定RunnerはP5-08で実行済みだが、起動不能の子Agentを独立実行・独立レビュー済みとは扱わない。<code>UNK-P4-04D-004</code>（host outbound isolation）はP5-06正式Evidenceで解消済みだが、外部Data実行のhost isolationへ一般化しない。</p>
+    <p>対象、期間、Spot階層、checksum、timestamp unit、通信、保存、利用条件、Calendar適用、期間分割、取得Runnerが未確定の場合、P5-DATA-G1またはP5-08を開始しない。P4固定fixtureや旧Databento／CME EvidenceからBinanceの実Data値を推定しない。Unknownを仮値でPassにしない。P5-11完了後も、Provider条件、host isolation、child dispatch、execution costはP6の個別Gateへ引き渡す。</p>
   </section>
 
   <section>
@@ -102,12 +102,12 @@
       <li><a href="../../../plan/phase4/Phase5計画入力一覧_2026-08-12.md">P4-10 Phase5計画入力一覧</a></li>
       <li><a href="../../../plan/requirements_update/RQV2_Phase4以降再編ロードマップ_2026-08-11.md">RQV2 Phase4以降再編ロードマップ</a></li>
       <li><a href="../../phase4/05_完了/07_Phase4完了判定・Phase5計画引渡し.html">P4完了・P5引渡し</a></li>
-      <li><a href="../05_実証/06_Phase5外部Data_Gate申請・範囲表.html">旧P5-DATA-G1申請表（Databento履歴）</a> / <a href="../06_方針転換/02_Binance_Data_Vision方針転換・Crypto暫定対象.html">Binance用P5-DATA-G1 amendment方針</a> / <a href="../../../tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1.md">旧承認Evidence</a></li>
+      <li><a href="../05_実証/06_Phase5外部Data_Gate申請・範囲表.html">旧P5-DATA-G1申請表（Databento履歴）</a> / <a href="../06_方針転換/02_Binance_Data_Vision方針転換・Crypto暫定対象.html">Binance用P5-DATA-G1 amendment方針</a> / <a href="../../../tests/evidence/phase5/RUN-P5-DATA-G1-APPROVED-001/human-gate-p5-data-g1.md">旧承認Evidence</a> / <a href="../06_完了/08_Phase5完了判定・Phase6計画引渡し.html">P5-11完了・P6引渡し</a> / <a href="../../../plan/phase5/Phase6計画入力一覧_2026-08-12.md">P6計画入力</a></li>
       <li><a href="../../ai_foundation/09_Phase実行計画作成AI部品仕様.html">Phase実行計画作成AI部品仕様</a> / <a href="../../ai_foundation/10_Phase実行計画書作成依頼プロンプト.html">標準依頼Prompt</a></li>
     </ul>
   </section>
 
-    <p><strong>改訂履歴:</strong> 2026-08-12 v0.1作成。P5のStep、Gate、外部Data境界、Unknown、実ランタイム起動・Fallback契約を反映。2026-08-13 旧Databento範囲のP5-DATA-G1適用・承認Evidenceと、Runner・実行前Evidence不足によるP5-08 BLOCKED状態を履歴化。2026-08-14 ProviderをBinance Data Visionへ変更し、BTCUSDT／ETHUSDTを暫定対象、旧CME 5候補を履歴とするscope amendmentを追加。2026-08-15 P5-08〜P5-11のBinance Spot、1m月次ZIP、UTC、Crypto 24/7、API key／Secret非使用、checksum、Crypto固有Quality、P6引渡し範囲、A95の固定model／Skill指定を具体化。2026-08-15 P5-08 Raw／展開CSV取得、P5-09 local品質Evidence、P5-10統合レビュー完了とOpen UnknownによるP5-H2候補不成立を反映。</p>
+    <p><strong>改訂履歴:</strong> 2026-08-12 v0.1作成。P5のStep、Gate、外部Data境界、Unknown、実ランタイム起動・Fallback契約を反映。2026-08-13 旧Databento範囲のP5-DATA-G1適用・承認Evidenceと、Runner・実行前Evidence不足によるP5-08 BLOCKED状態を履歴化。2026-08-14 ProviderをBinance Data Visionへ変更し、BTCUSDT／ETHUSDTを暫定対象、旧CME 5候補を履歴とするscope amendmentを追加。2026-08-15 P5-08〜P5-11のBinance Spot、1m月次ZIP、UTC、Crypto 24/7、API key／Secret非使用、checksum、Crypto固有Quality、P6引渡し範囲、A95の固定model／Skill指定を具体化。2026-08-15 P5-08 Raw／展開CSV取得、P5-09 local品質Evidence、P5-10統合レビュー完了とOpen UnknownによるP5-H2候補不成立を反映。2026-08-15 P5-H2条件付き承認、P5-11完了HTML／P6計画入力／dispatch receiptの作成、thread-limit fallbackと残存Unknownの継承を反映。</p>
 </main>
 </body>
 </html>

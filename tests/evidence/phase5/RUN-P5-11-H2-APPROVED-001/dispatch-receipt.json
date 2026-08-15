@@ -1,0 +1,134 @@
+{
+  "schema_version": "runtime-dispatch-receipt-v1",
+  "phase_id": "PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12",
+  "step_id": "P5-11",
+  "plan_id": "P5-PLAN-001",
+  "run_id": "RUN-P5-11-H2-APPROVED-001",
+  "recorded_at": "2026-08-15T20:06:41+09:00",
+  "decision": "P5-11_COMPLETE_WITH_OPEN_UNKNOWN",
+  "policy_note": "Do not treat the required A95 Agent name as a management-hash field. This dispatch record contains no management hash, manifest hash, fingerprint, or receipt hash; source-data integrity remains outside this dispatch record.",
+  "runtime": {
+    "availability_checked": [
+      "multi_agent_v1__spawn_agent",
+      "multi_agent_v1__wait_agent"
+    ],
+    "availability_result": "AVAILABLE_TOOL_DISCOVERY_SPAWN_FAILED_THREAD_LIMIT",
+    "dispatch_state": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "fallback_state": "LOCAL_FALLBACK_NO_SUBAGENTS",
+    "reason": "Required root spawn was attempted with the specified Orchestrator JSON path and fixed model; the runtime returned a thread-limit failure before any Coordinator was created. No substitute Agent, Orchestrator, or model was used."
+  },
+  "orchestrator": {
+    "name": "AutoTradeProject_DesignDocSet_Orchestrator_v0_1",
+    "json_path": "C:/project/strategy_test/.codex/orchestrators/AutoTradeProject_DesignDocSet_Orchestrator_v0_1.json",
+    "model": "gpt-5.6-terra",
+    "agent_id": "N/A",
+    "spawn_status": "FAILED_THREAD_LIMIT",
+    "wait_status": "NOT_ATTEMPTED_NO_AGENT",
+    "output_ref": "dispatch/P5-11-root-runtime-receipt-20260815.json",
+    "fallback_reason": "collab spawn failed: agent thread limit reached",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK"
+  },
+  "children": [
+    {
+      "sequence": 1,
+      "agent_name": "AutoTrade_A10_RequirementsCurator_v0_1",
+      "agent_json_path": "C:/project/strategy_test/.codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json",
+      "prompt_model": "gpt-5.6-luna",
+      "agent_json_model": "gpt-5.6-luna",
+      "model_argument": "gpt-5.6-luna_NOT_SPAWNED",
+      "agent_id": "N/A",
+      "spawn_status": "NOT_STARTED_DUE_ROOT_THREAD_LIMIT",
+      "wait_status": "NOT_ATTEMPTED",
+      "output_ref": "N/A",
+      "fallback_reason": "Root spawn failed before Coordinator child dispatch.",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "sequence": 2,
+      "agent_name": "AutoTrade_A80_DocumentIntegrator_v0_1",
+      "agent_json_path": "C:/project/strategy_test/.codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json",
+      "prompt_model": "gpt-5.1",
+      "agent_json_model": "gpt-5.6-luna",
+      "model_argument": "N/A_NOT_SPAWNED_MODEL_MISMATCH",
+      "agent_id": "N/A",
+      "spawn_status": "NOT_STARTED_DUE_ROOT_THREAD_LIMIT",
+      "wait_status": "NOT_ATTEMPTED",
+      "output_ref": "N/A",
+      "fallback_reason": "Prompt and Agent JSON models differ; no substitution was made.",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "sequence": 3,
+      "agent_name": "AutoTrade_A81_DesignDocSetWriter_v0_1",
+      "agent_json_path": "C:/project/strategy_test/.codex/agents/AutoTrade_A81_DesignDocSetWriter_v0_1.json",
+      "prompt_model": "gpt-5.6-luna",
+      "agent_json_model": "gpt-5.6-luna",
+      "model_argument": "gpt-5.6-luna_NOT_SPAWNED",
+      "agent_id": "N/A",
+      "spawn_status": "NOT_STARTED_DUE_ROOT_THREAD_LIMIT",
+      "wait_status": "NOT_ATTEMPTED",
+      "output_ref": "N/A",
+      "fallback_reason": "Root spawn failed before Coordinator child dispatch.",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "sequence": 4,
+      "agent_name": "AutoTrade_A90_DesignReviewer_v0_1",
+      "agent_json_path": "C:/project/strategy_test/.codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json",
+      "prompt_model": "gpt-5.6-luna",
+      "agent_json_model": "gpt-5.6-luna",
+      "model_argument": "gpt-5.6-luna_NOT_SPAWNED",
+      "agent_id": "N/A",
+      "spawn_status": "NOT_STARTED_DUE_ROOT_THREAD_LIMIT",
+      "wait_status": "NOT_ATTEMPTED",
+      "output_ref": "N/A",
+      "fallback_reason": "No independent review; local Findings-first review only.",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "sequence": 5,
+      "agent_name": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1",
+      "agent_json_path": "C:/project/strategy_test/.codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json",
+      "prompt_model": "gpt-5.6-luna",
+      "agent_json_model": "gpt-5.6-luna",
+      "model_argument": "gpt-5.6-luna_NOT_SPAWNED",
+      "agent_id": "N/A",
+      "spawn_status": "NOT_STARTED_DUE_ROOT_THREAD_LIMIT",
+      "wait_status": "NOT_ATTEMPTED",
+      "output_ref": "N/A",
+      "fallback_reason": "No independent policy guardian; local static policy check only.",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    }
+  ],
+  "preflight": {
+    "p5_h2": "APPROVED_WITH_OPEN_UNKNOWN_AND_STOP_CONDITIONS",
+    "p5_10": "INTEGRATED_REVIEW_COMPLETE_WITH_OPEN_UNKNOWN",
+    "open_unknowns": [
+      "provider_terms_unknown",
+      "p5_08_host_isolation_not_verified",
+      "child_agents_not_started",
+      "execution_cost_not_measured"
+    ],
+    "critical_findings": 0,
+    "high_findings": 0,
+    "completion_html_created": true,
+    "p6_input_created": true,
+    "completion_declared": true,
+    "completion_scope": "Binance Spot BTCUSDT/ETHUSDT 1m UTC CRYPTO_24_7_UTC only"
+  },
+  "side_effects": {
+    "external_io": false,
+    "secret_access": false,
+    "additional_data_acquisition": false,
+    "provider_change": false,
+    "symbol_expansion": false,
+    "broker_paper_live_real_funds": false,
+    "core_p4_db_cloud_change": false
+  }
+}
