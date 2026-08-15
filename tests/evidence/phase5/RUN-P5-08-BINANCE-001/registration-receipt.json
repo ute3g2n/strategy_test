@@ -1,0 +1,27 @@
+{
+  "schema_version": "p5-08-binance-registration-receipt-v1",
+  "status": "REGISTERED_NOT_EXECUTED",
+  "registered_at": "2026-08-15T14:24:04+09:00",
+  "approval_gate": "P5-DATA-G1-BINANCE-AMENDMENT-001",
+  "approval_status": "APPROVED",
+  "run_id": "RUN-P5-08-BINANCE-001",
+  "runner_id": "P5-EXT-BINANCE-VISION-SPOT-001",
+  "request_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/request.json",
+  "runner_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/runner-registration.json",
+  "allowlist_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/allowlist.json",
+  "host_isolation_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/host-isolation.json",
+  "dispatch_receipt_ref": "tests/evidence/phase5/RUN-P5-08-BINANCE-REGISTRATION-20260815-001/dispatch-receipt.json",
+  "external_io_performed": false,
+  "api_key_or_secret_read": false,
+  "data_acquired": false,
+  "provider_data_cost_usd": 0,
+  "protected_integrity_policy": "Raw source-data hash is used only for reproducibility; document management hash is prohibited.",
+  "remaining_gates": [
+    "host isolation must be independently verified",
+    "provider use, retention, and redistribution terms must be confirmed",
+    "external execution must be explicitly started with --mode execute",
+    "Raw source checksum, expanded CSV, Normalized, Quality, Calendar, Cost, Gap, and Holdout evidence must be produced and reviewed",
+    "child Agent dispatch remains fallback and is not independent review"
+  ],
+  "decision": "P5-08_FIXED_REGISTRATION_COMPLETE_EXTERNAL_EXECUTION_NOT_STARTED"
+}

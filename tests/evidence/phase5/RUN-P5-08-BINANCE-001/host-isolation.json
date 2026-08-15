@@ -1,0 +1,25 @@
+{
+  "schema_version": "p5-08-binance-host-isolation-v1",
+  "status": "NOT_VERIFIED",
+  "verification_scope": "host-level outbound isolation for the explicit Binance external run",
+  "provider_host": "data.binance.vision",
+  "provider_port": 443,
+  "required_allowed_destination": "https://data.binance.vision:443",
+  "required_denied_destinations": [
+    "all other hosts",
+    "all other ports",
+    "proxy endpoints"
+  ],
+  "api_key_or_secret_read": false,
+  "protected_integrity_policy": "Raw source-data hash is used only for reproducibility; document management hash is prohibited.",
+  "verification_method": "capture pre/post host network policy and the run execution ID before enabling --mode execute",
+  "evidence_required_before_execute": true,
+  "reason_not_verified": "登録時点では外部通信を行っていないため、OSレベルのhost isolationは未取得。",
+  "does_not_prove": [
+    "provider terms",
+    "data completeness",
+    "source checksum",
+    "Normalized quality",
+    "P5-08 PASS"
+  ]
+}

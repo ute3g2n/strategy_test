@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P5-08 Binance固定Runner登録</title>
+  <style>
+    :root { color-scheme: light; --ink:#25283d; --muted:#62677f; --line:#dfe3f2; --panel:#f6f7fc; --accent:#4c57c9; --warn:#8b5a00; }
+    body { margin:0; font-family:Segoe UI, system-ui, sans-serif; color:var(--ink); line-height:1.65; background:#fff; }
+    main { max-width:1080px; margin:0 auto; padding:32px 24px 64px; }
+    h1 { margin:0 0 8px; font-size:2rem; }
+    h2 { margin-top:32px; border-bottom:2px solid var(--line); padding-bottom:6px; }
+    .lead { color:var(--muted); }
+    .state { display:inline-block; padding:4px 10px; border-radius:999px; background:#fff3d5; color:var(--warn); font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin:14px 0; }
+    th, td { border:1px solid var(--line); padding:9px 10px; text-align:left; vertical-align:top; }
+    th { width:28%; background:var(--panel); }
+    code { background:var(--panel); padding:1px 4px; border-radius:4px; overflow-wrap:anywhere; }
+    .note { border-left:4px solid var(--accent); background:var(--panel); padding:12px 16px; }
+    a { color:var(--accent); }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">doc/index.html</a> ／ Phase 5 ／ 05 実証</p>
+  <h1>P5-08 Binance固定Runner登録</h1>
+  <p class="lead">P5-DATA-G1のBinance amendment承認後に、P5-08の外部実行前契約を固定登録した記録です。</p>
+  <p><span class="state">REGISTERED_NOT_EXECUTED</span> 外部通信・実Data取得・API key／Secret読取は、この登録作業では行っていません。</p>
+
+  <h2>1. 固定対象</h2>
+  <table>
+    <tr><th>Provider</th><td><code>https://data.binance.vision/</code> 公開アーカイブ</td></tr>
+    <tr><th>対象</th><td>Crypto Spot ／ <code>BTCUSDT</code>、<code>ETHUSDT</code></td></tr>
+    <tr><th>基底足</th><td>1分足の月次ZIP。派生足はD1／H4／H1／M30／M15を後続Gateで生成する。</td></tr>
+    <tr><th>期間</th><td>2025-02-24T00:00:00Z 以上、2026-08-01T00:00:00Z 未満</td></tr>
+    <tr><th>時刻・Calendar</th><td>UTC ／ <code>CRYPTO_24_7_UTC</code></td></tr>
+    <tr><th>完全性</th><td>ZIPと同じ場所の <code>.CHECKSUM</code> を用い、データ完全性・再現性の直接目的だけで照合する。文書管理用hashは作らない。</td></tr>
+  </table>
+
+  <h2>2. 登録したもの</h2>
+  <ul>
+    <li><a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/request.json"><code>request.json</code></a>：symbol、Spot、1m、期間、URL、保存先、停止条件。</li>
+    <li><a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/runner-registration.json"><code>runner-registration.json</code></a>：固定Runner ID、固定command、実行範囲。</li>
+    <li><a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/allowlist.json"><code>allowlist.json</code></a>：HTTPSの許可先を <code>data.binance.vision:443</code> だけに限定。</li>
+    <li><a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-001/host-isolation.json"><code>host-isolation.json</code></a>：OS／host isolationは未検証として固定。</li>
+    <li><a href="../../../tests/evidence/phase5/RUN-P5-08-BINANCE-REGISTRATION-20260815-001/dispatch-receipt.json">dispatch receipt</a>：Coordinator実起動と子Agent未起動fallbackを記録。</li>
+  </ul>
+
+  <h2>3. 固定Runnerの安全境界</h2>
+  <p><a href="../../../scripts/phase5_external_data/run_binance_data_vision.py">Runner本体</a>は、通常のdry-runでは固定JSONを読むだけです。環境変数を参照せず、API key／Secretを読まず、リダイレクトとProxyを拒否します。</p>
+  <div class="note">実行モードは明示的な <code>--mode execute</code> が必要です。ただし、host isolationがVERIFIEDで、Providerの利用・保持・再配布条件がCONFIRMEDになるまでRunnerは停止します。</div>
+
+  <h2>4. 残っているGate</h2>
+  <table>
+    <tr><th>Host isolation</th><td><code>NOT_VERIFIED</code>。OSレベルの送信先制限と実行ID付きpre／post証拠が必要。</td></tr>
+    <tr><th>Provider terms</th><td><code>UNKNOWN</code>。利用・保持・再配布条件を確認するまでUnknownのまま停止。</td></tr>
+    <tr><th>実Data Evidence</th><td>Raw ZIP、<code>.CHECKSUM</code>、展開CSV、Normalized、Quality、Calendar、Cost／Gap、Holdoutは未取得・未判定。</td></tr>
+    <tr><th>レビュー</th><td>Coordinator配下の子Agentは起動不能fallbackであり、独立レビュー済みとは扱わない。</td></tr>
+  </table>
+
+  <h2>5. 参照</h2>
+  <ul>
+    <li><a href="../../../tests/evidence/phase5/RUN-P5-DATA-G1-BINANCE-APPROVED-001/human-gate-p5-data-g1-binance-amendment.md">P5-DATA-G1 Binance amendment承認記録</a></li>
+    <li><a href="../06_方針転換/02_Binance_Data_Vision方針転換・Crypto暫定対象.html">Binance方針転換・Crypto暫定対象</a></li>
+    <li><a href="../../../plan/phase5/ログ/P5-08_Binance固定Runner登録_2026-08-15.md">登録ログ</a></li>
+  </ul>
+</main>
+</body>
+</html>

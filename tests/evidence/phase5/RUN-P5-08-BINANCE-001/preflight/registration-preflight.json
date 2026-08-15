@@ -1,0 +1,81 @@
+{
+  "allowlist": [
+    {
+      "host": "data.binance.vision",
+      "port": 443,
+      "scheme": "https"
+    }
+  ],
+  "api_key_or_secret_read": false,
+  "approval_evidence_recorded": true,
+  "asset_scope": {
+    "base_interval": "1m",
+    "calendar": "CRYPTO_24_7_UTC",
+    "market_segment": "spot",
+    "month_count": 18,
+    "months": [
+      "2025-02",
+      "2025-03",
+      "2025-04",
+      "2025-05",
+      "2025-06",
+      "2025-07",
+      "2025-08",
+      "2025-09",
+      "2025-10",
+      "2025-11",
+      "2025-12",
+      "2026-01",
+      "2026-02",
+      "2026-03",
+      "2026-04",
+      "2026-05",
+      "2026-06",
+      "2026-07"
+    ],
+    "period_utc": {
+      "end": "2026-08-01T00:00:00Z",
+      "end_exclusive": true,
+      "start": "2025-02-24T00:00:00Z"
+    },
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ]
+  },
+  "blocking_reasons": [
+    "HOST_ISOLATION_NOT_VERIFIED",
+    "PROVIDER_TERMS_UNKNOWN"
+  ],
+  "data_acquired": false,
+  "external_io_performed": false,
+  "host_isolation_status": "NOT_VERIFIED",
+  "normalization_status": "NOT_EXECUTED",
+  "phase_id": "PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12",
+  "provider": "binance_data_vision",
+  "provider_terms_status": "UNKNOWN",
+  "proxy_policy": "disabled",
+  "quality_status": "NOT_EXECUTED",
+  "raw_integrity_policy": "downloaded ZIP must match sibling .CHECKSUM; direct source-data identity only",
+  "ready_for_external_io": false,
+  "redirect_policy": "reject",
+  "run_id": "RUN-P5-08-BINANCE-001",
+  "runner_id": "P5-EXT-BINANCE-VISION-SPOT-001",
+  "runner_version": "0.1.0",
+  "schema_version": "p5-08-binance-registration-preflight-v1",
+  "status": "REGISTERED_NOT_EXECUTED",
+  "step_id": "P5-08",
+  "stop_conditions": [
+    "P5_DATA_G1_APPROVAL_EVIDENCE_MISSING",
+    "HOST_ISOLATION_NOT_VERIFIED",
+    "PROVIDER_TERMS_UNKNOWN",
+    "URL_ALLOWLIST_MISMATCH",
+    "承認範囲外のsymbol、market segment、endpoint、期間",
+    "API key／Secret読取または環境変数参照",
+    "SOURCE_CHECKSUM_MISMATCH",
+    "TIMESTAMP_UNIT_NOT_MICROSECONDS",
+    "Spot／Futures混入",
+    "CSVの欠損推測補完",
+    "実行後usage監査不明"
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "schema_version": "p5-08-binance-request-v1",
+  "phase_id": "PHASE5_MARKET_DATA_OPERATIONALIZATION_EVIDENCE_2026_08_12",
+  "step_id": "P5-08",
+  "run_id": "RUN-P5-08-BINANCE-001",
+  "request_id": "P5-08-BINANCE-SPOT-KLINE-1M-001",
+  "provider": "binance_data_vision",
+  "archive_root": "https://data.binance.vision/",
+  "source_mode": "external_public_archive",
+  "external_io_allowed": true,
+  "no_live": true,
+  "asset_type": "crypto",
+  "market_segment": "spot",
+  "symbols": [
+    "BTCUSDT",
+    "ETHUSDT"
+  ],
+  "base_interval": "1m",
+  "derived_intervals": [
+    "D1",
+    "H4",
+    "H1",
+    "M30",
+    "M15"
+  ],
+  "period_utc": {
+    "start": "2025-02-24T00:00:00Z",
+    "end": "2026-08-01T00:00:00Z",
+    "end_exclusive": true
+  },
+  "timezone": "UTC",
+  "calendar": "CRYPTO_24_7_UTC",
+  "timestamp_policy": {
+    "expected_unit": "microseconds",
+    "expected_from": "2025-01-01T00:00:00Z",
+    "on_mismatch": "STOP",
+    "note": "受領CSVの実値を検出して記録し、期待単位と異なる場合は補正せず停止する。"
+  },
+  "url_template": "https://data.binance.vision/data/spot/monthly/klines/{symbol}/1m/{symbol}-1m-{YYYY-MM}.zip",
+  "checksum_url_template": "https://data.binance.vision/data/spot/monthly/klines/{symbol}/1m/{symbol}-1m-{YYYY-MM}.zip.CHECKSUM",
+  "evidence_root": "tests/evidence/phase5/RUN-P5-08-BINANCE-001",
+  "approval_evidence": "tests/evidence/phase5/RUN-P5-DATA-G1-BINANCE-APPROVED-001/human-gate-p5-data-g1-binance-amendment.md",
+  "provider_terms": {
+    "status": "UNKNOWN",
+    "evidence_ref": null,
+    "required_before_execute": true,
+    "note": "利用・保持・再配布条件の確認は登録後の実行前Gateで行う。UnknownをPass化しない。"
+  },
+  "cost_policy": {
+    "provider_data_cost_usd": 0,
+    "preflight_estimate_required": false,
+    "internal_usage_audit_required": true,
+    "post_run_usage_audit_required": true,
+    "no_auto_upgrade": true
+  },
+  "secret_policy": {
+    "api_key_used": false,
+    "secret_used": false,
+    "environment_read": false,
+    "authorization_header": false
+  },
+  "target_paths": {
+    "raw_zip_template": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/{symbol}/{YYYY-MM}.zip",
+    "checksum_template": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/raw/spot/klines/1m/{symbol}/{YYYY-MM}.zip.CHECKSUM",
+    "expanded_csv_template": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/expanded/spot/klines/1m/{symbol}/{YYYY-MM}/{symbol}-1m-{YYYY-MM}.csv",
+    "normalized_root": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/normalized",
+    "quality_root": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/quality",
+    "provenance_root": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/provenance"
+  },
+  "stop_conditions": [
+    "P5_DATA_G1_APPROVAL_EVIDENCE_MISSING",
+    "HOST_ISOLATION_NOT_VERIFIED",
+    "PROVIDER_TERMS_UNKNOWN",
+    "URL_ALLOWLIST_MISMATCH",
+    "承認範囲外のsymbol、market segment、endpoint、期間",
+    "API key／Secret読取または環境変数参照",
+    "SOURCE_CHECKSUM_MISMATCH",
+    "TIMESTAMP_UNIT_NOT_MICROSECONDS",
+    "Spot／Futures混入",
+    "CSVの欠損推測補完",
+    "実行後usage監査不明"
+  ],
+  "excluded_scope": [
+    "Binance Futures",
+    "Funding",
+    "Liquidation",
+    "Tick",
+    "Order book",
+    "REST API primary route",
+    "Broker",
+    "Paper",
+    "Live",
+    "real funds",
+    "real risk values",
+    "Cloud",
+    "Core",
+    "P4 DB",
+    "API key and Secret values"
+  ]
+}

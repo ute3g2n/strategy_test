@@ -1,0 +1,18 @@
+{
+  "schema_version": "p5-08-binance-https-allowlist-v1",
+  "status": "REGISTERED_NOT_VERIFIED",
+  "network_mode": "https_only",
+  "entries": [
+    {
+      "scheme": "https",
+      "host": "data.binance.vision",
+      "port": 443
+    }
+  ],
+  "redirect_policy": "reject",
+  "proxy_policy": "disabled",
+  "path_policy": "/data/spot/monthly/klines/{symbol}/1m/{symbol}-1m-{YYYY-MM}.zip[.CHECKSUM]",
+  "protected_integrity_policy": "Raw source-data hash is used only for reproducibility; document management hash is prohibited.",
+  "dns_or_host_isolation_evidence": "tests/evidence/phase5/RUN-P5-08-BINANCE-001/host-isolation.json",
+  "note": "登録済み許可先。実行時のOS／host isolationは別Evidenceで確認する。"
+}
