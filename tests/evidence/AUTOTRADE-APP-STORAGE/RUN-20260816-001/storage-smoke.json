@@ -1,0 +1,48 @@
+{
+  "run_id": "RUN-20260816-001",
+  "status": "PASS",
+  "scope": "Application-wide AutoTrade runtime storage relocation to the dedicated E drive",
+  "storage_contract": {
+    "application_root": "E:/strategy_test_data/autotrade",
+    "historical_data": "E:/strategy_test_data/autotrade/historical/spot/klines/1m",
+    "backtest_results": "E:/strategy_test_data/autotrade/backtest/results",
+    "csv_exports": "E:/strategy_test_data/autotrade/backtest/exports",
+    "application_logs": "E:/strategy_test_data/autotrade/logs",
+    "forbidden_runtime_path_parts": ["temp", "tmp", "phase5r"],
+    "fallback_to_c_drive": false
+  },
+  "historical_data_migration": {
+    "file_count": 36,
+    "bytes": 72864651,
+    "source_role": "reproducible test fixture copied to the runtime data area",
+    "runtime_source": "E:/strategy_test_data/autotrade/historical/spot/klines/1m"
+  },
+  "runtime_smoke": {
+    "api_health": 200,
+    "ui_status": 200,
+    "preflight": "PASS",
+    "run_id": "RUN-AUTOTRADE-E8BE433F5374",
+    "run_status": "SUCCEEDED",
+    "result_file": "E:/strategy_test_data/autotrade/backtest/results/RUN-AUTOTRADE-E8BE433F5374/result.json",
+    "csv_job_id": "CSV-AUTOTRADE-0FFF2FAD40",
+    "csv_status": "SUCCEEDED",
+    "csv_download_bytes": 2165,
+    "csv_file": "E:/strategy_test_data/autotrade/backtest/exports/CSV-AUTOTRADE-0FFF2FAD40/result.csv",
+    "provenance_source": "E:/strategy_test_data/autotrade/historical/spot/klines/1m/<symbol>/<yyyy-mm>/<symbol>-1m-<yyyy-mm>.csv.gz"
+  },
+  "verification": {
+    "python_tests": "102 passed",
+    "phase5r_tests": "26 passed",
+    "python_ruff": "PASS",
+    "static_policy_check": "ALLOW",
+    "powershell_parser": "PASS",
+    "playwright_backtest_journeys": "4 passed",
+    "new_c_runtime_files_during_smoke": 0,
+    "new_c_temp_files_during_smoke": 0
+  },
+  "legacy_data_policy": {
+    "old_project_and_user_temp_artifacts": "left untouched for safe preservation",
+    "new_application_writes": "E drive only",
+    "tracked_test_fixture": "retained solely for deterministic test reproduction"
+  }
+}

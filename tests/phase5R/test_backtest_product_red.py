@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 
 from autotrade.application.backtest_product import BacktestProductService
+from autotrade.application.storage_paths import BACKTEST_STORAGE_ROOT, HISTORICAL_DATA_ROOT
 
 
 def _write_fixture(root: Path, symbol: str = "BTCUSDT", count: int = 180) -> Path:
@@ -73,6 +74,16 @@ def _wait(service: BacktestProductService, run_id: str, timeout: float = 5.0) ->
             return view
         time.sleep(0.01)
     raise AssertionError(f"timed out: {service.get_run(run_id)}")
+
+
+def test_default_service_uses_e_drive_application_storage() -> None:
+    service = BacktestProductService()
+    assert service.data_root == HISTORICAL_DATA_ROOT
+    assert service.runtime_root == BACKTEST_STORAGE_ROOT
+    assert service.data_root.drive.upper() == "E:"
+    assert service.runtime_root.drive.upper() == "E:"
+    assert "phase5r" not in str(service.data_root).casefold()
+    assert "phase5r" not in str(service.runtime_root).casefold()
 
 
 def test_preflight_rejects_out_of_scope_and_non_utc(tmp_path: Path) -> None:

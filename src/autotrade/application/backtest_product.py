@@ -1,4 +1,4 @@
-"""P5R local Backtest product service.
+"""Local Backtest product service.
 
 This module is deliberately fixture-only.  It reads the already approved local
 P5 normalized files, runs a deterministic virtual-fill simulation, and exposes
@@ -12,7 +12,6 @@ import csv
 import gzip
 import io
 import json
-import tempfile
 import threading
 import time
 import uuid
@@ -35,6 +34,8 @@ from autotrade.backtest.runner import BacktestRunner
 from autotrade.market_data.store_contracts import DataVersionManifest, MarketEvent
 from autotrade.strategy.contracts import StrategyConfig, StrategyState
 from autotrade.strategy.service import process_closed_bars
+
+from .storage_paths import BACKTEST_STORAGE_ROOT, HISTORICAL_DATA_ROOT, validate_storage_path
 
 JsonObject = dict[str, Any]
 RunCallback = Callable[[str, int, int], None]
@@ -154,19 +155,17 @@ class BacktestProductService:
     """Typed local service used by tests and the browser API."""
 
     def __init__(self, *, data_root: Path | None = None, runtime_root: Path | None = None) -> None:
-        project_root = Path(__file__).resolve().parents[3]
-        self.data_root = data_root or (
-            project_root
-            / "tests"
-            / "evidence"
-            / "phase5"
-            / "RUN-P5-09-BINANCE-001"
-            / "normalized"
-            / "spot"
-            / "klines"
-            / "1m"
+        self.data_root = (
+            validate_storage_path(HISTORICAL_DATA_ROOT, purpose="historical data")
+            if data_root is None
+            else Path(data_root)
         )
-        self.runtime_root = runtime_root or (Path(tempfile.gettempdir()) / "autotrade-phase5r")
+        self.runtime_root = (
+            validate_storage_path(BACKTEST_STORAGE_ROOT, purpose="backtest runtime data")
+            if runtime_root is None
+            else Path(runtime_root)
+        )
+        self.data_root.mkdir(parents=True, exist_ok=True)
         self.runtime_root.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
         self._runs: dict[str, _Run] = {}
@@ -208,11 +207,13 @@ class BacktestProductService:
         self, raw_spec: Mapping[str, Any], *, kind: str = "SINGLE_BACKTEST", parent_id: str | None = None
     ) -> JsonObject:
         spec = self._validate_spec(raw_spec)
-        run_id = f"RUN-P5R-{uuid.uuid4().hex[:12].upper()}"
+        run_id = f"RUN-AUTOTRADE-{uuid.uuid4().hex[:12].upper()}"
         run = _Run(run_id=run_id, spec=spec, kind=kind, parent_id=parent_id)
         with self._lock:
             self._runs[run_id] = run
-            run.thread = threading.Thread(target=self._execute_run, args=(run_id,), daemon=True, name=f"p5r-{run_id}")
+            run.thread = threading.Thread(
+                target=self._execute_run, args=(run_id,), daemon=True, name=f"autotrade-{run_id}"
+            )
             run.thread.start()
         return self.get_run(run_id)
 
@@ -258,7 +259,7 @@ class BacktestProductService:
             run.failure = None
             run.status = "QUEUED"
             run.thread = threading.Thread(
-                target=self._execute_run, args=(run_id,), daemon=True, name=f"p5r-resume-{run_id}"
+                target=self._execute_run, args=(run_id,), daemon=True, name=f"autotrade-resume-{run_id}"
             )
             run.thread.start()
             return self._run_view(run)
@@ -270,7 +271,7 @@ class BacktestProductService:
         serialized = [json.dumps(dict(candidate), sort_keys=True, separators=(",", ":")) for candidate in candidates]
         if len(serialized) != len(set(serialized)):
             raise ValueError("SWEEP_DUPLICATE")
-        sweep_id = f"SWEEP-P5R-{uuid.uuid4().hex[:10].upper()}"
+        sweep_id = f"SWEEP-AUTOTRADE-{uuid.uuid4().hex[:10].upper()}"
         sweep = _Sweep(sweep_id=sweep_id, base_spec=dict(raw_spec), expected_total=len(candidates))
         with self._lock:
             self._sweeps[sweep_id] = sweep
@@ -278,7 +279,7 @@ class BacktestProductService:
                 target=self._execute_sweep,
                 args=(sweep_id, [dict(candidate) for candidate in candidates]),
                 daemon=True,
-                name=f"p5r-{sweep_id}",
+                name=f"autotrade-{sweep_id}",
             )
             sweep.thread.start()
         return self.get_sweep(sweep_id)
@@ -363,11 +364,13 @@ class BacktestProductService:
         selected = tuple(str(column) for column in columns)
         if not selected or any(column not in allowed for column in selected):
             raise ValueError("CSV_COLUMN_INVALID")
-        job_id = f"CSV-P5R-{uuid.uuid4().hex[:10].upper()}"
+        job_id = f"CSV-AUTOTRADE-{uuid.uuid4().hex[:10].upper()}"
         job = _CsvJob(job_id=job_id, run_id=run_id, columns=selected)
         with self._lock:
             self._csv_jobs[job_id] = job
-            job.thread = threading.Thread(target=self._execute_csv, args=(job_id,), daemon=True, name=f"p5r-{job_id}")
+            job.thread = threading.Thread(
+                target=self._execute_csv, args=(job_id,), daemon=True, name=f"autotrade-{job_id}"
+            )
             job.thread.start()
         return self.get_csv_job(job_id)
 
@@ -977,7 +980,7 @@ class BacktestProductService:
         return {
             "source_mode": "P5_LOCAL_READ_ONLY",
             "source_path": (
-                "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/"
+                "E:/strategy_test_data/autotrade/historical/spot/klines/1m/"
                 "<symbol>/<yyyy-mm>/<symbol>-1m-<yyyy-mm>.csv.gz"
             ),
             "fixture_scope": "BTCUSDT/ETHUSDT Spot 1m UTC CRYPTO_24_7_UTC",
@@ -1046,7 +1049,7 @@ class BacktestProductService:
                 if index % 100 == 0:
                     time.sleep(0.001)
             content = stream.getvalue()
-            directory = self.runtime_root / "csv" / job_id
+            directory = self.runtime_root / "exports" / job_id
             directory.mkdir(parents=True, exist_ok=True)
             (directory / "result.csv").write_text(content, encoding="utf-8", newline="")
             with self._lock:

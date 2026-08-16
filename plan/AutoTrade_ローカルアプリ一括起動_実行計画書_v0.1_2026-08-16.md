@@ -195,7 +195,7 @@ Step 1の事実と方針に従い、Windows Explorerからダブルクリック�
 8. `-NoBrowser`を検査用に受け付ける。
 9. すでに同じAPI/UIが正常なら二重起動しない。
 10. ポートが別プロセスに占有されている場合は停止し、PIDとログ場所を表示する。
-11. API/UIのstdout/stderrをruntime/autotrade_app/へ保存する。
+11. API/UIのstdout/stderrをE:\strategy_test_data\autotrade\logs\へ保存する。
 12. API/UIをlocalhost以外へbindしない。
 13. stop側は対象プロジェクトの起動経路だけを確認して終了し、無関係なPIDをkillしない。
 14. 例外・終了コード・タイムアウトを利用者に分かる日本語で表示する。
@@ -274,7 +274,7 @@ Evidence:
 2. `start_autotrade.bat`をダブルクリックする操作を最初の手順にする。
 3. API、UI、build、ブラウザ、health checkを中学生でも分かる言葉で説明する。
 4. 成功時に見えるURLとBacktest画面を明記する。
-5. `runtime/autotrade_app/`のログ場所を明記する。
+5. `E:\strategy_test_data\autotrade\logs\`のログ場所を明記する。
 6. Python/npm未導入、依存不足、build失敗、ポート競合、API/UI未起動の直し方を表にする。
 7. `stop_autotrade.bat`による停止方法を追加する。
 8. localhost限定、外部Data/Broker/Secret/実注文/実資金なしを明記する。

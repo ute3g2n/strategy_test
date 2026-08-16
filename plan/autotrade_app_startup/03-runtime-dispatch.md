@@ -40,4 +40,5 @@
 ## Evidence
 
 - `tests/evidence/AUTOTRADE-APP-STARTUP/RUN-20260816-001/startup-smoke.json`
-- ローカル実行ログ: `runtime/autotrade_app/`
+- `tests/evidence/AUTOTRADE-APP-STORAGE/RUN-20260816-001/storage-smoke.json`
+- ローカル実行ログ: `E:\strategy_test_data\autotrade\logs\`

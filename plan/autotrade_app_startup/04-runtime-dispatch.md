@@ -24,7 +24,7 @@
 - 手順書に「0. アプリを一括起動する」を追加した。
 - `start_autotrade.bat`のダブルクリック、build、API/UI health、ブラウザURLを説明した。
 - `stop_autotrade.bat`と、ブラウザを閉じるだけでは停止しないことを説明した。
-- `runtime/autotrade_app`のstartup/build/API/UIログを説明した。
+- `E:\strategy_test_data\autotrade\logs\`のstartup/build/API/UIログを説明した。
 - npm、Python、build、8765/4173ポート、health timeout、ブラウザ未起動の復旧表を追加した。
 - localhost限定、外部Data、Broker、Secret、実注文、実資金なしを明記した。
 - 最短コースの先頭に一括起動を追加した。

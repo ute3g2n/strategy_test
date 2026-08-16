@@ -10,7 +10,8 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $uiRoot = Join-Path $projectRoot 'ui\mock'
 $apiScript = Join-Path $projectRoot 'scripts\phase5r\backtest_api_server.py'
-$runtimeRoot = Join-Path $projectRoot 'runtime\autotrade_app'
+$storageRoot = 'E:\strategy_test_data\autotrade'
+$runtimeRoot = Join-Path $storageRoot 'logs'
 $startupLog = Join-Path $runtimeRoot 'startup.log'
 $buildLog = Join-Path $runtimeRoot 'build.log'
 $apiLog = Join-Path $runtimeRoot 'api.log'
@@ -20,14 +21,14 @@ $uiErrorLog = Join-Path $runtimeRoot 'ui.error.log'
 $apiUrl = 'http://127.0.0.1:8765'
 $uiUrl = 'http://127.0.0.1:4173'
 
-New-Item -ItemType Directory -Path $runtimeRoot -Force | Out-Null
-
 function Write-StartupMessage {
     param([string]$Message)
 
     $line = "[{0}] {1}" -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $Message
     Write-Host $line
-    Add-Content -LiteralPath $startupLog -Value $line -Encoding UTF8
+    if (Test-Path -LiteralPath (Split-Path -Parent $startupLog) -PathType Container) {
+        Add-Content -LiteralPath $startupLog -Value $line -Encoding UTF8
+    }
 }
 
 function Test-HttpEndpoint {
@@ -102,6 +103,11 @@ function Stop-StartedProcess {
 $startedProcessIds = New-Object System.Collections.Generic.List[int]
 
 try {
+    if (-not (Test-Path -LiteralPath 'E:\' -PathType Container)) {
+        throw 'Eドライブが見つかりません。CドライブやWindows一時フォルダーへはフォールバックしません。'
+    }
+    New-Item -ItemType Directory -Path $runtimeRoot -Force | Out-Null
+
     if (-not (Test-Path -LiteralPath $uiRoot -PathType Container)) {
         throw "UIフォルダーが見つかりません: $uiRoot"
     }
@@ -191,7 +197,7 @@ try {
     }
 
     Write-StartupMessage "起動完了。ブラウザURL: $uiUrl"
-    Write-StartupMessage "ログ: $runtimeRoot"
+    Write-StartupMessage "ログ: $runtimeRoot（Eドライブ）"
     if (-not $NoBrowser) {
         Start-Process $uiUrl | Out-Null
     }
@@ -200,8 +206,8 @@ try {
 catch {
     $message = $_.Exception.Message
     Write-StartupMessage "起動失敗: $message"
-    Write-Host "APIログ: $apiLog"
-    Write-Host "UIログ: $uiLog"
+    Write-Host "APIログ（保存できる場合）: $apiLog"
+    Write-Host "UIログ（保存できる場合）: $uiLog"
     foreach ($processId in $startedProcessIds) {
         Stop-StartedProcess -ProcessId $processId
     }

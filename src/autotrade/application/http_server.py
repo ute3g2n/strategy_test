@@ -78,7 +78,7 @@ class _Handler(BaseHTTPRequestHandler):
                 self._send(200, {"items": self.service.get_rows(path[3])})
             elif len(path) == 4 and path[:3] == ["api", "backtest", "sweeps"]:
                 self._send(200, self.service.get_sweep(path[3]))
-            elif len(path) == 5 and path[:4] == ["api", "backtest", "csv-jobs"] and path[4] == "download":
+            elif len(path) == 5 and path[:3] == ["api", "backtest", "csv-jobs"] and path[4] == "download":
                 self._send(200, self.service.download_csv(path[3]), content_type="text/csv; charset=utf-8")
             elif len(path) == 4 and path[:3] == ["api", "backtest", "csv-jobs"]:
                 self._send(200, self.service.get_csv_job(path[3]))

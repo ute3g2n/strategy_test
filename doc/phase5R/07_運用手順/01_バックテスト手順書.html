@@ -53,7 +53,7 @@
 </head>
 <body>
 <main>
-  <p class="meta">文書ID: <code>P5R-MAN-01</code> ／ 版: <code>v0.3</code> ／ 改訂日: <code>2026-08-16</code> ／ 状態: <strong>初心者向け抜本改訂・一括起動追補・Playwright検証対象</strong></p>
+  <p class="meta">文書ID: <code>P5R-MAN-01</code> ／ 版: <code>v0.4</code> ／ 改訂日: <code>2026-08-16</code> ／ 状態: <strong>初心者向け抜本改訂・Eドライブ保存先追補・一括起動追補・Playwright検証対象</strong></p>
   <h1>バックテスト手順書</h1>
   <div class="note"><strong>最初に結論：</strong>この画面では、保存されている過去の市場Dataに、売買ルール（Strategy）を仮想的に当てはめて、「もし過去にこのルールを使っていたら、どんな結果になったか」を調べられます。実際の注文は出ません。将来の利益も保証しません。</div>
   <p>この手順書は、投資を始めたばかりの人でも読めるように書いています。画面に出る英語や数字は残し、そのすぐ近くに意味を説明します。まず「できること一覧」から目的の機能を選び、その行のリンクから操作へ進んでください。</p>
@@ -99,19 +99,33 @@
     <li>使い終わったら、プロジェクト直下の<code>stop_autotrade.bat</code>をダブルクリックします。</li>
     <li>APIとUIが停止したという表示を確認します。次に使うときは、もう一度<code>start_autotrade.bat</code>をダブルクリックします。</li>
   </ol>
-  <div class="where"><strong>起動ログを見る場所：</strong><code>runtime/autotrade_app</code>（Windows上の表示は<code>runtime\autotrade_app</code>）です。<code>startup.log</code>は起動の流れ、<code>build.log</code>はUI build、<code>api.log</code>と<code>api.error.log</code>はAPI、<code>ui.log</code>と<code>ui.error.log</code>はUIの記録です。</div>
+  <div class="where"><strong>起動ログを見る場所：</strong>専用データドライブEの<code>E:\strategy_test_data\autotrade\logs\</code>です。<code>startup.log</code>は起動の流れ、<code>build.log</code>はUI build、<code>api.log</code>と<code>api.error.log</code>はAPI、<code>ui.log</code>と<code>ui.error.log</code>はUIの記録です。Eドライブが見つからない場合、CドライブやWindowsの一時フォルダーへは切り替えず、起動を止めます。</div>
 
-  <h3>0.3 起動できないとき</h3>
+  <h3 id="storage">0.3 データと結果が保存される場所</h3>
+  <p>アプリが普段使うデータは、プロジェクトフォルダーではなく、容量の大きいEドライブのアプリ専用領域に保存します。これにより、Cドライブの空き容量を圧迫しにくくし、テスト用のファイルと普段の実行結果を混ぜません。</p>
+  <table>
+    <thead><tr><th>何が入る？</th><th>保存場所</th><th>初心者向けの意味</th></tr></thead>
+    <tbody>
+      <tr><td>ヒストリカルデータ</td><td><code>E:\strategy_test_data\autotrade\historical\spot\klines\1m\</code></td><td>過去の値動き。Backtestが読む材料。</td></tr>
+      <tr><td>Backtest結果</td><td><code>E:\strategy_test_data\autotrade\backtest\results\</code></td><td>計算したRunの結果。Runは1回分の実験。</td></tr>
+      <tr><td>CSV出力</td><td><code>E:\strategy_test_data\autotrade\backtest\exports\</code></td><td>Ledgerを表計算ソフトなどで読める形にしたファイル。</td></tr>
+      <tr><td>起動・停止・エラーログ</td><td><code>E:\strategy_test_data\autotrade\logs\</code></td><td>アプリがいつ起動し、どこで止まったかを確認する記録。</td></tr>
+      <tr><td>Run一覧の管理情報</td><td>現在はDBサーバやDBファイルへ保存しない（APIプロセスのメモリ内）</td><td>アプリを再起動すると画面のRun一覧は空になります。ただし、完了した結果JSONやCSVファイルはEドライブに残ります。</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><strong>テスト用ファイルについて：</strong>プロジェクト内の<code>tests/evidence</code>にある過去のfixture（テスト入力）は、テストを同じ条件で再現するために残しています。通常のアプリ起動はそのCドライブ上のテストfixtureを読み書きせず、Eドライブの上記ヒストリカルデータを使います。</div>
+
+  <h3>0.4 起動できないとき</h3>
   <p>黒い画面に失敗の表示が出た場合、何度も適当にクリックせず、表示されたログを確認します。</p>
   <table>
     <thead><tr><th>表示・症状</th><th>意味</th><th>次にすること</th></tr></thead>
     <tbody>
       <tr><td>npmが見つからない</td><td>UIを作るためのNode.js/npmがパソコンにない。</td><td>Node.js/npmを準備し、PowerShellやcmdを開き直してから再実行する。</td></tr>
       <tr><td>Pythonが見つからない</td><td>Backtest APIを動かすPythonがない。</td><td>プロジェクトの`.venv`またはPython Launcher（<code>py -3</code>）を準備して再実行する。</td></tr>
-      <tr><td>npm ciまたはbuildが失敗する</td><td>UIの部品準備または画面ファイル作成に失敗した。</td><td><code>runtime/autotrade_app/npm-ci.log</code>または<code>build.log</code>を確認する。UIが古いままでも成功扱いにしない。</td></tr>
+      <tr><td>npm ciまたはbuildが失敗する</td><td>UIの部品準備または画面ファイル作成に失敗した。</td><td><code>E:\strategy_test_data\autotrade\logs\npm-ci.log</code>または<code>build.log</code>を確認する。UIが古いままでも成功扱いにしない。</td></tr>
       <tr><td>8765番ポートが使われている</td><td>APIの場所を別のアプリが使っている可能性がある。</td><td>表示されたPIDを確認する。知らないプロセスを自動で終了せず、必要なら別アプリを閉じてから再実行する。</td></tr>
       <tr><td>4173番ポートが使われている</td><td>UIの場所を別のアプリが使っている可能性がある。</td><td>表示されたPIDを確認する。AutoTradeの起動済み画面ならブラウザを開き直し、別アプリなら原因を確認してから再実行する。</td></tr>
-      <tr><td>health checkが時間内に成功しない</td><td>APIまたはUIが起動途中で止まった。</td><td><code>api.error.log</code>または<code>ui.error.log</code>を確認し、<code>stop_autotrade.bat</code>で停止してから再実行する。</td></tr>
+      <tr><td>health checkが時間内に成功しない</td><td>APIまたはUIが起動途中で止まった。</td><td><code>E:\strategy_test_data\autotrade\logs\api.error.log</code>または<code>ui.error.log</code>を確認し、<code>stop_autotrade.bat</code>で停止してから再実行する。</td></tr>
       <tr><td>ブラウザが開かない</td><td>サーバーは動いているが、ブラウザの自動起動だけができなかった。</td><td>ブラウザのアドレス欄へ<code>http://127.0.0.1:4173</code>を入力する。</td></tr>
     </tbody>
   </table>
@@ -265,7 +279,7 @@
     <ol>
       <li>BT-MAN-02でPreflightがPASSになっていることを確認します。</li>
       <li>「Single Run開始」をクリックします。</li>
-      <li>「実Run」に<code>RUN-P5R-...</code>のようなRun IDが表示されることを確認します。Run IDは、実験を取り違えないための名前です。</li>
+      <li>「実Run」に<code>RUN-AUTOTRADE-...</code>のようなRun IDが表示されることを確認します。Run IDは、実験を取り違えないための名前です。</li>
       <li>状態が<code>QUEUED</code>（順番待ち）から<code>RUNNING</code>（計算中）へ変わることを読みます。</li>
       <li>進捗率、処理済みBar数／全Bar数、ETA（あとどれくらいかの目安）を確認します。</li>
       <li><code>SUCCEEDED</code>（計算完了）になるまで待ちます。待機中に別のRunを作る場合は、Run IDを記録します。</li>
@@ -637,6 +651,7 @@
   <table>
     <thead><tr><th>日付</th><th>版</th><th>変更</th></tr></thead>
     <tbody>
+      <tr><td>2026-08-16</td><td>v0.4</td><td>通常のヒストリカルデータ、Backtest結果、CSV、起動ログの保存先をEドライブのアプリ専用領域へ統一。Cドライブや一時フォルダーへフォールバックしないこと、既存のテストfixtureを通常実行と分離することを追記。</td></tr>
       <tr><td>2026-08-16</td><td>v0.2</td><td>ユーザー指摘を反映。機能一覧、機能→操作リンク、初心者向け最短コース、平易な操作、専門用語集、失敗・復旧、結果の限界、Web出典、Sweep取消BT-MAN-16を追加。</td></tr>
       <tr><td>2026-08-16</td><td>v0.1</td><td>P5R-09の実画面撮影とBT-MAN-01〜15の初版。</td></tr>
     </tbody>

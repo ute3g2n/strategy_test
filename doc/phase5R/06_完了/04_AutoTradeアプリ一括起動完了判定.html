@@ -12,7 +12,7 @@ body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.75;max-width:118
 <main>
 <h1>AutoTradeアプリ一括起動完了判定</h1>
 <p class="small">文書ID: AUTOTRADE-APP-STARTUP-COMPLETE-001 / 実施日: 2026-08-16 / 状態: <span class="pass">COMPLETE_WITH_OPEN_UNKNOWN</span></p>
-<p><strong>結論:</strong>プロジェクト直下の<code>start_autotrade.bat</code>をダブルクリックすると、AutoTradeのローカルBacktest APIとUIが起動し、health check後にブラウザが開く。<code>stop_autotrade.bat</code>で停止できる。依頼された一括起動機能は完了と判定する。</p>
+<p><strong>結論:</strong>プロジェクト直下の<code>start_autotrade.bat</code>をダブルクリックすると、AutoTradeのローカルBacktest APIとUIが起動し、health check後にブラウザが開く。<code>stop_autotrade.bat</code>で停止できる。起動ログは<code>E:\strategy_test_data\autotrade\logs\</code>へ保存される。依頼された一括起動機能は完了と判定する。</p>
 </main>
 <section>
 <h2>中学生向けの説明</h2>
@@ -29,7 +29,8 @@ body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.75;max-width:118
 <tr><td>ブラウザが自動で開く</td><td class="pass">PASS / 引数なし入口で確認</td><td><a href="../../../plan/autotrade_app_startup/03-runtime-dispatch.md">Step 3 Runtime Receipt</a></td></tr>
 <tr><td>二重起動を避ける</td><td class="pass">PASS / 2回目は既存プロセスを再利用</td><td><a href="../../../tests/evidence/AUTOTRADE-APP-STARTUP/RUN-20260816-001/startup-smoke.json">startup Evidence</a></td></tr>
 <tr><td>停止できる</td><td class="pass">PASS / stop後のListen 0</td><td><a href="../../../stop_autotrade.bat">stop_autotrade.bat</a> / <a href="../../../tests/evidence/AUTOTRADE-APP-STARTUP/RUN-20260816-001/startup-smoke.json">Evidence</a></td></tr>
-<tr><td>手順書へ反映する</td><td class="pass">PASS / v0.3</td><td><a href="../07_運用手順/01_バックテスト手順書.html#startup">一括起動手順</a></td></tr>
+<tr><td>通常データと結果の保存先</td><td class="pass">PASS / Eドライブのアプリ専用領域。Cドライブ・一時フォルダーへフォールバックしない</td><td><a href="../../../tests/evidence/AUTOTRADE-APP-STORAGE/RUN-20260816-001/storage-smoke.json">保存先Smoke Evidence</a> / <a href="../07_運用手順/01_バックテスト手順書.html#storage">保存場所の説明</a></td></tr>
+<tr><td>手順書へ反映する</td><td class="pass">PASS / v0.4</td><td><a href="../07_運用手順/01_バックテスト手順書.html#startup">一括起動手順</a></td></tr>
 </table>
 </section>
 <section>
@@ -41,9 +42,10 @@ body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.75;max-width:118
 <ul>
 <li>起動スクリプト静的pytest: 4 passed</li>
 <li>手順書静的pytest: 5 passed</li>
-<li>AutoTradeローカルPython品質Gate: 188 passed</li>
+<li>保存先変更後のPythonテスト: 102 passed、Phase 5R対象: 26 passed</li>
 <li>UI build: 成功、UI unit: 10 passed、lint: 成功（既存警告5件）</li>
 <li>Backtest Playwright: desktop/mobile合計4 passed</li>
+<li>保存先Smoke: Eドライブのヒストリカルデータ36ファイル、Run結果、CSV出力、Eドライブログを確認</li>
 <li>A95 protected hash policy guard: ALLOW（管理用hash経路の追加なし）</li>
 </ul>
 </section>

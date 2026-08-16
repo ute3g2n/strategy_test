@@ -3,18 +3,19 @@ param()
 
 $ErrorActionPreference = 'Stop'
 $projectRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
-$runtimeRoot = Join-Path $projectRoot 'runtime\autotrade_app'
+$storageRoot = 'E:\strategy_test_data\autotrade'
+$runtimeRoot = Join-Path $storageRoot 'logs'
 $uiRoot = Join-Path $projectRoot 'ui\mock'
 $stopLog = Join-Path $runtimeRoot 'stop.log'
-
-New-Item -ItemType Directory -Path $runtimeRoot -Force | Out-Null
 
 function Write-StopMessage {
     param([string]$Message)
 
     $line = "[{0}] {1}" -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $Message
     Write-Host $line
-    Add-Content -LiteralPath $stopLog -Value $line -Encoding UTF8
+    if (Test-Path -LiteralPath (Split-Path -Parent $stopLog) -PathType Container) {
+        Add-Content -LiteralPath $stopLog -Value $line -Encoding UTF8
+    }
 }
 
 function Get-ProcessSnapshot {
@@ -27,6 +28,10 @@ function Get-ProcessSnapshot {
 }
 
 try {
+    if (Test-Path -LiteralPath 'E:\' -PathType Container) {
+        New-Item -ItemType Directory -Path $runtimeRoot -Force | Out-Null
+    }
+
     $processes = Get-ProcessSnapshot
     $processById = @{}
     foreach ($process in $processes) {
@@ -76,7 +81,7 @@ try {
         ($commandLine -like "*$uiRoot*" -and $commandLine -match '(?i)(npm.*preview|vite.*preview)' -and $commandLine -match '(?i)(--port\s+4173|4173)')
     })
     if ($remaining.Count -gt 0) {
-        throw '一部のAutoTrade対象プロセスが残っています。タスクマネージャーとruntime/autotrade_appのログを確認してください。'
+        throw "一部のAutoTrade対象プロセスが残っています。タスクマネージャーと$runtimeRootのログを確認してください。"
     }
 
     Write-StopMessage 'AutoTrade API/UIを停止しました。'

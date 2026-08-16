@@ -41,6 +41,10 @@ def test_start_script_has_loopback_build_health_and_failure_boundaries() -> None
     for fragment in required_fragments:
         assert fragment in script, fragment
 
+    assert r"E:\strategy_test_data\autotrade" in script
+    assert "Join-Path $storageRoot 'logs'" in script
+    assert "runtime\\autotrade_app" not in script
+    assert "autotrade-phase5r" not in script
     assert "0.0.0.0" not in script
     assert "Broker" not in script
     assert "Secret" not in script
@@ -55,6 +59,9 @@ def test_stop_script_only_targets_local_autotrade_start_commands() -> None:
     assert "--port\\s+8765" in script
     assert "--port\\s+4173" in script
     assert "Stop-Process" in script
+    assert r"E:\strategy_test_data\autotrade" in script
+    assert "Join-Path $storageRoot 'logs'" in script
+    assert "runtime\\autotrade_app" not in script
 
 
 def test_manual_explains_one_step_start_stop_and_recovery() -> None:
@@ -63,7 +70,7 @@ def test_manual_explains_one_step_start_stop_and_recovery() -> None:
     required_fragments = (
         "start_autotrade.bat",
         "stop_autotrade.bat",
-        "runtime/autotrade_app",
+        r"E:\strategy_test_data\autotrade\logs",
         "127.0.0.1:8765",
         "127.0.0.1:4173",
         "npm ci",
