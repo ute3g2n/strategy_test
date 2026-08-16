@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="document-id" content="AT-REQ-003">
+  <meta name="document-version" content="v3.0">
+  <meta name="document-status" content="FORMAL_CURRENT_REQUIREMENTS_P5R_ADOPTED_P5R_H0_REQUIRED">
+  <meta name="baseline-date" content="2026-08-16">
+  <meta name="previous-document-id" content="AT-REQ-002">
+  <title>自動トレードシステム要件定義書 v3</title>
+  <style>
+    :root { color-scheme: light; }
+    body { max-width: 1240px; margin: 36px auto; padding: 0 20px; background: #f8fafc; color: #172033; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.8; }
+    main { background: #fff; border: 1px solid #d7e0ea; padding: 28px; box-shadow: 0 1px 2px rgb(15 23 42 / 5%); }
+    h1, h2, h3 { color: #102a43; }
+    h1 { border-bottom: 4px solid #1d4ed8; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 38px; padding-bottom: 6px; }
+    h3 { margin-top: 27px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 0.95rem; }
+    th, td { border: 1px solid #cbd5e1; padding: 9px 11px; vertical-align: top; }
+    th { background: #eff6ff; text-align: left; }
+    code { background: #eef2f7; border-radius: 4px; padding: 1px 4px; overflow-wrap: anywhere; }
+    a { color: #1d4ed8; }
+    .meta, .notice, .warning, .danger, .ok { border-left: 5px solid; padding: 12px 16px; margin: 18px 0; }
+    .meta { background: #eff6ff; border-color: #2563eb; }
+    .notice { background: #f8fafc; border-color: #64748b; }
+    .warning { background: #fffbeb; border-color: #d97706; }
+    .danger { background: #fef2f2; border-color: #dc2626; }
+    .ok { background: #f0fdf4; border-color: #16a34a; }
+    .badge { display: inline-block; border-radius: 999px; padding: 2px 9px; font-size: 0.82rem; font-weight: 700; }
+    .planned { color: #92400e; background: #fef3c7; }
+    .open { color: #991b1b; background: #fee2e2; }
+    .current { color: #1e3a8a; background: #dbeafe; }
+    .future { color: #475569; background: #e2e8f0; }
+    nav ul { margin: 0; padding-left: 20px; columns: 2; }
+    nav li { margin: 4px 0; }
+    .small { font-size: 0.9rem; color: #475569; }
+    @media (max-width: 760px) { body { margin: 0; padding: 0; } main { border: 0; padding: 18px; } table { display: block; overflow-x: auto; } nav ul { columns: 1; } }
+    @media print { body { margin: 0; background: #fff; } main { border: 0; box-shadow: none; } a { color: #000; text-decoration: none; } }
+  </style>
+</head>
+<body>
+<main>
+  <section class="meta" aria-labelledby="document-title">
+    <h1 id="document-title">自動トレードシステム要件定義書 v3</h1>
+    <table>
+      <tbody>
+        <tr><th>Document ID</th><td><code>AT-REQ-003</code></td></tr>
+        <tr><th>版</th><td><code>v3.0</code>（2026-08-16）</td></tr>
+        <tr><th>現在状態</th><td><span class="badge current">現行要件</span> <code>FORMAL_CURRENT_REQUIREMENTS_P5R_ADOPTED_P5R_H0_REQUIRED</code></td></tr>
+        <tr><th>前版</th><td><a href="./01_自動トレードシステム要件定義書_v2.html">AT-REQ-002 / 要件定義書 v2</a>。v2は履歴と詳細な継承要件として保持し、上書きしない。</td></tr>
+        <tr><th>この版での決定</th><td>Phase 5とPhase 6の間にPhase 5Rを挿入し、P6〜P12をForward、Shadow、Paper、Live候補、小規模Live、通常Liveの能力順に再編する。</td></tr>
+        <tr><th>実装開始状態</th><td><code>P5R-H0_REQUIRED_NOT_APPROVED</code>。本書の作成はP5R実装、外部Data取得、Broker接続、Secret投入、Paper、Live、実資金の開始承認ではない。</td></tr>
+        <tr><th>統合状態の正本</th><td><a href="../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="warning">
+    <strong>最初に読む結論:</strong> P5Rは「過去のデータを使う実験室」を完成させるPhaseである。複数の過去実験を一緒に実行するSweepはP5Rに入れる。一方、複数の継続運用Unit、共有資金、実運用Risk、OMS、実時間Forward、Shadow、Paper、Broker、実注文、実資金はP5Rに入れない。これらはP6以降で、順番に完成させる。
+  </section>
+
+  <nav class="notice" aria-label="v3の目次">
+    <strong>v3の目次</strong>
+    <ul>
+      <li><a href="#how-to-read">01. 読み方とv2との関係</a></li>
+      <li><a href="#findings">02. Findings first</a></li>
+      <li><a href="#terms">03. 用語と「完成」の意味</a></li>
+      <li><a href="#current-state">04. 現在地</a></li>
+      <li><a href="#roadmap">05. P5R〜P12ロードマップ</a></li>
+      <li><a href="#p5r">06. P5R要件</a></li>
+      <li><a href="#future-phases">07. P6〜P12要件</a></li>
+      <li><a href="#gates">08. 昇格・Human Gate</a></li>
+      <li><a href="#inheritance">09. 継承REQと新設REQ</a></li>
+      <li><a href="#unknowns">10. Unknownと停止条件</a></li>
+      <li><a href="#traceability">11. 追跡・レビュー・変更履歴</a></li>
+    </ul>
+  </nav>
+
+  <section id="how-to-read">
+    <h2>01. 読み方と v2 との関係</h2>
+    <p>v3は、v2を消して作り直した文書ではない。v2に書かれた既存要件、画面、ユースケース、状態、テスト、監査、Security、Unknownの細部を継承し、そのうち「P5Rをどこに置くか」「各実行Modeをどの順番で完成させるか」「現在何が未完成か」をv3で最新の正本として更新する。</p>
+    <p>v2とv3で説明が違う場合は、P5R、Phase順序、現行状態、Human Gateについては<strong>v3を優先</strong>する。v2の詳細な個別要件は、v3で明示的に上書きしていない限り継続する。</p>
+    <div class="notice">
+      <strong>中学生向けの説明:</strong> v2は今までの教科書、v3は「次にどの勉強をどの順で終えるか」を書き直した最新版の教科書である。昔の問題と答えを消すのではなく、どこまでできていて、次に何を勉強するのかを正しく直す。
+    </div>
+  </section>
+
+  <section id="findings">
+    <h2>02. Findings first — 先に解決すべき問題</h2>
+    <table>
+      <thead><tr><th>ID</th><th>重要度</th><th>問題</th><th>v3での対応</th><th>中学生向けの説明</th></tr></thead>
+      <tbody>
+        <tr><td><code>RQV3-F-001</code></td><td>High</td><td>P4のBacktest画面は固定ダミーを主に表示しており、実データ・実計算のUI完了を意味しない。</td><td>P5RでUI、Application、実データ、実5指標、保存、異常系をE2Eで受入する。</td><td>答えが最初から書かれた問題集を見て、「自分で解けた」と思い込んではいけない。</td></tr>
+        <tr><td><code>RQV3-F-002</code></td><td>High</td><td>現在のCore投影では、最大ドローダウン、勝率、最終残高、期間が実結果として完全に表示されない。</td><td>P5Rで独立した期待値と照合し、5指標の計算根拠を結果画面まで接続する。</td><td>合計点だけでなく、どう計算したかを見せられない成績表は信じられない。</td></tr>
+        <tr><td><code>RQV3-F-003</code></td><td>High</td><td>BacktestのSweepと、実際に同時に動き続ける運用Unitを混同すると、資金・Risk・注文の安全境界が壊れる。</td><td>SweepはP5R、複数運用Unit / Portfolio / Risk / OMSはP6に分離する。</td><td>昔の問題を100通り解くことと、100人が同じ財布で同時に買い物することは別の問題である。</td></tr>
+        <tr><td><code>RQV3-F-004</code></td><td>High</td><td>Forward、Shadow、Paper、Live候補、実資金運用を飛び越えると、失敗を小さい段階で止められない。</td><td>P6〜P12を能力順にし、各昇格をHuman Gateで分ける。</td><td>自転車の練習をせずに、いきなり高速道路を運転するような進め方をしない。</td></tr>
+        <tr><td><code>RQV3-F-005</code></td><td>Medium</td><td>P5からProvider条件、外部Runの隔離、実行費、子Agent起動のUnknownが残っている。</td><td>v3ではOpenのまま引き継ぐ。P5Rは既存ローカルDataの範囲に限定する。</td><td>分からないことに「分かった」と丸を付けず、次に確認する宿題として残す。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="terms">
+    <h2>03. 用語と「完成」の意味</h2>
+    <table>
+      <thead><tr><th>用語</th><th>意味</th><th>混同してはいけない相手</th></tr></thead>
+      <tbody>
+        <tr><td>Backtest</td><td>保存済みの過去Dataを使い、Strategyの結果を仮想的に計算する実験。</td><td>未来の利益保証、実注文</td></tr>
+        <tr><td>Experiment Set / Sweep</td><td>複数の設定で過去実験をまとめて行う束。各行は独立した実験結果である。</td><td>共有資金を持つ継続運用Unit</td></tr>
+        <tr><td>運用Unit</td><td>同じ設定で継続して動き、Portfolio、Risk、注文状態と関係する運用単位。</td><td>Backtestの一時的な実験行</td></tr>
+        <tr><td>Forward Test</td><td>実時間に到着する確定Dataを使い、仮想Signal・仮想Fill・仮想Positionを記録する練習。</td><td>実口座、実注文</td></tr>
+        <tr><td>Shadow</td><td>本番候補と同じ設定を横で複製し、注文せずに差分や遅延を観察する練習。</td><td>Liveの自動承認</td></tr>
+        <tr><td>Paper</td><td>実時間Dataを使っても、仮想Accountと仮想Ledgerだけで注文・約定・残高を記録する運用。</td><td>実Brokerの約定、実資金</td></tr>
+        <tr><td>Live候補</td><td>実注文前の最終確認記録。まだ実注文できる状態ではない。</td><td>小規模Live</td></tr>
+        <tr><td>小規模Live</td><td>承認済みの少額・少数Unit・短い期間・厳しい上限だけで実注文する段階。</td><td>通常Live</td></tr>
+        <tr><td>通常Live</td><td>小規模Liveの実績と再承認済みの範囲で継続運用する段階。無制限運用ではない。</td><td>監視不要の自動売買</td></tr>
+      </tbody>
+    </table>
+    <p><strong>「完璧に完成」の意味:</strong> 承認された範囲で、正しい入力、実際の処理、正しい表示、保存、失敗時の停止、再開条件、受入テストがそろうことである。利益が必ず出ること、未来相場を当てること、障害が絶対に起きないこと、実資金の安全を自動で保証することを意味しない。</p>
+  </section>
+
+  <section id="current-state">
+    <h2>04. 現在地</h2>
+    <table>
+      <thead><tr><th>Phase</th><th>確定した事実</th><th>未完成・禁止事項</th></tr></thead>
+      <tbody>
+        <tr><td>P4</td><td>固定ローカルのProduct/Application、UI契約、固定品質確認が完了している。</td><td>固定UIや固定fixtureを、実市場のBacktest完成とは扱わない。</td></tr>
+        <tr><td>P5</td><td><code>P5-11_COMPLETE_WITH_OPEN_UNKNOWN</code>。BTCUSDT / ETHUSDT、Spot、1m、UTC、<code>CRYPTO_24_7_UTC</code>の限定Data品質・期間分割を確認した。</td><td>Provider条件、外部Runのhost isolation、実行費、子Agent起動はOpen。Broker、Paper、Live、実資金は対象外だった。</td></tr>
+        <tr><td>P5R</td><td><span class="badge planned">次の正式計画対象</span> UIから使うBacktest製品を完成させる。</td><td><code>P5R-H0_REQUIRED_NOT_APPROVED</code>。実装開始・外部Data追加取得はまだ行わない。</td></tr>
+      </tbody>
+    </table>
+    <p>現在の詳細な停止条件とHuman Gateは、必ず<a href="../00_全Phase残課題Blocked統合台帳.html">統合台帳</a>で確認する。</p>
+  </section>
+
+  <section id="roadmap">
+    <h2>05. v3のPhaseロードマップ</h2>
+    <table>
+      <thead><tr><th>Phase</th><th>完成させる能力</th><th>開始前のGate</th><th>完了条件</th><th>このPhaseで絶対にしないこと</th></tr></thead>
+      <tbody>
+        <tr><td>P5R</td><td>UIから使えるBacktest製品</td><td><code>P5R-H0</code></td><td>実データでRun / Sweep / 5指標 / 停止・再開 / 履歴・比較 / CSV / Holdout / Walk-forwardを受入</td><td>運用Unit、Portfolio、実運用Risk、OMS、Forward、Shadow、Paper、Broker、Live、実資金</td></tr>
+        <tr><td>P6</td><td>Forwardの安全な共通土台</td><td><code>P6-H0</code></td><td>複数Unit、Portfolio、Account、Risk、OMS、競合防止、Kill、照合、復旧を固定Simulationで受入</td><td>実時間Dataの完成宣言、外部Order、実資金</td></tr>
+        <tr><td>P7</td><td>Forward Test（実時間・仮想）</td><td><code>P7-DATA-G1</code></td><td>実時間の確定Dataで仮想Signal / OrderIntent / Fill / Positionを継続記録し、外部Orderが0件</td><td>Shadow、Paper、実口座変更、実注文への自動昇格</td></tr>
+        <tr><td>P8</td><td>Shadow（本番候補を複製・注文なし）</td><td><code>P8-H0</code></td><td>本番候補と同じ設定の複製、差分、遅延、欠損、停止を説明でき、外部Orderが0件</td><td>実注文、実口座変更、Shadowだけを根拠にしたLive承認</td></tr>
+        <tr><td>P9</td><td>Paper（仮想口座・仮想Ledger）</td><td><code>P9-H0</code></td><td>仮想Account / Ledger / Order / Fill / Position / PnLの再現、再起動復旧、外部Orderが0件</td><td>Broker注文、実資金、Paper完了だけでのLive昇格</td></tr>
+        <tr><td>P10</td><td>Live候補（実注文前の最終確認）</td><td><code>P10-H0</code></td><td>Candidate、Risk、Data、Account照合、Kill、監査、Start Review、未達が確認済みで、実注文経路は無効</td><td>実注文、実資金、無承認のSecret</td></tr>
+        <tr><td>P11</td><td>小規模Live（限定実資金）</td><td><code>P11-LIVE-G1</code></td><td>承認済みの少額・少数Unit・対象・期間・上限だけで実注文し、照合・停止・復旧を実証</td><td>範囲外の注文、自動増額、自動昇格</td></tr>
+        <tr><td>P12</td><td>通常Live</td><td><code>P12-LIVE-G2</code></td><td>P11の安定実績、再承認、監視、Kill、照合、復旧、監査を満たす範囲で継続運用</td><td>無制限運用、自動拡張、P11の未解決不具合を残した拡大</td></tr>
+      </tbody>
+    </table>
+    <div class="notice"><strong>順序の規則:</strong> P6〜P12は番号順に能力を完成させる。前Phaseの完了条件とGateがそろわない限り、後Phaseへ進まない。良い成績や長い稼働時間だけで自動昇格してはならない。</div>
+  </section>
+
+  <section id="p5r">
+    <h2>06. Phase 5R — UIから使えるBacktest製品</h2>
+    <h3>06.1 P5Rの目的と境界</h3>
+    <p>P5Rの目的は、利用者がUIで設定を選び、保存済みの適格Dataに対してBacktestを実行し、正しい結果を根拠付きで確認できる状態を作ることである。P5RはローカルBacktestに限定する。P5Rに含まれる複数実験はExperiment Set / Sweepであり、P6の継続運用Unitではない。</p>
+    <table>
+      <thead><tr><th>P5Rに含める</th><th>P5Rに含めない</th></tr></thead>
+      <tbody>
+        <tr><td>UI入力、事前検査、単一Run、Backtest専用Queue、進捗、取消、失敗、checkpoint再開、5指標、取引詳細、Sweep、履歴、比較、CSV、Holdout、Walk-forward、E2E受入</td><td>複数運用Unit、Portfolio、Account、資金配分、実運用Risk、OMS、実時間Forward、Shadow、Paper、Broker、Secret、実注文、実資金、Cloud</td></tr>
+      </tbody>
+    </table>
+
+    <h3>06.2 P5Rの受入観点</h3>
+    <table>
+      <thead><tr><th>ID</th><th>利用者がUIで確認できること</th><th>失敗時の扱い</th></tr></thead>
+      <tbody>
+        <tr><td>P5R-AC-01</td><td>対象Data、期間、Strategy、設定、仮定値を選び、型・単位・未来Data・品質を事前検査できる。</td><td>不正な入力や未来参照は開始しない。</td></tr>
+        <tr><td>P5R-AC-02</td><td>BTCUSDT / ETHUSDTのP5限定Data範囲を正しく表示し、対象外を誤って選べない。</td><td>対象外は明示理由付きで拒否する。</td></tr>
+        <tr><td>P5R-AC-03</td><td>単一BacktestをUIから開始し、Queue、進捗、残り、現在状態を見られる。</td><td>待機・停止・失敗をCompletedと表示しない。</td></tr>
+        <tr><td>P5R-AC-04</td><td>取消、停止、失敗、再実行、checkpointからの再開を区別して操作できる。</td><td>checkpointが合わない場合は自動再開しない。</td></tr>
+        <tr><td>P5R-AC-05</td><td>総損益、最大ドローダウン、勝率、取引数、最終残高の5指標と根拠を見られる。</td><td>根拠不明の指標を完成結果として表示しない。</td></tr>
+        <tr><td>P5R-AC-06</td><td>取引、Signal、仮想Fill、残高推移、Cost / Slippageの仮定を結果から辿れる。</td><td>仮定値を実測値や利益保証と表示しない。</td></tr>
+        <tr><td>P5R-AC-07</td><td>範囲・刻み・上限を指定してSweepを作り、無効行・重複・件数を開始前に確認できる。</td><td>上限超過や不正な組合せは開始しない。</td></tr>
+        <tr><td>P5R-AC-08</td><td>Sweepの負荷見込み、Queue、部分失敗、取消、再開を行単位で追える。</td><td>失敗行を消して全成功とは表示しない。</td></tr>
+        <tr><td>P5R-AC-09</td><td>全実験結果、同条件の履歴、最新表示を区別できる。</td><td>古いRunを上書きして根拠を失わない。</td></tr>
+        <tr><td>P5R-AC-10</td><td>比較可能な条件だけを比較し、差がある条件を表示できる。</td><td>違う問題を同じ順位表に並べない。</td></tr>
+        <tr><td>P5R-AC-11</td><td>大量表と全件CSVを非同期で作成し、進捗、取消、失敗、完了を見られる。</td><td>UIが止まったまま成功と見せない。</td></tr>
+        <tr><td>P5R-AC-12</td><td>train / validation / holdoutの境界と役割を確認できる。</td><td>holdoutを調整に使い回した場合は候補採用を止める。</td></tr>
+        <tr><td>P5R-AC-13</td><td>Walk-forwardを窓ごとに実行し、窓別結果と未来参照拒否を確認できる。</td><td>境界だけを確認して戦略実行済みとは表示しない。</td></tr>
+        <tr><td>P5R-AC-14</td><td>固定ダミーではなく、Application APIを通る実結果を表示する。</td><td>固定UI例を実Backtestの証拠にしない。</td></tr>
+        <tr><td>P5R-AC-15</td><td>キーボード、読み上げ名、状態表示、PC/スマートフォンの安全意味を確認できる。</td><td>操作不能な画面を受入済みとしない。</td></tr>
+        <tr><td>P5R-AC-16</td><td>上の受入結果、Open Unknown、対象外が完了判定で読める。</td><td>Critical/HighやUnknownを隠してP6へ渡さない。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="future-phases">
+    <h2>07. P6〜P12 — 本番へ近づく機能を順番に完成させる</h2>
+    <h3>07.1 P6 — 複数運用Unit、Portfolio、Risk、OMSの固定Simulation</h3>
+    <p>P6は、実時間Forwardを完成させる前の安全な土台である。複数の継続Unitが同じ資金や注文に関係しても、重複・競合・部分約定・拒否・期限切れ・再起動・照合・Killを固定Simulationで説明できるようにする。</p>
+    <p><strong>完了条件:</strong> `Signal → Target Position → OrderIntent → Order → Fill → Position` の状態、Riskが注文前に拒否できること、同じ注文を二重に扱わないこと、再起動後に照合してから再開すること、Killが新規副作用を止めることを受入する。</p>
+
+    <h3>07.2 P7 — Forward Test（実時間・仮想）</h3>
+    <p>P7は、実時間に届く確定Dataを使い、仮想のSignal、OrderIntent、Fill、Positionを連続して記録する。実注文は1件も送らない。Data遅延、欠損、重複、時刻逆行、再接続、未確定足を検出したら、判定を保留または停止する。</p>
+    <p><strong>完了条件:</strong> 承認済みProvider範囲で、観測時刻・Bar時刻・判定時刻・仮想約定時刻・品質状態・停止理由を記録し、外部Orderが0件であることを証明できる。</p>
+
+    <h3>07.3 P8 — Shadow（本番候補の複製・注文なし）</h3>
+    <p>P8は、P10以降で使う可能性がある本番候補と同じStrategy / Config / Risk / Data経路を横で複製し、注文なしで差分を観察する。Shadowの良い結果は、実注文の許可ではない。</p>
+    <p><strong>完了条件:</strong> Forwardとの差分、候補との差分、Data遅延・欠損、停止、比較不能を説明でき、実口座・実注文が0件である。</p>
+
+    <h3>07.4 P9 — Paper（仮想Account・仮想Ledger）</h3>
+    <p>P9は、実時間Dataを使っても、仮想Account、仮想Balance、仮想Ledger、仮想Order、仮想Fill、仮想Positionだけを更新する。Paperの約定率や損益は、実Brokerの約定・手数料・拒否を意味しない。</p>
+    <p><strong>完了条件:</strong> 仮想Ledgerの全行を辿れ、再起動・停止・差分・再開後も整合が取れ、外部Orderが0件である。</p>
+
+    <h3>07.5 P10 — Live候補（実注文前の最終確認）</h3>
+    <p>P10は実注文を許可しない。Candidateに、P5R / Forward / Shadow / Paperの根拠、対象Data、Strategy / Config / Risk版、Account照合結果、未達、Kill、復旧手順、監視責任、予定上限をまとめる。読み取り専用の外部接続が必要になった場合も、対象・目的・Secret・費用・停止条件を別Gateで承認する。</p>
+    <p><strong>完了条件:</strong> Start Reviewで未達を表示し、未照合・Risk不足・Kill不能・承認不足なら開始を拒否し、実注文経路が無効である。</p>
+
+    <h3>07.6 P11 — 小規模Live（限定実資金）</h3>
+    <p>P11は、このロードマップで初めて実注文と実資金を扱えるPhaseである。ただし、個別Human Gateが指定したAccount、銘柄、Unit、時間帯、期間、資金、1注文、同時Position、損失、Exposureの上限を一つでも外れてはならない。</p>
+    <p><strong>完了条件:</strong> 実Order、実Fill、Risk判定、照合、Kill、通信異常、停止、再開が限定範囲で検証され、開始時と拡張時の承認が別記録である。</p>
+
+    <h3>07.7 P12 — 通常Live</h3>
+    <p>P12はP11を大きくしただけではない。P11の連続実績、未解決事項のレビュー、再承認された範囲、監視、Kill、照合、復旧、監査の継続条件を満たして初めて開始できる。通常Liveにも資金・損失・Exposure・対象・時間の上限は残る。</p>
+  </section>
+
+  <section id="gates">
+    <h2>08. 昇格・Human Gate・副作用境界</h2>
+    <table>
+      <thead><tr><th>Gate</th><th>承認する内容</th><th>承認前に禁止すること</th><th>次に渡す条件</th></tr></thead>
+      <tbody>
+        <tr><td><code>P5R-H0</code></td><td>P5Rの範囲、受入負荷、保存、Walk-forward窓、UI実接続</td><td>P5R実装完了、外部Data追加取得</td><td>P5Rの詳細設計とREDテスト</td></tr>
+        <tr><td><code>P5R-H1</code></td><td>P5R詳細設計、Data Adapter、5指標、Sweep / CSV / Holdoutの異常系、RED / Goldenテスト設計</td><td>P5R実装・テストGreen化・完了宣言</td><td>P5Rの実装・統合テスト</td></tr>
+        <tr><td><code>P5R-H2</code></td><td>P5R全受入、対象外境界、Open Unknown、P6への再引渡し</td><td>P6の実装・実行、Paper / Liveの開始</td><td>P6-H0の正式計画と承認</td></tr>
+        <tr><td><code>P6-H0</code></td><td>複数Unit / Portfolio / Risk / OMSの固定Simulation</td><td>実時間Data、外部Order、実資金</td><td>P6の安全土台実装</td></tr>
+        <tr><td><code>P7-DATA-G1</code></td><td>実時間Data Provider、対象、費用、利用条件、通信境界</td><td>実時間外部Data受信</td><td>P7 Forward Test</td></tr>
+        <tr><td><code>P8-H0</code></td><td>Shadow候補、複製条件、比較期間、差分表示</td><td>ShadowをLive承認に使うこと</td><td>P8 Shadow</td></tr>
+        <tr><td><code>P9-H0</code></td><td>Paper仮想資金、Ledger、仮想約定、日次照合</td><td>実注文、実資金</td><td>P9 Paper</td></tr>
+        <tr><td><code>P10-H0</code></td><td>Live候補のStart Review、必要なら読み取り専用接続の範囲</td><td>実注文、実資金、無承認のSecret</td><td>P10 Candidate</td></tr>
+        <tr><td><code>P11-LIVE-G1</code></td><td>小規模Liveの実資金、Account、対象、上限、期間、監視者</td><td>範囲外・上限外の実注文</td><td>P11 Small Live</td></tr>
+        <tr><td><code>P12-LIVE-G2</code></td><td>通常Liveの拡張範囲、継続監視、再承認</td><td>自動拡張、無制限運用</td><td>P12 Normal Live</td></tr>
+      </tbody>
+    </table>
+    <div class="danger"><strong>絶対規則:</strong> Backtest、Forward、Shadow、Paper、Live候補の成功結果だけで、次のModeへ自動昇格してはならない。人が対象、範囲、未達、停止条件を確認し、該当Gateを承認したときだけ次Phaseの実装・実行へ進める。</div>
+  </section>
+
+  <section id="inheritance">
+    <h2>09. 継承REQと新設REQ</h2>
+    <h3>09.1 v2から継承する要件</h3>
+    <table>
+      <thead><tr><th>v2要件</th><th>v3での状態</th><th>主なPhase</th><th>補足</th></tr></thead>
+      <tbody>
+        <tr><td><code>REQ-V2-0001〜0035</code></td><td>継続</td><td>P5R〜P12</td><td>文書、Data、時刻、Strategy、基本境界を継続する。</td></tr>
+        <tr><td><code>REQ-V2-0036〜0043</code></td><td>継続・Phaseを明確化</td><td>P5R / P6</td><td>Backtest専用Queue・再開はP5R、継続運用Unit・資源制御はP6。</td></tr>
+        <tr><td><code>REQ-V2-0044〜0055</code></td><td>継続・P5Rの完了対象</td><td>P5R</td><td>現在はUIから実際に使える製品として未完成。P5Rで受入する。</td></tr>
+        <tr><td><code>REQ-V2-0056〜0065</code></td><td>継続・順序を上書き</td><td>P6〜P12</td><td>Mode境界と手動昇格を、v3の能力順に適用する。</td></tr>
+        <tr><td><code>REQ-V2-0066〜0079</code></td><td>継続・Phaseを明確化</td><td>P6 / P10〜P12</td><td>Portfolio、Risk、OMSはP6。外部Account / Broker / 実注文はP10以降の個別Gate。</td></tr>
+        <tr><td><code>REQ-V2-0080〜0112</code></td><td>継続</td><td>P5R〜P12</td><td>保存、監査、UI、Security、性能、Unknown、追跡の共通要件として適用する。</td></tr>
+      </tbody>
+    </table>
+
+    <h3>09.2 v3で新設する要件</h3>
+    <table>
+      <thead><tr><th>ID</th><th>Shall</th><th>理由</th><th>停止条件</th><th>受入</th><th>対象Phase</th></tr></thead>
+      <tbody>
+        <tr id="req-v3-0113"><td><code>REQ-V3-0113</code></td><td>システム計画はP5とP6の間にP5Rを置き、P5RをUIから使えるBacktest製品の完成Phaseとして扱わなければならない。</td><td>固定UIや固定CoreだけをBacktest完成と誤認しないため。</td><td>P5Rを省略してP6の実装・完了へ進む場合。</td><td>P5Rがロードマップ、統合台帳、P6入力、indexで次Phaseとして一致する。</td><td>P5R</td></tr>
+        <tr id="req-v3-0114"><td><code>REQ-V3-0114</code></td><td>P5RのBacktest UIは、実Data・実Application処理・実結果を接続し、固定ダミーを実結果として表示してはならない。</td><td>利用者がUI操作の結果を正しく判断するため。</td><td>固定値、対象外Data、未接続の画面を実Backtest結果として表示する場合。</td><td>P5R-AC-01〜04、14がE2Eで受入済み。</td><td>P5R</td></tr>
+        <tr id="req-v3-0115"><td><code>REQ-V3-0115</code></td><td>P5Rは5指標、取引、残高、期間、仮定値の根拠を結果まで追跡可能にしなければならない。</td><td>数字だけを見せて計算を説明できない状態を防ぐため。</td><td>根拠のない5指標をCompletedと表示する場合。</td><td>P5R-AC-05〜06が独立期待値と受入済み。</td><td>P5R</td></tr>
+        <tr id="req-v3-0116"><td><code>REQ-V3-0116</code></td><td>P5RはExperiment Set / SweepをBacktest専用の実験束として扱い、継続運用Unit、Portfolio、実運用Risk、実注文と混同してはならない。</td><td>実験の負荷管理と実運用の安全管理を分けるため。</td><td>Sweepの子Runを運用Unitとして集計・注文する場合。</td><td>P5R-AC-07〜08が受入済み。</td><td>P5R</td></tr>
+        <tr id="req-v3-0117"><td><code>REQ-V3-0117</code></td><td>P5Rは履歴、比較、CSV、部分失敗、取消、再開を結果ごとに保存し、条件の違う結果を比較可能としてはならない。</td><td>都合のよい結果だけを選ぶ誤りを防ぐため。</td><td>失敗行を隠す、条件差を隠す、履歴を上書きする場合。</td><td>P5R-AC-09〜11が受入済み。</td><td>P5R</td></tr>
+        <tr id="req-v3-0118"><td><code>REQ-V3-0118</code></td><td>P5RはHoldoutとWalk-forwardを実行し、holdoutの再利用、未来Data参照、境界だけの確認を完成扱いにしてはならない。</td><td>過去に合わせすぎた設定を採用しないため。</td><td>holdoutを調整に再利用する、窓別戦略を実行しない場合。</td><td>P5R-AC-12〜13が受入済み。</td><td>P5R</td></tr>
+        <tr id="req-v3-0119"><td><code>REQ-V3-0119</code></td><td>P6は複数運用Unit、Portfolio、Account、Risk、OMS、競合防止、Kill、照合、復旧を固定Simulationで完成させ、外部Order、実Account変更、実資金を扱ってはならない。</td><td>複数の継続運用が同じ資金や注文を壊さないようにするため。</td><td>Risk前の注文、重複Order、照合前Resume、Kill不能、外部Order経路の場合。</td><td>正常・競合・部分Fill・Reject・再起動・Recoveryを固定試験で受入し、外部Orderが0件であることを確認する。</td><td>P6</td></tr>
+        <tr id="req-v3-0120"><td><code>REQ-V3-0120</code></td><td>P7は実時間の確定DataでForwardを実行しても、外部Order、実Account、実資金を変更してはならない。</td><td>実時間の練習を実注文の代わりにしないため。</td><td>外部Order経路、Data品質不良、未確定足、時刻不整合の場合。</td><td>遅延・欠損・再接続・停止・復旧を記録し、外部Order 0件を確認する。</td><td>P7</td></tr>
+        <tr id="req-v3-0121"><td><code>REQ-V3-0121</code></td><td>P8は本番候補と同じ設定のShadowを注文なしで複製し、差分と比較不能を記録しなければならない。</td><td>候補が実際に同じ判断をするかを、安全に観察するため。</td><td>実注文、実口座変更、差分未解決、比較不能を成功扱いにする場合。</td><td>候補との差分、遅延、欠損、停止、外部Order 0件を受入する。</td><td>P8</td></tr>
+        <tr id="req-v3-0122"><td><code>REQ-V3-0122</code></td><td>P9はPaper専用の仮想Account、仮想Ledger、仮想Order、仮想Fill、仮想Positionを使い、外部Orderを送信してはならない。</td><td>仮想の成績と実Brokerの成績を混同しないため。</td><td>Broker注文、実資金、Ledger差分未解決、外部I/O経路の場合。</td><td>仮想Ledgerと全注文状態を再現し、外部Order 0件を受入する。</td><td>P9</td></tr>
+        <tr id="req-v3-0123"><td><code>REQ-V3-0123</code></td><td>P10はLive候補を実注文前の最終確認として扱い、Candidate、Risk、Data、Account照合、Kill、未達、Start Reviewを別状態で記録しなければならない。</td><td>候補評価と実注文許可を混同しないため。</td><td>未照合、Risk不足、Kill不能、承認不足、実注文経路が有効な場合。</td><td>未達理由を表示し、実注文が無効であることを受入する。</td><td>P10</td></tr>
+        <tr id="req-v3-0124"><td><code>REQ-V3-0124</code></td><td>P11は個別Human Gateで承認された限定範囲だけで実注文し、資金・損失・注文・Exposure・対象・期間の上限を強制しなければならない。</td><td>初めての実資金を小さく閉じ、事故の影響を限定するため。</td><td>承認外の対象、上限超過、自動増額、照合不能、Kill不能の場合。</td><td>実Order / Fill / Risk / Reconcile / Kill / Recoveryを限定範囲で受入する。</td><td>P11</td></tr>
+        <tr id="req-v3-0125"><td><code>REQ-V3-0125</code></td><td>P12はP11の安定実績と再承認済み範囲を必要とし、通常Liveを無制限・無監視の運用として扱ってはならない。</td><td>小規模で見つかる問題を無視して拡大しないため。</td><td>P11の未解決Critical/High、自動拡張、再承認不足の場合。</td><td>監視、Kill、照合、復旧、監査、再承認を継続受入する。</td><td>P12</td></tr>
+        <tr id="req-v3-0126"><td><code>REQ-V3-0126</code></td><td>すべてのMode昇格、降格、停止は自動化せず、対象、差分、未達、影響、承認、理由を別記録に残さなければならない。</td><td>良い結果だけで実資金へ進む事故を防ぐため。</td><td>自動昇格、承認者不明、対象範囲不明の場合。</td><td>成功・拒否・取消・降格・停止を別IDで追跡できる。</td><td>P5R〜P12</td></tr>
+        <tr id="req-v3-0127"><td><code>REQ-V3-0127</code></td><td>v3、統合台帳、doc/index、P5からの引渡しは、次Phase、Open Unknown、Gate、履歴文書の関係を同じ現在状態で表示しなければならない。</td><td>古い計画を見て誤ったPhaseを開始しないため。</td><td>次Phaseの矛盾、UnknownのPass化、リンク欠落の場合。</td><td>相互リンク、状態、P5R→P6の引渡し境界を静的確認する。</td><td>文書横断</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="unknowns">
+    <h2>10. Open Unknown と停止条件</h2>
+    <table>
+      <thead><tr><th>ID / 事実</th><th>現在状態</th><th>解消候補</th><th>解消まで禁止すること</th></tr></thead>
+      <tbody>
+        <tr><td><code>EXTERNAL-DATA-PROVIDER-TERMS</code></td><td><span class="badge open">OPEN_NOT_PASS</span> 利用・保持・再配布条件が未確認。</td><td>P7-DATA-G1で対象Providerを使う前。</td><td>Provider変更、追加取得、再配布、実時間外部Data受信。</td></tr>
+        <tr><td><code>P5-08-HOST-ISOLATION</code></td><td><span class="badge open">NOT_VERIFIED</span> P5外部取得Runの隔離を一般化できない。</td><td>外部Dataを実行する個別Runの開始前。</td><td>過去P5証拠を新しい外部Runの隔離証拠に使うこと。</td></tr>
+        <tr><td><code>UNK-P5-DISPATCH-CHILD-001</code></td><td><span class="badge open">OPEN_NOT_PASS</span> P5当時の指定child Agentは未起動。</td><td>各新規Phaseの実行時。</td><td>過去P5を独立レビュー済みと表示すること。</td></tr>
+        <tr><td><code>P5-EXECUTION-COST</code></td><td><span class="badge open">NOT_MEASURED</span> fee / slippage / 内部実行費は実測していない。</td><td>P5Rでは仮定値の表示、P7以降では対象Modeごとの測定Gate。</td><td>仮定値を実測値や実利益として表示すること。</td></tr>
+        <tr><td><code>P5R-H0</code></td><td><span class="badge planned">REQUIRED_NOT_APPROVED</span></td><td>P5Rの正式Phase実行計画作成時。</td><td>P5R実装・外部Data追加取得・完成宣言。</td></tr>
+        <tr><td><code>P5R-H1</code></td><td><span class="badge planned">REQUIRED_NOT_APPROVED</span></td><td>P5R-H0後、詳細設計・RED / Goldenテスト設計を承認する時。</td><td>P5R実装・テストGreen化・完成宣言。</td></tr>
+        <tr><td><code>P5R-H2</code></td><td><span class="badge planned">REQUIRED_NOT_APPROVED</span></td><td>P5R全受入、対象外境界、Open Unknown、P6再引渡しを承認する時。</td><td>P6の実装・実行、Paper / Liveの開始。</td></tr>
+        <tr><td>Broker / Secret / 実資金</td><td><span class="badge future">LATER_GATE</span></td><td>P10以降の対象ごとのHuman Gate。</td><td>無承認の接続、Secret利用、実注文、実資金。</td></tr>
+      </tbody>
+    </table>
+    <div class="danger"><strong>共通停止規則:</strong> Critical/High、Data品質不良、時刻不整合、照合不能、Risk不足、Kill不能、対象不明、承認不足、外部副作用不明のいずれかを検出した場合、該当Phaseは新規副作用を開始せず、理由と再開条件を表示する。</div>
+  </section>
+
+  <section id="traceability">
+    <h2>11. 追跡・レビュー・変更履歴</h2>
+    <h3>11.1 主な入力と成果物</h3>
+    <table>
+      <thead><tr><th>入力</th><th>v3への反映</th></tr></thead>
+      <tbody>
+        <tr><td><a href="./01_自動トレードシステム要件定義書_v2.html">要件定義書 v2</a></td><td>既存REQ-V2-0001〜0112、Mode境界、監査、UI、Unknownの継承元。</td></tr>
+        <tr><td><a href="../../plan/Phase5R_バックテスト製品完全化_再構成提案・実行計画書_v0.1_2026-08-16.md">P5R再構成提案</a></td><td>P5Rの対象、P6残置、Backtest受入観点、P5のOpen Unknown。</td></tr>
+        <tr><td><a href="../phase5/06_完了/08_Phase5完了判定・Phase6計画引渡し.html">Phase 5完了判定</a></td><td>P5の限定Data範囲と完了状態。</td></tr>
+        <tr><td><a href="../../plan/phase5/Phase6計画入力一覧_2026-08-12.md">P5からのP6計画入力</a></td><td>P5のData契約をP5R経由でP6に引き渡す制約。</td></tr>
+        <tr><td><a href="../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></td><td>Current、Human Gate、Open Unknown、停止条件の正本。</td></tr>
+      </tbody>
+    </table>
+
+    <h3>11.2 レビュー所見と採否</h3>
+    <table>
+      <thead><tr><th>所見</th><th>採否</th><th>v3での反映</th></tr></thead>
+      <tbody>
+        <tr><td>P5Rは追加するが、P6全体を移さない。</td><td>採用</td><td>P5RにBacktest Experiment Set / Sweepのみを置き、継続運用UnitはP6に残す。</td></tr>
+        <tr><td>ForwardとShadowを同じPhaseで完成させる案。</td><td>不採用</td><td>ユーザー指定の能力順を明確にするため、P7=Forward、P8=Shadowと分ける。</td></tr>
+        <tr><td>P5のOpen UnknownをP5R開始承認と読み替える案。</td><td>不採用</td><td><code>P5R-H0_REQUIRED_NOT_APPROVED</code>として残す。</td></tr>
+        <tr><td>PaperやLiveをP5Rに混ぜる案。</td><td>不採用</td><td>P9以降へ分離し、P11が初めて実資金を扱えるPhaseとする。</td></tr>
+      </tbody>
+    </table>
+
+    <h3>11.3 変更履歴</h3>
+    <table>
+      <thead><tr><th>日付</th><th>版</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td>2026-08-11</td><td>v2.0</td><td>AT-REQ-002を正式基準線として作成。詳細要件、UC、Screen、State、Phase 4〜11ロードマップを収容。</td></tr>
+        <tr><td>2026-08-16</td><td>v3.0</td><td>P5RをP5とP6の間へ追加。P6〜P12をForward、Shadow、Paper、Live候補、小規模Live、通常Liveの能力順に再編。v2の既存REQを継承し、REQ-V3-0113〜0127を追加。</td></tr>
+      </tbody>
+    </table>
+    <p class="small">この文書の完成は、要件とロードマップを最新化したことを意味する。P5RやP6以降の実装・外部接続・実注文の完成や承認を意味しない。</p>
+  </section>
+</main>
+</body>
+</html>

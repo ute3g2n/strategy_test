@@ -3,10 +3,10 @@
 - 文書ID: P5R-PLAN-PROPOSAL-001
 - 版: v0.1
 - 作成日: 2026-08-16（Asia/Tokyo）
-- 状態: **PROPOSAL_NOT_ADOPTED**
+- 状態: **ADOPTED_AS_AT-REQ-003 / P5R-H0_REQUIRED_NOT_APPROVED**
 - 目的: UIから想定するバックテスト機能を、Phase 6より先に、限定した安全な範囲で本当に動く状態へ完成させるための再構成案。
-- この文書がすること: Step 1の詳細プロンプトを示し、その同じ目的で実施したStep 2の判断結果と、採用する場合のPhase 5R実行計画を示す。
-- この文書がしないこと: 現行の正式要件、正式HTML、統合台帳、Phase 6計画入力を勝手に書き換えない。Broker、Paper、Live、Secret、実資金、外部接続も開始しない。
+- この文書がすること: Step 1の詳細プロンプトを示し、その同じ目的で実施したStep 2の判断結果と、P5Rの実行計画を示す。2026-08-16に要件定義書v3へロードマップとして反映済みである。
+- この文書がしないこと: <code>P5R-H0</code>の承認、P5R実装、Broker、Paper、Live、Secret、実資金、外部接続の開始を行わない。
 
 > 重要: ここでいう「完璧」は、「絶対に壊れない」「必ず儲かる」という意味ではない。
 > **最初に決めた範囲・操作・異常時の動き・テストを全部満たし、画面の見せかけではなく実際のデータと実際の計算で最後まで動く**、という意味で使う。
@@ -28,11 +28,19 @@
         ↓
 追加する P5R: UIから本当に使える「バックテスト製品」を完成させる
         ↓
-現行の P6: 複数の運用Unit、Portfolio、Risk、OMS、Forward/Shadowの安全土台
+P6: 複数の運用Unit、Portfolio、Risk、OMSの固定Simulation安全土台
         ↓
-P7: Broker Adapter / Paper
+P7: Forward Test（実時間・仮想）
         ↓
-P8以降: 長期運用、Live候補、Small Live、通常Live
+P8: Shadow（本番候補を複製・注文なし）
+        ↓
+P9: Paper（仮想口座・仮想Ledger）
+        ↓
+P10: Live候補（実注文前の最終確認）
+        ↓
+P11: 小規模Live（限定実資金）
+        ↓
+P12: 通常Live
 ~~~
 
 ### 「複数のUnitを管理」はP5Rに入れるべきか
@@ -150,7 +158,7 @@ P5の現在状態はP5-11_COMPLETE_WITH_OPEN_UNKNOWNである。確認済みの�
 | 案 | 何をするか | 良い点 | 問題点 | 判定 |
 |---|---|---|---|---|
 | A. 薄いP5Rをそのまま挿入 | UIの表示を少し直し、P5のデータを選べるようにする | 短く見える | 実Coreへの接続、正しい5指標、Sweep、履歴、比較、CSV、実行済みWalk-forwardが残る。「完成」と言えない | 不採用 |
-| B. P6全体をP5Rへ吸収 | 複数運用Unit、Portfolio、Risk、OMS、Forward/Shadow、Kill、照合まで先に作る | 将来の本番機能まで一気に進むように見える | 共有資金、注文状態、競合、復旧という別の巨大課題が入り、Backtest完成が遅れる。P6→P7の安全順序もぼやける | 不採用 |
+| B. P6〜P8の土台をP5Rへ吸収 | 複数運用Unit、Portfolio、Risk、OMS、Forward / Shadowの共通状態、Kill、照合まで先に作る | 将来の本番機能まで一気に進むように見える | 共有資金、注文状態、競合、復旧という別の巨大課題が入り、Backtest完成が遅れる。P6→P7→P8の安全順序もぼやける | 不採用 |
 | C. P6からBacktest専用の一部だけ切り出す | UI実行、Run / Sweep、Backtest専用Queue、結果・比較・CSV、Holdout / Walk-forwardをP5Rへ。運用Unit / Portfolio / Risk / OMSはP6に残す | ユーザーが求める「UIから全部動くBacktest」を最短で完成させつつ、本番安全機能の境界を守れる | P5Rの受入範囲と負荷条件を先に明確化する必要がある | **採用** |
 
 ### 採用理由を一言でいうと
@@ -607,7 +615,7 @@ Step: P5R-09〜10
 - P5R-AC-01〜16の実施結果
 - P5R対象外画面が誤って有効化されていないこと
 - Provider条件、host isolation、費用、過去P5のdispatch UnknownがPass化されていないこと
-- 20〜40運用Unit、Portfolio、Risk、OMS、Forward/ShadowがP6へ残っていること
+- 20〜40運用Unit、Portfolio、Risk、OMSがP6へ、ForwardがP7へ、ShadowがP8へ残っていること
 
 成果物:
 - doc/phase5R/の完了HTML
@@ -645,10 +653,13 @@ Step: P5R-09〜10
 | 1 | P4 完了済み | 固定ローカルの製品土台・UI契約 | API、UI設計、固定品質、Core境界 |
 | 2 | P5 完了済み | 限定市場データの品質・期間分割 | P5データ契約とOpen Unknown |
 | 3 | **P5R 新設** | UIから実際に使えるBacktest製品 | 実P5データでのRun / Sweep / 結果 / 比較 / CSV / Walk-forward |
-| 4 | P6 | 複数運用Unit、Portfolio、Risk、OMS、Forward / Shadow | 本番前の安全な運用土台 |
-| 5 | P7 | Broker AdapterとPaper | P6の安全土台を使った外部Paper検証 |
-| 6 | P8 | 長期Paper、Soak、Backup、端末・運用堅牢化 | 実機・長期の運用証拠 |
-| 7 | P9〜P11 | Live候補、Small Live、通常Live | 別Human Gateごとの段階的拡大 |
+| 4 | P6 | 複数運用Unit、Portfolio、Risk、OMSの固定Simulation | Forwardに進める安全な運用土台 |
+| 5 | P7 | Forward Test（実時間・仮想） | 外部Orderなしの実時間仮想結果 |
+| 6 | P8 | Shadow（本番候補を複製・注文なし） | 候補との差分・遅延・停止の観測結果 |
+| 7 | P9 | Paper（仮想口座・仮想Ledger） | 仮想Ledgerの継続照合結果 |
+| 8 | P10 | Live候補（実注文前の最終確認） | Start Review、Risk、Kill、照合、未達の確認 |
+| 9 | P11 | 小規模Live（限定実資金） | 個別Human Gateで閉じた実注文・照合・停止の実証 |
+| 10 | P12 | 通常Live | P11の実績と再承認済み範囲での継続運用 |
 
 ### 8.2 P6の目的は縮めない
 
@@ -659,21 +670,21 @@ P5Rの追加は、P6を弱くする変更ではない。P6は次の責務をそ�
 - すべてのOrderの前にRiskを判定する。
 - SignalからPositionまでのOMS状態を一貫させる。
 - Duplicate、Partial、Reject、Expire、競合、再起動、照合、Killを固定Simulationで試す。
-- 外部OrderなしのForward / Shadowを試す。
+- P7のForward、P8のShadowへ渡せる安全な仮想状態を作る。
 
 P5Rは、P6がこの安全機能を作る前に、未完成のBacktest結果を土台にしないようにするための前提整備である。
 
-### 8.3 公式文書へ反映するのは採用後
+### 8.3 v3への反映状況と次の一手
 
-この提案を採用する場合だけ、次を一つの変更セットとして更新する。
+2026-08-16に、次の反映を完了した。
 
-1. 要件定義書のPhase 4〜11ロードマップにP5Rを追加する。
-2. Phase 6の開始条件を「P5RのBacktest製品完了」に更新する。
-3. Phase 5のP6引渡し入力を、P5R向け入力とP6向け再引渡しに分ける。
-4. 統合台帳にP5R-H0 / H1 / H2、Open Unknown、再開条件、証拠先を追加する。
-5. doc/index.htmlにP5Rの正式HTML導線を追加する。
+1. 要件定義書v3にP5RとP6〜P12ロードマップを追加した。
+2. P6の開始条件を「P5RのBacktest製品完了」に更新した。
+3. Phase 5のP6引渡し入力へ、P5Rを経由する履歴入力であることを注記した。
+4. 統合台帳にP5R-H0、Open Unknown、P6〜P12の順序を追加した。
+5. doc/index.htmlにv3とP5R実行計画の導線を追加した。
 
-この提案書を作っただけでは、上の正式文書を更新しない。
+ただし、<code>P5R-H0</code>は未承認である。次に行うのはP5Rの正式実行計画作成であり、P5R実装や外部接続の開始ではない。
 
 ---
 
@@ -828,7 +839,7 @@ Step 1の指示どおり、P4 / P5 / P6の正式資料、実装、UIモック、
 4. LocalWorkerは意図的なCore adapter / artifactが無いと実行を有効化しない。
 5. BacktestCoreAdapterの現在の結果投影は、最大ドローダウン、勝率、総残高を実計算結果として完成させていない。
 6. P5には限定市場データのQualityと期間分割があるが、Walk-forwardは戦略未実行である。
-7. Phase 6は、複数運用Unit、Portfolio、Risk、OMS、Forward / Shadow、再起動・照合・Killのために定義されている。
+7. v2ではPhase 6に複数運用Unit、Portfolio、Risk、OMS、Forward / Shadow、再起動・照合・Killがまとめて置かれていた。v3では、固定Simulationの安全土台をP6、Forward完成をP7、Shadow完成をP8へ分ける。
 
 ### 10.2 実ランタイム受領記録
 
@@ -857,7 +868,7 @@ Coordinatorは、P5Rを入れること、P6全体を移さないこと、Backtes
 | P5の直後に薄く挿入するだけでよいか | **よくない**。実データ→実Core→実5指標→UI、Sweep、結果分析、Walk-forwardまで入れる必要がある |
 | P6全体をP5Rに入れるか | **入れない**。P6の安全機能まで混ぜると、Backtest完成が遅れ、責務が崩れる |
 | 複数Unit管理をP5Rに入れるか | **本来の運用Unit管理は入れない**。Backtest Experiment Set / Sweepだけを入れる |
-| P5R完了後にP6は何をするか | 複数運用Unit、Portfolio、Risk、OMS、Forward / Shadow、Kill、照合、復旧を固定Simulationで完成させる |
+| P5R完了後にP6は何をするか | 複数運用Unit、Portfolio、Risk、OMS、Kill、照合、復旧を固定Simulationで完成させる。Forwardの完成はP7、Shadowの完成はP8である。 |
 
 ---
 
@@ -866,14 +877,14 @@ Coordinatorは、P5Rを入れること、P6全体を移さないこと、Backtes
 | P5R項目 | 主な要件 | 主な画面 | 主な検証 | 後続への境界 |
 |---|---|---|---|---|
 | 入力・preflight | REQ-V2-0044 | SCREEN-05〜08 | 型、単位、期間、Data品質、未来参照、範囲外拒否 | P6の運用Riskは扱わない |
-| 単一Run | REQ-V2-0045 | SCREEN-08、09、17、19 | 正常、取消、停止、失敗、再実行、再開 | Forward / ShadowはP6 |
+| 単一Run | REQ-V2-0045 | SCREEN-08、09、17、19 | 正常、取消、停止、失敗、再実行、再開 | ForwardはP7、ShadowはP8 |
 | 5指標・詳細 | REQ-V2-0046 | SCREEN-10、11 | 独立オラクル、実結果、根拠リンク | 利益性の採用はしない |
 | Sweep定義 | REQ-V2-0047 | SCREEN-08、09 | 上限、丸め、重複、無効行 | 運用Unitの同時管理はP6 |
-| Sweep資源確認 | REQ-V2-0048 | SCREEN-08、09、02 | 件数、推定、明示確認、開始拒否 | 20〜40運用Unitの構造負荷はP6 / P8 |
+| Sweep資源確認 | REQ-V2-0048 | SCREEN-08、09、02 | 件数、推定、明示確認、開始拒否 | 20〜40運用Unitの構造負荷はP6 / P9 |
 | 全結果・回復 | REQ-V2-0049 / 0050 | SCREEN-09〜12、17、19 | 部分失敗、取消、checkpoint、再開 | OMSの復旧はP6 |
-| 履歴・比較 | REQ-V2-0051 / 0052 | SCREEN-10、12、19 | 同条件再Run、差分、比較不能、自動採用禁止 | Candidate / Live採否はP9以降 |
-| CSV | REQ-V2-0053 | SCREEN-10、12、19 | 非同期、進捗、取消、失敗、完了 | 大規模実機性能はP8 |
-| Holdout / Walk-forward | REQ-V2-0054 / 0055 | SCREEN-08、10、12、18、19 | 窓別実Run、未来参照拒否、再利用制限 | 実時間ForwardはP6 |
+| 履歴・比較 | REQ-V2-0051 / 0052 | SCREEN-10、12、19 | 同条件再Run、差分、比較不能、自動採用禁止 | Candidate / Live採否はP10以降 |
+| CSV | REQ-V2-0053 | SCREEN-10、12、19 | 非同期、進捗、取消、失敗、完了 | 大規模実機性能はP6 / P9 |
+| Holdout / Walk-forward | REQ-V2-0054 / 0055 | SCREEN-08、10、12、18、19 | 窓別実Run、未来参照拒否、再利用制限 | 実時間ForwardはP7 |
 
 ---
 
@@ -918,7 +929,8 @@ Coordinatorは、P5Rを入れること、P6全体を移さないこと、Backtes
 | 根拠 | この提案への意味 |
 |---|---|
 | [要件定義書：単一Backtest〜Walk-forward](../doc/requirements/01_自動トレードシステム要件定義書_v2.html#19-単一設定backtest) | REQ-V2-0044〜0055がP5Rの要件範囲を示す |
-| [要件定義書：Phase 6](../doc/requirements/01_自動トレードシステム要件定義書_v2.html#5-phase-6-複数運用単位-portfolio-risk-oms-forward-shadow) | 複数運用Unit、Portfolio、Risk、OMS、Forward / ShadowがP6の本来の責務であることを示す |
+| [要件定義書v2：旧Phase 6](../doc/requirements/01_自動トレードシステム要件定義書_v2.html#5-phase-6-複数運用単位-portfolio-risk-oms-forward-shadow) | v2時点で複数運用Unit、Portfolio、Risk、OMS、Forward / Shadowが一つの後続範囲だった履歴を示す |
+| [要件定義書v3：P6〜P12](../doc/requirements/01_自動トレードシステム要件定義書_v3.html#future-phases) | 現行ではP6=固定Simulation土台、P7=Forward、P8=Shadowへ分けたことを示す |
 | [Phase 4完了判定](../doc/phase4/05_完了/07_Phase4完了判定・Phase5計画引渡し.html) | P4は固定ローカルの製品土台であり、実市場のBacktest完成ではない |
 | [Phase 5完了判定](../doc/phase5/06_完了/08_Phase5完了判定・Phase6計画引渡し.html) | P5の限定データ範囲とOpen Unknownを示す |
 | [P6計画入力](phase5/Phase6計画入力一覧_2026-08-12.md) | P5から渡すData契約、対象外、P6開始前の注意を示す |
@@ -943,7 +955,7 @@ Coordinatorは、P5Rを入れること、P6全体を移さないこと、Backtes
 
 1. 保存先が plan/ 配下である。
 2. 参照リンクが既存のローカル資料を指している。
-3. P5Rが提案段階であり、現行の正式ロードマップを変更したと偽らない。
+3. P5Rが要件定義書v3で採用済みである一方、P5R-H0は未承認であることを区別する。
 4. Broker、Paper、Live、Secret、実資金、外部I/Oを実行対象として含めない。
 5. REQ-V2-0044〜0055、P6境界、P5のOpen Unknownを明記する。
 6. 管理・差分・証跡・manifest・stale・retryのための管理用hashを新規に導入しない。
@@ -957,14 +969,13 @@ Coordinatorは、P5Rを入れること、P6全体を移さないこと、Backtes
 | Secret候補 | 0件 |
 | 形式 | Markdown見出し行69件（Step 1の埋め込みプロンプト内を含む）。最終ステージング後に `git diff --cached --check` を実行する |
 
-### 14.3 採用する際の次の一手
+### 14.3 採用後の次の一手
 
-ユーザーがこの再構成を採用する場合、次の一文でP5R-H0の準備へ進められる。
+P5Rは要件定義書v3で採用済みである。P5R-H0の準備へ進めるには、次の一文による別の承認が必要である。
 
 > Phase 5Rの追加と、この提案書の対象範囲を承認します。P5R-H0の正式計画書を作成してください。
 
-その承認後に初めて、正式Phase計画、正式HTML、統合台帳、P6入力を更新する。
-承認前は、この文書を提案として保持し、現行P6の正式範囲を変更しない。
+その承認後に初めて、P5Rの正式Phase実行計画と詳細設計へ進む。要件定義書v3、統合台帳、P6入力はすでにロードマップ反映済みだが、P5R実装は始めない。
 
 ---
 

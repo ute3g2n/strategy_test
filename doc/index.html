@@ -24,7 +24,7 @@
   <h1>ドキュメント インデックス</h1>
   <div class="note">
     <p>このファイルは、<code>doc/</code> 配下のHTML成果物への共通入口である。新しいHTML成果物を追加した場合は、この一覧も同時に更新する。</p>
-    <p><strong>更新状態:</strong> RQU-UI-14で要件定義書をv0.4、UIモックをv1.0へ正式化し、本文・UI・統合台帳・追跡表への導線を再検証済み。Q-243と後続GateのUnknownは維持している。</p>
+    <p><strong>更新状態:</strong> 要件定義書v3を現在の正本として追加し、P5の直後にP5R（UIから使うBacktest製品の完成）を置くロードマップへ更新した。P5のOpen Unknown、P5R-H0、外部I/O、Broker、Secret、実資金の後続Gateは維持している。</p>
   </div>
 
   <h2>全Phase共通：残課題・Blocked</h2>
@@ -34,9 +34,10 @@
   </div>
 
   <h2>要件定義</h2>
-  <p class="muted">設計の起点となる上流文書。現行正本はAT-REQ-002 / v2.0 / 2026-08-11。RQV2-H2／RQV2-H3承認済み、RQV2-18完了。AT-REQ-001 / v0.4は履歴として保持する。</p>
+  <p class="muted">設計の起点となる上流文書。現行正本はAT-REQ-003 / v3.0 / 2026-08-16。P5Rの挿入と、P6〜P12でForward→Shadow→Paper→Live候補→小規模Live→通常Liveを安全な能力順に完成させる方針を明文化した。AT-REQ-002 / v2.0以下は履歴として保持する。</p>
   <ul>
-    <li><a href="./requirements/01_自動トレードシステム要件定義書_v2.html">01_自動トレードシステム要件定義書_v2.html</a> <span class="muted">（AT-REQ-002・v2.0正式基準線・RQV2-H2／RQV2-H3承認済み）</span></li>
+    <li><a href="./requirements/01_自動トレードシステム要件定義書_v3.html">01_自動トレードシステム要件定義書_v3.html</a> <span class="muted">（AT-REQ-003・v3.0現在正本・P5R挿入／P6〜P12能力順・P5R-H0は未承認）</span></li>
+    <li><a href="./requirements/01_自動トレードシステム要件定義書_v2.html">01_自動トレードシステム要件定義書_v2.html</a> <span class="muted">（AT-REQ-002・v2.0旧正式基準線・履歴）</span></li>
     <li><a href="./requirements/01_自動トレードシステム要件定義書.html">01_自動トレードシステム要件定義書.html</a> <span class="muted">（AT-REQ-001・v0.4旧正式正本・履歴）</span></li>
   </ul>
 
@@ -286,6 +287,12 @@
   <ul>
     <li><a href="./phase5/00_実行計画/01_Phase5実行計画書.html">01_Phase5実行計画書.html（P5-PLAN-HTML-001 / P5-01〜P5-11、P5-DATA-G1、実ランタイム起動契約）</a></li>
     <li><a href="../plan/Phase5_実行計画書_v0.1_2026-08-12.md">Phase5実行計画Markdown（P5-PLAN-001）</a> / <a href="../plan/phase5/ログ/P5-PLAN-001_計画作成・起動契約検証_2026-08-12.md">計画作成・起動契約検証ログ</a></li>
+  </ul>
+  <h2>Phase 5R / Backtest製品完全化</h2>
+  <p class="muted">P5の後に追加した次Phase。既存ローカル市場Dataを使い、UIから単一Backtest、Sweep、取消・再開、履歴・比較・CSV、Holdout / Walk-forwardまでを実際に動かす。複数Unit、Portfolio、実運用Risk、OMS、Forward、Paper、Live、外部注文は対象外である。開始にはP5R-H0の承認が必要。</p>
+  <ul>
+    <li><a href="../plan/Phase5R_バックテスト製品完全化_再構成提案・実行計画書_v0.1_2026-08-16.md">Phase5R バックテスト製品完全化 再構成提案・実行計画書</a> <span class="muted">（P5R-PLAN-PROPOSAL-001 / v3で正式ロードマップへ反映）</span></li>
+    <li><a href="../plan/要件定義書_v3_作成・Phase5Rロードマップ再編_実行計画書_v0.1_2026-08-16.md">要件定義書v3 作成・Phase5Rロードマップ再編 実行計画書</a> <span class="muted">（RQV3-PLAN-001 / 複数Stepの実行プロンプトと実行記録）</span></li>
   </ul>
   <h2>Phase 5 / 01 要件追跡</h2>
   <p class="muted">P5-H0承認後のP5-01。P4から受け取ったData／Manifest／保存／Quality接続点、現行暫定対象Binance SpotのBTCUSDT／ETHUSDT、旧CME 5候補の履歴境界、4資産種類、D1／H4／H1／M30／M15、Catalog／Calendar／Quality／Cost／Gap／HoldoutのREQ→UC→Data object→Test→Evidence→Gateを追跡する。P5-09のlocal quality evidenceは別Runへ保存し、Provider条件・外部取得Runのhost isolation・child dispatchはUnknownとして残す。</p>
