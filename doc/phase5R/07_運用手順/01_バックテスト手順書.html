@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>P5R バックテスト手順書</title>
+  <style>
+    :root{--ink:#182230;--muted:#58697d;--blue:#173f72;--line:#cbd8e7;--pale:#eef5ff;--warn:#fff7df;--good:#e9f8ef}
+    *{box-sizing:border-box}
+    body{margin:0;background:#f3f6fa;color:var(--ink);font-family:system-ui,"Yu Gothic",Meiryo,sans-serif;line-height:1.75}
+    main{max-width:1180px;margin:0 auto;padding:28px 42px 60px;background:#fff;box-shadow:0 0 30px #dce4ee}
+    h1,h2{color:var(--blue);border-bottom:2px solid #d8e4f2;padding-bottom:7px}
+    h3{color:#245a87;margin-bottom:7px}
+    p{margin:8px 0 14px}
+    .small{font-size:.88rem;color:var(--muted)}
+    .note,.warning,.good{padding:13px 16px;margin:14px 0;border-left:5px solid}
+    .note{background:var(--pale);border-color:#2c79d0}
+    .warning{background:var(--warn);border-color:#d39419}
+    .good{background:var(--good);border-color:#218653}
+    table{width:100%;border-collapse:collapse;margin:12px 0 24px}
+    th,td{border:1px solid var(--line);padding:8px 10px;vertical-align:top;text-align:left}
+    th{background:#eaf2fb;color:#234e7b}
+    code{padding:2px 5px;border-radius:4px;background:#eef2f6}
+    pre{white-space:pre-wrap;padding:13px 16px;border:1px solid var(--line);border-radius:8px;background:#f8fbff;overflow:auto}
+    ol,ul{padding-left:25px}
+    .procedure{margin:28px 0 36px;padding:16px 18px;border:1px solid var(--line);border-radius:12px;background:#fcfdff}
+    .procedure h3{margin-top:0}
+    .procedure .goal{padding:9px 12px;background:#f4f8fd;border-radius:7px}
+    figure{margin:18px 0}
+    figure img{display:block;width:100%;height:auto;border:1px solid #b9c9dc;border-radius:8px;background:#fff}
+    figcaption{margin-top:7px;color:var(--muted);font-size:.9rem}
+    .two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .tag{display:inline-block;margin:2px 5px 2px 0;padding:2px 8px;border-radius:999px;background:#e9f2ff;color:#245a87;font-size:.83rem;font-weight:700}
+    @media(max-width:720px){main{padding:20px 14px 40px}.two{grid-template-columns:1fr}th,td{padding:7px;font-size:.9rem}}
+  </style>
+</head>
+<body>
+<main>
+  <p class="small">文書ID: P5R-MAN-01 / 版: v0.1 / 作成日: 2026-08-16 / 状態: P5R-09 Playwright実画面撮影済み</p>
+  <h1>バックテスト手順書</h1>
+  <div class="note"><strong>この手順書の目的：</strong>画面のボタンを押したとき、実際のP5R Application APIがローカルDataを読み、計算した結果・進捗・失敗理由を画面に返していることを、誰でも同じ順番で確認できるようにする。画像は、Playwrightが画面の確認に成功した直後に撮影した実画面である。</div>
+
+  <h2>1. まず知っておく安全範囲</h2>
+  <table>
+    <tr><th>項目</th><th>P5Rで使うもの</th><th>使わないもの</th></tr>
+    <tr><td>Data</td><td>既存P5 EvidenceのローカルData。BTCUSDT / ETHUSDT、Spot、1分足、UTC、CRYPTO_24_7_UTC。</td><td>インターネットからの新規取得、別Provider、未承認Data。</td></tr>
+    <tr><td>実行</td><td>過去の完成Barを順番に既存Strategy Coreへ渡し、選択したTurtle SystemのSignalを使って再生する仮想Fill Backtest。</td><td>Broker接続、Secret、実注文、実資金、Paper、Live。</td></tr>
+    <tr><td>数字</td><td>総損益、最大ドローダウン、勝率、取引回数、最終残高。</td><td>将来の利益保証、実市場で同じ約定になるという保証。</td></tr>
+    <tr><td>費用</td><td>手数料・Slippageの明示的な想定値。</td><td>市場で実際に発生したコストの断定。</td></tr>
+    <tr><td>期間</td><td><code>[2025-02-24T00:00:00Z, 2026-08-01T00:00:00Z)</code> のP5R許可範囲。</td><td>期間外、未来のData、UTCでない日時。</td></tr>
+  </table>
+  <div class="warning"><strong>停止したら無理に進めない：</strong>PreflightのFAIL、Data由来が不明、Core検証停止、CSVの結果未完了、Holdoutの確定前アクセスなどは、失敗ではなく「安全のため止まった」状態である。画面に出た停止理由をEvidenceへ残して条件を直す。</div>
+  <div class="good"><strong>Strategyの確認：</strong>画面で <code>TURTLE_SYS1</code> または <code>TURTLE_SYS2</code> を選ぶと、その選択とEntry／Exit期間がStrategy Coreへ渡される。結果Ledgerの「理由」には、Coreが返した <code>SYS1_ENTRY</code>、<code>SYS2_ENTRY</code>、<code>EXIT_LONG</code> などが表示される。画面の数字だけでなく、この理由まで確認する。</div>
+
+  <h2>2. 起動前の準備</h2>
+  <ol>
+    <li>プロジェクトのルートで、品質確認済みのローカル環境を使う。外部市場Dataを取得するコマンドは実行しない。</li>
+    <li>Application APIを <code>py -3 scripts/phase5r/backtest_api_server.py --port 8765</code> で起動する。</li>
+    <li>UIを <code>ui/mock</code> で <code>npm run build</code> 後、<code>npm run preview -- --host 127.0.0.1</code> で起動する。Playwright実行時はこの2つを自動起動できる。</li>
+    <li>ブラウザで <code>http://127.0.0.1:4173</code> を開き、左の「Backtest条件設定」を選ぶ。</li>
+    <li>画面上部の「外部市場データ、Broker、Secret、実注文、Paper／Liveには接続しません」を確認する。</li>
+  </ol>
+  <p class="small">正式なAPI、状態、保存、停止条件は<a href="../02_実装詳細設計/01_P5R実装詳細設計書.html">P5R実装詳細設計書</a>、品質GateとRun Manifestは<a href="../02_実装詳細設計/02_P5R品質Gate_RunManifest設計書.html">P5R品質Gate_RunManifest設計書</a>を参照する。</p>
+
+  <h2>3. 画像とテストの対応</h2>
+  <p>各画像は <code>ui/mock/tests/p5r-backtest.spec.ts</code> が、先に画面の要素・状態・停止理由をassertし、その直後にPlaywrightで撮影した。デスクトップ画像を本文に載せ、モバイル画像と全capture情報はEvidenceへ保存した。</p>
+  <table>
+    <tr><th>手順ID</th><th>画像</th><th>確認すること</th><th>主な受入条件</th></tr>
+    <tr><td>BT-MAN-01</td><td>条件画面</td><td>P5R範囲、外部接続なし</td><td>P5R-AC-02 / P5R-AC-16</td></tr>
+    <tr><td>BT-MAN-02</td><td>Preflight PASS</td><td>入力、Data範囲、UTC、品質、先読み</td><td>P5R-AC-01 / P5R-AC-02</td></tr>
+    <tr><td>BT-MAN-03</td><td>Preflight STOPPED</td><td>UTCなし入力の停止</td><td>P5R-AC-01 / P5R-AC-16</td></tr>
+    <tr><td>BT-MAN-04</td><td>Single進捗</td><td>実Run ID、状態、Bar進捗、ETA</td><td>P5R-AC-03 / P5R-AC-14</td></tr>
+    <tr><td>BT-MAN-05</td><td>5指標</td><td>総損益、最大DD、勝率、取引数、最終残高</td><td>P5R-AC-05</td></tr>
+    <tr><td>BT-MAN-06</td><td>Ledger</td><td>Signal、Virtual Fill、残高、Data由来</td><td>P5R-AC-06</td></tr>
+    <tr><td>BT-MAN-07</td><td>取消</td><td>CANCELLEDとcheckpoint</td><td>P5R-AC-04</td></tr>
+    <tr><td>BT-MAN-08</td><td>再開</td><td>checkpointからSUCCEEDED</td><td>P5R-AC-04</td></tr>
+    <tr><td>BT-MAN-09</td><td>Sweep</td><td>親Job、子Run、部分失敗</td><td>P5R-AC-07 / P5R-AC-08</td></tr>
+    <tr><td>BT-MAN-10</td><td>履歴</td><td>Runの再表示、状態</td><td>P5R-AC-09</td></tr>
+    <tr><td>BT-MAN-11</td><td>比較</td><td>異なる条件を並べ、最良を自動選択しない</td><td>P5R-AC-10</td></tr>
+    <tr><td>BT-MAN-12</td><td>CSV</td><td>CSV Job、完了、Download導線</td><td>P5R-AC-11</td></tr>
+    <tr><td>BT-MAN-13</td><td>Holdout停止</td><td>確定前の調整利用を拒否</td><td>P5R-AC-12</td></tr>
+    <tr><td>BT-MAN-14</td><td>Holdout確定</td><td>確定後に一度だけ評価</td><td>P5R-AC-12</td></tr>
+    <tr><td>BT-MAN-15</td><td>Walk-forward</td><td>3窓、未来参照なし</td><td>P5R-AC-13 / P5R-AC-15</td></tr>
+  </table>
+
+  <section class="procedure">
+    <h3>BT-MAN-01：Backtest画面を開き、範囲を確認する</h3>
+    <p class="goal"><strong>ゴール：</strong>画面が固定ダミーの結果ではなく、P5R Application APIを使う画面であることを確認する。</p>
+    <ol><li>左メニューの「Backtest条件設定」をクリックする。</li><li>「P5R実行範囲」にBTCUSDT / ETHUSDT、Spot / 1m / UTC、期間が表示されることを確認する。</li><li>安全境界に、外部Data、Broker、Secret、実注文、Paper／Liveへ接続しない説明があることを確認する。</li></ol>
+    <figure><img src="assets/backtest_manual/BT-MAN-01.png" alt="P5R Backtest実APIの条件画面" loading="lazy"><figcaption>BT-MAN-01：P5Rの実API画面と許可範囲。</figcaption></figure>
+    <p><strong>異常時：</strong>対象外銘柄やP5R外の機能が実行できるなら、P5R-H2へ進めず、画面と理由を記録する。</p>
+  </section>
+
+  <section class="procedure">
+    <h3>BT-MAN-02：Preflightを通す</h3>
+    <p class="goal"><strong>ゴール：</strong>実行前に、入力・範囲・UTC・Calendar・Data品質・先読み防止の確認がPASSになる。</p>
+    <ol><li>初期値のまま「Preflight実行」をクリックする。</li><li><code>TYPE_AND_UNIT</code>、<code>P5_DATA_SCOPE</code>、<code>UTC_AND_CALENDAR</code>、<code>QUALITY</code>、<code>LOOKAHEAD</code> がPASSであることを読む。</li><li>「Preflight PASS。実Runを開始できます。」を確認する。</li></ol>
+    <figure><img src="assets/backtest_manual/BT-MAN-02.png" alt="Preflight PASSの画面" loading="lazy"><figcaption>BT-MAN-02：開始前の5つの確認がPASS。</figcaption></figure>
+  </section>
+
+  <section class="procedure">
+    <h3>BT-MAN-03：不正なUTC入力を安全に止める</h3>
+    <p class="goal"><strong>ゴール：</strong>日時に <code>Z</code> がないなど、UTCと確定できない条件をRun開始前に止める。</p>
+    <ol><li>「開始（UTC）」を <code>2025-02-24T00:00:00</code> に変更する。</li><li>「Preflight実行」をクリックする。</li><li>STOPPEDと停止理由を確認する。停止したまま「Single Run開始」を押してはいけない。</li><li>値を <code>2025-02-24T00:00:00Z</code> に戻して、もう一度Preflightする。</li></ol>
+    <figure><img src="assets/backtest_manual/BT-MAN-03.png" alt="UTCなしのPreflight停止画面" loading="lazy"><figcaption>BT-MAN-03：入力を直すまで開始できない。</figcaption></figure>
+  </section>
+
+  <section class="procedure">
+    <h3>BT-MAN-04：Single Runを開始し、進捗を見る</h3>
+    <p class="goal"><strong>ゴール：</strong>画面上で生成されたRun ID、QUEUED／RUNNING／SUCCEEDED、進捗Bar数、ETAを確認する。</p>
+    <ol><li>Preflight PASS後に「Single Run開始」をクリックする。</li><li>「実Run」に <code>RUN-P5R-...</code> が表示されることを確認する。</li><li>状態、進捗率、処理済みBar数／全Bar数、ETAを確認する。画面を勝手に成功へ書き換えていないことが重要である。</li><li>SUCCEEDEDになるまで待つ。待機中にブラウザを閉じる場合は、Run IDを記録する。</li></ol>
+    <figure><img src="assets/backtest_manual/BT-MAN-04.png" alt="Single Runの進捗画面" loading="lazy"><figcaption>BT-MAN-04：実Runの状態と進捗。</figcaption></figure>
+  </section>
+
+  <section class="procedure">
+    <h3>BT-MAN-05：5つの指標を読む</h3>
+    <p class="goal"><strong>ゴール：</strong>同じRunの結果として、5指標が表示される。</p>
+    <ol><li>RunがSUCCEEDEDになったら、総損益を初期残高との差として読む。</li><li>最大ドローダウンは、残高が過去最高からどれだけ下がったかを読む。</li><li>勝率は、確定した売買のうち利益が正だった割合である。</li><li>取引回数はVirtual Fill回数、最終残高は最後の評価残高である。</li><li>fee／slippageが想定値であることを確認し、数字だけを見て利益を保証されたと判断しない。</li></ol>
+    <figure><img src="assets/backtest_manual/BT-MAN-05.png" alt="Backtest 5指標の画面" loading="lazy"><figcaption>BT-MAN-05：5指標とコスト想定の表示。</figcaption></figure>
+  </section>
+
+  <section class="procedure">
+    <h3>BT-MAN-06：DetailsとLedgerを確認する</h3>
+    <p class="goal"><strong>ゴール：</strong>指標だけでなく、Signal・Virtual Fill・残高が同じRunの時系列から得られたことを確認する。</p>
+    <ol><li>「結果・詳細を表示」または「Detailsを読込」をクリックする。</li><li>Data由来、期間、Data範囲、Core検証が表示されることを確認する。</li><li>Ledgerで種類、UTC時刻、銘柄、Signal、方向、価格、Equity、理由を読む。</li><li>必要なら表の全行をCSVで出す。画面に見えない行を想像で補ってはいけない。</li></ol>
+    <figure><img src="assets/backtest_manual/BT-MAN-06.png" alt="Ledger詳細の画面" loading="lazy"><figcaption>BT-MAN-06：同じRunのLedgerとData由来。</figcaption></figure>
+  </section>
+
+  <section class="procedure">
+    <h3>BT-MAN-07：実行中に取消する</h3>
+    <p class="goal"><strong>ゴール：</strong>処理途中のRunを取消し、CANCELLEDとcheckpointを確認する。</p>
+    <ol><li>終了日時を少し長い期間にしてRunを開始する。</li><li>RUNNING中に「取消」をクリックする。</li><li>状態がCANCELLEDになり、停止理由とcheckpointが残ることを確認する。</li><li>取消したRunを成功扱いに変更したり、結果を推測して読んだりしない。</li></ol>
+    <figure><img src="assets/backtest_manual/BT-MAN-07.png" alt="Backtest取消とcheckpointの画面" loading="lazy"><figcaption>BT-MAN-07：途中停止したRun。</figcaption></figure>
+  </section>
+
+  <section class="procedure">
+    <h3>BT-MAN-08：checkpointから再開する</h3>
+    <p class="goal"><strong>ゴール：</strong>保存された途中状態から再開し、再開回数と最終状態を確認する。</p>
+    <ol><li>CANCELLEDでcheckpointが表示されているRunの「チェックポイントから再開」をクリックする。</li><li>QUEUED／RUNNINGへ戻ることを確認する。</li><li>SUCCEEDEDになったら、再開回数が1以上であることを確認する。</li><li>結果を最初から作り直したのではなく、途中状態から続いたことをRun IDと証跡で確認する。</li></ol>
+    <figure><img src="assets/backtest_manual/BT-MAN-08.png" alt="checkpointから再開して結果を表示した画面" loading="lazy"><figcaption>BT-MAN-08：再開後のLedgerと結果。</figcaption></figure>
+  </section>
+
+  <section class="procedure">
+    <h3>BT-MAN-09：Sweepの部分失敗を見る</h3>
+    <p class="goal"><strong>ゴール：</strong>複数候補を一つの親Jobとして動かし、子Runの一部失敗を隠さない。</p>
+    <ol><li>「Sweep」タブを開く。</li><li>候補数、候補値、重複検査の説明を確認する。最大200候補である。</li><li>「2番目の候補を意図的に失敗させる」をONにしてSweepを開始する。</li><li>親Jobの状態がPARTIAL_FAILED、成功した子と <code>CANDIDATE_FORCED_FAILURE</code> の子が表示されることを確認する。</li></ol>
+    <figure><img src="assets/backtest_manual/BT-MAN-09.png" alt="Sweep親Jobと子Runの部分失敗画面" loading="lazy"><figcaption>BT-MAN-09：一部失敗を全体成功へ変換しない。</figcaption></figure>
+  </section>
+
+  <section class="procedure">
+    <h3>BT-MAN-10：履歴からRunを開く</h3>
+    <p class="goal"><strong>ゴール：</strong>過去に作ったRunを履歴から選び、状態・条件・結果を再表示する。</p>
+    <ol><li>「履歴・比較」タブを開き、「履歴を更新」をクリックする。</li><li>Run ID、銘柄、Strategy、期間、状態、進捗を確認する。</li><li>対象Runのラジオボタンを選び、「結果を開く」をクリックする。</li><li>履歴にないRunを成功扱いにしてはいけない。</li></ol>
+    <figure><img src="assets/backtest_manual/BT-MAN-10.png" alt="Backtest履歴一覧の画面" loading="lazy"><figcaption>BT-MAN-10：Application APIから取得した履歴。</figcaption></figure>
+  </section>
+
+  <section class="procedure">
+    <h3>BT-MAN-11：2つのRunを比較する</h3>
+    <p class="goal"><strong>ゴール：</strong>条件の異なるRunを並べるが、最良RunやLive昇格を自動で決めない。</p>
+    <ol><li>履歴から比較対象とは別のRunを選ぶ。</li><li>「選択Runと比較」をクリックする。</li><li><code>comparable</code> と条件差の理由を確認する。</li><li>総損益だけでなく、最大DD、勝率、取引回数、最終残高、条件を一緒に読む。</li><li>比較結果から自動的に本番へ進むボタンがないことを確認する。</li></ol>
+    <figure><img src="assets/backtest_manual/BT-MAN-11.png" alt="Run比較の画面" loading="lazy"><figcaption>BT-MAN-11：運用者が判断する比較画面。</figcaption></figure>
+  </section>
+
+  <section class="procedure">
+    <h3>BT-MAN-12：CSVを生成してダウンロードする</h3>
+    <p class="goal"><strong>ゴール：</strong>完了済みRunのLedgerをCSV Jobにし、完了後にDownload導線を表示する。</p>
+    <ol><li>SUCCEEDEDのRunを選ぶ。</li><li>「CSV生成」をクリックする。</li><li>CSV Jobの状態と進捗が表示され、SUCCEEDEDになることを確認する。</li><li>「CSVダウンロード」リンクが表示されたら、必要な列とRun IDを記録して保存する。</li><li>結果未完了のRun、対象外の列、別RunのCSVを混ぜない。</li></ol>
+    <figure><img src="assets/backtest_manual/BT-MAN-12.png" alt="CSV Job完了とダウンロードリンクの画面" loading="lazy"><figcaption>BT-MAN-12：CSV Jobの完了確認。</figcaption></figure>
+  </section>
+
+  <section class="procedure">
+    <h3>BT-MAN-13：確定前Holdoutを止める</h3>
+    <p class="goal"><strong>ゴール：</strong>HoldoutをStrategy調整に使う前に、確定前アクセスを拒否する。</p>
+    <ol><li>「Holdout・Walk-forward」タブを開く。</li><li>「確定前を試す」をクリックする。</li><li><code>EARLY_HOLDOUT_ACCESS</code> と停止表示を確認する。</li><li>この期間の結果を使ってパラメータを調整してはいけない。</li></ol>
+    <figure><img src="assets/backtest_manual/BT-MAN-13.png" alt="確定前Holdoutを停止した画面" loading="lazy"><figcaption>BT-MAN-13：Holdoutを守る停止境界。</figcaption></figure>
+  </section>
+
+  <section class="procedure">
+    <h3>BT-MAN-14：確定後Holdoutを一度だけ評価する</h3>
+    <p class="goal"><strong>ゴール：</strong>確定後のHoldoutを評価用として一度だけ読み、調整に再利用しない。</p>
+    <ol><li>「確定後に評価」をクリックする。</li><li>SUCCEEDED、期間、行数、調整へ再利用しない表示を確認する。</li><li>同じApplication APIで再度押して、二重読込がSTOPPEDになることも確認できる。</li><li>Holdoutの成績は、学習期間の成績と別の確認として記録する。</li></ol>
+    <figure><img src="assets/backtest_manual/BT-MAN-14.png" alt="確定後Holdout評価の画面" loading="lazy"><figcaption>BT-MAN-14：確定後Holdoutの評価結果。</figcaption></figure>
+  </section>
+
+  <section class="procedure">
+    <h3>BT-MAN-15：Walk-forwardを実行する</h3>
+    <p class="goal"><strong>ゴール：</strong>学習・検証・評価を時間順に分けた3つの窓を実行し、未来参照なしを確認する。</p>
+    <ol><li>3窓の学習終了、検証終了、評価終了の日時を読む。</li><li>「Walk-forward実行」をクリックする。</li><li>SUCCEEDED、窓3、<code>holdout再利用=false</code> を確認する。</li><li>窓の時刻が逆順、重複、P5R範囲外なら停止される。</li><li>Walk-forwardが良かったことだけを理由にLive開始を決めない。Liveは後続PhaseのHuman Gateである。</li></ol>
+    <figure><img src="assets/backtest_manual/BT-MAN-15.png" alt="3窓のWalk-forward結果画面" loading="lazy"><figcaption>BT-MAN-15：時系列を分けた評価。</figcaption></figure>
+  </section>
+
+  <h2>4. 失敗時の読み方</h2>
+  <table>
+    <tr><th>表示される理由</th><th>意味</th><th>次にすること</th></tr>
+    <tr><td>Preflight STOPPED</td><td>入力、範囲、UTC、品質などが条件外。</td><td>画面のchecksとfailure codeを記録し、入力を修正する。</td></tr>
+    <tr><td>CORE_VALIDATION_...</td><td>既存Backtest Coreが受け付けなかった。</td><td>結果を成功扱いにせず、Coreの停止理由を調査する。</td></tr>
+    <tr><td>CANDIDATE_FORCED_FAILURE</td><td>Sweepの候補を意図的に失敗させた例。</td><td>親JobがPARTIAL_FAILEDであることを確認する。</td></tr>
+    <tr><td>RESULT_NOT_READY</td><td>Runが終わる前にDetails／CSVを読もうとした。</td><td>SUCCEEDEDまで待ち、同じRun IDで再試行する。</td></tr>
+    <tr><td>EARLY_HOLDOUT_ACCESS</td><td>Holdoutを早く見ようとした。</td><td>調整へ使わず、確定後評価まで待つ。</td></tr>
+    <tr><td>WALK_FORWARD_OVERLAP</td><td>窓の時間が重なり、未来の情報が混ざる可能性がある。</td><td>学習・検証・評価の順序と期間を修正する。</td></tr>
+  </table>
+
+  <h2>5. Evidenceと完了判定</h2>
+  <ul>
+    <li>デスクトップ撮影：<a href="../../../tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-desktop/">P5R-09 desktop screenshots</a></li>
+    <li>モバイル撮影：<a href="../../../tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-mobile/">P5R-09 mobile screenshots</a></li>
+    <li>撮影Registry：<a href="../../../tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/capture-registry-chromium-desktop.json">desktop registry</a> / <a href="../../../tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/capture-registry-chromium-mobile.json">mobile registry</a></li>
+    <li>Playwrightテスト：<code>ui/mock/tests/p5r-backtest.spec.ts</code></li>
+    <li>受入条件：<span class="tag">P5R-AC-01〜16</span> <span class="tag">BT-MAN-01〜15</span> <span class="tag">P5R-MANUAL-G1</span></li>
+  </ul>
+  <div class="good"><strong>手順書の完了条件：</strong>15手順について、assertが先にPASSし、実画面PNGが存在し、画面の状態・停止理由・次の操作を本文で説明できること。画像があるだけ、またはUIが固定ダミーを表示するだけでは完了とはしない。</div>
+</main>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "gate": "P5R-H0",
+  "status": "APPROVED_BY_DELEGATED_AUTHORITY",
+  "decision_at": "2026-08-16T00:00:00Z",
+  "authority_basis": "User message on 2026-08-16 explicitly transferred all Human Gate approval authority required to complete P5R.",
+  "approved_artifact": "tests/evidence/phase5R/RUN-P5R-00-20260816-001/p5r-h0-packet.md",
+  "approved_next_steps": ["P5R-00A", "P5R-01", "P5R-02", "P5R-02A", "P5R-H1 packet preparation"],
+  "blocked_until_h1": ["P5R trusted-scope registration", "test subprocess", "implementation", "real Application API UI connection", "Playwright manual capture"],
+  "open_unknowns": ["P5R-UNK-001"],
+  "external_io": "PROHIBITED",
+  "broker_or_real_funds": "PROHIBITED"
+}

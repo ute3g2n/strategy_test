@@ -126,6 +126,13 @@
       <tr><td>v0.8</td><td>2026-08-03</td><td>ImplementationQualityのtrusted scope registryとhost outbound隔離契約を反映。</td><td>履歴</td></tr>
     </tbody>
   </table>
+  <h2>9. P5R Web製品UI部品の静的検証</h2>
+  <table><thead><tr><th>対象</th><th>状態</th><th>確認</th></tr></thead><tbody>
+    <tr><td><code>autotrade_skill_web_product_ui_implementation_v0_1</code></td><td class="pass">作成済み・静的確認</td><td>API接続、accessible state、Playwright、外部I/O禁止、管理用hash禁止を定義。</td></tr>
+    <tr><td><code>AutoTrade_A172_WebProductUiEngineer_v0_1</code></td><td class="pass">作成済み・静的確認</td><td>固定model、責務境界、A171/A80との分離、fallback契約を定義。</td></tr>
+    <tr><td>ImplementationQuality登録</td><td class="pass">反映済み</td><td>A172とSkillをagents map/skillsへ追加。default_orchestratorは変更していない。</td></tr>
+  </tbody></table>
+  <p>runtime coordinatorはagent-thread limitで起動できなかったため、P5R-00Bはrootのfallback checklistで継続し、独立部品レビュー済みとは表現しない。A95の静的ポリシー確認はrootで実施する。</p>
 </main>
 </body>
 </html>

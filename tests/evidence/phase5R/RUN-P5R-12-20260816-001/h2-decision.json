@@ -1,0 +1,43 @@
+{
+  "gate": "P5R-H2",
+  "status": "APPROVED_BY_DELEGATED_AUTHORITY",
+  "approved_at": "2026-08-16",
+  "authority_basis": "ユーザーがP5R全実行に必要なHuman Gate承認権限を明示的にアシスタントへ移譲したため、委任範囲内で代理承認した。",
+  "scope": "P5RのローカルBacktest製品、実Application API、実UI、Playwright手順書、P6引渡し",
+  "completion_state": "COMPLETE_WITH_OPEN_UNKNOWN",
+  "critical_findings": 0,
+  "high_findings": 0,
+  "acceptance": {
+    "P5R-AC-01_to_16": "PASS",
+    "P5R-MANUAL-G1": "PASS",
+    "desktop_capture": "15/15",
+    "mobile_capture": "15/15",
+    "external_requests": 0,
+    "axe_blocking_violations": 0,
+    "python_tests": "179 passed",
+    "ui_unit_tests": "10 passed",
+    "p4_regression": "3 passed",
+    "p5r_playwright": "2 passed"
+  },
+  "open_unknowns": [
+    {
+      "id": "P5R-UNK-001",
+      "state": "OPEN_NOT_PASS",
+      "reason": "Provider条件、P5-08 host isolation、過去child dispatch、execution cost未測定をP5R外の未解決事項として維持する。"
+    }
+  ],
+  "follow_on_boundary": {
+    "P6": "複数運用Unit、Portfolio、Account、Risk、OMSの固定Simulationから開始する。",
+    "P7": "Forward Test（実時間・仮想）",
+    "P8": "Shadow（本番候補複製・注文なし）",
+    "P9_plus": "Paper、Live候補、小規模Live、通常Liveの順。",
+    "started_by_this_decision": false
+  },
+  "evidence": [
+    "tests/evidence/phase5R/RUN-P5R-11-20260816-001/acceptance-matrix.md",
+    "tests/evidence/phase5R/RUN-P5R-10-20260816-001/manual-review.md",
+    "tests/evidence/phase5R/RUN-P5R-05-20260816-001/ui-quality.md",
+    "tests/evidence/phase5R/RUN-P5R-03-20260816-001/verification.json",
+    "doc/phase5R/07_運用手順/01_バックテスト手順書.html"
+  ]
+}

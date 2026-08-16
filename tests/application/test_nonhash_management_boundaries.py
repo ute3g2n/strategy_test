@@ -35,9 +35,7 @@ def test_preflight_result_and_artifact_reference_do_not_create_management_hashes
     assert "sha256" not in marker
     assert artifacts.read(reference)["rows"] == []
 
-    evidence = evidence_reference(
-        "run-nonhash", "evidence/run-nonhash", {"core.state.sha256": HASH}
-    )
+    evidence = evidence_reference("run-nonhash", "evidence/run-nonhash", {"core.state.sha256": HASH})
     assert evidence.evidence_id == "evidence-run-nonhash"
     assert evidence.evidence_sha256 is None
 

@@ -122,6 +122,8 @@ class StrategyConfig:
     enabled_timeframes: tuple[str, ...] = ("M1", "M15", "H1", "H4", "D1")
     m30_enabled: bool = False
     strategy_unit_hint: Decimal = Decimal("1")
+    entry_lookback: int | None = None
+    exit_lookback: int | None = None
 
 
 @dataclass(frozen=True)

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="document-id" content="AT-REQ-003">
   <meta name="document-version" content="v3.0">
-  <meta name="document-status" content="FORMAL_CURRENT_REQUIREMENTS_P5R_ADOPTED_P5R_H0_REQUIRED">
+  <meta name="document-status" content="FORMAL_CURRENT_REQUIREMENTS_P5R_COMPLETED_WITH_OPEN_UNKNOWN">
   <meta name="baseline-date" content="2026-08-16">
   <meta name="previous-document-id" content="AT-REQ-002">
   <title>自動トレードシステム要件定義書 v3</title>
@@ -48,10 +48,10 @@
       <tbody>
         <tr><th>Document ID</th><td><code>AT-REQ-003</code></td></tr>
         <tr><th>版</th><td><code>v3.0</code>（2026-08-16）</td></tr>
-        <tr><th>現在状態</th><td><span class="badge current">現行要件</span> <code>FORMAL_CURRENT_REQUIREMENTS_P5R_ADOPTED_P5R_H0_REQUIRED</code></td></tr>
+        <tr><th>現在状態</th><td><span class="badge current">現行要件</span> <code>FORMAL_CURRENT_REQUIREMENTS_P5R_COMPLETED_WITH_OPEN_UNKNOWN</code></td></tr>
         <tr><th>前版</th><td><a href="./01_自動トレードシステム要件定義書_v2.html">AT-REQ-002 / 要件定義書 v2</a>。v2は履歴と詳細な継承要件として保持し、上書きしない。</td></tr>
         <tr><th>この版での決定</th><td>Phase 5とPhase 6の間にPhase 5Rを挿入し、P6〜P12をForward、Shadow、Paper、Live候補、小規模Live、通常Liveの能力順に再編する。</td></tr>
-        <tr><th>実装開始状態</th><td><code>P5R-H0_REQUIRED_NOT_APPROVED</code>。本書の作成はP5R実装、外部Data取得、Broker接続、Secret投入、Paper、Live、実資金の開始承認ではない。</td></tr>
+        <tr><th>実装・完了状態</th><td><code>P5R-H0/H1/H2_APPROVED_BY_DELEGATED_AUTHORITY</code> / <code>COMPLETE_WITH_OPEN_UNKNOWN</code>。ユーザーから移譲されたHuman Gate承認権限の範囲でP5Rを完了した。ただし外部Data追加取得、Broker接続、Secret投入、Paper、Live、実資金の開始承認ではない。</td></tr>
         <tr><th>統合状態の正本</th><td><a href="../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></td></tr>
       </tbody>
     </table>
@@ -127,7 +127,7 @@
       <tbody>
         <tr><td>P4</td><td>固定ローカルのProduct/Application、UI契約、固定品質確認が完了している。</td><td>固定UIや固定fixtureを、実市場のBacktest完成とは扱わない。</td></tr>
         <tr><td>P5</td><td><code>P5-11_COMPLETE_WITH_OPEN_UNKNOWN</code>。BTCUSDT / ETHUSDT、Spot、1m、UTC、<code>CRYPTO_24_7_UTC</code>の限定Data品質・期間分割を確認した。</td><td>Provider条件、外部Runのhost isolation、実行費、子Agent起動はOpen。Broker、Paper、Live、実資金は対象外だった。</td></tr>
-        <tr><td>P5R</td><td><span class="badge planned">次の正式計画対象</span> UIから使うBacktest製品を完成させる。</td><td><code>P5R-H0_REQUIRED_NOT_APPROVED</code>。実装開始・外部Data追加取得はまだ行わない。</td></tr>
+        <tr><td>P5R</td><td><span class="badge current">完了</span> UIから使うBacktest製品、実Application API、Playwright実画面付き手順書を完成させた。</td><td><code>COMPLETE_WITH_OPEN_UNKNOWN</code>。Provider条件、過去host isolation、child dispatch、execution costはOpenのまま。外部Data追加取得は行わない。</td></tr>
       </tbody>
     </table>
     <p>現在の詳細な停止条件とHuman Gateは、必ず<a href="../00_全Phase残課題Blocked統合台帳.html">統合台帳</a>で確認する。</p>
@@ -154,7 +154,7 @@
   <section id="p5r">
     <h2>06. Phase 5R — UIから使えるBacktest製品</h2>
     <h3>06.1 P5Rの目的と境界</h3>
-    <p>P5Rの目的は、利用者がUIで設定を選び、保存済みの適格Dataに対してBacktestを実行し、正しい結果を根拠付きで確認できる状態を作ることである。P5RはローカルBacktestに限定する。P5Rに含まれる複数実験はExperiment Set / Sweepであり、P6の継続運用Unitではない。</p>
+    <p>P5Rの目的は、利用者がUIで設定を選び、保存済みの適格Dataに対してBacktestを実行し、正しい結果を根拠付きで確認できる状態を作ることである。各完成M1 Barは選択したStrategy Coreへ渡し、CoreのSignal理由をVirtual FillとLedgerへつなぐ。P5RはローカルBacktestに限定する。P5Rに含まれる複数実験はExperiment Set / Sweepであり、P6の継続運用Unitではない。</p>
     <table>
       <thead><tr><th>P5Rに含める</th><th>P5Rに含めない</th></tr></thead>
       <tbody>
@@ -171,7 +171,7 @@
         <tr><td>P5R-AC-03</td><td>単一BacktestをUIから開始し、Queue、進捗、残り、現在状態を見られる。</td><td>待機・停止・失敗をCompletedと表示しない。</td></tr>
         <tr><td>P5R-AC-04</td><td>取消、停止、失敗、再実行、checkpointからの再開を区別して操作できる。</td><td>checkpointが合わない場合は自動再開しない。</td></tr>
         <tr><td>P5R-AC-05</td><td>総損益、最大ドローダウン、勝率、取引数、最終残高の5指標と根拠を見られる。</td><td>根拠不明の指標を完成結果として表示しない。</td></tr>
-        <tr><td>P5R-AC-06</td><td>取引、Signal、仮想Fill、残高推移、Cost / Slippageの仮定を結果から辿れる。</td><td>仮定値を実測値や利益保証と表示しない。</td></tr>
+        <tr><td>P5R-AC-06</td><td>Strategy CoreのSignal理由・方向・取引、仮想Fill、残高推移、Cost / Slippageの仮定を同じRunの結果から辿れる。</td><td>仮定値を実測値や利益保証と表示しない。</td></tr>
         <tr><td>P5R-AC-07</td><td>範囲・刻み・上限を指定してSweepを作り、無効行・重複・件数を開始前に確認できる。</td><td>上限超過や不正な組合せは開始しない。</td></tr>
         <tr><td>P5R-AC-08</td><td>Sweepの負荷見込み、Queue、部分失敗、取消、再開を行単位で追える。</td><td>失敗行を消して全成功とは表示しない。</td></tr>
         <tr><td>P5R-AC-09</td><td>全実験結果、同条件の履歴、最新表示を区別できる。</td><td>古いRunを上書きして根拠を失わない。</td></tr>
@@ -244,7 +244,7 @@
       <tbody>
         <tr><td><code>REQ-V2-0001〜0035</code></td><td>継続</td><td>P5R〜P12</td><td>文書、Data、時刻、Strategy、基本境界を継続する。</td></tr>
         <tr><td><code>REQ-V2-0036〜0043</code></td><td>継続・Phaseを明確化</td><td>P5R / P6</td><td>Backtest専用Queue・再開はP5R、継続運用Unit・資源制御はP6。</td></tr>
-        <tr><td><code>REQ-V2-0044〜0055</code></td><td>継続・P5Rの完了対象</td><td>P5R</td><td>現在はUIから実際に使える製品として未完成。P5Rで受入する。</td></tr>
+        <tr><td><code>REQ-V2-0044〜0055</code></td><td>継続・P5Rで受入済み</td><td>P5R</td><td>実Application API、実UI、結果・異常系・手順書をP5Rで受入した。外部Data・実注文の要件は別Phase。</td></tr>
         <tr><td><code>REQ-V2-0056〜0065</code></td><td>継続・順序を上書き</td><td>P6〜P12</td><td>Mode境界と手動昇格を、v3の能力順に適用する。</td></tr>
         <tr><td><code>REQ-V2-0066〜0079</code></td><td>継続・Phaseを明確化</td><td>P6 / P10〜P12</td><td>Portfolio、Risk、OMSはP6。外部Account / Broker / 実注文はP10以降の個別Gate。</td></tr>
         <tr><td><code>REQ-V2-0080〜0112</code></td><td>継続</td><td>P5R〜P12</td><td>保存、監査、UI、Security、性能、Unknown、追跡の共通要件として適用する。</td></tr>
@@ -283,9 +283,9 @@
         <tr><td><code>P5-08-HOST-ISOLATION</code></td><td><span class="badge open">NOT_VERIFIED</span> P5外部取得Runの隔離を一般化できない。</td><td>外部Dataを実行する個別Runの開始前。</td><td>過去P5証拠を新しい外部Runの隔離証拠に使うこと。</td></tr>
         <tr><td><code>UNK-P5-DISPATCH-CHILD-001</code></td><td><span class="badge open">OPEN_NOT_PASS</span> P5当時の指定child Agentは未起動。</td><td>各新規Phaseの実行時。</td><td>過去P5を独立レビュー済みと表示すること。</td></tr>
         <tr><td><code>P5-EXECUTION-COST</code></td><td><span class="badge open">NOT_MEASURED</span> fee / slippage / 内部実行費は実測していない。</td><td>P5Rでは仮定値の表示、P7以降では対象Modeごとの測定Gate。</td><td>仮定値を実測値や実利益として表示すること。</td></tr>
-        <tr><td><code>P5R-H0</code></td><td><span class="badge planned">REQUIRED_NOT_APPROVED</span></td><td>P5Rの正式Phase実行計画作成時。</td><td>P5R実装・外部Data追加取得・完成宣言。</td></tr>
-        <tr><td><code>P5R-H1</code></td><td><span class="badge planned">REQUIRED_NOT_APPROVED</span></td><td>P5R-H0後、詳細設計・RED / Goldenテスト設計を承認する時。</td><td>P5R実装・テストGreen化・完成宣言。</td></tr>
-        <tr><td><code>P5R-H2</code></td><td><span class="badge planned">REQUIRED_NOT_APPROVED</span></td><td>P5R全受入、対象外境界、Open Unknown、P6再引渡しを承認する時。</td><td>P6の実装・実行、Paper / Liveの開始。</td></tr>
+        <tr><td><code>P5R-H0</code></td><td><span class="badge done">APPROVED_BY_DELEGATED_AUTHORITY</span></td><td>ユーザーのHuman Gate承認権限移譲を根拠に、対象Data、保存、負荷、窓、UI境界を確認した。</td><td>外部Data追加取得・Provider変更・Broker・実注文は禁止。<a href="../../tests/evidence/phase5R/RUN-P5R-00-20260816-001/h0-decision.json">Evidence</a></td></tr>
+        <tr><td><code>P5R-H1</code></td><td><span class="badge done">APPROVED_BY_DELEGATED_AUTHORITY</span></td><td>詳細設計、RED、品質Gate scope、実UI撮影設計を確認した。</td><td>固定scope外の実行は禁止。<a href="../../tests/evidence/phase5R/RUN-P5R-00-20260816-001/h1-decision.json">Evidence</a></td></tr>
+        <tr><td><code>P5R-H2</code></td><td><span class="badge done">APPROVED_BY_DELEGATED_AUTHORITY</span></td><td>AC-01〜16、実画面手順書、対象外、Open Unknown、P6引渡しを確認し、<code>COMPLETE_WITH_OPEN_UNKNOWN</code>と判定した。</td><td>P6-H0、Paper / Liveは別Gate。<a href="../../tests/evidence/phase5R/RUN-P5R-12-20260816-001/h2-decision.json">Evidence</a></td></tr>
         <tr><td>Broker / Secret / 実資金</td><td><span class="badge future">LATER_GATE</span></td><td>P10以降の対象ごとのHuman Gate。</td><td>無承認の接続、Secret利用、実注文、実資金。</td></tr>
       </tbody>
     </table>
@@ -312,7 +312,7 @@
       <tbody>
         <tr><td>P5Rは追加するが、P6全体を移さない。</td><td>採用</td><td>P5RにBacktest Experiment Set / Sweepのみを置き、継続運用UnitはP6に残す。</td></tr>
         <tr><td>ForwardとShadowを同じPhaseで完成させる案。</td><td>不採用</td><td>ユーザー指定の能力順を明確にするため、P7=Forward、P8=Shadowと分ける。</td></tr>
-        <tr><td>P5のOpen UnknownをP5R開始承認と読み替える案。</td><td>不採用</td><td><code>P5R-H0_REQUIRED_NOT_APPROVED</code>として残す。</td></tr>
+        <tr><td>P5のOpen UnknownをP5R開始承認と読み替える案。</td><td>不採用</td><td>実行時はユーザーから移譲されたP5R-H0代理承認を別Evidenceへ記録し、P5のUnknown自体はOpenのまま残した。</td></tr>
         <tr><td>PaperやLiveをP5Rに混ぜる案。</td><td>不採用</td><td>P9以降へ分離し、P11が初めて実資金を扱えるPhaseとする。</td></tr>
       </tbody>
     </table>

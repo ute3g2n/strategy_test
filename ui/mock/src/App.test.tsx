@@ -82,17 +82,17 @@ describe('RQU-UI-07 common UI skeleton', () => {
 })
 
 describe('RQU-UI-08 core operation journeys', () => {
-  it('keeps exhaustive Backtest disabled until Risk is entered and then moves to progress', async () => {
+  it('exposes the real P5R Backtest tabs and fail-closed start condition', async () => {
     const user = userEvent.setup()
     render(<App />)
 
     await user.click(screen.getByTestId('nav-SCREEN-08'))
-    await user.click(screen.getByRole('tab', { name: '網羅検証' }))
-    expect(screen.getByRole('button', { name: '開始' })).toBeDisabled()
-    await user.type(screen.getByLabelText('Risk'), '1.0')
-    expect(screen.getByRole('button', { name: '開始' })).toBeEnabled()
-    await user.click(screen.getByRole('button', { name: '開始' }))
-    expect(screen.getByTestId('screen-SCREEN-09')).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Single Run' })).toBeInTheDocument()
+    await user.click(screen.getByRole('tab', { name: 'Sweep' }))
+    expect(screen.getByRole('button', { name: 'Sweep開始' })).toBeEnabled()
+    await user.click(screen.getByRole('tab', { name: 'Single Run' }))
+    expect(screen.getByRole('button', { name: 'Single Run開始' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Preflight実行' })).toBeEnabled()
   })
 
   it('prevents a duplicate operation unit and saves a distinct combination', async () => {

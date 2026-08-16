@@ -1,0 +1,174 @@
+{
+  "run_id": "RUN-P5R-09-20260816-001",
+  "project": "chromium-mobile",
+  "test": "p5r-backtest.spec.ts",
+  "external_requests": [],
+  "axe_blocking_violations": [],
+  "captures": [
+    {
+      "manual_id": "BT-MAN-01",
+      "description": "P5R範囲とBacktest条件画面を開く",
+      "project": "chromium-mobile",
+      "screenshot": "tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-mobile/BT-MAN-01.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "assertion_before_screenshot": "Playwright DOM assertions passed"
+    },
+    {
+      "manual_id": "BT-MAN-02",
+      "description": "入力・Data範囲・UTC・品質・先読みのPreflight PASS",
+      "project": "chromium-mobile",
+      "screenshot": "tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-mobile/BT-MAN-02.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "assertion_before_screenshot": "Playwright DOM assertions passed"
+    },
+    {
+      "manual_id": "BT-MAN-03",
+      "description": "UTC表記がない入力を停止する",
+      "project": "chromium-mobile",
+      "screenshot": "tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-mobile/BT-MAN-03.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "assertion_before_screenshot": "Playwright DOM assertions passed"
+    },
+    {
+      "manual_id": "BT-MAN-04",
+      "description": "Single Runを開始し、実Run IDと進捗を確認する",
+      "project": "chromium-mobile",
+      "screenshot": "tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-mobile/BT-MAN-04.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "assertion_before_screenshot": "Playwright DOM assertions passed"
+    },
+    {
+      "manual_id": "BT-MAN-05",
+      "description": "5指標と費用想定を確認する",
+      "project": "chromium-mobile",
+      "screenshot": "tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-mobile/BT-MAN-05.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "assertion_before_screenshot": "Playwright DOM assertions passed"
+    },
+    {
+      "manual_id": "BT-MAN-06",
+      "description": "Signal・Virtual Fill・残高LedgerとData由来を確認する",
+      "project": "chromium-mobile",
+      "screenshot": "tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-mobile/BT-MAN-06.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "assertion_before_screenshot": "Playwright DOM assertions passed"
+    },
+    {
+      "manual_id": "BT-MAN-07",
+      "description": "実行中の取消とチェックポイント保存を確認する",
+      "project": "chromium-mobile",
+      "screenshot": "tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-mobile/BT-MAN-07.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "assertion_before_screenshot": "Playwright DOM assertions passed"
+    },
+    {
+      "manual_id": "BT-MAN-08",
+      "description": "チェックポイントから再開し、完了結果へ戻る",
+      "project": "chromium-mobile",
+      "screenshot": "tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-mobile/BT-MAN-08.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "assertion_before_screenshot": "Playwright DOM assertions passed"
+    },
+    {
+      "manual_id": "BT-MAN-09",
+      "description": "Sweepの親Job・子Run・部分失敗を確認する",
+      "project": "chromium-mobile",
+      "screenshot": "tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-mobile/BT-MAN-09.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "assertion_before_screenshot": "Playwright DOM assertions passed"
+    },
+    {
+      "manual_id": "BT-MAN-10",
+      "description": "Run履歴と状態を確認する",
+      "project": "chromium-mobile",
+      "screenshot": "tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-mobile/BT-MAN-10.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "assertion_before_screenshot": "Playwright DOM assertions passed"
+    },
+    {
+      "manual_id": "BT-MAN-11",
+      "description": "条件の異なる2つのRunを比較する",
+      "project": "chromium-mobile",
+      "screenshot": "tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-mobile/BT-MAN-11.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "assertion_before_screenshot": "Playwright DOM assertions passed"
+    },
+    {
+      "manual_id": "BT-MAN-12",
+      "description": "結果LedgerをCSV Jobにしてダウンロード可能にする",
+      "project": "chromium-mobile",
+      "screenshot": "tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-mobile/BT-MAN-12.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "assertion_before_screenshot": "Playwright DOM assertions passed"
+    },
+    {
+      "manual_id": "BT-MAN-13",
+      "description": "確定前Holdoutを停止する",
+      "project": "chromium-mobile",
+      "screenshot": "tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-mobile/BT-MAN-13.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "assertion_before_screenshot": "Playwright DOM assertions passed"
+    },
+    {
+      "manual_id": "BT-MAN-14",
+      "description": "確定後Holdoutを一度だけ評価する",
+      "project": "chromium-mobile",
+      "screenshot": "tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-mobile/BT-MAN-14.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "assertion_before_screenshot": "Playwright DOM assertions passed"
+    },
+    {
+      "manual_id": "BT-MAN-15",
+      "description": "3窓のWalk-forwardと未来参照なしを確認する",
+      "project": "chromium-mobile",
+      "screenshot": "tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-mobile/BT-MAN-15.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "assertion_before_screenshot": "Playwright DOM assertions passed"
+    }
+  ]
+}

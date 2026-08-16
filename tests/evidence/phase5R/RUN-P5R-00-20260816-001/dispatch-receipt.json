@@ -1,0 +1,64 @@
+{
+  "run_id": "RUN-P5R-00-20260816-001",
+  "runtime_backend": "multi_agent_v1",
+  "dispatch_mode": "ORCHESTRATOR_SPAWNED_COORDINATOR_PLUS_AGENT_LIMIT_FALLBACK",
+  "orchestrator": {
+    "name": "AutoTradePhasePlanning_Orchestrator_v0_1",
+    "json_path": ".codex/orchestrators/AutoTradePhasePlanning_Orchestrator_v0_1.json",
+    "model": "gpt-5.6-terra",
+    "agent_id": "01a008ba-dddf-74e1-af18-2407e5381e7a",
+    "accepted_status": "accepted",
+    "completion_status": "completed",
+    "independent": false,
+    "review_mode": "COORDINATOR_OUTPUT_INTEGRATED_BY_ROOT"
+  },
+  "required_agents": [
+    {
+      "name": "AutoTrade_A05_PhaseExecutionPlanner_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A05_PhaseExecutionPlanner_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "skill": "autotrade_skill_phase_execution_planning_v0_1",
+      "agent_id": "N/A",
+      "accepted_status": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+      "completion_status": "not_spawned_agent_thread_limit",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A10_RequirementsCurator_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "skill": "autotrade_skill_source_reader_v0_1",
+      "agent_id": "N/A",
+      "accepted_status": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+      "completion_status": "not_spawned_agent_thread_limit",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A90_DesignReviewer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "skill": "autotrade_skill_design_review_v0_1",
+      "agent_id": "N/A",
+      "accepted_status": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+      "completion_status": "not_spawned_agent_thread_limit",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "low",
+      "skill": "autotrade_skill_protected_hash_policy_guard_v0_1",
+      "agent_id": "N/A",
+      "accepted_status": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+      "completion_status": "not_spawned_agent_thread_limit",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    }
+  ],
+  "fallback_reason": "The multi-agent runtime accepted the coordinator, but the workspace agent-thread limit rejected the four additional named-agent spawn attempts. The root applied each named responsibility as a self-review fallback and did not claim independent completion.",
+  "external_io": "not_used"
+}

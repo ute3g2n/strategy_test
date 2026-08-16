@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Button as BaseButton, Dialog as BaseDialog } from '@base-ui/react'
 import { allScreens, ConfirmDialog, EmptyState, ErrorState, HelpTip, MetricCard, navGroups, ProgressBar, seedData, StateAlert, StateBadge, type ScreenDefinition, type UiState } from './ui'
 import { p4ScreenContracts, type P4ScreenContract } from './p4Contract'
+import { P5RBacktestScreen } from './P5RBacktestScreen'
 import './App.css'
 
 function BaseDialogPilot() {
@@ -463,7 +464,7 @@ function App() {
           <div className="content-heading"><div><p className="eyebrow">RQU-UI-07 / 固定Seed 20260811 / SCREEN-ID追跡</p><h1>{activeScreen.title}</h1></div><div className="content-heading-actions"><span className="small-label">モック状態</span><StateBadge state={killed ? 'STOPPED' : demoState} compact /></div></div>
           <P4ContractStrip screenId={activeScreen.id} contract={p4ScreenContracts[activeScreen.id]} />
           {killed && <StateAlert state="STOPPED" title="全体Kill Switchが有効です">新規Signal・注文は停止しています。データ・注文・Positionの照合が終わるまで再開できません。</StateAlert>}
-          {activeScreen.id === 'SCREEN-02' ? <HomeScreen onKill={() => setKillOpen(true)} demoState={demoState} onStateChange={setDemoState} /> : coreScreenIds.includes(activeScreen.id) ? <CoreScreen screen={activeScreen} demoState={demoState} onStateChange={setDemoState} onNavigate={navigate} /> : p4BoundaryScreenIds.includes(activeScreen.id) || boundaryOnlyScreenIds.includes(activeScreen.id) ? <P4BoundaryScreen screen={activeScreen} contract={p4ScreenContracts[activeScreen.id]} demoState={demoState} onStateChange={setDemoState} /> : safetyScreenIds.includes(activeScreen.id) ? <SafetyScreen screen={activeScreen} demoState={demoState} onStateChange={setDemoState} onNavigate={navigate} /> : <ScreenPlaceholder screen={activeScreen} demoState={demoState} onStateChange={setDemoState} />}
+          {activeScreen.id === 'SCREEN-02' ? <HomeScreen onKill={() => setKillOpen(true)} demoState={demoState} onStateChange={setDemoState} /> : activeScreen.id === 'SCREEN-08' ? <P5RBacktestScreen screen={activeScreen} demoState={demoState} onStateChange={setDemoState} /> : coreScreenIds.includes(activeScreen.id) ? <CoreScreen screen={activeScreen} demoState={demoState} onStateChange={setDemoState} onNavigate={navigate} /> : p4BoundaryScreenIds.includes(activeScreen.id) || boundaryOnlyScreenIds.includes(activeScreen.id) ? <P4BoundaryScreen screen={activeScreen} contract={p4ScreenContracts[activeScreen.id]} demoState={demoState} onStateChange={setDemoState} /> : safetyScreenIds.includes(activeScreen.id) ? <SafetyScreen screen={activeScreen} demoState={demoState} onStateChange={setDemoState} onNavigate={navigate} /> : <ScreenPlaceholder screen={activeScreen} demoState={demoState} onStateChange={setDemoState} />}
         </main>
       </div>
       <ConfirmDialog open={killOpen} onOpenChange={setKillOpen} title="全体Kill Switchを実行しますか？" description="全運用単位の新規Signal・注文を停止します。解除には照合と運用者の確認が必要です。" confirmLabel="停止する" cancelLabel="取消" danger onConfirm={() => { setKilled(true); setKillOpen(false); setDemoState('STOPPED') }} />

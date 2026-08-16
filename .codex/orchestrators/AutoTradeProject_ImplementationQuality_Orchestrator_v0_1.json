@@ -63,6 +63,7 @@
     "A140": { "file": ".codex/agents/AutoTrade_A140_DebugEngineer_v0_1.json", "primary_skill": "autotrade_skill_debug_recovery_v0_1" },
     "A150": { "file": ".codex/agents/AutoTrade_A150_PythonCodeReviewer_v0_1.json", "primary_skill": "autotrade_skill_python_code_review_v0_1" },
     "A160": { "file": ".codex/agents/AutoTrade_A160_TradingSecurityReviewer_v0_1.json", "primary_skill": "autotrade_skill_python_code_review_v0_1" },
+    "A172": { "file": ".codex/agents/AutoTrade_A172_WebProductUiEngineer_v0_1.json", "primary_skill": "autotrade_skill_web_product_ui_implementation_v0_1" },
     "A95": { "file": ".codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json", "primary_skill": "autotrade_skill_protected_hash_policy_guard_v0_1" }
   },
   "skills": [
@@ -73,6 +74,7 @@
     "autotrade_skill_orchestration_v0_1",
     "autotrade_skill_test_strategy_v0_1",
     "autotrade_skill_ops_security_v0_1",
+    "autotrade_skill_web_product_ui_implementation_v0_1",
     "autotrade_skill_protected_hash_policy_guard_v0_1"
   ],
   "workflow_policy": [

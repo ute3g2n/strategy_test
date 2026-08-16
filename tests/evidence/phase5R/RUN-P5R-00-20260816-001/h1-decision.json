@@ -1,0 +1,10 @@
+{
+  "gate": "P5R-H1",
+  "status": "APPROVED_BY_DELEGATED_AUTHORITY",
+  "decision_at": "2026-08-16T00:00:00Z",
+  "authority_basis": "User message on 2026-08-16 transferred all Human Gate approval authority required to complete P5R.",
+  "approved_artifacts": ["doc/phase5R/02_実装詳細設計/01_P5R実装詳細設計書.html","doc/phase5R/02_実装詳細設計/02_P5R品質Gate_RunManifest設計書.html","tests/evidence/phase5R/RUN-P5R-00-20260816-001/p5r-01-traceability.md","tests/evidence/phase5R/RUN-P5R-00-20260816-001/p5r-02a-quality-scope-proposal.md"],
+  "approved_next_steps": ["P5R-03A", "P5R-03", "P5R-04", "P5R-05", "P5R-06", "P5R-07", "P5R-08", "P5R-09", "P5R-10", "P5R-11", "P5R-12"],
+  "conditions": ["fixture-only", "no_external_io", "unknown_not_pass", "no_broker_or_real_funds", "H2_required_before_P6"],
+  "open_unknowns": ["P5R-UNK-001"]
+}

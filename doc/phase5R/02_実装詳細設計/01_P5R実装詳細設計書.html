@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>P5R 実装詳細設計書</title>
+<style>body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.7;color:#182230;background:#f5f7fb;margin:0}main{max-width:1180px;margin:0 auto;background:white;padding:28px 42px}h1,h2{color:#173b68;border-bottom:2px solid #d8e4f2;padding-bottom:6px}h3{color:#245a87}table{border-collapse:collapse;width:100%;margin:12px 0 24px}th,td{border:1px solid #cfd9e5;padding:8px;vertical-align:top}th{background:#eaf2fb;text-align:left}code{background:#eef2f6;padding:2px 5px;border-radius:3px}.note{background:#fff7df;border-left:5px solid #e4a11b;padding:12px 16px}.good{color:#146b3a;font-weight:700}.open{color:#a14a00;font-weight:700}.mermaid{background:#f8fbff;padding:16px;overflow:auto}.small{font-size:.9em;color:#566575}</style></head>
+<body><main>
+<p class="small">文書ID: P5R-DD-01 / 版: v0.1 / 2026-08-16 / 状態: H2代理承認済み・P5R実装／検証済み</p>
+<h1>P5R バックテスト製品 実装詳細設計書</h1>
+<div class="note"><strong>やさしい要約：</strong>この設計は、画面の「開始」ボタンを押したら、画面が勝手に数字を作るのではなく、PythonのApplication APIが本物のローカルP5 Dataを読み、Backtestを計算し、結果と失敗理由を画面へ返す道筋を決める。外部Data、Broker、実注文は扱わない。</div>
+
+<h2>1. 目的・範囲・追跡</h2>
+<p>対象はP5R-AC-01〜16。対象Dataは既存ローカルP5 EvidenceのBTCUSDT/ETHUSDT、Spot、1m、UTC、半開区間[2025-02-24T00:00:00Z, 2026-08-01T00:00:00Z)だけである。成果物は実Application API、実UI、品質Evidence、Playwright画像付き手順書である。</p>
+<table><tr><th>ID</th><th>意味</th><th>この設計での扱い</th></tr><tr><td>REQ/P5R-AC-01〜16</td><td>受入条件</td><td>各API、画面、テスト、手順IDへ追跡する。</td></tr><tr><td>DEC-P5R-01</td><td>UIは計算しない</td><td>APIの結果DTOだけを画面へ表示する。</td></tr><tr><td>DEC-P5R-02</td><td>ローカルfixture-only</td><td>外部通信を禁止し、Data Adapterは読み取り専用にする。</td></tr><tr><td>DEC-P5R-03</td><td>fee/slippageは仮定値</td><td>実測市場コストや利益保証と表示しない。</td></tr><tr><td>UNK-P5R-001</td><td>Provider条件等</td><td>OPEN_NOT_PASSのまま保持する。</td></tr></table>
+
+<h2>2. ドメイン概要</h2>
+<p>Backtestは、過去の完成したローソク足を一つずつ「時間順に再生」し、そのとき出るSignal、仮想Fill、残高を記録する実験である。Runは一回の実験、Sweepは条件を少しずつ変えたRunの束、CSV Jobは結果表をファイルにする仕事、Holdoutは最後まで隠す確認用期間、Walk-forwardは時間をずらした複数の窓で同じ実験を繰り返す仕組みである。</p>
+
+<h2>3. ファイル構成</h2>
+<pre>src/autotrade/application/
+  backtest_product.py       # P5RのData Adapter、Run/Sweep/CSV/WFサービス
+  http_server.py             # 型付きApplication APIのローカルHTTP入口
+src/autotrade/backtest/      # 既存Core。P5Rは契約を壊さない
+scripts/phase5r/
+  backtest_api_server.py     # Playwright用のローカル起動入口
+ui/mock/src/
+  backtestApi.ts             # API DTOとfetch境界
+  App.tsx/App.css             # 実Backtest画面
+ui/mock/tests/
+  p5r-backtest.spec.ts       # BT-MAN操作、assert、PNG capture
+tests/application/           # API/状態/計算のpytest
+tests/evidence/phase5R/      # Run証跡。画像の作業用保存先
+doc/phase5R/07_運用手順/     # 採用済みPNGを置くHTML手順書</pre>
+
+<h2>4. モジュール構造</h2>
+<pre class="mermaid">flowchart LR
+  UI[React Backtest UI] -->|JSON Request/Response| API[Local Application HTTP API]
+  API -->|typed command| SERVICE[P5R Backtest Product Service]
+  SERVICE -->|read-only bars| DATA[P5 local Data Adapter]
+  SERVICE -->|validation/trace| CORE[Existing Backtest Core boundary]
+  SERVICE -->|Run/Job/Result DTO| STORE[Local Result Store]
+  STORE -->|summary/rows/csv| API
+  API -->|state/metrics/reasons| UI</pre>
+<table><tr><th>送る部品</th><th>受け取る部品</th><th>データ</th><th>受け取り側の用途・停止条件</th></tr><tr><td>UI</td><td>API</td><td>symbol, timeframe, UTC期間, strategy, parameters</td><td>型・単位・許可範囲を検査。不正ならRunを作らない。</td></tr><tr><td>API</td><td>Service</td><td>validated command</td><td>外部Data/Secretがないことを確認する。</td></tr><tr><td>Service</td><td>Data Adapter</td><td>許可された相対fixture識別子</td><td>パス脱出、対象外銘柄、品質不良で停止する。</td></tr><tr><td>Service</td><td>Core boundary</td><td>時系列の完成Barと実験設定</td><td>Core停止結果をFAILED/STOPPEDとして保存する。</td></tr><tr><td>Service</td><td>UI</td><td>RunView, MetricView, LedgerRow, FailureView</td><td>UIは表示だけを行い、DTO欠落時は未完了表示にする。</td></tr></table>
+
+<h2>5. API入出力・状態・冪等性</h2>
+<table><tr><th>Endpoint</th><th>入力</th><th>成功出力</th><th>失敗/停止</th><th>冪等性</th></tr><tr><td><code>POST /api/backtest/preflight</code></td><td>BacktestSpec</td><td>checks[]</td><td>422/403、理由付き</td><td>読取のみ</td></tr><tr><td><code>POST /api/backtest/runs</code></td><td>BacktestSpec</td><td>RunView QUEUED</td><td>範囲/型/fixture拒否</td><td>client_request_id単位</td></tr><tr><td><code>GET /api/backtest/runs/:id</code></td><td>run_id</td><td>状態、進捗、metrics、provenance</td><td>404</td><td>読取のみ</td></tr><tr><td><code>POST /api/backtest/runs/:id/cancel</code></td><td>reason</td><td>CANCELLED + checkpoint</td><td>状態不一致409</td><td>二重取消は同じ状態</td></tr><tr><td><code>POST /api/backtest/runs/:id/resume</code></td><td>checkpoint_id</td><td>QUEUED/RUNNING</td><td>不一致423</td><td>同checkpoint一回</td></tr><tr><td><code>POST /api/backtest/sweeps</code></td><td>base + candidates</td><td>parent/children</td><td>重複/上限/負荷拒否</td><td>request id単位</td></tr><tr><td><code>POST /api/backtest/csv-jobs</code></td><td>run_id, columns</td><td>JobView</td><td>結果未完了/列不正</td><td>request id単位</td></tr><tr><td><code>POST /api/backtest/holdout</code></td><td>phase</td><td>boundary/metrics</td><td>EARLY_HOLDOUT_ACCESS</td><td>finalized後一回</td></tr><tr><td><code>POST /api/backtest/walk-forward</code></td><td>windows</td><td>window別Run/集計</td><td>未来/重複/隙間拒否</td><td>request id単位</td></tr></table>
+<p>状態はDRAFT → PREFLIGHT_PASS → QUEUED → RUNNING → SUCCEEDED/FAILED/CANCELLED/RECOVERY_REQUIREDである。Sweepは親の下にchild状態を持ち、一件の失敗を全体成功へ変換しない。</p>
+
+<h2>6. 計算・保存・証跡</h2>
+<p>指標は同一Runのledgerから計算する。総損益は最終評価残高−初期残高、最大DDは残高の過去最高からの最大下落、勝率は確定した売買組のうち利益が正の割合、取引数は仮想Fill数、最終残高は最終時点の現金＋保有評価額である。fee/slippageは設定画面の仮定値として、各Fillに金額と計算根拠を残す。</p>
+<p><strong>Strategy Core接続：</strong>本体の各完成M1 Barは、選択した <code>TURTLE_SYS1</code> または <code>TURTLE_SYS2</code> とEntry/Exit期間を持つ <code>StrategyConfig</code> で、既存の <code>autotrade.strategy.service.process_closed_bars</code> に1本ずつ渡す。Coreが返した <code>SignalEvent</code> の理由・方向・Signal IDをLedgerへ保存し、そのSignalを仮想約定の入口／出口として同じRunの残高へ反映する。Coreの停止理由が返った場合はRunを成功にしない。<code>BacktestRunner</code> は入力Probeの契約検証にも使い、UIへはCore内部型を直接返さない。</p>
+<table><tr><th>保存物</th><th>場所</th><th>上書き</th><th>保持</th></tr><tr><td>Run/Job/操作履歴</td><td>ローカルApplication store</td><td>禁止</td><td>実行用目安30日。完了Evidenceは自動削除しない。</td></tr><tr><td>結果</td><td><code>results/&lt;run_id&gt;/</code>相対領域</td><td>禁止</td><td>Runと同じ保持目安。</td></tr><tr><td>CSV</td><td><code>csv/&lt;job_id&gt;/</code></td><td>禁止</td><td>Jobと同じ保持目安。</td></tr><tr><td>Evidence</td><td><code>tests/evidence/phase5R/&lt;RunId&gt;/</code></td><td>capture ID単位</td><td>手動整理。外部共有なし。</td></tr></table>
+
+<h2>7. 正常系・異常系フロー</h2>
+<pre class="mermaid">sequenceDiagram
+  participant U as UI
+  participant A as Application API
+  participant S as Service
+  participant D as Local Data
+  participant C as Core
+  U->>A: preflight(spec)
+  A->>S: validate typed spec
+  S->>D: read approved local bars
+  D-->>S: completed bars
+  S-->>A: checks PASS
+  U->>A: create/start Run
+  A->>S: queue Run
+  S->>C: replay bars in time order
+  C-->>S: signal/fill/trace or STOPPED
+  S-->>A: progress/result/failure
+  A-->>U: RunView + metrics + provenance</pre>
+<p>Data不良、未来参照、範囲外、checkpoint不一致、結果欠落、CSV失敗、holdout早期参照は、理由コードを返して次の処理へ進めない。Unknownは表示してPassにしない。</p>
+
+<h2>8. テストケース一覧</h2>
+<table><tr><th>ID</th><th>テスト概要</th><th>条件（入力値）</th><th>操作</th><th>期待結果</th><th>合否</th></tr>
+<tr><td>P5R-T-01</td><td>入力検査</td><td>symbol=対象外、UTCでない時刻、fee=-1</td><td>Preflight</td><td>PASSにならず理由を表示</td><td>AC-01/02</td></tr><tr><td>P5R-T-02</td><td>単一Run</td><td>BTCUSDT、短いUTC期間</td><td>開始→完了</td><td>実Runと5指標</td><td>AC-03/05/14</td></tr><tr><td>P5R-T-03</td><td>ledger</td><td>同Run</td><td>詳細を開く</td><td>Signal/Fill/残高/仮定値</td><td>AC-06</td></tr><tr><td>P5R-T-04</td><td>停止再開</td><td>実行中Run</td><td>Cancel→Resume</td><td>checkpointから再開、二重実行なし</td><td>AC-04</td></tr><tr><td>P5R-T-05</td><td>Sweep正常</td><td>3候補</td><td>展開→開始</td><td>child別状態と集計</td><td>AC-07/08</td></tr><tr><td>P5R-T-06</td><td>Sweep異常</td><td>重複/201件/forceFail</td><td>開始</td><td>開始拒否または部分失敗</td><td>AC-07/08</td></tr><tr><td>P5R-T-07</td><td>履歴比較</td><td>同条件/異条件Run</td><td>選択→比較</td><td>比較可能性と理由</td><td>AC-09/10</td></tr><tr><td>P5R-T-08</td><td>CSV</td><td>完了Run</td><td>全件CSV</td><td>非同期進捗/Download</td><td>AC-11</td></tr><tr><td>P5R-T-09</td><td>Holdout</td><td>未確定/確定</td><td>順に確認</td><td>早期拒否、一度だけ成功</td><td>AC-12</td></tr><tr><td>P5R-T-10</td><td>Walk-forward</td><td>3固定窓/重複窓</td><td>実行</td><td>窓別Run、未来/重複拒否</td><td>AC-13</td></tr><tr><td>P5R-T-11</td><td>PC/mobile</td><td>1280x900/390x844</td><td>全操作</td><td>操作可能、横スクロール、focus可視</td><td>AC-15</td></tr><tr><td>P5R-T-12</td><td>外部通信</td><td>全journey</td><td>monitor request</td><td>外部0件</td><td>AC-14/15</td></tr><tr><td>P5R-T-13</td><td>手順書追跡</td><td>BT-MAN-01〜15</td><td>assert後capture</td><td>PNG/registry/HTML対応</td><td>AC-16</td></tr><tr><td>P5R-T-14</td><td>対象外</td><td>Paper/Live/Broker</td><td>画面確認</td><td>未実装・禁止を明示</td><td>AC-16</td></tr><tr><td>P5R-T-15</td><td>Strategy選択伝播</td><td>TURTLE_SYS1／SYS2、Entry/Exit期間</td><td>2種類のRunを実行</td><td>Coreの選択SystemとSignal理由がRunへ反映</td><td>AC-05/06/14</td></tr></table>
+
+<h2>9. 手順書・スクリーンショット設計</h2>
+<p>Playwrightは実Application APIを操作し、可視名・role・labelでassertしてから同じページを撮影する。作業PNG/trace/reportはEvidenceへ置き、採用PNGだけを運用手順書assetsへコピーする。画像を手作業加工せず、fixture、source Run、AC、viewport、assert結果をcapture registryへ記録する。</p>
+<table><tr><th>手順ID</th><th>操作</th><th>状態</th><th>撮影</th></tr><tr><td>BT-MAN-01/02</td><td>画面を開く・fixture確認</td><td>READY</td><td>PC/mobile</td></tr><tr><td>BT-MAN-03/04</td><td>単一条件・Preflight</td><td>PASS/REJECT</td><td>PC/mobile</td></tr><tr><td>BT-MAN-05/06/07</td><td>開始・進捗・結果</td><td>RUNNING/SUCCEEDED</td><td>PC/mobile</td></tr><tr><td>BT-MAN-08/09</td><td>Sweep展開・異常</td><td>PARTIAL_FAILED</td><td>PC/mobile</td></tr><tr><td>BT-MAN-10/11</td><td>履歴・比較</td><td>COMPARABLE/INCOMPATIBLE</td><td>PC/mobile</td></tr><tr><td>BT-MAN-12</td><td>CSV</td><td>JOB_SUCCEEDED</td><td>PC/mobile</td></tr><tr><td>BT-MAN-13/14</td><td>Holdout/WF</td><td>REJECT/COMPLETED</td><td>PC/mobile</td></tr><tr><td>BT-MAN-15</td><td>対象外・Unknown</td><td>OPEN_NOT_PASS</td><td>PC/mobile</td></tr></table>
+
+<h2>10. レビュー履歴・引渡し条件</h2>
+<p>A82の詳細化、A91の初回レビュー、A90の横断/Red Team、A80/A81の改訂統合、A91の再レビューを実施し、Critical/High/UnknownをPass化しない。P5R-H1承認後に実装、P5R-H2で全AC・手順書・対象外・P6引渡しを判定する。</p>
+<p><a href="../../requirements/01_自動トレードシステム要件定義書_v3.html">要件v3</a> / <a href="../../../plan/Phase5R_実行計画書_v0.1_2026-08-16.md">P5R実行計画</a> / <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
+</main></body></html>

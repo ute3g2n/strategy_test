@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P5R-11 UI・手順書最終レビュー</title>
+<style>
+body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.75;max-width:1100px;margin:0 auto;padding:24px;color:#172033;background:#f6f8fb}main,section{background:#fff;border:1px solid #d9e1ec;border-radius:12px;padding:20px;margin:16px 0}h1{margin-top:0}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #cbd5e1;padding:8px;text-align:left;vertical-align:top}th{background:#eef3f8}.pass{color:#086b45;font-weight:700}.open{color:#8a4b00;font-weight:700}.note{background:#fff8e6;border-left:5px solid #d49300;padding:12px}.small{font-size:.9rem;color:#526174}code{background:#eef2f7;padding:2px 4px;border-radius:4px}
+</style>
+</head>
+<body>
+<main>
+<h1>P5R-11 UI・手順書最終レビュー</h1>
+<p class="small">文書ID: P5R-REV-UI-001 / 実施日: 2026-08-16 / 状態: <span class="pass">PASS</span></p>
+<p>このレビューは、P5RのBacktest UIが固定dummyではなく実Application API結果を表示し、Playwrightで確認した画面を手順書へ採用できるかを確認した記録である。</p>
+</main>
+<section>
+<h2>判定</h2>
+<table><tr><th>観点</th><th>結果</th><th>証拠</th></tr>
+<tr><td>P5R-AC-01〜16</td><td class="pass">PASS</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-11-20260816-001/acceptance-matrix.md">受入マトリクス</a></td></tr>
+<tr><td>手順書画像</td><td class="pass">Desktop 15/15、Mobile 15/15</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-10-20260816-001/manual-review.md">手順書レビューEvidence</a></td></tr>
+<tr><td>Accessibility</td><td class="pass">axe critical / serious 0</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-05-20260816-001/ui-quality.md">UI品質Evidence</a></td></tr>
+<tr><td>外部境界</td><td class="pass">外部request 0、Broker / Secret / Order 0</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-05-20260816-001/security-review.md">Security Review</a></td></tr>
+<tr><td>Critical / High</td><td class="pass">0 / 0</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-03-20260816-001/verification.json">固定4 Gate</a></td></tr>
+</table>
+</section>
+<section>
+<h2>レビューで確認した境界</h2>
+<ul>
+<li>UIは計算せず、型付きApplication APIのDTOだけを表示する。</li>
+<li>各完成M1 Barは既存Strategy Coreへ渡され、選択したTURTLE_SYS1／TURTLE_SYS2のSignal理由がLedgerへ反映される。</li>
+<li>比較は互換条件なら結果を表示し、Strategyや期間が違えば <code>CONDITION_MISMATCH</code> として自動採用しない。</li>
+<li>Holdoutは確定前に拒否し、確定後は一度だけ読む。</li>
+<li>画像はPlaywrightのDOM assert後に取得したものだけで、P4固定dummy画像や手作業画像を使わない。</li>
+<li><span class="open">P5R-UNK-001はOPEN_NOT_PASS</span>。未解決Unknownをレビュー合格へ変換していない。</li>
+</ul>
+<p class="note">このPASSはP5RローカルBacktest製品の受入レビューであり、P6の複数Unit実装、Forward、Shadow、Paper、Live、実資金の許可ではない。</p>
+</section>
+<section>
+<h2>次の判定</h2>
+<p><a href="01_P5R完了判定・P6引渡し.html">P5R完了判定・P6引渡し</a>へEvidenceを集約し、P5R-H2の委任範囲内判定を記録する。</p>
+</section>
+</body>
+</html>

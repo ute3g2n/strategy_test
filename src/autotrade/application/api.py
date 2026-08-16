@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import uuid
 from dataclasses import asdict
-from typing import Any
+from typing import Any, Literal
 
 from .contracts import (
     ApplicationResponse,
@@ -288,9 +288,7 @@ class ProductApplicationApi:
         column_set: tuple[str, ...],
         filter_payload_sha256: str,
     ) -> ApplicationResponse[dict[str, Any]]:
-        request_key = ":".join(
-            ("csv", source_run_id, ",".join(column_set), filter_payload_sha256)
-        )
+        request_key = ":".join(("csv", source_run_id, ",".join(column_set), filter_payload_sha256))
         return self.create_csv_job(
             CreateCsvJobCommand(
                 source_run_id,
@@ -402,7 +400,7 @@ def build_create_run_command(
     config: BacktestConfig,
     preflight_report: PreflightReport,
     *,
-    run_kind: str = "SINGLE_BACKTEST",
+    run_kind: Literal["SINGLE_BACKTEST", "SWEEP_CHILD"] = "SINGLE_BACKTEST",
 ) -> CreateRunCommand:
     if run_kind not in {"SINGLE_BACKTEST", "SWEEP_CHILD"}:
         raise ValueError("RUN_KIND_INVALID")

@@ -168,12 +168,12 @@ class ResultRow:
 class CommitMarker:
     schema_version: str
     run_id: str
-    manifest_sha256: str
-    result_sha256: str
+    manifest_sha256: str | None
+    result_sha256: str | None
     snapshot_sha256: str
     last_committed_event_id: str | None
     result_offset: int
-    commit_sha256: str
+    commit_sha256: str | None
 
 
 @dataclass(frozen=True)

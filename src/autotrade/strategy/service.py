@@ -264,6 +264,8 @@ def process_closed_bars(
             primary_system=active_config.primary_system,
             prior_campaign_outcome=campaign_outcome,
             pending_add=state.pending_add,
+            entry_lookback_override=active_config.entry_lookback,
+            exit_lookback_override=active_config.exit_lookback,
         )
         if decision is not None:
             candidates.append((bar, decision))
@@ -381,11 +383,13 @@ def _evaluate_turtle_decision(
     primary_system: str,
     prior_campaign_outcome: str,
     pending_add: bool,
+    entry_lookback_override: int | None = None,
+    exit_lookback_override: int | None = None,
 ) -> tuple[str, str] | None:
     """Apply stop, exit, add, then System 1/2 entry using prior bars only."""
     n_value = _wilder_n((*history, bar))
-    entry_lookback = 20 if primary_system == "SYS1" else 55
-    exit_lookback = 20 if primary_system == "SYS2" else 10
+    entry_lookback = entry_lookback_override or (20 if primary_system == "SYS1" else 55)
+    exit_lookback = exit_lookback_override or (20 if primary_system == "SYS2" else 10)
     if n_value is None or len(history) < entry_lookback:
         return None
     prior_exit = history[-exit_lookback:]

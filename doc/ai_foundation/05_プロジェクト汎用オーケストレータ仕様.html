@@ -211,6 +211,9 @@
       <tr><td>v0.7</td><td>2026-08-03</td><td>汎用オーケストレータのモデル割当を同期。</td><td>履歴</td></tr>
     </tbody>
   </table>
+  <h2>10. ImplementationQualityへのWeb製品UI拡張（P5R追加）</h2>
+  <p><code>AutoTradeProject_ImplementationQuality_Orchestrator_v0_1</code>へA172と<code>autotrade_skill_web_product_ui_implementation_v0_1</code>を登録した。新しいOrchestratorは作らない。Python実装・品質Agent、A171の独立UI QA、A80/A81の文書統合と責務を分離し、trusted scopeとRun Manifestを先に承認する。</p>
+  <p>外部通信、Secret、Broker、Live、管理用hashを許可しない。子Agent起動不能時は<code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>を証跡へ残す。</p>
 </main>
 </body>
 </html>

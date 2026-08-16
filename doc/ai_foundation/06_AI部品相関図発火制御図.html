@@ -331,6 +331,16 @@ Rules:
       <tr><td>v0.8</td><td>2026-08-03</td><td>ImplementationQualityのtrusted scope発火制御を反映。</td><td>履歴</td></tr>
     </tbody>
   </table>
+  <h2>10. P5R Web製品UI発火導線</h2>
+  <pre>承認済みP5R詳細設計 + Run Manifest
+  |
+  +-- AutoTradeProject_ImplementationQuality_Orchestrator_v0_1
+        +-- AutoTrade_A172_WebProductUiEngineer_v0_1
+        |      +-- autotrade_skill_web_product_ui_implementation_v0_1
+        |      +-- typed local Application API / accessible state / Playwright journey
+        +-- AutoTrade_A171_UiVisualQaReviewer_v0_1（独立visual/a11y）
+        +-- AutoTrade_A80_DocumentIntegrator_v0_1（HTML手順書統合）</pre>
+  <p>A170は固定ダミーUI構造の移行補助に限定し、A172は実Application API結果だけを表示する。P5Rのtrusted scope登録前にテストを起動しない。</p>
 </main>
 </body>
 </html>

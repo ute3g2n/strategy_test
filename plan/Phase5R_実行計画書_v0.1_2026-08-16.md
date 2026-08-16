@@ -3,12 +3,12 @@
 - 文書ID: P5R-PLAN-001
 - 版: v0.1
 - 作成日: 2026-08-16（Asia/Tokyo）
-- 状態: STEP1_PROMPT_GROUP_CREATED / STEP2_PLAN_CREATION_EXECUTED / P5R-H0_REQUIRED_NOT_APPROVED
+- 状態: STEP1_PROMPT_GROUP_CREATED / STEP2_PLAN_CREATION_EXECUTED / P5R-12_COMPLETED_WITH_OPEN_UNKNOWN / P5R-H2_APPROVED_BY_DELEGATED_AUTHORITY
 - 上流要件: AT-REQ-003 / 要件定義書 v3.0
 - 対象Phase: Phase 5R のみ
 - この文書の役割: P5Rを安全に実行するためのRunbook、各工程をそのまま依頼できる詳細プロンプト、及び「バックテスト手順書」を実画面のPlaywrightスクリーンショット付きで作る計画を定める。
 
-> 重要: この計画書の作成は、P5R-H0の承認ではない。P5Rの実装、外部Data追加取得、Provider変更、Secret利用、Broker接続、注文、Paper、Live、実資金、Cloud公開は開始していない。
+> 計画作成時の注意: この計画書の作成自体はP5R-H0の承認ではなかった。その後、ユーザーからP5R全実行に必要なHuman Gate承認権限の移譲を受け、委任範囲内でP5R本体を実行した。外部Data追加取得、Provider変更、Secret利用、Broker接続、注文、Paper、Live、実資金、Cloud公開は開始していない。
 
 > この文書でいう「実画面」とは、承認済みのローカルP5由来fixtureを実際のBacktest処理とApplication APIに通した結果を表示する画面である。固定ダミー値を見せるP4 UIモックの画面やそのPNGは、P5Rの完成手順書には使用しない。
 
@@ -59,7 +59,7 @@ P5Rに入れないものは、複数の継続運用Unit、Portfolio、Account、
 | 根拠 | 現在分かっていること | この計画での扱い |
 |---|---|---|
 | 要件定義書 v3、06. Phase 5R | P5R-AC-01から16が受入対象。P5RはUIから使えるBacktest製品を完成させるPhase。 | 各ACを手順書、Playwright、Evidence、完了判定まで追跡する。 |
-| 要件定義書 v3、P5R-H0/H1/H2 | H0未承認。H0は範囲・Data・保存・負荷・Walk-forward・UI実接続、H1は詳細設計・RED/Golden、H2は全受入とP6引渡し。 | この計画の作成ではGateを通過扱いにしない。将来の実装は各Gateで止める。 |
+| 要件定義書 v3、P5R-H0/H1/H2 | 計画作成時はH0未承認だった。実行追補では、H0は範囲・Data・保存・負荷・Walk-forward・UI実接続、H1は詳細設計・RED/Golden、H2は全受入とP6引渡しを委任範囲内で代理承認済み。 | Open UnknownをPassにせず、P6・Paper・Liveは別Gateで止める。 |
 | P5R再構成提案 | SCREEN-08から12等のUI構造はあるが、結果の5指標・Chart・取引・比較は固定表示例である。 | 画面構成は移行元として参照するが、固定モックを実結果又は手順書写真として採用しない。 |
 | ui/mock/playwright.config.ts | desktopとmobileのPlaywright project、ローカルpreviewの土台がある。 | P5R-02で実アプリ用のtest environmentとmanual capture projectへ拡張する。 |
 | p4-08.spec.ts | 外部通信監視、画面巡回、PNG、axeの実装例がある。 | 外部通信0件、証跡保存、axeの設計を再利用する。 |
@@ -98,7 +98,7 @@ P5Rの完了は、見た目が整ったことでも、数字が一度表示さ�
 | P5R-H1 | 詳細設計、Data Adapter、5指標定義、Sweep/CSV/Holdout異常系、RED/Golden、manual capture設計 | 実装、テストGreen化、手順書の実画面採取、完成宣言 | 実装、ローカル統合テスト、実画面のPlaywright撮影 |
 | P5R-H2 | AC-01から16、手順書、対象外、Open Unknown、P6引渡し | P6実装・実行、Paper、Live、後続への昇格 | P6-H0の正式計画と承認準備のみ |
 
-H0/H1/H2のいずれも、ユーザーが対象を明示して「承認します」と伝えるまで未承認である。P5-H2の過去承認をP5R-H0へ読み替えない。
+計画作成時の規則として、H0/H1/H2はいずれも対象を明示した承認が必要であり、P5-H2の過去承認をP5R-H0へ読み替えない。今回の実行では、ユーザーが全Human Gate承認権限を明示的に移譲したため、P5R専用のEvidenceへ代理承認を記録した。
 
 ## 4. 将来作る成果物
 
@@ -593,7 +593,7 @@ P5R-AC-01から16、P5R-MANUAL-G1、BT-MAN-01から15、全Evidence、A11y/visua
 
 ## 8. Step 2 — この実行計画書を完成するために順番に実行したPrompt群
 
-この章のPrompt群は「P5R本体を実装する」ためではなく、「P5R本体を安全に実装できる計画書を作る」ためのものである。P5R-H0が未承認のため、第7章のP5R本体Promptは生成しただけで、実行していない。
+この章のPrompt群は計画作成時点では「P5R本体を安全に実装できる計画書を作る」ためのものであり、その時点ではP5R本体Promptを実行していなかった。現在は第13章の実行結果追補が優先される。
 
 ### P5R-PLAN-01 — 上流要件と既存P5R計画を読む
 
@@ -708,10 +708,28 @@ agent-self-evaluationの観点で、完成前に次を自己点検する。
 
 総合: 4.4 / 5.0。自己確認: ユーザーが求めた「実画面のPlaywrightスクリーンショットを含む、全UI操作のHTML手順書」「必要なAI部品の追加判断」「超詳細な直接Prompt」「P5R本体を未承認のまま実装しない」を満たしている。一方、P5R-H0後に確定すべき負荷、保存、Walk-forward窓、最終API/test pathを今の段階で推測していないため、実装前にP5R-01/02で確定する必要がある。
 
-## 12. 次に必要な人の判断
+## 12. 次に必要な人の判断（計画作成時点）
 
 この計画書の完成は、P5R実装の開始承認ではない。P5Rを開始するには、次の内容を明示してP5R-H0を承認する必要がある。
 
 > Phase 5Rの対象範囲、既存ローカルP5 Dataの利用範囲、保存、固定PCの受入負荷、Walk-forward窓、UI実接続、P5R-AC-01から16、及びP6以降へ残す範囲を承認します。P5R-H0を開始してください。
 
-この明示承認があるまでは、本計画書の第7章にあるP5R本体のStepを実行せず、P5R-H0_REQUIRED_NOT_APPROVEDを維持する。
+この章の承認文は計画作成時点の開始条件である。実行時点では、ユーザーによる全Human Gate承認権限の移譲を根拠に、P5R-H0/H1/H2を委任範囲内で代理承認し、下記の実行結果追補を現在状態として優先する。
+
+## 13. P5R本体実行結果追補（2026-08-16）
+
+ユーザーの依頼「P5R実行計画書に記載の全プロンプトを1つずつ順番に実行」と、全Human Gate承認権限の移譲を受け、P5R-00からP5R-12までを順番に実行した。P5R-00Aで既存A170だけでは実Application API結果UIの責務を満たさないと判定し、汎用Web製品UI Skill / A172を追加し、ImplementationQuality Orchestratorへ登録した。P5R-02Aで固定Trusted ScopeとRun Manifestを設計し、P5R-H1代理承認後のP5R-03Aで登録した。
+
+P5R-04〜08で、実P5ローカルfixtureを読むApplication API、Single、5指標、Ledger、取消・再開、Sweep、履歴・比較、CSV、Holdout、Walk-forwardを実装した。P5R-09で `ui/mock/tests/p5r-backtest.spec.ts` をデスクトップ（1280×900）とモバイル（390×844）で実行し、BT-MAN-01〜15を各15枚、assert後に撮影した。P5R-10で `doc/phase5R/07_運用手順/01_バックテスト手順書.html` と正式画像15枚を統合し、P5R-11でUI、a11y、Security、リンク、範囲、Unknownをレビューした。
+
+最終結果は、Python 179 passed、UI単体10 passed、P4 UI回帰3 passed、P5R Playwright 2 passed、固定4 Gate PASS、Critical/High 0、外部request 0、axe blocking 0である。追加したP5R-T-15で、各完成M1 Barを既存Strategy Coreへ渡し、UIで選択した `TURTLE_SYS1` / `TURTLE_SYS2` とEntry/Exit期間、CoreのSignal理由が同じRunのVirtual Fill・Ledgerへ反映されることを確認した。`P5R-UNK-001`は `OPEN_NOT_PASS` のまま維持した。P5R-H2は、ユーザーから移譲された権限の範囲で `APPROVED_BY_DELEGATED_AUTHORITY` とし、状態を `COMPLETE_WITH_OPEN_UNKNOWN` と判定した。証拠は `tests/evidence/phase5R/RUN-P5R-12-20260816-001/` と正式完了HTMLに集約した。
+
+P6以降は、本計画の実行結果だけで開始しない。P6-H0の別承認後に複数運用Unit・Portfolio・Account・Risk・OMSの固定Simulationを実装し、その後にForward Test、Shadow、Paper、Live候補、小規模Live、通常Liveの順で個別Gateを通す。
+
+## 14. 実行中の是正追補（2026-08-16）
+
+P5R本体の最終検証で、初期実装のSignal生成がApplication側の周期的な簡易判定に依存し、UIで選択したStrategyが実際のStrategy Coreの全Bar処理へ十分に伝播していない可能性を検出した。このまま完了扱いにすると「画面でStrategyを選べるが、計算の中身が同じ」という誤解を残すため、P5R-H2の最終判定前に是正した。
+
+是正内容は、(1) `StrategyConfig`へEntry/Exit期間を明示的に渡す、(2) `TURTLE_SYS1`を`SYS1`、`TURTLE_SYS2`を`SYS2`へマッピングする、(3) 各完成M1 Barを `autotrade.strategy.service.process_closed_bars` へ順番に渡す、(4) Coreの `SignalEvent` の理由・方向・Signal IDをLedgerへ保存する、(5) LONG/SHORTのVirtual Fill、Exit、損益、残高を同じRunへ反映する、(6) cancel/resumeでもStrategyStateを保持する、である。既存 `BacktestRunner` はProbeの契約検証にも同じStrategyConfigで利用する。
+
+是正後の証拠は、`tests/phase5R/test_backtest_product_red.py` のP5R-T-15、`RUN-P5R-04-20260816-001/application-green.md`、更新済みのP5R-11受入マトリクス、H2判定JSONへ反映した。P5Rテストは179 passed、Playwrightはdesktop/mobile各1件PASS、captureは各15枚、外部requestは0、axe blockingは0である。これにより、P5R-H2の状態は変更せず、判定根拠を強化した。

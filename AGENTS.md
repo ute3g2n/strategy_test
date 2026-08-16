@@ -75,12 +75,14 @@ WSL隔離品質ゲートの実行入口は `scripts/wsl_quality_gate/run_test.ps
   `AutoTrade_A160_TradingSecurityReviewer_v0_1`
   `AutoTrade_A170_UiMockEngineer_v0_1`
   `AutoTrade_A171_UiVisualQaReviewer_v0_1`
+  `AutoTrade_A172_WebProductUiEngineer_v0_1`
 - 汎用Skills:
   `.codex/skills/autotrade_skill_*_v0_1/`
   Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を標準で使う。
   AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を標準で使う。
   新規／大幅変更文書、計画、ソース、テスト、AI部品の管理hash再導入判定では `autotrade_skill_protected_hash_policy_guard_v0_1` と `AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1` を使う。A95はhash値、manifest、stale、fingerprint、hash retryを作らず、管理hashはBLOCKED、用途不明はNEEDS_HUMAN_GATE、直接の保護対象hashだけを目的・停止範囲付きでALLOWとする。A07/A08は文章manifest管理の通常経路から起動しない。
   UIモック作成では `AutoTradeProject_UiMock_Orchestrator_v0_1`、`AutoTrade_A170_UiMockEngineer_v0_1`、`AutoTrade_A171_UiVisualQaReviewer_v0_1` とUI専用Skill 3件を完全名で指定する。正式合否は固定 `@playwright/test`、Storybook、Vitest/axeで判定し、AI向けCLIは匿名ローカル探索に限定する。
+  実Application APIへ接続するWeb製品UIでは `AutoTradeProject_ImplementationQuality_Orchestrator_v0_1`、`AutoTrade_A172_WebProductUiEngineer_v0_1`、`autotrade_skill_web_product_ui_implementation_v0_1` を使い、固定ダミーUIの責務と混ぜない。
   実装詳細設計では `autotrade_skill_implementation_detail_design_v0_1` と `autotrade_skill_implementation_detail_review_v0_1` を標準で使う。
   Python本実装の品質ループでは `autotrade_skill_python_implementation_v0_1`、`autotrade_skill_python_test_quality_v0_1`、`autotrade_skill_debug_recovery_v0_1`、`autotrade_skill_python_code_review_v0_1` を明示指定で使う。
   実行証跡は `tests/evidence/{phase_id}/{run_id}/` に保存し、`scripts/quality_gate/` は `trusted_scopes.json` に登録されたRun IDの固定コマンドだけを実行する。`scope_mode=target_only` のRunは登録済みtarget_pathsだけを試験対象とし、対象外のHEAD/worktree差分では止めない。Phaseのtest subprocessはhost outbound isolation確認がない場合にBLOCKEDとする。

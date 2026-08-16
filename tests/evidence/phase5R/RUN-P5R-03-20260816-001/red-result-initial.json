@@ -1,0 +1,9 @@
+{
+  "step_id": "P5R-03",
+  "state": "RED_OBSERVED",
+  "command": "registered Run Manifest fixed four-gate command",
+  "first_failure": "formatter",
+  "exit_code": 1,
+  "meaning": "The new P5R test contract was added before implementation; formatting was corrected as a mechanical preparation. No implementation was accepted from this failure.",
+  "next_action": "format only, then rerun the same registered gate to expose the missing implementation contract"
+}

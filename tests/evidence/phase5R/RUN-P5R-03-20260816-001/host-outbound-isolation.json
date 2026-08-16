@@ -1,0 +1,10 @@
+{
+  "run_id": "RUN-P5R-03-20260816-001",
+  "status": "CONFIRMED_FOR_LOCAL_SUBPROCESS",
+  "mechanism": "QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED=1 explicit trusted-host marker",
+  "external_io": "not_used",
+  "broker": "not_used",
+  "secret_read": "not_used",
+  "scope_note": "This confirms the local quality subprocess contract only; it does not resolve the inherited P5-08 host-isolation/provider Unknown.",
+  "failure_action": "BLOCKED"
+}

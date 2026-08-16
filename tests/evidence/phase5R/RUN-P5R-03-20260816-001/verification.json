@@ -1,0 +1,67 @@
+{
+  "state": "PASS",
+  "reason": "ユーザーが明示的に承認しました",
+  "gates": [
+    {
+      "gate": "formatter",
+      "status": "PASS",
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/autotrade/application",
+        "src/autotrade/backtest",
+        "scripts/phase5r",
+        "tests/application",
+        "tests/backtest"
+      ],
+      "exit_code": 0,
+      "duration_ms": 533
+    },
+    {
+      "gate": "lint",
+      "status": "PASS",
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "src/autotrade/application",
+        "src/autotrade/backtest",
+        "scripts/phase5r",
+        "tests/application",
+        "tests/backtest"
+      ],
+      "exit_code": 0,
+      "duration_ms": 479
+    },
+    {
+      "gate": "type",
+      "status": "PASS",
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-m",
+        "mypy",
+        "src/autotrade/application",
+        "src/autotrade/backtest",
+        "scripts/phase5r"
+      ],
+      "exit_code": 0,
+      "duration_ms": 669
+    },
+    {
+      "gate": "test",
+      "status": "PASS",
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-m",
+        "scripts.quality_gate.local_p5r_pytest"
+      ],
+      "exit_code": 0,
+      "duration_ms": 2300
+    }
+  ],
+  "generated_at": "2026-08-16T05:41:12.678937+00:00"
+}

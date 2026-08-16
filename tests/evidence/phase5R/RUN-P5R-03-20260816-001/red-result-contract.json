@@ -1,0 +1,9 @@
+{
+  "step_id": "P5R-03",
+  "state": "RED_CONFIRMED",
+  "gates": {"formatter": "PASS", "lint": "PASS", "type": "PASS", "test": "FAIL"},
+  "failure": "ModuleNotFoundError: autotrade.application.backtest_product",
+  "meaning": "The P5R product/Application boundary and its required behavior are not implemented yet.",
+  "implementation_allowed": true,
+  "external_io": "not_used"
+}

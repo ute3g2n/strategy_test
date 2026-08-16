@@ -1,0 +1,36 @@
+{
+  "run_id": "RUN-P5R-03-20260816-001",
+  "phase_id": "phase5R",
+  "step_id": "P5R-03A",
+  "requirements": ["P5R-AC-01", "P5R-AC-02", "P5R-AC-03", "P5R-AC-04", "P5R-AC-05", "P5R-AC-06", "P5R-AC-07", "P5R-AC-08", "P5R-AC-09", "P5R-AC-10", "P5R-AC-11", "P5R-AC-12", "P5R-AC-13", "P5R-AC-14", "P5R-AC-15", "P5R-AC-16", "P5R-MANUAL-G1"],
+  "design": "P5R-DD-01-P5R-QG-01",
+  "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+  "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+  "data_version": "P5-09-local-quality-pass-readonly",
+  "baseline_ref": "HEAD",
+  "human_gate_policy": "P5R-H1 delegated approval recorded; P5R-H2 required before P6 handoff",
+  "agents": ["AutoTrade_A110_PythonTestEngineer_v0_1", "AutoTrade_A120_PythonImplementer_v0_1", "AutoTrade_A130_VerificationEngineer_v0_1", "AutoTrade_A140_DebugEngineer_v0_1", "AutoTrade_A150_PythonCodeReviewer_v0_1", "AutoTrade_A160_TradingSecurityReviewer_v0_1", "AutoTrade_A172_WebProductUiEngineer_v0_1", "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1"],
+  "skills": ["autotrade_skill_python_implementation_v0_1", "autotrade_skill_python_test_quality_v0_1", "autotrade_skill_debug_recovery_v0_1", "autotrade_skill_python_code_review_v0_1", "autotrade_skill_web_product_ui_implementation_v0_1", "autotrade_skill_ui_accessibility_validation_v0_1", "autotrade_skill_ui_visual_validation_v0_1", "autotrade_skill_protected_hash_policy_guard_v0_1"],
+  "scope_mode": "target_only",
+  "target_paths": ["src/autotrade/application", "src/autotrade/backtest", "scripts/phase5r", "scripts/quality_gate", "tests/application", "tests/backtest", "tests/phase5R", "ui/mock"],
+  "excluded_paths": [".env", "doc", "plan", "research", "third_party", "tests/evidence/phase5", "broker", "cloud"],
+  "input_fixture": {
+    "path": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2025-02/BTCUSDT-1m-2025-02.csv.gz",
+    "name": "P5-09 local BTCUSDT 1m February fixture slice",
+    "version": "P5-09-local-quality-pass-readonly",
+    "checksum": "sha256:9fbd974f57c82392318fcdf57ee3fd2fe07c0ae37fc51b38dbc1db99d4cc858d"
+  },
+  "evidence_root": "tests/evidence/phase5R/RUN-P5R-03-20260816-001/",
+  "network_isolation_required": true,
+  "external_io": "PROHIBITED",
+  "unknowns": [],
+  "open_project_unknowns": ["P5R-UNK-001", "host outbound isolation evidence before each subprocess"],
+  "review": {"critical": 0, "high": 0},
+  "checks": [
+    {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/application", "src/autotrade/backtest", "scripts/phase5r", "tests/application", "tests/backtest"]},
+    {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/application", "src/autotrade/backtest", "scripts/phase5r", "tests/application", "tests/backtest"]},
+    {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/application", "src/autotrade/backtest", "scripts/phase5r"]},
+    {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p5r_pytest"]}
+  ],
+  "registration_status": "REGISTERED_AFTER_H1_DELEGATED_APPROVAL"
+}

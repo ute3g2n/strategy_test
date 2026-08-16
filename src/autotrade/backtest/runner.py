@@ -329,6 +329,15 @@ def _strategy_config_failure(config: object, manifest: object) -> BacktestFailur
         or not isinstance(config.strategy_unit_hint, Decimal)
         or not config.strategy_unit_hint.is_finite()
         or config.strategy_unit_hint <= 0
+        or any(
+            value is not None and (type(value) is not int or value < 1 or value > 500)
+            for value in (config.entry_lookback, config.exit_lookback)
+        )
+        or (
+            config.entry_lookback is not None
+            and config.exit_lookback is not None
+            and config.exit_lookback > config.entry_lookback
+        )
     ):
         return BacktestFailure("STR_CONFIG_INVALID", "strategy configuration is malformed")
     try:

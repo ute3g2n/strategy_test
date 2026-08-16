@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P5R完了判定・P6引渡し</title>
+<style>
+body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.75;max-width:1150px;margin:0 auto;padding:24px;color:#172033;background:#f6f8fb}main,section{background:#fff;border:1px solid #d9e1ec;border-radius:12px;padding:20px;margin:16px 0}h1{margin-top:0}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #cbd5e1;padding:8px;text-align:left;vertical-align:top}th{background:#eef3f8}.pass{color:#086b45;font-weight:700}.open{color:#8a4b00;font-weight:700}.danger{color:#9a2635;font-weight:700}.note{background:#fff8e6;border-left:5px solid #d49300;padding:12px}.small{font-size:.9rem;color:#526174}code{background:#eef2f7;padding:2px 4px;border-radius:4px}
+</style>
+</head>
+<body>
+<main>
+<h1>P5R完了判定・P6引渡し</h1>
+<p class="small">文書ID: P5R-COMPLETE-001 / 実施日: 2026-08-16 / 状態: <span class="pass">COMPLETE_WITH_OPEN_UNKNOWN</span></p>
+<p><strong>P5R-H2は、ユーザーから移譲されたHuman Gate承認権限の範囲で代理承認済み。</strong> ただし、この判定はP5RのローカルBacktest製品に限定し、未解決Unknownを合格扱いにせず、P6以降の実装開始を自動で許可しない。</p>
+</main>
+<section>
+<h2>中学生向けの結論</h2>
+<p>Backtestについては、画面で条件を入力し、始める前に間違いを止め、実際に計算し、途中で止めたり続きから再開したり、結果を5つの数字と明細で見たり、条件の束・履歴・比較・CSV・Holdout・Walk-forwardまで操作できるようになった。PC画面とスマートフォン画面の全15操作を、Playwrightが本当に押して確認し、その直後に撮った画像を手順書へ入れた。</p>
+<p>一方、これは「利益が出る」と証明したものでも、「本番で注文できる」と証明したものでもない。外部市場、Broker、Secret、実注文、実資金、Paper / LiveはこのPhaseに入れていない。</p>
+</section>
+<section>
+<h2>Gateと品質結果</h2>
+<table><tr><th>項目</th><th>結果</th><th>証拠</th></tr>
+<tr><td>P5R-H0</td><td class="pass">代理承認済み</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-00-20260816-001/h0-decision.json">H0</a></td></tr>
+<tr><td>P5R-H1</td><td class="pass">代理承認済み</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-00-20260816-001/h1-decision.json">H1</a> / <a href="../../../tests/evidence/phase5R/RUN-P5R-03-20260816-001/verification.json">固定4 Gate</a></td></tr>
+<tr><td>P5R-AC-01〜16</td><td class="pass">全件PASS</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-11-20260816-001/acceptance-matrix.md">受入マトリクス</a></td></tr>
+<tr><td>P5R-MANUAL-G1</td><td class="pass">PASS / 30枚</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-10-20260816-001/manual-review.md">手順書Evidence</a> / <a href="../07_運用手順/01_バックテスト手順書.html">手順書</a></td></tr>
+<tr><td>実行品質</td><td class="pass">Python 179、UI 10、P4回帰3、P5R E2E 2</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-04-20260816-001/application-green.md">Application</a> / <a href="../../../tests/evidence/phase5R/RUN-P5R-05-20260816-001/ui-quality.md">UI</a></td></tr>
+<tr><td>Critical / High</td><td class="pass">0 / 0</td><td><a href="02_P5R-11_UI・手順書最終レビュー.html">最終レビュー</a></td></tr>
+<tr><td>P5R-H2</td><td class="pass">代理承認済み</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-12-20260816-001/h2-decision.json">H2判定</a></td></tr>
+</table>
+</section>
+<section>
+<h2>Open Unknown（合格にしていないもの）</h2>
+<p class="open"><code>P5R-UNK-001</code> は OPEN_NOT_PASS のまま。</p>
+<p>Providerの利用・保持・再配布条件、P5-08の過去host isolation、P5時点のchild Agent起動確認、実行費用の実測は解決していない。P5Rでは既存ローカル証跡の許可範囲だけを使い、これらを解決済みと表示していない。</p>
+</section>
+<section>
+<h2>P6への引渡し</h2>
+<p>P6は、P5RのSweepとは違う「複数の継続運用Unit」を扱うPhaseである。Portfolio、Account、Risk、OMS、競合防止、Kill、照合、復旧を、まず固定Simulationで完成させる。外部Order・実Account・実資金はP6にも入れない。</p>
+<p>その後の能力順は、P7 Forward Test（実時間・仮想）→ Shadow（本番候補複製・注文なし）→ Paper（仮想口座・仮想Ledger）→ Live候補→小規模Live→通常Live。P5R-H2はP6-H0や後続Live Gateの代わりにはならない。</p>
+<p><a href="../../../tests/evidence/phase5R/RUN-P5R-12-20260816-001/p6-handoff.md">P6引渡しEvidence</a> / <a href="../../../tests/evidence/phase5R/RUN-P5R-12-20260816-001/completion-report.md">完了判定Evidence</a> / <a href="../../../tests/evidence/phase5R/RUN-P5R-12-20260816-001/agent-self-evaluation.md">自己評価</a></p>
+</section>
+</body>
+</html>

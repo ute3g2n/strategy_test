@@ -137,6 +137,11 @@ unknown_policy: Unknown must not pass</pre>
       <tr><td>v0.6</td><td>2026-08-03</td><td>詳細設計テンプレート準拠基準を反映。</td><td>履歴</td></tr>
     </tbody>
   </table>
+  <h2>10. Web製品UI実装Skill（P5R追加）</h2>
+  <table><thead><tr><th>完全名</th><th>責務</th><th>入力・出力</th><th>停止条件</th></tr></thead><tbody>
+    <tr><td><code>autotrade_skill_web_product_ui_implementation_v0_1</code></td><td>型付きローカルApplication APIに接続するReact/TypeScript実製品UI、状態表示、Playwright journeyを実装する。</td><td>承認済みUI契約・API契約・Run Manifestを受け、API接続済みUI、正常/異常E2E、assert後capture registry連携を返す。</td><td>UI内計算、固定ダミーの実結果表示、外部通信、Broker、Secret、実注文、未確認a11y/viewport、管理用hash追加を検出したら停止する。</td></tr>
+  </tbody></table>
+  <p>このSkillはP5Rで実製品UI責務が既存の固定UIモックSkillだけでは不足したため追加した。手順書専用部品ではなく、P5R後もローカルApplication API接続UIに再利用する。</p>
 </main>
 </body>
 </html>

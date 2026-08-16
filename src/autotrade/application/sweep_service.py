@@ -54,9 +54,7 @@ class SweepService:
                 output_policy=base_config.output_policy,
                 config_sha256=canonical_hash({"base": base_config.config_sha256, "candidate": candidate}),
             )
-            child_command = CreateRunCommand(
-                f"{client_request_id}-{ordinal}", "SWEEP_CHILD", config, utc_now(), None
-            )
+            child_command = CreateRunCommand(f"{client_request_id}-{ordinal}", "SWEEP_CHILD", config, utc_now(), None)
             child_commands.append(child_command)
         parent_id, parent, members, candidate_set_hash, _ = self.store.create_sweep(
             client_request_id,

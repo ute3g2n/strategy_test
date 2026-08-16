@@ -24,7 +24,7 @@
   <h1>ドキュメント インデックス</h1>
   <div class="note">
     <p>このファイルは、<code>doc/</code> 配下のHTML成果物への共通入口である。新しいHTML成果物を追加した場合は、この一覧も同時に更新する。</p>
-    <p><strong>更新状態:</strong> 要件定義書v3を現在の正本として追加し、P5の直後にP5R（UIから使うBacktest製品の完成）を置くロードマップへ更新した。P5Rの正式実行計画には、実Application APIに接続したBacktest UIをPlaywrightで操作・撮影してHTML手順書へ掲載する工程を追加した。P5のOpen Unknown、P5R-H0、外部I/O、Broker、Secret、実資金の後続Gateは維持している。</p>
+    <p><strong>更新状態:</strong> 要件定義書v3を現在の正本として追加し、P5の直後にP5R（UIから使うBacktest製品の完成）を置くロードマップへ更新した。P5R-H0/H1/H2はユーザーから移譲された承認権限による代理承認をEvidenceへ記録し、固定4 Gate・実UI・Playwright撮影・HTML手順書を完了した。P5のOpen Unknown、P6-H0、外部I/O、Broker、Secret、実資金の後続Gateは維持している。</p>
   </div>
 
   <h2>全Phase共通：残課題・Blocked</h2>
@@ -36,7 +36,7 @@
   <h2>要件定義</h2>
   <p class="muted">設計の起点となる上流文書。現行正本はAT-REQ-003 / v3.0 / 2026-08-16。P5Rの挿入と、P6〜P12でForward→Shadow→Paper→Live候補→小規模Live→通常Liveを安全な能力順に完成させる方針を明文化した。AT-REQ-002 / v2.0以下は履歴として保持する。</p>
   <ul>
-    <li><a href="./requirements/01_自動トレードシステム要件定義書_v3.html">01_自動トレードシステム要件定義書_v3.html</a> <span class="muted">（AT-REQ-003・v3.0現在正本・P5R挿入／P6〜P12能力順・P5R-H0は未承認）</span></li>
+    <li><a href="./requirements/01_自動トレードシステム要件定義書_v3.html">01_自動トレードシステム要件定義書_v3.html</a> <span class="muted">（AT-REQ-003・v3.0現在正本・P5R挿入／P6〜P12能力順・P5R-H0/H1/H2代理承認済み・P5R完了）</span></li>
     <li><a href="./requirements/01_自動トレードシステム要件定義書_v2.html">01_自動トレードシステム要件定義書_v2.html</a> <span class="muted">（AT-REQ-002・v2.0旧正式基準線・履歴）</span></li>
     <li><a href="./requirements/01_自動トレードシステム要件定義書.html">01_自動トレードシステム要件定義書.html</a> <span class="muted">（AT-REQ-001・v0.4旧正式正本・履歴）</span></li>
   </ul>
@@ -289,9 +289,11 @@
     <li><a href="../plan/Phase5_実行計画書_v0.1_2026-08-12.md">Phase5実行計画Markdown（P5-PLAN-001）</a> / <a href="../plan/phase5/ログ/P5-PLAN-001_計画作成・起動契約検証_2026-08-12.md">計画作成・起動契約検証ログ</a></li>
   </ul>
   <h2>Phase 5R / Backtest製品完全化</h2>
-  <p class="muted">P5の後に追加した次Phase。既存ローカル市場Dataを使い、UIから単一Backtest、Sweep、取消・再開、履歴・比較・CSV、Holdout / Walk-forwardまでを実際に動かす。全UI操作を実Application APIの結果でPlaywrightテストし、assert後に取得したスクリーンショット付きHTML手順書を作る計画を含む。複数Unit、Portfolio、実運用Risk、OMS、Forward、Paper、Live、外部注文は対象外である。開始にはP5R-H0の承認が必要。</p>
+  <p class="muted">P5の後に追加したP5Rは、既存ローカル市場Dataを使い、UIから単一Backtest、Sweep、取消・再開、履歴・比較・CSV、Holdout / Walk-forwardまでを実際に動かし、Playwrightのassert後スクリーンショット付きHTML手順書まで完成した。複数Unit、Portfolio、実運用Risk、OMS、Forward、Paper、Live、外部注文は対象外である。P5R-H0/H1/H2はユーザーから移譲された権限の範囲で代理承認済み、状態はCOMPLETE_WITH_OPEN_UNKNOWN、P6-H0は別Gateである。</p>
   <ul>
-    <li><a href="../plan/Phase5R_実行計画書_v0.1_2026-08-16.md">Phase5R 実行計画書</a> <span class="muted">（P5R-PLAN-001 / Playwright実画面スクリーンショット付きバックテスト手順書を含む / P5R-H0未承認）</span></li>
+    <li><a href="../plan/Phase5R_実行計画書_v0.1_2026-08-16.md">Phase5R 実行計画書</a> <span class="muted">（P5R-PLAN-001 / 全Prompt実行済み / COMPLETE_WITH_OPEN_UNKNOWN）</span></li>
+    <li><a href="./phase5R/02_実装詳細設計/01_P5R実装詳細設計書.html">P5R実装詳細設計書</a> / <a href="./phase5R/02_実装詳細設計/02_P5R品質Gate_RunManifest設計書.html">P5R品質Gate・Run Manifest設計書</a> / <a href="./phase5R/07_運用手順/01_バックテスト手順書.html">スクリーンショット付きバックテスト手順書</a></li>
+    <li><a href="./phase5R/06_完了/01_P5R完了判定・P6引渡し.html">P5R完了判定・P6引渡し</a> / <a href="./phase5R/06_完了/02_P5R-11_UI・手順書最終レビュー.html">P5R-11 UI・手順書最終レビュー</a></li>
     <li><a href="../plan/Phase5R_バックテスト製品完全化_再構成提案・実行計画書_v0.1_2026-08-16.md">Phase5R バックテスト製品完全化 再構成提案・実行計画書</a> <span class="muted">（P5R-PLAN-PROPOSAL-001 / v3で正式ロードマップへ反映）</span></li>
     <li><a href="../plan/要件定義書_v3_作成・Phase5Rロードマップ再編_実行計画書_v0.1_2026-08-16.md">要件定義書v3 作成・Phase5Rロードマップ再編 実行計画書</a> <span class="muted">（RQV3-PLAN-001 / 複数Stepの実行プロンプトと実行記録）</span></li>
   </ul>

@@ -562,9 +562,7 @@ class AtomicResultStore:
         snapshot_bytes = expected[_SNAPSHOT_FILE].read_bytes()
         stored_marker = _marker_mapping(json.loads(expected[_MARKER_FILE].read_text(encoding="utf-8")))
         supplied_marker = _marker_mapping(asdict(marker))
-        actual_snapshot = _snapshot_mapping(
-            json.loads(snapshot_bytes), run_id=staging.run_id, manifest_sha256=None
-        )
+        actual_snapshot = _snapshot_mapping(json.loads(snapshot_bytes), run_id=staging.run_id, manifest_sha256=None)
         actual_snapshot_sha = canonical_hash(actual_snapshot)
         if stored_marker != supplied_marker or stored_marker.get("snapshot_sha256") != actual_snapshot_sha:
             raise ValueError("commit marker or snapshot state mismatch")
@@ -582,9 +580,7 @@ class AtomicResultStore:
                 manifest_sha256=None,
                 sequence_no=sequence_no,
             )
-        snapshot = _snapshot_mapping(
-            json.loads(snapshot_bytes), run_id=staging.run_id, manifest_sha256=None
-        )
+        snapshot = _snapshot_mapping(json.loads(snapshot_bytes), run_id=staging.run_id, manifest_sha256=None)
         if snapshot.get("result_offset") != len(rows) or stored_marker.get("result_offset") != len(rows):
             raise ValueError("result offset mismatch")
         if stored_marker.get("last_event_id") != snapshot.get("last_committed_event_id"):
