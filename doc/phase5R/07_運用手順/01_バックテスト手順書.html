@@ -53,7 +53,7 @@
 </head>
 <body>
 <main>
-  <p class="meta">文書ID: <code>P5R-MAN-01</code> ／ 版: <code>v0.2</code> ／ 改訂日: <code>2026-08-16</code> ／ 状態: <strong>初心者向け抜本改訂・Playwright検証対象</strong></p>
+  <p class="meta">文書ID: <code>P5R-MAN-01</code> ／ 版: <code>v0.3</code> ／ 改訂日: <code>2026-08-16</code> ／ 状態: <strong>初心者向け抜本改訂・一括起動追補・Playwright検証対象</strong></p>
   <h1>バックテスト手順書</h1>
   <div class="note"><strong>最初に結論：</strong>この画面では、保存されている過去の市場Dataに、売買ルール（Strategy）を仮想的に当てはめて、「もし過去にこのルールを使っていたら、どんな結果になったか」を調べられます。実際の注文は出ません。将来の利益も保証しません。</div>
   <p>この手順書は、投資を始めたばかりの人でも読めるように書いています。画面に出る英語や数字は残し、そのすぐ近くに意味を説明します。まず「できること一覧」から目的の機能を選び、その行のリンクから操作へ進んでください。</p>
@@ -62,6 +62,7 @@
   <nav class="toc" aria-label="バックテスト手順書の目次">
     <strong>目次</strong>
     <ul>
+      <li><a href="#startup">0. アプリを一括起動する</a></li>
       <li><a href="#what-is">1. Backtestとは</a></li>
       <li><a href="#can-do">2. P5Rでできること一覧</a></li>
       <li><a href="#cannot-do">3. できないことと安全範囲</a></li>
@@ -74,6 +75,47 @@
       <li><a href="#evidence">10. 画像・証跡・出典</a></li>
     </ul>
   </nav>
+
+  <h2 id="startup">0. アプリを一括起動する</h2>
+  <div class="note"><strong>最初にすること：</strong>プロジェクト直下の<code>start_autotrade.bat</code>を、エクスプローラーからダブルクリックします。このbatが、画面（UI）と計算の窓口（API）を順番に起動し、使える状態になったらブラウザを開きます。</div>
+  <p>この手順は、Backtestの計算そのものではありません。アプリを使えるようにする準備です。アプリが起動しただけで、Backtestが成功したこと、利益が出ること、本番運用できることは意味しません。</p>
+
+  <h3>0.1 ダブルクリックで起動する</h3>
+  <p><strong>どこにある？</strong>プロジェクトの一番上のフォルダー（プロジェクト直下）にある<code>start_autotrade.bat</code>です。現在の作業場所では、<code>C:\project\strategy_test\start_autotrade.bat</code>が入口です。</p>
+  <ol>
+    <li>ほかのBacktest画面を使っている場合は、今の操作が終わっていることを確認します。</li>
+    <li>プロジェクト直下の<code>start_autotrade.bat</code>をダブルクリックします。</li>
+    <li>初回でUIの部品がまだない場合、batが自動で<code>npm ci</code>を実行します。これは、決められた一覧（package-lock.json）どおりにUIの部品を準備する作業です。</li>
+    <li>batはUIをbuildします。buildとは、画面の設計図をブラウザが読めるファイルへ変換する作業です。</li>
+    <li>batが、計算の窓口であるAPIを<code>127.0.0.1:8765</code>で起動します。<code>127.0.0.1</code>は「このパソコン自身」を表します。</li>
+    <li>batが、画面であるUIを<code>127.0.0.1:4173</code>で起動します。</li>
+    <li>APIの<code>/health</code>とUIの画面が返事できることを確認してから、ブラウザが自動で開きます。</li>
+  </ol>
+  <p class="check"><strong>起動できたとき：</strong>ブラウザに<code>http://127.0.0.1:4173</code>が表示され、左メニューから「Backtest条件設定」を選べます。選んだ後に「Backtest製品機能（P5R実API）」と4つのタブが見えれば、Backtestを使う準備は完了です。</p>
+
+  <h3>0.2 使い終わったら停止する</h3>
+  <ol>
+    <li>ブラウザを閉じるだけでは、裏側のAPIとUIは動き続けます。</li>
+    <li>使い終わったら、プロジェクト直下の<code>stop_autotrade.bat</code>をダブルクリックします。</li>
+    <li>APIとUIが停止したという表示を確認します。次に使うときは、もう一度<code>start_autotrade.bat</code>をダブルクリックします。</li>
+  </ol>
+  <div class="where"><strong>起動ログを見る場所：</strong><code>runtime/autotrade_app</code>（Windows上の表示は<code>runtime\autotrade_app</code>）です。<code>startup.log</code>は起動の流れ、<code>build.log</code>はUI build、<code>api.log</code>と<code>api.error.log</code>はAPI、<code>ui.log</code>と<code>ui.error.log</code>はUIの記録です。</div>
+
+  <h3>0.3 起動できないとき</h3>
+  <p>黒い画面に失敗の表示が出た場合、何度も適当にクリックせず、表示されたログを確認します。</p>
+  <table>
+    <thead><tr><th>表示・症状</th><th>意味</th><th>次にすること</th></tr></thead>
+    <tbody>
+      <tr><td>npmが見つからない</td><td>UIを作るためのNode.js/npmがパソコンにない。</td><td>Node.js/npmを準備し、PowerShellやcmdを開き直してから再実行する。</td></tr>
+      <tr><td>Pythonが見つからない</td><td>Backtest APIを動かすPythonがない。</td><td>プロジェクトの`.venv`またはPython Launcher（<code>py -3</code>）を準備して再実行する。</td></tr>
+      <tr><td>npm ciまたはbuildが失敗する</td><td>UIの部品準備または画面ファイル作成に失敗した。</td><td><code>runtime/autotrade_app/npm-ci.log</code>または<code>build.log</code>を確認する。UIが古いままでも成功扱いにしない。</td></tr>
+      <tr><td>8765番ポートが使われている</td><td>APIの場所を別のアプリが使っている可能性がある。</td><td>表示されたPIDを確認する。知らないプロセスを自動で終了せず、必要なら別アプリを閉じてから再実行する。</td></tr>
+      <tr><td>4173番ポートが使われている</td><td>UIの場所を別のアプリが使っている可能性がある。</td><td>表示されたPIDを確認する。AutoTradeの起動済み画面ならブラウザを開き直し、別アプリなら原因を確認してから再実行する。</td></tr>
+      <tr><td>health checkが時間内に成功しない</td><td>APIまたはUIが起動途中で止まった。</td><td><code>api.error.log</code>または<code>ui.error.log</code>を確認し、<code>stop_autotrade.bat</code>で停止してから再実行する。</td></tr>
+      <tr><td>ブラウザが開かない</td><td>サーバーは動いているが、ブラウザの自動起動だけができなかった。</td><td>ブラウザのアドレス欄へ<code>http://127.0.0.1:4173</code>を入力する。</td></tr>
+    </tbody>
+  </table>
+  <div class="danger"><strong>安全範囲：</strong>一括起動は、ローカルのAPIとUIを使える状態にするだけです。外部市場Data、Broker、Secret、実注文、実資金、Paper、Liveを起動しません。APIとUIは<code>127.0.0.1</code>だけで動きます。</div>
 
   <h2 id="what-is">1. Backtestとは</h2>
   <h3>1.1 何をする機能？</h3>
@@ -127,6 +169,7 @@
   <h2 id="quick-start">4. 初めての人の最短コース</h2>
   <p>まず通常の1回のBacktestを最後まで行うなら、次の順番です。各項目の詳しい手順はリンク先にあります。</p>
   <ol>
+    <li><a href="#startup">start_autotrade.batをダブルクリックして、アプリを起動する</a>。</li>
     <li><a href="#BT-MAN-01">画面とP5Rの安全範囲を確認する</a>。</li>
     <li><a href="#BT-MAN-02">初期条件のままPreflightを実行し、5つの検査がPASSか読む</a>。</li>
     <li><a href="#BT-MAN-04">Single Runを開始し、SUCCEEDEDまで待つ</a>。</li>

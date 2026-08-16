@@ -1,0 +1,10 @@
+@echo off
+setlocal EnableExtensions
+
+rem Stop the local AutoTrade API and UI processes.
+set "PROJECT_ROOT=%~dp0"
+
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%PROJECT_ROOT%scripts\stop_autotrade.ps1"
+set "EXIT_CODE=%ERRORLEVEL%"
+
+endlocal & exit /b %EXIT_CODE%

@@ -1,0 +1,58 @@
+{
+  "run_id": "RUN-20260816-001",
+  "status": "PASS",
+  "scope": "Windows bat entrypoint for the local AutoTrade application",
+  "entrypoint": "start_autotrade.bat",
+  "stop_entrypoint": "stop_autotrade.bat",
+  "commands": [
+    "cmd.exe /d /c start_autotrade.bat -NoBrowser",
+    "cmd.exe /d /c start_autotrade.bat -NoBrowser",
+    "cmd.exe /d /c stop_autotrade.bat"
+  ],
+  "api": {
+    "url": "http://127.0.0.1:8765/health",
+    "status_code": 200,
+    "external_io": "disabled"
+  },
+  "ui": {
+    "url": "http://127.0.0.1:4173/",
+    "status_code": 200
+  },
+  "browser": {
+    "default_start_without_NoBrowser": "PASS",
+    "url_opened": "http://127.0.0.1:4173"
+  },
+  "idempotency": {
+    "second_start": "PASS",
+    "duplicate_start_detected": false
+  },
+  "stop": {
+    "result": "PASS",
+    "port_8765_listeners_after_stop": 0,
+    "port_4173_listeners_after_stop": 0
+  },
+  "playwright": {
+    "tests": [
+      "tests/p5r-backtest.spec.ts",
+      "tests/p5r-backtest-manual-improvement.spec.ts"
+    ],
+    "projects": ["chromium-desktop", "chromium-mobile"],
+    "result": "4 passed"
+  },
+  "logs": "runtime/autotrade_app/",
+  "safety": {
+    "loopback_only": true,
+    "external_data": false,
+    "broker": false,
+    "secrets": false,
+    "real_orders": false,
+    "real_funds": false
+  },
+  "runtime_dispatch": {
+    "status": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "reason": "multi_agent_v1__spawn_agent returned agent thread limit reached",
+    "agent_id": "N/A",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK"
+  }
+}

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AutoTradeアプリ一括起動完了判定</title>
+<style>
+body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.75;max-width:1180px;margin:0 auto;padding:24px;color:#172033;background:#f6f8fb}main,section{background:#fff;border:1px solid #d9e1ec;border-radius:12px;padding:20px;margin:16px 0}h1{margin-top:0}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #cbd5e1;padding:8px;text-align:left;vertical-align:top}th{background:#eef3f8}.pass{color:#086b45;font-weight:700}.open{color:#8a4b00;font-weight:700}.note{background:#fff8e6;border-left:5px solid #d49300;padding:12px}.small{font-size:.9rem;color:#526174}code{background:#eef2f7;padding:2px 4px;border-radius:4px}a{color:#075985}
+</style>
+</head>
+<body>
+<main>
+<h1>AutoTradeアプリ一括起動完了判定</h1>
+<p class="small">文書ID: AUTOTRADE-APP-STARTUP-COMPLETE-001 / 実施日: 2026-08-16 / 状態: <span class="pass">COMPLETE_WITH_OPEN_UNKNOWN</span></p>
+<p><strong>結論:</strong>プロジェクト直下の<code>start_autotrade.bat</code>をダブルクリックすると、AutoTradeのローカルBacktest APIとUIが起動し、health check後にブラウザが開く。<code>stop_autotrade.bat</code>で停止できる。依頼された一括起動機能は完了と判定する。</p>
+</main>
+<section>
+<h2>中学生向けの説明</h2>
+<p>このアプリは、画面の係と計算の係が別々に動く。今までは利用者がそれぞれを手で起動する必要があった。今回、入口のbatを1回ダブルクリックするだけで、画面と計算の係を順番に起動するようにした。</p>
+<p>準備が終わると、ブラウザで<code>http://127.0.0.1:4173</code>が開く。これはこのパソコンの中だけで使う住所である。アプリが起動したことは、Backtestの結果が正しいことや、将来利益が出ることを意味しない。</p>
+</section>
+<section>
+<h2>完了条件と結果</h2>
+<table>
+<tr><th>条件</th><th>結果</th><th>確認先</th></tr>
+<tr><td>batをダブルクリックできる</td><td class="pass">PASS</td><td><a href="../../../start_autotrade.bat">start_autotrade.bat</a></td></tr>
+<tr><td>APIが起動する</td><td class="pass">PASS / 127.0.0.1:8765 / health 200</td><td><a href="../../../tests/evidence/AUTOTRADE-APP-STARTUP/RUN-20260816-001/startup-smoke.json">startup Evidence</a></td></tr>
+<tr><td>UIが起動する</td><td class="pass">PASS / 127.0.0.1:4173 / 200</td><td><a href="../../../tests/evidence/AUTOTRADE-APP-STARTUP/RUN-20260816-001/startup-smoke.json">startup Evidence</a></td></tr>
+<tr><td>ブラウザが自動で開く</td><td class="pass">PASS / 引数なし入口で確認</td><td><a href="../../../plan/autotrade_app_startup/03-runtime-dispatch.md">Step 3 Runtime Receipt</a></td></tr>
+<tr><td>二重起動を避ける</td><td class="pass">PASS / 2回目は既存プロセスを再利用</td><td><a href="../../../tests/evidence/AUTOTRADE-APP-STARTUP/RUN-20260816-001/startup-smoke.json">startup Evidence</a></td></tr>
+<tr><td>停止できる</td><td class="pass">PASS / stop後のListen 0</td><td><a href="../../../stop_autotrade.bat">stop_autotrade.bat</a> / <a href="../../../tests/evidence/AUTOTRADE-APP-STARTUP/RUN-20260816-001/startup-smoke.json">Evidence</a></td></tr>
+<tr><td>手順書へ反映する</td><td class="pass">PASS / v0.3</td><td><a href="../07_運用手順/01_バックテスト手順書.html#startup">一括起動手順</a></td></tr>
+</table>
+</section>
+<section>
+<h2>安全境界</h2>
+<div class="note">APIとUIは127.0.0.1だけで動く。外部市場Data、Broker、Secret、実注文、実資金、Paper、Liveは起動しない。ポート競合時に無関係なプロセスを勝手に終了しない。</div>
+</section>
+<section>
+<h2>検証結果</h2>
+<ul>
+<li>起動スクリプト静的pytest: 4 passed</li>
+<li>手順書静的pytest: 5 passed</li>
+<li>AutoTradeローカルPython品質Gate: 188 passed</li>
+<li>UI build: 成功、UI unit: 10 passed、lint: 成功（既存警告5件）</li>
+<li>Backtest Playwright: desktop/mobile合計4 passed</li>
+<li>A95 protected hash policy guard: ALLOW（管理用hash経路の追加なし）</li>
+</ul>
+</section>
+<section>
+<h2>未解決の範囲</h2>
+<p class="open"><code>P5R-UNK-001</code>はOPEN_NOT_PASSのまま。</p>
+<p>別PC、依存パッケージなしのクリーン環境、外部環境での動作は今回の完了判定に含めない。アプリ起動完了は、Backtest結果の妥当性や本番運用の承認ではない。</p>
+</section>
+<section>
+<h2>関連成果物</h2>
+<ul>
+<li><a href="../../../start_autotrade.bat">start_autotrade.bat</a> / <a href="../../../stop_autotrade.bat">stop_autotrade.bat</a></li>
+<li><a href="../../../plan/AutoTrade_ローカルアプリ一括起動_実行計画書_v0.1_2026-08-16.md">一括起動実行計画書・プロンプト群</a></li>
+<li><a href="../../../plan/autotrade_app_startup/05_統合レビュー.md">統合レビュー</a></li>
+<li><a href="../../../tests/evidence/AUTOTRADE-APP-STARTUP/RUN-20260816-001/agent-self-evaluation.md">自己評価</a></li>
+</ul>
+</section>
+</body>
+</html>

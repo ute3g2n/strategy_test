@@ -1,0 +1,53 @@
+{
+  "run_id": "RUN-20260816-001",
+  "status": "PASS_WITH_OPEN_UNKNOWN",
+  "scope": "Windows bat entrypoint, local AutoTrade API/UI startup and operation manual",
+  "artifacts": {
+    "start_bat": "start_autotrade.bat",
+    "start_powershell": "scripts/start_autotrade.ps1",
+    "stop_bat": "stop_autotrade.bat",
+    "stop_powershell": "scripts/stop_autotrade.ps1",
+    "manual": "doc/phase5R/07_運用手順/01_バックテスト手順書.html",
+    "plan": "plan/AutoTrade_ローカルアプリ一括起動_実行計画書_v0.1_2026-08-16.md",
+    "review": "plan/autotrade_app_startup/05_統合レビュー.md",
+    "self_evaluation": "tests/evidence/AUTOTRADE-APP-STARTUP/RUN-20260816-001/agent-self-evaluation.md"
+  },
+  "startup": {
+    "api_url": "http://127.0.0.1:8765/health",
+    "ui_url": "http://127.0.0.1:4173/",
+    "api_status": 200,
+    "api_external_io": "disabled",
+    "ui_status": 200,
+    "default_browser_start": "PASS",
+    "second_start_without_duplicate": "PASS",
+    "stop_without_remaining_listeners": "PASS"
+  },
+  "tests": [
+    {"name": "PowerShell parser", "result": "PASS"},
+    {"name": "startup static pytest", "result": "4 passed"},
+    {"name": "manual static pytest", "result": "5 passed"},
+    {"name": "AutoTrade local Python quality", "result": "188 passed"},
+    {"name": "UI build", "result": "PASS"},
+    {"name": "UI unit", "result": "10 passed"},
+    {"name": "UI lint", "result": "PASS with 5 pre-existing warnings"},
+    {"name": "Backtest Playwright", "result": "4 passed desktop/mobile"},
+    {"name": "A95 protected hash policy guard", "result": "ALLOW; no management hash path added"}
+  ],
+  "safety": {
+    "loopback_only": true,
+    "external_data": false,
+    "broker": false,
+    "secrets": false,
+    "real_orders": false,
+    "real_funds": false,
+    "unrelated_process_kill": false
+  },
+  "runtime_dispatch": {
+    "status": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "reason": "multi_agent_v1__spawn_agent returned agent thread limit reached",
+    "agent_id": "N/A",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK"
+  },
+  "open_unknown": ["P5R-UNK-001"]
+}
