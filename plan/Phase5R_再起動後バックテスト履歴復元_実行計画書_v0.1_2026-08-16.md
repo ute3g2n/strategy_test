@@ -2,7 +2,7 @@
 
 - 文書ID: `AUTOTRADE-BACKTEST-RECOVERY-PLAN-001`
 - 作成日: 2026-08-16（Asia/Tokyo）
-- 状態: `STEP1_COMPLETED / RECOVERY-07_COMPLETED_WITH_RUNTIME_FALLBACK / GIT_HANDOFF_IN_PROGRESS`
+- 状態: `STEP1_COMPLETED / RECOVERY-07_COMPLETED_WITH_RUNTIME_FALLBACK / GIT_HANDOFF_COMPLETED`
 - 対象: Windows再起動・API再起動後も、バックテストの履歴・結果詳細・LedgerをUIから再び開けるようにする。
 - 対象アプリ: `src/autotrade/application/backtest_product.py` と `ui/mock/`
 - データ保存境界: `E:\strategy_test_data\autotrade\backtest\`
@@ -722,7 +722,7 @@ Role: 再起動後バックテスト履歴復元の最終受入・Git引渡しAg
 | RECOVERY-04 | 2026-08-16 | `COMPLETED_WITH_RUNTIME_FALLBACK` | Python/UI実装、`RECOVERY-04_GREEN.md` | 対象pytest、既存P5R回帰、UI buildを確認。Coordinator/Agentはthread上限で未起動 |
 | RECOVERY-05 | 2026-08-16 | `COMPLETED_WITH_RUNTIME_FALLBACK` | `verification.json`、`api-restart-recovery.json`、Playwright画像、レビュー記録 | API子プロセス停止・再起動後のRun ID/metrics/provenance/rows/UI復元、既存desktop/mobile、unit/build/lintを確認。Coordinator/Agentはthread上限で未起動 |
 | RECOVERY-06 | 2026-08-16 | `COMPLETED_WITH_RUNTIME_FALLBACK` | v3.1、実装詳細設計v0.2、手順書v0.5、完了判定、Index、統合台帳、`RECOVERY-06-runtime-dispatch.md` | 完了範囲とOpen scopeを文書間で同期。Coordinator/Agentはthread上限で未起動 |
-| RECOVERY-07 | 2026-08-16 | `COMPLETED_WITH_RUNTIME_FALLBACK` | `RECOVERY-07_最終レビュー.md`、A95記録、自己評価、Git引渡し準備 | 実機Windows再起動は未実施。Git commit／pushは最終差分確認後 |
+| RECOVERY-07 | 2026-08-16 | `COMPLETED_WITH_RUNTIME_FALLBACK` | `RECOVERY-07_最終レビュー.md`、A95記録、自己評価、Git引渡し | 実機Windows再起動は未実施。commit `a6c42cb`、push `origin/main` 完了 |
 
 ## 15. 既知の後続Unknown
 
@@ -743,4 +743,4 @@ Role: 再起動後バックテスト履歴復元の最終受入・Git引渡しAg
 - [x] 再起動後履歴、旧形式、破損、途中Run、Eドライブ境界、UI/Playwright、文書、Gitを含めた。
 - [x] Step 2〜7を順番に実行する。
 - [x] 最終レビュー、自己評価、A95静的確認、HTMLリンク、機械検証を完了する。
-- [ ] Git commit／pushを完了する。
+- [x] Git commit `a6c42cb` を作成し、`origin/main`へpushする。

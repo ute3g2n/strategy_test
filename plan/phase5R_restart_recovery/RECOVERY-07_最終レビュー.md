@@ -59,4 +59,4 @@
 - [x] A95の静的ポリシー確認結果を記録した。
 - [x] 未実施の実機Windows再起動をOpen scopeとして明記した。
 - [x] 自己評価を `tests/evidence/AUTOTRADE-BACKTEST-RECOVERY/RUN-20260816-001/agent-self-evaluation.md` に保存した。
-- [ ] Git commit／push（最終差分確認後に実行）。
+- [x] Git commit `a6c42cb`（`main`）を作成し、`origin/main`へpushした。
