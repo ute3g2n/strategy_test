@@ -1,0 +1,80 @@
+{
+  "run_id": "RUN-P5R-MANUAL-20260816-001",
+  "status": "PASS_WITH_OPEN_UNKNOWN",
+  "scope": "P5R local Backtest operation manual improvement",
+  "checked_at": "2026-08-16",
+  "artifacts": {
+    "rules": "doc/phase5R/07_運用手順/00_バックテスト操作手順書作成ルール.html",
+    "manual": "doc/phase5R/07_運用手順/01_バックテスト手順書.html",
+    "plan": "plan/Phase5R_バックテスト操作手順書改善_実行計画書_v0.1_2026-08-16.md",
+    "review": "plan/phase5R/manual/05_統合レビュー_2026-08-16.md",
+    "self_evaluation": "tests/evidence/phase5R/RUN-P5R-MANUAL-20260816-001/agent-self-evaluation.md"
+  },
+  "coverage": {
+    "feature_ids": 16,
+    "feature_links": 16,
+    "procedure_ids": 16,
+    "procedure_backlinks": 16,
+    "screenshots": 16,
+    "glossary_present": true,
+    "plain_language_rules_present": true,
+    "success_failure_recovery_present": true,
+    "safety_boundary_present": true,
+    "web_sources_recorded": 5
+  },
+  "playwright": {
+    "test": "ui/mock/tests/p5r-backtest-manual-improvement.spec.ts",
+    "projects": {
+      "chromium-desktop": {
+        "result": "PASS",
+        "external_requests": 0,
+        "axe_blocking_violations": 0,
+        "assertion_before_screenshot": true
+      },
+      "chromium-mobile": {
+        "result": "PASS",
+        "external_requests": 0,
+        "axe_blocking_violations": 0,
+        "assertion_before_screenshot": true
+      }
+    },
+    "new_screenshot": "doc/phase5R/07_運用手順/assets/backtest_manual/BT-MAN-16.png"
+  },
+  "tests": [
+    {"name": "manual static quality", "result": "5 passed"},
+    {"name": "local P5R Python quality gate", "result": "184 passed"},
+    {"name": "existing P5R Backtest E2E", "result": "2 passed"},
+    {"name": "P4-08 regression E2E", "result": "3 passed"},
+    {"name": "UI unit", "result": "10 passed"},
+    {"name": "UI build", "result": "PASS"},
+    {"name": "UI lint", "result": "PASS with 5 pre-existing warnings"},
+    {"name": "manual links", "result": "228 checked / 0 broken"},
+    {"name": "A95 static policy", "result": "ALLOW for selected current targets"}
+  ],
+  "finding_fixed": {
+    "id": "P5R-MANUAL-F-001",
+    "description": "Sweep candidate definition list used dt/dd without a dl parent",
+    "resolution": "Changed the UI container to dl, rebuilt, and reran desktop/mobile Playwright plus axe"
+  },
+  "open_unknown": [
+    {
+      "id": "P5R-UNK-001",
+      "status": "OPEN_NOT_PASS",
+      "description": "Provider terms, historical host isolation, historical child-agent launch, and measured execution cost remain unresolved"
+    }
+  ],
+  "runtime_dispatch": {
+    "status": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "reason": "multi_agent_v1__spawn_agent returned agent thread limit reached",
+    "independent_agent_completion_claimed": false,
+    "review_mode": "SELF_REVIEW_FALLBACK",
+    "agent_id": "N/A"
+  },
+  "safety": {
+    "external_market_data_added": false,
+    "broker_connected": false,
+    "secrets_used": false,
+    "real_orders_sent": false,
+    "real_funds_used": false
+  }
+}

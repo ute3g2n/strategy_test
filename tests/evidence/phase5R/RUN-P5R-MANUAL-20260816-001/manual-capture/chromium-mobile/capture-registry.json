@@ -1,0 +1,15 @@
+{
+  "run_id": "RUN-P5R-MANUAL-20260816-001",
+  "project": "chromium-mobile",
+  "test": "p5r-backtest-manual-improvement.spec.ts",
+  "manual_id": "BT-MAN-16",
+  "description": "Sweepを途中で取消し、親Jobと子Runの状態を確認する",
+  "screenshot": "tests/evidence/phase5R/RUN-P5R-MANUAL-20260816-001/manual-capture/chromium-mobile/BT-MAN-16.png",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "assertion_before_screenshot": "Playwright DOM assertions passed",
+  "external_requests": [],
+  "axe_blocking_violations": []
+}

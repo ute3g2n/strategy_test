@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>バックテスト操作手順書作成ルール</title>
+  <style>
+    :root{--ink:#172437;--muted:#52657b;--blue:#174779;--blue2:#eaf3ff;--line:#c9d7e6;--good:#e8f7ee;--warn:#fff6da;--danger:#fff0ef;--purple:#f2edff}
+    *{box-sizing:border-box}
+    body{margin:0;background:#f2f6fa;color:var(--ink);font-family:system-ui,"Yu Gothic",Meiryo,sans-serif;line-height:1.8}
+    main{max-width:1240px;margin:0 auto;padding:30px 44px 70px;background:#fff;box-shadow:0 0 32px #dce5ee}
+    h1,h2{color:var(--blue);border-bottom:2px solid #d9e5f1;padding-bottom:7px}
+    h3{color:#215b8f;margin-top:26px}
+    h4{color:#315879;margin-bottom:5px}
+    p{margin:8px 0 15px}
+    .meta{color:var(--muted);font-size:.9rem}
+    .note,.good,.warn,.danger,.rule{padding:14px 17px;margin:16px 0;border-left:6px solid}
+    .note{background:var(--blue2);border-color:#2f78c8}
+    .good{background:var(--good);border-color:#268556}
+    .warn{background:var(--warn);border-color:#d28b18}
+    .danger{background:var(--danger);border-color:#c33f38}
+    .rule{background:var(--purple);border-color:#7959b8}
+    table{width:100%;border-collapse:collapse;margin:14px 0 26px}
+    th,td{border:1px solid var(--line);padding:9px 11px;vertical-align:top;text-align:left}
+    th{background:#eaf2fb;color:#234d76}
+    code{padding:2px 5px;border-radius:4px;background:#eef2f6;overflow-wrap:anywhere}
+    pre{white-space:pre-wrap;background:#f7faff;border:1px solid var(--line);padding:14px;border-radius:8px;overflow:auto}
+    ol,ul{padding-left:27px}
+    .toc{background:#f8fbff;border:1px solid var(--line);border-radius:9px;padding:16px 22px}
+    .toc ul{columns:2}
+    .toc a,.back a{color:#145d9c;font-weight:700}
+    .small{font-size:.88rem;color:var(--muted)}
+    .tag{display:inline-block;padding:2px 8px;border-radius:999px;background:#e8f2ff;color:#205786;font-size:.82rem;font-weight:700;margin:2px 4px 2px 0}
+    .checklist li{margin:5px 0}
+    .rule-id{white-space:nowrap;font-weight:700;color:#5c4198}
+    @media(max-width:760px){main{padding:20px 14px 44px}.toc ul{columns:1}th,td{padding:7px;font-size:.92rem}}
+  </style>
+</head>
+<body>
+<main>
+  <p class="meta">文書ID: <code>P5R-MANUAL-RULE-001</code> ／ 版: <code>v0.1</code> ／ 作成日: <code>2026-08-16</code> ／ 状態: <strong>現行ルール</strong></p>
+  <h1>バックテスト操作手順書作成ルール</h1>
+  <div class="note"><strong>この文書の役割：</strong>このルールは、投資の初心者を含む誰が読んでも、P5RのBacktest画面で「何ができるか」「どの操作をするか」「成功したか」「止まったらどう直すか」を理解できる操作手順書を作るための基準である。手順書本文は<a href="./01_バックテスト手順書.html">バックテスト手順書</a>に置く。</div>
+
+  <nav class="toc" aria-label="このルールの目次">
+    <strong>このルールの目次</strong>
+    <ul>
+      <li><a href="#goal">1. 完成ゴール</a></li>
+      <li><a href="#scope">2. 対象範囲と安全境界</a></li>
+      <li><a href="#catalog">3. 機能一覧と操作へのリンク</a></li>
+      <li><a href="#procedure">4. 1つの操作手順の型</a></li>
+      <li><a href="#plain">5. 初心者向け日本語ルール</a></li>
+      <li><a href="#terms">6. 専門用語の説明ルール</a></li>
+      <li><a href="#errors">7. 状態・失敗・復旧のルール</a></li>
+      <li><a href="#images">8. Playwright画像のルール</a></li>
+      <li><a href="#accessibility">9. HTMLとアクセシビリティ</a></li>
+      <li><a href="#safety">10. 投資初心者への安全説明</a></li>
+      <li><a href="#review">11. レビューと完了判定</a></li>
+      <li><a href="#sources">12. Web出典と改訂履歴</a></li>
+    </ul>
+  </nav>
+
+  <h2 id="goal">1. 完成ゴール</h2>
+  <p>手順書の読者は、システム開発者や投資経験者とは限らない。したがって、手順書を読んだ人が次の問いに答えられることを完成条件とする。</p>
+  <table>
+    <thead><tr><th>読者が答えられる問い</th><th>本文で必ず示すこと</th></tr></thead>
+    <tbody>
+      <tr><td>この画面は何をするもの？</td><td>過去のDataにStrategyを当てはめ、実注文なしで結果を調べるBacktest画面だと最初に説明する。</td></tr>
+      <tr><td>何ができる？</td><td>機能一覧を最初に置き、各機能から対応操作へ1クリックで移動できるようにする。</td></tr>
+      <tr><td>どこを押す？</td><td>タブ、見出し、ラベル、ボタンの画面上の名前を正確に書く。「右のボタン」だけで説明しない。</td></tr>
+      <tr><td>終わったかどうかはどう分かる？</td><td>成功時に見える状態名、数字、表、メッセージを具体的に書く。</td></tr>
+      <tr><td>止まったらどうする？</td><td>停止理由、直す入力、再試行の条件、再試行してはいけない場合を書く。</td></tr>
+      <tr><td>数字をどう解釈する？</td><td>指標の意味と、そこから言ってはいけないことを併記する。</td></tr>
+      <tr><td>専門用語が分からないときは？</td><td>初出の場所で短く説明し、用語集へリンクする。</td></tr>
+    </tbody>
+  </table>
+  <div class="good"><strong>合格の考え方：</strong>画像が見えなくても、本文だけで操作できる。本文を飛ばし読みしても、機能一覧とリンクだけで目的の操作へ行ける。画面の結果を見ても、将来利益や本番注文と誤解しない。</div>
+
+  <h2 id="scope">2. 対象範囲と安全境界</h2>
+  <table>
+    <thead><tr><th>手順書で「できる」と書く範囲</th><th>手順書で「できない」と明示する範囲</th></tr></thead>
+    <tbody>
+      <tr><td>既存P5ローカルDataを使うBacktest、条件入力、Preflight、Single Run、進捗、取消・再開、Sweep、履歴・比較、CSV、Holdout、Walk-forward。</td><td>外部市場Dataの新規取得、Providerの変更、Broker接続、Secretの投入、実注文、実資金、Paper、Live、継続運用Unit、Portfolio、実運用Risk、OMS。</td></tr>
+      <tr><td>Fee・Slippageを「計算に入れる想定値」として表示する。</td><td>その値が市場で実際に発生した費用である、または実際の約定価格を再現していると断定する。</td></tr>
+      <tr><td>SweepをBacktest専用の複数実験として扱う。</td><td>Sweepの子Runを継続運用Unit、共有資金、同時注文として説明する。</td></tr>
+    </tbody>
+  </table>
+  <div class="danger"><strong>重要：</strong>Backtestが成功しても、Forward、Shadow、Paper、Liveへ自動昇格しない。Backtestは「過去の問題を実験室で解く」機能であり、「今後の注文を自動的に始める」機能ではない。</div>
+
+  <h2 id="catalog">3. 機能一覧と操作へのリンク</h2>
+  <p>手順書本文の最初に、次の形の機能一覧を置く。機能名は利用者がしたいことから始め、内部クラス名やAPIパスだけを機能名にしない。</p>
+  <table>
+    <thead><tr><th>必須列</th><th>書き方</th></tr></thead>
+    <tbody>
+      <tr><td>機能ID</td><td>重複しないID（例: <code>BT-F-01</code>）を付ける。</td></tr>
+      <tr><td>できること</td><td>「〜を確認できる」「〜を計算できる」のように、利用者の結果を書く。</td></tr>
+      <tr><td>使う場面</td><td>初めて使うとき、条件を直したいとき、結果を確認したいときなどを書く。</td></tr>
+      <tr><td>画面の場所</td><td>タブ、見出し、ラベル、ボタン名を併記する。</td></tr>
+      <tr><td>対応手順</td><td><a href="#procedure-template">操作手順を見る</a>のような曖昧な文字ではなく、「Single Runを開始する手順を見る」と書き、<code>#BT-MAN-xx</code>へリンクする。</td></tr>
+      <tr><td>成功の見方</td><td>成功状態、表示される結果、保存されるEvidenceを短く書く。</td></tr>
+      <tr><td>失敗・復旧</td><td>停止・失敗時の手順IDにもリンクする。失敗経路がない場合は「この機能の画面上の失敗経路は未実装」と明示する。</td></tr>
+    </tbody>
+  </table>
+  <div class="rule"><span class="rule-id">P5R-MANUAL-RULE-001</span> 機能一覧の各行には、少なくとも1つの操作手順アンカーへのリンクを付ける。各操作手順の末尾には機能一覧へ戻るリンクを付ける。リンクの文字だけを見ても移動先の目的が分からなければ不合格とする。</div>
+  <div class="rule"><span class="rule-id">P5R-MANUAL-RULE-002</span> 実装確認できない機能、APIにしか存在しない機能、将来Phaseの機能を、現在のUIでできる機能として一覧へ入れない。必要なら「APIの範囲」「対象外」「後続Phase」と分ける。</div>
+
+  <h2 id="procedure">4. 1つの操作手順の型</h2>
+  <p id="procedure-template">各手順は、読者が途中で迷わないように、次の順番を崩さない。長い機能は通常操作と失敗・復旧を別手順に分ける。</p>
+  <ol>
+    <li><strong>手順IDとタイトル：</strong>「BT-MAN-04：Single Runを開始して進み具合を見る」のように、動詞と目的を入れる。</li>
+    <li><strong>この操作でできること：</strong>その操作の意味を1〜3文で書く。「何のボタンか」だけで終わらせない。</li>
+    <li><strong>いつ使うか：</strong>読者の目的を示す。</li>
+    <li><strong>操作前の準備：</strong>必要なタブ、成功済みPreflight、入力形式、完了Runなどを書く。</li>
+    <li><strong>画面の場所：</strong>画面名、タブ名、見出し名、ラベル名、ボタン名を正確に書く。</li>
+    <li><strong>操作手順：</strong>1つの番号に1つの主動作を書く。クリック、入力、待つ、読む、戻すを分ける。</li>
+    <li><strong>成功の確認：</strong>見える文字、状態、数字、表、リンクを具体的に書く。</li>
+    <li><strong>失敗時の確認：</strong>コードだけでなく原因と直す場所を書く。</li>
+    <li><strong>復旧：</strong>元の値に戻す方法、再試行の条件、再試行してはいけない条件を書く。</li>
+    <li><strong>結果の限界：</strong>将来利益、本番約定、Live開始などと解釈してはいけない場合を書く。</li>
+    <li><strong>用語：</strong>初出の語に短い説明を付け、用語集のアンカーへリンクする。</li>
+    <li><strong>画像：</strong>Playwrightのassert成功後に撮影した画像、alt、caption、撮影ID、Evidenceリンクを置く。</li>
+    <li><strong>追跡：</strong>対応する要件ID、受入条件ID、Playwright test名を置く。</li>
+  </ol>
+  <div class="rule"><span class="rule-id">P5R-MANUAL-RULE-003</span> 「成功しました」とだけ書く手順は不合格。読者が画面上で何を確認すれば成功と言えるかまで書く。</div>
+  <div class="rule"><span class="rule-id">P5R-MANUAL-RULE-004</span> エラーの説明は「何が起きたか」「どの入力・状態が原因か」「どう直すか」「もう一度試せるか」の4点を持つ。</div>
+
+  <h2 id="plain">5. 初心者向け日本語ルール</h2>
+  <table>
+    <thead><tr><th>ルール</th><th>良い例</th><th>避ける例</th></tr></thead>
+    <tbody>
+      <tr><td>最初に結論を書く</td><td>「この画面では、過去Dataを使って仮想的に結果を計算できます。」</td><td>内部構造やAPI説明から始める。</td></tr>
+      <tr><td>1文1動作</td><td>「『Preflight実行』を押します。5つの検査を読みます。」</td><td>「押して検査を確認し、問題がなければ次へ進みます。」</td></tr>
+      <tr><td>主語と対象を明確にする</td><td>「利用者が『終了（UTC）』を入力します。」</td><td>「終了を入れます。」</td></tr>
+      <tr><td>画面の名前をそのまま書く</td><td>「『選択Runと比較』を押します。」</td><td>「比較ボタンを押します。」</td></tr>
+      <tr><td>専門語をその場で説明する</td><td>「Preflight（開始前の安全点検）を実行します。」</td><td>Preflightを実行します。</td></tr>
+      <tr><td>コードを日本語で補う</td><td>「<code>STOPPED</code>（安全条件を満たさないため停止）です。」</td><td><code>STOPPED</code>を確認します。</td></tr>
+      <tr><td>数値・単位・形式を書く</td><td>「UTCの日時を<code>2025-02-24T00:00:00Z</code>の形式で入力します。」</td><td>「正しい日時を入れます。」</td></tr>
+      <tr><td>曖昧な指示をしない</td><td>「画面の『開始（UTC）』欄を選びます。」</td><td>「上の欄を選びます。」</td></tr>
+      <tr><td>否定は次の行動とセットにする</td><td>「UTCの`Z`がないため止まります。`Z`を付けて再度Preflightを実行します。」</td><td>「形式が不正です。」</td></tr>
+      <tr><td>たとえは補助に使う</td><td>「Ledgerは、実験中の出来事を時刻順に書いたノートです。」</td><td>たとえだけで正式な意味を説明する。</td></tr>
+    </tbody>
+  </table>
+  <ul>
+    <li>専門用語を全部なくしてはいけない。画面に表示される原語を残し、その意味を日本語で補う。</li>
+    <li>「必ず儲かる」「安全」「最適」「最良」といった、結果を保証する表現を使わない。</li>
+    <li>同じ状態名、同じボタン、同じ意味の用語は文書全体で同じ表記にする。</li>
+    <li>読者に不要な実装詳細を先に出さない。必要な場合は「詳しい仕組み」として後ろに分ける。</li>
+  </ul>
+
+  <h2 id="terms">6. 専門用語の説明ルール</h2>
+  <p>用語は、初めて出る場所で「正式名 → 短い意味 → この画面で何に使うか」の順に説明する。その後、詳しい用語集へリンクする。</p>
+  <table>
+    <thead><tr><th>用語の種類</th><th>説明に必ず入れること</th></tr></thead>
+    <tbody>
+      <tr><td>投資・評価の言葉</td><td>初心者向けの意味、Backtestでの意味、実際の投資との違い。</td></tr>
+      <tr><td>画面操作の言葉</td><td>押す場所、押した後に変わる状態、押せない条件。</td></tr>
+      <tr><td>状態名・エラーコード</td><td>日本語の意味、原因、直し方、再試行可否。</td></tr>
+      <tr><td>時間・単位</td><td>UTC、1m、bps、USDTなどの意味と表示形式。</td></tr>
+      <tr><td>内部由来を示す言葉</td><td>Application API、Strategy Core、Provenanceなどが、利用者に何を証明するか。</td></tr>
+    </tbody>
+  </table>
+  <div class="rule"><span class="rule-id">P5R-MANUAL-RULE-005</span> 用語集にあるだけでは不足する。本文の初出箇所で説明し、用語集へ移動できるリンクを付ける。</div>
+
+  <h2 id="errors">7. 状態・失敗・復旧のルール</h2>
+  <table>
+    <thead><tr><th>表示</th><th>初心者向けの説明</th><th>手順書で示すこと</th></tr></thead>
+    <tbody>
+      <tr><td><code>QUEUED</code></td><td>実行の順番待ち。</td><td>すぐ成功とは判断せず、次の状態を待つ。</td></tr>
+      <tr><td><code>RUNNING</code></td><td>計算中。</td><td>進捗、Bar数、ETAを読む。取消できる条件を書く。</td></tr>
+      <tr><td><code>SUCCEEDED</code></td><td>そのRunの計算が完了した。</td><td>結果の条件、5指標、Ledger、由来を確認する。</td></tr>
+      <tr><td><code>FAILED</code></td><td>計算が最後まで正常に終わらなかった。</td><td>失敗理由を読み、結果を成功扱いしない。</td></tr>
+      <tr><td><code>CANCELLED</code></td><td>利用者の取消などで止めた。</td><td>checkpointの有無、再開可否、再開回数を確認する。</td></tr>
+      <tr><td><code>STOPPED</code></td><td>安全条件を満たさないため開始・読込を止めた。</td><td>入力を直すか、担当者調査へ進む。失敗と成功を混同しない。</td></tr>
+      <tr><td><code>PARTIAL_FAILED</code></td><td>複数候補の一部だけ失敗した。</td><td>親Jobを全成功と書かず、成功した子と失敗した子を分ける。</td></tr>
+    </tbody>
+  </table>
+  <p>エラー一覧の各行には、エラーコード、画面で探す文字、原因、直す入力、再試行可否、Evidenceへ残す項目を含める。動的に変わる状態は、状態が変わるまで待つ条件を具体的に書く。</p>
+
+  <h2 id="images">8. Playwright画像のルール</h2>
+  <ol>
+    <li>画像を撮る前に、手順の目的に必要なDOM要素、状態、メッセージ、エラー、安全境界をPlaywrightでassertする。</li>
+    <li>assertが失敗した場合は撮影しない。撮影済みの画像だけでPASSと判断しない。</li>
+    <li>Registryに手順ID、説明、ブラウザ／viewport、画像パス、assert成功の記録、外部通信、重大axe違反を記録する。</li>
+    <li>同じ手順でdesktopとmobileを確認する。横幅が変わると操作場所が変わる場合は、その違いを書く。</li>
+    <li><code>alt</code>は「画面の種類＋判断に必要な状態」を書く。例: 「UTCの`Z`がないためPreflightがSTOPPEDになった画面」。</li>
+    <li>captionは「画像を見ると何を確認できるか」を書く。単に「画面」と書かない。</li>
+    <li>画像が読めない環境でも本文で操作できるようにする。画像を唯一の証拠にしない。</li>
+    <li>正式HTMLは外部CDNや外部フォントに依存させない。ローカル画像の相対パスを使用する。</li>
+  </ol>
+  <div class="rule"><span class="rule-id">P5R-MANUAL-RULE-006</span> 手順ID、画像ファイル、Playwright test、Registry、Evidenceの対応が1つでも欠けた画像は、手順書の完成証拠に使わない。</div>
+
+  <h2 id="accessibility">9. HTMLとアクセシビリティ</h2>
+  <ul class="checklist">
+    <li><strong>見出し：</strong><code>h1</code>から始まり、内容を説明する見出しを順番に使う。見た目だけの太字を見出しの代わりにしない。</li>
+    <li><strong>目次：</strong>長い文書には、見出しへのページ内リンクを置く。</li>
+    <li><strong>リンク：</strong>「こちら」ではなく「Sweep取消の操作を見る」のように目的を書く。</li>
+    <li><strong>表：</strong>列見出しを付け、セルだけ読んでも意味が分かる。広い表はスマートフォンで読めるようにする。</li>
+    <li><strong>画像：</strong>情報画像にはaltとcaptionを付け、装飾画像は意味を持たせない。</li>
+    <li><strong>キーボード：</strong>リンク、目次、ページ内移動がキーボードでできることを確認する。</li>
+    <li><strong>色：</strong>成功・警告・停止を色だけで表さず、文字と状態名を併記する。</li>
+    <li><strong>動的状態：</strong>画面の`RUNNING`やエラーは、本文でも「何を待つか」「何を直すか」を書く。</li>
+    <li><strong>レスポンシブ：</strong>PCとスマートフォンで重要なボタン名、画像、表の判断情報が隠れない。</li>
+  </ul>
+
+  <h2 id="safety">10. 投資初心者への安全説明</h2>
+  <div class="warn"><strong>必ず書く注意：</strong>Backtestは、過去の市場DataにStrategyを仮想的に当てはめる実験である。Backtest結果や過去の成績は、将来の利益や実際の約定を保証しない。</div>
+  <ul>
+    <li>総損益、最大ドローダウン、勝率、取引回数、最終残高の定義を書く。</li>
+    <li>初期残高、Fee、Slippage、Strategy、Entry／Exit lookback、期間を同じ結果と一緒に読むよう案内する。</li>
+    <li>良い期間だけを選ぶ、条件を何度も変えてHoldoutを見る、失敗した候補を隠す、といった誤った読み方を警告する。</li>
+    <li>Holdoutは調整用ではなく、確定後の評価用であることを書く。</li>
+    <li>比較結果は、条件差とともに人が読む。最良RunやLive候補を自動選択する機能ではない。</li>
+    <li>この手順書を読んだだけで投資を勧めたり、特定の銘柄を推奨したりしない。</li>
+  </ul>
+
+  <h2 id="review">11. レビューと完了判定</h2>
+  <h3>11.1 必須レビュー</h3>
+  <table>
+    <thead><tr><th>レビュー</th><th>見ること</th><th>証拠</th></tr></thead>
+    <tbody>
+      <tr><td>実装照合</td><td>UIのタブ、ラベル、ボタン、状態が手順書と一致する。</td><td>UIソース、APIソース、Playwright</td></tr>
+      <tr><td>機能追跡</td><td>機能一覧の全行から操作へ行け、操作から機能へ戻れる。</td><td>静的リンク検査、追跡表</td></tr>
+      <tr><td>初心者読解</td><td>専門語、入力形式、成功・停止・復旧が一読で分かる。</td><td>初心者視点レビュー記録</td></tr>
+      <tr><td>アクセシビリティ</td><td>見出し、リンク、alt、表、キーボード、色、モバイル表示を確認する。</td><td>axe、Playwright、HTML確認</td></tr>
+      <tr><td>安全境界</td><td>外部Data、Broker、Secret、実注文、実資金、Paper、Liveを誤って許可していない。</td><td>本文、UI、差分、手順書監査</td></tr>
+      <tr><td>A95</td><td>廃止された文書管理用の識別子、差分管理、古い状態の自動判定、再生成経路を新規追加していない。</td><td>対象範囲付きの静的判定JSON</td></tr>
+    </tbody>
+  </table>
+  <h3>11.2 機械検査の最低項目</h3>
+  <ol>
+    <li>機能一覧の全リンク先アンカーが存在する。</li>
+    <li>BT-MAN手順ごとに目的、操作、成功、失敗・復旧、戻りリンクがある。</li>
+    <li>画像srcが存在し、altとcaptionが空でない。</li>
+    <li>用語集に主要な専門語があり、本文初出の説明がある。</li>
+    <li>出典URLと確認日がある。</li>
+    <li>外部通信0、重大axe違反0、Playwright assert先行のRegistryがある。</li>
+    <li>HTML相対リンク、`doc/index.html`からの導線、Evidenceリンクが切れていない。</li>
+    <li>Open UnknownがPassになっていない。</li>
+  </ol>
+  <div class="good"><strong>完了の定義：</strong>上のレビューと検査が通り、手順書の本文だけで初心者が操作できることを確認し、残る未確認事項がある場合はOpenとして完了HTMLに書いた状態。</div>
+
+  <h2 id="sources">12. Web出典と改訂履歴</h2>
+  <p>Web情報は、実装仕様の代わりではなく、読みやすさ、アクセシビリティ、手順構成、安全注意の根拠として使う。確認日は更新日や公開日と混同せず、今回の確認日を記録する。</p>
+  <table>
+    <thead><tr><th>出典</th><th>URL</th><th>確認日</th><th>採用した考え方</th></tr></thead>
+    <tbody>
+      <tr><td>文化庁「在留支援のためのやさしい日本語ガイドラインほか」</td><td><a href="https://www.bunka.go.jp/seisaku/kokugo_nihongo/kyoiku/92484001.html">公式ページ</a></td><td>2026-08-16</td><td>読者に必要な情報を整理し、伝える内容を選ぶ。</td></tr>
+      <tr><td>文化庁・出入国在留管理庁「在留支援のためのやさしい日本語ガイドライン」</td><td><a href="https://www.bunka.go.jp/koho_hodo_oshirase/hodohappyo/pdf/92488301_03.pdf">公式PDF</a></td><td>2026-08-16</td><td>簡潔な文、不足情報の補足、図・表の活用。</td></tr>
+      <tr><td>W3C Web Content Accessibility Guidelines 2.2</td><td><a href="https://www.w3.org/TR/WCAG22/">WCAG 2.2</a></td><td>2026-08-16</td><td>見出し、キーボード、画像代替、リンク、状態、エラー。</td></tr>
+      <tr><td>W3C Understanding Headings and Labels</td><td><a href="https://www.w3.org/WAI/WCAG22/Understanding/headings-and-labels">公式解説</a></td><td>2026-08-16</td><td>見出し・ラベルで内容や目的が分かること。</td></tr>
+      <tr><td>W3C Understanding Link Purpose</td><td><a href="https://www.w3.org/WAI/WCAG22/Understanding/link-purpose-in-context.html">公式解説</a></td><td>2026-08-16</td><td>リンク文字または近い文脈から移動先の目的が分かること。</td></tr>
+      <tr><td>W3C Forms / User Notification</td><td><a href="https://www.w3.org/WAI/tutorials/forms/notifications/">公式チュートリアル</a></td><td>2026-08-16</td><td>エラーの原因と直し方、成功・状態通知を示すこと。</td></tr>
+      <tr><td>Buckinghamshire Council Step by Step</td><td><a href="https://www.buckinghamshire.gov.uk/about/design-resources/help-users-complete-a-series-of-tasks-in-a-logical-order/">公式ガイド</a></td><td>2026-08-16</td><td>全体を先に見せ、順番のある作業を番号付きで案内すること。</td></tr>
+      <tr><td>Investor.gov Performance Claims</td><td><a href="https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-47">米国SEC投資家向け情報</a></td><td>2026-08-16</td><td>Backtestは仮想であり、将来結果を保証しないこと。</td></tr>
+    </tbody>
+  </table>
+  <h3>改訂履歴</h3>
+  <table>
+    <thead><tr><th>日付</th><th>版</th><th>変更</th></tr></thead>
+    <tbody><tr><td>2026-08-16</td><td>v0.1</td><td>ユーザー指摘、実装棚卸し、Web調査、初心者向け文章、機能→操作リンク、画像、アクセシビリティ、投資安全説明を統合した初版。</td></tr></tbody>
+  </table>
+  <p class="small back"><a href="../../index.html">正式HTMLインデックスへ戻る</a> ／ <a href="./01_バックテスト手順書.html">改訂対象のバックテスト手順書へ進む</a> ／ <a href="../../../plan/Phase5R_バックテスト操作手順書改善_実行計画書_v0.1_2026-08-16.md">実行計画書を読む</a></p>
+</main>
+</body>
+</html>

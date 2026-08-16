@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P5R バックテスト手順書改善完了判定</title>
+<style>
+body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.75;max-width:1180px;margin:0 auto;padding:24px;color:#172033;background:#f6f8fb}main,section{background:#fff;border:1px solid #d9e1ec;border-radius:12px;padding:20px;margin:16px 0}h1{margin-top:0}h2{margin-top:0}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #cbd5e1;padding:8px;text-align:left;vertical-align:top}th{background:#eef3f8}.pass{color:#086b45;font-weight:700}.open{color:#8a4b00;font-weight:700}.note{background:#fff8e6;border-left:5px solid #d49300;padding:12px}.small{font-size:.9rem;color:#526174}code{background:#eef2f7;padding:2px 4px;border-radius:4px}a{color:#075985}
+</style>
+</head>
+<body>
+<main>
+<h1>P5R バックテスト手順書改善完了判定</h1>
+<p class="small">文書ID: P5R-MANUAL-IMPROVEMENT-COMPLETE-001 / 実施日: 2026-08-16 / 状態: <span class="pass">COMPLETE_WITH_OPEN_UNKNOWN</span></p>
+<p><strong>結論:</strong> 初心者向けの機能一覧、機能から操作へ移動するリンク、平易な操作手順、用語説明、成功・失敗・復旧説明、実画面画像、安全上の限界を、定めたルールに従って手順書へ反映した。手順書改善作業は完了と判定する。</p>
+</main>
+<section>
+<h2>中学生向けの結論</h2>
+<p>この手順書を最初から読むと、Backtestが「過去のデータを使って、もしこの条件で売買していたらどうなったかを計算する機能」だと分かる。その後、できることの一覧から、やりたい操作へ1回押して移動できる。</p>
+<p>各操作には、何のために行うか、どのボタンを押すか、成功したら何が見えるか、失敗したら何を直すか、難しい言葉の意味が書いてある。結果は将来の利益の約束ではなく、実注文や実資金も扱わない。</p>
+</section>
+<section>
+<h2>完了条件と結果</h2>
+<table>
+<tr><th>条件</th><th>結果</th><th>確認先</th></tr>
+<tr><td>機能一覧がBacktestの実装範囲を網羅する</td><td class="pass">PASS / BT-F-01〜16</td><td><a href="../07_運用手順/01_バックテスト手順書.html#feature-catalog">機能一覧</a></td></tr>
+<tr><td>機能一覧から操作手順へ移動できる</td><td class="pass">PASS / 16リンク</td><td><a href="../07_運用手順/01_バックテスト手順書.html#feature-catalog">機能一覧</a></td></tr>
+<tr><td>操作手順が初心者向けの型を持つ</td><td class="pass">PASS / BT-MAN-01〜16</td><td><a href="../07_運用手順/00_バックテスト操作手順書作成ルール.html#procedure-template">作成ルール</a> / <a href="../07_運用手順/01_バックテスト手順書.html#procedures">手順</a></td></tr>
+<tr><td>用語、安全上の限界、将来利益と誤解しない説明がある</td><td class="pass">PASS</td><td><a href="../07_運用手順/01_バックテスト手順書.html#glossary">用語集</a> / <a href="../07_運用手順/01_バックテスト手順書.html#limits">できないこと</a></td></tr>
+<tr><td>Playwrightで実画面を確認してから画像を撮る</td><td class="pass">PASS / desktop・mobile</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-MANUAL-20260816-001/manual-quality-report.json">品質レポート</a> / <a href="../../../ui/mock/tests/p5r-backtest-manual-improvement.spec.ts">Playwrightテスト</a></td></tr>
+<tr><td>リンク、画像、静的品質を確認する</td><td class="pass">PASS / 228リンク、画像16、静的5 passed</td><td><a href="../../../plan/phase5R/manual/05_統合レビュー_2026-08-16.md">統合レビュー</a></td></tr>
+</table>
+</section>
+<section>
+<h2>修正した問題</h2>
+<p>新しいSweep取消の画面撮影時に、候補の説明リストがHTML上で正しく表現されていない問題を見つけた。候補名と説明の組を表す`dt`・`dd`を`dl`の中に置く形へ修正し、UIを再ビルドした。その後、デスクトップとモバイルのPlaywright、axe検査を再実行し、どちらもPASSになった。</p>
+</section>
+<section>
+<h2>未解決の範囲</h2>
+<p class="open"><code>P5R-UNK-001</code> はOPEN_NOT_PASSのまま。</p>
+<p>Providerの利用条件、過去のhost isolation、過去のchild Agent起動、実行費用の実測は、この文書改善だけでは解決しない。また、この判定はP6、Forward、Shadow、Paper、Liveの開始許可ではない。</p>
+</section>
+<section>
+<h2>成果物</h2>
+<ul>
+<li><a href="../07_運用手順/01_バックテスト手順書.html">初心者向けバックテスト手順書</a></li>
+<li><a href="../07_運用手順/00_バックテスト操作手順書作成ルール.html">バックテスト操作手順書作成ルール</a></li>
+<li><a href="../../../plan/Phase5R_バックテスト操作手順書改善_実行計画書_v0.1_2026-08-16.md">改善実行計画書・プロンプト群</a></li>
+<li><a href="../../../plan/phase5R/manual/05_統合レビュー_2026-08-16.md">統合レビュー</a></li>
+<li><a href="../../../tests/evidence/phase5R/RUN-P5R-MANUAL-20260816-001/agent-self-evaluation.md">自己評価</a></li>
+</ul>
+</section>
+</body>
+</html>
