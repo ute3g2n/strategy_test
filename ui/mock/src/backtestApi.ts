@@ -39,7 +39,7 @@ export type RunView = {
   run_id: string
   kind: string
   parent_id: string | null
-  status: 'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'CANCELLED' | string
+  status: 'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'CANCELLED' | 'RECOVERY_REQUIRED' | string
   progress: number
   total: number
   progress_percent: number
@@ -52,7 +52,15 @@ export type RunView = {
   failure: { code: string; message?: string; retryable?: boolean } | null
   checkpoint: Record<string, unknown> | null
   resume_count: number
+  recovery_mode: 'NORMAL' | 'LEGACY_RESULT_ONLY' | 'RECOVERY_REQUIRED' | string
   result_reference: string | null
+}
+
+export type RecoveryReport = {
+  status: 'CLEAN' | 'RECOVERY_REQUIRED' | string
+  issues: Array<{ code: string; run_id: string; path: string; message: string }>
+  recovery_required_run_ids: string[]
+  restored_run_count: number
 }
 
 export type SweepView = {
@@ -118,6 +126,7 @@ export const backtestApi = {
   cancelRun: (runId: string) => request<RunView>(`/api/backtest/runs/${encodeURIComponent(runId)}/cancel`, jsonBody({ reason: 'USER_REQUESTED_FROM_UI' })),
   resumeRun: (runId: string) => request<RunView>(`/api/backtest/runs/${encodeURIComponent(runId)}/resume`, jsonBody({})),
   listRuns: () => request<{ items: RunView[] }>('/api/backtest/runs/history'),
+  getRecovery: () => request<RecoveryReport>('/api/backtest/recovery'),
   createSweep: (spec: BacktestSpec, candidates: Array<Record<string, string | boolean>>) => request<SweepView>('/api/backtest/sweeps', jsonBody({ spec, candidates })),
   getSweep: (sweepId: string) => request<SweepView>(`/api/backtest/sweeps/${encodeURIComponent(sweepId)}`),
   cancelSweep: (sweepId: string) => request<SweepView>(`/api/backtest/sweeps/${encodeURIComponent(sweepId)}/cancel`, jsonBody({})),

@@ -1,0 +1,39 @@
+{
+  "phase_id": "AUTOTRADE-BACKTEST-RECOVERY",
+  "run_id": "RUN-20260816-001",
+  "step_id": "RECOVERY-05",
+  "target_paths": [
+    "src/autotrade/application/history_catalog.py",
+    "src/autotrade/application/storage_paths.py",
+    "src/autotrade/application/backtest_product.py",
+    "src/autotrade/application/http_server.py",
+    "ui/mock/src/backtestApi.ts",
+    "ui/mock/src/P5RBacktestScreen.tsx",
+    "tests/phase5R/test_backtest_history_recovery.py",
+    "ui/mock/tests/backtest-history-recovery.spec.ts"
+  ],
+  "excluded_paths": [
+    "external network",
+    "Broker",
+    "Secret",
+    "real order",
+    "real funds"
+  ],
+  "results": {
+    "python_phase5r": "PASS: 33 passed",
+    "ui_unit": "PASS: 10 passed",
+    "ui_build": "PASS",
+    "ui_lint": "PASS_WITH_EXISTING_FAST_REFRESH_WARNINGS",
+    "playwright_api_restart": "PASS: 1 passed",
+    "playwright_existing_backtest_desktop": "PASS: 1 passed",
+    "playwright_existing_backtest_mobile": "PASS: 1 passed",
+    "external_requests": 0,
+    "accessibility": "PASS in existing P5R journey axe gate"
+  },
+  "evidence_files": [
+    "tests/evidence/AUTOTRADE-BACKTEST-RECOVERY/RUN-20260816-001/RECOVERY-03_RED.md",
+    "tests/evidence/AUTOTRADE-BACKTEST-RECOVERY/RUN-20260816-001/RECOVERY-04_GREEN.md",
+    "tests/evidence/AUTOTRADE-BACKTEST-RECOVERY/RUN-20260816-001/api-restart-recovery.json",
+    "tests/evidence/AUTOTRADE-BACKTEST-RECOVERY/RUN-20260816-001/backtest-history-after-api-restart.png"
+  ]
+}

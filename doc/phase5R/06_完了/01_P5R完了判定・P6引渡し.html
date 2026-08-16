@@ -16,7 +16,7 @@ body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.75;max-width:115
 </main>
 <section>
 <h2>中学生向けの結論</h2>
-<p>Backtestについては、画面で条件を入力し、始める前に間違いを止め、実際に計算し、途中で止めたり続きから再開したり、結果を5つの数字と明細で見たり、条件の束・履歴・比較・CSV・Holdout・Walk-forwardまで操作できるようになった。下記の15操作・30枚は、P5R-11当時の完了記録である。その後、初心者向けの機能一覧、操作リンク、用語説明、失敗時の直し方を加えた改善を別完了判定として実施し、現在の手順書v0.2は16操作・16画像を正本とする。</p>
+<p>Backtestについては、画面で条件を入力し、始める前に間違いを止め、実際に計算し、途中で止めたり続きから再開したり、結果を5つの数字と明細で見たり、条件の束・履歴・比較・CSV・Holdout・Walk-forwardまで操作できるようになった。下記の15操作・30枚は、P5R-11当時の完了記録である。その後、初心者向けの機能一覧、操作リンク、用語説明、失敗時の直し方を加えた改善を別完了判定として実施した。さらに、完了RunをEドライブへ保存し、API／Windows再起動後に履歴・詳細・Ledgerを戻す機能を追加受入した。現在の正本は、<a href="05_再起動後バックテスト履歴復元完了判定.html">再起動後履歴復元完了判定</a>と、BT-F-01〜17を含む手順書v0.5である。</p>
 <p>一方、これは「利益が出る」と証明したものでも、「本番で注文できる」と証明したものでもない。外部市場、Broker、Secret、実注文、実資金、Paper / LiveはこのPhaseに入れていない。</p>
 </section>
 <section>
@@ -25,6 +25,7 @@ body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.75;max-width:115
 <tr><td>P5R-H0</td><td class="pass">代理承認済み</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-00-20260816-001/h0-decision.json">H0</a></td></tr>
 <tr><td>P5R-H1</td><td class="pass">代理承認済み</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-00-20260816-001/h1-decision.json">H1</a> / <a href="../../../tests/evidence/phase5R/RUN-P5R-03-20260816-001/verification.json">固定4 Gate</a></td></tr>
 <tr><td>P5R-AC-01〜16</td><td class="pass">全件PASS</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-11-20260816-001/acceptance-matrix.md">受入マトリクス</a></td></tr>
+<tr><td>P5R-AC-17 / REQ-V3-0128</td><td class="pass">完了RunのAPI再起動後復元PASS</td><td><a href="05_再起動後バックテスト履歴復元完了判定.html">完了判定</a> / <a href="../../../tests/evidence/AUTOTRADE-BACKTEST-RECOVERY/RUN-20260816-001/verification.json">統合検証Evidence</a></td></tr>
 <tr><td>P5R-MANUAL-G1（P5R-11時点の履歴）</td><td class="pass">PASS / 30枚</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-10-20260816-001/manual-review.md">手順書Evidence</a> / <a href="../07_運用手順/01_バックテスト手順書.html">現行手順書</a></td></tr>
 <tr><td>P5R-MANUAL-IMPROVEMENT-001</td><td class="pass">完了 / 16機能・16画像</td><td><a href="03_バックテスト手順書改善完了判定.html">初心者向け手順書改善完了判定</a> / <a href="../../../tests/evidence/phase5R/RUN-P5R-MANUAL-20260816-001/manual-quality-report.json">品質Evidence</a></td></tr>
 <tr><td>実行品質</td><td class="pass">Python 179、UI 10、P4回帰3、P5R E2E 2</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-04-20260816-001/application-green.md">Application</a> / <a href="../../../tests/evidence/phase5R/RUN-P5R-05-20260816-001/ui-quality.md">UI</a></td></tr>

@@ -35,6 +35,7 @@ from autotrade.market_data.store_contracts import DataVersionManifest, MarketEve
 from autotrade.strategy.contracts import StrategyConfig, StrategyState
 from autotrade.strategy.service import process_closed_bars
 
+from .history_catalog import HistoryCatalog
 from .storage_paths import BACKTEST_STORAGE_ROOT, HISTORICAL_DATA_ROOT, validate_storage_path
 
 JsonObject = dict[str, Any]
@@ -122,6 +123,7 @@ class _Run:
     failure: JsonObject | None = None
     checkpoint: JsonObject | None = None
     resume_count: int = 0
+    recovery_mode: str = "NORMAL"
     cancel_event: threading.Event = field(default_factory=threading.Event)
     thread: threading.Thread | None = None
     state: JsonObject = field(default_factory=dict)
@@ -172,6 +174,109 @@ class BacktestProductService:
         self._sweeps: dict[str, _Sweep] = {}
         self._csv_jobs: dict[str, _CsvJob] = {}
         self._holdout_consumed = False
+        self._history_catalog = HistoryCatalog(self.runtime_root)
+        self._recovery_issues: list[JsonObject] = []
+        self._restore_history()
+
+    def _restore_history(self) -> None:
+        restored, issues = self._history_catalog.restore()
+        with self._lock:
+            self._recovery_issues = [dict(issue) for issue in issues]
+            for record in restored:
+                run_id = record.get("run_id")
+                if not isinstance(run_id, str) or run_id in self._runs:
+                    self._recovery_issues.append(
+                        {
+                            "code": "DUPLICATE_RUN_ID",
+                            "run_id": str(run_id or "UNKNOWN"),
+                            "path": "catalog/runs",
+                            "message": "同じRun IDが複数回見つかりました。",
+                        }
+                    )
+                    continue
+                raw_spec = record.get("spec")
+                spec = dict(raw_spec) if isinstance(raw_spec, Mapping) else {}
+                if not spec:
+                    spec = self._legacy_spec(record)
+                run = _Run(
+                    run_id=run_id,
+                    spec=spec,
+                    kind=str(record.get("kind", "SINGLE_BACKTEST")),
+                    parent_id=str(record["parent_id"]) if record.get("parent_id") is not None else None,
+                    status=str(record.get("status", "RECOVERY_REQUIRED")),
+                    progress=self._stored_int(record.get("progress")),
+                    total=self._stored_int(record.get("total")),
+                    started_at=record.get("started_at") if isinstance(record.get("started_at"), str) else None,
+                    ended_at=record.get("ended_at") if isinstance(record.get("ended_at"), str) else None,
+                    metrics=dict(record["metrics"]) if isinstance(record.get("metrics"), Mapping) else None,
+                    provenance=dict(record.get("provenance", {}))
+                    if isinstance(record.get("provenance"), Mapping)
+                    else {},
+                    failure=dict(record["failure"]) if isinstance(record.get("failure"), Mapping) else None,
+                    checkpoint=dict(record["checkpoint"])
+                    if isinstance(record.get("checkpoint"), Mapping)
+                    else None,
+                    resume_count=self._stored_int(record.get("resume_count")),
+                    recovery_mode=str(record.get("recovery_mode", "NORMAL")),
+                )
+                rows = record.get("rows")
+                if isinstance(rows, list):
+                    run.rows = [dict(row) for row in rows if isinstance(row, Mapping)]
+                self._runs[run_id] = run
+
+    @staticmethod
+    def _stored_int(value: object) -> int:
+        try:
+            parsed = int(value or 0)
+        except (TypeError, ValueError):
+            return 0
+        return max(parsed, 0)
+
+    def _legacy_spec(self, record: Mapping[str, Any]) -> JsonObject:
+        """Build only the conditions safely visible in an old result artifact."""
+
+        provenance = record.get("provenance") if isinstance(record.get("provenance"), Mapping) else {}
+        metrics = record.get("metrics") if isinstance(record.get("metrics"), Mapping) else {}
+        fixture_scope = str(provenance.get("fixture_scope", ""))
+        symbol = next((candidate for candidate in ALLOWED_SYMBOLS if candidate in fixture_scope), "UNKNOWN")
+        explicit_symbol = provenance.get("symbol")
+        if isinstance(explicit_symbol, str) and explicit_symbol in ALLOWED_SYMBOLS:
+            symbol = explicit_symbol
+        core = provenance.get("core_validation") if isinstance(provenance.get("core_validation"), Mapping) else {}
+        selected_system = core.get("selected_system")
+        strategy = {"SYS1": "TURTLE_SYS1", "SYS2": "TURTLE_SYS2"}.get(str(selected_system), "UNKNOWN")
+        return {
+            "symbol": symbol,
+            "market": "UNKNOWN",
+            "timeframe": "UNKNOWN",
+            "timezone": "UNKNOWN",
+            "calendar": "UNKNOWN",
+            "start": provenance.get("period_start_utc") or metrics.get("period_start_utc") or "UNKNOWN",
+            "end": provenance.get("period_end_utc") or metrics.get("period_end_utc") or "UNKNOWN",
+            "strategy": strategy,
+            "parameters": {
+                "entry_lookback": str(core.get("entry_lookback", "UNKNOWN")),
+                "exit_lookback": str(core.get("exit_lookback", "UNKNOWN")),
+                "initial_balance": "UNKNOWN",
+                "fee_bps": str(provenance.get("fee_bps", "UNKNOWN")),
+                "slippage_bps": str(provenance.get("slippage_bps", "UNKNOWN")),
+            },
+            "recovery_note": "旧形式result.jsonから安全に読める情報だけを表示しています。UNKNOWNは当時の保存対象外です。",
+        }
+
+    def _persist_run(self, run: _Run) -> None:
+        self._history_catalog.persist_run(self._run_view(run))
+
+    def recovery_report(self) -> JsonObject:
+        with self._lock:
+            required_ids = [run.run_id for run in self._runs.values() if run.status == "RECOVERY_REQUIRED"]
+            issues = [dict(issue) for issue in self._recovery_issues]
+        return {
+            "status": "RECOVERY_REQUIRED" if issues or required_ids else "CLEAN",
+            "issues": issues,
+            "recovery_required_run_ids": sorted(required_ids),
+            "restored_run_count": len(self._runs),
+        }
 
     def reset_for_local_test(self) -> None:
         """Clear only the in-memory local test service state between browser projects."""
@@ -211,6 +316,7 @@ class BacktestProductService:
         run = _Run(run_id=run_id, spec=spec, kind=kind, parent_id=parent_id)
         with self._lock:
             self._runs[run_id] = run
+            self._persist_run(run)
             run.thread = threading.Thread(
                 target=self._execute_run, args=(run_id,), daemon=True, name=f"autotrade-{run_id}"
             )
@@ -245,6 +351,7 @@ class BacktestProductService:
                 return self._run_view(run)
             run.failure = {"code": "CANCELLED_BY_USER", "message": reason, "retryable": True}
             run.cancel_event.set()
+            self._persist_run(run)
             return self._run_view(run)
 
     def resume_run(self, run_id: str) -> JsonObject:
@@ -258,6 +365,7 @@ class BacktestProductService:
             run.cancel_event.clear()
             run.failure = None
             run.status = "QUEUED"
+            self._persist_run(run)
             run.thread = threading.Thread(
                 target=self._execute_run, args=(run_id,), daemon=True, name=f"autotrade-resume-{run_id}"
             )
@@ -567,6 +675,7 @@ class BacktestProductService:
             run = self._runs[run_id]
             run.status = "RUNNING"
             run.started_at = _iso(datetime.now(UTC))
+            self._persist_run(run)
         try:
             spec = run.spec
             bars = self._load_bars(str(spec["symbol"]), _utc(spec["start"]), _utc(spec["end"]))
@@ -591,11 +700,13 @@ class BacktestProductService:
                 run.status = "FAILED"
                 run.failure = {"code": str(error), "retryable": False}
                 run.ended_at = _iso(datetime.now(UTC))
+                self._persist_run(run)
         except Exception:
             with self._lock:
                 run.status = "FAILED"
                 run.failure = {"code": "UNEXPECTED_LOCAL_FAILURE", "retryable": False}
                 run.ended_at = _iso(datetime.now(UTC))
+                self._persist_run(run)
 
     def _run_bars(self, run: _Run, bars: list[_Bar], start_index: int) -> None:
         parameters = run.spec["parameters"]
@@ -607,11 +718,14 @@ class BacktestProductService:
                     run.status = "CANCELLED"
                     run.checkpoint = {"cursor": index - 1, "row_count": len(run.rows), "state": dict(run.state)}
                     run.ended_at = _iso(datetime.now(UTC))
+                    self._persist_run(run)
                     return
             self._step_run(run, bars, index, entry_lookback, exit_lookback)
             with self._lock:
                 run.progress = index + 1
                 run.state["cursor"] = index
+                if index % 50 == 0:
+                    self._persist_run(run)
             if len(bars) > 1_000 or index % 20 == 0:
                 time.sleep(0.001)
         with self._lock:
@@ -995,10 +1109,9 @@ class BacktestProductService:
         }
 
     def _publish_result(self, run: _Run) -> None:
-        directory = self.runtime_root / "results" / run.run_id
-        directory.mkdir(parents=True, exist_ok=True)
         payload = {"run_id": run.run_id, "metrics": run.metrics, "rows": run.rows, "provenance": run.provenance}
-        (directory / "result.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        self._history_catalog.write_result(run.run_id, payload)
+        self._persist_run(run)
 
     def _execute_sweep(self, sweep_id: str, candidates: list[JsonObject]) -> None:
         with self._lock:
@@ -1131,6 +1244,7 @@ class BacktestProductService:
             "failure": dict(run.failure) if run.failure else None,
             "checkpoint": dict(run.checkpoint) if run.checkpoint else None,
             "resume_count": run.resume_count,
+            "recovery_mode": run.recovery_mode,
             "result_reference": f"results/{run.run_id}/result.json" if run.status == "SUCCEEDED" else None,
         }
 

@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>再起動後バックテスト履歴復元 実装詳細設計書</title>
+  <style>
+    body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.75;color:#182230;background:#f5f7fb;margin:0}
+    main{max-width:1220px;margin:0 auto;background:#fff;padding:28px 42px}
+    h1,h2{color:#173b68;border-bottom:2px solid #d8e4f2;padding-bottom:6px}
+    h3{color:#245a87;margin-top:28px}
+    table{border-collapse:collapse;width:100%;margin:12px 0 24px}
+    th,td{border:1px solid #cfd9e5;padding:8px;vertical-align:top}
+    th{background:#eaf2fb;text-align:left}
+    code{background:#eef2f6;padding:2px 5px;border-radius:3px}
+    pre{background:#f8fafc;border:1px solid #d9e2ec;padding:14px;overflow:auto}
+    .mermaid{background:#f8fbff;padding:16px;overflow:auto}
+    .note{background:#fff7df;border-left:5px solid #e4a11b;padding:12px 16px}
+    .good{color:#146b3a;font-weight:700}.open{color:#a14a00;font-weight:700}
+    .small{font-size:.9em;color:#566575}
+  </style>
+  <script src="../../assets/mermaid.min.js"></script>
+  <script src="../../assets/mermaid-init.js"></script>
+</head>
+<body><main>
+<p class="small">文書ID: `P5R-RECOVERY-DD-01` / 版: v0.2 / 2026-08-16 / 状態: 実装・検証完了（Open scopeあり）</p>
+<h1>再起動後バックテスト履歴復元 実装詳細設計書</h1>
+<div class="note"><strong>やさしい要約：</strong>今のアプリは、バックテストの答案をEドライブへ保存しているが、「どの答案があるか」をアプリ起動時に読み直していない。この設計では、答案本体の <code>result.json</code> と、名前・条件・状態・保存場所を書いた履歴カタログを同じEドライブへ置く。アプリが再起動したらカタログと答案を照合し、過去のRunを画面へ戻す。途中で壊れた答案は成功扱いにせず、確認が必要な状態で止める。</div>
+
+<h2>1. 目的・対象・非対象</h2>
+<p>対象は、P5RのローカルBacktest Application APIとUIである。Windows再起動、APIプロセス停止・再起動、ブラウザの再読込後でも、完了したRunの履歴・指標・provenance・Ledgerを画面から再取得できるようにする。</p>
+<table><tr><th>項目</th><th>定義</th><th>今回の扱い</th></tr>
+<tr><td>対象要件</td><td><code>REQ/P5R-AC-06-R</code>、<code>REQ/P5R-AC-09-R</code>、<code>REQ/P5R-AC-10-R</code>、<code>REQ/P5R-AC-11-R</code></td><td>履歴・結果・Ledger・比較・CSVの再起動後利用を実装し、pytestとPlaywrightで受入する。</td></tr>
+<tr><td>結果本体</td><td>Runの指標、取引行、Data由来</td><td><code>E:\strategy_test_data\autotrade\backtest\results\&lt;run_id&gt;\result.json</code>に保存する。</td></tr>
+<tr><td>履歴カタログ</td><td>Run ID、条件、状態、時刻、結果参照</td><td><code>E:\strategy_test_data\autotrade\backtest\catalog\runs\&lt;run_id&gt;.json</code>に保存する。</td></tr>
+<tr><td>対象外</td><td>Broker、外部Data、Secret、実注文、実資金</td><td>実装・テストで接続しない。</td></tr>
+<tr><td>対象外</td><td>途中Runの完全な再起動後resume</td><td>StrategyStateを完全保存する設計が別途必要なため、再起動後は<code>RECOVERY_REQUIRED</code>にする。</td></tr>
+<tr><td>対象外</td><td>P4の汎用SQLite MetadataStoreとの統合</td><td>契約が異なるため今回接続しない。将来判断は<code>UNK/P5R-RECOVERY-001</code>。</td></tr></table>
+
+<h2>2. 用語</h2>
+<table><tr><th>用語</th><th>中学生向けの意味</th><th>技術上の意味</th></tr>
+<tr><td>Run</td><td>1回分の過去問の答案</td><td>1回のBacktest実行と、その条件・状態・結果。</td></tr>
+<tr><td>結果本体</td><td>答案の中身</td><td><code>metrics</code>、<code>rows</code>、<code>provenance</code>を含むJSON。</td></tr>
+<tr><td>履歴カタログ</td><td>答案の名前と置き場所を書いた台帳</td><td>起動時に読み込み、RunViewを再構成するJSON記録。</td></tr>
+<tr><td>復元</td><td>保存した答案をアプリの画面へ戻すこと</td><td>ディスク上のカタログ・結果を検査し、メモリ上の<code>_Run</code>へ変換すること。</td></tr>
+<tr><td>原子的書込み</td><td>書きかけの答案を完成品と間違えない保存方法</td><td>同じディレクトリへ書き込み完了後、<code>os.replace</code>で完成名へ切り替える。</td></tr>
+<tr><td>RECOVERY_REQUIRED</td><td>答案に問題があるので確認が必要な状態</td><td>保存物の欠落・破損、または再起動後に安全に再開できない状態。</td></tr></table>
+
+<h2>3. ファイル構成</h2>
+<pre>src/autotrade/application/
+  history_catalog.py       # 履歴レコードの保存・読込・パス検査・旧形式検出
+  storage_paths.py         # BACKTEST_CATALOG_ROOTを定義
+  backtest_product.py      # 起動時restore、RunView再構成、結果/CSVとの接続
+  http_server.py            # /api/backtest/recoveryと既存履歴API
+
+ui/mock/src/
+  backtestApi.ts           # RecoveryReport型とAPI境界
+  P5RBacktestScreen.tsx    # 起動時/履歴タブの取得、復元注意表示
+
+tests/phase5R/
+  test_backtest_history_recovery.py  # 保存、復元、旧形式、破損、途中Run、パス境界
+
+ui/mock/tests/
+  backtest-history-recovery.spec.ts # APIプロセス再起動後の画面操作
+
+doc/phase5R/02_実装詳細設計/
+  03_再起動後バックテスト履歴復元実装詳細設計書.html</pre>
+
+<h2>4. モジュール構造とデータ受渡し</h2>
+<pre class="mermaid">flowchart LR
+  UI[Backtest UI] -->|HistoryRequest / RunId| API[Local HTTP API]
+  API -->|list / detail / rows| SERVICE[BacktestProductService]
+  SERVICE -->|RunView record| CATALOG[HistoryCatalog]
+  CATALOG -->|catalog JSON| DISK[E drive catalog]
+  SERVICE -->|result reference| RESULT[Result JSON reader]
+  RESULT -->|metrics / rows / provenance| DISK2[E drive results]
+  SERVICE -->|RecoveryReport| API
+  API -->|RunView / RecoveryReport| UI</pre>
+<p>この図は、画面、API、サービス、履歴カタログ、結果本体が何を渡すかを示す。矢印の名前は、受け渡す依頼・データ・保存物を短く表している。</p>
+<table><tr><th>送る部品</th><th>受け取る部品</th><th>渡すデータ・依頼</th><th>用途と停止条件</th></tr>
+<tr><td>UI</td><td>HTTP API</td><td>履歴一覧、Run ID、rows要求</td><td>APIはローカルloopbackだけで受け、IDは安全な形式か確認する。</td></tr>
+<tr><td>HTTP API</td><td>BacktestProductService</td><td><code>list_runs</code>、<code>get_run</code>、<code>get_rows</code>、<code>recovery_report</code></td><td>サービスの復元済みメモリ状態をDTOへ変換する。不明な結果を成功にしない。</td></tr>
+<tr><td>BacktestProductService</td><td>HistoryCatalog</td><td>RunViewの保存レコード</td><td>spec、状態、時刻、結果相対参照を保存する。保存失敗時は完了扱いにしない。</td></tr>
+<tr><td>HistoryCatalog</td><td>Eドライブ</td><td><code>catalog/runs/&lt;run_id&gt;.json</code></td><td>原子的に保存し、書きかけのファイルは読み込まない。絶対パス・親脱出を拒否する。</td></tr>
+<tr><td>BacktestProductService</td><td>Result JSON reader</td><td><code>results/&lt;run_id&gt;/result.json</code>相対参照</td><td>JSONのrun_id、metrics、rows、provenanceを検査する。欠落・破損はRECOVERY_REQUIRED。</td></tr>
+<tr><td>BacktestProductService</td><td>UI/API</td><td>RunView、rows、RecoveryReport</td><td>復元成功、旧形式、回復要否を状態と理由付きで表示する。</td></tr></table>
+
+<h2>5. 保存場所と保存形式</h2>
+<p>保存場所は既存のApplication storage boundaryを使う。既定のルートはEドライブで、CドライブやWindows一時フォルダへの代替保存を行わない。テストで<code>tmp_path</code>を使う場合は、明示的な<code>runtime_root</code>としてのみ使う。</p>
+<table><tr><th>保存物</th><th>相対場所</th><th>役割</th><th>上書き規則</th></tr>
+<tr><td>結果本体</td><td><code>results/&lt;run_id&gt;/result.json</code></td><td>metrics、rows、provenance</td><td>同じ完了Runの結果本体は上書き禁止。書き込み完了後に公開する。</td></tr>
+<tr><td>Runカタログ</td><td><code>catalog/runs/&lt;run_id&gt;.json</code></td><td>RunViewの履歴情報</td><td>実行状態の更新は同じRunのレコードを原子的置換する。書きかけ名は読込対象外。</td></tr>
+<tr><td>CSV</td><td><code>exports/&lt;job_id&gt;/result.csv</code></td><td>復元Runから再生成した表</td><td>既存Jobの完成CSVを上書きしない。</td></tr>
+<tr><td>回復問題</td><td>プロセスメモリと<code>GET /api/backtest/recovery</code></td><td>壊れた保存物を黙って隠さない</td><td>管理用hashやmanifestは作らない。</td></tr></table>
+
+<h3>5.1 新RunカタログのJSON契約</h3>
+<p>次の表は、実装者がどの値を保存し、何を必須とするかを判断するためのもの。JSONの説明用例であり、実在Runの値を固定するものではない。</p>
+<pre>{
+  "schema": "autotrade-backtest-history/v1",
+  "run_id": "RUN-AUTOTRADE-EXAMPLE",
+  "kind": "SINGLE_BACKTEST",
+  "parent_id": null,
+  "status": "SUCCEEDED",
+  "progress": 150,
+  "total": 150,
+  "started_at": "2026-08-16T08:00:00Z",
+  "ended_at": "2026-08-16T08:00:02Z",
+  "spec": { "symbol": "BTCUSDT", "market": "SPOT", "timeframe": "1m", "timezone": "UTC", "calendar": "CRYPTO_24_7_UTC", "start": "2025-02-24T00:00:00Z", "end": "2025-02-24T02:30:00Z", "strategy": "TURTLE_SYS1", "parameters": {} },
+  "metrics": { "total_pnl": "0.0000", "trade_count": 0 },
+  "provenance": { "source_mode": "P5_LOCAL_READ_ONLY" },
+  "failure": null,
+  "checkpoint": null,
+  "resume_count": 0,
+  "recovery_mode": "NORMAL",
+  "result_reference": "results/RUN-AUTOTRADE-EXAMPLE/result.json"
+}</pre>
+<table><tr><th>項目</th><th>型</th><th>必須</th><th>検査</th></tr>
+<tr><td><code>schema</code></td><td>文字列</td><td>必須</td><td><code>autotrade-backtest-history/v1</code>だけを受け入れ、未知版は問題として報告する。</td></tr>
+<tr><td><code>run_id</code></td><td>安全なID文字列</td><td>必須</td><td>ファイル名、結果本体のrun_id、カタログのrun_idが一致すること。</td></tr>
+<tr><td><code>spec</code></td><td>JSON object</td><td>新形式では必須</td><td>通常のRun作成時に検証済みのspecを保存する。Secret禁止検査を再利用する。</td></tr>
+<tr><td><code>status</code></td><td>状態文字列</td><td>必須</td><td>既知状態以外は成功扱いしない。QUEUED／RUNNING／CANCELLEDは再起動後にRECOVERY_REQUIREDへ変換する。</td></tr>
+<tr><td><code>metrics</code></td><td>objectまたはnull</td><td>状態に応じる</td><td>SUCCEEDEDでは結果本体のmetricsと整合すること。</td></tr>
+<tr><td><code>provenance</code></td><td>object</td><td>SUCCEEDEDでは必須</td><td>Data由来・仮定・期間を保持する。利益保証を追加しない。</td></tr>
+<tr><td><code>result_reference</code></td><td>相対文字列</td><td>SUCCEEDEDでは必須</td><td>絶対パス、UNC、<code>..</code>、results外、別run_idの参照を拒否する。</td></tr>
+<tr><td><code>recovery_mode</code></td><td>文字列</td><td>任意</td><td><code>NORMAL</code>、<code>LEGACY_RESULT_ONLY</code>、<code>RECOVERY_REQUIRED</code>を識別する。</td></tr></table>
+
+<h2>6. 起動時復元の処理順</h2>
+<pre class="mermaid">sequenceDiagram
+  participant P as API process
+  participant S as BacktestProductService
+  participant C as HistoryCatalog
+  participant R as result.json
+  participant U as UI
+  P-&gt;&gt;S: constructor(runtime_root)
+  S-&gt;&gt;C: load catalog/runs/*.json
+  C--&gt;&gt;S: valid records + recovery issues
+  loop each catalog record
+    S-&gt;&gt;R: read referenced result
+    R--&gt;&gt;S: metrics / rows / provenance
+    S-&gt;&gt;S: validate IDs, paths, schema, status
+  end
+  S-&gt;&gt;C: scan legacy results without catalog
+  C--&gt;&gt;S: legacy result candidates
+  S-&gt;&gt;S: reconstruct _Run objects
+  U-&gt;&gt;P: GET /api/backtest/runs/history
+  P-&gt;&gt;S: list_runs()
+  S--&gt;&gt;P: RunView list
+  P--&gt;&gt;U: history items</pre>
+
+<h3>6.1 復元アルゴリズム</h3>
+<pre>1. catalog/runs/*.jsonだけを列挙する。書きかけ名・ディレクトリは読まない。
+2. ファイル名からrun_idを取り出し、安全なIDか確認する。
+3. JSON、schema_version、run.run_idの型と一致を確認する。
+4. result_referenceをruntime_rootから解決し、results配下から出ないことを確認する。
+5. statusがSUCCEEDEDならresult.jsonを必須とし、run_id、metrics、rows、provenanceを検査する。
+6. statusがQUEUED/RUNNINGなら、古いthreadを復元せずRECOVERY_REQUIREDへ変換する。
+7. statusがCANCELLEDでcheckpointしかない場合も、StrategyStateなしのresumeを許可せずRECOVERY_REQUIREDへ変換する。
+8. statusがFAILEDならfailureを保持して一覧へ戻す。
+9. catalogがないresults/&lt;run_id&gt;/result.jsonは旧形式として読み、既知値だけでLEGACY_RESULT_ONLY Runを作る。
+10. 壊れた入力はRecoveryReportへ追加し、SUCCEEDED一覧から成功扱いで返さない。
+11. 復元したRunを_process内の_runsへ登録する。
+</pre>
+
+<h2>7. 状態と失敗時の扱い</h2>
+<table><tr><th>検出状態</th><th>RunViewの扱い</th><th>ユーザーへの意味</th><th>停止理由</th></tr>
+<tr><td>catalog/result一致</td><td>保存された状態を保持</td><td>過去の結果を通常表示できる</td><td>なし</td></tr>
+<tr><td>旧形式resultのみ</td><td>SUCCEEDED + legacy表示</td><td>結果は見えるが、条件の一部は不明</td><td><code>LEGACY_RESULT_ONLY</code></td></tr>
+<tr><td>結果JSON欠落・破損</td><td>RECOVERY_REQUIRED</td><td>答案の中身を確認できないため成功扱いしない</td><td><code>RESULT_REFERENCE_MISSING</code>、<code>RESULT_JSON_INVALID</code>など</td></tr>
+<tr><td>実行中にAPI停止</td><td>RECOVERY_REQUIRED</td><td>途中計算を勝手に成功・再開しない</td><td><code>INCOMPLETE_AFTER_RESTART</code></td></tr>
+<tr><td>パス・ID不一致</td><td>RECOVERY_REQUIRED + RecoveryReport</td><td>別Runの結果を取り違えない</td><td><code>RESULT_REFERENCE_OUT_OF_SCOPE</code>、<code>RESULT_REFERENCE_MISMATCH</code>など</td></tr></table>
+
+<h2>8. API契約</h2>
+<p>既存の履歴APIのURLは変えない。新しいRecovery APIは、管理者や手順書が「復元で問題が起きていないか」を確認するための読み取り専用窓口である。</p>
+<table><tr><th>Endpoint</th><th>入力</th><th>成功出力</th><th>失敗・停止</th><th>副作用</th></tr>
+<tr><td><code>GET /api/backtest/runs/history</code></td><td>なし</td><td><code>{items: RunView[]}</code></td><td>サービス内部の復元問題を隠さない。API自体は応答する。</td><td>なし</td></tr>
+<tr><td><code>GET /api/backtest/runs/:id</code></td><td>安全なrun_id</td><td>復元済みRunView</td><td>不明IDは404、RECOVERY_REQUIREDは状態とfailureを返す。</td><td>なし</td></tr>
+<tr><td><code>GET /api/backtest/runs/:id/rows</code></td><td>安全なrun_id</td><td><code>{items: LedgerRow[]}</code></td><td>結果欠落は回復エラー。空配列を正常完了の証拠にしない。</td><td>なし</td></tr>
+<tr><td><code>GET /api/backtest/recovery</code></td><td>なし</td><td><code>{status: CLEAN|RECOVERY_REQUIRED, issues: [...], recovery_required_run_ids: [...]}</code></td><td>JSON本文にSecretを入れず、問題があれば一覧を正常扱いしない。</td><td>なし</td></tr>
+<tr><td><code>POST /api/backtest/csv-jobs</code></td><td>復元済みSUCCEEDED run_id、列</td><td>新しいCSV Job</td><td>RECOVERY_REQUIRED、未完了、列不正は拒否。</td><td>Eドライブexportsへ新規CSV保存。</td></tr>
+</table>
+
+<h2>9. UI契約</h2>
+<p>UIは計算を行わず、APIから返された復元結果を表示する。Backtest画面を開いた時点で履歴を取得し、履歴タブの「履歴を更新」でも再取得する。RecoveryReportに問題がある場合は、履歴が全て正常だと誤解させない注意表示を出す。</p>
+<table><tr><th>UI操作</th><th>API</th><th>成功表示</th><th>問題時表示</th></tr>
+<tr><td>Backtest画面を開く</td><td>history + recovery</td><td>履歴取得済み</td><td>ローカルAPIエラーまたは復元注意</td></tr>
+<tr><td>履歴・比較タブ</td><td>GET history</td><td>Run ID、条件、状態、進捗</td><td>RECOVERY_REQUIREDと理由を表示</td></tr>
+<tr><td>結果を開く</td><td>GET run、GET rows</td><td>5指標、provenance、Ledger</td><td>Ledgerを取得できない理由を表示</td></tr>
+<tr><td>CSV生成</td><td>POST csv-jobs</td><td>新しいCSV Job</td><td>復元不完全Runは開始ボタンを使えない</td></tr></table>
+
+<h2>10. 主要処理の擬似コード</h2>
+<pre>def restore_history(runtime_root):
+    records, issues = catalog.load_run_records()
+    restored = {}
+    for record in records:
+        try:
+            view = validate_catalog_record(record)
+            if view.status in {"QUEUED", "RUNNING", "CANCELLED"}:
+                view = mark_recovery_required(view, reason_for_restart(view.status))
+            if view.status == "SUCCEEDED":
+                result = read_result(view.result_reference)
+                ensure_result_run_id(result, view.run_id)
+                view.metrics = result["metrics"]
+                view.rows = result["rows"]
+                view.provenance = result["provenance"]
+            restored[view.run_id] = build_run_without_thread(view)
+        except RecoveryError as error:
+            issues.append(error.report)
+    for result_path in scan_legacy_result_files(runtime_root):
+        if result_path.run_id not in restored:
+            restored[result_path.run_id] = build_legacy_run(result_path)
+    return restored, issues</pre>
+
+<h2>11. テスト仕様</h2>
+<p>この表は、設計の各約束がどのテストで証明されるかを示す。各行には条件、操作、期待結果、合否判定を文章で記す。</p>
+<table><tr><th>ID</th><th>条件</th><th>操作</th><th>期待結果</th><th>合否判定</th></tr>
+<tr><td>RECOVERY-T-01</td><td>小さな合成OHLCVでRunを完了させ、同じruntime_rootを使う。</td><td>サービスAでRunを作り、完了後にサービスBを生成してlist_runsを呼ぶ。</td><td>サービスBの一覧にサービスAと同じRun IDがあり、状態がSUCCEEDEDになる。</td><td>Run IDが一致し、重複がなく、別の新規Runを作っていない場合にPASS。</td></tr>
+<tr><td>RECOVERY-T-02</td><td>サービスAのmetrics、provenance、rowsを保存する。</td><td>サービスBでget_runとget_rowsを呼ぶ。</td><td>metricsとprovenanceが結果本体から戻り、rowsの件数と代表行が一致する。</td><td>元と復元後で比較対象のJSON値が一致すればPASS。</td></tr>
+<tr><td>RECOVERY-T-03</td><td>復元後のRunがSUCCEEDEDである。</td><td>compare_runsとcreate_csv_jobを実行する。</td><td>比較結果が返り、新しいCSV JobがSUCCEEDEDになり、CSVを取得できる。</td><td>既存結果を上書きせず、新しいJobのCSVが読めればPASS。</td></tr>
+<tr><td>RECOVERY-T-04</td><td>catalogなしの旧形式result.jsonを用意する。</td><td>サービスを生成してlist_runs/get_run/get_rowsを呼ぶ。</td><td>RunがLEGACY_RESULT_ONLYとして表示され、metrics/rowsが戻り、未知のspec値はUNKNOWN扱いになる。</td><td>推測した作成時刻や条件を出さなければPASS。</td></tr>
+<tr><td>RECOVERY-T-05</td><td>JSON破損、ID不一致、results外参照、result欠落をそれぞれ用意する。</td><td>サービス起動後にhistoryとrecovery reportを呼ぶ。</td><td>成功Runとして採用されず、RecoveryReportに問題が出る。</td><td>黙って消えず、RECOVERY_REQUIREDまたはissueが返ればPASS。</td></tr>
+<tr><td>RECOVERY-T-06</td><td>catalogのstatusをRUNNINGまたはCANCELLEDにする。</td><td>サービスを再起動相当で生成する。</td><td>旧threadは存在せず、自動成功・自動resumeされず、RECOVERY_REQUIREDになる。</td><td>プロセスの外へ実行を続けるthreadがないことも確認してPASS。</td></tr>
+<tr><td>RECOVERY-T-07</td><td>実HTTP serverをloopbackで起動し、Run完了後にサーバーを停止する。</td><td>新しいHTTP serverを同じstorageで起動し、history/detail/rowsを取得する。</td><td>同じRun ID、指標、Ledgerが返る。</td><td>HTTP status、JSON、件数が一致すればPASS。</td></tr>
+<tr><td>RECOVERY-T-08</td><td>UIとAPIをPlaywrightで起動し、Runを1件完了させる。</td><td>APIだけを対象PIDで停止し、新APIを起動後、履歴タブ→結果を開く。</td><td>再起動前のRun ID、5指標、Ledgerが表示される。</td><td>DOM assertion後にスクリーンショットを取得し、外部通信0件ならPASS。</td></tr>
+<tr><td>RECOVERY-T-09</td><td>既定サービスとstorage_pathsを確認する。</td><td>catalogパスを検証し、禁止候補を拒否する。</td><td>既定catalogがEドライブのautotrade/backtest配下で、C/temp/tmp/phase5rを含まない。</td><td>全パス条件と拒否条件が満たされればPASS。</td></tr>
+<tr><td>RECOVERY-T-10</td><td>UI journey中のrequestを監視する。</td><td>Backtest画面、API、Vite以外へのrequestを記録する。</td><td>外部URLへのrequestが0件である。</td><td>外部request配列が空ならPASS。</td></table>
+
+<h2>12. Unknown・レビュー・引渡し</h2>
+<table><tr><th>ID</th><th>Unknown</th><th>決定時期</th><th>未決時の扱い</th></tr>
+<tr><td>UNK/P5R-RECOVERY-001</td><td>P4 MetadataStoreをP5R APIへ統合するか</td><td>別の永続化統合設計開始時</td><td>今回の完了条件に含めず、未接続のまま記録する。</td></tr>
+<tr><td>UNK/P5R-RECOVERY-002</td><td>実機Windows再起動の手動Gate</td><td>最終受入前</td><td>APIプロセス再起動PASSと、実機Windows再起動未実施を分けて表示する。</td></tr>
+<tr><td>UNK/P5R-RECOVERY-003</td><td>途中RunのStrategyState完全保存・resume</td><td>再開機能の次回設計時</td><td>再起動後はRECOVERY_REQUIRED。自動再開しない。</td></tr>
+<tr><td>UNK/P5R-RECOVERY-004</td><td>大量Runのcatalog scan性能・保持期限・バックアップ</td><td>通常運用前</td><td>今回のローカル小規模受入の範囲外とする。</td></tr></table>
+<p>初回レビューはA91、横断・Red TeamはA90、管理用hash再導入静的判定はA95が担当する。A91/A90/A95をruntimeで起動できない場合はFallbackとして事実を残し、独立レビュー済みと偽らない。Critical/High/UnknownをPassに変換しない。</p>
+<p>実行証跡: <a href="../../../plan/phase5R_restart_recovery/RECOVERY-02_詳細設計レビュー.md">RECOVERY-02 詳細設計レビュー</a>、<a href="../../../plan/phase5R_restart_recovery/RECOVERY-04-runtime-dispatch.md">RECOVERY-04 実装起動証跡</a>、<a href="../../../plan/phase5R_restart_recovery/RECOVERY-05-runtime-dispatch.md">RECOVERY-05 受入起動証跡</a>、<a href="../../../plan/phase5R_restart_recovery/RECOVERY-07-runtime-dispatch.md">RECOVERY-07 最終起動証跡</a>、<a href="../../../tests/evidence/AUTOTRADE-BACKTEST-RECOVERY/RUN-20260816-001/verification.json">統合検証Evidence</a>を参照する。</p>
+
+<h2>13. 改訂履歴とリンク</h2>
+<table><tr><th>版</th><th>日付</th><th>変更</th><th>状態</th></tr>
+<tr><td>v0.1</td><td>2026-08-16</td><td>再起動後の履歴復元、旧形式互換、Eドライブカタログ、fail-closed、API/UI/テスト契約を初版化。</td><td>履歴復元実装前</td></tr>
+<tr><td>v0.2</td><td>2026-08-16</td><td>実装のflat JSON契約、実際の状態名・RecoveryReport、GREEN・API再起動・Playwright Evidenceへのリンクを反映。</td><td>実装・検証完了（Open scopeあり）</td></tr></table>
+<p><a href="../../requirements/01_自動トレードシステム要件定義書_v3.html">要件定義書 v3.1</a> / <a href="../../../plan/Phase5R_再起動後バックテスト履歴復元_実行計画書_v0.1_2026-08-16.md">実行計画書</a> / <a href="../../00_全Phase残課題Blocked統合台帳.html">統合Blocked台帳</a> / <a href="../06_完了/05_再起動後バックテスト履歴復元完了判定.html">完了判定</a> / <a href="../../../tests/evidence/AUTOTRADE-BACKTEST-RECOVERY/RUN-20260816-001/verification.json">検証Evidence</a></p>
+</main></body></html>

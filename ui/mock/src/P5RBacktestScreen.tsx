@@ -8,6 +8,7 @@ import {
   type CsvJobView,
   type HoldoutView,
   type PreflightResponse,
+  type RecoveryReport,
   type RunView,
   type SweepView,
   type WalkForwardView,
@@ -25,6 +26,7 @@ const stateIds: UiState[] = ['NORMAL', 'LOADING', 'EMPTY', 'REQUIRED', 'WARNING'
 
 const stateForRun = (run: RunView | null): UiState => {
   if (!run) return 'REQUIRED'
+  if (run.status === 'RECOVERY_REQUIRED') return 'RECOVERY'
   if (run.status === 'SUCCEEDED') return 'NORMAL'
   if (run.status === 'FAILED') return 'FAILED'
   if (run.status === 'CANCELLED') return 'STOPPED'
@@ -118,6 +120,7 @@ export function P5RBacktestScreen({ screen, demoState, onStateChange }: P5RBackt
   const [activeRun, setActiveRun] = useState<RunView | null>(null)
   const [rows, setRows] = useState<BacktestRow[]>([])
   const [history, setHistory] = useState<RunView[]>([])
+  const [recovery, setRecovery] = useState<RecoveryReport | null>(null)
   const [sweep, setSweep] = useState<SweepView | null>(null)
   const [selectedCompareRun, setSelectedCompareRun] = useState('')
   const [compareResult, setCompareResult] = useState<Record<string, unknown> | null>(null)
@@ -136,7 +139,9 @@ export function P5RBacktestScreen({ screen, demoState, onStateChange }: P5RBackt
 
   const refreshHistory = async () => {
     try {
-      setHistory((await backtestApi.listRuns()).items)
+      const [historyResult, recoveryResult] = await Promise.all([backtestApi.listRuns(), backtestApi.getRecovery()])
+      setHistory(historyResult.items)
+      setRecovery(recoveryResult)
     } catch (caught) {
       setError(toErrorMessage(caught))
     }
@@ -206,6 +211,10 @@ export function P5RBacktestScreen({ screen, demoState, onStateChange }: P5RBackt
   const submitWalkForward = async () => {
     await runRequest(() => backtestApi.walkForward(windows), (result) => { setWalkForward(result); setMessage('Walk-forwardの各窓を検証しました。') })
   }
+
+  useEffect(() => {
+    void refreshHistory()
+  }, [])
 
   useEffect(() => {
     const runId = activeRun?.run_id
@@ -285,7 +294,7 @@ export function P5RBacktestScreen({ screen, demoState, onStateChange }: P5RBackt
       </>}
 
       {tab === 'history' && <>
-        <section className="panel-card"><div className="section-heading"><div><p className="card-kicker">BT-MAN-10 / BT-MAN-11</p><h3>履歴・比較</h3></div><button className="secondary-button" type="button" onClick={() => void refreshHistory()}>履歴を更新</button></div><div className="table-scroll"><table className="data-table"><caption>このApplication APIで作成したRunの履歴</caption><thead><tr><th scope="col">選択</th><th scope="col">Run ID</th><th scope="col">条件</th><th scope="col">状態</th><th scope="col">進捗</th><th scope="col">操作</th></tr></thead><tbody>{history.map((run) => <tr key={run.run_id}><th scope="row"><input type="radio" name="compare-run" aria-label={`比較対象 ${run.run_id}`} checked={selectedCompareRun === run.run_id} onChange={() => setSelectedCompareRun(run.run_id)} /></th><td>{run.run_id}</td><td>{run.spec.symbol} / {run.spec.strategy} / {run.spec.start}〜{run.spec.end}</td><td><StateBadge state={stateForRun(run)} compact /></td><td>{run.progress_percent}%</td><td><button className="secondary-button" type="button" onClick={() => { setActiveRun(run); setSelectedCompareRun(run.run_id); void loadDetails(run.run_id) }}>結果を開く</button></td></tr>)}</tbody></table></div><div className="button-row"><button className="secondary-button" type="button" onClick={() => void submitCompare()}>選択Runと比較</button><button className="primary-button" type="button" disabled={!selectedRun || selectedRun.status !== 'SUCCEEDED'} onClick={() => void submitCsv()}>CSV生成</button></div>{compareResult && <div className="inline-notice" role="status">比較結果: comparable={String(compareResult.comparable)} / 理由={formatValue(compareResult.reason, 'なし')}</div>}{csvJob && <div className="inline-notice" role="status">CSV Job: {csvJob.status} / {csvJob.progress}% {csvJob.download_url && <a href={backtestApi.downloadCsv(csvJob.job_id)} download>CSVダウンロード</a>}</div>}</section>
+        <section className="panel-card"><div className="section-heading"><div><p className="card-kicker">BT-MAN-10 / BT-MAN-11</p><h3>履歴・比較</h3></div><button className="secondary-button" type="button" onClick={() => void refreshHistory()}>履歴を更新</button></div>{recovery?.status === 'RECOVERY_REQUIRED' && <div className="inline-notice error-notice" role="alert" data-testid="p5r-recovery-warning">保存済み履歴の一部で復旧確認が必要です。該当Runは成功扱いにせず、原因を確認してから再実行してください（{recovery.issues.length}件の問題 / 復旧確認 {recovery.recovery_required_run_ids.length}件）。</div>}{recovery?.status === 'CLEAN' && <p className="muted" role="status" data-testid="p5r-recovery-clean">保存済み履歴を読み込みました（{recovery.restored_run_count}件）。</p>}<div className="table-scroll"><table className="data-table"><caption>このApplication APIで作成したRunの履歴</caption><thead><tr><th scope="col">選択</th><th scope="col">Run ID</th><th scope="col">条件</th><th scope="col">状態</th><th scope="col">進捗</th><th scope="col">操作</th></tr></thead><tbody>{history.map((run) => <tr key={run.run_id}><th scope="row"><input type="radio" name="compare-run" aria-label={`比較対象 ${run.run_id}`} checked={selectedCompareRun === run.run_id} onChange={() => setSelectedCompareRun(run.run_id)} /></th><td>{run.run_id}</td><td>{run.spec.symbol} / {run.spec.strategy} / {run.spec.start}〜{run.spec.end}</td><td><StateBadge state={stateForRun(run)} compact /></td><td>{run.progress_percent}%</td><td><button className="secondary-button" type="button" onClick={() => { setActiveRun(run); setSelectedCompareRun(run.run_id); void loadDetails(run.run_id) }}>結果を開く</button></td></tr>)}</tbody></table></div><div className="button-row"><button className="secondary-button" type="button" onClick={() => void submitCompare()}>選択Runと比較</button><button className="primary-button" type="button" disabled={!selectedRun || selectedRun.status !== 'SUCCEEDED'} onClick={() => void submitCsv()}>CSV生成</button></div>{compareResult && <div className="inline-notice" role="status">比較結果: comparable={String(compareResult.comparable)} / 理由={formatValue(compareResult.reason, 'なし')}</div>}{csvJob && <div className="inline-notice" role="status">CSV Job: {csvJob.status} / {csvJob.progress}% {csvJob.download_url && <a href={backtestApi.downloadCsv(csvJob.job_id)} download>CSVダウンロード</a>}</div>}</section>
         {runForDisplay?.status === 'SUCCEEDED' && <><Metrics run={runForDisplay} />{rows.length > 0 && <section className="panel-card"><LedgerTable rows={rows} /></section>}</>}
       </>}
 

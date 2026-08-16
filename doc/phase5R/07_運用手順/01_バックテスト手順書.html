@@ -53,7 +53,7 @@
 </head>
 <body>
 <main>
-  <p class="meta">文書ID: <code>P5R-MAN-01</code> ／ 版: <code>v0.4</code> ／ 改訂日: <code>2026-08-16</code> ／ 状態: <strong>初心者向け抜本改訂・Eドライブ保存先追補・一括起動追補・Playwright検証対象</strong></p>
+  <p class="meta">文書ID: <code>P5R-MAN-01</code> ／ 版: <code>v0.5</code> ／ 改訂日: <code>2026-08-16</code> ／ 状態: <strong>初心者向け抜本改訂・Eドライブ保存先追補・一括起動追補・再起動後履歴復元追補・Playwright検証対象</strong></p>
   <h1>バックテスト手順書</h1>
   <div class="note"><strong>最初に結論：</strong>この画面では、保存されている過去の市場Dataに、売買ルール（Strategy）を仮想的に当てはめて、「もし過去にこのルールを使っていたら、どんな結果になったか」を調べられます。実際の注文は出ません。将来の利益も保証しません。</div>
   <p>この手順書は、投資を始めたばかりの人でも読めるように書いています。画面に出る英語や数字は残し、そのすぐ近くに意味を説明します。まず「できること一覧」から目的の機能を選び、その行のリンクから操作へ進んでください。</p>
@@ -63,6 +63,7 @@
     <strong>目次</strong>
     <ul>
       <li><a href="#startup">0. アプリを一括起動する</a></li>
+      <li><a href="#restart-recovery">0.5 再起動後に履歴を戻す</a></li>
       <li><a href="#what-is">1. Backtestとは</a></li>
       <li><a href="#can-do">2. P5Rでできること一覧</a></li>
       <li><a href="#cannot-do">3. できないことと安全範囲</a></li>
@@ -110,7 +111,8 @@
       <tr><td>Backtest結果</td><td><code>E:\strategy_test_data\autotrade\backtest\results\</code></td><td>計算したRunの結果。Runは1回分の実験。</td></tr>
       <tr><td>CSV出力</td><td><code>E:\strategy_test_data\autotrade\backtest\exports\</code></td><td>Ledgerを表計算ソフトなどで読める形にしたファイル。</td></tr>
       <tr><td>起動・停止・エラーログ</td><td><code>E:\strategy_test_data\autotrade\logs\</code></td><td>アプリがいつ起動し、どこで止まったかを確認する記録。</td></tr>
-      <tr><td>Run一覧の管理情報</td><td>現在はDBサーバやDBファイルへ保存しない（APIプロセスのメモリ内）</td><td>アプリを再起動すると画面のRun一覧は空になります。ただし、完了した結果JSONやCSVファイルはEドライブに残ります。</td></tr>
+      <tr><td>Run履歴カタログ</td><td><code>E:\strategy_test_data\autotrade\backtest\catalog\runs\</code></td><td>Run ID、条件、状態、指標、結果ファイルの場所を保存する管理情報。API起動時に読み戻します。</td></tr>
+      <tr><td>Run一覧のDB</td><td>DBサーバは使わず、結果JSONと履歴カタログをEドライブのファイルとして保存</td><td>完了したRunはAPIやWindowsを再起動しても、履歴タブから再表示できます。</td></tr>
     </tbody>
   </table>
   <div class="note"><strong>テスト用ファイルについて：</strong>プロジェクト内の<code>tests/evidence</code>にある過去のfixture（テスト入力）は、テストを同じ条件で再現するために残しています。通常のアプリ起動はそのCドライブ上のテストfixtureを読み書きせず、Eドライブの上記ヒストリカルデータを使います。</div>
@@ -130,6 +132,42 @@
     </tbody>
   </table>
   <div class="danger"><strong>安全範囲：</strong>一括起動は、ローカルのAPIとUIを使える状態にするだけです。外部市場Data、Broker、Secret、実注文、実資金、Paper、Liveを起動しません。APIとUIは<code>127.0.0.1</code>だけで動きます。</div>
+
+  <h2 id="restart-recovery">0.5 APIやWindowsを再起動した後に履歴を戻す</h2>
+  <div class="note"><strong>この機能の意味：</strong>Backtestが最後まで終わったRunは、結果本体と履歴カタログをEドライブへ保存します。そのため、APIを止めて起動し直したり、Windowsを再起動したりしても、同じRunを履歴から開けます。画面のメモリを一時的に消すだけの動作と、保存ファイルを消す動作は別です。</div>
+  <p>この機能は、アプリが「前に行った実験の記録」をなくさないためのものです。DBサーバを別に起動しているわけではありません。アプリ専用のEドライブに、結果ファイルと履歴ファイルを保存し、API起動時に読み込み直しています。</p>
+
+  <h3>0.5.1 APIを止めて起動し直す場合</h3>
+  <ol>
+    <li>Backtestが<code>SUCCEEDED</code>（計算完了）になっていることを確認します。計算途中なら、終わるまで待ちます。</li>
+    <li><code>stop_autotrade.bat</code>をダブルクリックして、APIとUIを停止します。</li>
+    <li><code>start_autotrade.bat</code>をダブルクリックして、APIとUIを起動します。</li>
+    <li>ブラウザで「Backtest条件設定」を開き、「履歴・比較」タブをクリックします。</li>
+    <li>「履歴を更新」をクリックします。起動直後にも自動で履歴を読み込みます。</li>
+    <li>再起動前にメモしたRun IDの行を探し、「結果を開く」をクリックします。</li>
+    <li>同じ5指標とLedger（Signal・Virtual Fill・残高の表）が表示されることを確認します。</li>
+  </ol>
+  <p class="check"><strong>成功の見方：</strong>再起動前と同じRun IDが一覧にあり、状態が<code>SUCCEEDED</code>、指標とLedgerを開ければ復元成功です。復元確認用のPlaywright画面証跡は<a href="../../../tests/evidence/AUTOTRADE-BACKTEST-RECOVERY/RUN-20260816-001/backtest-history-after-api-restart.png">こちら</a>です。</p>
+
+  <h3>0.5.2 Windowsを再起動する場合</h3>
+  <div class="warn"><strong>受入状況：</strong>この手順書の自動試験で確認済みなのは、APIプロセスを停止・起動し直した後の復元です。実機Windowsの再起動は、運用開始前に人が行う最終確認として残っています。</div>
+  <ol>
+    <li>計算中のRunがないことを確認します。計算途中でWindowsを再起動すると、そのRunは自動で成功扱いにも、自動再開にもなりません。</li>
+    <li>Windowsを通常の手順で再起動します。</li>
+    <li>Windows起動後、<code>start_autotrade.bat</code>をダブルクリックします。</li>
+    <li>ブラウザで「履歴・比較」タブを開き、Run ID、5指標、Ledgerを確認します。</li>
+</ol>
+
+  <h3>0.5.3 復旧確認が必要と表示された場合</h3>
+  <table>
+    <thead><tr><th>表示</th><th>意味</th><th>すること</th></tr></thead>
+    <tbody>
+      <tr><td><code>LEGACY_RESULT_ONLY</code></td><td>昔のresult.jsonだけから、安全に分かる範囲を表示しています。</td><td><code>UNKNOWN</code>の条件を勝手に埋めず、分かる条件だけを確認します。厳密な比較が必要なら同じ条件で新しいRunを実行します。</td></tr>
+      <tr><td><code>RECOVERY_REQUIRED</code></td><td>結果が途中、壊れている、または履歴と結果のRun IDが合わないため、成功と確定できません。</td><td>そのRunを成功結果として使わず、表示された理由を記録し、条件を確認して新しいRunを実行します。</td></tr>
+      <tr><td>履歴が0件</td><td>APIがまだ起動途中、別ポートの画面を開いている、または履歴更新前の可能性があります。</td><td>APIのhealth、起動ログ、URLが<code>http://127.0.0.1:4173</code>であることを確認し、「履歴を更新」を押します。</td></tr>
+    </tbody>
+  </table>
+  <p class="limit"><strong>今回の範囲：</strong>完了したBacktest Runの履歴・詳細・Ledger・比較・CSV生成を復元します。計算途中Runの自動再開、過去のCSV作成Jobそのもの、Holdoutの「一度だけ読んだ」という状態、Eドライブ故障時のバックアップ復元は、まだこの手順の完成範囲ではありません。</p>
 
   <h2 id="what-is">1. Backtestとは</h2>
   <h3>1.1 何をする機能？</h3>
@@ -163,6 +201,7 @@
       <tr id="feature-14"><td class="feature-id">BT-F-14</td><td>確定前のHoldout（最後まで隠しておく評価用Data）へのアクセスを止められます。</td><td>調整前に、評価用Dataを見ていないことを確認するとき。</td><td>「確定前を試す」</td><td><a href="#BT-MAN-13">確定前Holdoutを止める</a></td><td>EARLY_HOLDOUT_ACCESSでSTOPPEDになる。</td></tr>
       <tr id="feature-15"><td class="feature-id">BT-F-15</td><td>確定後のHoldoutを一度だけ評価し、調整へ再利用しないことを確認できます。</td><td>条件を決めた後の最後の評価を行うとき。</td><td>「確定後に評価」</td><td><a href="#BT-MAN-14">確定後Holdoutを評価する</a></td><td>SUCCEEDED、行数、再利用しない表示が出る。二度目は止まる。</td></tr>
       <tr id="feature-16"><td class="feature-id">BT-F-16</td><td>学習・検証・評価を時間順の3窓に分け、未来のDataを混ぜずに評価できます。</td><td>1回の期間だけでなく、時間をずらして確かめたいとき。</td><td>「Holdout・Walk-forward」タブ</td><td><a href="#BT-MAN-15">Walk-forwardを実行する</a></td><td>窓3、future_reference=false、holdout_reused=falseを確認できる。</td></tr>
+      <tr id="feature-17"><td class="feature-id">BT-F-17</td><td>APIやWindowsを再起動した後も、完了したRunの履歴、5指標、Ledgerを戻して確認できます。</td><td>パソコンを再起動した後、前の実験結果を見直すとき。</td><td>「履歴・比較」タブ</td><td><a href="#BT-MAN-17">再起動後に履歴を復元する</a></td><td>同じRun ID、状態、指標、Ledgerが表示される。途中・破損・不一致は復旧確認になる。</td></tr>
     </tbody>
   </table>
 
@@ -419,6 +458,30 @@
     <p class="back"><a href="#feature-catalog">機能一覧へ戻る</a></p>
   </section>
 
+  <section class="procedure" id="BT-MAN-17">
+    <h3>BT-MAN-17：再起動後に完了Runの履歴を復元する</h3>
+    <p class="goal"><strong>この操作でできること：</strong>APIやWindowsを再起動した後でも、Eドライブに保存された完了Runを履歴から見つけ、同じ結果とLedgerを開けます。</p>
+    <p><strong>いつ使う？</strong>パソコンを再起動した後、または<code>stop_autotrade.bat</code>と<code>start_autotrade.bat</code>でアプリを起動し直した後に使います。</p>
+    <p class="where"><strong>画面の場所：</strong>アプリ起動後→「Backtest条件設定」→「履歴・比較」→「履歴を更新」→対象Runの「結果を開く」。</p>
+    <ol>
+      <li>再起動前に、見たいRunの<code>RUN-AUTOTRADE-...</code>というRun IDをメモします。</li>
+      <li>計算が<code>SUCCEEDED</code>になった後で、API／Windowsを再起動します。途中のRunを再起動だけで続きから動かす機能ではありません。</li>
+      <li><code>start_autotrade.bat</code>をダブルクリックし、ブラウザで<code>http://127.0.0.1:4173</code>を開きます。</li>
+      <li>左メニューの「Backtest条件設定」を開き、「履歴・比較」タブをクリックします。</li>
+      <li>「保存済み履歴を読み込みました」と表示されることを確認します。表示されなくても、「履歴を更新」をクリックします。</li>
+      <li>メモしたRun IDの行で、銘柄、Strategy、期間、状態、進捗を確認します。</li>
+      <li>その行の「結果を開く」をクリックし、5指標とLedgerが表示されることを確認します。</li>
+      <li>必要なら、その復元Runを基準に「選択Runと比較」または「CSV生成」を使います。</li>
+    </ol>
+    <p class="check"><strong>確認できれば成功：</strong>再起動前後でRun ID、指標、Ledgerが同じです。実際のPlaywright試験では、APIプロセスを停止・起動し直した後に、metrics、provenance、rowsが一致することも確認しています。</p>
+    <p class="failure"><strong>復旧確認が必要なとき：</strong><code>RECOVERY_REQUIRED</code>は、途中で止まった、ファイルが壊れた、またはRun IDが一致しない状態です。成功結果として比較・採用せず、理由を記録して再実行します。<code>LEGACY_RESULT_ONLY</code>は旧形式の結果で、<code>UNKNOWN</code>は当時保存されていなかった条件です。</p>
+    <p class="limit"><strong>この結果から言ってはいけないこと：</strong>履歴が戻ったからといって、計算途中のRunが自動で再開された、結果が正しいと保証された、またはLive運用へ進めると判断してはいけません。</p>
+    <p class="limit"><strong>注意：</strong>完了Runの復元はできますが、計算途中Runの自動再開、過去のCSV Jobの状態、Holdoutの一度だけという状態、Eドライブ故障からのバックアップ復元は、この機能の対象外です。</p>
+    <figure><img src="../../../tests/evidence/AUTOTRADE-BACKTEST-RECOVERY/RUN-20260816-001/backtest-history-after-api-restart.png" alt="API再起動後の履歴タブに保存済みRunが表示され、指標とLedgerを開いているPlaywright撮影画面" loading="lazy"><figcaption>BT-MAN-17：API再起動後に同じRunを履歴から開き、結果とLedgerを確認した画面。</figcaption></figure>
+    <p class="small">関係する用語：<a href="#term-history">履歴</a>、<a href="#term-provenance">Provenance</a>、<a href="#term-ledger">Ledger</a>、<a href="#term-recovery">RECOVERY_REQUIRED</a>、<a href="#term-legacy">LEGACY_RESULT_ONLY</a> ／ 受入条件: <code>P5R-AC-17</code>、<code>REQ-V3-0128</code></p>
+    <p class="back"><a href="#feature-catalog">機能一覧へ戻る</a></p>
+  </section>
+
   <section class="procedure" id="BT-MAN-11">
     <h3>BT-MAN-11：2つのRunを比較する</h3>
     <p class="goal"><strong>この操作でできること：</strong>2つの実験の結果と条件の違いを並べて確認できます。条件が合わない2つを、無理に同じランキングへ入れないことも確認できます。</p>
@@ -599,6 +662,9 @@
     <dt id="term-equity">Equity</dt><dd>その時点で持っているものを含めた評価上の残高。</dd>
     <dt id="term-provenance">Provenance</dt><dd>結果がどのData、期間、Strategy、Core検証から生まれたかを示す由来情報。</dd>
     <dt id="term-history">履歴</dt><dd>過去に作ったRunの一覧。古い結果を新しい結果で上書きせず、取り違えないために使う。</dd>
+    <dt id="term-catalog">履歴カタログ</dt><dd>Run ID、条件、状態、指標、結果ファイルの場所を保存した一覧ファイル。DBサーバではなく、EドライブのJSONファイルです。</dd>
+    <dt id="term-recovery">RECOVERY_REQUIRED</dt><dd>ファイルが壊れている、Run IDが合わない、または再起動時に計算途中だったため、成功結果として使う前に確認が必要な状態。</dd>
+    <dt id="term-legacy">LEGACY_RESULT_ONLY</dt><dd>旧形式のresult.jsonだけから復元した結果。保存されていなかった条件はUNKNOWNと表示し、想像で補わない。</dd>
     <dt id="term-comparable">comparable</dt><dd>2つのRunを同じ問題として比べてよいかを示す表示。falseなら理由を確認する。</dd>
     <dt id="term-job">Job</dt><dd>CSV作成など、画面とは別に時間をかけて行う処理。</dd>
     <dt id="term-csv">CSV</dt><dd>表の行と列を保存するファイル形式。保存形式であり、結果の正しさを保証するものではない。</dd>
@@ -623,13 +689,14 @@
 
   <h2 id="evidence">10. 画像・証跡・出典</h2>
   <h3>10.1 画像の読み方</h3>
-  <p>BT-MAN-01〜15の画像は、Playwrightが画面の要素・状態・メッセージを先に確認し、その直後に撮影したものです。BT-MAN-16は追加Playwrightで同じ条件を確認してから撮影します。画像だけでなく、本文の操作・成功表示も必ず読みます。</p>
+  <p>BT-MAN-01〜15の画像は、Playwrightが画面の要素・状態・メッセージを先に確認し、その直後に撮影したものです。BT-MAN-16とBT-MAN-17も、Playwrightで停止・復元・状態・結果を確認してから撮影しています。画像だけでなく、本文の操作・成功表示も必ず読みます。</p>
   <table>
     <thead><tr><th>証跡</th><th>場所</th><th>確認内容</th></tr></thead>
     <tbody>
       <tr><td>既存desktop/mobile画像とRegistry</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/capture-registry-chromium-desktop.json">P5R-09 desktop Registry</a></td><td>BT-MAN-01〜15、assert先行、外部通信、axe結果。</td></tr>
       <tr><td>追加Sweep取消画像とRegistry</td><td><a href="../../../tests/evidence/phase5R/RUN-P5R-MANUAL-20260816-001/manual-capture/chromium-desktop/capture-registry.json">P5R-MANUAL desktop Registry</a></td><td>BT-MAN-16、desktop/mobile、CANCELLED、親Job・子Run。</td></tr>
       <tr><td>Playwrightテスト</td><td><code>ui/mock/tests/p5r-backtest.spec.ts</code>、<code>ui/mock/tests/p5r-backtest-manual-improvement.spec.ts</code></td><td>画面のDOM assert後に画像を撮影し、外部通信0と重大axe違反0を確認。</td></tr>
+      <tr><td>再起動後復元Playwright</td><td><code>ui/mock/tests/backtest-history-recovery.spec.ts</code> ／ <a href="../../../tests/evidence/AUTOTRADE-BACKTEST-RECOVERY/RUN-20260816-001/api-restart-recovery.json">API再起動Evidence</a></td><td>所有するAPI子プロセスを停止・再起動し、同じRun ID、metrics、provenance、rows、UI履歴、指標、Ledgerを確認。</td></tr>
       <tr><td>正式な作成ルール</td><td><a href="00_バックテスト操作手順書作成ルール.html">操作手順書作成ルール</a></td><td>機能一覧、文章、用語、画像、アクセシビリティ、レビューの基準。</td></tr>
     </tbody>
   </table>
@@ -651,6 +718,7 @@
   <table>
     <thead><tr><th>日付</th><th>版</th><th>変更</th></tr></thead>
     <tbody>
+      <tr><td>2026-08-16</td><td>v0.5</td><td>完了Runの履歴カタログをEドライブへ保存し、API／Windows再起動後に履歴・詳細・Ledgerを復元するBT-F-17／BT-MAN-17を追加。旧形式、破損、不一致、未完了の表示、DBサーバを使わない保存方式、Playwrightの実再起動証跡を追記。</td></tr>
       <tr><td>2026-08-16</td><td>v0.4</td><td>通常のヒストリカルデータ、Backtest結果、CSV、起動ログの保存先をEドライブのアプリ専用領域へ統一。Cドライブや一時フォルダーへフォールバックしないこと、既存のテストfixtureを通常実行と分離することを追記。</td></tr>
       <tr><td>2026-08-16</td><td>v0.2</td><td>ユーザー指摘を反映。機能一覧、機能→操作リンク、初心者向け最短コース、平易な操作、専門用語集、失敗・復旧、結果の限界、Web出典、Sweep取消BT-MAN-16を追加。</td></tr>
       <tr><td>2026-08-16</td><td>v0.1</td><td>P5R-09の実画面撮影とBT-MAN-01〜15の初版。</td></tr>

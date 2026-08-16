@@ -13,6 +13,7 @@ body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.75;max-width:118
 <h1>P5R バックテスト手順書改善完了判定</h1>
 <p class="small">文書ID: P5R-MANUAL-IMPROVEMENT-COMPLETE-001 / 実施日: 2026-08-16 / 状態: <span class="pass">COMPLETE_WITH_OPEN_UNKNOWN</span></p>
 <p><strong>結論:</strong> 初心者向けの機能一覧、機能から操作へ移動するリンク、平易な操作手順、用語説明、成功・失敗・復旧説明、実画面画像、安全上の限界を、定めたルールに従って手順書へ反映した。手順書改善作業は完了と判定する。</p>
+<p class="note"><strong>後続追補:</strong>その後の再起動後履歴復元実装に合わせ、現行手順書はv0.5、機能一覧はBT-F-01〜17、操作手順はBT-MAN-01〜17へ更新した。再起動後の証拠は<a href="05_再起動後バックテスト履歴復元完了判定.html">専用完了判定</a>に分離している。</p>
 </main>
 <section>
 <h2>中学生向けの結論</h2>
@@ -24,6 +25,7 @@ body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.75;max-width:118
 <table>
 <tr><th>条件</th><th>結果</th><th>確認先</th></tr>
 <tr><td>機能一覧がBacktestの実装範囲を網羅する</td><td class="pass">PASS / BT-F-01〜16</td><td><a href="../07_運用手順/01_バックテスト手順書.html#feature-catalog">機能一覧</a></td></tr>
+<tr><td>再起動後履歴復元の機能一覧・操作・画像</td><td class="pass">別追補でPASS / BT-F-17・BT-MAN-17</td><td><a href="05_再起動後バックテスト履歴復元完了判定.html">再起動後履歴復元完了判定</a></td></tr>
 <tr><td>機能一覧から操作手順へ移動できる</td><td class="pass">PASS / 16リンク</td><td><a href="../07_運用手順/01_バックテスト手順書.html#feature-catalog">機能一覧</a></td></tr>
 <tr><td>操作手順が初心者向けの型を持つ</td><td class="pass">PASS / BT-MAN-01〜16</td><td><a href="../07_運用手順/00_バックテスト操作手順書作成ルール.html#procedure-template">作成ルール</a> / <a href="../07_運用手順/01_バックテスト手順書.html#procedures">手順</a></td></tr>
 <tr><td>用語、安全上の限界、将来利益と誤解しない説明がある</td><td class="pass">PASS</td><td><a href="../07_運用手順/01_バックテスト手順書.html#glossary">用語集</a> / <a href="../07_運用手順/01_バックテスト手順書.html#limits">できないこと</a></td></tr>

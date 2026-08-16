@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="document-id" content="P5R-RECOVERY-COMPLETION-01">
+  <meta name="document-version" content="v0.1">
+  <meta name="document-status" content="FORMAL_COMPLETION_WITH_OPEN_SCOPE">
+  <title>再起動後バックテスト履歴復元 完了判定</title>
+  <style>
+    body{max-width:1100px;margin:28px auto;padding:0 18px;color:#172033;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.8;background:#f8fafc}main{background:#fff;padding:28px;border:1px solid #d7e0ea}h1,h2{color:#102a43}h1{border-bottom:4px solid #1d4ed8;padding-bottom:10px}h2{border-bottom:1px solid #cbd5e1;padding-bottom:5px;margin-top:34px}table{border-collapse:collapse;width:100%;margin:16px 0}th,td{border:1px solid #cbd5e1;padding:9px;vertical-align:top}th{background:#eff6ff;text-align:left}code{background:#eef2f7;padding:1px 4px;border-radius:4px;overflow-wrap:anywhere}a{color:#1d4ed8}.ok,.warn,.danger{padding:14px 16px;border-left:5px solid;margin:18px 0}.ok{background:#f0fdf4;border-color:#16a34a}.warn{background:#fffbeb;border-color:#d97706}.danger{background:#fef2f2;border-color:#dc2626}.small{color:#475569;font-size:.92rem}@media(max-width:760px){body{margin:0;padding:0}main{padding:18px}table{display:block;overflow-x:auto}}
+  </style>
+</head>
+<body>
+<main>
+  <p class="small">文書ID: <code>P5R-RECOVERY-COMPLETION-01</code> ／ 版: <code>v0.1</code> ／ 判定日: <code>2026-08-16</code></p>
+  <h1>再起動後バックテスト履歴復元 完了判定</h1>
+  <div class="ok"><strong>判定:</strong> 完了済みBacktest Runの保存・API再起動後復元・UI履歴再表示について、実装と証拠付きテストを完了した。判定は <code>COMPLETE_WITH_OPEN_SCOPE</code> とする。</div>
+
+  <h2>1. 中学生向けの結論</h2>
+  <p>これまでは、Backtestの計算結果をファイルに残していても、アプリを再起動すると画面の「履歴一覧」が空になっていました。今回、計算結果とは別に「このRunはどんな実験だったか」を書いた履歴カタログもEドライブへ保存し、アプリを起動したときに両方を読み直すようにした。</p>
+  <p>そのため、Windowsを再起動した後でも、終わっているBacktestなら、履歴から同じRunを探し、5指標とLedgerを開ける。ただし、計算途中のRunを勝手に成功にしたり、途中から自動で再開したりはしない。</p>
+
+  <h2>2. 完成した範囲</h2>
+  <table>
+    <thead><tr><th>確認項目</th><th>判定</th><th>根拠</th></tr></thead>
+    <tbody>
+      <tr><td>完了Runを結果本体と履歴カタログへ保存</td><td>PASS</td><td><code>E:\strategy_test_data\autotrade\backtest\results\</code> と <code>...\catalog\runs\</code>、保存テスト。</td></tr>
+      <tr><td>新しいAPIサービスを作り直した後の一覧・詳細・行</td><td>PASS</td><td><a href="../../../tests/evidence/AUTOTRADE-BACKTEST-RECOVERY/RUN-20260816-001/RECOVERY-04_GREEN.md">RECOVERY-04 GREEN Evidence</a>。</td></tr>
+      <tr><td>同じRunの比較と新しいCSV生成</td><td>PASS</td><td>復元Runでcompare／CSVを行うpytest。</td></tr>
+      <tr><td>旧形式のresult.jsonだけの履歴</td><td>PASS</td><td><code>LEGACY_RESULT_ONLY</code>、不明値を<code>UNKNOWN</code>として表示。</td></tr>
+      <tr><td>壊れたファイル・Run ID不一致・途中状態</td><td>PASS</td><td><code>RECOVERY_REQUIRED</code>またはrecovery issue。成功扱いしない。</td></tr>
+      <tr><td>APIプロセスを停止・再起動した後のUI</td><td>PASS</td><td><a href="../../../tests/evidence/AUTOTRADE-BACKTEST-RECOVERY/RUN-20260816-001/api-restart-recovery.json">API再起動Evidence</a>、<a href="../../../tests/evidence/AUTOTRADE-BACKTEST-RECOVERY/RUN-20260816-001/backtest-history-after-api-restart.png">Playwright画像</a>。</td></tr>
+      <tr><td>既存Backtest UI、unit、build、axe、外部通信</td><td>PASS</td><td><a href="../../../tests/evidence/AUTOTRADE-BACKTEST-RECOVERY/RUN-20260816-001/verification.json">統合検証Evidence</a>。外部リクエスト0件。</td></tr>
+  </tbody>
+  </table>
+  <div class="warn"><strong>実機再起動について:</strong> この完了判定で実際に実施したのは、管理下のAPI子プロセスを停止して同じポートで起動し直し、Playwrightで画面を再読み込みして復元を確認する試験である。実機Windowsの再起動ボタンを押す手動受入はまだ実施していない。したがって「Windows再起動後も必ず使える」という最終確認は、運用開始前のHuman Gateとして残る。</div>
+
+  <h2>3. まだ完成範囲に含めないもの</h2>
+  <div class="warn"><strong>ここは「失敗」ではなく、今回の境界外として残した項目です。</strong></div>
+  <ul>
+    <li>Windows再起動後に、計算途中のRunを自動で続きから動かすこと。</li>
+    <li>過去に作成中だったCSV Jobの状態を、再起動後にそのまま復元すること。</li>
+    <li>Holdoutを「一度だけ読んだ」という安全状態を、再起動後も永続化すること。</li>
+    <li>大量の履歴を無制限に読み込まないための上限・整理・世代管理。</li>
+    <li>Eドライブが壊れた場合のバックアップからの復元。</li>
+    <li>P4のSQLite MetadataStoreへ統合すること。</li>
+  </ul>
+
+  <h2>4. 関係する要件・計画</h2>
+  <p><a href="../../requirements/01_自動トレードシステム要件定義書_v3.html">要件定義書v3.1</a>のP5R-AC-17／REQ-V3-0128、<a href="../../../plan/Phase5R_再起動後バックテスト履歴復元_実行計画書_v0.1_2026-08-16.md">履歴復元実行計画書</a>、<a href="../02_実装詳細設計/03_再起動後バックテスト履歴復元実装詳細設計書.html">実装詳細設計書</a>に対応する。</p>
+  <p class="small">この完了判定は、Backtestの完了済みRun履歴復元についての判定である。Forward、Shadow、Paper、Live候補、小規模Live、通常Live、Broker、実注文、実資金の開始承認ではない。</p>
+</main>
+</body>
+</html>

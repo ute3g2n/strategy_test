@@ -1,0 +1,19 @@
+{
+  "phase_id": "AUTOTRADE-BACKTEST-RECOVERY",
+  "step_id": "RECOVERY-05",
+  "journey": "create completed Backtest -> stop owned API child process -> start new owned API child process on same port -> reload UI -> open history -> open result",
+  "process_safety": "The Playwright test stops only the ChildProcess object it started; it does not enumerate or kill unrelated PIDs.",
+  "storage_boundary": "The default API service uses E:/strategy_test_data/autotrade/backtest/results and E:/strategy_test_data/autotrade/backtest/catalog.",
+  "assertions": [
+    "The Run is SUCCEEDED before the API restart.",
+    "The same Run ID is present after the API restart.",
+    "The post-restart metrics equal the pre-restart metrics.",
+    "The post-restart provenance equals the pre-restart provenance.",
+    "The post-restart rows equal the pre-restart rows.",
+    "The UI history row and result-open action are available after reload.",
+    "The UI shows the five metrics and Ledger after restoration.",
+    "External browser requests are zero."
+  ],
+  "screenshot": "tests/evidence/AUTOTRADE-BACKTEST-RECOVERY/RUN-20260816-001/backtest-history-after-api-restart.png",
+  "result": "PASS"
+}

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="document-id" content="AT-REQ-003">
-  <meta name="document-version" content="v3.0">
+  <meta name="document-version" content="v3.1">
   <meta name="document-status" content="FORMAL_CURRENT_REQUIREMENTS_P5R_COMPLETED_WITH_OPEN_UNKNOWN">
   <meta name="baseline-date" content="2026-08-16">
   <meta name="previous-document-id" content="AT-REQ-002">
@@ -47,11 +47,11 @@
     <table>
       <tbody>
         <tr><th>Document ID</th><td><code>AT-REQ-003</code></td></tr>
-        <tr><th>版</th><td><code>v3.0</code>（2026-08-16）</td></tr>
+        <tr><th>版</th><td><code>v3.1</code>（2026-08-16 / v3の再起動後履歴復元追補）</td></tr>
         <tr><th>現在状態</th><td><span class="badge current">現行要件</span> <code>FORMAL_CURRENT_REQUIREMENTS_P5R_COMPLETED_WITH_OPEN_UNKNOWN</code></td></tr>
         <tr><th>前版</th><td><a href="./01_自動トレードシステム要件定義書_v2.html">AT-REQ-002 / 要件定義書 v2</a>。v2は履歴と詳細な継承要件として保持し、上書きしない。</td></tr>
         <tr><th>この版での決定</th><td>Phase 5とPhase 6の間にPhase 5Rを挿入し、P6〜P12をForward、Shadow、Paper、Live候補、小規模Live、通常Liveの能力順に再編する。</td></tr>
-        <tr><th>実装・完了状態</th><td><code>P5R-H0/H1/H2_APPROVED_BY_DELEGATED_AUTHORITY</code> / <code>COMPLETE_WITH_OPEN_UNKNOWN</code>。ユーザーから移譲されたHuman Gate承認権限の範囲でP5Rを完了した。ただし外部Data追加取得、Broker接続、Secret投入、Paper、Live、実資金の開始承認ではない。</td></tr>
+        <tr><th>実装・完了状態</th><td><code>P5R-H0/H1/H2_APPROVED_BY_DELEGATED_AUTHORITY</code> / <code>COMPLETE_WITH_OPEN_UNKNOWN</code>。ユーザーから移譲されたHuman Gate承認権限の範囲でP5Rを完了した。v3.1では、完了済みBacktest RunのEドライブ保存・API再起動後復元・UI履歴再表示を追加受入した。ただし外部Data追加取得、Broker接続、Secret投入、Paper、Live、実資金の開始承認ではない。</td></tr>
         <tr><th>統合状態の正本</th><td><a href="../00_全Phase残課題Blocked統合台帳.html">全Phase残課題Blocked統合台帳</a></td></tr>
       </tbody>
     </table>
@@ -155,6 +155,7 @@
     <h2>06. Phase 5R — UIから使えるBacktest製品</h2>
     <h3>06.1 P5Rの目的と境界</h3>
     <p>P5Rの目的は、利用者がUIで設定を選び、保存済みの適格Dataに対してBacktestを実行し、正しい結果を根拠付きで確認できる状態を作ることである。各完成M1 Barは選択したStrategy Coreへ渡し、CoreのSignal理由をVirtual FillとLedgerへつなぐ。P5RはローカルBacktestに限定する。P5Rに含まれる複数実験はExperiment Set / Sweepであり、P6の継続運用Unitではない。</p>
+    <div class="ok"><strong>再起動後の履歴復元:</strong> 完了したRunの<code>result.json</code>と履歴カタログをEドライブへ保存し、API／Windows再起動後に一覧、詳細、行、比較、CSV生成を再利用できなければならない。旧形式の結果は<code>LEGACY_RESULT_ONLY</code>として不明な条件を作らず、破損・不一致・再起動時に未完了だったRunは<code>RECOVERY_REQUIRED</code>として成功扱いしてはならない。実行中だったRunをプロセス再起動だけで自動再開すること、過去のCSV JobやHoldoutの一度だけ状態を復元すること、Eドライブ障害時のバックアップはこの追補の完了範囲に含めない。</div>
     <table>
       <thead><tr><th>P5Rに含める</th><th>P5Rに含めない</th></tr></thead>
       <tbody>
@@ -182,6 +183,7 @@
         <tr><td>P5R-AC-14</td><td>固定ダミーではなく、Application APIを通る実結果を表示する。</td><td>固定UI例を実Backtestの証拠にしない。</td></tr>
         <tr><td>P5R-AC-15</td><td>キーボード、読み上げ名、状態表示、PC/スマートフォンの安全意味を確認できる。</td><td>操作不能な画面を受入済みとしない。</td></tr>
         <tr><td>P5R-AC-16</td><td>上の受入結果、Open Unknown、対象外が完了判定で読める。</td><td>Critical/HighやUnknownを隠してP6へ渡さない。</td></tr>
+        <tr><td>P5R-AC-17</td><td>完了したRunをEドライブの結果本体と履歴カタログへ保存し、API／Windows再起動後に履歴、詳細、Ledger、比較、CSV生成を再利用できる。</td><td>再起動前に成功したRunが、再起動後に一覧から消えたり、結果を開けなくなったりしてはならない。旧形式・破損・不一致・未完了は明示的に復旧確認へ送る。</td></tr>
       </tbody>
     </table>
   </section>
@@ -270,6 +272,7 @@
         <tr id="req-v3-0125"><td><code>REQ-V3-0125</code></td><td>P12はP11の安定実績と再承認済み範囲を必要とし、通常Liveを無制限・無監視の運用として扱ってはならない。</td><td>小規模で見つかる問題を無視して拡大しないため。</td><td>P11の未解決Critical/High、自動拡張、再承認不足の場合。</td><td>監視、Kill、照合、復旧、監査、再承認を継続受入する。</td><td>P12</td></tr>
         <tr id="req-v3-0126"><td><code>REQ-V3-0126</code></td><td>すべてのMode昇格、降格、停止は自動化せず、対象、差分、未達、影響、承認、理由を別記録に残さなければならない。</td><td>良い結果だけで実資金へ進む事故を防ぐため。</td><td>自動昇格、承認者不明、対象範囲不明の場合。</td><td>成功・拒否・取消・降格・停止を別IDで追跡できる。</td><td>P5R〜P12</td></tr>
         <tr id="req-v3-0127"><td><code>REQ-V3-0127</code></td><td>v3、統合台帳、doc/index、P5からの引渡しは、次Phase、Open Unknown、Gate、履歴文書の関係を同じ現在状態で表示しなければならない。</td><td>古い計画を見て誤ったPhaseを開始しないため。</td><td>次Phaseの矛盾、UnknownのPass化、リンク欠落の場合。</td><td>相互リンク、状態、P5R→P6の引渡し境界を静的確認する。</td><td>文書横断</td></tr>
+        <tr id="req-v3-0128"><td><code>REQ-V3-0128</code></td><td>P5Rは完了済みBacktest Runの結果本体と履歴カタログをEドライブへ保存し、API／Windows再起動後にUI履歴から同じRunの詳細とLedgerを再表示しなければならない。破損・不一致・再起動時未完了は成功扱いせず、復旧確認が必要な状態として表示する。</td><td>Windows再起動やAPI再起動だけで、利用者が過去の実験結果を失ったと誤解したり、未完了結果を成功と誤認したりすることを防ぐため。</td><td>完了Runが再起動後に消える、resultとcatalogのRun IDが違う、旧未完了Runを自動成功・自動再開する場合。</td><td>RECOVERY-T-01〜T-10、APIプロセス再起動Playwright、Eドライブ保存境界、UIの復旧警告を受入する。</td><td>P5R</td></tr>
       </tbody>
     </table>
   </section>
@@ -286,6 +289,7 @@
         <tr><td><code>P5R-H0</code></td><td><span class="badge done">APPROVED_BY_DELEGATED_AUTHORITY</span></td><td>ユーザーのHuman Gate承認権限移譲を根拠に、対象Data、保存、負荷、窓、UI境界を確認した。</td><td>外部Data追加取得・Provider変更・Broker・実注文は禁止。<a href="../../tests/evidence/phase5R/RUN-P5R-00-20260816-001/h0-decision.json">Evidence</a></td></tr>
         <tr><td><code>P5R-H1</code></td><td><span class="badge done">APPROVED_BY_DELEGATED_AUTHORITY</span></td><td>詳細設計、RED、品質Gate scope、実UI撮影設計を確認した。</td><td>固定scope外の実行は禁止。<a href="../../tests/evidence/phase5R/RUN-P5R-00-20260816-001/h1-decision.json">Evidence</a></td></tr>
         <tr><td><code>P5R-H2</code></td><td><span class="badge done">APPROVED_BY_DELEGATED_AUTHORITY</span></td><td>AC-01〜16、実画面手順書、対象外、Open Unknown、P6引渡しを確認し、<code>COMPLETE_WITH_OPEN_UNKNOWN</code>と判定した。</td><td>P6-H0、Paper / Liveは別Gate。<a href="../../tests/evidence/phase5R/RUN-P5R-12-20260816-001/h2-decision.json">Evidence</a></td></tr>
+        <tr><td><code>P5R-RECOVERY-SCOPE</code></td><td><span class="badge open">OPEN_NOT_IN_SCOPE</span> 完了Runの結果・履歴復元は受入済み。実行中Runの自動再開、CSV Jobの再起動後復元、Holdout消費状態の永続化、大量履歴上限、バックアップは別課題。</td><td>後続の運用要件または専用設計で、対象・保持・障害復旧を決める。</td><td>未設計の状態を「再起動後も安全」と表示すること。</td></tr>
         <tr><td>Broker / Secret / 実資金</td><td><span class="badge future">LATER_GATE</span></td><td>P10以降の対象ごとのHuman Gate。</td><td>無承認の接続、Secret利用、実注文、実資金。</td></tr>
       </tbody>
     </table>
@@ -323,6 +327,7 @@
       <tbody>
         <tr><td>2026-08-11</td><td>v2.0</td><td>AT-REQ-002を正式基準線として作成。詳細要件、UC、Screen、State、Phase 4〜11ロードマップを収容。</td></tr>
         <tr><td>2026-08-16</td><td>v3.0</td><td>P5RをP5とP6の間へ追加。P6〜P12をForward、Shadow、Paper、Live候補、小規模Live、通常Liveの能力順に再編。v2の既存REQを継承し、REQ-V3-0113〜0127を追加。</td></tr>
+        <tr><td>2026-08-16</td><td>v3.1</td><td>完了Backtest RunのEドライブ保存、API／Windows再起動後の履歴・詳細・Ledger復元、legacy／破損／不一致／未完了の復旧要否、UI警告をP5R-AC-17とREQ-V3-0128として追加。実行中Runの自動再開、CSV Job・Holdout状態、バックアップはOpen scopeとして明示。</td></tr>
       </tbody>
     </table>
     <p class="small">この文書の完成は、要件とロードマップを最新化したことを意味する。P5RやP6以降の実装・外部接続・実注文の完成や承認を意味しない。</p>

@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 MANUAL = ROOT / "doc/phase5R/07_運用手順/01_バックテスト手順書.html"
 RULES = ROOT / "doc/phase5R/07_運用手順/00_バックテスト操作手順書作成ルール.html"
 INDEX = ROOT / "doc/index.html"
+MANUAL_FEATURE_COUNT = 17
 
 
 def _read(path: Path) -> str:
@@ -26,11 +27,11 @@ def _procedure_blocks(html: str) -> dict[str, str]:
 
 def test_manual_has_complete_feature_catalog_and_procedure_links() -> None:
     html = _read(MANUAL)
-    for number in range(1, 17):
+    for number in range(1, MANUAL_FEATURE_COUNT + 1):
         assert f'id="feature-{number:02d}"' in html
         assert f'id="BT-MAN-{number:02d}"' in html
     feature_rows = re.findall(r'<tr id="feature-\d+">(.*?)</tr>', html, re.S)
-    assert len(feature_rows) == 16
+    assert len(feature_rows) == MANUAL_FEATURE_COUNT
     for row in feature_rows:
         assert re.search(r'href="#BT-MAN-\d+"', row), row[:200]
 
@@ -38,7 +39,7 @@ def test_manual_has_complete_feature_catalog_and_procedure_links() -> None:
 def test_each_procedure_has_beginner_template_and_back_link() -> None:
     html = _read(MANUAL)
     blocks = _procedure_blocks(html)
-    assert set(blocks) == {f"BT-MAN-{number:02d}" for number in range(1, 17)}
+    assert set(blocks) == {f"BT-MAN-{number:02d}" for number in range(1, MANUAL_FEATURE_COUNT + 1)}
     required_fragments = (
         "この操作でできること",
         "いつ使う？",
@@ -57,13 +58,13 @@ def test_each_procedure_has_beginner_template_and_back_link() -> None:
 def test_manual_images_have_alt_caption_and_existing_files() -> None:
     html = _read(MANUAL)
     image_matches = re.findall(r'<img\s+src="([^"]+)"\s+alt="([^"]+)"[^>]*>', html)
-    assert len(image_matches) == 16
+    assert len(image_matches) == MANUAL_FEATURE_COUNT
     for source, alt in image_matches:
         assert alt.strip()
         image_path = (MANUAL.parent / source).resolve()
         assert image_path.is_file(), image_path
     captions = re.findall(r"<figcaption>(.*?)</figcaption>", html, re.S)
-    assert len(captions) == 16
+    assert len(captions) == MANUAL_FEATURE_COUNT
     assert all(caption.strip() for caption in captions)
 
 

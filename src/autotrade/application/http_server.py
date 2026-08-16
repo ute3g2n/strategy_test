@@ -72,6 +72,8 @@ class _Handler(BaseHTTPRequestHandler):
                 self._send(200, {"items": self.service.list_runs()})
             elif path == ["api", "backtest", "runs", "history"]:
                 self._send(200, {"items": self.service.list_runs()})
+            elif path == ["api", "backtest", "recovery"]:
+                self._send(200, self.service.recovery_report())
             elif len(path) == 4 and path[:3] == ["api", "backtest", "runs"]:
                 self._send(200, self.service.get_run(path[3]))
             elif len(path) == 5 and path[:3] == ["api", "backtest", "runs"] and path[4] == "rows":
