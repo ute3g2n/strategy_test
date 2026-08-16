@@ -154,6 +154,24 @@ def test_history_compare_csv_holdout_and_walk_forward(tmp_path: Path) -> None:
         service.walk_forward([windows[0], {**windows[1], "validation_end": "2025-02-24T01:45:00Z"}])
 
 
+def test_result_and_csv_artifacts_use_application_scoped_names_and_directories(tmp_path: Path) -> None:
+    service = _service(tmp_path)
+    created = service.create_run(_spec())
+    run_id = str(created["run_id"])
+    view = _wait(service, run_id)
+    assert view["status"] == "SUCCEEDED"
+    assert run_id.startswith("RUN-AUTOTRADE-")
+    assert "P5R" not in run_id
+    assert (tmp_path / "runtime" / "results" / run_id / "result.json").is_file()
+
+    job = service.create_csv_job(run_id, ["row_kind", "equity"])
+    job_id = str(job["job_id"])
+    assert service.wait_for_csv(job_id)["status"] == "SUCCEEDED"
+    assert job_id.startswith("CSV-AUTOTRADE-")
+    assert "P5R" not in job_id
+    assert (tmp_path / "runtime" / "exports" / job_id / "result.csv").is_file()
+
+
 def test_selected_turtle_system_is_executed_by_strategy_core(tmp_path: Path) -> None:
     service = _service(tmp_path)
     sys1 = service.create_run(_spec(strategy="TURTLE_SYS1"))
