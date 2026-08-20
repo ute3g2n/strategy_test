@@ -61,3 +61,7 @@ Round 1は9件を正規化し、Q-TF-06は意味説明後の選択待ちとし�
 ## 次の停止条件
 
 `P5R2-02_WAITING_Q-TF-06`。Q-TF-06の選択（A/B/C/D）と残る要件確認がないまま、P5R2-03、P5R2-HREQ、実装、test subprocess、Playwright、外部通信、Provider login／契約／API call／Data download、Secret、費用、実削除、P6へ進まない。
+
+## User clarification amendment
+
+Round 1 receipt作成後、ユーザーが「30Mは選択できないとだめ」と明示した。これにより、当初の「15m／1h／4h／1dのみ」という解釈は訂正し、現在の新規Backtest選択肢を `15m / 30m / 1h / 4h / 1d` とする。Q-TF-06は30m選択の可否を問うものではなく、既存に保存された1m／M30 Data・Run・結果の閲覧、再実行、比較、CSV、移行、削除の扱いだけを確認する質問へ変更した。過去Agentの受領結果は実行時点の記録として保持し、要件訂正後の正本はART-01／ART-02、計画書、H0 packet、統合台帳、indexの更新版とする。

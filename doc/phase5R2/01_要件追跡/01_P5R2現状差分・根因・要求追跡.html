@@ -6,7 +6,7 @@
 <meta name="document-id" content="P5R2-ART-01">
 <meta name="phase-id" content="P5R2">
 <meta name="step-id" content="P5R2-01">
-<meta name="document-status" content="FACT_BASELINE_READY / P5R2-02_READY">
+<meta name="document-status" content="FACT_BASELINE_READY / AMENDED_AFTER_USER_CLARIFICATION">
 <title>P5R2 現状差分・根因・要求追跡</title>
 <style>
 body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.75;max-width:1250px;margin:0 auto;padding:24px;color:#172033;background:#f6f8fb}
@@ -22,7 +22,7 @@ code{background:#eef2f7;padding:2px 4px;border-radius:4px}pre{background:#172033
 <body>
 <main>
 <h1>P5R2 現状差分・根因・要求追跡</h1>
-<p class="small">文書ID: <code>P5R2-ART-01</code> ／ Phase: <code>P5R2</code> ／ Step: <code>P5R2-01</code> ／ 版: <code>v0.1</code> ／ 作成日: <code>2026-08-21</code> ／ 状態: <span class="status">FACT_BASELINE_READY / P5R2-02_READY</span></p>
+<p class="small">文書ID: <code>P5R2-ART-01</code> ／ Phase: <code>P5R2</code> ／ Step: <code>P5R2-01</code> ／ 版: <code>v0.1</code> ／ 作成日: <code>2026-08-21</code> ／ 状態: <span class="status">FACT_BASELINE_READY / AMENDED_AFTER_USER_CLARIFICATION</span></p>
 <p><strong>この文書は、要件ヒアリング前の事実基線です。</strong> ユーザーが決めたこと、local read-onlyで確認した現状、まだ決めていないことを分けます。正式な要件v4、実装、テスト、外部Data取得、削除の承認ではありません。</p>
 <div class="note"><strong>Human Gate状態：</strong> P5R2-H0はユーザーの明示文により承認済みです。P5R2-HREQ、P5R2-H1、P5R2-DATA-G1、P5R2-DELETE-G1、P5R2-H2は未承認です。P6はP5R2-H2まで停止します。</div>
 </main>
@@ -43,9 +43,9 @@ code{background:#eef2f7;padding:2px 4px;border-radius:4px}pre{background:#172033
 <p>4領域は分類、8件は追跡するatomic Requirementである。4領域と8件を混同しない。正式なRequirement基線への昇格はP5R2-HREQ後である。</p>
 <table class="wide">
 <tr><th>領域</th><th>Requirement ID</th><th>ユーザー確定内容</th><th>未確定の境界</th></tr>
-<tr><td>時間足</td><td><code>P5R2-REQ-TF-001</code></td><td>Single Backtestで利用者が選ぶ戦略時間足は<code>15m / 1h / 4h / 1d</code>。</td><td>1 Runの選択単位、集約方式、UTC境界、partial／missingの扱い。</td></tr>
+<tr><td>時間足</td><td><code>P5R2-REQ-TF-001</code></td><td>Single Backtestで利用者が選ぶ戦略時間足は<code>15m / 30m / 1h / 4h / 1d</code>。</td><td>1 Runの選択単位、集約方式、UTC境界、partial／missingの扱い。</td></tr>
 <tr><td>時間足</td><td><code>P5R2-REQ-TF-002</code></td><td><code>1m</code>はHistorical Dataの最小source時間足であり、利用者向け戦略時間足として単独固定しない。</td><td>sourceからderivedをRun時に作るか、事前生成するか。</td></tr>
-<tr><td>時間足</td><td><code>P5R2-REQ-TF-003</code></td><td><code>30m / M30</code>は新規の利用者選択対象に含めない。</td><td>既存M30／1m履歴、Core互換、legacy表示・再実行の扱い。</td></tr>
+<tr><td>時間足</td><td><code>P5R2-REQ-TF-003</code></td><td><code>30m / M30</code>は新規の利用者選択対象に含める。既存保存物の扱いは別途決める。</td><td>既存M30／1m履歴、Core互換、legacy表示・再実行の扱い。</td></tr>
 <tr><td>Historical Data</td><td><code>P5R2-REQ-HD-001</code></td><td>アプリUIからHistorical Dataのダウンロードを開始できる。</td><td>provider、host、symbol、期間、費用、Secret、保存先、通信境界。</td></tr>
 <tr><td>Historical Data</td><td><code>P5R2-REQ-HD-002</code></td><td>現在Backtestで使用可能なHistorical DataをUI上の一覧で管理できる。</td><td>一覧単位、usable判定、quality、version、更新、削除、Trash、再試行。</td></tr>
 <tr><td>Backtest Run操作</td><td><code>P5R2-REQ-RUN-001</code></td><td>Backtest実行一覧・進捗から、状態に応じて取消または削除を行える。</td><td>状態別可否、対象Run、依存、監査、soft／hard delete。</td></tr>
@@ -60,11 +60,11 @@ code{background:#eef2f7;padding:2px 4px;border-radius:4px}pre{background:#172033
 <table class="wide">
 <tr><th>属性</th><th>P5R2のユーザー要求／候補</th><th>local read-onlyで確認した現状</th><th>証拠pathとsymbol／見出し</th></tr>
 <tr><td>source timeframe</td><td><code>1m</code>。Historical Dataの最小source。</td><td>ApplicationのP5ローカルDataは1mディレクトリ／1m入力を前提とする。</td><td><code>src/autotrade/application/storage_paths.py</code>：<code>HISTORICAL_DATA_ROOT</code>、<code>src/autotrade/application/backtest_product.py</code>：Data範囲・provenance処理</td></tr>
-<tr><td>derived timeframe</td><td><code>15m / 1h / 4h / 1d</code>を候補とする。<code>M30</code>は新規選択対象外。</td><td>Core RunnerとP5 quality処理には<code>M15/M30/H1/H4/D1</code>の集約能力がある。ただし、能力がUI製品契約へ接続済みとは確認できない。</td><td><code>src/autotrade/backtest/runner.py</code>：<code>_TIMEFRAME_ORDER</code>、<code>_aggregate_bar</code>、<code>scripts/phase5_external_data/run_binance_quality.py</code>：<code>TIMEFRAMES</code>、<code>TimeframeAggregator</code></td></tr>
-<tr><td>strategy timeframe</td><td>利用者が選んだ<code>15m / 1h / 4h / 1d</code>でStrategyが判断する。</td><td>Product validationはSpotかつ<code>1m</code>を許可し、Strategy設定も<code>M1</code>中心。P5R2の4時間足選択は未実装。</td><td><code>src/autotrade/application/backtest_product.py</code>：<code>_validate_spec</code>、<code>_default_spec</code>、<code>_strategy_config</code></td></tr>
-<tr><td>display timeframe</td><td>条件画面で<code>15m / 1h / 4h / 1d</code>を選択・確認できる。</td><td>UIは時間足をread-onlyの<code>1m</code>として表示し、選択UIはない。</td><td><code>ui/mock/src/P5RBacktestScreen.tsx</code>：Single Backtest条件／P5R実行範囲、<code>ui/mock/src/backtestApi.ts</code>：<code>BacktestSpec.timeframe</code>、<code>defaultBacktestSpec</code></td></tr>
+<tr><td>derived timeframe</td><td><code>15m / 30m / 1h / 4h / 1d</code>を候補とする。<code>1m</code>から同一規則で派生する。</td><td>Core RunnerとP5 quality処理には<code>M15/M30/H1/H4/D1</code>の集約能力がある。ただし、能力がUI製品契約へ接続済みとは確認できない。</td><td><code>src/autotrade/backtest/runner.py</code>：<code>_TIMEFRAME_ORDER</code>、<code>_aggregate_bar</code>、<code>scripts/phase5_external_data/run_binance_quality.py</code>：<code>TIMEFRAMES</code>、<code>TimeframeAggregator</code></td></tr>
+<tr><td>strategy timeframe</td><td>利用者が選んだ<code>15m / 30m / 1h / 4h / 1d</code>でStrategyが判断する。</td><td>Product validationはSpotかつ<code>1m</code>を許可し、Strategy設定も<code>M1</code>中心。P5R2の5種類時間足選択は未実装。</td><td><code>src/autotrade/application/backtest_product.py</code>：<code>_validate_spec</code>、<code>_default_spec</code>、<code>_strategy_config</code></td></tr>
+<tr><td>display timeframe</td><td>条件画面で<code>15m / 30m / 1h / 4h / 1d</code>を選択・確認できる。</td><td>UIは時間足をread-onlyの<code>1m</code>として表示し、選択UIはない。</td><td><code>ui/mock/src/P5RBacktestScreen.tsx</code>：Single Backtest条件／P5R実行範囲、<code>ui/mock/src/backtestApi.ts</code>：<code>BacktestSpec.timeframe</code>、<code>defaultBacktestSpec</code></td></tr>
 </table>
-<p class="danger">現状は「4時間足対応済み」ではない。Coreの集約能力、P5 qualityの処理、ユーザー向けProduct/API契約を別々に記録する。</p>
+<p class="danger">現状は「5種類の時間足対応済み」ではない。Coreの集約能力、P5 qualityの処理、ユーザー向けProduct/API契約を別々に記録する。</p>
 </section>
 
 <section>
@@ -72,7 +72,7 @@ code{background:#eef2f7;padding:2px 4px;border-radius:4px}pre{background:#172033
 <p>既存RequirementとP5Rの完了判定は削除・上書きせず、旧基線・履歴として保持する。P5R2では、現在のユーザー要求と旧基線の差分をHREQで確定する。</p>
 <table class="wide">
 <tr><th>旧ID／範囲</th><th>旧基線の意味</th><th>P5R2との競合・関係</th><th>現時点の扱い</th></tr>
-<tr><td><code>REQ-V2-0027</code></td><td>見出し「14.1 5時間足の共通契約」。<code>D1/H4/H1/M30/M15</code>の生成、確定、判断時刻を固定する。</td><td>P5R2の利用者選択は<code>15m/1h/4h/1d</code>で、sourceは1m。旧M30の選択前提と競合する。</td><td>旧Requirementを履歴保持。M30新規非選択と既存legacy扱いを別に確定する。</td></tr>
+<tr><td><code>REQ-V2-0027</code></td><td>見出し「14.1 5時間足の共通契約」。<code>D1/H4/H1/M30/M15</code>の生成、確定、判断時刻を固定する。</td><td>P5R2の利用者選択は<code>15m/30m/1h/4h/1d</code>で、sourceは1m。初期計画でM30を選択対象外と誤解していた。</td><td>旧Requirementを履歴保持。30m新規選択は確定し、既存1m／M30保存物の互換・legacy扱いを別に確定する。</td></tr>
 <tr><td><code>REQ-V2-0028</code></td><td>時間足別の欠損、Calendar、遅延等を別判定する。</td><td>P5R2でもpartial／missing、終了境界、quality、usable判定が必要だが、具体契約は未確定。</td><td>考え方は入力、具体Acceptanceは<code>P5R2-UNK-TF-003</code>等で質問する。</td></tr>
 <tr><td><code>REQ-V2-0035</code></td><td>Strategyと時間足、設定版を固定・記録する。</td><td>P5R2ではsource／derived／strategy／displayを分離し、選択時間足をRun条件へ固定する必要がある。</td><td>旧要求を根拠として残し、P5R2のRun・Data・Strategy契約へ接続する。</td></tr>
 <tr><td><code>REQ-V3-0113</code></td><td>P5RをP5とP6の間のBacktest製品完成Phaseとして扱う。</td><td>P5Rは旧Scopeの完了履歴。P5R2はP6前に新設した是正Phaseであり、P5R完了をP5R2完了へ読み替えない。</td><td>P5R-H2を無効化せず、P5R2-H0/HREQ/H2の承認に流用しない。</td></tr>
@@ -111,8 +111,8 @@ code{background:#eef2f7;padding:2px 4px;border-radius:4px}pre{background:#172033
 <p>現行の正本は <code>P5R-MAN-01 / v0.5</code>。P5R2では未実装機能を「できる」と書かず、実装・E2E・Manual fidelity・H2承認後に本体を更新する。</p>
 <table class="wide">
 <tr><th>現行箇所</th><th>現行前提</th><th>P5R2での改訂候補</th></tr>
-<tr><td>「P5Rでできること一覧」／<code>BT-F-01</code>〜<code>BT-F-17</code></td><td>Spot、1m、UTC、P5RローカルData、既存16機能。</td><td>4時間足の選択、source／strategyの説明、Historical Data管理、Run操作の追加・履歴表示。</td></tr>
-<tr><td><code>BT-MAN-01</code>／<code>BT-MAN-02</code></td><td>安全境界とSingle Backtest条件が1m固定。</td><td>15m／1h／4h／1d選択、1m source、Data使用可能判定、Preflightの時間足・品質説明。</td></tr>
+<tr><td>「P5Rでできること一覧」／<code>BT-F-01</code>〜<code>BT-F-17</code></td><td>Spot、1m、UTC、P5RローカルData、既存16機能。</td><td>5種類の時間足選択、source／strategyの説明、Historical Data管理、Run操作の追加・履歴表示。</td></tr>
+<tr><td><code>BT-MAN-01</code>／<code>BT-MAN-02</code></td><td>安全境界とSingle Backtest条件が1m固定。</td><td>15m／30m／1h／4h／1d選択、1m source、Data使用可能判定、Preflightの時間足・品質説明。</td></tr>
 <tr><td><code>BT-MAN-07</code>／<code>BT-MAN-10</code></td><td>現在のSingle Run取消と履歴・比較を説明。</td><td>一覧・進捗・結果summaryからの対象Run操作、状態別取消／削除、拒否理由、確認操作、復旧。</td></tr>
 <tr><td>画像・Evidence／Registry</td><td>P5Rの既存画像とP5R-AC trace。</td><td>新UIのdesktop/mobile画像、keyboard／a11y、操作ID、Test／Evidence追跡。未実装画像を先に作らない。</td></tr>
 <tr><td>用語・改訂履歴</td><td>Dataは既存P5 local read-only、1m前提。</td><td>DownloadJob／DataSet、usable、legacy、Trash、取消／削除の意味を平易に説明し、P5R履歴とP5R2追加を区別。</td></tr>
@@ -155,7 +155,7 @@ code{background:#eef2f7;padding:2px 4px;border-radius:4px}pre{background:#172033
 <li>このART-01が正式HTMLとして存在し、metadata、状態、入力、事実、Unknown、レビュー履歴、相対linkを確認できること。</li>
 <li>H0のユーザー明示承認が承認記録と統合台帳へ反映されていること。HREQ、H1、DATA-G1、DELETE-G1、H2は未承認のままであること。</li>
 <li>4領域・8 Requirement、source／derived／strategy／display、v2/v3/P5R-AC競合、UI/API/Application/Core/Storage/Runner/Manual/Testの初期traceがあること。</li>
-<li>M30 legacy、Data usable／削除、状態別Run操作、Manual改訂がUnknownまたはLater Gateとして明示され、推奨案を回答済みと扱っていないこと。</li>
+<li>既存1m／M30保存物のlegacy扱い、Data usable／削除、状態別Run操作、Manual改訂がUnknownまたはLater Gateとして明示され、30m新規選択を未確定扱いしていないこと。</li>
 <li>Critical/Highの「事実誤認」が残っていないこと。競合・不足・未実装を事実として明示したFindingは、P5R2-02で質問するための未解決事項として保持する。</li>
 <li>HREQ承認前に、ソース実装、test subprocess、Playwright、外部Data取得、Secret、費用、実削除、P6開始をしないこと。</li>
 </ol>
@@ -176,8 +176,15 @@ code{background:#eef2f7;padding:2px 4px;border-radius:4px}pre{background:#172033
 
 <section>
 <h2>12. 運用者向け要約</h2>
-<p>現在の画面は1分足を表示し、現在開いているRunを止めることはできます。しかし、利用者が選びたい15分・1時間・4時間・1日を選ぶ画面、過去Dataを画面から取得して使えるDataを一覧にする仕組み、履歴一覧や結果summaryから状態に応じてRunを操作する仕組みは、まだ現在の製品契約として確認できません。</p>
-<p>このStepでは、その差を資料とソースから記録しました。次のP5R2-02では、既に決まった時間足を聞き直さず、M30の古い履歴、Dataの使える条件、取消・削除の状態、手順書の直し方など、まだ決まっていないことだけを質問します。</p>
+<p>現在の画面は1分足を表示し、現在開いているRunを止めることはできます。しかし、利用者が選びたい15分・30分・1時間・4時間・1日を選ぶ画面、過去Dataを画面から取得して使えるDataを一覧にする仕組み、履歴一覧や結果summaryから状態に応じてRunを操作する仕組みは、まだ現在の製品契約として確認できません。</p>
+<p>このStepでは、その差を資料とソースから記録しました。次のP5R2-02では、30mを選べるかを聞き直さず、既存1m／M30の保存履歴、Dataの使える条件、取消・削除の状態、手順書の直し方など、まだ決まっていないことだけを質問します。</p>
+</section>
+
+<section>
+<h2>13. P5R2-02後のユーザー訂正</h2>
+<p>初期のP5R2-01基線では、会話の「15m／1h／4h／1dのみ」を根拠に、<code>30m / M30</code>を新規選択対象外と記録していた。これは要件の誤解であり、現在のユーザー明示は「30Mは選択できないとだめ」である。</p>
+<p>したがって、現在の利用者向け戦略時間足は<code>15m / 30m / 1h / 4h / 1d</code>の5種類とする。Q-TF-06は30mを選べるかを問う質問ではなく、既存に保存された1m／M30 Data・Run・結果を、現行の30m選択契約とどう関係づけるかだけを問う。</p>
+<p class="open">この訂正により、P5R2-REQ-TF-001／003、ART-02、計画書、H0 packet、統合台帳、index、runtime receiptの説明を同期する。正式v4、実装、テスト、外部Data取得、削除、P6は引き続き未承認・停止中である。</p>
 </section>
 
 <footer class="small">P5R2-ART-01。旧P5Rの完了判定を変更せず、P5R2の要件候補・実装・外部I/O・削除を承認済みとは表示しない。</footer>

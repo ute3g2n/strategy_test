@@ -28,9 +28,9 @@ P6へ進む前に、P5R2を独立Phaseとして新設する。P5R2は、P5Rの�
 
 | Requirement ID | 確定要求 | 状態 |
 |---|---|---|
-| `P5R2-REQ-TF-001` | Single Backtestで利用者が選べる戦略時間足は`15m / 1h / 4h / 1d`の4種類とする。 | `CONFIRMED_BY_USER` |
+| `P5R2-REQ-TF-001` | Single Backtestで利用者が選べる戦略時間足は`15m / 30m / 1h / 4h / 1d`の5種類とする。 | `CONFIRMED_BY_USER` |
 | `P5R2-REQ-TF-002` | `1m`はHistorical Dataの最小ソース時間足であり、利用者向け戦略時間足として単独固定しない。 | `CONFIRMED_BY_USER` |
-| `P5R2-REQ-TF-003` | 旧要件にある`30m / M30`は、P5R2の利用者選択対象へ含めない。履歴・Core互換の扱いだけを別途決める。 | `CONFIRMED_WITH_LEGACY_DECISION_OPEN` |
+| `P5R2-REQ-TF-003` | `30m / M30`はP5R2の利用者選択対象に含める。既存1m／M30の保存済み履歴・Core互換・再利用の扱いは別途決める。 | `CONFIRMED_WITH_LEGACY_DECISION_OPEN` |
 | `P5R2-REQ-HD-001` | アプリUIからHistorical Dataをダウンロードできる。 | `CONFIRMED_BY_USER` |
 | `P5R2-REQ-HD-002` | 現在Backtestで使用可能なHistorical DataをUI上の一覧で管理できる。 | `CONFIRMED_BY_USER` |
 | `P5R2-REQ-RUN-001` | Backtest実行一覧・進捗から、状態に応じて取消または削除を行える。 | `CONFIRMED_BY_USER` |
@@ -42,8 +42,8 @@ P6へ進む前に、P5R2を独立Phaseとして新設する。P5R2は、P5Rの�
 | 観点 | 現在の事実 | P5R2で解決すること |
 |---|---|---|
 | P5R状態 | P5Rは`COMPLETE_WITH_OPEN_UNKNOWN`として完了し、P6引渡しまで記録済みである。 | P5Rの当時の限定Scopeを履歴として保持し、P5R2を現在の優先Phaseにする。 |
-| 時間足UI | `ui/mock/src/P5RBacktestScreen.tsx`は時間足をread-onlyの`1m`で表示する。 | 4時間足を選択可能にし、利用可能Data・Strategy・期間と整合するPreflightへ変える。 |
-| UI型 | `ui/mock/src/backtestApi.ts`の`BacktestSpec.timeframe`は`'1m'`だけである。 | UI、API、永続化、比較条件、表示形式の型を4時間足へ統一する。 |
+| 時間足UI | `ui/mock/src/P5RBacktestScreen.tsx`は時間足をread-onlyの`1m`で表示する。 | 5種類の戦略時間足を選択可能にし、利用可能Data・Strategy・期間と整合するPreflightへ変える。 |
+| UI型 | `ui/mock/src/backtestApi.ts`の`BacktestSpec.timeframe`は`'1m'`だけである。 | UI、API、永続化、比較条件、表示形式の型を5種類の戦略時間足へ統一する。 |
 | Application | `backtest_product.py`は`timeframe != 1m`を拒否し、StrategyConfigも`M1`だけを有効化する。 | 1m sourceから確定した選択時間足を生成し、選択時間足だけでStrategy判断する契約を確定する。 |
 | Core | `runner.py`は`M15 / M30 / H1 / H4 / D1`の集約能力を持つ。 | Coreの再利用範囲、M30 legacy、M1必須内部契約、閉じた足だけを渡す境界を設計する。 |
 | Historical Data | 通常実行は`E:\strategy_test_data\autotrade\historical\spot\klines\1m\`をread-onlyで参照する。P5のBinance取得Runnerは固定Run向けで、アプリAPI／UIとは未接続である。 | provider境界、Data Job、Catalog、品質、使用可能判定、取消・再試行、外部I/O Gateを製品要件化する。 |
@@ -57,7 +57,7 @@ P6へ進む前に、P5R2を独立Phaseとして新設する。P5R2は、P5Rの�
 
 ### 4.1 目的
 
-- 利用者が`15m / 1h / 4h / 1d`からBacktest時間足を明示選択できる。
+- 利用者が`15m / 30m / 1h / 4h / 1d`からBacktest時間足を明示選択できる。
 - 1m sourceからの集約、足境界、欠損、未確定足、時刻、Data provenanceを再現可能にする。
 - UIから承認済み範囲のHistorical Data取得Jobを作成し、進捗、取消、失敗、再試行を扱える。
 - Backtestで使用可能なData Setを一覧化し、品質・期間・銘柄・市場・source／derived時間足・状態を確認できる。
@@ -91,7 +91,7 @@ P6は、ユーザーがP5R2をP6前に置くと指定したため、`P5R2-H2`ま
 
 | Unknown ID | 決めること | 解消Step | 未解消時の停止範囲 |
 |---|---|---|---|
-| `P5R2-UNK-TF-001` | 1 Run 1時間足か、4時間足同時参照を許可するか。 | P5R2-02〜03 | Strategy入力・比較条件・UI型を確定しない。 |
+| `P5R2-UNK-TF-001` | 1 Run 1時間足か、5種類の時間足同時参照を許可するか。 | P5R2-02〜03 | Strategy入力・比較条件・UI型を確定しない。 |
 | `P5R2-UNK-TF-002` | 集約をRun時に行うか、derived cacheを事前生成するか。UI生成画面の「現在生成可能な全期間」、生成Jobの状態・再試行・同時実行、DataSet／usableの登録条件も決める。 | P5R2-02〜03 | Data Catalog・provenance・性能Acceptance・生成Job契約を確定しない。 |
 | `P5R2-UNK-TF-003` | UTC anchor、終了時刻の包含、partial／missing bar、旧M30／1m Runの扱い。 | P5R2-02〜03 | 時刻境界・移行・再実行契約を確定しない。 |
 | `P5R2-UNK-TF-004` | 欠損1mを上位足へ補間する方式、最大欠損量、始端・終端欠損、品質表示、usable化、未来側データの利用禁止、再現性。 | P5R2-03〜04／HREQ | 補間Dataを自動で使用可能にせず、品質・provenance・停止条件を確定しない。 |
@@ -125,15 +125,15 @@ HREQ前に閉じるUnknownと、後続Gateで実行直前に決める事項を�
 
 | ID | 質問 | 推奨初期案 | 回答が変える後続範囲 |
 |---|---|---|---|
-| `Q-TF-01` | 1回のSingle Backtestでは4時間足から1つだけを選ぶか、主時間足＋参照時間足を同時指定するか。 | P5R2では1 Run 1選択時間足。マルチ時間足Strategyは別要件として残す。 | BacktestSpec、StrategyConfig、UI入力、比較可能条件、Golden Test |
-| `Q-TF-02` | 1m sourceから15m／1h／4h／1dをRun時集約するか、品質確認済みderived Dataを作ってCatalog登録するか。 | immutableな1m source＋品質確認済みderived cache。RunはCatalog上の使用可能Dataだけを読む。 | Data model、容量、性能、provenance、再生成、Catalog UI |
+| `Q-TF-01` | 1回のSingle Backtestでは5種類の戦略時間足から1つだけを選ぶか、主時間足＋参照時間足を同時指定するか。 | P5R2では1 Run 1選択時間足。マルチ時間足Strategyは別要件として残す。 | BacktestSpec、StrategyConfig、UI入力、比較可能条件、Golden Test |
+| `Q-TF-02` | 1m sourceから15m／30m／1h／4h／1dをRun時集約するか、品質確認済みderived Dataを作ってCatalog登録するか。 | immutableな1m source＋品質確認済みderived cache。RunはCatalog上の使用可能Dataだけを読む。 | Data model、容量、性能、provenance、再生成、Catalog UI |
 | `Q-TF-03` | Crypto Spotの足境界をUTC 00:00 anchorに固定してよいか。 | M15/H1/H4/D1をUTC 00:00起点、右端Close確定後だけStrategyへ渡す。 | 集約、期間入力、境界Test、手順書 |
 | `Q-TF-04` | 指定終了時刻が足境界でない場合、入力拒否か、直前の確定足まで切り下げるか。 | Preflightで拒否し、利用可能な境界を表示する。暗黙切下げはしない。 | Validation、error code、UI支援、Acceptance |
 | `Q-TF-05` | 1本でも1mが欠けたderived barをどう扱うか。 | 補間せず`PARTIAL_BAR_REJECTED`で対象Runを開始／継続しない。 | Quality、停止、Recovery、negative test |
-| `Q-TF-06` | 既存の1m RunとM30関連成果物をどう表示するか。 | `LEGACY_TIMEFRAME`として閲覧可能、同条件再実行・新規選択は不可。 | Migration、履歴、比較、削除、Manual |
+| `Q-TF-06` | 新規Runでは30mを選択可能としたうえで、既存の1m／M30 Run・Data・結果を現行契約とどう関係づけるか。 | 新規30m選択は確定。既存保存物の閲覧、再実行、比較、CSV、削除、移行だけを別途決める。 | Migration、履歴、比較、削除、Manual |
 | `Q-HD-01` | 最初のUIダウンロードproviderを何にするか。 | 既存実績のあるBinance Data Visionに限定し、Adapterで拡張可能にする。 | Provider Adapter、公式調査、DATA-G1、UI文言 |
 | `Q-HD-02` | 初期対象をBTCUSDT／ETHUSDT Spotだけにするか、任意symbol選択を許可するか。 | 初期はBTCUSDT／ETHUSDT Spot。provider catalog拡張は後続。 | Scope、入力Validation、費用・容量、E2E |
-| `Q-HD-03` | providerが15m等も提供している場合でも、P5R2の製品sourceは確定済みの1mだけに固定し、直接取得した上位足を使用しない方針でよいか。 | sourceは1mだけ取得し、4時間足を同一規則で派生する。既回答の1m sourceを変更する質問ではなく、上位足の混在禁止を確認する。 | Download request、保存tree、provenance、品質 |
+| `Q-HD-03` | providerが15m／30m等も提供している場合でも、P5R2の製品sourceは確定済みの1mだけに固定し、直接取得した上位足を使用しない方針でよいか。 | sourceは1mだけ取得し、5種類の戦略時間足を同一規則で派生する。既回答の1m sourceを変更する質問ではなく、上位足の混在禁止を確認する。 | Download request、保存tree、provenance、品質 |
 | `Q-HD-04` | routine downloadの承認単位をどうするか。 | provider／host／symbol／上限をDATA-G1で一度承認し、範囲内は毎回UI確認、範囲外は新Gate。 | Authorization、confirmation、audit、停止条件 |
 | `Q-HD-05` | 日付指定は任意日時、UTC日、月単位のどれにするか。 | UIはUTC日付範囲、provider月次archiveへ内部変換し、余分な範囲は使用可能Dataへ昇格させない。 | Request、download分割、storage、quality |
 | `Q-HD-06` | 同一Dataが存在するとき、拒否、上書き、差分更新のどれにするか。 | 同一source identityはskip、差分は新version、既存をin-place上書きしない。 | Idempotency、versioning、Catalog、Recovery |
@@ -299,8 +299,8 @@ CoordinatorはAutoTradePhasePlanning_Orchestrator_v0_1（.codex/orchestrators/Au
 
 次を行う。
 1. source timeframe、derived timeframe、strategy timeframe、display timeframeを別欄にした現状表を作る。
-2. `15m/1h/4h/1d`、`1m source only`、`M30非選択`をCONFIRMEDとして記録する。
-3. v2の`REQ-V2-0027`、`REQ-V2-0028`、`REQ-V2-0035`、v3の`REQ-V3-0113`、`REQ-V3-0114`、`REQ-V3-0117`、P5R-ACと、今回の4時間足／Data／取消／削除要求の競合を明示する。`旧Requirement ID / 新P5R2 Requirement ID / 競合内容 / 変更理由 / M30・1mの履歴扱い / Acceptance`の表を作り、M30を削除したと偽らずlegacy方針待ちにする。
+2. `15m/30m/1h/4h/1d`、`1m source only`、`30m新規選択`をCONFIRMEDとして記録する。既存1m／M30保存物の扱いはOPENのまま残す。
+3. v2の`REQ-V2-0027`、`REQ-V2-0028`、`REQ-V2-0035`、v3の`REQ-V3-0113`、`REQ-V3-0114`、`REQ-V3-0117`、P5R-ACと、今回の5種類時間足／Data／取消／削除要求の競合を明示する。`旧Requirement ID / 新P5R2 Requirement ID / 競合内容 / 変更理由 / 既存M30・1mの履歴扱い / Acceptance`の表を作り、M30選択を除外した初期解釈を訂正した履歴と、保存済みデータのlegacy方針を分ける。
 4. 取消APIは存在するがactiveRunだけに接続されていること、履歴行と結果サマリーには対象Run操作がないこと、delete契約が存在しないことを分ける。
 5. P5の外部取得Runnerは固定Run用であり、そのまま任意UI Jobへ公開できない安全境界を記録する。
 6. 現行Manualの1m記述、取消導線、機能一覧、画像、Evidence追跡の改訂箇所を列挙する。
@@ -320,7 +320,7 @@ CoordinatorはAutoTradePhasePlanning_Orchestrator_v0_1（.codex/orchestrators/Au
 目的は、ユーザーが既に決めた要求を聞き直さず、後続設計を分岐させる重要事項だけを回答可能な形で聞くこと。このStepは対話Stepであり、回答を推測して一回で完了しない。
 
 最初に、確定済みの次の理解を短く提示する。
-- 利用者選択時間足は15m/1h/4h/1dだけ。
+- 利用者選択時間足は15m/30m/1h/4h/1dの5種類。
 - 1mは内部sourceであり、利用者の戦略時間足ではない。
 - UI Data download／使用可能Data一覧が必要。
 - Run一覧・進捗・結果サマリーで取消／削除が必要。
@@ -380,7 +380,7 @@ CoordinatorはAutoTradeProject_DesignDocSet_Orchestrator_v0_1（.codex/orchestra
 次を行う。
 1. v3を上書きせず、plan/phase5R2/requirements/drafts/にv4 candidateを作る。
 2. ロードマップをP5R→P5R2→P6へ変更し、P5R旧完了、P5R2現在状態、P6停止条件を記載する。
-3. 時間足を15m/1h/4h/1dへ統一し、1m sourceとM30 legacyを別属性・履歴として説明する。`REQ-V2-0027/0028/0035`、`REQ-V3-0113/0114/0117`、P5R-AC、新P5R2 Requirementの対応表を収容する。
+3. 時間足を15m/30m/1h/4h/1dへ統一し、1m sourceと既存保存物のlegacy扱いを別属性・履歴として説明する。`REQ-V2-0027/0028/0035`、`REQ-V3-0113/0114/0117`、P5R-AC、新P5R2 Requirementの対応表を収容する。
 4. Historical Data Download JobとData Set Catalogを別ID・別状態として、quality／usable状態、provider Adapter、外部I/O／Secret／費用GateをShall、Reason、Input、Processing、Output、Exception、Stop、Recovery、Persistence、Acceptanceへ分解する。PARTIAL／FAILED／CANCELLEDのJob成果物をusable DataSetへ昇格させない。
 5. Run取消／削除を状態、画面、API、idempotency、競合、dependency、Trash、audit、Recoveryへ分解する。RECOVERY_REQUIRED、LEGACY_RESULT_ONLY、Sweep親／子、PARTIAL_FAILED、CSV、比較、Holdout依存を含む完全状態表を要求する。
 6. Download開始／確認／取消／失敗／再試行、Data usable昇格、Run取消、delete要求／拒否／成功／失敗／cascadeの監査Requirementを作り、操作者、理由、対象ID、旧／新状態、依存物件数を最低項目にする。
@@ -408,7 +408,7 @@ step_id=P5R2-05。開始条件はP5R2-04成果物が揃っていること。
 CoordinatorはAutoTradeProject_DesignDocSet_Orchestrator_v0_1（.codex/orchestrators/AutoTradeProject_DesignDocSet_Orchestrator_v0_1.json、model=gpt-5.6-terra）。AgentはAutoTrade_A10_RequirementsCurator_v0_1、AutoTrade_A80_DocumentIntegrator_v0_1、AutoTrade_A81_DesignDocSetWriter_v0_1、AutoTrade_A90_DesignReviewer_v0_1、AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1（JSON path／model／reasoning_effortは共通実行契約の完全名表どおり）。Skillはautotrade_skill_design_doc_set_writer_v0_1、autotrade_skill_source_reader_v0_1、autotrade_skill_traceability_v0_1、autotrade_skill_design_review_v0_1、autotrade_skill_red_team_review_v0_1、autotrade_skill_protected_hash_policy_guard_v0_1を使う。A90はFindings first、A95は静的policy判定を独立出力する。AgentはこのStepではcandidateを直接編集せず、review findingを返す。
 
 レビュー観点:
-1. User request coverage: 4時間足、Data download／一覧、2画面の取消／削除、Manual改訂が欠けていないか。
+1. User request coverage: 5種類の時間足、Data download／一覧、2画面の取消／削除、Manual改訂が欠けていないか。
 2. Semantic split: 1m source／4 strategy timeframe、取消／削除、logical／physical delete、Data Job／Backtest Runが分離されているか。
 3. State safety: 状態別操作、idempotency、二重操作、競合、部分失敗、再起動、復旧がfail-closedか。
 4. Deletion safety: 実行中削除、依存物孤児化、path traversal、任意パス、Evidence消去、監査消去を許していないか。
@@ -583,8 +583,8 @@ CoordinatorはAutoTradePhasePlanning_Orchestrator_v0_1（.codex/orchestrators/Au
 
 | 区分 | 必須内容 | 完了証拠 |
 |---|---|---|
-| Scope | `Spot / 1m / UTC`を利用者選択Scopeとして残さず、4時間足と1m sourceの違いを説明する。 | UI文言との照合、静的検索 |
-| 条件入力 | 15m／1h／4h／1dの選択、期間境界、Data利用可否、Preflight停止理由。 | desktop/mobile Playwright |
+| Scope | `Spot / 1m / UTC`を利用者選択Scopeとして残さず、5種類の戦略時間足と1m sourceの違いを説明する。 | UI文言との照合、静的検索 |
+| 条件入力 | 15m／30m／1h／4h／1dの選択、期間境界、Data利用可否、Preflight停止理由。 | desktop/mobile Playwright |
 | Data取得 | provider、symbol、期間、見積／確認、開始、進捗、取消、失敗、再試行、品質確認。 | Job状態別E2E |
 | Data一覧 | 使用可能／品質未確認／失敗／無効／削除待ち等の状態と、Backtestで使える条件。 | Catalog table E2E、a11y |
 | Run取消 | 一覧・進捗・結果サマリーから対象Runを取消し、CANCELLED／checkpoint／再開可否を確認する。 | 画面別E2E、対象Run ID assert |
@@ -612,7 +612,7 @@ CoordinatorはAutoTradePhasePlanning_Orchestrator_v0_1（.codex/orchestrators/Au
 | ID | Acceptance |
 |---|---|
 | `P5R2-PLAN-AC-01` | ユーザーが明示した4領域をatomicな確定Requirement 8件として記録し、Manual改訂も含む。 |
-| `P5R2-PLAN-AC-02` | 15m/1h/4h/1dと1m source、M30 legacyの違いが明確である。 |
+| `P5R2-PLAN-AC-02` | 15m/30m/1h/4h/1dと1m source、既存1m／M30保存物の扱いの違いが明確である。 |
 | `P5R2-PLAN-AC-03` | ヒアリング質問が選択肢、推奨案、影響範囲を持ち、既回答を聞き直さない。 |
 | `P5R2-PLAN-AC-04` | 要件修正までのP5R2-00〜06Aに直接実行Prompt、Gate、成果物、停止条件がある。 |
 | `P5R2-PLAN-AC-05` | P5R2-07に、確定要件から計画を再編し最終StepまでのPromptを作る自己完結したPromptがある。 |
@@ -632,4 +632,4 @@ CoordinatorはAutoTradePhasePlanning_Orchestrator_v0_1（.codex/orchestrators/Au
 P5R2-H0を承認します。要件ヒアリングを開始してください。
 ```
 
-P5R2-01はART-01の事実・trace・Unknown・link・A95静的確認を完了した。P5R2-02 Round 1では9件を正規化し、Q-TF-06は説明後の選択待ちとして残した。A90のHigh指摘（終了時刻表示・補間・任意symbol境界・Provider範囲・Run cancel/delete）も未解消である。Q-TF-06の回答と残る要件確認が終わるまでP5R2-03、HREQ、H1、DATA-G1、DELETE-G1、H2、P6へ進まない。
+P5R2-01はART-01の事実・trace・Unknown・link・A95静的確認を完了した。P5R2-02 Round 1では9件を正規化し、ユーザー訂正により30m新規選択を確定した。Q-TF-06は、既存1m／M30保存物の扱いを説明後に選択する状態として残した。A90のHigh指摘（終了時刻表示・補間・任意symbol境界・Provider範囲・Run cancel/delete）も未解消である。Q-TF-06の回答と残る要件確認が終わるまでP5R2-03、HREQ、H1、DATA-G1、DELETE-G1、H2、P6へ進まない。
