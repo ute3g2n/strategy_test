@@ -1,0 +1,91 @@
+{
+  "phase_id": "P5R2",
+  "step_id": "P5R2-01",
+  "runtime_backend": "multi_agent_v1",
+  "dispatch_mode": "coordinator_then_root_direct_fallback",
+  "runtime_exception": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+  "orchestrator": "AutoTradePhasePlanning_Orchestrator_v0_1",
+  "orchestrator_json": ".codex/orchestrators/AutoTradePhasePlanning_Orchestrator_v0_1.json",
+  "orchestrator_model": "gpt-5.6-terra",
+  "orchestrator_agent_id": "01a02123-920a-7840-b7e2-069646c8882e",
+  "orchestrator_status": "completed_with_nested_dispatch_fallback",
+  "coordinator_nested_dispatch_completed": false,
+  "coordinator_reported_review_mode": "SELF_REVIEW_FALLBACK",
+  "human_gate_status": "P5R2-H0_APPROVED",
+  "human_gate_evidence": "plan/phase5R2/ログ/P5R2-00_H0承認記録_2026-08-21.md",
+  "next_step_status": "P5R2-02_READY",
+  "p6_status": "P6_PAUSED",
+  "coordinator_nested_agents": [
+    {"agent":"AutoTrade_A05_PhaseExecutionPlanner_v0_1","agent_json":".codex/agents/AutoTrade_A05_PhaseExecutionPlanner_v0_1.json","model":"gpt-5.6-luna","reasoning_effort":null,"agent_id":"N/A","status":"not_started","independent":false},
+    {"agent":"AutoTrade_A10_RequirementsCurator_v0_1","agent_json":".codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json","model":"gpt-5.6-luna","reasoning_effort":null,"agent_id":"N/A","status":"not_started","independent":false},
+    {"agent":"AutoTrade_A80_DocumentIntegrator_v0_1","agent_json":".codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json","model":"gpt-5.6-luna","reasoning_effort":"low","agent_id":"N/A","status":"not_started","independent":false},
+    {"agent":"AutoTrade_A90_DesignReviewer_v0_1","agent_json":".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json","model":"gpt-5.6-luna","reasoning_effort":null,"agent_id":"N/A","status":"not_started","independent":false},
+    {"agent":"AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1","agent_json":".codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json","model":"gpt-5.6-luna","reasoning_effort":"low","agent_id":"N/A","status":"not_started","independent":false}
+  ],
+  "root_direct_fallback_agents": [
+    {"agent":"AutoTrade_A05_PhaseExecutionPlanner_v0_1","agent_json":".codex/agents/AutoTrade_A05_PhaseExecutionPlanner_v0_1.json","model":"gpt-5.6-luna","reasoning_effort":null,"agent_id":"01a02125-299d-7ad3-a5cf-6790d219592c","status":"completed","independent":true,"finding":"High findings integrated; P5R2-02 conditions confirmed"},
+    {"agent":"AutoTrade_A10_RequirementsCurator_v0_1","agent_json":".codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json","model":"gpt-5.6-luna","reasoning_effort":null,"agent_id":"01a02125-2aa7-7811-aa16-605bd57b3548","status":"completed","independent":true,"finding":"REVIEW_WITH_FINDINGS; conflicts and initial trace recorded"},
+    {"agent":"AutoTrade_A80_DocumentIntegrator_v0_1","agent_json":".codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json","model":"gpt-5.6-luna","reasoning_effort":"low","agent_id":"01a02125-2b91-7690-97a6-d4379aba953b","status":"completed","independent":true,"finding":"Critical artifact/link findings integrated by root"},
+    {"agent":"AutoTrade_A90_DesignReviewer_v0_1","agent_json":".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json","model":"gpt-5.6-luna","reasoning_effort":null,"agent_id":"01a02125-2c87-7db2-be4a-1006511aeec6","status":"completed","independent":true,"finding":"Critical/High boundary and fact findings integrated by root"},
+    {"agent":"AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1","agent_json":".codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json","model":"gpt-5.6-luna","reasoning_effort":"low","agent_id":"01a02125-2d72-7e60-ba20-4abe11ffae22","status":"completed","independent":true,"finding":"NEEDS_HUMAN_GATE for P5R2-UNK-HD-004; no management hash reintroduced"}
+  ],
+  "skills": [
+    "autotrade_skill_phase_execution_planning_v0_1",
+    "autotrade_skill_source_reader_v0_1",
+    "autotrade_skill_traceability_v0_1",
+    "autotrade_skill_orchestration_v0_1",
+    "autotrade_skill_html_doc_writer_v0_1",
+    "autotrade_skill_design_review_v0_1",
+    "autotrade_skill_red_team_review_v0_1",
+    "autotrade_skill_protected_hash_policy_guard_v0_1"
+  ],
+  "review_mode": "ROOT_DIRECT_FALLBACK_INDEPENDENT_REVIEW_WITH_COORDINATOR_NESTED_DISPATCH_BLOCKED",
+  "independent": true,
+  "artifacts": [
+    "doc/phase5R2/01_要件追跡/01_P5R2現状差分・根因・要求追跡.html",
+    "plan/phase5R2/ログ/P5R2-00_H0承認記録_2026-08-21.md",
+    "plan/phase5R2/ログ/runtime-receipt-P5R2-01.json",
+    "plan/phase5R2/ログ/runtime-receipt-P5R2-01.md"
+  ],
+  "external_io_performed": false,
+  "official_research_performed": false,
+  "implementation_performed": false,
+  "test_subprocess_performed": false,
+  "playwright_performed": false,
+  "secret_or_credential_used": false,
+  "cost_incurred": false,
+  "destructive_operation_performed": false,
+  "management_hash_performed": false,
+  "protected_hash_decision": "NEEDS_HUMAN_GATE / P5R2-UNK-HD-004 remains unresolved",
+  "critical_high_fact_integrity": "PASS_NO_CRITICAL_HIGH_FACT_ERRORS",
+  "post_integration_review": {
+    "status": "PASS_WITH_MEDIUM_TRACEABILITY_NOTE_CLOSED",
+    "p5r2_02_ready": true,
+    "reviewers": [
+      {
+        "agent": "AutoTrade_A80_DocumentIntegrator_v0_1",
+        "agent_id": "01a0212c-f861-7093-bf80-0d2cc0cc740b",
+        "status": "completed",
+        "finding": "PASS_AFTER_RECHECK; ART-01 index link exists once and broken-link scan is clear"
+      },
+      {
+        "agent": "AutoTrade_A90_DesignReviewer_v0_1",
+        "agent_id": "01a0212c-f92e-76e0-bb58-66309efc8cc9",
+        "status": "completed",
+        "finding": "Critical=0, High=0; Unknown ID shorthand was corrected to full P5R2 IDs"
+      },
+      {
+        "agent": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1",
+        "agent_id": "01a0212c-fa28-74c1-99f5-8ae7b9b47236",
+        "status": "completed",
+        "finding": "PASS_WITH_FINDINGS; P5R2-UNK-HD-004 remains NEEDS_HUMAN_GATE; no management hash introduced"
+      }
+    ]
+  },
+  "unknowns_preserved": [
+    "P5R2-UNK-TF-001","P5R2-UNK-TF-002","P5R2-UNK-TF-003",
+    "P5R2-UNK-HD-001","P5R2-UNK-HD-002","P5R2-UNK-HD-003","P5R2-UNK-HD-004",
+    "P5R2-UNK-RUN-001","P5R2-UNK-RUN-002","P5R2-UNK-DOC-001"
+  ],
+  "approval_request_for_next_gate": "P5R2-HREQは未承認。P5R2-02は要件ヒアリングであり、HREQ承認ではない。"
+}

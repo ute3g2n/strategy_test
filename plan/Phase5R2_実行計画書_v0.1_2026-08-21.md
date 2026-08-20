@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-001`
 > Version: `v0.1`
 > 作成日: `2026-08-21`
-> 状態: `PLAN_CREATED / P5R2-H0_UNAPPROVED / REQUIREMENTS_HEARING_NOT_STARTED / P6_PAUSED`
+> 状態: `PLAN_CREATED / P5R2-H0_APPROVED / P5R2-01_COMPLETE / P5R2-02_READY / P6_PAUSED`
 > 現在の対象: 要件ヒアリング、要件候補の改訂、要件承認、承認後の実行計画再編まで
 > 現在の非対象: P5R2本実装、外部Data取得、Secret投入、費用発生、実Data削除、P6開始
 
@@ -66,7 +66,7 @@ P6へ進む前に、P5R2を独立Phaseとして新設する。P5R2は、P5Rの�
 
 ### 4.2 非目的
 
-- P5R2-H0前の要件作業開始。
+- P5R2-H0承認前の要件作業開始（承認前の停止条件として履歴保持）。
 - P5R2-HREQ前の要件正式化、詳細設計、実装、RED／GREEN。
 - P5R2-DATA-G1前のprovider接続、ファイル取得、Secret参照、費用発生。
 - UIからの任意URL指定、任意host接続、任意パス保存。
@@ -78,7 +78,7 @@ P6へ進む前に、P5R2を独立Phaseとして新設する。P5R2は、P5Rの�
 
 | Gate ID | 承認対象 | 未承認で許可すること | 未承認で禁止すること | 現在状態 |
 |---|---|---|---|---|
-| `P5R2-H0` | P5R2の追加Scope、要件ヒアリング、v4 candidate作成、公式一次情報のread-only調査範囲 | 未承認中は計画・packet・receipt・台帳証拠の確認／作成のみ。以下は明示承認後に限る：要件ヒアリング、local read-only調査、`CANDIDATE / NOT_CURRENT` v4 candidate作成、公式公開文書のread-only調査 | 未承認中の要件ヒアリング・候補作業、ヒアリング回答の確定扱い、現行正本の変更、実装、test subprocess、Playwright、外部Data取得、Secret、費用、実削除、P6開始 | `UNAPPROVED` |
+| `P5R2-H0` | P5R2の追加Scope、要件ヒアリング、v4 candidate作成、公式一次情報のread-only調査範囲 | ユーザー明示承認済み。P5R2-01のlocal read-only調査・ART-01作成、P5R2-02の要件ヒアリング、`CANDIDATE / NOT_CURRENT` v4 candidate作成、公式公開文書のread-only調査範囲判断 | HREQ前の正式v4公開、H1前の実装・test subprocess・Playwright、DATA-G1前の外部Data取得・Secret・費用、DELETE-G1前の実削除、P6開始 | `APPROVED (2026-08-21)` |
 | `P5R2-HREQ` | ヒアリング回答、要求ID、Acceptance、v4 candidate、Manual改訂要件、残Unknown | Gate packet・candidate・レビュー結果の閲覧 | v4正式公開、詳細設計、後続実装計画確定 | `UNAPPROVED` |
 | `P5R2-H1` | `P5R2-07`で作る詳細設計、RED、対象path、Quality Gate、実装範囲 | 設計・Test候補の作成 | 実装・本試験・外部Data取得 | `PLANNED_UNAPPROVED` |
 | `P5R2-DATA-G1` | provider、host、market、symbol、期間、source interval、認証、利用条件、費用上限、保存先、通信境界 | local fixtureによるUI/API/Test | 外部hostへの接続、実ファイル取得、Secret参照、費用発生 | `PLANNED_UNAPPROVED` |
@@ -173,7 +173,7 @@ HREQ前に閉じるUnknownと、後続Gateで実行直前に決める事項を�
 
 | Artifact ID | 予定場所 | 内容 |
 |---|---|---|
-| `P5R2-ART-01` | `doc/phase5R2/01_要件追跡/01_P5R2現状差分・根因・要求追跡.html` | source／strategy時間足の混同、Data管理未接続、Run操作欠落の事実 |
+| `P5R2-ART-01` | `doc/phase5R2/01_要件追跡/01_P5R2現状差分・根因・要求追跡.html` | P5R2-01で作成・統合レビュー完了。source／derived／strategy／displayの分離、Data管理未接続、Run操作欠落、初期trace、Unknownを記録し、P5R2-02開始可能とした。 |
 | `P5R2-ART-02` | `doc/phase5R2/01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html` | 質問、原回答、正規化決定、未決、変更影響 |
 | `P5R2-ART-03` | `doc/phase5R2/01_要件追跡/03_P5R2要件・AC・UI・API・Test追跡マトリクス.html` | RequirementからTest／Manualまでの追跡 |
 | `P5R2-ART-04` | `doc/phase5R2/01_要件追跡/04_01_バックテスト手順書改訂要件.html` | 手順書の章・機能ID・操作ID・画像・失敗／復旧の改訂仕様 |
@@ -625,10 +625,10 @@ CoordinatorはAutoTradePhasePlanning_Orchestrator_v0_1（.codex/orchestrators/Au
 
 ## 16. 次のHuman action
 
-この計画の作成はP5R2-H0承認ではない。要件ヒアリングを開始する場合は、計画内容を確認したうえで次を明示する。
+この計画の作成時点ではP5R2-H0承認ではなかったが、ユーザーが次の文を明示したため、P5R2-H0を承認済みとして記録する。P5R2-01を実行し、ART-01レビュー後にP5R2-02の要件ヒアリングへ進む。
 
 ```text
 P5R2-H0を承認します。要件ヒアリングを開始してください。
 ```
 
-承認前は、P5R2-00のGate packet確認以外へ進まない。
+P5R2-01はART-01の事実・trace・Unknown・link・A95静的確認を完了した。P5R2-02の要件ヒアリングRound 1を開始できる。HREQ、H1、DATA-G1、DELETE-G1、H2、P6は未承認・停止のままにする。
