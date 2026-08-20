@@ -49,10 +49,13 @@ Coordinatorは実起動した。しかし、Coordinator側で子Agentのspawn／
 - `autotrade_skill_revision_integration_v0_1`
 - `autotrade_skill_protected_hash_policy_guard_v0_1`
 
-## 停止状態と外部I/O境界
+## dispatch時点の状態と外部I/O境界
 
-- H0: `P5R2-H0_UNAPPROVED`
-- P5R2-01: `BLOCKED`
+- H0（dispatch時点）: `P5R2-H0_UNAPPROVED`
+- H0（現在）: `P5R2-H0_APPROVED`。承認文と記録は [P5R2-00_H0承認記録](P5R2-00_H0承認記録_2026-08-21.md) を参照。
+- P5R2-01（dispatch時点）: `BLOCKED`
+- P5R2-01（現在）: `COMPLETE`
+- P5R2-02（現在）: `READY`
 - P6: `PAUSED`
 - 公式一次情報のread-only調査: 未実施。H0承認後に公開文書の閲覧範囲だけを判断する。
 - external I/O / API call / Data download: `false`
