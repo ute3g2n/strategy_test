@@ -24,7 +24,7 @@
   <h1>ドキュメント インデックス</h1>
   <div class="note">
     <p>このファイルは、<code>doc/</code> 配下のHTML成果物への共通入口である。新しいHTML成果物を追加した場合は、この一覧も同時に更新する。</p>
-    <p><strong>更新状態:</strong> 要件定義書v3を現在の正本として追加し、P5の直後にP5R（UIから使うBacktest製品の完成）を置くロードマップへ更新した。P5R-H0/H1/H2はユーザーから移譲された承認権限による代理承認をEvidenceへ記録し、固定4 Gate・実UI・Playwright撮影・HTML手順書を完了した。P5のOpen Unknown、P6-H0、外部I/O、Broker、Secret、実資金の後続Gateは維持している。</p>
+    <p><strong>更新状態:</strong> 要件定義書v3はP5R2-HREQまでは現在の正式正本として保持する。ただし、P5Rの利用者向け時間足1m固定、Historical Data取得・一覧管理、Run取消／削除を是正するP5R2をP6前に新設し、実行計画v0.1を作成した。P5R2-H0/HREQ/H1/DATA-G1/DELETE-G1/H2は未承認で、要件ヒアリング、実装、外部Data取得、破壊的削除、P6開始は各Gateまで保留する。</p>
   </div>
 
   <h2>全Phase共通：残課題・Blocked</h2>
@@ -34,7 +34,7 @@
   </div>
 
   <h2>要件定義</h2>
-  <p class="muted">設計の起点となる上流文書。現行正本はAT-REQ-003 / v3.0 / 2026-08-16。P5Rの挿入と、P6〜P12でForward→Shadow→Paper→Live候補→小規模Live→通常Liveを安全な能力順に完成させる方針を明文化した。AT-REQ-002 / v2.0以下は履歴として保持する。</p>
+  <p class="muted">設計の起点となる上流文書。現行正式正本はAT-REQ-003 / v3.0 / 2026-08-16。P5R2の要件ヒアリングとv4 candidateは未開始であり、P5R2-HREQ承認後だけAT-REQ-004 / v4へ更新する。v3以下は削除せず履歴として保持する。</p>
   <ul>
     <li><a href="./requirements/01_自動トレードシステム要件定義書_v3.html">01_自動トレードシステム要件定義書_v3.html</a> <span class="muted">（AT-REQ-003・v3.0現在正本・P5R挿入／P6〜P12能力順・P5R-H0/H1/H2代理承認済み・P5R完了）</span></li>
     <li><a href="./requirements/01_自動トレードシステム要件定義書_v2.html">01_自動トレードシステム要件定義書_v2.html</a> <span class="muted">（AT-REQ-002・v2.0旧正式基準線・履歴）</span></li>
@@ -288,8 +288,8 @@
     <li><a href="./phase5/00_実行計画/01_Phase5実行計画書.html">01_Phase5実行計画書.html（P5-PLAN-HTML-001 / P5-01〜P5-11、P5-DATA-G1、実ランタイム起動契約）</a></li>
     <li><a href="../plan/Phase5_実行計画書_v0.1_2026-08-12.md">Phase5実行計画Markdown（P5-PLAN-001）</a> / <a href="../plan/phase5/ログ/P5-PLAN-001_計画作成・起動契約検証_2026-08-12.md">計画作成・起動契約検証ログ</a></li>
   </ul>
-  <h2>Phase 5R / Backtest製品完全化</h2>
-  <p class="muted">P5の後に追加したP5Rは、既存ローカル市場Dataを使い、UIから単一Backtest、Sweep、取消・再開、履歴・比較・CSV、Holdout / Walk-forwardまでを実際に動かし、Playwrightのassert後スクリーンショット付きHTML手順書まで完成した。複数Unit、Portfolio、実運用Risk、OMS、Forward、Paper、Live、外部注文は対象外である。P5R-H0/H1/H2はユーザーから移譲された権限の範囲で代理承認済み、状態はCOMPLETE_WITH_OPEN_UNKNOWN、P6-H0は別Gateである。</p>
+  <h2>Phase 5R / Phase 5R2 — Backtest製品完全化・要件是正</h2>
+  <p class="muted">P5Rの限定Scope完了は履歴として保持する。現在はP6前にP5R2を新設し、利用者選択時間足15m／1h／4h／1d、1m内部source、UI Historical Data取得・使用可能Data一覧、実行一覧・進捗／結果サマリーの取消・削除、既存バックテスト手順書v0.5の改訂を要件化する計画段階である。P5R2-H0は未承認で、要件ヒアリングは未開始、P6は保留中である。</p>
   <ul>
     <li><a href="../plan/Phase5R2_実行計画書_v0.1_2026-08-21.md">Phase5R2 実行計画書</a> <span class="muted">（P5Rの時間足是正、Historical Data取得・一覧管理、Run取消／削除、01_バックテスト手順書改訂。要件ヒアリング前／P6保留）</span></li>
     <li><a href="../plan/Phase5R_実行計画書_v0.1_2026-08-16.md">Phase5R 実行計画書</a> <span class="muted">（P5R-PLAN-001 / 全Prompt実行済み / COMPLETE_WITH_OPEN_UNKNOWN）</span></li>
