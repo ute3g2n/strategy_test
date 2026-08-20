@@ -78,7 +78,7 @@ P6へ進む前に、P5R2を独立Phaseとして新設する。P5R2は、P5Rの�
 
 | Gate ID | 承認対象 | 未承認で許可すること | 未承認で禁止すること | 現在状態 |
 |---|---|---|---|---|
-| `P5R2-H0` | P5R2の追加Scope、要件ヒアリング、v4 candidate作成、公式一次情報のread-only調査範囲 | この計画の閲覧、H0 packet作成 | ヒアリング回答の確定扱い、要件文書変更、実装、外部Data取得 | `UNAPPROVED` |
+| `P5R2-H0` | P5R2の追加Scope、要件ヒアリング、v4 candidate作成、公式一次情報のread-only調査範囲 | 未承認中は計画・packet・receipt・台帳証拠の確認／作成のみ。以下は明示承認後に限る：要件ヒアリング、local read-only調査、`CANDIDATE / NOT_CURRENT` v4 candidate作成、公式公開文書のread-only調査 | 未承認中の要件ヒアリング・候補作業、ヒアリング回答の確定扱い、現行正本の変更、実装、test subprocess、Playwright、外部Data取得、Secret、費用、実削除、P6開始 | `UNAPPROVED` |
 | `P5R2-HREQ` | ヒアリング回答、要求ID、Acceptance、v4 candidate、Manual改訂要件、残Unknown | Gate packet・candidate・レビュー結果の閲覧 | v4正式公開、詳細設計、後続実装計画確定 | `UNAPPROVED` |
 | `P5R2-H1` | `P5R2-07`で作る詳細設計、RED、対象path、Quality Gate、実装範囲 | 設計・Test候補の作成 | 実装・本試験・外部Data取得 | `PLANNED_UNAPPROVED` |
 | `P5R2-DATA-G1` | provider、host、market、symbol、期間、source interval、認証、利用条件、費用上限、保存先、通信境界 | local fixtureによるUI/API/Test | 外部hostへの接続、実ファイル取得、Secret参照、費用発生 | `PLANNED_UNAPPROVED` |
@@ -164,6 +164,8 @@ HREQ前に閉じるUnknownと、後続Gateで実行直前に決める事項を�
 | P5R2実行計画v0.1 | `plan/Phase5R2_実行計画書_v0.1_2026-08-21.md` | 今回作成 |
 | P5R2計画作成ログ | `plan/phase5R2/ログ/P5R2-PLAN_実行ログ_2026-08-21.md` | 今回作成 |
 | P5R2 runtime receipt | `plan/phase5R2/ログ/P5R2-PLAN_runtime-dispatch_2026-08-21.md` | 今回作成 |
+| `P5R2-ART-00` H0 packet | `plan/phase5R2/ログ/P5R2-00_H0開始確認_2026-08-21.md` | P5R2-00で作成・H0未承認 |
+| P5R2-00 runtime receipt | `plan/phase5R2/ログ/runtime-receipt-P5R2-00.json` / `.md` | P5R2-00で作成 |
 | 未承認Gate・Unknown | `doc/00_全Phase残課題Blocked統合台帳.html` | 今回同期 |
 | 現在の入口表示 | `doc/index.html` | 今回同期 |
 
