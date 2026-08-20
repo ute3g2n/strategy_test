@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-001`
 > Version: `v0.1`
 > 作成日: `2026-08-21`
-> 状態: `PLAN_CREATED / P5R2-H0_APPROVED / P5R2-01_COMPLETE / P5R2-02_READY / P6_PAUSED`
+> 状態: `PLAN_CREATED / P5R2-H0_APPROVED / P5R2-01_COMPLETE / P5R2-02_ROUND1_PARTIAL / Q-TF-06_OPEN / P6_PAUSED`
 > 現在の対象: 要件ヒアリング、要件候補の改訂、要件承認、承認後の実行計画再編まで
 > 現在の非対象: P5R2本実装、外部Data取得、Secret投入、費用発生、実Data削除、P6開始
 
@@ -92,10 +92,11 @@ P6は、ユーザーがP5R2をP6前に置くと指定したため、`P5R2-H2`ま
 | Unknown ID | 決めること | 解消Step | 未解消時の停止範囲 |
 |---|---|---|---|
 | `P5R2-UNK-TF-001` | 1 Run 1時間足か、4時間足同時参照を許可するか。 | P5R2-02〜03 | Strategy入力・比較条件・UI型を確定しない。 |
-| `P5R2-UNK-TF-002` | 集約をRun時に行うか、derived cacheを事前生成するか。 | P5R2-02〜03 | Data Catalog・provenance・性能Acceptanceを確定しない。 |
+| `P5R2-UNK-TF-002` | 集約をRun時に行うか、derived cacheを事前生成するか。UI生成画面の「現在生成可能な全期間」、生成Jobの状態・再試行・同時実行、DataSet／usableの登録条件も決める。 | P5R2-02〜03 | Data Catalog・provenance・性能Acceptance・生成Job契約を確定しない。 |
 | `P5R2-UNK-TF-003` | UTC anchor、終了時刻の包含、partial／missing bar、旧M30／1m Runの扱い。 | P5R2-02〜03 | 時刻境界・移行・再実行契約を確定しない。 |
+| `P5R2-UNK-TF-004` | 欠損1mを上位足へ補間する方式、最大欠損量、始端・終端欠損、品質表示、usable化、未来側データの利用禁止、再現性。 | P5R2-03〜04／HREQ | 補間Dataを自動で使用可能にせず、品質・provenance・停止条件を確定しない。 |
 | `P5R2-UNK-HD-001` | 製品要件上の初期provider、market、symbol、source interval、期間指定方式、routine downloadの承認単位。 | P5R2-02〜04／HREQ | local fake providerを含むDownload／Catalog要件を確定しない。 |
-| `P5R2-UNK-HD-002` | Data一覧の単位、必須列、使用可能判定、更新・重複・取消・再試行。 | P5R2-02〜03 | Catalog API／UI／永続化を確定しない。 |
+| `P5R2-UNK-HD-002` | Data一覧の単位、必須列、使用可能判定、更新・重複・取消・再試行。任意symbolのcatalog／allowlist、market、未対応時の拒否も決める。 | P5R2-02〜03 | Catalog API／UI／永続化／入力境界を確定しない。 |
 | `P5R2-UNK-HD-003` | Historical Dataの削除可否、参照Runとの依存、Trash／保持期間。 | P5R2-02〜03 | Data削除機能をScopeに入れない。 |
 | `P5R2-UNK-HD-004` | provider sourceの直接整合確認に保護対象hashを使うか。使う場合の対象、比較時点、不一致時停止、再取得条件。 | P5R2-02〜04／HREQ | 用途不明のhashを追加せず、Dataを使用可能へ昇格させない。 |
 | `P5R2-UNK-RUN-001` | Run状態別の取消／削除可否とボタン表示。 | P5R2-02〜03 | Run操作Acceptanceを確定しない。 |
@@ -173,8 +174,8 @@ HREQ前に閉じるUnknownと、後続Gateで実行直前に決める事項を�
 
 | Artifact ID | 予定場所 | 内容 |
 |---|---|---|
-| `P5R2-ART-01` | `doc/phase5R2/01_要件追跡/01_P5R2現状差分・根因・要求追跡.html` | P5R2-01で作成・統合レビュー完了。source／derived／strategy／displayの分離、Data管理未接続、Run操作欠落、初期trace、Unknownを記録し、P5R2-02開始可能とした。 |
-| `P5R2-ART-02` | `doc/phase5R2/01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html` | 質問、原回答、正規化決定、未決、変更影響 |
+| `P5R2-ART-01` | `doc/phase5R2/01_要件追跡/01_P5R2現状差分・根因・要求追跡.html` | P5R2-01で作成・統合レビュー完了。source／derived／strategy／displayの分離、Data管理未接続、Run操作欠落、初期trace、Unknownを記録し、P5R2-02へ引き渡した。 |
+| `P5R2-ART-02` | `doc/phase5R2/01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html` | Round 1の10回答、正規化決定、Q-TF-06の説明と選択肢、A90 High指摘、A95判定、変更影響。Q-TF-06と補間・任意symbol・Provider範囲・Run cancel/deleteの詳細は未確定。 |
 | `P5R2-ART-03` | `doc/phase5R2/01_要件追跡/03_P5R2要件・AC・UI・API・Test追跡マトリクス.html` | RequirementからTest／Manualまでの追跡 |
 | `P5R2-ART-04` | `doc/phase5R2/01_要件追跡/04_01_バックテスト手順書改訂要件.html` | 手順書の章・機能ID・操作ID・画像・失敗／復旧の改訂仕様 |
 | `P5R2-REQ-V4-CANDIDATE` | `plan/phase5R2/requirements/drafts/01_自動トレードシステム要件定義書_v4_candidate.html` | HREQ前の候補。現在正本とは表示しない |
@@ -625,10 +626,10 @@ CoordinatorはAutoTradePhasePlanning_Orchestrator_v0_1（.codex/orchestrators/Au
 
 ## 16. 次のHuman action
 
-この計画の作成時点ではP5R2-H0承認ではなかったが、ユーザーが次の文を明示したため、P5R2-H0を承認済みとして記録する。P5R2-01を実行し、ART-01レビュー後にP5R2-02の要件ヒアリングへ進む。
+この計画の作成時点ではP5R2-H0承認ではなかったが、ユーザーが次の文を明示したため、P5R2-H0を承認済みとして記録する。P5R2-01を実行し、ART-01レビュー後にP5R2-02の要件ヒアリングへ進んだ。Round 1回答は記録済みだが、Q-TF-06の意味確認が残っているため、P5R2-02は完了していない。
 
 ```text
 P5R2-H0を承認します。要件ヒアリングを開始してください。
 ```
 
-P5R2-01はART-01の事実・trace・Unknown・link・A95静的確認を完了した。P5R2-02の要件ヒアリングRound 1を開始できる。HREQ、H1、DATA-G1、DELETE-G1、H2、P6は未承認・停止のままにする。
+P5R2-01はART-01の事実・trace・Unknown・link・A95静的確認を完了した。P5R2-02 Round 1では9件を正規化し、Q-TF-06は説明後の選択待ちとして残した。A90のHigh指摘（終了時刻表示・補間・任意symbol境界・Provider範囲・Run cancel/delete）も未解消である。Q-TF-06の回答と残る要件確認が終わるまでP5R2-03、HREQ、H1、DATA-G1、DELETE-G1、H2、P6へ進まない。

@@ -1,0 +1,78 @@
+{
+  "phase_id": "P5R2",
+  "step_id": "P5R2-02",
+  "runtime_backend": "multi_agent_v1",
+  "dispatch_mode": "coordinator_then_root_direct_fallback",
+  "runtime_exception": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+  "human_gate_status": "P5R2-H0_APPROVED",
+  "next_step_status": "P5R2-02_WAITING_Q-TF-06",
+  "p6_status": "P6_PAUSED",
+  "orchestrator": {
+    "name": "AutoTradePhasePlanning_Orchestrator_v0_1",
+    "definition": ".codex/orchestrators/AutoTradePhasePlanning_Orchestrator_v0_1.json",
+    "model": "gpt-5.6-terra",
+    "agent_id": "01a02183-c8b9-7320-9f5d-ea3e8a7edf29",
+    "status": "completed_with_nested_dispatch_fallback",
+    "nested_dispatch_completed": false,
+    "nested_agents": [
+      {"name": "AutoTrade_A05_PhaseExecutionPlanner_v0_1", "agent_id": "N/A", "status": "not_started"},
+      {"name": "AutoTrade_A10_RequirementsCurator_v0_1", "agent_id": "N/A", "status": "not_started"},
+      {"name": "AutoTrade_A80_DocumentIntegrator_v0_1", "agent_id": "N/A", "status": "not_started"},
+      {"name": "AutoTrade_A90_DesignReviewer_v0_1", "agent_id": "N/A", "status": "not_started"},
+      {"name": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1", "agent_id": "N/A", "status": "not_started"}
+    ],
+    "reported_independent": false,
+    "reported_review_mode": "SELF_REVIEW_FALLBACK"
+  },
+  "root_direct_fallback_agents": [
+    {"name": "AutoTrade_A05_PhaseExecutionPlanner_v0_1", "model": "gpt-5.6-luna", "reasoning_effort": "default", "agent_id": "01a02186-9739-7853-b4e2-f2a75cad3da1", "status": "completed", "independent": true, "review_mode": "ROOT_DIRECT_FALLBACK_READ_ONLY", "finding": "Q-TF-06回答待ち。P5R2-02未完了"},
+    {"name": "AutoTrade_A10_RequirementsCurator_v0_1", "model": "gpt-5.6-luna", "reasoning_effort": "default", "agent_id": "01a02186-980f-7401-aa42-86db25869a7f", "status": "completed", "independent": true, "review_mode": "ROOT_DIRECT_FALLBACK_READ_ONLY", "finding": "Round 1を正規化。TF-05／HD-04はPROVISIONAL、Q-TF-06はOPEN"},
+    {"name": "AutoTrade_A80_DocumentIntegrator_v0_1", "model": "gpt-5.6-luna", "reasoning_effort": "low", "agent_id": "01a02186-9900-7352-bc8a-c40bf4722368", "status": "completed", "independent": true, "review_mode": "ROOT_DIRECT_FALLBACK_READ_ONLY", "finding": "ART-02構成確認。生成可能期間、補間、変更履歴の追跡改善"},
+    {"name": "AutoTrade_A90_DesignReviewer_v0_1", "model": "gpt-5.6-luna", "reasoning_effort": "default", "agent_id": "01a02186-99ed-79e1-ba58-c4e4eedc5d7f", "status": "completed", "independent": true, "review_mode": "ROOT_DIRECT_FALLBACK_READ_ONLY", "finding": "High：TF-04、TF-05、HD-02、HD-04、Run cancel/delete。Q-TF-06はMedium"},
+    {"name": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1", "model": "gpt-5.6-luna", "reasoning_effort": "low", "agent_id": "01a02186-9ae0-70c3-8539-a6db5aaf444b", "status": "completed", "independent": true, "review_mode": "ROOT_DIRECT_FALLBACK_READ_ONLY", "finding": "P5R2-UNK-HD-004=NEEDS_HUMAN_GATE。管理用hashなし"}
+  ],
+  "skills": [
+    "autotrade_skill_source_reader_v0_1",
+    "autotrade_skill_traceability_v0_1",
+    "autotrade_skill_phase_execution_planning_v0_1",
+    "autotrade_skill_orchestration_v0_1",
+    "autotrade_skill_html_doc_writer_v0_1",
+    "autotrade_skill_design_review_v0_1",
+    "autotrade_skill_red_team_review_v0_1",
+    "autotrade_skill_protected_hash_policy_guard_v0_1"
+  ],
+  "review_mode": "ROOT_DIRECT_FALLBACK_INDEPENDENT_REVIEW_WITH_COORDINATOR_NESTED_DISPATCH_BLOCKED",
+  "external_io_performed": false,
+  "official_research_performed": false,
+  "implementation_performed": false,
+  "test_subprocess_performed": false,
+  "playwright_performed": false,
+  "secret_or_credential_used": false,
+  "cost_incurred": false,
+  "destructive_operation_performed": false,
+  "management_hash_performed": false,
+  "protected_hash_decision": "NEEDS_HUMAN_GATE / P5R2-UNK-HD-004 remains unresolved",
+  "critical_high_review_status": "OPEN_HIGH_FINDINGS",
+  "open_findings": [
+    "Q-TF-06 legacy 1m/M30 treatment is open",
+    "TF-04 requested versus effective end display and confirmation",
+    "TF-05 interpolation method, limits, quality, usable, look-ahead and reproducibility",
+    "HD-02 arbitrary symbol catalog/allowlist and capacity/cost/input boundaries",
+    "HD-04 Provider approval scope and out-of-scope stop conditions",
+    "Run cancel/delete state, dependency, recovery and audit contract"
+  ],
+  "unknowns_preserved": [
+    "P5R2-UNK-TF-001",
+    "P5R2-UNK-TF-002",
+    "P5R2-UNK-TF-003",
+    "P5R2-UNK-TF-004",
+    "P5R2-UNK-HD-001",
+    "P5R2-UNK-HD-002",
+    "P5R2-UNK-HD-003",
+    "P5R2-UNK-HD-004",
+    "P5R2-UNK-RUN-001",
+    "P5R2-UNK-RUN-002",
+    "P5R2-UNK-DOC-001"
+  ],
+  "approval_request_for_next_gate": "P5R2-HREQ is unapproved; no P5R2-03 or implementation may start without remaining answers and explicit HREQ approval."
+}
