@@ -5,7 +5,7 @@
   "dispatch_mode": "coordinator_then_root_direct_fallback",
   "runtime_exception": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
   "human_gate_status": "P5R2-H0_APPROVED",
-  "next_step_status": "P5R2-02_WAITING_Q-TF-06",
+  "next_step_status": "P5R2-03_READY",
   "p6_status": "P6_PAUSED",
   "orchestrator": {
     "name": "AutoTradePhasePlanning_Orchestrator_v0_1",
@@ -25,10 +25,10 @@
     "reported_review_mode": "SELF_REVIEW_FALLBACK"
   },
   "root_direct_fallback_agents": [
-    {"name": "AutoTrade_A05_PhaseExecutionPlanner_v0_1", "model": "gpt-5.6-luna", "reasoning_effort": "default", "agent_id": "01a02186-9739-7853-b4e2-f2a75cad3da1", "status": "completed", "independent": true, "review_mode": "ROOT_DIRECT_FALLBACK_READ_ONLY", "finding": "Q-TF-06回答待ち。P5R2-02未完了"},
-    {"name": "AutoTrade_A10_RequirementsCurator_v0_1", "model": "gpt-5.6-luna", "reasoning_effort": "default", "agent_id": "01a02186-980f-7401-aa42-86db25869a7f", "status": "completed", "independent": true, "review_mode": "ROOT_DIRECT_FALLBACK_READ_ONLY", "finding": "Round 1を正規化。TF-05／HD-04はPROVISIONAL、Q-TF-06はOPEN"},
+    {"name": "AutoTrade_A05_PhaseExecutionPlanner_v0_1", "model": "gpt-5.6-luna", "reasoning_effort": "default", "agent_id": "01a02186-9739-7853-b4e2-f2a75cad3da1", "status": "completed", "independent": true, "review_mode": "ROOT_DIRECT_FALLBACK_READ_ONLY", "finding": "受領時点ではQ-TF-06回答待ち。後続のユーザーAでP5R2-02を完了"},
+    {"name": "AutoTrade_A10_RequirementsCurator_v0_1", "model": "gpt-5.6-luna", "reasoning_effort": "default", "agent_id": "01a02186-980f-7401-aa42-86db25869a7f", "status": "completed", "independent": true, "review_mode": "ROOT_DIRECT_FALLBACK_READ_ONLY", "finding": "受領時点でRound 1を正規化。TF-05／HD-04はPROVISIONAL、Q-TF-06はOPEN。後続のユーザーAで確定"},
     {"name": "AutoTrade_A80_DocumentIntegrator_v0_1", "model": "gpt-5.6-luna", "reasoning_effort": "low", "agent_id": "01a02186-9900-7352-bc8a-c40bf4722368", "status": "completed", "independent": true, "review_mode": "ROOT_DIRECT_FALLBACK_READ_ONLY", "finding": "ART-02構成確認。生成可能期間、補間、変更履歴の追跡改善"},
-    {"name": "AutoTrade_A90_DesignReviewer_v0_1", "model": "gpt-5.6-luna", "reasoning_effort": "default", "agent_id": "01a02186-99ed-79e1-ba58-c4e4eedc5d7f", "status": "completed", "independent": true, "review_mode": "ROOT_DIRECT_FALLBACK_READ_ONLY", "finding": "High：TF-04、TF-05、HD-02、HD-04、Run cancel/delete。Q-TF-06はMedium"},
+    {"name": "AutoTrade_A90_DesignReviewer_v0_1", "model": "gpt-5.6-luna", "reasoning_effort": "default", "agent_id": "01a02186-99ed-79e1-ba58-c4e4eedc5d7f", "status": "completed", "independent": true, "review_mode": "ROOT_DIRECT_FALLBACK_READ_ONLY", "finding": "受領時点のHigh：TF-04、TF-05、HD-02、HD-04、Run cancel/delete。Q-TF-06はMedium。後続のユーザーAでMediumを解消"},
     {"name": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1", "model": "gpt-5.6-luna", "reasoning_effort": "low", "agent_id": "01a02186-9ae0-70c3-8539-a6db5aaf444b", "status": "completed", "independent": true, "review_mode": "ROOT_DIRECT_FALLBACK_READ_ONLY", "finding": "P5R2-UNK-HD-004=NEEDS_HUMAN_GATE。管理用hashなし"}
   ],
   "skills": [
@@ -54,7 +54,6 @@
   "protected_hash_decision": "NEEDS_HUMAN_GATE / P5R2-UNK-HD-004 remains unresolved",
   "critical_high_review_status": "OPEN_HIGH_FINDINGS",
   "open_findings": [
-    "Q-TF-06 legacy 1m/M30 treatment is open",
     "TF-04 requested versus effective end display and confirmation",
     "TF-05 interpolation method, limits, quality, usable, look-ahead and reproducibility",
     "HD-02 arbitrary symbol catalog/allowlist and capacity/cost/input boundaries",
@@ -74,14 +73,23 @@
     "P5R2-UNK-RUN-002",
     "P5R2-UNK-DOC-001"
   ],
-  "approval_request_for_next_gate": "P5R2-HREQ is unapproved; no P5R2-03 or implementation may start without remaining answers and explicit HREQ approval.",
+  "approval_request_for_next_gate": "P5R2-HREQ is unapproved; P5R2-03 may proceed read-only for remaining answers, but implementation and later gates require the applicable explicit approval.",
   "post_receipt_amendment": {
     "type": "USER_REQUIREMENT_CLARIFICATION",
     "statement": "30m/M30 must be selectable for new Backtests.",
     "current_selectable_timeframes": ["15m", "30m", "1h", "4h", "1d"],
     "superseded_interpretation": "M30 was excluded from new selection based on an incorrect reading of the initial scope.",
-    "q_tf_06_scope": "Only the treatment of already stored 1m/M30 Data, Runs and results remains open; 30m new selection is confirmed.",
+    "q_tf_06_scope": "The treatment of already stored 1m/M30 Data, Runs and results was resolved by the subsequent user answer A; 30m new selection remains confirmed.",
     "external_io_performed": false,
     "implementation_performed": false
+  },
+  "post_q_tf_06_answer": {
+    "question_id": "Q-TF-06",
+    "user_answer": "A",
+    "status": "CONFIRMED",
+    "decision": "Existing stored 1m/M30 Historical Data, Runs and results are view-only; no old rerun, current-result comparison, automatic migration or deletion under this decision.",
+    "new_30m_selection": "CONFIRMED",
+    "p5r2_02_status": "ROUND_1_COMPLETE",
+    "p5r2_03_status": "READY"
   }
 }
