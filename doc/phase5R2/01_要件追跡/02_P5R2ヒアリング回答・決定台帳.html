@@ -34,4 +34,57 @@
 <p>Later Gate：実Provider・host・symbol・期間・容量・費用・Secret・downloadは<code>P5R2-DATA-G1</code>、実Data／Run削除・保持・purge・復元は<code>P5R2-DELETE-G1</code>、保護対象hashの用途と停止範囲は<code>P5R2-UNK-HD-004 / NEEDS_HUMAN_GATE</code>へ送る。現行<code>01_バックテスト手順書</code>本体は要件確定前には変更しない。</p>
 <p><strong>現在状態：</strong><code>P5R2-03_ROUND2_WAITING_USER</code>。回答が揃うまでP5R2-04、P5R2-HREQ、実装、test subprocess、Playwright、外部Data取得、実削除、P6へ進まない。<a href="../../../plan/phase5R2/ログ/runtime-receipt-P5R2-03.md">P5R2-03 runtime receipt</a>を参照。</p>
 </section>
+<section id="section-9"><h2>9. Q-R2-01〜08の詳細説明（2026-08-22説明補正版）</h2>
+<p class="note">前回の提示は選択肢のラベルと短い要約が中心で、背景・具体的な影響・推奨理由が不足していたため、質問の意味を以下に明記する。<strong>推奨案は設計上の提案であり、ユーザー回答・確定Requirement・承認ではない。</strong>全文は<a href="../../../plan/phase5R2/ログ/P5R2-03質問packet説明補正_2026-08-22.md">P5R2-03質問packet説明補正版</a>にも保存する。</p>
+<p><strong>回答形式：</strong><code>Q-R2-01=A</code>のように記載する。Q-TF-06=Aの確定内容、新規30m選択可、既存1m/M30保存物の閲覧専用はこの質問packetで変更しない。</p>
+<h3>Q-R2-01：指定終了時刻と有効終了時刻</h3>
+<p><strong>背景：</strong>指定終了時刻が15m・30m・1hなどの境界に一致しない場合、現在の方向性では最後に完成したバーの境界まで切り下げる。利用者が指定した時刻と実際に使う時刻を区別して表示・保存しないと、Backtest範囲を誤認する。</p>
+<p><strong>今回決めること：</strong>切下げ方針を前提に、Single Backtest画面、確認ダイアログ、Run保存情報で指定値と有効値をどう扱うか。</p>
+<p><strong>推奨：A。</strong>両方を表示し、切下げ理由を説明して実行前に確認する。Runにも両方を保存する。操作は一つ増えるが、範囲短縮を見落とさず、結果の再現性を守れる。</p>
+<ul><li>A（推奨）：指定終了時刻と有効終了時刻を表示し、確認してから実行。両方をRunへ保存。</li><li>B：両方を表示するが確認不要。簡単だが、短縮を見落とす可能性がある。</li><li>C：境界外の終了時刻を入力エラーにする。単純だが、現在の切下げ方向を変更し、入力し直しが必要。</li></ul>
+<p><strong>影響：</strong>Preflight、Single Backtest、API、Runメタデータ、結果サマリー、Test、01_バックテスト手順書。</p>
+<h3>Q-R2-02：欠損1mと補間</h3>
+<p><strong>背景：</strong>上位足は1mから生成する。1mが欠けたまま上位足を作ると、存在しない値を含むBacktestになり得る。Round 1の「5. C」と既存記録の「補間する方向性」に矛盾があるため、ここは再確認する。</p>
+<p><strong>今回決めること：</strong>欠損1mがある場合の生成可否と、補間を含むDataSetをBacktestに使えるか。Aは補間した足を生成しない。Cは調査表示の余地を残すが、Backtest用DataSetにはしない。</p>
+<p><strong>推奨：C。</strong>補間を含むDataSetを常にPARTIAL / unusableとし、Backtestでは拒否する。調査上の表示と正式な計算Dataを分けられ、補間の細かな使用可否基準を先に決めなくても安全側に閉じられる。</p>
+<ul><li>A：補間せず、欠損を含む上位足生成をPARTIAL_BAR_REJECTEDで失敗。最も厳格だが、少量の欠損でも生成できない。</li><li>B：限定欠損を補間し、警告付きで使用可。利用範囲は広がるが、欠損量・式・始端終端・provenance・再現性の追加確定が必要。</li><li>C（推奨）：補間は調査表示に限定し、DataSetはPARTIAL / unusable。正式Backtestへ通さない。</li></ul>
+<p><strong>影響：</strong>Data生成、品質・usable、provenance、Preflight、再現性、Test、01_バックテスト手順書。</p>
+<h3>Q-R2-03：「任意のsymbol」の入力境界</h3>
+<p><strong>背景：</strong>「任意の銘柄」は、Catalogから任意に選べる意味と、任意の文字列を自由入力できる意味が異なる。Provider非対応、market違い、存在しないsymbolを入力したときの境界が未確定である。</p>
+<p><strong>今回決めること：</strong>symbolの選択方法とCatalog外の値を受け付けるか。実Providerへ接続する質問ではなく、入力・検証とDATA-G1の範囲を決める。</p>
+<p><strong>推奨：A。</strong>対応済みProvider CatalogのSpot symbolだけを選択可能にする。任意とは「Catalog内から任意に選べる」と定義でき、入力の意味と拒否条件が明確になる。</p>
+<ul><li>A（推奨）：Catalogの対応済みSpot symbolのみ。自由入力不可。安全だがCatalog登録が必要。</li><li>B：Catalog選択に加え、形式検証済み自由入力を許可。拡張性はあるがProvider可否や表記揺れの処理が複雑。</li><li>C：任意文字列を受け付ける。意味のない値や境界外の値を後段へ流すため採用しない。</li></ul>
+<p><strong>影響：</strong>銘柄Catalog、Data生成・Single Backtest入力、検証、エラー、監査、DATA-G1。</p>
+<h3>Q-R2-04：DownloadJobとDataSetの状態</h3>
+<p><strong>背景：</strong>ダウンロードを試した記録と、Backtestに使用可能な完成Dataは別物である。失敗や再試行を同じレコードで上書きすると、何を試したかと何が使えるかが分からなくなる。</p>
+<p><strong>今回決めること：</strong>DownloadJobとDataSetを別ID・別状態にするか。これは状態モデルの質問であり、実Provider downloadの承認ではない。</p>
+<p><strong>推奨：A。</strong>JobはQUEUED / RUNNING / SUCCEEDED / FAILED / CANCELLED、DataSetはPARTIAL / UNUSABLE / USABLE / DISABLEDなどに分け、品質確認を通ったDataだけをUSABLEにする。再試行は新Jobとして記録する。</p>
+<ul><li>A（推奨）：別ID・別状態。PARTIAL / FAILED / CANCELLEDはUSABLE不可、retryは新Job。再現性と安全性が高い。</li><li>B：同一レコード・同一状態。単純だが、試行と使用可否が混ざる。</li><li>C：Job成功時点で品質確認なしにUSABLE。壊れたDataをBacktestへ通す危険がある。</li></ul>
+<p><strong>影響：</strong>Data生成画面、API、Job一覧、Catalog、Persistence、品質、再試行、Preflight、監査、Test。</p>
+<h3>Q-R2-05：同じDataの再取得・version・重複</h3>
+<p><strong>背景：</strong>同じProvider・symbol・時間足・期間の再取得は、同一Data、Provider修正版、別の取得試行のどれかを区別する必要がある。既存Dataを上書きすると、過去Runの再現性が壊れる。</p>
+<p><strong>今回決めること：</strong>同一source identityのskip、修正版のversion、既存Runが参照するDataSetをどう保持するか。</p>
+<p><strong>推奨：A。</strong>同一source identityは重複登録せずskipし、修正版は新versionにする。in-place上書きをせず、Runは使用したversionを保持する。</p>
+<ul><li>A（推奨）：同一identityはskip、修正版は新version、上書きなし。Catalog表示は増えるが再現性を守れる。</li><li>B：既存Dataを上書き。管理は簡単だが、過去Runの入力が変わる。</li><li>C：重複を許し、利用者が選ぶ。柔軟だが誤選択と運用負担が増える。</li></ul>
+<p><strong>影響：</strong>Data Catalog、version、重複判定、Run参照、再現性、復旧、Manual、Test。</p>
+<h3>Q-R2-06：Run取消の状態・3画面・競合</h3>
+<p><strong>背景：</strong>取消は処理中のRunを止める操作で、完了済み結果の削除とは違う。実行一覧・進捗・結果サマリーで判定が違うと、画面間の矛盾や二重処理が起きる。</p>
+<p><strong>今回決めること：</strong>取消可能な状態、3画面共通の可否判定、二重押下、復旧中・legacy結果の扱い。</p>
+<p><strong>推奨：A。</strong>QUEUED / RUNNINGのみ取消可能とし、3画面で同じAPI・判定を使う。二重押下は冪等にし、terminal、RECOVERY_REQUIRED、LEGACY_RESULT_ONLYは理由付きで不可にする。</p>
+<ul><li>A（推奨）：処理中だけ取消可、3画面共通、二重操作は同一扱い、terminal等は不可。状態破壊を防げる。</li><li>B：進捗画面だけ取消可。処理中は分かりやすいが画面間で操作が不統一。</li><li>C：terminalも取消可。完了結果を後から変えるため、監査・再現性・依存を壊しやすい。</li></ul>
+<p><strong>影響：</strong>実行一覧、進捗、結果サマリー、Run状態、取消API、Sweep、復旧、監査、Test、Manual。</p>
+<h3>Q-R2-07：Run削除の対象・依存・復旧</h3>
+<p><strong>背景：</strong>結果を削除すると、result、rows、CSV、checkpoint、比較、Holdout、Sweepなどの関連物も影響する。一部だけ消すと参照が壊れるため、依存中の扱いと復旧方法が必要である。</p>
+<p><strong>今回決めること：</strong>削除可能な状態、対象、依存中の拒否、Trash・tombstone、初期Scopeのcascade可否。実削除はDELETE-G1承認なしには行わない。</p>
+<p><strong>推奨：A。</strong>SUCCEEDED / FAILED / CANCELLEDだけ削除要求可、依存中は拒否、初期Scopeでcascade不可。mutableな結果はTrashへ移し、Catalogにtombstoneと監査を残す。LEGACY_RESULT_ONLYは閲覧専用とする。</p>
+<ul><li>A（推奨）：安全な状態だけ要求可、依存中は拒否、Trash/tombstone、cascade不可。誤削除から戻しやすい。</li><li>B：依存一覧を見せ、利用者が明示した対象だけcascade。柔軟だが、実装・テスト・運用が大きくなる。</li><li>C：関連物を即時完全削除。不可逆で参照破壊・監査欠落の危険があるため採用しない。</li></ul>
+<p><strong>影響：</strong>結果サマリー、Run Catalog、result・rows・CSV・checkpoint、compare、Holdout、Sweep、Trash、復旧、DELETE-G1、Test、Manual。</p>
+<h3>Q-R2-08：監査と01_バックテスト手順書</h3>
+<p><strong>背景：</strong>Download、usable化、取消、削除は、成功だけでなく拒否・失敗・再試行・復旧が発生する。成功だけを監査すると原因追跡ができず、未実装の操作を手順書へ書くと運用者を誤誘導する。</p>
+<p><strong>今回決めること：</strong>監査対象と、<code>doc/phase5R/07_運用手順/01_バックテスト手順書.html</code>へ反映する範囲。手順書の実編集は要件確定・実装・検証後に行う。</p>
+<p><strong>推奨：A。</strong>開始・確認・取消・失敗・再試行、usable昇格、Run取消、削除要求・拒否・成功・失敗を監査し、操作者・理由・対象ID・旧状態・新状態・依存件数を残す。手順書には実装・検証済みの操作だけを、成功・失敗・復旧・Trash・legacy閲覧専用まで含めて反映する。</p>
+<ul><li>A（推奨）：成功・失敗・拒否・取消・再試行・復旧を監査し、実装・検証済みの操作だけを手順書へ反映。画面と手順書を一致させられる。</li><li>B：成功した取消・削除だけを監査し、手順書は別時点で更新。失敗・拒否の追跡ができない。</li><li>C：監査と手順書の範囲を実装後に決める。API・保存・Test・説明が後から揺れる。</li></ul>
+<p><strong>影響：</strong>監査Persistence、Security、P5R2-UNK-DOC-001、手順書、画面キャプチャ、Test追跡。</p>
+<p class="danger"><strong>回答待ちの停止：</strong>Q-R2-01〜08の回答が揃うまでは、推奨案を採用せず、P5R2-03_ROUND2_WAITING_USERを維持する。P5R2-04、HREQ、H1、DATA-G1、DELETE-G1、H2、実装、test subprocess、Playwright、外部Data取得、Secret、費用、実削除、P6へ進まない。</p>
+</section>
 </body></html>

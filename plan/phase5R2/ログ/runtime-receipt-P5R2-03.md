@@ -95,3 +95,24 @@ rootはCoordinatorのfallback方針に従い、指定Agentを一体ずつ個別s
 `P5R2-03_ROUND2_WAITING_USER`。Q-R2-01〜08の回答が揃い、Q-TF-05 conflict、High、Unknown、Later Gate、Manual改訂範囲を更新するまで、P5R2-04、P5R2-HREQ、H1、DATA-G1、DELETE-G1、H2、実装、test subprocess、Playwright、外部I/O、Secret、費用、実削除、P6へ進まない。
 
 正式成果物の統合はrootが行い、今回のAgentは正式ファイルを変更していない。
+
+## User clarification amendment（2026-08-22）
+
+前回のRound 2提示は、質問の識別子と短い選択肢を追跡するには足りていたが、利用者が判断するための背景、今回決める範囲、選択肢ごとの具体的な影響、推奨理由の説明が不足していた。これは説明不足であり、ユーザー回答を受領したことや、推奨案を承認したことを意味しない。
+
+詳細な質問本文は [P5R2-03質問packet説明補正_2026-08-22.md](P5R2-03質問packet説明補正_2026-08-22.md) と、ART-02 Section 9へ保存した。各問には、背景、決める範囲、画面・処理・保存・運用への影響、選択肢の副作用、回答形式を記載した。
+
+### 暫定推奨一覧（未回答）
+
+| ID | 暫定推奨 | 推奨の理由 |
+|---|---|---|
+| Q-R2-01 | A | 指定終了時刻と有効終了時刻を両方示し、切下げを確認してRunへ保存する。 |
+| Q-R2-02 | C | 補間を調査表示に限定し、補間Dataを正式Backtestへ混入させない。 |
+| Q-R2-03 | A | 対応済みCatalogのSpot symbolだけに限定し、Provider境界外・誤入力を早期拒否する。 |
+| Q-R2-04 | A | DownloadJobの試行記録とDataSetの使用可否を分離し、失敗・再試行をUSABLEにしない。 |
+| Q-R2-05 | A | 同一Dataの重複を抑え、修正版を新versionとして残し、過去Runの再現性を守る。 |
+| Q-R2-06 | A | 3画面で同じ取消判定を使い、処理中だけを取消対象にする。 |
+| Q-R2-07 | A | 依存中のcascadeと不可逆削除を避け、Trash・tombstone・監査を残す。 |
+| Q-R2-08 | A | 成功だけでなく拒否・失敗・再試行を監査し、検証済み操作だけを手順書へ反映する。 |
+
+`P5R2-03_ROUND2_WAITING_USER`、`P5R2-HREQ_UNAPPROVED`、`P6_PAUSED`は変更しない。回答が揃うまで、P5R2-04、実装、test subprocess、Playwright、外部Data取得、Secret、費用、実削除、P6へ進まない。

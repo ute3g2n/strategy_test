@@ -62,5 +62,30 @@
   "critical_high_review_status": "OPEN_HIGH_FINDINGS",
   "next_stop_condition": "P5R2-03_ROUND2_WAITING_USER until Q-R2-01..08 answers and Q-TF-05 conflict are resolved; no P5R2-04, HREQ, implementation, tests, external I/O, deletion, or P6.",
   "formal_files_changed_by_agents": false,
-  "root_integration_required": true
+  "root_integration_required": true,
+  "question_packet_clarification": {
+    "amendment_id": "P5R2-03-CLARIFICATION-20260822",
+    "recorded_at": "2026-08-22",
+    "reason": "前回提示は選択肢ラベルと短い要約が中心で、背景、具体的な影響、推奨理由が不足していたため。",
+    "detail_reference": [
+      "plan/phase5R2/ログ/P5R2-03質問packet説明補正_2026-08-22.md",
+      "doc/phase5R2/01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html#section-9"
+    ],
+    "recommended_options": {
+      "Q-R2-01": "A",
+      "Q-R2-02": "C",
+      "Q-R2-03": "A",
+      "Q-R2-04": "A",
+      "Q-R2-05": "A",
+      "Q-R2-06": "A",
+      "Q-R2-07": "A",
+      "Q-R2-08": "A"
+    },
+    "status_preserved": {
+      "next_step_status": "P5R2-03_ROUND2_WAITING_USER",
+      "p5r2_hreq": "UNAPPROVED",
+      "p6_status": "P6_PAUSED"
+    },
+    "user_answer_required": true
+  }
 }

@@ -358,6 +358,8 @@ CoordinatorはAutoTradePhasePlanning_Orchestrator_v0_1（.codex/orchestrators/Au
 7. Manualについて、新機能一覧、操作手順、成功条件、失敗・復旧、用語、desktop/mobile画像、Test／Registry追跡の必要数を候補化する。
 8. Download開始／確認／取消／失敗／再試行、Data usable昇格、Run取消、delete要求／拒否／成功／失敗／cascadeの監査対象を決め、操作者、理由、対象ID、旧状態、新状態、依存物件数を最低項目として確認する。
 9. 各決定からGiven/When/Then形式のAcceptanceと、拒否すべきnegative caseを作り、ユーザーへ最終確認する。
+10. ユーザーへ提示する各質問は、単語や選択肢ラベルだけにせず、「背景」「今回決める範囲」「選択肢を選んだ場合の画面・処理・保存・運用への影響」「決めない場合のリスク」「回答形式」を明記する。
+11. 各質問に設計上の推奨案を必ず明示し、推奨理由と推奨案の副作用を併記する。ただし、推奨案をユーザー回答・確定Requirement・承認として扱わない。P5R2-03の説明補正版では、Q-R2-01=A、Q-R2-02=C、Q-R2-03=A、Q-R2-04=A、Q-R2-05=A、Q-R2-06=A、Q-R2-07=A、Q-R2-08=Aを暫定推奨として表示する。
 
 対話はHREQ前に閉じるblocking Unknownが0になるまで必要なRoundを繰り返す。1 Roundは最大8問。回答を得られない重要事項は、推奨案で勝手に閉じずP5R2_REQUIREMENTS_BLOCKEDとして停止する。実credential、実費用上限、実対象期間などDATA-G1／DELETE-G1で決めてもlocal要件の安全性を損なわない事項だけは、owner、期限、停止範囲、解消Evidenceを付けてLater Gate表へ送る。
 
@@ -733,3 +735,22 @@ P5R2-03は、root-direct fallbackによるread-only設計・要件・red-teamレ
 - `P5R2-UNK-HD-004`：Provider配布物の整合確認に保護対象hashを使う要否。用途・直接因果・失敗時停止範囲が未確定のため `NEEDS_HUMAN_GATE`。
 
 Round 2の回答が揃うまで、P5R2-03は `P5R2-03_ROUND2_WAITING_USER` とする。P5R2-04、P5R2-HREQ、H1、DATA-G1、DELETE-G1、H2、実装、test subprocess、Playwright、外部I/O、Secret、費用、実削除、P6へ進まない。
+
+### 17.6 質問packetの説明補正（2026-08-22）
+
+前回提示のQ-R2-01〜08は、選択肢の短い一覧としては追跡できる一方、利用者が判断するために必要な背景、選択肢ごとの具体的な影響、推奨理由の説明が不足していた。この補正では、単語だけの質問を行わず、各問を「なぜ決めるか」「何を決めるか」「A/B/Cを選ぶと何が変わるか」「推奨案と理由」「回答形式」の順に提示する。
+
+詳細な説明本文は plan/phase5R2/ログ/P5R2-03質問packet説明補正_2026-08-22.md と doc/phase5R2/01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html Section 9に保存する。推奨案は次のとおりだが、いずれも未回答・未確定である。
+
+| 質問 | 暫定推奨 | 推奨理由の要約 |
+|---|---|---|
+| Q-R2-01 | A | 指定終了と有効終了を両方見せ、切下げを確認してRunへ保存し、範囲の誤認を防ぐ。 |
+| Q-R2-02 | C | 調査表示の余地を残しつつ、補間Dataを正式Backtestへ混入させない。 |
+| Q-R2-03 | A | 「任意symbol」をCatalog内から任意に選べる意味に限定し、Provider境界外・誤入力を早期拒否する。 |
+| Q-R2-04 | A | DownloadJobの試行記録とDataSetの使用可否を分離し、失敗・再試行をUSABLEに見せない。 |
+| Q-R2-05 | A | 同一Dataの重複を抑え、修正版を新versionとして残し、過去Runの再現性を守る。 |
+| Q-R2-06 | A | 3画面で同じ取消判定を使い、処理中だけを取消対象にして状態破壊を防ぐ。 |
+| Q-R2-07 | A | 依存中のcascadeと不可逆削除を避け、Trash・tombstone・監査で復旧可能性を残す。 |
+| Q-R2-08 | A | 成功だけでなく拒否・失敗・再試行を監査し、検証済み操作だけを01_バックテスト手順書へ反映する。 |
+
+この補正は質問の説明品質だけを変更する。Q-TF-05のconflictは未解消のまま、P5R2-03は `P5R2-03_ROUND2_WAITING_USER`、P6は停止中とする。
