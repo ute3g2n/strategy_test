@@ -187,6 +187,23 @@ code{background:#eef2f7;padding:2px 4px;border-radius:4px}pre{background:#172033
 <p class="open">この訂正により、P5R2-REQ-TF-001／003、ART-02、計画書、H0 packet、統合台帳、index、runtime receiptの説明を同期する。正式v4、実装、テスト、外部Data取得、削除、P6は引き続き未承認・停止中である。</p>
 </section>
 
+<section>
+<h2>14. P5R2-03 Round 2質問との追跡</h2>
+<p>P5R2-03では、Round 1で回答済みのQ-TF-01〜06／Q-HD-01〜04を聞き直さず、未解消の境界だけをQ-R2-01〜08として質問化した。推奨案は未回答であり、正式Requirement／Acceptanceへ昇格させない。</p>
+<table>
+<tr><th>質問</th><th>元ID／Unknown</th><th>追跡対象</th><th>現在状態</th></tr>
+<tr><td><code>Q-R2-01</code></td><td>Q-TF-04、<code>P5R2-UNK-TF-003</code></td><td>指定終了／有効終了、Preflight、Single Backtest、Manual、Test</td><td><span class="open">OPEN</span></td></tr>
+<tr><td><code>Q-R2-02</code></td><td>Q-TF-05、<code>P5R2-UNK-TF-004</code></td><td>欠損・補間・品質・usable・provenance・look-ahead・再現性</td><td><span class="danger">CONFLICT / OPEN</span></td></tr>
+<tr><td><code>Q-R2-03</code></td><td>Q-HD-02、<code>P5R2-UNK-HD-002</code></td><td>任意symbol、Catalog／allowlist、market、入力監査、DATA-G1</td><td><span class="open">OPEN</span></td></tr>
+<tr><td><code>Q-R2-04</code></td><td>Q-TF-02、Q-HD-01/03、<code>P5R2-UNK-TF-002</code></td><td>DownloadJob／DataSet、状態分離、usable、retry、Catalog</td><td><span class="open">OPEN</span></td></tr>
+<tr><td><code>Q-R2-05</code></td><td>Q-TF-02、Q-HD-02、<code>P5R2-UNK-HD-002</code></td><td>source identity、version、重複、更新、再現性</td><td><span class="open">OPEN</span></td></tr>
+<tr><td><code>Q-R2-06</code></td><td><code>P5R2-UNK-RUN-001</code></td><td>Run一覧・進捗・結果サマリーの取消、状態、競合、監査</td><td><span class="open">OPEN</span></td></tr>
+<tr><td><code>Q-R2-07</code></td><td><code>P5R2-UNK-RUN-002</code>、<code>P5R2-UNK-HD-003</code></td><td>削除対象、依存、cascade、Trash、復旧、DELETE-G1</td><td><span class="open">OPEN</span></td></tr>
+<tr><td><code>Q-R2-08</code></td><td><code>P5R2-UNK-DOC-001</code>、Q-AUDIT-01</td><td>監査、01_バックテスト手順書、Manual、Test追跡</td><td><span class="open">OPEN</span></td></tr>
+</table>
+<p class="danger">P5R2-03は<code>P5R2-03_ROUND2_WAITING_USER</code>。P5R2-04、P5R2-HREQ、実装、test subprocess、Playwright、外部Data取得、実削除、P6へ進めない。現行<code>01_バックテスト手順書</code>は要件確定後まで変更しない。</p>
+</section>
+
 <footer class="small">P5R2-ART-01。旧P5Rの完了判定を変更せず、P5R2の要件候補・実装・外部I/O・削除を承認済みとは表示しない。</footer>
 </body>
 </html>

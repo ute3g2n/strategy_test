@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-001`
 > Version: `v0.1`
 > 作成日: `2026-08-21`
-> 状態: `PLAN_CREATED / P5R2-H0_APPROVED / P5R2-01_COMPLETE / P5R2-02_ROUND1_COMPLETE / P5R2-03_READY / P6_PAUSED`
+> 状態: `PLAN_CREATED / P5R2-H0_APPROVED / P5R2-01_COMPLETE / P5R2-02_ROUND1_COMPLETE / P5R2-03_ROUND2_WAITING_USER / P6_PAUSED`
 > 現在の対象: 要件ヒアリング、要件候補の改訂、要件承認、承認後の実行計画再編まで
 > 現在の非対象: P5R2本実装、外部Data取得、Secret投入、費用発生、実Data削除、P6開始
 
@@ -94,7 +94,7 @@ P6は、ユーザーがP5R2をP6前に置くと指定したため、`P5R2-H2`ま
 | `P5R2-UNK-TF-001` | 1 Run 1時間足か、5種類の時間足同時参照を許可するか。 | P5R2-02〜03 | Strategy入力・比較条件・UI型を確定しない。 |
 | `P5R2-UNK-TF-002` | 集約をRun時に行うか、derived cacheを事前生成するか。UI生成画面の「現在生成可能な全期間」、生成Jobの状態・再試行・同時実行、DataSet／usableの登録条件も決める。 | P5R2-02〜03 | Data Catalog・provenance・性能Acceptance・生成Job契約を確定しない。 |
 | `P5R2-UNK-TF-003` | UTC anchor、終了時刻の包含、partial／missing bar。既存1m／M30保存物はQ-TF-06=Aで閲覧専用に確定済み。 | P5R2-03 | 時刻境界・partial／missing・現行30mとの比較契約を確定しない。 |
-| `P5R2-UNK-TF-004` | 欠損1mを上位足へ補間する方式、最大欠損量、始端・終端欠損、品質表示、usable化、未来側データの利用禁止、再現性。 | P5R2-03〜04／HREQ | 補間Dataを自動で使用可能にせず、品質・provenance・停止条件を確定しない。 |
+| `P5R2-UNK-TF-004` | Q-TF-05のユーザー回答「5. C」と、現行ART-02の「補間する方向性」が矛盾している。欠損1mを上位足へ補間する方式、最大欠損量、始端・終端欠損、品質表示、usable化、未来側データの利用禁止、再現性。 | P5R2-03〜04／HREQ | Q-R2-02で意味を再確認するまで、補間Dataを自動で使用可能にせず、Requirementを確定しない。 |
 | `P5R2-UNK-HD-001` | 製品要件上の初期provider、market、symbol、source interval、期間指定方式、routine downloadの承認単位。 | P5R2-02〜04／HREQ | local fake providerを含むDownload／Catalog要件を確定しない。 |
 | `P5R2-UNK-HD-002` | Data一覧の単位、必須列、使用可能判定、更新・重複・取消・再試行。任意symbolのcatalog／allowlist、market、未対応時の拒否も決める。 | P5R2-02〜03 | Catalog API／UI／永続化／入力境界を確定しない。 |
 | `P5R2-UNK-HD-003` | Historical Dataの削除可否、参照Runとの依存、Trash／保持期間。 | P5R2-02〜03 | Data削除機能をScopeに入れない。 |
@@ -175,7 +175,7 @@ HREQ前に閉じるUnknownと、後続Gateで実行直前に決める事項を�
 | Artifact ID | 予定場所 | 内容 |
 |---|---|---|
 | `P5R2-ART-01` | `doc/phase5R2/01_要件追跡/01_P5R2現状差分・根因・要求追跡.html` | P5R2-01で作成・統合レビュー完了。source／derived／strategy／displayの分離、Data管理未接続、Run操作欠落、初期trace、Unknownを記録し、P5R2-02へ引き渡した。 |
-| `P5R2-ART-02` | `doc/phase5R2/01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html` | Round 1の10回答、正規化決定、Q-TF-06=A（既存1m／M30保存物は閲覧専用）、A90 High指摘、A95判定、変更影響。補間・任意symbol・Provider範囲・Run cancel/deleteの詳細は未確定。 |
+| `P5R2-ART-02` | `doc/phase5R2/01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html` | Round 1の10回答、Q-TF-06=A、Q-R2-01〜08のRound 2質問packet、A90 High指摘、A95判定、変更影響。Q-TF-05の矛盾、補間・任意symbol・Provider範囲・Run cancel/delete・Manualの詳細は未確定。 |
 | `P5R2-ART-03` | `doc/phase5R2/01_要件追跡/03_P5R2要件・AC・UI・API・Test追跡マトリクス.html` | RequirementからTest／Manualまでの追跡 |
 | `P5R2-ART-04` | `doc/phase5R2/01_要件追跡/04_01_バックテスト手順書改訂要件.html` | 手順書の章・機能ID・操作ID・画像・失敗／復旧の改訂仕様 |
 | `P5R2-REQ-V4-CANDIDATE` | `plan/phase5R2/requirements/drafts/01_自動トレードシステム要件定義書_v4_candidate.html` | HREQ前の候補。現在正本とは表示しない |
@@ -632,4 +632,104 @@ CoordinatorはAutoTradePhasePlanning_Orchestrator_v0_1（.codex/orchestrators/Au
 P5R2-H0を承認します。要件ヒアリングを開始してください。
 ```
 
-P5R2-01はART-01の事実・trace・Unknown・link・A95静的確認を完了した。P5R2-02 Round 1の全10問を記録し、30m新規選択とQ-TF-06=A（既存1m／M30保存物は閲覧専用）を確定した。A90のHigh指摘（終了時刻表示・補間・任意symbol境界・Provider範囲・Run cancel/delete）と追加Unknownは未解消であるため、P5R2-03へ進む。HREQ、H1、DATA-G1、DELETE-G1、H2、P6へは進まない。
+
+## 17. P5R2-03実行結果・Round 2質問packet（2026-08-21）
+
+P5R2-03は、root-direct fallbackによるread-only設計・要件・red-teamレビューと、Round 2質問packet作成まで完了した。ユーザー回答が未取得のため、状態は `P5R2-03_ROUND2_WAITING_USER` とする。P5R2-04、P5R2-HREQ、実装、test subprocess、Playwright、外部Data取得、Secret、費用、実削除、P6には進まない。
+
+### 17.1 Runtime受領
+
+- Coordinator `AutoTradePhasePlanning_Orchestrator_v0_1` は `01a0228c-cc91-7cd3-bd04-95b2f3a738de` で起動・完了したが、Coordinator内部のnested child spawn／waitは利用できなかった。
+- nested child 5件は `not_started / agent_id=N/A / independent=false / review_mode=SELF_REVIEW_FALLBACK` として扱う。未起動を独立完了とは扱わない。
+- root-direct fallbackではA05、A10、A80、A90、A95を固定model `gpt-5.6-luna` で個別spawn／waitし、read-only結果を受領した。詳細は `plan/phase5R2/ログ/runtime-receipt-P5R2-03.md/json` を参照する。
+- A95は `NEEDS_HUMAN_GATE`。`P5R2-UNK-HD-004`を維持し、管理用hash、manifest、fingerprint、stale、checksum、hash retryは追加しない。
+
+### 17.2 Findings first
+
+1. **High：Q-TF-05に記録矛盾がある。** ユーザー回答「5. C」と、ART-02の「欠損1mを含む上位足は補間する方向性」が一致しない。Q-TF-05は `CONFLICT` とし、Q-R2-02で再確認する。
+2. **High：TF-04の表示・確認契約が未確定。** 指定終了時刻、有効終了時刻、確認操作、UTC表示、開始より前・有効期間ゼロ、Run保存項目が未確定である。
+3. **High：TF-05の品質・usable契約が未確定。** 欠損範囲、始端・終端、補間の表示、future参照禁止、provenance、再現性、使用不可条件が未確定である。
+4. **High：HD-02/HD-04の入力・Provider境界が未確定。** 任意symbolの意味、Catalog外拒否、market、host、期間、容量、費用、範囲外停止が未確定である。
+5. **High：DownloadJob/DataSetの状態分離とRun取消・削除のfail-closed契約が未確定。** 状態競合、依存、復旧、Trash、監査、二重操作、途中失敗を確定していない。
+6. **Medium：01_バックテスト手順書は要件確定前に変更しない。** 現行v0.5は履歴として保持し、実装済み操作だけをP5R2-04以降で改訂する。
+
+### 17.3 Round 2質問（推奨案は未回答・未確定）
+
+各問は `OPEN`。回答は `Q-R2-01=A` のように回答する。自由記述も可とする。
+
+#### Q-R2-01：指定終了時刻と有効終了時刻の表示・確認
+
+- A：指定終了時刻と切下げ後の有効終了時刻を並べて表示し、実行前に確認ダイアログを出す。推奨。
+- B：両方を表示するが、確認操作は不要。
+- C：時間足境界でない終了時刻は入力エラーとして拒否する。
+- 影響：`P5R2-REQ-TF-001`、Preflight、Single Backtest、API、Test、Manual。
+
+#### Q-R2-02：Q-TF-05の欠損1mと補間
+
+- A：補間せず、欠損を含む上位足は生成失敗（`PARTIAL_BAR_REJECTED`）とする。
+- B：連続した限定欠損だけ補間し、品質警告付きで使用可能にできる。
+- C：補間は一覧・調査表示だけに使い、補間を含むDataSetは常に `PARTIAL / unusable` とする。推奨。
+- 影響：`P5R2-UNK-TF-004`、`P5R2-REQ-TF-002`、Quality、usable、provenance、look-ahead防止、再現性、Test、Manual。
+
+#### Q-R2-03：任意symbolの入力境界
+
+- A：Provider Catalogから対応済みSpot symbolだけを選択し、自由入力は不可とする。推奨。
+- B：Catalog選択に加え、形式検証済みの自由入力を許可する。
+- C：任意文字列を受け付ける。
+- 影響：`P5R2-REQ-HD-001/002`、`P5R2-UNK-HD-002`、Catalog、入力検証、監査、DATA-G1。
+
+#### Q-R2-04：DownloadJobとDataSetの状態契約
+
+- A：DownloadJobとDataSetを別ID・別状態で管理する。Jobの `PARTIAL / FAILED / CANCELLED` はDataSetを `USABLE` に昇格させず、再試行は新Jobとする。推奨。
+- B：JobとDataSetを同一レコード・同一状態で管理する。
+- C：Job成功時点で品質確認なしにDataSetを使用可能にする。
+- 影響：`P5R2-REQ-HD-001/002`、API、Persistence、Catalog、生成、品質、provenance、取消、再試行、Test。
+
+#### Q-R2-05：同一DataとData Catalogの更新
+
+- A：同一source identityはskipし、修正版は新versionとして登録し、既存Dataをin-place上書きしない。推奨。
+- B：常に既存Dataを上書き更新する。
+- C：重複を許可し、利用者が個別に選ぶ。
+- 影響：Data一覧、usable、Run再現性、version、重複防止、復旧、Manual、Test。
+
+#### Q-R2-06：Run取消の状態・画面・競合
+
+- A：`QUEUED / RUNNING`だけ取消可能とし、実行一覧・進捗・結果サマリーの3画面で同じ判定を使う。二重押下は同一操作として扱い、terminal、`RECOVERY_REQUIRED`、`LEGACY_RESULT_ONLY` は理由付きで取消不可とする。推奨。
+- B：進捗画面だけ取消可能とする。
+- C：terminal状態にも取消ボタンを表示し、取消可能とする。
+- 影響：`P5R2-REQ-RUN-001/002`、実行一覧、進捗、結果サマリー、API、状態遷移、Sweep、復旧、監査、Test、Manual。
+
+#### Q-R2-07：Run削除の対象・依存・復旧
+
+- A：`SUCCEEDED / FAILED / CANCELLED`だけ削除要求可とする。mutableなresult、rows、CSV、checkpoint、比較選択はTrash対象、catalogはtombstoneを残す。Sweep親子、比較、CSV Job、Holdout参照など依存中は拒否し、初期Scopeでcascade不可とする。`LEGACY_RESULT_ONLY` は閲覧専用とする。推奨。
+- B：依存一覧を表示し、利用者が明示選択した対象だけcascade可能とする。
+- C：result、catalog、関連物を即時完全削除する。
+- 影響：result、catalog、rows、CSV、checkpoint、compare、Holdout、Sweep、復旧、`P5R2-DELETE-G1`、Test、Manual。
+
+#### Q-R2-08：監査と01_バックテスト手順書改訂範囲
+
+- A：Download開始・確認・取消・失敗・再試行、DataSet usable昇格、Run取消、削除要求・拒否・成功・失敗を監査する。操作者、理由、対象ID、旧状態、新状態、依存物件数を記録し、手順書には実装済みの操作だけを成功・失敗・復旧・Trash・legacy閲覧専用とともに掲載する。推奨。
+- B：成功した取消・削除だけを監査し、手順書は別文書として扱う。
+- C：監査と手順書の範囲は実装後に決める。
+- 影響：Audit persistence、Security、`P5R2-UNK-DOC-001`、`doc/phase5R/07_運用手順/01_バックテスト手順書.html`、Manual、画像、Test追跡。
+
+### 17.4 質問ID・Unknown・成果物の対応
+
+| 質問 | 主な元ID | 主な影響 |
+|---|---|---|
+| Q-R2-01 | Q-TF-04、`P5R2-UNK-TF-003` | `P5R2-REQ-TF-001`、Preflight、Manual、Test |
+| Q-R2-02 | Q-TF-05、`P5R2-UNK-TF-004` | `P5R2-REQ-TF-002`、Quality、usable、provenance、Test |
+| Q-R2-03 | Q-HD-02、`P5R2-UNK-HD-002` | `P5R2-REQ-HD-001/002`、Catalog、入力境界、DATA-G1 |
+| Q-R2-04 | Q-TF-02、Q-HD-01/03、`P5R2-UNK-TF-002` | DownloadJob、DataSet、状態、再試行、品質 |
+| Q-R2-05 | Q-TF-02、Q-HD-02、`P5R2-UNK-HD-002` | Data Catalog、version、再現性、更新 |
+| Q-R2-06 | `P5R2-UNK-RUN-001` | Run一覧、進捗、結果サマリー、取消、監査 |
+| Q-R2-07 | `P5R2-UNK-RUN-002`、`P5R2-UNK-HD-003` | 削除対象、依存、Trash、復旧、DELETE-G1 |
+| Q-R2-08 | `P5R2-UNK-DOC-001`、Q-AUDIT-01 | 監査、手順書、Manual、Test追跡 |
+
+### 17.5 Later Gateと停止境界
+
+- `P5R2-DATA-G1`：実Provider host、実symbol範囲、期間・容量・費用上限、通信、Secret、実download。
+- `P5R2-DELETE-G1`：実Data／実Runの削除対象、保持期間、purge可否、復元運用。test evidenceとaudit tombstoneは削除対象にしない。
+- `P5R2-UNK-HD-004`：Provider配布物の整合確認に保護対象hashを使う要否。用途・直接因果・失敗時停止範囲が未確定のため `NEEDS_HUMAN_GATE`。
+
+Round 2の回答が揃うまで、P5R2-03は `P5R2-03_ROUND2_WAITING_USER` とする。P5R2-04、P5R2-HREQ、H1、DATA-G1、DELETE-G1、H2、実装、test subprocess、Playwright、外部I/O、Secret、費用、実削除、P6へ進まない。
