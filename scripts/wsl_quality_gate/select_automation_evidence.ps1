@@ -10,7 +10,18 @@ function ConvertFrom-JsonFile([string]$Path) {
 }
 
 function Test-NotBefore([string]$Value, [DateTimeOffset]$StartedAt) {
-    try { return ([DateTimeOffset]::Parse($Value).ToUniversalTime() -ge $StartedAt.ToUniversalTime()) }
+    try {
+        # ConvertFrom-Json may materialize an ISO-8601 ``Z`` value as a local
+        # DateTime before this function receives it.  Gate timestamps are UTC;
+        # preserve that contract when the timezone marker has been discarded.
+        $parsed = [DateTimeOffset]::Parse(
+            $Value,
+            [Globalization.CultureInfo]::InvariantCulture,
+            [Globalization.DateTimeStyles]::AssumeUniversal -bor
+                [Globalization.DateTimeStyles]::AdjustToUniversal
+        )
+        return ($parsed -ge $StartedAt.ToUniversalTime())
+    }
     catch { return $false }
 }
 
