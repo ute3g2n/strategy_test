@@ -416,6 +416,17 @@ class BacktestProductService:
                 raise KeyError("RUN_NOT_FOUND")
             if run.status != "CANCELLED" or run.checkpoint is None:
                 raise ValueError("CHECKPOINT_RESUME_NOT_AVAILABLE")
+            previous_thread = run.thread
+        if previous_thread is not None and previous_thread is not threading.current_thread():
+            previous_thread.join(timeout=5.0)
+            if previous_thread.is_alive():
+                raise ValueError("CANCEL_STOP_TIMEOUT")
+        with self._lock:
+            run = self._runs.get(run_id)
+            if run is None:
+                raise KeyError("RUN_NOT_FOUND")
+            if run.status != "CANCELLED" or run.checkpoint is None:
+                raise ValueError("CHECKPOINT_RESUME_NOT_AVAILABLE")
             run.resume_count += 1
             run.cancel_event.clear()
             run.failure = None
