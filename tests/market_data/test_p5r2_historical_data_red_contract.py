@@ -88,6 +88,47 @@ def test_historical_download_is_gate_blocked_and_default_range_is_fail_closed() 
     assert _field(external_result, "reason") == "EXTERNAL_IO_FORBIDDEN"
 
 
+def test_local_generation_job_cancel_restart_and_retry_are_recovery_safe() -> None:
+    cancel = _require_module_contract(
+        job_service,
+        "cancel_timeframe_generation_job",
+        "P5R2-CREQ-HD-001",
+    )
+    restart = _require_module_contract(
+        job_service,
+        "restart_timeframe_generation_job",
+        "P5R2-CREQ-HD-001",
+    )
+    retry = _require_module_contract(
+        job_service,
+        "retry_timeframe_generation_job",
+        "P5R2-CREQ-HD-001",
+    )
+
+    running = {
+        "job_id": "JOB-TIMEFRAME_GENERATION-lifecycle-001",
+        "job_type": "TIMEFRAME_GENERATION",
+        "state": "RUNNING",
+        "input": _job_request(),
+        "output": None,
+        "retry_of": None,
+    }
+    cancelled = cancel(running)
+    assert _field(cancelled, "state") == "CANCELLED"
+    assert _field(cancelled, "promoted") is False
+    assert _field(cancelled, "reason") == "JOB_CANCELLED"
+
+    recovery = restart(running)
+    assert _field(recovery, "state") == "RECOVERY_REQUIRED"
+    assert _field(recovery, "orphan") is True
+    assert _field(recovery, "promoted") is False
+
+    retried = retry(recovery)
+    assert _field(retried, "state") == "PROMOTED"
+    assert _field(retried, "retry_of") == running["job_id"]
+    assert _field(retried, "orphan") is False
+
+
 def test_catalog_merge_preview_requires_identity_dedupe_conflict_replace_and_impact_review(tmp_path) -> None:
     catalog = history_catalog.HistoryCatalog(tmp_path)
     preview = getattr(catalog, "preview_merge", None)
