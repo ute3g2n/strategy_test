@@ -552,6 +552,7 @@ def _validate_gate_command(
             "scripts.quality_gate.local_p5r2_pytest",
             "scripts.quality_gate.local_p5r2_p13_pytest",
             "scripts.quality_gate.local_p5r2_p14_pytest",
+            "scripts.quality_gate.local_p5r2_p15_pytest",
         }
         paths = (
             ("tests/market_data",)
@@ -586,6 +587,16 @@ def _validate_gate_command(
                     "tests/application/test_p4_07_execution.py",
                 )
                 if python_module == "scripts.quality_gate.local_p5r2_p14_pytest"
+                else (
+                    "tests/application/test_p5r2_run_operation_red_contract.py",
+                    "tests/application/test_p5r2_run_operation_guard.py",
+                    "tests/phase5R/test_p5r2_result_artifact_red_contract.py",
+                    "tests/phase5R/test_p5r2_result_artifact_guard.py",
+                    "tests/phase5R/test_p5r2_backtest_service_cancel_guard.py",
+                    "tests/application/test_p4_07_execution.py",
+                    "tests/application/test_nonhash_management_boundaries.py",
+                )
+                if python_module == "scripts.quality_gate.local_p5r2_p15_pytest"
                 else ("tests/quality_gate",)
             )
         )
