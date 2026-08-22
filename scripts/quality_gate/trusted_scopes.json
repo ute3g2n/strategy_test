@@ -771,7 +771,7 @@
         {
           "gate": "formatter",
           "command": [
-            ".venv/Scripts/python.exe", "-m", "ruff", "format", "--check",
+            ".venv/bin/python", "-m", "ruff", "format", "--check",
             "src/autotrade/application", "src/autotrade/backtest", "src/autotrade/market_data",
             "src/autotrade/strategy", "scripts/quality_gate", "scripts/wsl_quality_gate",
             "tests/application", "tests/backtest", "tests/phase5R", "tests/market_data"
@@ -780,7 +780,7 @@
         {
           "gate": "lint",
           "command": [
-            ".venv/Scripts/python.exe", "-m", "ruff", "check",
+            ".venv/bin/python", "-m", "ruff", "check",
             "src/autotrade/application", "src/autotrade/backtest", "src/autotrade/market_data",
             "src/autotrade/strategy", "scripts/quality_gate", "scripts/wsl_quality_gate",
             "tests/application", "tests/backtest", "tests/phase5R", "tests/market_data"
@@ -789,13 +789,13 @@
         {
           "gate": "type",
           "command": [
-            ".venv/Scripts/python.exe", "-m", "mypy",
+            ".venv/bin/python", "-m", "mypy",
             "src/autotrade/application", "src/autotrade/backtest", "src/autotrade/market_data", "src/autotrade/strategy"
           ]
         },
         {
           "gate": "test",
-          "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p5r2_pytest"]
+          "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p5r2_pytest"]
         }
       ],
       "ui_checks": {
