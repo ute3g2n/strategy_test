@@ -1,0 +1,84 @@
+{
+  "step_id": "P5R2-DELETE-G1",
+  "gate_id": "P5R2-DELETE-G1",
+  "recorded_at": "2026-08-23",
+  "status": "APPROVED_BOUNDED_P5R2_21_FIXTURE_ONLY",
+  "runtime_backend": "root_local_fallback",
+  "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+  "orchestrator_name": "AutoTradePhasePlanning_Orchestrator_v0_1",
+  "orchestrator_json_path": ".codex/orchestrators/AutoTradePhasePlanning_Orchestrator_v0_1.json",
+  "orchestrator_model": "gpt-5.6-terra",
+  "orchestrator_agent_id": "N/A",
+  "coordinator_completion": "NOT_DISPATCHED_NESTED_RUNTIME",
+  "agents": [
+    {
+      "agent_name": "AutoTrade_A05_PhaseExecutionPlanner_v0_1",
+      "agent_json_path": ".codex/agents/AutoTrade_A05_PhaseExecutionPlanner_v0_1.json",
+      "agent_model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "accepted_status": "NOT_DISPATCHED",
+      "completion_status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A10_RequirementsCurator_v0_1",
+      "agent_json_path": ".codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json",
+      "agent_model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "accepted_status": "NOT_DISPATCHED",
+      "completion_status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A80_DocumentIntegrator_v0_1",
+      "agent_json_path": ".codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json",
+      "agent_model": "gpt-5.6-luna",
+      "reasoning_effort": "low",
+      "agent_id": "N/A",
+      "accepted_status": "NOT_DISPATCHED",
+      "completion_status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A90_DesignReviewer_v0_1",
+      "agent_json_path": ".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json",
+      "agent_model": "gpt-5.6-luna",
+      "agent_id": "N/A",
+      "accepted_status": "NOT_DISPATCHED",
+      "completion_status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "agent_name": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1",
+      "agent_json_path": ".codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json",
+      "agent_model": "gpt-5.6-luna",
+      "reasoning_effort": "low",
+      "agent_id": "N/A",
+      "accepted_status": "NOT_DISPATCHED",
+      "completion_status": "NOT_STARTED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    }
+  ],
+  "review_mode": "SELF_REVIEW_FALLBACK",
+  "decision_authority": "root Codex under delegated P5R2 Human Gate authority",
+  "packet": "doc/phase5R2/08_DELETE-G1/08_P5R2-DELETE-G1承認packet.html",
+  "decision_log": "plan/phase5R2/ログ/P5R2-DELETE-G1_HumanGate_2026-08-23.md",
+  "approved_scope": {
+    "implementation": "P5R2-21 physical deletion contract for terminal ResultArtifact only",
+    "acceptance_target": "new temporary fixture only",
+    "protected": ["CSV", "HISTORICAL_DATA", "RUN", "AUDIT", "EVIDENCE"],
+    "restore": "not_allowed",
+    "external_io": "not_allowed",
+    "p6": "not_allowed"
+  },
+  "physical_delete_executed_during_gate": false,
+  "external_requests_during_gate": 0,
+  "a95_policy": "ALLOW_NO_MANAGEMENT_HASH_FLOW",
+  "policy_purpose": "安全のため、管理用hash経路は作成しない",
+  "next_step": "P5R2-21"
+}

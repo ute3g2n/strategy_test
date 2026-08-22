@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-002`
 > Version: `v0.2`
 > 作成日: `2026-08-22`
-> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_GREEN_CONFIRMED / P5R2-14_GREEN_CONFIRMED / P5R2-15_GREEN_CONFIRMED / P5R2-16_GREEN_CONFIRMED / P5R2-17_PACKET_READY / P5R2-DATA-G1_APPROVED_BOUNDED / P5R2-18_LOCAL_GREEN / P5R2-18_EXTERNAL_BLOCKED_HOST_ISOLATION / P5R2-19_LOCAL_UI_VERIFIED_RUNTIME_FALLBACK / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
+> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_GREEN_CONFIRMED / P5R2-14_GREEN_CONFIRMED / P5R2-15_GREEN_CONFIRMED / P5R2-16_GREEN_CONFIRMED / P5R2-17_PACKET_READY / P5R2-DATA-G1_APPROVED_BOUNDED / P5R2-18_LOCAL_GREEN / P5R2-18_EXTERNAL_BLOCKED_HOST_ISOLATION / P5R2-19_LOCAL_UI_VERIFIED_RUNTIME_FALLBACK / P5R2-20_COMPLETE / P5R2-DELETE-G1_APPROVED_BOUNDED_P5R2_21 / P5R2-H2_UNAPPROVED / P6_PAUSED`
 > 旧計画: [`Phase5R2_実行計画書_v0.1_2026-08-21.md`](./Phase5R2_実行計画書_v0.1_2026-08-21.md)（要件確定前の履歴。上書きしない）
 
 ## 1. この計画の結論
@@ -15,7 +15,7 @@
 1. v4要件を正式な現在正本として公開すること。
 2. v4を入力に、後続の実行計画を再作成すること。
 
-P5R2-H1は2026-08-22に、利用者から移譲されたHuman Gate承認権限に基づき、承認packetの範囲で承認済みである。P5R2-DATA-G1は2026-08-23に、P5R2-18のbounded pilotだけを承認した。P5R2-DELETE-G1、P5R2-H2は未承認である。したがって、DATA-G1承認は他Provider・他銘柄・他期間への拡張、Provider login／契約／API call、Secret、費用、Data再配布、実削除、P6開始の許可ではない。
+P5R2-H1は2026-08-22に、利用者から移譲されたHuman Gate承認権限に基づき、承認packetの範囲で承認済みである。P5R2-DATA-G1は2026-08-23に、P5R2-18のbounded pilotだけを承認した。P5R2-20でDELETE-G1 packetを作成し、root CodexはP5R2-21の実装と新規一時fixture受入だけを承認した。P5R2-H2は未承認である。したがって、DATA-G1承認は他Provider・他銘柄・他期間への拡張、Provider login／契約／API call、Secret、費用、Data再配布の許可ではなく、DELETE-G1承認も既存Data／Run／CSV／Audit／Evidenceの削除、P6開始の許可ではない。
 
 要件v4の現在正本は [`doc/requirements/01_自動トレードシステム要件定義書_v4.html`](../doc/requirements/01_自動トレードシステム要件定義書_v4.html) である。v3、P5R旧完了、P5R手順書v0.5、v4 candidate、P5R2-06 HREQ packetは、履歴または入力証拠として保持する。
 
@@ -61,7 +61,7 @@ P5R2-H1は2026-08-22に、利用者から移譲されたHuman Gate承認権限�
 - P5R2-DATA-G1前のProvider login、契約、API call、外部Data download、Secret、費用、外部通信。
 - P5R2-DELETE-G1前の既存実Data、既存Run、Evidence、監査記録の削除。
 - Broker、注文、実資金、Paper、Live、P6のRisk／OMS実装。
-- 管理用hash、manifest、checksum receipt、fingerprint、stale、hash retryを完了条件にすること。
+- 管理用hash、manifest、checksum receipt、fingerprint、stale、hash retryを完了条件へ追加することは禁止する。
 
 ## 4. Gate、Unknown、現在の停止条件
 
@@ -75,7 +75,7 @@ P5R2-H1は2026-08-22に、利用者から移譲されたHuman Gate承認権限�
 | `P5R2-UNK-QG-002` | `RESOLVED_LOCAL_READONLY` | 既存protected fixtureのpath/name/version/記録済みprotected identityをread-only参照し、固定Gate Evidenceへ記録した。 | 既存protected identityの置換、新規管理hash、identity不一致のPass扱いは禁止。 |
 | `P5R2-UNK-QG-003` | `OPEN / EXTERNAL_RUN_BLOCKED` | P5R2-18 external Runのhost-level isolation。process-level allowlistと独立host証拠を分け、現在は`NOT_VERIFIED`としてexecute／promotionを停止する。 | host-level allow-only環境のpre/post証拠なしの外部接続、既存P5 waiverの流用、proxy／別host／別期間への拡張。 |
 | `P5R2-DATA-G1` | `APPROVED_BOUNDED_P5R2_18 (2026-08-23)` | Binance Data Vision public archive、Spot BTCUSDT／ETHUSDT、source 1m、UTC 2025-02-24以上2025-03-01未満、最大4 archive objects、local derived 15m／30m／1h／4h／1d、Run／Evidence／保存先をP5R2-18へ限定する。 | 承認範囲外のProvider・host・symbol・期間・interval、login、契約、API call、Secret、費用、Data再配布、実削除、P6開始。 |
-| `P5R2-DELETE-G1` | `UNAPPROVED` | 物理削除の対象Artifact、許可root、依存、CSV保護、監査、path安全、復元なしをpacket化する。 | 既存実Data、既存Run、Evidence、監査の削除。 |
+| `P5R2-DELETE-G1` | `APPROVED_BOUNDED_P5R2_21_FIXTURE_ONLY (2026-08-23)` | terminal ResultArtifactだけの物理削除実装と、新規一時fixtureだけの受入を承認した。CSV／Historical Data／Run／Audit／Evidence、一括purge、restore、P6は対象外。 | 既存実Data、既存Run、既存CSV、既存Audit、既存Evidenceへの物理操作。承認範囲外のpath・ID・Data・Run。 |
 | `P5R2-H2` | `UNAPPROVED` | 全Acceptance、Manual、Open Unknown、P6再引渡しをpacket化し、人の承認を得る。 | P5R2完了宣言、P6開始。 |
 | `P5R2-UNK-HD-004` | `USER_APPROVED_LIMITED / NO_HASH_FLOW` | 管理用hashを導入しない。保護対象hashが必要になったときだけ別Gateへ送る。 | hash値、manifest、checksum、fingerprint、stale、retry、hash receiptの作成・要求。 |
 
@@ -130,6 +130,7 @@ P5R2-HREQ承認後も、上表のH1、DATA-G1、DELETE-G1、H2の4つの人判�
 | `P5R2-ART-DD` | 実装詳細設計セット | `doc/phase5R2/04_実装詳細設計/` | P5R2-09以降で作成 |
 | `P5R2-ART-QG` | Quality／RED／Run scope | `plan/phase5R2/quality/`、`tests/evidence/phase5R2/<RunId>/` | P5R2-12 RED confirmed |
 | `P5R2-ART-MAN` | 改訂済みBacktest手順書 | `doc/phase5R/07_運用手順/01_バックテスト手順書.html` | H2前、検証後 |
+| `P5R2-ART-DELETE-G1` | DELETE-G1承認packet | `doc/phase5R2/08_DELETE-G1/08_P5R2-DELETE-G1承認packet.html` | packet ready／未承認 |
 | `P5R2-ART-H2` | H2 packet／完了判定 | `doc/phase5R2/06_完了/`、`plan/phase5R2/ログ/` | 全Acceptance後 |
 
 ### 6.2 直列・条件分岐・並列
@@ -641,7 +642,7 @@ step_id=P5R2-20。人判断Step。P5R2-19のUIが削除状態と保護対象を�
 
 出力:
 - doc/phase5R2/08_DELETE-G1/08_P5R2-DELETE-G1承認packet.html
-- plan/phase5R2/ログ/P5R2-DELETE-G1_承認依頼.md
+- plan/phase5R2/ログ/P5R2-20_DELETE-G1_承認依頼_2026-08-23.md
 - 統合台帳の対象、期限、再開条件、証拠先（未承認のまま）
 
 明示承認がない限り、unlink／Remove-Item／既存Artifact削除を行わない。承認はHistorical Data、Run本体、CSV、Audit、Evidenceの削除許可を含まない。
@@ -665,13 +666,13 @@ RDC-P5R2-0.2を適用する。Coordinatorと全Agentのspawn／waitが成立し�
 
 承認待ちの状態を次の文字列で保存する:
 - `P5R2-DELETE-G1_UNAPPROVED`
-- `P5R2-DELETE-G1_APPROVED`（ユーザーが対象と範囲を明示した場合だけ）
+- `P5R2-DELETE-G1_APPROVED_BOUNDED_P5R2_21_FIXTURE_ONLY`（対象と範囲を明示した場合だけ）
 
 承認文の例は「P5R2-DELETE-G1を承認します。承認packetに記載したterminal result Artifactだけを対象に、CSV・Historical Data・Run本体・監査・Evidenceを保護して物理削除を実行してください。」である。単なる「続けて」は承認とみなさない。
 
 出力:
-- plan/phase5R2/ログ/P5R2-DELETE-G1_HumanGate_YYYY-MM-DD.md
-- runtime-receipt-P5R2-DELETE-G1.json と .md
+- plan/phase5R2/ログ/P5R2-DELETE-G1_HumanGate_2026-08-23.md
+- plan/phase5R2/quality/runtime-receipt-P5R2-DELETE-G1.json と .md
 - 統合台帳のGate行（未承認または明示承認済みのどちらかを正確に反映）
 
 人の明示承認がない限り、P5R2-21へ進まず、unlink／Remove-Item／既存Artifact削除を行わない。

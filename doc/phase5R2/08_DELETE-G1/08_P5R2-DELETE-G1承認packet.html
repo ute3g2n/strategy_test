@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="document-id" content="P5R2-ART-DELETE-G1-001">
+  <meta name="document-status" content="APPROVED_BOUNDED_P5R2_21_FIXTURE_ONLY">
+  <meta name="created-on" content="2026-08-23">
+  <title>P5R2 DELETE-G1 承認packet</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.7;max-width:1240px;margin:28px auto;padding:0 22px;color:#172033;background:#f8fafc}
+    main{background:#fff;border:1px solid #d9e2ec;padding:28px}
+    h1,h2{color:#111827} h1{border-bottom:3px solid #1f2937;padding-bottom:10px} h2{border-bottom:1px solid #cbd5e1;padding-bottom:6px;margin-top:32px}
+    table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px} th,td{border:1px solid #cbd5e1;padding:8px 10px;vertical-align:top} th{background:#eef2f7}
+    .approval{border-left:5px solid #b45309;background:#fff7ed;padding:16px;margin:16px 0}.stop{border-left:5px solid #b91c1c;background:#fef2f2;padding:16px;margin:16px 0}.meta{background:#eff6ff;padding:14px;border-left:5px solid #2563eb}.easy{border-left:5px solid #15803d;background:#f0fdf4;padding:16px;margin:16px 0}
+    code{font-family:Consolas,"Courier New",monospace;background:#f1f5f9;padding:1px 4px;overflow-wrap:anywhere} a{color:#0f5db8}
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>P5R2-DELETE-G1 物理削除承認packet</h1>
+  <section class="meta">
+    <p><strong>Packet ID:</strong> P5R2-ART-DELETE-G1-001<br>
+    <strong>対象Step:</strong> P5R2-20 / P5R2-DELETE-G1<br>
+    <strong>作成日:</strong> 2026-08-23<br>
+    <strong>状態:</strong> <strong>APPROVED_BOUNDED_P5R2_21_FIXTURE_ONLY</strong><br>
+    <strong>承認判断者:</strong> 利用者からP5R2-25完了までHuman Gate判断権限を移譲されたroot Codex<br>
+    <strong>次のStep:</strong> 明示承認後だけP5R2-21へ進む。承認前は物理削除を実行しない。</p>
+  </section>
+
+  <section class="approval">
+    <strong>このpacketは、削除機能を実行するものではない。</strong><br>
+    ここで判断するのは、画面から結果表示を削除するときに、どのResultArtifactだけを物理削除してよいかである。Historical Data、Run本体、Export済みCSV、Audit、Evidenceを一緒に消す許可は、このpacketに含めない。
+  </section>
+  <section class="approval"><strong>承認結果：APPROVED_BOUNDED_P5R2_21_FIXTURE_ONLY</strong><br>
+    移譲されたHuman Gate権限に基づき、P5R2-21の実装と、新規一時fixtureだけを使う物理削除受入を承認する。通常のResultArtifact削除契約はこのpacketの制約内で実装してよいが、既存の実Data／Run／CSV／Audit／Evidenceへ物理操作を行ってはならない。P5R2-H2、P6開始、外部Provider利用、Secret、費用は承認しない。</section>
+
+  <h2>1. 利用者の確定方針</h2>
+  <table>
+    <thead><tr><th>確認された方針</th><th>P5R2での契約</th></tr></thead>
+    <tbody>
+      <tr><td>画面に表示したい結果は残す。必要な結果はCSVへExportする。</td><td>画面上の結果を削除する前に、CSVを先にExportする注意を表示する。Export済みCSVはResultArtifact削除の対象外とする。</td></tr>
+      <tr><td>古い結果は基本的に見ず、復元予定もない。</td><td>物理削除後のrestore APIは作らない。削除後はAudit上の<code>RESULT_DELETED</code>記録だけを残す。</td></tr>
+      <tr><td>二重押下はフロントエンドで禁止する。</td><td>UIの押下中無効化に加え、server側でも同じoperation tokenを冪等処理し、別tokenの同時要求もlockで直列化する。</td></tr>
+      <tr><td>削除後に古いBacktest結果が変わってもよい運用を想定する。</td><td>このGateは結果Artifactの削除だけを扱う。Historical Dataのmerge／replaceやRun再実行の扱いは別契約であり、削除に連動させない。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. 承認した範囲</h2>
+  <p>アプリの通常ResultArtifact削除契約を実装し、P5R2-21の物理削除受入は新規に作成した一時fixtureだけで行う。既存の利用者Dataを実際に消す試験は行わない。</p>
+  <table>
+    <thead><tr><th>項目</th><th>承認範囲</th><th>制限</th></tr></thead>
+    <tbody>
+      <tr><td>削除できるもの</td><td>利用者が明示したterminal状態のBacktest結果ResultArtifactディレクトリだけ</td><td><code>artifact_kind=RESULT</code>、Runが<code>SUCCEEDED</code>または明示されたterminal failure、active／recovery中でないこと。</td></tr>
+      <tr><td>論理ID</td><td><code>RESULT-&lt;safe_run_id&gt;</code>のlogical result_artifact_id</td><td>呼出元からpathを受け取らず、台帳／Run IDからサーバーが解決する。別ID、空ID、traversalは拒否する。</td></tr>
+      <tr><td>許可root</td><td>サーバーが設定したBacktest runtimeのResultArtifact root（テスト時は新規fixture root）</td><td>ブラウザ指定rootや任意絶対pathを採用しない。root外は拒否する。</td></tr>
+      <tr><td>物理削除の受入対象</td><td><code>tests/evidence/phase5R2/RUN-P5R2-21-DELETE-LOCAL-001/delete-fixture/</code>配下で新規作成したResultArtifact</td><td>既存Evidence、既存Data、既存Run、既存CSV、既存Auditはfixtureに含めず、削除対象にもできない。</td></tr>
+      <tr><td>確認操作</td><td>UIの明示確認、CSV先行注意、押下中無効化</td><td>確認なし、active Run、Export中、保持指定中は拒否する。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. 削除対象と、絶対に保護するもの</h2>
+  <table>
+    <thead><tr><th>対象</th><th>扱い</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>terminal ResultArtifact</td><td><strong>承認済み（P5R2-21限定）</strong>。対象ディレクトリ内の<code>result.json</code>、<code>result.commit.json</code>など結果表示専用ファイルだけを削除する。</td><td>利用者が結果画面から削除したい対象だから。</td></tr>
+      <tr><td>Export済みCSV</td><td><strong>常に保護</strong>。CSV Job、Export先、利用者が指定したCSVはcascade削除しない。</td><td>利用者が保存しておくと決めた成果物だから。</td></tr>
+      <tr><td>Historical Data / Catalog</td><td><strong>常に保護</strong>。source、derived、Catalog current、staging、quality情報を削除しない。</td><td>他のRunや再計算に共有される入力Dataだから。</td></tr>
+      <tr><td>Run本体・Run manifest</td><td><strong>常に保護</strong>。Runの一覧、設定、状態、cancel記録を削除しない。</td><td>後から何を実行したかを確認する台帳だから。</td></tr>
+      <tr><td>Audit</td><td><strong>常に保護</strong>。削除成功・失敗・拒否・操作IDを残す。</td><td>誰がいつ削除を要求したかを確認できるようにするため。</td></tr>
+      <tr><td>Evidence / screenshot / quality receipt</td><td><strong>常に保護</strong>。P5R2のEvidence rootを削除対象rootにしない。</td><td>品質確認の証拠を消すと、合否を再確認できなくなるため。</td></tr>
+      <tr><td>保持選択中・Export中・active／RECOVERY_REQUIRED</td><td><strong>拒否</strong>。ResultArtifactも削除しない。</td><td>処理途中や復旧中のデータを壊さないため。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. サーバー側の物理対象解決</h2>
+  <p>削除APIは、ブラウザからファイル名やpathを受け取らない。次の順でサーバーが対象を解決し、1つでも不一致があればfail-closedで停止する。</p>
+  <ol>
+    <li><code>logical_result_artifact_id</code>、<code>operation_token</code>、<code>request_id</code>、明示確認を受け取る。</li>
+    <li>logical IDからRun／Artifact台帳を解決し、Artifact種別、Run状態、CSV状態、保持選択、削除済み状態を確認する。</li>
+    <li>台帳のRun IDから、サーバー設定の固定root配下にあるcanonical pathを組み立てる。呼出元指定の<code>path</code>、<code>absolute_path</code>、<code>target_path</code>は受け付けない。</li>
+    <li>root自身、すべての親ディレクトリ、対象ディレクトリ、配下ファイルについてsymlink／Windows reparse pointを検査する。検査不能なら削除しない。</li>
+    <li><code>..</code>、root外、任意absolute path、別Run、ID不一致、active Run、TOCTOU（検査後の対象差替え）を拒否する。</li>
+    <li>検査を通過したときだけ<code>DELETE_PENDING</code>をAuditへ記録し、サーバー側lock下で対象の同一性を再確認してから物理削除する。</li>
+  </ol>
+  <p>Windowsではjunctionやreparse pointを通常のフォルダとして扱わない。Linux／WSLでもsymlinkを実体とみなさない。削除のために管理用hash、manifest hash、fingerprint、stale判定を新設しない。</p>
+
+  <h2>5. 状態、失敗、再起動、同時要求</h2>
+  <table>
+    <thead><tr><th>状態</th><th>意味</th><th>次の扱い</th></tr></thead>
+    <tbody>
+      <tr><td><code>DELETE_PENDING</code></td><td>対象と保護境界の確認を終え、削除直前である。</td><td>UIは押下中無効。再起動後にpendingだけ残った場合は自動で再削除せず、<code>DELETE_FAILED</code>または要確認として停止する。</td></tr>
+      <tr><td><code>RESULT_DELETED</code></td><td>ResultArtifactだけの物理削除が完了した。</td><td>結果画面から非表示にし、Audit／tombstoneを残す。restore APIは提供しない。同じ要求の再送は成功済みとして冪等に返す。</td></tr>
+      <tr><td><code>DELETE_FAILED</code></td><td>対象の一部または全部を削除できなかった。</td><td>cascadeを続けず、保護対象を変更しない。原因と対象をAuditへ残し、再試行は新しい明示操作として安全確認からやり直す。</td></tr>
+      <tr><td>同一operation token</td><td>二重押下または同じ要求の再送。</td><td>最初の結果を返し、二度目の物理操作をしない。</td></tr>
+      <tr><td>別operation tokenの同時要求</td><td>別tabや二重操作。</td><td>server lockで直列化し、先に削除済みなら後続は物理操作をせず既存tombstoneを返す。</td></tr>
+    </tbody>
+  </table>
+  <div class="stop"><strong>停止条件：</strong>部分削除、対象差替え、path検査不能、root不一致、Audit保存失敗、保護対象混在、active／recovery状態、CSV Export中、承認範囲外の実Dataが検出された場合は、そこで停止する。別のファイルへ広げたり、復元処理を自動開始したりしない。</div>
+
+  <h2>6. P5R2-21で実際に行ってよいこと</h2>
+  <table>
+    <thead><tr><th>区分</th><th>許可</th><th>禁止</th></tr></thead>
+    <tbody>
+      <tr><td>実装</td><td>ResultArtifactのlogical ID解決、path safety、lock、二重押下防止、状態遷移、Audit／tombstone、物理削除コード。</td><td>Historical Data、Run、CSV、Audit、Evidenceを削除するコード。restore API。任意path削除。</td></tr>
+      <tr><td>テスト</td><td>新規一時fixtureのResultArtifactを作成し、terminal成功、二重要求、active拒否、CSV／Data／Audit／Evidence保護、symlink／reparse／traversal／ID不一致／TOCTOU拒否、失敗・再起動を検証する。</td><td>既存の<code>tests/evidence</code>、Eドライブ通常Data、実Run、利用者CSVを削除すること。既存fixtureの破壊的テスト。</td></tr>
+      <tr><td>UI</td><td>結果画面でCSV先行注意、明示確認、押下中無効、成功／失敗／削除済み表示を接続する。</td><td>確認なしの削除、active Runの削除、Downloadや外部Provider呼出しの追加。</td></tr>
+      <tr><td>外部I/O</td><td>なし。local loopbackと一時fixtureのみ。</td><td>Provider login、API call、Data download、Secret、費用、外部通信。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. Unknownと残る境界</h2>
+  <table>
+    <thead><tr><th>ID／事項</th><th>このpacketで確定すること</th><th>確定しないこと</th></tr></thead>
+    <tbody>
+      <tr><td><code>P5R2-UNK-RUN-002</code></td><td>DELETE-G1前はguardだけ。承認後はResultArtifactだけを対象にする。</td><td>アプリ運用中の既存結果を一括削除すること、保持期間purge、Trash、復元は対象外。</td></tr>
+      <tr><td><code>P5R2-UNK-HD-003</code></td><td>Historical Dataは結果画面削除から分離し、物理削除しない。</td><td>Historical Dataのretention／purge方針。</td></tr>
+      <tr><td><code>P5R2-UNK-QG-003</code></td><td>外部Runのhost isolation未確認は継続。P5R2-21はlocalだけで実施する。</td><td>外部Provider受入の可否、外部Dataの扱い。</td></tr>
+      <tr><td>利用者のCSV保存場所</td><td>Export済みCSVをcascade削除しない。</td><td>利用者がOS上で別途行うCSV整理の範囲。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>8. 運用者向けのやさしい説明</h2>
+  <div class="easy">
+    <p>結果画面の「削除」は、計算に使った材料を全部消す操作ではありません。画面に出ている計算結果のファイルだけを消します。</p>
+    <p>消す前に、必要ならCSVへ保存します。保存したCSV、元のHistorical Data、実行記録、監査記録、品質確認の証拠は残します。</p>
+    <p>実行中や復旧中のものは消せません。削除ボタンを連続で押しても、サーバーが二回消さないようにします。削除後に元へ戻す機能はありません。</p>
+    <p>このpacketの承認後も、本番で既に存在するDataを使って削除試験はしません。まず新しく作った練習用の一時ファイルだけで、安全確認をします。</p>
+  </div>
+
+  <h2>9. 承認判断欄</h2>
+  <table>
+    <thead><tr><th>判断項目</th><th>現在状態</th></tr></thead>
+    <tbody>
+      <tr><td>terminal ResultArtifactだけを物理削除する設計</td><td><code>APPROVED_BOUNDED_P5R2_21_FIXTURE_ONLY</code></td></tr>
+      <tr><td>Historical Data、Run、Export済みCSV、Audit、Evidenceを保護する設計</td><td>承認済み。cascade削除を禁止する。</td></tr>
+      <tr><td>P5R2-21の物理削除受入</td><td>承認済み。新規一時fixtureだけを対象にする。</td></tr>
+      <tr><td>外部Provider、Secret、費用、外部Data</td><td>承認対象外</td></tr>
+      <tr><td>P6開始、P5R2-H2</td><td>承認対象外。別Gateが必要</td></tr>
+    </tbody>
+  </table>
+  <p><strong>承認文：</strong>「P5R2-DELETE-G1を承認します。承認packetに記載したterminal ResultArtifactだけを対象に、CSV・Historical Data・Run本体・Audit・Evidenceを保護して、P5R2-21の物理削除実装と新規一時fixtureによる受入を実行してください。P6開始とH2承認は含めません。」</p>
+
+  <h2>10. 追跡と証拠</h2>
+  <ul>
+    <li><a href="../../requirements/01_自動トレードシステム要件定義書_v4.html">AT-REQ-004 v4</a>（Run操作／ResultArtifact要件）</li>
+    <li><a href="../04_実装詳細設計/03_P5R2Run操作・ResultArtifact設計書.html">P5R2 ResultArtifact詳細設計</a></li>
+    <li><a href="../../../plan/phase5R2/ログ/P5R2-15_Run取消・ResultArtifact削除guard実装_2026-08-23.md">P5R2-15 guard実装ログ</a></li>
+    <li><a href="../../../tests/evidence/phase5R2/RUN-P5R2-15-LOCAL-001/P5R2-15_GREEN.json">P5R2-15 GREEN Evidence</a></li>
+    <li><a href="../../../plan/phase5R2/ログ/P5R2-19_Web製品UI・a11y・visual・E2E_2026-08-23.md">P5R2-19 UI検証ログ</a></li>
+    <li><a href="../../../tests/evidence/phase5R2/RUN-P5R2-19-LOCAL-001/P5R2-19_ui/verification.md">P5R2-19 UI verification</a></li>
+    <li><a href="../../../plan/Phase5R2_実行計画書_v0.2_2026-08-22.md">P5R2実行計画v0.2</a></li>
+    <li><a href="../../../plan/phase5R2/ログ/P5R2-HumanGate権限移譲_2026-08-22.md">Human Gate権限移譲記録</a></li>
+  </ul>
+  <p class="small">このpacket作成時点では、unlink、Remove-Item、shutil.rmtree、既存Artifactの物理削除、P6実装を実行していない。</p>
+</main>
+</body>
+</html>
