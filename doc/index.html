@@ -289,16 +289,19 @@
     <li><a href="../plan/Phase5_実行計画書_v0.1_2026-08-12.md">Phase5実行計画Markdown（P5-PLAN-001）</a> / <a href="../plan/phase5/ログ/P5-PLAN-001_計画作成・起動契約検証_2026-08-12.md">計画作成・起動契約検証ログ</a></li>
   </ul>
   <h2>Phase 5R / Phase 5R2 — Backtest製品完全化・要件是正</h2>
-    <p class="muted">P5Rの限定Scope完了は履歴として保持する。P5R2-04で、利用者選択時間足15m／30m／1h／4h／1d、1m内部source、UI Historical Data取得・使用可能Data一覧、実行一覧・進捗／結果サマリーの取消・表示非表示、既存バックテスト手順書v0.5の改訂について、v4 candidateと候補追跡を作成した。P5R2-05は指定Coordinatorのnested dispatch結果を取得できず、direct fallbackのadvisory findingsにHighが残ったため、正式独立レビュー未成立・P5R2-06停止・P5R2-HREQ未承認・P6保留中である。</p>
+    <p class="muted">P5Rの限定Scope完了は履歴として保持する。P5R2-04で、利用者選択時間足15m／30m／1h／4h／1d、1m内部source、UI Historical Data取得・使用可能Data一覧、実行一覧・進捗／結果サマリーの取消・結果Artifact削除、既存バックテスト手順書v0.5の改訂について、v4 candidateと候補追跡を作成した。P5R2-06でP5R2-05の15件のadvisory findingとユーザー最新回答をcandidate、ART-03、ART-04、HREQ packetへ統合した。旧A90 High 6件は履歴として保持し、現在は改訂後A90でCritical／High=0を確認済み、HREQ未承認・v4未公開・P6保留中である。</p>
   <ul>
-    <li><a href="../plan/Phase5R2_実行計画書_v0.1_2026-08-21.md">Phase5R2 実行計画書</a> <span class="muted">（P5R2-05 REVIEW_RUNTIME_BLOCKED／formal independent review未成立／High Findingあり／P5R2-06・HREQ・P6停止）</span></li>
+    <li><a href="../plan/Phase5R2_実行計画書_v0.1_2026-08-21.md">Phase5R2 実行計画書</a> <span class="muted">（P5R2-06 改訂統合・技術レビュー済み／HREQ人判断待ち／v4未公開／P6停止）</span></li>
     <li><a href="../plan/phase5R2/ログ/P5R2-05_要件candidate独立レビュー_2026-08-22.md">P5R2-05 review結果</a> <span class="muted">（direct fallback advisory／independent=false／High 9件・Medium 6件）</span></li>
     <li><a href="../plan/phase5R2/ログ/runtime-receipt-P5R2-05.md">P5R2-05 runtime receipt</a> <span class="muted">（Coordinator nested dispatch未成立／指定Agent direct fallbackの受領記録）</span></li>
-    <li><a href="../plan/phase5R2/requirements/drafts/01_自動トレードシステム要件定義書_v4_candidate.md">P5R2 v4 candidate（Markdown）</a> <span class="muted">（CANDIDATE / NOT_CURRENT。HREQ未承認のため現行正本ではない）</span></li>
+    <li><a href="../plan/phase5R2/ログ/P5R2-06_レビュー統合・HREQ承認packet_2026-08-22.md">P5R2-06 review finding統合ログ</a> <span class="muted">（F-001〜F-015採否、ユーザー最新回答、A90 Critical／High=0確認済み、HREQ packet人判断待ち）</span></li>
+    <li><a href="../plan/phase5R2/ログ/runtime-receipt-P5R2-06.md">P5R2-06 runtime receipt</a> <span class="muted">（Coordinator／direct fallback／A90・A95再レビューの実行事実）</span></li>
+    <li><a href="../plan/phase5R2/requirements/drafts/01_自動トレードシステム要件定義書_v4_candidate.md">P5R2 v4 candidate（Markdown）</a> <span class="muted">（CANDIDATE / NOT_CURRENT / 技術レビュー済み。HREQ未承認のため現行正本ではない）</span></li>
     <li><a href="./phase5R2/01_要件追跡/01_P5R2現状差分・根因・要求追跡.html">P5R2-ART-01 現状差分・根因・要求追跡</a> <span class="muted">（P5R2-04完了／候補文書への追跡を追加／HREQ未承認）</span></li>
     <li><a href="./phase5R2/01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html">P5R2-ART-02 ヒアリング回答・決定台帳</a> <span class="muted">（Round 1〜4回答をP5R2-04 candidateへ反映／HREQ未承認）</span></li>
     <li><a href="./phase5R2/02_要件候補/03_P5R2候補Requirement・Acceptance・追跡表.html">P5R2-ART-03 候補Requirement・Acceptance・追跡表</a> <span class="muted">（CANDIDATE / NOT_CURRENT。REQ→AC→UI/API/Persistence/Test/Evidence/Manual）</span></li>
-    <li><a href="./phase5R2/02_要件候補/04_バックテスト手順書改訂要件.html">P5R2-ART-04 バックテスト手順書改訂要件</a> <span class="muted">（CANDIDATE / NOT_CURRENT。Manual本体は未変更）</span></li>
+    <li><a href="./phase5R2/02_要件候補/04_バックテスト手順書改訂要件.html">P5R2-ART-04 バックテスト手順書改訂要件</a> <span class="muted">（CANDIDATE / NOT_CURRENT。P5R2-06統合候補、Manual本体は未変更）</span></li>
+    <li><a href="./phase5R2/03_HREQ/05_P5R2-HREQ承認packet.html">P5R2-HREQ承認packet</a> <span class="muted">（P5R2-06候補／UNAPPROVED／A90・A95レビュー済み・人の明示承認待ち）</span></li>
     <li><a href="../plan/Phase5R_実行計画書_v0.1_2026-08-16.md">Phase5R 実行計画書</a> <span class="muted">（P5R-PLAN-001 / 全Prompt実行済み / COMPLETE_WITH_OPEN_UNKNOWN）</span></li>
     <li><a href="./phase5R/02_実装詳細設計/01_P5R実装詳細設計書.html">P5R実装詳細設計書</a> / <a href="./phase5R/02_実装詳細設計/02_P5R品質Gate_RunManifest設計書.html">P5R品質Gate・Run Manifest設計書</a> / <a href="./phase5R/07_運用手順/00_バックテスト操作手順書作成ルール.html">バックテスト操作手順書作成ルール</a> / <a href="./phase5R/07_運用手順/01_バックテスト手順書.html">初心者向けバックテスト手順書（v0.5）</a></li>
     <li><a href="./phase5R/02_実装詳細設計/03_再起動後バックテスト履歴復元実装詳細設計書.html">再起動後バックテスト履歴復元・実装詳細設計書</a> / <a href="../plan/Phase5R_再起動後バックテスト履歴復元_実行計画書_v0.1_2026-08-16.md">履歴復元実行計画書</a> <span class="muted">（実装・テスト完了、Open scopeあり）</span></li>

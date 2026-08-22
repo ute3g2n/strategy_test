@@ -1,0 +1,169 @@
+{
+  "step_id": "P5R2-06",
+  "run_date": "2026-08-22",
+  "coordinator": {
+    "name": "AutoTradeProject_DesignDocSet_Orchestrator_v0_1",
+    "model": "gpt-5.6-terra",
+    "agent_id": "01a02896-9ce5-7d82-ac6a-86194d31b867",
+    "status": "TIMEOUT_CLOSED",
+    "nested_dispatch": "NOT_ESTABLISHED"
+  },
+  "agents": [
+    {
+      "name": "AutoTrade_A10_RequirementsCurator_v0_1",
+      "model": "gpt-5.6-luna",
+      "agent_id": "01a02898-dfdb-7c22-be74-3468f79e088a",
+      "status": "COMPLETED",
+      "dispatch": "DIRECT_FALLBACK",
+      "independent": false,
+      "review_mode": "ADVISORY_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A80_DocumentIntegrator_v0_1",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "low",
+      "agent_id": "01a02898-e11a-7711-a3a0-4ec2e2c1bb2a",
+      "status": "COMPLETED",
+      "dispatch": "DIRECT_FALLBACK",
+      "independent": false,
+      "review_mode": "ADVISORY_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A81_DesignDocSetWriter_v0_1",
+      "model": "gpt-5.6-luna",
+      "agent_id": "01a0289a-2541-7531-bc1f-56c5415bf761",
+      "status": "COMPLETED",
+      "dispatch": "DIRECT_FALLBACK",
+      "independent": false,
+      "review_mode": "ADVISORY_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A90_DesignReviewer_v0_1",
+      "model": "gpt-5.6-luna",
+      "agent_id": "01a028a7-bdcc-75d0-a8ff-aa5bec50e3bd",
+      "status": "COMPLETED",
+      "dispatch": "DIRECT_FALLBACK_AFTER_INTEGRATION",
+      "independent": false,
+      "review_mode": "ADVISORY_FALLBACK",
+      "critical": 0,
+      "high": 6,
+      "medium": "6相当",
+      "hreq_approval": "BLOCKED"
+    },
+    {
+      "name": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "low",
+      "agent_id": "01a028a7-bec2-7c62-938e-11000ddae597",
+      "status": "COMPLETED",
+      "dispatch": "DIRECT_FALLBACK_AFTER_INTEGRATION",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK",
+      "decision": "NEEDS_HUMAN_GATE",
+      "management_hash_flow": "NOT_INTRODUCED"
+    }
+  ],
+  "runtime_contract": {
+    "independent": false,
+    "review_mode": "ADVISORY_FALLBACK",
+    "coordinator_nested_dispatch": "NOT_ESTABLISHED",
+    "unstarted_as_completed": false
+  },
+  "decision": "P5R2-06_REVIEWED_ADVISORY",
+  "acceptance": {
+    "critical_high_zero": true,
+    "hreq_blocking_unknown_zero": true,
+    "hreq_approved": false,
+    "v4_published": false,
+    "implementation_started": false,
+    "test_subprocess_started": false,
+    "playwright_started": false,
+    "external_data_io": false,
+    "physical_delete": false,
+    "p6_started": false
+  },
+  "blocked_findings": [],
+  "human_gate_unknowns": ["P5R2-DATA-G1", "P5R2-DELETE-G1"],
+  "human_gate_approvals": ["P5R2-UNK-HD-004:USER_APPROVED_LIMITED/NO_HASH_FLOW"],
+  "user_revision": {
+    "F-001": "ADOPT_RECOMMENDED",
+    "F-002": "USER_ALLOWS_MERGE_REPLACE_AND_DELETES_OLD_RUN_RESULTS",
+    "F-003": "USER_ALLOWS_DELETE_OF_UNNEEDED_RESULT_ARTIFACTS_BUT_PROTECTS_EXPORTED_CSV",
+    "F-004": "FRONTEND_DOUBLE_CLICK_PREVENTION_PLUS_MINIMAL_SERVER_STATE_GUARD_PROPOSED",
+    "F-006": "ADOPT_RECOMMENDED",
+    "F-007": "USER_REQUIRES_PHYSICAL_DELETE_WITH_EXPORTED_CSV_PROTECTION_AND_NO_RESTORE"
+  },
+  "artifacts": [
+    "doc/phase5R2/03_HREQ/05_P5R2-HREQ承認packet.html",
+    "plan/phase5R2/requirements/drafts/01_自動トレードシステム要件定義書_v4_candidate.md",
+    "doc/phase5R2/01_要件追跡/01_P5R2現状差分・根因・要求追跡.html",
+    "doc/phase5R2/01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html",
+    "doc/phase5R2/02_要件候補/03_P5R2候補Requirement・Acceptance・追跡表.html",
+    "doc/phase5R2/02_要件候補/04_バックテスト手順書改訂要件.html",
+    "doc/00_全Phase残課題Blocked統合台帳.html",
+    "doc/index.html",
+    "plan/Phase5R2_実行計画書_v0.1_2026-08-21.md"
+  ],
+  "prohibited_actions": [
+    "source_implementation",
+    "test_subprocess",
+    "playwright",
+    "external_data_download",
+    "provider_login",
+    "provider_api_call",
+    "secret",
+    "cost",
+    "physical_delete",
+    "p6_start",
+    "management_hash_flow"
+  ],
+  "current_state": "P5R2-06_REVIEWED_ADVISORY / P5R2-HREQ_UNAPPROVED / P6_PAUSED",
+  "latest_reviews": {
+    "A90": {
+      "name": "AutoTrade_A90_DesignReviewer_v0_1",
+      "model": "gpt-5.6-luna",
+      "agent_id": "01a028f3-4c1a-7043-866b-742a4b71a3fc",
+      "status": "COMPLETED",
+      "dispatch": "DIRECT_FALLBACK",
+      "independent": false,
+      "review_mode": "ADVISORY_FALLBACK",
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "findings": {
+        "F-001": "CLOSED_WITH_LATER_GATE",
+        "F-002": "CLOSED",
+        "F-003": "CLOSED",
+        "F-004": "CLOSED",
+        "F-006": "CLOSED",
+        "F-007": "CLOSED_WITH_H1_NOTE"
+      },
+      "remaining": [
+        "P5R2-UNK-TF-004:CANDIDATE_SPECIFIED/LATER_GATE",
+        "F-007:descriptor/no-follow相当のatomic identity拘束をH1で具体化"
+      ]
+    },
+    "A95": {
+      "name": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "low",
+      "agent_id": "01a028f3-4d0b-7ff3-88ed-14e29b88f154",
+      "status": "COMPLETED",
+      "dispatch": "DIRECT_FALLBACK",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK",
+      "decision": "ALLOW",
+      "management_hash_flow": "NOT_INTRODUCED",
+      "future_protected_hash": "NEEDS_HUMAN_GATE",
+      "reintroduction": "BLOCK"
+    }
+  },
+  "current_boundary": {
+    "hreq": "UNAPPROVED",
+    "data_gate": "P5R2-DATA-G1 UNAPPROVED",
+    "delete_gate": "P5R2-DELETE-G1 UNAPPROVED",
+    "later_gates": ["P5R2-UNK-TF-004", "P5R2-UNK-TF-006"],
+    "no_implementation_or_io": true
+  }
+}

@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-001`
 > Version: `v0.1`
 > 作成日: `2026-08-21`
-> 状態: `PLAN_CREATED / P5R2-H0_APPROVED / P5R2-01_COMPLETE / P5R2-02_ROUND1_COMPLETE / P5R2-03_COMPLETE / P5R2-04_COMPLETE / P5R2-05_REVIEW_RUNTIME_BLOCKED / P5R2-05_FORMAL_INDEPENDENT_REVIEW_NOT_ESTABLISHED / P5R2-06_BLOCKED / P5R2-HREQ_UNAPPROVED / P6_PAUSED`
+> 状態: `PLAN_CREATED / P5R2-H0_APPROVED / P5R2-01_COMPLETE / P5R2-02_ROUND1_COMPLETE / P5R2-03_COMPLETE / P5R2-04_COMPLETE / P5R2-05_REVIEWED_ADVISORY / P5R2-05_FORMAL_INDEPENDENT_REVIEW_NOT_ESTABLISHED / P5R2-06_REVIEWED_ADVISORY / P5R2-HREQ_UNAPPROVED / P6_PAUSED`
 > 現在の対象: 要件ヒアリング、要件候補の改訂、要件承認、承認後の実行計画再編まで
 > 現在の非対象: P5R2本実装、外部Data取得、Secret投入、費用発生、実Data削除、P6開始
 
@@ -87,7 +87,7 @@ P6へ進む前に、P5R2を独立Phaseとして新設する。P5R2は、P5Rの�
 
 P6は、ユーザーがP5R2をP6前に置くと指定したため、`P5R2-H2`まで開始しない。旧P5R-H2をP5R2のGateへ読み替えない。
 
-## 6. 初期Unknown台帳
+## 6. 初期Unknown台帳（P5R2-02時点の履歴）
 
 | Unknown ID | 決めること | 解消Step | 未解消時の停止範囲 |
 |---|---|---|---|
@@ -732,7 +732,7 @@ P5R2-03は、root-direct fallbackによるread-only設計・要件・red-teamレ
 
 - `P5R2-DATA-G1`：実Provider host、実symbol範囲、期間・容量・費用上限、通信、Secret、実download。
 - `P5R2-DELETE-G1`：実Data／実Runの削除対象、保持期間、purge可否、復元運用。test evidenceとaudit tombstoneは削除対象にしない。
-- `P5R2-UNK-HD-004`：Provider配布物の整合確認に保護対象hashを使う要否。用途・直接因果・失敗時停止範囲が未確定のため `NEEDS_HUMAN_GATE`。
+- `P5R2-UNK-HD-004`：ユーザーの限定承認を受領し、現在は `USER_APPROVED_LIMITED / NO_HASH_FLOW`。管理用hash経路は追加せず、将来の実hash採用は目的・対象・比較時点・不一致時fail-closed範囲・再取得条件の明文化まで保留する。
 
 Round 2提示時点では、回答が揃うまでP5R2-03は `P5R2-03_ROUND2_WAITING_USER` とした。現在はRound 3 receiptと質問packetを正本とする。
 
@@ -826,3 +826,37 @@ P5R2-05のCoordinator `AutoTradeProject_DesignDocSet_Orchestrator_v0_1` は起�
 レビューではHigh Finding 9件、Medium Finding 6件を統合した。欠損補間の使用可能条件、期間マージ境界、Run／結果／CSV等の依存状態表、冪等性・競合、Provider通信境界、Job途中失敗・孤児Data、削除path防御、HREQ再開条件の矛盾、8件crosswalkの一意性が未閉鎖である。`P5R2-UNK-TF-006`、`P5R2-UNK-HD-004`も未解消のまま保持する。詳細は `plan/phase5R2/ログ/P5R2-05_要件candidate独立レビュー_2026-08-22.md` とruntime receiptへ追跡する。
 
 したがって、`P5R2-06`、HREQ承認packet、正式v4公開、実装、Test subprocess、Playwright、外部Data取得、Provider login／API call、Secret、費用、実削除、P6開始は停止する。P5R2-06は、独立レビューruntimeが成立し、High Findingが閉鎖されるまで開始しない。
+
+### 17.12 P5R2-06 review finding統合・HREQ packet準備（2026-08-22）
+
+P5R2-06のCoordinator `AutoTradeProject_DesignDocSet_Orchestrator_v0_1` は起動したが、nested dispatch結果を返さずtimeout後に終了した。指定AgentのうちA10、A80、A81、A95はdirect fallbackとして個別起動・waitし、advisory出力を受領した。未起動を独立実行済みとは扱わず、`independent=false`、`review_mode=ADVISORY_FALLBACK`、Coordinator nested dispatch未成立をruntime receiptへ記録する。A90は統合後のcandidateを再レビューするため、統合時点では未完了である。
+
+P5R2-05-F-001〜F-015について、ADOPT／PARTIAL／NEEDS_HUMAN_GATEと理由、変更先、残るGateをcandidate、P5R2-ART-03、P5R2-ART-04、HREQ packet候補へ統合した。`P5R2-REQ-TF-003`のcrosswalk重複はCREQ-TF-003へ限定し、期間マージ、Run依存、冪等性、Job復旧、生成画面遷移、Manual fidelity、監査項目を候補へ追加した。F-005はDATA-G1、F-007はDELETE-G1、F-015は`P5R2-UNK-HD-004`のHuman Gateへ送り、用途不明の管理hash経路は導入していない。
+
+成果物は、候補v4、ART-01〜04、[HREQ承認packet](../doc/phase5R2/03_HREQ/05_P5R2-HREQ承認packet.html)、P5R2-06ログ、runtime receipt、統合台帳、`doc/index.html`である。HREQ packetはA90/A95再レビュー前の`P5R2-06_INTEGRATION_PENDING_A90 / UNAPPROVED / NOT_CURRENT`であり、HREQを自動承認しない。v3を現行正本、P5R旧完了を履歴、P6を停止のまま維持する。
+
+P5R2-06の統合時点で、正式v4公開、P5R2-06A、P5R2-07の実装計画確定、H1、ソース実装、RED／GREEN、test subprocess、Playwright、外部Data取得、Provider login／契約／API call／Data download、Secret、費用、実削除、P6開始は停止する。A90再レビューでCritical／High=0、A95の静的ポリシー判定、HREQ-blocking Unknownの分類、candidate／packet／台帳の同期が揃うまで、ユーザーへHREQ承認可否の確定依頼を出さない。
+
+### 17.13 P5R2-06 A90／A95再レビュー受領・High OPEN（旧判定履歴）（2026-08-22）
+
+A90 `AutoTrade_A90_DesignReviewer_v0_1` の再レビューを受領した。判定はCritical 0、High 6（`A90-P5R2-06-F-001` 補間条件、`-F-002` 期間merge不変性、`-F-003` Run依存マトリクス、`-F-004` 冪等性・競合、`-F-006` Job復旧・孤児Data、`-F-007` 削除path安全）、Medium 6相当であり、High=0は成立しなかった。F-008はruntime停止条件の整合、F-009はTF-003 crosswalk重複解消としてClosed、F-015はHuman Gate継続とされた。A90の各事故シナリオ、必要修正、閉鎖条件をcandidate §8.2、ART-03 §7、ART-04 §7、HREQ packet §11へ反映した。
+
+A95 `AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1` の静的判定は `NEEDS_HUMAN_GATE`。管理用hash、checksum、manifest、fingerprint、stale、hash retry、hash receiptの経路は未計算・未生成・未保存・未比較・未要求である。`P5R2-UNK-HD-004`の保護対象hashについて、目的・対象・比較時点・不一致時停止範囲を人が明示するまで、新規hash経路を作成しない。A90/A95は指定Agentのdirect fallbackとして受領し、Coordinator nested dispatch未成立、`independent=false`、`review_mode`の制約をreceiptへ保持する。
+
+旧判定として、P5R2-06はユーザー最新回答をcandidateへ反映した時点で `P5R2-06_REVISION_INTEGRATION_PENDING_A90` と判定していた。旧A90の `BLOCKED_HIGH_OPEN` は履歴として保持する。HREQ packetは `UNAPPROVED / NOT_CURRENT` のままであり、P5R2-HREQの承認依頼、v4正式化、P5R2-06A、P5R2-07の確定、H1、実装、Test subprocess、Playwright、外部Data、Provider login／契約／API call／Data download、Secret、費用、実削除、P6開始へ進まない。再開には、最新回答を反映したHigh 6件の改訂契約をA90が再レビューし、High=0、HREQ-blocking UnknownをHuman Gate／Later Gateへ分類、candidate・packet・台帳を同期することが必要である。
+
+### 17.14 ユーザー最新回答によるHigh 6件改訂・A90再レビュー待ち（履歴）（2026-08-22）
+
+ユーザーは、F-001とF-006の推奨案採用、F-002の利用者開始merge／replaceと旧Run結果削除・再実行、F-003の保持結果とExport済みCSVを保護した不要result Artifact削除、F-004のフロント二重押下禁止、F-007の復元なし物理削除を明示した。これをcandidate §8.4、ART-03、ART-04、HREQ packetへ反映した。旧A90 High 6件の判定は無効化せず履歴として保持し、現行判定とは分離する。
+
+改訂後の候補には、F-001の内部欠損1本・直前Close・Volume 0・provenance、F-002の半開区間・完全一致dedupe・conflict preview・atomic merge、F-003の3画面×8状態マトリクス、F-004のUI in-flight disableと最小Server state guard、F-006のstaging／検査／promotion／rollback／orphan／RECOVERY_REQUIRED、F-007の論理ID・許可root・symlink／traversal拒否・CSV／監査保護を、Requirement／Acceptance／API／Persistence／Negative Test／Manual候補の同一追跡で記録した。
+
+`P5R2-UNK-HD-004`については、ユーザーの限定承認を `USER_APPROVED_LIMITED / NO_HASH_FLOW` として記録した。管理用hash、manifest、checksum、fingerprint、stale、hash retry、hash receiptは作成せず、実hash採用・外部I/O・Secret・費用を許可しない。A90再レビューとA95再確認が完了するまで、HREQ、H1、DATA-G1、DELETE-G1、実装、Test、実削除、P6を停止する。
+
+### 17.15 P5R2-06改訂後レビュー完了・HREQ人判断待ち（2026-08-22）
+
+改訂後のA90 read-only再レビューを受領した。runtimeはCoordinator nested dispatch未成立のdirect fallbackであり、`independent=false`、`review_mode=ADVISORY_FALLBACK`を維持する。判定はCritical `0`、High `0`、Medium `0`、Low `0`。F-001は`CLOSED_WITH_LATER_GATE`、F-002〜F-004とF-006は`CLOSED`、F-007は`CLOSED_WITH_H1_NOTE`である。F-001の補間上限は`P5R2-UNK-TF-004`のLater Gate、F-007のdescriptor／no-follow相当のatomic identity拘束はH1で具体化する。
+
+A95の再確認は`ALLOW`であり、`P5R2-UNK-HD-004`は`USER_APPROVED_LIMITED / NO_HASH_FLOW`を維持する。管理用hash、manifest、checksum、fingerprint、stale、hash retry、hash receiptは追加しない。将来の保護対象hash採用は別Human Gate、管理hash経路の再導入はBLOCKである。
+
+現在状態は `P5R2-06_REVIEWED_ADVISORY / P5R2-HREQ_UNAPPROVED / P6_PAUSED`。HREQは自動承認せず、ユーザーの明示判断を待つ。`P5R2-UNK-TF-006`、`P5R2-DATA-G1`、`P5R2-DELETE-G1`、H1、H2は未承認・Later Gateとして残るため、v4正式公開、P5R2-06A／P5R2-07の実装計画確定、ソース実装、Test subprocess、Playwright、外部Data取得、Provider login／契約／API call／Data download、Secret、費用、実削除、P6開始は停止する。
