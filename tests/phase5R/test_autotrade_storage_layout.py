@@ -10,6 +10,7 @@ from autotrade.application.storage_paths import (
     BACKTEST_RESULT_ROOT,
     HISTORICAL_DATA_ROOT,
     StoragePathError,
+    filesystem_storage_path,
     validate_local_storage_path,
     validate_storage_path,
 )
@@ -29,7 +30,8 @@ def test_default_storage_layout_is_on_e_drive_and_application_scoped() -> None:
         if os.name == "nt":
             assert path.drive.upper() == "E:", path
         else:
-            assert path.parts[:2] == ("E:\\", "strategy_test_data"), path
+            filesystem_path = filesystem_storage_path(path)
+            assert filesystem_path.as_posix().startswith("/mnt/e/"), filesystem_path
         assert "temp" not in normalized
         assert "phase5r" not in normalized
         assert "autotrade" in normalized

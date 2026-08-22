@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import threading
 import time
 from datetime import UTC, datetime, timedelta
@@ -257,7 +258,11 @@ def test_corrupt_and_mismatched_history_are_reported_without_hiding_other_runs(t
 def test_catalog_path_is_application_scoped_and_never_phase_named() -> None:
     catalog_root = getattr(storage_paths, "BACKTEST_CATALOG_ROOT", None)
     assert catalog_root is not None
-    assert catalog_root.drive.upper() == "E:"
+    filesystem_catalog_root = storage_paths.filesystem_storage_path(catalog_root)
+    if os.name == "nt":
+        assert catalog_root.drive.upper() == "E:"
+    else:
+        assert filesystem_catalog_root.as_posix().startswith("/mnt/e/")
     assert "phase5r" not in str(catalog_root).casefold()
     assert "temp" not in {part.casefold() for part in catalog_root.parts}
 
