@@ -14,6 +14,7 @@ MANUAL = ROOT / "doc/phase5R/07_運用手順/01_バックテスト手順書.html
 RULES = ROOT / "doc/phase5R/07_運用手順/00_バックテスト操作手順書作成ルール.html"
 INDEX = ROOT / "doc/index.html"
 MANUAL_FEATURE_COUNT = 17
+P5R2_MANUAL_IMAGE_COUNT = 8
 
 
 def _read(path: Path) -> str:
@@ -58,13 +59,15 @@ def test_each_procedure_has_beginner_template_and_back_link() -> None:
 def test_manual_images_have_alt_caption_and_existing_files() -> None:
     html = _read(MANUAL)
     image_matches = re.findall(r'<img\s+src="([^"]+)"\s+alt="([^"]+)"[^>]*>', html)
-    assert len(image_matches) == MANUAL_FEATURE_COUNT
+    # P5Rの旧手順17枚に加え、P5R2の現行導線（desktop/mobile 4組）を検査する。
+    assert len(image_matches) == MANUAL_FEATURE_COUNT + P5R2_MANUAL_IMAGE_COUNT
+    assert sum("RUN-P5R2-" in source for source, _ in image_matches) == P5R2_MANUAL_IMAGE_COUNT
     for source, alt in image_matches:
         assert alt.strip()
         image_path = (MANUAL.parent / source).resolve()
         assert image_path.is_file(), image_path
     captions = re.findall(r"<figcaption>(.*?)</figcaption>", html, re.S)
-    assert len(captions) == MANUAL_FEATURE_COUNT
+    assert len(captions) == MANUAL_FEATURE_COUNT + P5R2_MANUAL_IMAGE_COUNT
     assert all(caption.strip() for caption in captions)
 
 

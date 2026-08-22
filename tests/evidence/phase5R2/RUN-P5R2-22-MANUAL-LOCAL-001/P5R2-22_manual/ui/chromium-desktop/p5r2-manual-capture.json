@@ -1,0 +1,51 @@
+{
+  "schema_version": "P5R2-22-manual-ui-capture-v1",
+  "run_id": "RUN-P5R2-22-MANUAL-LOCAL-001",
+  "project": "chromium-desktop",
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "external_requests": [],
+  "axe": [
+    {
+      "screen": "SCREEN-08-condition",
+      "blocking": []
+    },
+    {
+      "screen": "SCREEN-08-generation",
+      "blocking": []
+    },
+    {
+      "screen": "SCREEN-09",
+      "blocking": []
+    },
+    {
+      "screen": "SCREEN-10",
+      "blocking": []
+    }
+  ],
+  "screenshots": [
+    "tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-desktop/P5R2-22-SCREEN-08-generation.png",
+    "tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-desktop/P5R2-22-SCREEN-09-runs.png",
+    "tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-desktop/P5R2-22-SCREEN-10-results.png"
+  ],
+  "assertions": {
+    "strategy_timeframes": [
+      "15m",
+      "30m",
+      "1h",
+      "4h",
+      "1d"
+    ],
+    "source_timeframe": "1m",
+    "missing_data_dialog": true,
+    "default_range_without_source": "NOT_SET",
+    "external_download": "DISABLED_HOST_LEVEL_ISOLATION_NOT_VERIFIED"
+  },
+  "boundaries": {
+    "p5r2": "LOCAL_ONLY",
+    "provider": "NOT_CALLED",
+    "p6": "NOT_STARTED"
+  }
+}

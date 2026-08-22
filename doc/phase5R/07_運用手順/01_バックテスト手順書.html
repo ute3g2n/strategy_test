@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>P5R バックテスト手順書（初心者向け）</title>
+  <title>P5R2 バックテスト手順書（初心者向け）</title>
   <style>
     :root{--ink:#172437;--muted:#52657b;--blue:#174779;--blue2:#eaf3ff;--line:#c9d7e6;--good:#e8f7ee;--warn:#fff6da;--danger:#fff0ef;--purple:#f2edff}
     *{box-sizing:border-box}
@@ -53,15 +53,16 @@
 </head>
 <body>
 <main>
-  <p class="meta">文書ID: <code>P5R-MAN-01</code> ／ 版: <code>v0.5</code> ／ 改訂日: <code>2026-08-16</code> ／ 状態: <strong>初心者向け抜本改訂・Eドライブ保存先追補・一括起動追補・再起動後履歴復元追補・Playwright検証対象</strong></p>
+  <p class="meta">文書ID: <code>P5R-MAN-01</code> ／ 版: <code>v0.6-P5R2-candidate</code> ／ 改訂日: <code>2026-08-23</code> ／ 状態: <strong>P5R2-22改訂候補・H2未承認・現行P5R2と旧P5R履歴を分離</strong></p>
   <h1>バックテスト手順書</h1>
-  <div class="note"><strong>最初に結論：</strong>この画面では、保存されている過去の市場Dataに、売買ルール（Strategy）を仮想的に当てはめて、「もし過去にこのルールを使っていたら、どんな結果になったか」を調べられます。実際の注文は出ません。将来の利益も保証しません。</div>
+  <div class="note"><strong>最初に結論：</strong>この画面では、保存されている過去の市場Dataに、売買ルール（Strategy）を仮想的に当てはめて、「もし過去にこのルールを使っていたら、どんな結果になったか」を調べられます。実際の注文は出ません。将来の利益も保証しません。<strong>現在のP5R2では、戦略時間足は15m／30m／1h／4h／1dです。1mは生成元Dataであり、戦略時間足としては選べません。</strong></div>
   <p>この手順書は、投資を始めたばかりの人でも読めるように書いています。画面に出る英語や数字は残し、そのすぐ近くに意味を説明します。まず「できること一覧」から目的の機能を選び、その行のリンクから操作へ進んでください。</p>
-  <p class="small"><a href="00_バックテスト操作手順書作成ルール.html">この手順書を作るルール</a> ／ <a href="../../index.html">正式HTMLインデックス</a> ／ <a href="../../../plan/Phase5R_バックテスト操作手順書改善_実行計画書_v0.1_2026-08-16.md">改善実行計画書</a></p>
+  <p class="small"><a href="00_バックテスト操作手順書作成ルール.html">この手順書を作るルール</a> ／ <a href="../../index.html">正式HTMLインデックス</a> ／ <a href="../../../plan/Phase5R2_実行計画書_v0.2_2026-08-22.md">P5R2実行計画書</a> ／ <a href="../../../doc/phase5R2/02_要件候補/04_バックテスト手順書改訂要件.html">P5R2手順書改訂要件</a></p>
 
   <nav class="toc" aria-label="バックテスト手順書の目次">
     <strong>目次</strong>
     <ul>
+      <li><a href="#p5r2-current">P5R2現行仕様（先に読む）</a></li>
       <li><a href="#startup">0. アプリを一括起動する</a></li>
       <li><a href="#restart-recovery">0.5 再起動後に履歴を戻す</a></li>
       <li><a href="#what-is">1. Backtestとは</a></li>
@@ -76,6 +77,22 @@
       <li><a href="#evidence">10. 画像・証跡・出典</a></li>
     </ul>
   </nav>
+
+  <h2 id="p5r2-current">P5R2現行仕様（先に読む）</h2>
+  <div class="good"><strong>現行操作の入口：</strong>現在のP5R2画面は、左メニューの「Backtest条件設定」（SCREEN-08）です。ここから、戦略時間足の選択、Preflight、Data Catalogの確認、時間足生成画面への移動を行います。実行中のRunは「Backtest実行一覧・進捗」（SCREEN-09）、結果の状態と結果表示の削除は「Backtest結果サマリー」（SCREEN-10）で確認します。</div>
+  <div class="danger"><strong>旧P5Rとの区別：</strong>このページ後半の<code>BT-MAN-01〜17</code>は、P5Rで完了した旧操作の履歴です。旧手順にあるSpot／1m固定は、現在のP5R2の戦略時間足を表しません。現在の操作は、下の「P5R2-MAN-01〜06」を先に読んでください。旧P5R-H2の完了をP5R2の完了へ読み替えません。</div>
+  <table>
+    <thead><tr><th>区分</th><th>現在の意味</th><th>利用者が覚えること</th></tr></thead>
+    <tbody>
+      <tr><td>戦略時間足</td><td><code>15m / 30m / 1h / 4h / 1d</code>から1つを選ぶ。</td><td><code>30m</code>は選択できます。<code>1m</code>は選択しません。</td></tr>
+      <tr><td>1m source</td><td>上位の戦略時間足を生成する元の最小Data。</td><td>1mそのものを戦略Runの時間足として使う説明ではありません。</td></tr>
+      <tr><td>Data Catalog</td><td>銘柄、時間足、期間、品質、利用可否、旧Data、生成Jobの由来を確認する一覧。</td><td>Catalogで「利用可能」と確認できないDataではRunを開始しません。</td></tr>
+      <tr><td>外部Dataダウンロード</td><td>UIの入口は表示されますが、現在の検証範囲では無効です。<code>HOST_LEVEL_ISOLATION_NOT_VERIFIED</code>としてAPIを呼びません。</td><td>Provider接続、ログイン、Secret、費用、外部Data取得を成功扱いにしません。</td></tr>
+      <tr><td>時間足生成</td><td>現在利用可能な1m sourceを元に、銘柄・複数時間足・UTC期間を指定してlocal Jobを登録する。</td><td>Job登録だけでは利用可能になりません。品質確認後にCatalogの利用可否を確認します。</td></tr>
+      <tr><td>Run操作</td><td><code>QUEUED</code>／<code>RUNNING</code>だけ取消可能。完了済みRunは取消不可で、不要なResultArtifactだけ削除対象にできます。</td><td>同じ状態を実行一覧・進捗・結果サマリーで読みます。</td></tr>
+    </tbody>
+  </table>
+  <p class="small"><strong>このP5R2-22版の証跡：</strong>現行Web Productは実Application APIへ接続したlocal-only検証です。外部Requestは0、critical／serious axe違反は0、P6は未開始です。画像とCapture Registryは<a href="#p5r2-evidence">10.1.1 P5R2-22画像・証跡</a>にまとめています。</p>
 
   <h2 id="startup">0. アプリを一括起動する</h2>
   <div class="note"><strong>最初にすること：</strong>プロジェクト直下の<code>start_autotrade.bat</code>を、エクスプローラーからダブルクリックします。このbatが、画面（UI）と計算の窓口（API）を順番に起動し、使える状態になったらブラウザを開きます。</div>
@@ -180,8 +197,23 @@
   <p>いいえ。結果は<strong>仮想結果</strong>です。過去に実際に注文した記録ではなく、過去のDataに現在のルールを当てはめて計算したものです。実際の市場では、価格の動き、注文の成立、手数料、通信などが違う場合があります。</p>
   <div class="danger"><strong>投資の注意：</strong>Backtestの良い結果は、将来の利益を保証しません。良い期間だけを選んだり、結果を見ながら条件を何度も変えたりすると、実力以上に良く見えることがあります。Holdoutは、条件を決めた後の確認に使います。</div>
 
-  <h2 id="can-do">2. P5Rでできること一覧</h2>
-  <p>次の表が、このBacktestモジュールで利用者ができることの全体です。目的に近い行を選び、青いリンクから操作へ進んでください。複数のリンクがある機能は、通常の操作と、失敗・復旧の操作を分けています。</p>
+  <h2 id="can-do">2. P5R2現行とP5R履歴のできること一覧</h2>
+  <p>現在のP5R2を使う人は、まず下の現行表から操作を選びます。その下の旧P5R表は履歴確認用です。目的に近い行を選び、青いリンクから操作へ進んでください。</p>
+  <h3 id="p5r2-feature-catalog">2.1 P5R2現行機能</h3>
+  <table>
+    <thead><tr><th>ID</th><th>この機能でできること</th><th>画面の場所</th><th>操作手順</th><th>成功の見方</th></tr></thead>
+    <tbody>
+      <tr id="p5r2-feature-01"><td class="feature-id">P5R2-MAN-01</td><td>戦略時間足を15m／30m／1h／4h／1dから選び、1m sourceとの違いを確認できます。</td><td>SCREEN-08「Single Backtest条件」</td><td><a href="#P5R2-MAN-01">戦略時間足と期間を確認する</a></td><td>30mを含む5つが選べ、1mは選択肢にありません。</td></tr>
+      <tr id="p5r2-feature-02"><td class="feature-id">P5R2-MAN-02</td><td>現在使用可能なHistorical DataをCatalogで確認し、品質・期間・銘柄・生成Jobの由来を読めます。</td><td>SCREEN-08「Data Catalog」</td><td><a href="#P5R2-MAN-02">Catalogを確認する</a></td><td>利用可否と期間が表示され、旧Dataや復旧要のDataをRunへ渡しません。</td></tr>
+      <tr id="p5r2-feature-03"><td class="feature-id">P5R2-MAN-03</td><td>指定期間の時間足が足りない場合、Runを止め、確認ダイアログから銘柄を引き継いだ生成画面を開けます。</td><td>SCREEN-08「事前確認」</td><td><a href="#P5R2-MAN-03">不足Dataから生成画面へ進む</a></td><td>DATA_INSUFFICIENT、対象銘柄・時間足・期間が表示され、OK後に生成画面が開きます。</td></tr>
+      <tr id="p5r2-feature-04"><td class="feature-id">P5R2-MAN-04</td><td>銘柄、複数の生成対象時間足、期間を指定してlocal生成Jobを登録し、状態・取消・復旧・再試行の条件を確認できます。</td><td>SCREEN-08「時間足生成」</td><td><a href="#P5R2-MAN-04">時間足を生成する</a></td><td>期間の初期値、Job ID、状態、利用可能になる前の未昇格状態が分かります。</td></tr>
+      <tr id="p5r2-feature-05"><td class="feature-id">P5R2-MAN-05</td><td>実行一覧・進捗と結果サマリーでRun状態、進捗、取消可否、取消理由を同じ状態から確認できます。</td><td>SCREEN-09／SCREEN-10</td><td><a href="#P5R2-MAN-05">Runを取消する・完了状態を読む</a></td><td>QUEUED／RUNNINGだけ取消でき、terminal状態は変わりません。受付中は二重操作できません。</td></tr>
+      <tr id="p5r2-feature-06"><td class="feature-id">P5R2-MAN-06</td><td>CSVを先にExportしたうえで、不要な完了済みResultArtifactだけを確認ダイアログから物理削除できます。</td><td>SCREEN-10「Backtest結果サマリー」</td><td><a href="#P5R2-MAN-06">結果表示を削除する</a></td><td>結果表示だけが削除済みになり、CSV／Historical Data／Run本体／Audit／Evidenceは残り、復元APIはありません。</td></tr>
+    </tbody>
+  </table>
+  <h3 id="legacy-feature-catalog">2.2 P5R旧機能（履歴確認専用）</h3>
+  <div class="warn"><strong>旧表の読み方：</strong>以下の<code>BT-F-01〜17</code>はP5Rの完了履歴です。Spot／1m固定などの記載はP5Rの当時の範囲であり、P5R2の現行選択肢ではありません。旧画面を開く場合も、P5R2の現行操作と混ぜないでください。</div>
+  <p>次の表は、旧P5R Backtestモジュールで確認した機能です。P5R2の現行操作を探している場合は、上の<a href="#p5r2-feature-catalog">P5R2現行機能</a>へ戻ります。</p>
   <table id="feature-catalog">
     <thead><tr><th>ID</th><th>この機能でできること</th><th>いつ使う？</th><th>画面の場所</th><th>操作手順</th><th>成功の見方</th></tr></thead>
     <tbody>
@@ -209,7 +241,7 @@
   <table>
     <thead><tr><th>項目</th><th>この手順書での扱い</th><th>初心者向けの意味</th></tr></thead>
     <tbody>
-      <tr><td>Data</td><td>既存P5ローカルDataのみ。BTCUSDT／ETHUSDT、Spot、1分足、UTC、P5R許可期間。</td><td>インターネットから新しいDataを取ってくる画面ではない。</td></tr>
+      <tr><td>Data</td><td>P5R2の現行画面では、Catalogに表示された品質確認済みDataだけを使います。戦略時間足は15m／30m／1h／4h／1d、1mは生成元です。外部Downloadは現在停止中です。</td><td>インターネットから新しいDataを取ってくる操作は、外部境界が承認されるまで成功扱いにしません。</td></tr>
       <tr><td>実行</td><td>仮想Fillによる過去Dataの計算。</td><td>実際に買う・売る注文は出さない。</td></tr>
       <tr><td>費用</td><td>Fee・Slippageの想定値。</td><td>本当に市場でその費用になると約束する数字ではない。</td></tr>
       <tr><td>Sweep</td><td>Backtest専用の候補実験。</td><td>複数人・複数Unitが同時に動く本番運用ではない。</td></tr>
@@ -220,15 +252,15 @@
   <div class="warn"><strong>停止の基本：</strong>PreflightがSTOPPED、Core検証が失敗、結果が未完了、Holdoutが確定前などの場合は、無理に先へ進みません。表示された理由を記録し、入力や状態を直してから再確認します。</div>
 
   <h2 id="quick-start">4. 初めての人の最短コース</h2>
-  <p>まず通常の1回のBacktestを最後まで行うなら、次の順番です。各項目の詳しい手順はリンク先にあります。</p>
+  <p>現在のP5R2で1回のBacktestを確認するなら、次の順番です。各項目の詳しい手順はリンク先にあります。旧P5Rの1m手順へ直接進まないでください。</p>
   <ol>
     <li><a href="#startup">start_autotrade.batをダブルクリックして、アプリを起動する</a>。</li>
-    <li><a href="#BT-MAN-01">画面とP5Rの安全範囲を確認する</a>。</li>
-    <li><a href="#BT-MAN-02">初期条件のままPreflightを実行し、5つの検査がPASSか読む</a>。</li>
-    <li><a href="#BT-MAN-04">Single Runを開始し、SUCCEEDEDまで待つ</a>。</li>
-    <li><a href="#BT-MAN-05">5指標を、条件と費用想定と一緒に読む</a>。</li>
-    <li><a href="#BT-MAN-06">DetailsとLedgerを開き、数字の根拠を読む</a>。</li>
-    <li>途中で止まった場合だけ、<a href="#BT-MAN-07">取消</a>と<a href="#BT-MAN-08">再開</a>を使う。</li>
+    <li><a href="#P5R2-MAN-01">SCREEN-08で、15m／30m／1h／4h／1d、UTC、期間境界を確認する</a>。</li>
+    <li><a href="#P5R2-MAN-02">Data Catalogで、対象銘柄・時間足・期間・品質・利用可を確認する</a>。</li>
+    <li><a href="#P5R2-MAN-03">Dataが足りなければRunを開始せず、確認ダイアログから生成画面へ進む</a>。</li>
+    <li><a href="#P5R2-MAN-04">複数時間足・期間を指定してlocal生成Jobの状態を確認する</a>。</li>
+    <li><a href="#P5R2-MAN-05">Runを開始し、SCREEN-09／SCREEN-10で状態・進捗・取消可否を読む</a>。</li>
+    <li><a href="#P5R2-MAN-06">必要なCSVを先にExportし、不要な結果表示だけを削除する</a>。</li>
   </ol>
   <div class="note"><strong>開発環境を自分で起動する場合：</strong>プロジェクトのルートで、ローカルAPIを<code>py -3 scripts/phase5r/backtest_api_server.py --port 8765</code>、UIを<code>ui/mock</code>で<code>npm run build</code>後に<code>npm run preview -- --host 127.0.0.1</code>で起動します。ブラウザでは<code>http://127.0.0.1:4173</code>を開きます。すでに起動済みなら、この説明は飛ばしてください。</div>
 
@@ -236,17 +268,176 @@
   <table>
     <thead><tr><th>画面部分</th><th>役割</th><th>主な操作</th></tr></thead>
     <tbody>
-      <tr><td>安全境界</td><td>外部Data、Broker、Secret、実注文、Paper／Liveに接続しないことを示す。</td><td>最初に読む。</td></tr>
-      <tr><td>P5R実行範囲</td><td>銘柄、Spot、時間足、UTC、期間、Dataの由来を示す。</td><td>対象外の条件がないか読む。</td></tr>
+      <tr><td>安全境界</td><td>外部Data、Broker、Secret、実注文、Paper／Liveに接続しないことを示す。外部Downloadは検証未了で停止中。</td><td>最初に読む。</td></tr>
+      <tr><td>P5R2実行範囲</td><td>銘柄、Spot、戦略時間足15m／30m／1h／4h／1d、1m source、UTC、期間、Dataの由来を示す。</td><td>1mが戦略時間足の選択肢にないことを確認する。</td></tr>
+      <tr><td>Data Catalog</td><td>現在使用可能なDataの銘柄、時間足、期間、品質、利用可、旧Data、Job由来を示す。</td><td>「利用可能」以外のDataでRunを開始しない。</td></tr>
+      <tr><td>時間足生成</td><td>不足Dataの確認ダイアログから、銘柄を引き継いだ生成フォームを開く。複数時間足と期間を指定する。</td><td>1m sourceの全期間が初期値。sourceがなければ期間を空欄にして停止する。</td></tr>
       <tr><td>Single Run</td><td>1つの条件を詳しく計算する。</td><td>条件入力、Preflight、開始、取消、再開、Details。</td></tr>
-      <tr><td>Sweep</td><td>複数の候補条件をまとめて計算する。</td><td>開始、部分失敗確認、取消。</td></tr>
-      <tr><td>履歴・比較</td><td>過去のRunを探し、条件が合うものだけ比較する。</td><td>更新、結果を開く、比較、CSV生成。</td></tr>
+      <tr><td>実行一覧・進捗（SCREEN-09）</td><td>Run ID、状態、進捗、取消可否・理由をApplication APIの状態から示す。</td><td>QUEUED／RUNNINGだけ取消する。terminal状態は変えない。</td></tr>
+      <tr><td>結果サマリー（SCREEN-10）</td><td>Run状態と結果表示の有無を示し、不要な完了済みResultArtifactだけを削除できる。</td><td>CSVを先にExportし、確認ダイアログを読んでから削除する。</td></tr>
+      <tr><td>Sweep</td><td>旧P5Rの候補条件をまとめて計算する。</td><td>P5R2現行の時間足・Data管理とは別の履歴機能として扱う。</td></tr>
+      <tr><td>履歴・比較</td><td>旧P5Rの過去Runを探し、条件が合うものだけ比較する。</td><td>更新、結果を開く、比較、CSV生成。P5R2の削除対象と混同しない。</td></tr>
       <tr><td>Holdout・Walk-forward</td><td>Dataを時間順に分けて、条件の決め方と最後の評価を分ける。</td><td>確定前拒否、確定後評価、3窓実行。</td></tr>
     </tbody>
   </table>
 
   <h2 id="procedures">6. 操作手順</h2>
   <p>各手順のタイトルにあるIDは、上の機能一覧へ対応しています。手順の最後にある「機能一覧へ戻る」を使うと、次の機能を選べます。</p>
+
+  <h3 id="p5r2-current-procedures">6.1 P5R2現行操作</h3>
+  <div class="good"><strong>現行操作の共通ルール：</strong>以下の6手順はP5R2-22で実Application API、desktop／mobile、axe、外部Request監視を確認した現行範囲です。画面に表示されない操作を想像で補わず、Dataが利用可能であること、Runの状態、削除対象と保護対象を順番に確認します。</div>
+
+  <section class="procedure" id="P5R2-MAN-01">
+    <h4>P5R2-MAN-01：戦略時間足と期間境界を確認する</h4>
+    <p class="goal"><strong>この操作でできること：</strong>現在のP5R2で選べる戦略時間足と、生成元である1m sourceを区別し、UTC期間を正しく入力できます。</p>
+    <p><strong>画面の場所：</strong>左メニュー「Backtest条件設定」→SCREEN-08「Single Backtest条件」。</p>
+    <ol>
+      <li>画面上部の「P5R2 Web Product / 実Application API」を確認します。これは固定画像ではなく、loopback-onlyのApplication APIから状態を読んでいる表示です。</li>
+      <li>「戦略時間足」の選択肢が<code>15m</code>、<code>30m</code>、<code>1h</code>、<code>4h</code>、<code>1d</code>の5つであることを確認します。<code>30m</code>は選択対象です。</li>
+      <li><code>1m source</code>の説明を読みます。1mは上位時間足を生成する元Dataで、戦略時間足としては選択できません。旧P5Rの1m画面を現行画面と読み替えません。</li>
+      <li>開始と終了をUTCの<code>2025-02-24T00:00:00Z</code>のように入力します。P5R2の期間は、開始を含み、終了を含まない半開区間<code>[開始, 終了)</code>です。開始と終了が同じ、逆順、許可範囲外、末尾の<code>Z</code>がない場合は開始しません。</li>
+      <li>Backtest Strategyと銘柄を選び、Data Catalogの対象Dataと同じ銘柄・時間足・期間になっていることを確認します。</li>
+      <li>外部Data取得ボタンが無効で、<code>HOST_LEVEL_ISOLATION_NOT_VERIFIED</code>と表示される場合は、そのまま停止します。Download APIは呼び出しません。</li>
+    </ol>
+    <p class="check"><strong>確認できれば成功：</strong>30mを含む5つの戦略時間足が選択でき、1mはsource説明だけであり、UTC期間と外部I/O停止が読める。</p>
+    <p class="failure"><strong>止まったとき：</strong>1mしか選べない、30mがない、外部Downloadが有効、または期間境界が読めない場合は現行P5R2の成功表示ではありません。画面と時刻を記録して停止します。</p>
+    <p class="limit"><strong>この結果から言ってはいけないこと：</strong>時間足を選べたことは、Dataが存在すること、PreflightがPASSになること、Backtestが成功することを意味しません。</p>
+    <div class="two">
+      <figure><a href="../../../tests/evidence/phase5R2/RUN-P5R2-19-LOCAL-001/ui/chromium-desktop/P5R2-19-SCREEN-08-condition.png"><img src="../../../tests/evidence/phase5R2/RUN-P5R2-19-LOCAL-001/ui/chromium-desktop/P5R2-19-SCREEN-08-condition.png" alt="desktopのP5R2条件画面で、戦略時間足15m、30m、1h、4h、1dと1m sourceの説明が表示されている" loading="lazy"></a><figcaption>desktop：30mを含む5つの戦略時間足と、1m sourceの区別を確認します。</figcaption></figure>
+      <figure><a href="../../../tests/evidence/phase5R2/RUN-P5R2-19-LOCAL-001/ui/chromium-mobile/P5R2-19-SCREEN-08-condition.png"><img src="../../../tests/evidence/phase5R2/RUN-P5R2-19-LOCAL-001/ui/chromium-mobile/P5R2-19-SCREEN-08-condition.png" alt="mobileのP5R2条件画面で、戦略時間足と1m sourceの説明を確認できる" loading="lazy"></a><figcaption>mobile：同じ条件を狭い画面でも確認します。Evidenceは<a href="../../../tests/evidence/phase5R2/RUN-P5R2-19-LOCAL-001/ui/chromium-mobile/p5r2-ui-capture.json">Capture Registry</a>です。</figcaption></figure>
+    </div>
+    <p class="small">Test／Evidence: <code>P5R2-19-UI-TF-001</code>、<code>P5R2-19-UI-BOUNDARY-001</code> ／ <a href="../../../tests/evidence/phase5R2/RUN-P5R2-19-LOCAL-001/ui/chromium-desktop/p5r2-ui-capture.json">desktop capture</a> ／ 受入条件: <code>P5R2-MAN-AC-01</code></p>
+    <p class="back"><a href="#p5r2-feature-catalog">P5R2現行機能へ戻る</a></p>
+  </section>
+
+  <section class="procedure" id="P5R2-MAN-02">
+    <h4>P5R2-MAN-02：Data Catalogを確認する</h4>
+    <p class="goal"><strong>この操作でできること：</strong>現在使用可能なHistorical Dataを、銘柄・時間足・期間・品質・利用可否・旧Data・Jobの由来で確認できます。</p>
+    <p><strong>画面の場所：</strong>SCREEN-08「Data Catalog」→「Catalogを更新」。</p>
+    <ol>
+      <li>「現在使用可能なヒストリカルData」の表を読みます。表には銘柄、Dataの時間足、coverage期間、quality、利用可、旧Data、Job状態、由来が表示されます。Dataの中身や絶対pathは画面に出しません。</li>
+      <li>Backtestで使うDataは、対象銘柄・対象戦略時間足・指定期間を覆い、<code>usable=true</code>で、旧Dataではなく、復旧要状態でないものに限ります。</li>
+      <li>品質が<code>USABLE</code>なら通常利用できます。<code>USABLE_WITH_WARNING</code>が表示された場合は警告を読んで採用可否を判断し、<code>UNUSABLE</code>、欠損、競合、provenance不足、<code>RECOVERY_REQUIRED</code>はRunへ渡しません。</li>
+      <li>同じData identityで期間が重ならない区間を後から取り込む場合は、既存区間と新規区間をマージできます。完全に同じbarは重複登録せず、値が違うbarは差分previewを確認して利用者が明示的にreplaceした場合だけ置き換えます。</li>
+      <li>マージやreplaceで過去Runの結果が変わる場合があります。必要な結果は先にCSVへExportし、古いDataでの結果を残す必要がなければ削除して、新しいDataでBacktestをやり直します。確認なしの勝手な上書きや、OS上のDataファイル直接編集はしません。</li>
+    </ol>
+    <p class="check"><strong>確認できれば成功：</strong>Catalogの期間が希望期間を覆い、品質・利用可否・旧Data・Job由来を読んで、利用できるDataだけを選べる。</p>
+    <p class="failure"><strong>Catalogが空、期間不足、品質不良、競合、復旧要のとき：</strong>Runを開始しません。P5R2-MAN-03へ進み、不足なら生成確認を使います。外部Downloadは現在停止中なので、無効ボタンを押し続けません。</p>
+    <p class="limit"><strong>この結果から言ってはいけないこと：</strong>CatalogにDataが載っているだけで、すべての期間・時間足が使える、品質に問題がない、過去Runと結果が同じだとは言えません。</p>
+    <p class="small">Data管理ルール: 同一identity、半開区間、非重複merge、重複dedupe、競合preview／明示replace、影響Runの再実行 ／ 受入条件: <code>P5R2-MAN-AC-02</code>、<code>P5R2-REQ-HD-002</code></p>
+    <p class="back"><a href="#p5r2-feature-catalog">P5R2現行機能へ戻る</a></p>
+  </section>
+
+  <section class="procedure" id="P5R2-MAN-03">
+    <h4>P5R2-MAN-03：不足Dataの確認ダイアログから生成画面へ進む</h4>
+    <p class="goal"><strong>この操作でできること：</strong>指定した銘柄・戦略時間足・期間のDataがない場合に、Runを開始せず、理由を読んでから生成画面へ移動できます。</p>
+    <p><strong>画面の場所：</strong>SCREEN-08「Single Backtest条件」→「事前確認」。</p>
+    <ol>
+      <li>銘柄、戦略時間足、開始、終了を入力して「事前確認」を押します。</li>
+      <li>必要なDataがCatalogにない場合、Preflightは<code>STOPPED</code>になり、<code>DATA_INSUFFICIENT</code>と、銘柄・時間足・要求期間・source時間足<code>1m</code>が表示されます。</li>
+      <li>確認ダイアログ「指定期間の時間足Dataが不足しています」の本文が、入力した銘柄・時間足・期間と一致することを確認します。</li>
+      <li>生成する場合だけ「時間足を生成する」を押します。銘柄は生成画面へ引き継がれます。「取消」を押した場合は生成せず、Runも開始しません。</li>
+    </ol>
+    <p class="check"><strong>確認できれば成功：</strong>不足理由と対象範囲が表示され、OK後に同じ銘柄を選んだ生成画面が開く。Runが不足DataのままQUEUEDにならない。</p>
+    <p class="failure"><strong>失敗・異常時：</strong>不足DataなのにPASSやRun開始になった、確認対象の銘柄・時間足・期間が違う、外部Downloadが自動で始まった場合は停止します。</p>
+    <p class="limit"><strong>この結果から言ってはいけないこと：</strong>ダイアログで生成画面を開けたことは、生成Jobが完了した、Dataが利用可能になった、Runを開始できることを意味しません。</p>
+    <p class="small">Test／Evidence: <code>P5R2-19-UI-DATA-001</code>、<code>P5R2-22-UI-MANUAL-001</code> ／ <a href="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-desktop/p5r2-manual-capture.json">desktop capture registry</a>（dialog assertionを含む） ／ 受入条件: <code>P5R2-MAN-AC-03</code></p>
+    <p class="back"><a href="#p5r2-feature-catalog">P5R2現行機能へ戻る</a></p>
+  </section>
+
+  <section class="procedure" id="P5R2-MAN-04">
+    <h4>P5R2-MAN-04：複数時間足・期間を指定して生成Jobを確認する</h4>
+    <p class="goal"><strong>この操作でできること：</strong>現在利用可能な1m sourceを選び、銘柄、生成する時間足（複数可）、期間を指定してlocal生成Jobを登録できます。</p>
+    <p><strong>画面の場所：</strong>SCREEN-08→「時間足生成画面を開く」またはP5R2-MAN-03の確認ダイアログ→「指定時間足を生成する」。</p>
+    <ol>
+      <li>「生成する銘柄」でBTCUSDTまたはETHUSDTを選びます。「元の1m source」は、Catalogで現在利用可能なsourceから選びます。</li>
+      <li>「生成する時間足（複数選択可）」で、15m、30m、1h、4h、1dのうち必要なものを複数選べます。1mは生成対象ではなく、元Dataです。</li>
+      <li>期間の初期値を確認します。sourceがある場合は、そのsourceの現在生成可能な全coverage期間が開始・終了の初期値です。期間を短くする場合もUTCの半開区間で入力します。</li>
+      <li>sourceがない場合は、期間の既定値を設定せず、「時間足を生成する」も無効です。外部Data取得へ自動で切り替えません。</li>
+      <li>「時間足を生成する」を押すと、local Jobが<code>STAGED</code>で登録されます。Job ID、対象銘柄、時間足、期間、理由を記録します。</li>
+      <li><code>STAGED</code>／<code>QUEUED</code>／<code>RUNNING</code>は処理中です。必要なら「生成を取消」で<code>CANCELLED</code>にします。<code>FAILED</code>は原因を確認してから「再試行」します。<code>RECOVERY_REQUIRED</code>／孤児stagingは自動再開や利用可能への昇格をせず、原因確認まで止めます。</li>
+      <li>Jobが登録・実行された後も、Catalogでquality、coverage、usable、promotion状態を再確認します。<code>usable</code>になる前のstaging DataをBacktestへ渡しません。</li>
+    </ol>
+    <table>
+      <thead><tr><th>Job状態</th><th>初心者向けの意味</th><th>次の操作</th></tr></thead>
+      <tbody>
+        <tr><td><code>STAGED</code>／<code>QUEUED</code>／<code>RUNNING</code></td><td>受付・順番待ち・処理中。まだ利用可能Dataではない。</td><td>Job IDと対象を確認し、必要なら取消。完了扱いにしない。</td></tr>
+        <tr><td><code>CANCELLED</code></td><td>生成を途中で止めた。usableへ昇格していない。</td><td>理由を記録し、必要なら新しい明示操作でやり直す。</td></tr>
+        <tr><td><code>FAILED</code></td><td>検査または処理に失敗した。</td><td>原因を直してから再試行。失敗Dataを利用可能と表示しない。</td></tr>
+        <tr><td><code>RECOVERY_REQUIRED</code></td><td>再起動・途中停止・孤児stagingなどで、安全に続けられない。</td><td>自動再開・勝手な再試行をせず、原因とCatalogを確認する。</td></tr>
+      </tbody>
+    </table>
+    <p class="check"><strong>確認できれば成功：</strong>生成対象を複数選べ、sourceの全期間が初期表示され、Jobの状態とusable昇格前の境界が読める。</p>
+    <p class="failure"><strong>止まったとき：</strong>source不在、期間不正、対象時間足不正、Job失敗、部分promotion、競合、復旧要の場合はRunを開始しません。</p>
+    <p class="limit"><strong>現在の検証範囲：</strong>P5R2-22のlocal証跡は、source Catalog、生成フォーム、Job登録と状態表示を確認したものです。外部ProviderからDataを取得した証跡ではありません。</p>
+    <div class="two">
+      <figure><a href="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-desktop/P5R2-22-SCREEN-08-generation.png"><img src="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-desktop/P5R2-22-SCREEN-08-generation.png" alt="desktopの時間足生成画面で、銘柄、元の1m source、sourceの全期間、複数選択可能な生成対象時間足、STAGEDのJob状態が表示されている" loading="lazy"></a><figcaption>desktop：sourceのcoverageを既定値として表示し、生成JobをSTAGEDで確認します。</figcaption></figure>
+      <figure><a href="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-mobile/P5R2-22-SCREEN-08-generation.png"><img src="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-mobile/P5R2-22-SCREEN-08-generation.png" alt="mobileの時間足生成画面で、期間、複数時間足、Job状態を順に確認できる" loading="lazy"></a><figcaption>mobile：同じ生成条件を縦長画面で確認します。Evidenceは<a href="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-mobile/p5r2-manual-capture.json">Capture Registry</a>です。</figcaption></figure>
+    </div>
+    <p class="small">受入条件: <code>P5R2-MAN-AC-02</code> ／ <code>P5R2-MAN-AC-03</code> ／ <code>P5R2-MAN-AC-06</code></p>
+    <p class="back"><a href="#p5r2-feature-catalog">P5R2現行機能へ戻る</a></p>
+  </section>
+
+  <section class="procedure" id="P5R2-MAN-05">
+    <h4>P5R2-MAN-05：Runを取消し、terminal状態を読む</h4>
+    <p class="goal"><strong>この操作でできること：</strong>実行一覧・進捗と結果サマリーで、同じRun状態から取消可否・理由を読み、処理中だけ取消要求を送れます。</p>
+    <p><strong>画面の場所：</strong>SCREEN-09「Backtest実行一覧・進捗」／SCREEN-10「Backtest結果サマリー」。</p>
+    <ol>
+      <li>RunカードのRun ID、状態、進捗率、処理済み数、条件、取消可否・理由を確認します。SCREEN-09とSCREEN-10の説明が違わないことを見ます。</li>
+      <li>状態が<code>QUEUED</code>または<code>RUNNING</code>のRunだけ「取消」を押します。受付中はボタンが無効になり、同じRunを二重押下できません。</li>
+      <li>Application APIの受付結果と、更新後のRun状態を確認します。取消要求の送信だけで、SUCCEEDEDや成功結果へ書き換えません。</li>
+      <li><code>SUCCEEDED</code>、<code>FAILED</code>、<code>CANCELLED</code>、<code>RECOVERY_REQUIRED</code>などterminal／復旧要のRunでは取消できません。ボタンが無効で、理由と状態がそのまま表示されることが正常です。</li>
+      <li>terminal状態を変えたい場合は、画面上で直接書き換えず、新しい条件確認・新しいRun・復旧手順の範囲で扱います。</li>
+    </ol>
+    <p class="check"><strong>確認できれば成功：</strong>処理中だけ取消可能、受付中の二重操作不可、terminal状態不変、2画面で同じ取消可否・理由が表示される。</p>
+    <p class="failure"><strong>異常時：</strong>完了済みRunが取消できる、取消で結果やRun本体が消える、2回の押下で2件の操作が通る、SCREEN-09とSCREEN-10で可否が違う場合は停止してAudit／画面を記録します。</p>
+    <p class="limit"><strong>この結果から言ってはいけないこと：</strong>取消要求を受け付けたことは、Runが成功した、checkpointから自動再開した、結果が削除されたことを意味しません。</p>
+    <div class="two">
+      <figure><a href="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-desktop/P5R2-22-SCREEN-09-runs.png"><img src="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-desktop/P5R2-22-SCREEN-09-runs.png" alt="desktopのBacktest実行一覧・進捗画面で、実Application APIのRun状態と取消可否を確認できる" loading="lazy"></a><figcaption>desktop：実行一覧・進捗はApplication APIの状態を表示します。</figcaption></figure>
+      <figure><a href="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-mobile/P5R2-22-SCREEN-09-runs.png"><img src="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-mobile/P5R2-22-SCREEN-09-runs.png" alt="mobileのBacktest実行一覧・進捗画面で、Run状態と取消理由を確認できる" loading="lazy"></a><figcaption>mobile：狭い画面でも状態と停止理由を読みます。</figcaption></figure>
+    </div>
+    <p class="small">受入条件: <code>P5R2-MAN-AC-04</code> ／ <code>P5R2-REQ-RUN-001</code> ／ <a href="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-desktop/p5r2-manual-capture.json">Capture Registry</a></p>
+    <p class="back"><a href="#p5r2-feature-catalog">P5R2現行機能へ戻る</a></p>
+  </section>
+
+  <section class="procedure" id="P5R2-MAN-06">
+    <h4>P5R2-MAN-06：CSVを先にExportし、不要な結果表示だけを削除する</h4>
+    <p class="goal"><strong>この操作でできること：</strong>保持する結果と不要な結果表示を分け、明示確認したときだけ完了済みResultArtifactを物理削除できます。</p>
+    <p><strong>画面の場所：</strong>SCREEN-10「Backtest結果サマリー」→対象Runカード。</p>
+    <ol>
+      <li>残しておく結果か、不要な結果かを決めます。残す結果は削除ボタンを押しません。</li>
+      <li>必要なLedgerや指標は、既存の結果詳細画面のCSV生成Jobを開始し、Jobが<code>SUCCEEDED</code>になってからCSVをダウンロードします。CSVが必要なのにExportが完了していない場合は削除を中止します。</li>
+      <li>SCREEN-10で、対象Runが<code>SUCCEEDED</code>、結果表示が「表示可能」、取消不可であることを確認します。実行中、失敗、取消済み、復旧要のRunは削除対象ではありません。</li>
+      <li>「結果表示を削除」を押し、確認ダイアログで、物理削除・復元不可・CSV／Historical Data／Run本体／Audit／Evidenceは削除しないことを読みます。</li>
+      <li>内容を理解している場合だけ「結果表示を削除する」を1回押します。受付中はボタンが無効になり、同じoperation tokenの再送は同じ結果として扱われ、二度の物理削除を行いません。</li>
+      <li>完了後、Run状態は<code>SUCCEEDED</code>のまま、結果表示が「削除済み（復元不可）」になり、保護対象とAuditが残っていることを確認します。復元APIはありません。</li>
+    </ol>
+    <table>
+      <thead><tr><th>表示</th><th>意味</th><th>利用者の判断</th></tr></thead>
+      <tbody>
+        <tr><td><code>RESULT_DELETE_PENDING</code></td><td>対象確認後、物理操作の直前または処理中。</td><td>画面を連打せず、更新後の状態を確認する。</td></tr>
+        <tr><td><code>RESULT_DELETED</code></td><td>ResultArtifactだけを削除済み。Run本体・Data・CSV・Audit・Evidenceは残る。</td><td>復元を試さず、必要ならCSVを読む。新しいDataで再実行する。</td></tr>
+        <tr><td><code>DELETE_FAILED</code></td><td>削除が完了しなかった。cascadeを続けない。</td><td>対象・理由・Auditを記録し、勝手な再削除やpath指定をしない。</td></tr>
+      </tbody>
+    </table>
+    <p class="check"><strong>確認できれば成功：</strong>確認ダイアログの後にResultArtifactだけが消え、CSV、Historical Data、Run本体、Audit、Evidenceが保護され、復元不可が表示される。</p>
+    <p class="failure"><strong>異常時：</strong>CSV／Data／Audit／Evidenceまで消える、任意pathを入力できる、完了前に削除できる、削除失敗後にcascadeする、復元ボタンが表示される場合は停止します。</p>
+    <p class="limit"><strong>この結果から言ってはいけないこと：</strong>結果表示を削除したことは、Run本体を削除した、過去のDataを消した、結果を復元できる、過去の計算をなかったことにできる、という意味ではありません。</p>
+    <div class="two">
+      <figure><a href="../../../tests/evidence/phase5R2/RUN-P5R2-21-DELETE-LOCAL-001/P5R2-21_delete/ui/chromium-desktop/P5R2-21-SCREEN-10-result-deleted.png"><img src="../../../tests/evidence/phase5R2/RUN-P5R2-21-DELETE-LOCAL-001/P5R2-21_delete/ui/chromium-desktop/P5R2-21-SCREEN-10-result-deleted.png" alt="desktopのBacktest結果サマリーで、完了済みRunの結果表示だけが削除済みになり、CSV、Historical Data、Run本体、Audit、Evidenceの保護説明が表示されている" loading="lazy"></a><figcaption>desktop：ResultArtifactだけの物理削除後も、Run状態と保護境界を確認します。</figcaption></figure>
+      <figure><a href="../../../tests/evidence/phase5R2/RUN-P5R2-21-DELETE-LOCAL-001/P5R2-21_delete/ui/chromium-mobile/P5R2-21-SCREEN-10-result-deleted.png"><img src="../../../tests/evidence/phase5R2/RUN-P5R2-21-DELETE-LOCAL-001/P5R2-21_delete/ui/chromium-mobile/P5R2-21-SCREEN-10-result-deleted.png" alt="mobileのBacktest結果サマリーで、結果表示削除済みと保護対象を確認できる" loading="lazy"></a><figcaption>mobile：確認ダイアログ後の結果表示削除済み状態を確認します。Evidenceは<a href="../../../tests/evidence/phase5R2/RUN-P5R2-21-DELETE-LOCAL-001/P5R2-21_delete/ui/chromium-mobile/p5r2-delete-ui-capture.json">Capture Registry</a>です。</figcaption></figure>
+    </div>
+    <h5>6.1.1 再起動・復旧・対象外の境界</h5>
+    <ul>
+      <li>APIやWindowsの再起動後、<code>RECOVERY_REQUIRED</code>が出たRun・Job・Catalogを成功／利用可能と読み替えません。表示された理由、Run ID、Job IDを記録し、原因確認と新しいRunの判断を分けます。</li>
+      <li>生成Jobの失敗・取消・孤児stagingは、未完成Dataをusableにしません。失敗原因を直してから、許可された再試行だけを行います。</li>
+      <li>この手順の範囲にBroker接続、Paper、Live、実注文、実資金、Providerログイン、Secret、費用、P6開始は含みません。</li>
+    </ul>
+    <p class="small">Test／Evidence: <code>P5R2-21-DELETE-TEST-001〜005</code>、<code>P5R2-21-UI-DELETE-001</code> ／ <a href="../../../tests/evidence/phase5R2/RUN-P5R2-21-DELETE-LOCAL-001/P5R2-21_delete/verification.md">削除受入verification</a> ／ 受入条件: <code>P5R2-MAN-AC-05</code>、<code>P5R2-MAN-AC-06</code></p>
+    <p class="back"><a href="#p5r2-feature-catalog">P5R2現行機能へ戻る</a></p>
+  </section>
+
+  <div class="warn"><strong>ここから下は旧P5R履歴：</strong><code>BT-MAN-01〜17</code>はP5Rで受入済みの旧手順です。Spot／1m固定、旧タブ名、旧画面画像をP5R2の現行操作として使用しません。P5R2の説明と旧履歴を比較する場合だけ参照してください。</div>
 
   <section class="procedure" id="BT-MAN-01">
     <h3>BT-MAN-01：画面と、使ってよい条件を確認する</h3>
@@ -611,6 +802,13 @@
   <table>
     <thead><tr><th>表示</th><th>かんたんな意味</th><th>次にすること</th><th>してはいけないこと</th></tr></thead>
     <tbody>
+      <tr><td><code>DATA_INSUFFICIENT</code></td><td>指定した銘柄・戦略時間足・期間を覆うDataがCatalogにない。</td><td>Runを開始せず、確認ダイアログの対象を読み、必要ならP5R2-MAN-04の生成画面へ進む。</td><td>不足Dataを想像で補う、外部Downloadを勝手に始める。</td></tr>
+      <tr><td><code>HOST_LEVEL_ISOLATION_NOT_VERIFIED</code></td><td>外部Data取得を安全に実行できる環境証明がまだない。</td><td>Download APIを呼ばず、Provider・Secret・費用を使わず、local Catalogの確認だけを続ける。</td><td>ボタンを有効化したとみなす、ログインやAPI callを試す。</td></tr>
+      <tr><td><code>STRATEGY_TIMEFRAME_INVALID</code></td><td>戦略時間足が5つの許可値でない。</td><td>15m／30m／1h／4h／1dへ戻し、1mはsource説明として扱う。</td><td>1mを現行戦略時間足として指定する。</td></tr>
+      <tr><td><code>QUALITY</code>／<code>UNUSABLE</code></td><td>Dataの品質または利用可否がBacktest条件を満たさない。</td><td>Catalogの品質・理由・provenanceを確認し、usableになるまでRunを止める。</td><td>欠損・競合・警告を無視して成功扱いにする。</td></tr>
+      <tr><td><code>JOB_NOT_CANCELLABLE</code>／<code>JOB_RETRY_NOT_ALLOWED</code></td><td>生成Jobが現在の状態では取消・再試行できない。</td><td>現在のJob状態を保存し、terminal／復旧要なら自動操作を続けない。</td><td>古い画面のボタンを連打する、状態を手入力で変える。</td></tr>
+      <tr><td><code>RUN_NOT_CANCELLABLE</code>／<code>RUN_STATE_CONFLICT</code></td><td>Runがterminal、復旧要、または別操作で状態が変わった。</td><td>Run一覧を更新し、状態と理由を読み直す。</td><td>terminal状態を成功・取消へ書き換える。</td></tr>
+      <tr><td><code>DELETE_FAILED</code>／<code>RESULT_DELETE_PENDING</code></td><td>ResultArtifact削除が処理中または完了していない。</td><td>Auditと対象を記録し、cascadeや任意path操作をせず停止する。</td><td>Data、CSV、Audit、Evidenceまで削除する、復元を試す。</td></tr>
       <tr><td><code>TYPE_AND_UNIT</code></td><td>入力の種類や単位が合わない。</td><td>数値、単位、日時形式を確認してPreflightをやり直す。</td><td>数字を想像で置き換える。</td></tr>
       <tr><td><code>P5_DATA_SCOPE</code></td><td>銘柄・期間がP5Rの範囲外。</td><td>BTCUSDT／ETHUSDTと許可期間へ戻す。</td><td>範囲外Dataを勝手に追加する。</td></tr>
       <tr><td><code>UTC_AND_CALENDAR</code></td><td>UTCやカレンダーが確認できない。</td><td>日時の末尾<code>Z</code>と順序を確認する。</td><td>ローカル時刻のまま計算する。</td></tr>
@@ -632,6 +830,14 @@
     <dt id="term-backtest">Backtest</dt><dd>過去の市場Dataに売買ルールを当てはめる仮想実験。実際の注文記録ではない。</dd>
     <dt id="term-api">Application API</dt><dd>画面から受けた操作を計算サービスへ渡し、結果を画面へ返す窓口。このP5Rではローカルで動く。</dd>
     <dt id="term-data">Data</dt><dd>計算の材料になる過去の値動き。Dataの期間、銘柄、時刻の意味が違うと結果も変わる。</dd>
+    <dt id="term-strategy-timeframe">戦略時間足</dt><dd>Strategyが判断に使う時間のまとまり。P5R2では15m、30m、1h、4h、1dから選ぶ。1mは戦略時間足ではない。</dd>
+    <dt id="term-source-timeframe">1m source</dt><dd>上位の戦略時間足を生成する元になる最小時間足のData。sourceの期間・品質・利用可否はCatalogで確認する。</dd>
+    <dt id="term-half-open-period">半開区間 [開始, 終了)</dt><dd>開始時刻は含み、終了時刻は含まない期間の表し方。隣り合う期間をつなぐときに同じbarを二重に数えないために使う。</dd>
+    <dt id="term-data-catalog">Data Catalog</dt><dd>銘柄、時間足、coverage、quality、usable、旧Data、生成Jobの由来を確認する一覧。Dataの絶対pathやbar本体を画面へ出すものではない。</dd>
+    <dt id="term-generation-job">時間足生成Job</dt><dd>1m sourceから指定した上位時間足を作る処理の記録。STAGEDやRUNNINGは途中状態で、CatalogがusableになるまでBacktestには使えない。</dd>
+    <dt id="term-usable">usable</dt><dd>品質・期間・由来の確認を通り、Backtestの材料として使える状態。Catalogに載っているだけではusableとは限らない。</dd>
+    <dt id="term-result-artifact">ResultArtifact</dt><dd>Backtest結果の表示用ファイル。P5R2の承認範囲では、完了済みの不要なResultArtifactだけを削除し、Run本体やDataは削除しない。</dd>
+    <dt id="term-result-deleted">RESULT_DELETED</dt><dd>結果表示の物理削除が完了した状態。復元APIはなく、CSV、Historical Data、Run本体、Audit、Evidenceは保護される。</dd>
     <dt id="term-readonly">read-only</dt><dd>読むだけで、元のDataを書き換えないこと。</dd>
     <dt id="term-symbol">銘柄（symbol）</dt><dd>どの取引対象を調べるかを表す名前。この画面ではBTCUSDTまたはETHUSDT。</dd>
     <dt id="term-strategy">Strategy</dt><dd>いつ買うか、いつ売るか、いつ手仕舞いするかを決めるルール。TURTLE_SYS1とTURTLE_SYS2がある。</dd>
@@ -688,8 +894,21 @@
   </ul>
 
   <h2 id="evidence">10. 画像・証跡・出典</h2>
-  <h3>10.1 画像の読み方</h3>
-  <p>BT-MAN-01〜15の画像は、Playwrightが画面の要素・状態・メッセージを先に確認し、その直後に撮影したものです。BT-MAN-16とBT-MAN-17も、Playwrightで停止・復元・状態・結果を確認してから撮影しています。画像だけでなく、本文の操作・成功表示も必ず読みます。</p>
+  <h3 id="p5r2-evidence">10.1.1 P5R2-22現行画像・証跡</h3>
+  <p>P5R2の画像は、実Application APIへ接続したPlaywrightが、可視名・role・label・状態・エラーメッセージを先にassertし、その直後に同じ画面を撮影したものです。desktopは<code>1280x900</code>、mobileは<code>390x844</code>です。各Capture Registryにviewport、axeのcritical／serious結果、外部Request、境界、画像pathを記録しています。</p>
+  <table>
+    <thead><tr><th>現行操作</th><th>desktop画像</th><th>mobile画像</th><th>assert・Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>P5R2-MAN-01 条件・5時間足・外部境界</td><td><a href="../../../tests/evidence/phase5R2/RUN-P5R2-19-LOCAL-001/ui/chromium-desktop/P5R2-19-SCREEN-08-condition.png">SCREEN-08 desktop PNG</a></td><td><a href="../../../tests/evidence/phase5R2/RUN-P5R2-19-LOCAL-001/ui/chromium-mobile/P5R2-19-SCREEN-08-condition.png">SCREEN-08 mobile PNG</a></td><td><a href="../../../tests/evidence/phase5R2/RUN-P5R2-19-LOCAL-001/ui/chromium-desktop/p5r2-ui-capture.json">P5R2-19 Registry</a> ／ external 0、axe blocking 0</td></tr>
+      <tr><td>P5R2-MAN-03 不足Data確認・P5R2-MAN-04生成フォーム</td><td><a href="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-desktop/P5R2-22-SCREEN-08-generation.png">SCREEN-08 generation desktop PNG</a></td><td><a href="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-mobile/P5R2-22-SCREEN-08-generation.png">SCREEN-08 generation mobile PNG</a></td><td><a href="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-desktop/p5r2-manual-capture.json">P5R2-22 Registry</a> ／ dialog assertion、source全期間、STAGED、external 0、axe blocking 0</td></tr>
+      <tr><td>P5R2-MAN-05 実行一覧・進捗</td><td><a href="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-desktop/P5R2-22-SCREEN-09-runs.png">SCREEN-09 desktop PNG</a></td><td><a href="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-mobile/P5R2-22-SCREEN-09-runs.png">SCREEN-09 mobile PNG</a></td><td><a href="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/chromium-desktop/p5r2-manual-capture.json">P5R2-22 Registry</a> ／ real API、external 0、axe blocking 0</td></tr>
+      <tr><td>P5R2-MAN-06 結果表示削除後</td><td><a href="../../../tests/evidence/phase5R2/RUN-P5R2-21-DELETE-LOCAL-001/P5R2-21_delete/ui/chromium-desktop/P5R2-21-SCREEN-10-result-deleted.png">SCREEN-10 desktop PNG</a></td><td><a href="../../../tests/evidence/phase5R2/RUN-P5R2-21-DELETE-LOCAL-001/P5R2-21_delete/ui/chromium-mobile/P5R2-21-SCREEN-10-result-deleted.png">SCREEN-10 mobile PNG</a></td><td><a href="../../../tests/evidence/phase5R2/RUN-P5R2-21-DELETE-LOCAL-001/P5R2-21_delete/ui/chromium-desktop/p5r2-delete-ui-capture.json">P5R2-21 Registry</a> ／ logical ID、保護対象、external 0、axe blocking 0</td></tr>
+    </tbody>
+  </table>
+  <p class="small">P5R2-22の画像は操作をassertした後に撮影し、画像だけを根拠にしていません。Data Downloadは<code>HOST_LEVEL_ISOLATION_NOT_VERIFIED</code>をassertし、外部APIを呼び出していません。生成フォームのEvidenceは、sourceがない場合に既定期間を設定しない境界、sourceがある場合に全coverageを初期表示する境界の両方を本文で説明しています。</p>
+
+  <h3>10.1.2 旧P5R画像の読み方</h3>
+  <p>ここから下の旧P5R画像は、P5RでPlaywrightが画面の要素・状態・メッセージを先に確認し、その直後に撮影した履歴です。画像中のSpot／1m固定、旧タブ名、旧結果操作をP5R2の現行仕様へ読み替えません。</p>
   <table>
     <thead><tr><th>証跡</th><th>場所</th><th>確認内容</th></tr></thead>
     <tbody>
@@ -718,13 +937,15 @@
   <table>
     <thead><tr><th>日付</th><th>版</th><th>変更</th></tr></thead>
     <tbody>
+      <tr><td>2026-08-23</td><td>v0.6-P5R2-candidate</td><td>P5R2-22候補として、現行の15m／30m／1h／4h／1d、1m source、UTC半開区間、Data Catalog、生成Job、不足Data確認、Run取消、terminal状態、CSV先行Export、ResultArtifact物理削除、保護対象、復旧境界、desktop／mobile画像とCapture Registryを追加。旧P5Rの1m手順は履歴として明示分離。H2未承認。</td></tr>
       <tr><td>2026-08-16</td><td>v0.5</td><td>完了Runの履歴カタログをEドライブへ保存し、API／Windows再起動後に履歴・詳細・Ledgerを復元するBT-F-17／BT-MAN-17を追加。旧形式、破損、不一致、未完了の表示、DBサーバを使わない保存方式、Playwrightの実再起動証跡を追記。</td></tr>
       <tr><td>2026-08-16</td><td>v0.4</td><td>通常のヒストリカルデータ、Backtest結果、CSV、起動ログの保存先をEドライブのアプリ専用領域へ統一。Cドライブや一時フォルダーへフォールバックしないこと、既存のテストfixtureを通常実行と分離することを追記。</td></tr>
       <tr><td>2026-08-16</td><td>v0.2</td><td>ユーザー指摘を反映。機能一覧、機能→操作リンク、初心者向け最短コース、平易な操作、専門用語集、失敗・復旧、結果の限界、Web出典、Sweep取消BT-MAN-16を追加。</td></tr>
       <tr><td>2026-08-16</td><td>v0.1</td><td>P5R-09の実画面撮影とBT-MAN-01〜15の初版。</td></tr>
     </tbody>
   </table>
-  <div class="good"><strong>この手順書の完了条件：</strong>機能一覧の全行から操作へ移動でき、各操作に成功・失敗・復旧があり、専門語が説明され、画像がPlaywrightのassert成功後に撮影され、Backtestを本番運用や利益保証と誤解しないこと。</div>
+  <div class="warn"><strong>P5R2-22時点の状態：</strong>この文書はP5R2-H2前の改訂候補です。P5R2現行操作、旧P5R履歴、local-only証跡、外部Data未承認、P6未開始を分けて記載しています。H2承認まではP5R2完了宣言やP6開始の根拠にしません。</div>
+  <div class="good"><strong>この手順書の完了条件：</strong>機能一覧の現行行から操作へ移動でき、各操作に成功・失敗・復旧があり、専門語が説明され、画像がPlaywrightのassert成功後に撮影され、Backtestを本番運用や利益保証と誤解しないこと。P5R2現行行は実装・検証済み範囲だけを利用可能として説明します。</div>
 </main>
 </body>
 </html>

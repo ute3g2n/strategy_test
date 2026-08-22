@@ -80,7 +80,7 @@ function SourceCatalogTable({ catalog, jobStates }: { catalog: P5R2CatalogRespon
     return <EmptyState title="現在使用可能なヒストリカルDataはありません" />
   }
   return (
-    <div className="table-scroll" data-testid="p5r2-catalog-table">
+    <div className="table-scroll" data-testid="p5r2-catalog-table" tabIndex={0} aria-label="ヒストリカルData Catalog表。横にスクロールできます。">
       <table className="data-table p5r2-catalog-table">
         <caption>Application APIのCatalog。実データの内容や絶対pathは表示しません。</caption>
         <thead>

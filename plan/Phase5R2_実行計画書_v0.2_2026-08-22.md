@@ -129,7 +129,7 @@ P5R2-HREQ承認後も、上表のH1、DATA-G1、DELETE-G1、H2の4つの人判�
 | `P5R2-PLAN-002` | 本計画v0.2 | `plan/Phase5R2_実行計画書_v0.2_2026-08-22.md` | current |
 | `P5R2-ART-DD` | 実装詳細設計セット | `doc/phase5R2/04_実装詳細設計/` | P5R2-09以降で作成 |
 | `P5R2-ART-QG` | Quality／RED／Run scope | `plan/phase5R2/quality/`、`tests/evidence/phase5R2/<RunId>/` | P5R2-12 RED confirmed |
-| `P5R2-ART-MAN` | 改訂済みBacktest手順書 | `doc/phase5R/07_運用手順/01_バックテスト手順書.html` | H2前、検証後 |
+| `P5R2-ART-MAN` | 改訂済みBacktest手順書 | `doc/phase5R/07_運用手順/01_バックテスト手順書.html` | P5R2-22改訂候補・実画像／a11y／link確認済み、P5R2-23／H2待ち |
 | `P5R2-ART-DELETE-G1` | DELETE-G1承認packet | `doc/phase5R2/08_DELETE-G1/08_P5R2-DELETE-G1承認packet.html` | bounded承認済み／P5R2-21受入済み |
 | `P5R2-ART-H2` | H2 packet／完了判定 | `doc/phase5R2/06_完了/`、`plan/phase5R2/ログ/` | 全Acceptance後 |
 
@@ -867,4 +867,4 @@ P5R2-CREQ-DOC-001は、単なる文言更新ではなく、実装・検証済み
 
 この計画は作成済みであり、現在の実行入口は本書である。P5R2-H1は承認packet、詳細設計再レビュー、権限移譲記録に基づき承認済みである。H1の承認範囲は、詳細設計、RED、対象path、Quality Gate、fixture、Evidence root、local実装に限定する。DATA-G1、DELETE-G1、H2の承認があるまで、外部Data、実削除、完了宣言、P6は開始しない。
 
-要件v4正式化、計画v0.2再作成、P5R2-08〜10、P5R2-H1、P5R2-18 local quality、P5R2-19 local UI、P5R2-20 DELETE-G1 packet、P5R2-21 local物理削除受入は完了した。P5R2-18 externalはhost-level isolation未確認でBlockedのまま、H2は未承認である。次はP5R2-22のバックテスト手順書改訂と実画像取得へ進むが、P5R2完了宣言とP6はH2まで停止する。
+要件v4正式化、計画v0.2再作成、P5R2-08〜10、P5R2-H1、P5R2-18 local quality、P5R2-19 local UI、P5R2-20 DELETE-G1 packet、P5R2-21 local物理削除受入、P5R2-22のバックテスト手順書改訂候補・実画像・a11y／link確認は完了した。P5R2-18 externalはhost-level isolation未確認でBlockedのまま、P5R2-22はP5R2-23最終統合レビューとH2判定待ち、H2は未承認である。P5R2完了宣言とP6はH2まで停止する。

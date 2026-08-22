@@ -1,0 +1,14 @@
+{
+  "schema_version": "P5R2-A95-static-policy-v1",
+  "step_id": "P5R2-22",
+  "run_id": "RUN-P5R2-22-MANUAL-LOCAL-001",
+  "policy": "ALLOW",
+  "scope": "path/schema/link/secret/state/traceability review only",
+  "management_hash": false,
+  "manifest": false,
+  "stale_or_fingerprint": false,
+  "hash_retry": false,
+  "hash_receipt": false,
+  "protected_data_identity_hash": "not_added",
+  "reason": "P5R2-22のManual、UI証跡、runtime receiptは管理hash経路を追加せず、現行／legacy境界、local-only、外部I/O、P6停止、リンクと状態を確認した。"
+}
