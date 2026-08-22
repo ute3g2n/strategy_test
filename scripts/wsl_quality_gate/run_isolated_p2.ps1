@@ -14,8 +14,8 @@ param(
 # and is retained as a protected hash; it is not a management acceptance hash.
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
-$EvidencePhase = $EvidencePhase.ToLowerInvariant()
-if ($EvidencePhase -notmatch '^phase[0-9]+$') { throw "EvidencePhase must be phaseN" }
+$EvidencePhase = $EvidencePhase.Trim()
+if ($EvidencePhase -notmatch '^phase[0-9]+R?[0-9]*$') { throw "EvidencePhase must be phaseN, phaseNR, or phaseNRN" }
 $root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $evidence = Join-Path $root "tests/evidence/$EvidencePhase/$RunId"
 $config = Join-Path $env:UserProfile ".wslconfig"

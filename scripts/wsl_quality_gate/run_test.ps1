@@ -16,7 +16,7 @@ $registry = Get-Content -LiteralPath $registryPath -Raw -Encoding utf8 | Convert
 $scopeProperty = $registry.scopes.PSObject.Properties[$RunId]
 if ($null -eq $scopeProperty) { throw "RunId is not registered in trusted scopes: $RunId" }
 $evidencePhase = [string]$scopeProperty.Value.phase_id
-if ($evidencePhase -notmatch '^phase[0-9]+$') { throw "trusted scope phase_id is invalid: $evidencePhase" }
+if ($evidencePhase -notmatch '^phase[0-9]+R?[0-9]*$') { throw "trusted scope phase_id is invalid: $evidencePhase" }
 $evidenceRoot = Join-Path $repositoryRoot "tests/evidence/$evidencePhase/$RunId"
 $automationRoot = Join-Path $evidenceRoot "automation"
 $wrapperPath = Join-Path $PSScriptRoot "run_isolated_p2.ps1"

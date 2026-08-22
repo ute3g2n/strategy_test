@@ -1,0 +1,118 @@
+{
+  "step_id": "P5R2-11",
+  "run_id": "RUN-P5R2-11-LOCAL-001",
+  "runtime_backend": "multi_agent_v1",
+  "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+  "fallback_reason": "multi_agent_v1によるroot planner probeは完了したが、指定Coordinator/Agentsへの実行バインドとnested dispatchは確立しなかった。未起動の指定Agentを独立実行済みとは扱わない。",
+  "nested_dispatch": "NOT_ESTABLISHED",
+  "actual_root_runtime": {
+    "role": "planner_probe",
+    "agent_id": "01a0297c-1144-7ed1-bad2-2ba15a7cf9c4",
+    "status": "COMPLETED",
+    "wait_status": "COMPLETED",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK",
+    "correction_note": "Observed runtime agent ID is recorded; this is not the requested Coordinator or an independent Project Agent."
+  },
+  "requested_continuation_profile": "gpt-5.6-luna priority-fast requested by user; runtime binding not exposed",
+  "coordinator": {
+    "name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+    "json_path": ".codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json",
+    "requested_model": "gpt-5.6-terra",
+    "agent_id": "N/A",
+    "binding_status": "NOT_BOUND",
+    "accepted_status": "NOT_ACCEPTED",
+    "completion_status": "NOT_STARTED",
+    "output_reference": null,
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK"
+  },
+  "agents": [
+    {
+      "name": "AutoTrade_A110_PythonTestEngineer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A110_PythonTestEngineer_v0_1.json",
+      "requested_model": "gpt-5.6-luna",
+      "reasoning_effort": null,
+      "agent_id": "N/A",
+      "binding_status": "NOT_DISPATCHED",
+      "accepted_status": "NOT_ACCEPTED",
+      "completion_status": "NOT_DISPATCHED",
+      "output_reference": null,
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A130_VerificationEngineer_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A130_VerificationEngineer_v0_1.json",
+      "requested_model": "gpt-5.6-luna",
+      "reasoning_effort": null,
+      "agent_id": "N/A",
+      "binding_status": "NOT_DISPATCHED",
+      "accepted_status": "NOT_ACCEPTED",
+      "completion_status": "NOT_DISPATCHED",
+      "output_reference": null,
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1",
+      "json_path": ".codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json",
+      "requested_model": "gpt-5.6-luna",
+      "reasoning_effort": "low",
+      "agent_id": "N/A",
+      "binding_status": "NOT_DISPATCHED",
+      "accepted_status": "NOT_ACCEPTED",
+      "completion_status": "NOT_DISPATCHED",
+      "output_reference": null,
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    }
+  ],
+  "skills": [
+    "autotrade_skill_python_test_quality_v0_1",
+    "autotrade_skill_test_strategy_v0_1",
+    "autotrade_skill_orchestration_v0_1",
+    "autotrade_skill_protected_hash_policy_guard_v0_1"
+  ],
+  "h1_approval_evidence": {
+    "packet": "doc/phase5R2/05_H1/06_P5R2-H1承認packet.html",
+    "packet_status": "APPROVED_BY_DELEGATED_AUTHORITY",
+    "decision_log": "plan/phase5R2/ログ/P5R2-H1_承認判断_2026-08-22.md",
+    "ledger": "doc/00_全Phase残課題Blocked統合台帳.html"
+  },
+  "scope": {
+    "status": "REGISTERED_SCOPE_ONLY_EVIDENCE_NOT_GENERATED",
+    "phase_id": "phase5R2",
+    "step_id": "P5R2-11",
+    "scope_mode": "target_only",
+    "evidence_root": "tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/",
+    "trusted_scope_registry": "scripts/quality_gate/trusted_scopes.json",
+    "fixture_reference": "scopes.RUN-P5R-03-20260816-001.fixture",
+    "fixture_access": "READ_ONLY_REFERENCE; NO_NEW_IDENTITY",
+    "host_outbound_isolation": "NOT_VERIFIED",
+    "fixed_four_gates": "REGISTERED_NOT_RUN"
+  },
+  "root_static_policy_check": {
+    "decision": "ALLOW_NO_NEW_MANAGEMENT_HASH_FLOW",
+    "source": "root fallback checklist; requested A95 child was NOT_DISPATCHED",
+    "protected_fixture_handling": "existing trusted identity and recorded protected checksum reused without recalculation; no management hash flow",
+    "management_hash_flow": "NOT_CREATED"
+  },
+  "actions_not_performed": {
+    "implementation": false,
+    "test_subprocess": false,
+    "pytest": false,
+    "playwright": false,
+    "npm": false,
+    "wsl_runner": false,
+    "external_network": false,
+    "secret_read": false,
+    "provider_login_or_download": false,
+    "physical_delete": false
+  },
+  "unknowns_preserved": [
+    "P5R2-UNK-QG-001",
+    "P5R2-UNK-QG-002"
+  ],
+  "step_state": "P5R2-11_SCOPE_REGISTERED_EVIDENCE_NOT_GENERATED"
+}

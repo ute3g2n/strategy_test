@@ -11,7 +11,7 @@ run_id="${2:-RUN-P2-IC-001-WSL}"
 host_execution_id="${WSL_HOST_WRAPPER_EXECUTION_ID:-${3:?host wrapper execution id is required}}"
 evidence_phase="${4:-phase2}"
 distro="${WSL_DISTRO_NAME:-unknown}"
-if [[ ! "$evidence_phase" =~ ^phase[0-9]+$ ]]; then
+if [[ ! "$evidence_phase" =~ ^phase[0-9]+[Rr]?[0-9]*$ ]]; then
   printf 'invalid evidence phase: %s\n' "$evidence_phase" >&2
   exit 20
 fi
