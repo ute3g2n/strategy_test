@@ -1,0 +1,31 @@
+{
+  "phase_id": "P5R2",
+  "step_id": "P5R2-04",
+  "document_set_id": "P5R2-DOCSET-04",
+  "orchestrator_name": "AutoTradeProject_DesignDocSet_Orchestrator_v0_1",
+  "orchestrator_json_path": ".codex/orchestrators/AutoTradeProject_DesignDocSet_Orchestrator_v0_1.json",
+  "orchestrator_model": "gpt-5.6-terra",
+  "orchestrator_agent_id": "N/A",
+  "runtime_backend": "N/A",
+  "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED / LOCAL_FALLBACK_NO_SUBAGENTS",
+  "fallback_reason": "AGENT_RUNTIME_TOOL_UNAVAILABLE: multi_agent_v1__spawn_agent and multi_agent_v1__wait_agent are not exposed in this runtime",
+  "independent": false,
+  "review_mode": "SELF_REVIEW_FALLBACK",
+  "agents": [
+    {"name":"AutoTrade_A10_RequirementsCurator_v0_1","json_path":".codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json","model":"gpt-5.6-luna","reasoning_effort":null,"agent_id":"N/A","spawn_status":"NOT_STARTED","wait_status":"NOT_STARTED","output_ref":"N/A","fallback_reason":"runtime tool unavailable","independent":false,"review_mode":"SELF_REVIEW_FALLBACK"},
+    {"name":"AutoTrade_A80_DocumentIntegrator_v0_1","json_path":".codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json","model":"gpt-5.6-luna","reasoning_effort":"low","agent_id":"N/A","spawn_status":"NOT_STARTED","wait_status":"NOT_STARTED","output_ref":"N/A","fallback_reason":"runtime tool unavailable","independent":false,"review_mode":"SELF_REVIEW_FALLBACK"},
+    {"name":"AutoTrade_A81_DesignDocSetWriter_v0_1","json_path":".codex/agents/AutoTrade_A81_DesignDocSetWriter_v0_1.json","model":"gpt-5.6-luna","reasoning_effort":null,"agent_id":"N/A","spawn_status":"NOT_STARTED","wait_status":"NOT_STARTED","output_ref":"N/A","fallback_reason":"runtime tool unavailable","independent":false,"review_mode":"SELF_REVIEW_FALLBACK"},
+    {"name":"AutoTrade_A90_DesignReviewer_v0_1","json_path":".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json","model":"gpt-5.6-luna","reasoning_effort":null,"agent_id":"N/A","spawn_status":"NOT_STARTED","wait_status":"NOT_STARTED","output_ref":"N/A","fallback_reason":"runtime tool unavailable","independent":false,"review_mode":"SELF_REVIEW_FALLBACK"},
+    {"name":"AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1","json_path":".codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json","model":"gpt-5.6-luna","reasoning_effort":"low","agent_id":"N/A","spawn_status":"NOT_STARTED","wait_status":"NOT_STARTED","output_ref":"N/A","fallback_reason":"runtime tool unavailable","independent":false,"review_mode":"SELF_REVIEW_FALLBACK"}
+  ],
+  "output_refs": [
+    "plan/phase5R2/requirements/drafts/01_自動トレードシステム要件定義書_v4_candidate.md",
+    "doc/phase5R2/02_要件候補/03_P5R2候補Requirement・Acceptance・追跡表.html",
+    "doc/phase5R2/02_要件候補/04_バックテスト手順書改訂要件.html",
+    "plan/phase5R2/ログ/P5R2-04_要件v4candidate・追跡・Manual改訂要件_2026-08-22.md"
+  ],
+  "unresolved_critical_high": [],
+  "unknown": ["P5R2-UNK-HD-004", "P5R2-DATA-G1", "P5R2-DELETE-G1"],
+  "a95_static_decision": "NEEDS_HUMAN_GATE",
+  "next_step_status": "P5R2-05_READY / P5R2-HREQ_UNAPPROVED"
+}

@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-001`
 > Version: `v0.1`
 > 作成日: `2026-08-21`
-> 状態: `PLAN_CREATED / P5R2-H0_APPROVED / P5R2-01_COMPLETE / P5R2-02_ROUND1_COMPLETE / P5R2-03_COMPLETE / P5R2-04_READY / P6_PAUSED`
+> 状態: `PLAN_CREATED / P5R2-H0_APPROVED / P5R2-01_COMPLETE / P5R2-02_ROUND1_COMPLETE / P5R2-03_COMPLETE / P5R2-04_COMPLETE / P5R2-05_READY / P5R2-HREQ_UNAPPROVED / P6_PAUSED`
 > 現在の対象: 要件ヒアリング、要件候補の改訂、要件承認、承認後の実行計画再編まで
 > 現在の非対象: P5R2本実装、外部Data取得、Secret投入、費用発生、実Data削除、P6開始
 
@@ -812,3 +812,9 @@ Q-R3-05の自由回答により、Q-R2-05=Cの重複許可は履歴として保�
 P5R2-03の人向け追加質問は全件回答済みで、P5R2-03を完了とする。次の `P5R2-04` は、候補Requirement、Acceptance、v4 candidate、P5R2-ART-03、P5R2-ART-04、UI/API/Persistence/Test/Manual traceを作成するStepである。P5R2-HREQは候補成果物を人が確認・承認する別Gateであり、今回の回答だけで自動承認しない。
 
 詳細は `plan/phase5R2/ログ/P5R2-03-Round4回答統合_2026-08-22.md`、ART-02 Section 12、ART-01 Section 17へ追跡する。
+
+### 17.10 P5R2-04 candidate文書作成完了（2026-08-22）
+
+P5R2-04は、`plan/phase5R2/requirements/drafts/01_自動トレードシステム要件定義書_v4_candidate.md`、`P5R2-ART-03`、`P5R2-ART-04`を作成して完了した。v3とP5R旧完了は上書きせず、candidateは`CANDIDATE / NOT_CURRENT / P5R2-HREQ_UNAPPROVED`を維持する。Manual本体、ソース、Test subprocess、Playwright、外部Data、Secret、費用、実削除は変更・実行していない。
+
+指定runtimeの`multi_agent_v1__spawn_agent`／`multi_agent_v1__wait_agent`は利用できず、CoordinatorとA10/A80/A81/A90/A95は未起動である。`RUNTIME_DISPATCH_FALLBACK_REQUIRED / LOCAL_FALLBACK_NO_SUBAGENTS`、`independent=false`、`review_mode=SELF_REVIEW_FALLBACK`をreceiptへ記録し、独立レビュー済みとは扱わない。次は`P5R2-05_READY`であり、実runtimeを再試行してFindings firstレビューを受領する。レビューを受領できなければHREQ packet完成へ進まず`REVIEW_RUNTIME_BLOCKED`で停止する。
