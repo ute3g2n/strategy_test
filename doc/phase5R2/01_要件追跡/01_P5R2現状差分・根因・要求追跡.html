@@ -218,7 +218,19 @@ code{background:#eef2f7;padding:2px 4px;border-radius:4px}pre{background:#172033
 <tr><td>Q-R2-08=A：成功・失敗・拒否・取消・retry・復旧を監査、検証済み手順だけ反映</td><td>schema、保持期間、権限、反映単位</td><td><span class="open">DETAIL OPEN</span></td></tr>
 </table>
 <p>選択肢回答だけではP5R2-03 Exit条件（HREQ-blocking Unknown=0）を満たさないため、Round 3を開始した。詳細質問は<a href="../../../plan/phase5R2/ログ/P5R2-03-Round3質問packet_2026-08-22.md">P5R2-03 Round 3質問packet</a>と<a href="../../../doc/phase5R2/01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html#round3">ART-02 Section 10</a>に記録する。</p>
-<p class="danger"><strong>現在状態：</strong><code>P5R2-03-ROUND3_WAITING_USER</code>。P5R2-04、P5R2-HREQ、実装、test subprocess、Playwright、外部Data取得、実削除、P6は停止中。<code>P5R2-UNK-HD-004</code>は<code>NEEDS_HUMAN_GATE</code>を維持する。</p>
+<p class="danger"><strong>Round 3時点の履歴状態：</strong><code>P5R2-03-ROUND3_WAITING_USER</code>。この状態はRound 3回答受領前の記録であり、現在はSection 16のRound 4状態を正本とする。</p>
+</section>
+<section id="p5r2-03-round4"><h2>16. P5R2-03 Round 3回答・Round 4移行（2026-08-22）</h2>
+<p>Round 3回答を受領した：<code>Q-R3-01=A</code>、<code>Q-R3-02=A</code>、<code>Q-R3-03=A</code>、<code>Q-R3-04=B</code>、Q-R3-05は「同じ銘柄・時間足のDataを重複させず、期間が被っていない区間は後から取得したDataをマージ」、Q-R3-06は「結果の画面表示を削除する意味」、<code>Q-R3-07=A</code>、<code>Q-R3-08=A</code>である。</p>
+<p>Q-R3-01/02/03/07/08は方針方向を受領した。Q-R3-04=Bは品質警告付きDataの使用可能化を意味するが、警告と使用禁止エラーの分類が残る。Q-R3-05は旧Q-R2-05=Cの重複許可を最新回答で上書きし、非重複期間のマージを採用する方向へ変更した。Q-R3-06は実DataやRunの削除ではなく、結果サマリー画面の表示削除という意味を受領したが、保存物・Run状態・再表示・監査は未確定である。</p>
+<table><tr><th>残る論点</th><th>具体的に決めること</th><th>追跡先</th></tr>
+<tr><td>品質警告</td><td>警告だけを<code>USABLE_WITH_WARNING</code>として許可するか、使用禁止エラーとの境界、provenance表示。</td><td><code>P5R2-UNK-TF-002/004</code>、Q-R4-01</td></tr>
+<tr><td>Data同一性とマージ</td><td>Provider・market・symbol・時間足・正規化の同一性、非重複期間の新version、旧version保持、Run固定参照。</td><td><code>P5R2-UNK-HD-002</code>、Q-R4-02/03</td></tr>
+<tr><td>重複期間の競合</td><td>完全一致バーのdedupe、値が違うバーの自動上書き禁止、競合時停止とprovenance。</td><td><code>P5R2-UNK-HD-002</code>、DATA-G1、Q-R4-04</td></tr>
+<tr><td>結果表示削除</td><td>画面だけを非表示にする範囲、Run・Data・結果ファイルの保持、terminal取消との分離、再表示、監査。</td><td><code>P5R2-UNK-RUN-001/002</code>、DELETE-G1、Q-R4-05/06</td></tr>
+</table>
+<p>詳細質問は<a href="../../../plan/phase5R2/ログ/P5R2-03-Round4質問packet_2026-08-22.md">P5R2-03 Round 4質問packet</a>と<a href="../../../doc/phase5R2/01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html#round4">ART-02 Section 11</a>に記録する。</p>
+<p class="danger"><strong>現在状態：</strong><code>P5R2-03-ROUND4_WAITING_USER</code>。Q-R4-01〜06の回答が揃い、High Unknownを具体Requirementへ変換するまで、P5R2-04、P5R2-HREQ、実装、test subprocess、Playwright、外部Data取得、実削除、P6は停止中。<code>P5R2-UNK-HD-004</code>は<code>NEEDS_HUMAN_GATE</code>を維持する。</p>
 </section>
 <footer class="small">P5R2-ART-01。旧P5Rの完了判定を変更せず、P5R2の要件候補・実装・外部I/O・削除を承認済みとは表示しない。</footer>
 </body>
