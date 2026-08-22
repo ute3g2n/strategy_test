@@ -23,7 +23,7 @@
 |部品|判定|理由|
 |---|---|---|
 |`AutoTradePhasePlanning_Orchestrator_v0_1`|再利用可能|P5R2-08の入力整理・Agent選定・Gate管理に合致。default変更不要。|
-|A05/A10/A80/A90/A95|再利用可能|計画、要件抽出、統合、レビュー、管理hash静的防止の責務が揃う。今回、実ランタイム未提供のため独立実行済みではない。|
+|A05/A10/A80/A90/A95|再利用候補|計画、要件抽出、統合、レビュー、管理hash静的防止の責務は既存定義で足りる。今回のruntimeではルートplanner probeだけが実行され、指定子Agentへのバインド・nested dispatchは確立しなかったため、独立実行済みではない。|
 |`autotrade_skill_source_reader_v0_1`、`traceability`、`orchestration`、`protected_hash_policy_guard`|再利用可能|入力整理、追跡、Unknown停止、管理hash排除に直接対応。|
 |ComponentLifecycle|不要|新規Skill/Agent/Orchestratorを作成・変更しない。既存JSONの責務で足り、部品変更は別Stepでのみ再判定する。|
 
