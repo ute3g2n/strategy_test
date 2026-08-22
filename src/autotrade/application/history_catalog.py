@@ -617,7 +617,7 @@ class HistoryCatalog:
                     handle.flush()
                 handle.seek(0)
                 if os.name == "nt":
-                    import msvcrt
+                    msvcrt: Any = __import__("msvcrt")
 
                     msvcrt.locking(handle.fileno(), msvcrt.LK_LOCK, 1)
                 else:
