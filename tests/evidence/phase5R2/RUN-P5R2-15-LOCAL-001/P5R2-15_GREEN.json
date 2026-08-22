@@ -1,0 +1,76 @@
+{
+  "schema_version": "P5R2-15-green-evidence-v1",
+  "phase_id": "phase5R2",
+  "step_id": "P5R2-15",
+  "run_id": "RUN-P5R2-15-LOCAL-001",
+  "state": "GREEN_CONFIRMED",
+  "confirmed_on": "2026-08-23",
+  "requirements": {
+    "P5R2-CREQ-RUN-001": {
+      "status": "PASS",
+      "evidence": [
+        "src/autotrade/application/run_service.py",
+        "src/autotrade/application/backtest_product.py",
+        "src/autotrade/application/http_server.py",
+        "tests/application/test_p5r2_run_operation_guard.py",
+        "tests/phase5R/test_p5r2_backtest_service_cancel_guard.py"
+      ],
+      "scope": "The three application Run views share server-owned cancel state, operation token, audit, and revision guards. QUEUED becomes CANCELLED with a resumable initial checkpoint; RUNNING becomes STOP_REQUESTED; terminal and recovery states remain unchanged."
+    },
+    "P5R2-CREQ-RUN-002": {
+      "status": "PASS_WITH_DELETE_GATE_BLOCK",
+      "evidence": [
+        "src/autotrade/application/result_view.py",
+        "tests/phase5R/test_p5r2_result_artifact_guard.py",
+        "tests/phase5R/test_p5r2_result_artifact_red_contract.py"
+      ],
+      "scope": "ResultArtifact deletion is fail-closed by logical ID, protected-root, ownership, state, path, and confirmation checks. DELETE-G1 remains unapproved, so terminal Results return DELETE_GATE_REQUIRED and no unlink, tombstone, cascade, or physical deletion is performed."
+    }
+  },
+  "local_verification": {
+    "fixed_target_pytest_windows": "42 passed",
+    "fixed_target_pytest_wsl": "42 passed",
+    "formatter": "PASS",
+    "lint": "PASS",
+    "type": "PASS",
+    "fixed_isolated_quality_gate": {
+      "state": "PASS",
+      "verification": "tests/evidence/phase5R2/RUN-P5R2-15-LOCAL-001/verification.json",
+      "automation_summary": "tests/evidence/phase5R2/RUN-P5R2-15-LOCAL-001/automation/run-test-summary.json",
+      "host_wrapper_execution_id": "a13964d2a4de4326b815feefc2017c65",
+      "network_isolation": "CONFIRMED",
+      "gates": ["formatter", "lint", "type", "test"],
+      "protected_fixture": "existing trusted-scope identity referenced read-only; input and post-input identity matched"
+    },
+    "targeted_windows_regression": "storage layout, backtest product, P5R2 cancel guard, and nonhash boundary tests: 24 passed",
+    "quality_gate_contract_windows": "tests/quality_gate/test_wsl_quality_gate_contract.py: 11 passed"
+  },
+  "review": {
+    "critical": 0,
+    "high": 0,
+    "code_review": "tests/evidence/phase5R2/RUN-P5R2-15-LOCAL-001/P5R2-15_code_review_final_after_storage_fix.json",
+    "a95_policy": "tests/evidence/phase5R2/RUN-P5R2-15-LOCAL-001/P5R2-15_A95_policy_review_final.json",
+    "decision": "APPROVED_AFTER_FIXED_GATE",
+    "truthfulness_note": "The requested Project Coordinator and full Agent roster were not independently dispatched. The final code review and A95 policy review are recorded as actual independent dispatches; unstarted roster entries remain not dispatched."
+  },
+  "prohibited_operations": {
+    "external_network": false,
+    "provider_login_or_download": false,
+    "secret_read_or_storage": false,
+    "cost": false,
+    "physical_delete": false,
+    "playwright": false,
+    "npm": false,
+    "p6_start": false,
+    "new_management_hash_flow": false
+  },
+  "deferred_scope": [
+    "P5R2-16 process restart persistence, migration, and integrated recovery",
+    "P5R2-DATA-G1 external Provider acceptance",
+    "P5R2-DELETE-G1 physical Result Artifact deletion",
+    "P5R2-19 real Application UI, browser, accessibility, and visual validation",
+    "P5R2-H2 and P5R2-25"
+  ],
+  "decision": "P5R2-15_GREEN_CONFIRMED",
+  "next_step": "P5R2-16_READY_TO_START"
+}

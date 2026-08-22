@@ -1,0 +1,76 @@
+﻿{
+    "debug":  [
+                  {
+                      "kind":  "strict",
+                      "command":  [
+                                      "wsl.exe",
+                                      "--version"
+                                  ],
+                      "powershell_location":  "C:\\project\\strategy_test",
+                      "exit_code":  0,
+                      "output":  "W\u0000S\u0000L\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00002\u0000.\u00006\u0000.\u00003\u0000.\u00000\u0000\n\u0000\n\u0000ｫ0・ﾍ0・ \u0000ﾐ0・ｸ0・・:\u0000 \u00006\u0000.\u00006\u0000.\u00008\u00007\u0000.\u00002\u0000-\u00001\u0000\n\u0000\n\u0000W\u0000S\u0000L\u0000g\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00000\u0000.\u00007\u00001\u0000\n\u0000\n\u0000M\u0000S\u0000R\u0000D\u0000C\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00002\u0000.\u00006\u00003\u00005\u00003\u0000\n\u0000\n\u0000D\u0000i\u0000r\u0000e\u0000c\u0000t\u00003\u0000D\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u0000.\u00006\u00001\u00001\u0000.\u00001\u0000-\u00008\u00001\u00005\u00002\u00008\u00005\u00001\u00001\u0000\n\u0000\n\u0000D\u0000X\u0000C\u0000o\u0000r\u0000e\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u00000\u0000.\u00000\u0000.\u00002\u00006\u00001\u00000\u00000\u0000.\u00001\u0000-\u00002\u00004\u00000\u00003\u00003\u00001\u0000-\u00001\u00004\u00003\u00005\u0000.\u0000g\u0000e\u0000-\u0000r\u0000e\u0000l\u0000e\u0000a\u0000s\u0000e\u0000\n\u0000\n\u0000W\u0000i\u0000n\u0000d\u0000o\u0000w\u0000s\u0000 \u0000ﾐ0・ｸ0・・:\u0000 \u00001\u00000\u0000.\u00000\u0000.\u00002\u00006\u00002\u00000\u00000\u0000.\u00009\u00001\u00006\u00008\u0000\n\u0000\n\u0000",
+                      "recorded_at":  "2026-08-22T18:35:42.6630779Z"
+                  },
+                  {
+                      "kind":  "strict",
+                      "command":  [
+                                      "wsl.exe",
+                                      "-l",
+                                      "-v"
+                                  ],
+                      "powershell_location":  "C:\\project\\strategy_test",
+                      "exit_code":  0,
+                      "output":  " \u0000 \u0000N\u0000A\u0000M\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000S\u0000T\u0000A\u0000T\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000V\u0000E\u0000R\u0000S\u0000I\u0000O\u0000N\u0000\n\u0000\n\u0000*\u0000 \u0000U\u0000b\u0000u\u0000n\u0000t\u0000u\u0000-\u00002\u00004\u0000.\u00000\u00004\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\n\u0000\n\u0000 \u0000 \u0000d\u0000o\u0000c\u0000k\u0000e\u0000r\u0000-\u0000d\u0000e\u0000s\u0000k\u0000t\u0000o\u0000p\u0000 \u0000 \u0000 \u0000 \u0000S\u0000t\u0000o\u0000p\u0000p\u0000e\u0000d\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\n\u0000\n\u0000",
+                      "recorded_at":  "2026-08-22T18:35:42.7115386Z"
+                  },
+                  {
+                      "kind":  "capture",
+                      "command":  [
+                                      "wsl.exe",
+                                      "--",
+                                      "bash",
+                                      "-lc",
+                                      "cd / \u0026\u0026 cd \u0027/home/oue/strategy_test\u0027 \u0026\u0026 exec bash scripts/wsl_quality_gate/run_isolated_p2.sh \u0027/home/oue/strategy_test\u0027 \u0027RUN-P5R2-15-LOCAL-001\u0027 \u0027f9982f53966d4bdba15741a1eb43127d\u0027 \u0027phase5R2\u0027"
+                                  ],
+                      "powershell_location":  "C:\\project\\strategy_test",
+                      "exit_code":  1,
+                      "output":  "{\"state\": \"FAILED\", \"reason\": \"test 縺悟､ｱ謨励＠縺ｾ縺励◆\", \"gates\": [{\"gate\": \"formatter\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"ruff\", \"format\", \"--check\", \"src/autotrade/application\", \"tests/application\", \"tests/phase5R\", \"scripts/quality_gate\", \"scripts/wsl_quality_gate\"], \"exit_code\": 0, \"duration_ms\": 264}, {\"gate\": \"lint\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"ruff\", \"check\", \"src/autotrade/application\", \"tests/application\", \"tests/phase5R\", \"scripts/quality_gate\", \"scripts/wsl_quality_gate\"], \"exit_code\": 0, \"duration_ms\": 214}, {\"gate\": \"type\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"mypy\", \"src/autotrade/application\"], \"exit_code\": 0, \"duration_ms\": 314}, {\"gate\": \"test\", \"status\": \"FAIL\", \"command\": [\".venv/bin/python\", \"-m\", \"scripts.quality_gate.local_p5r2_p15_pytest\"], \"exit_code\": 1, \"duration_ms\": 15248}], \"generated_at\": \"2026-08-22T18:36:06.374191+00:00\"}",
+                      "recorded_at":  "2026-08-22T18:36:06.5799057Z"
+                  },
+                  {
+                      "kind":  "capture",
+                      "command":  [
+                                      "wsl.exe",
+                                      "-d",
+                                      "Ubuntu-24.04",
+                                      "--",
+                                      "bash",
+                                      "-lc",
+                                      "cd / \u0026\u0026 base64 -w0 \u0027/home/oue/strategy_test/tests/evidence/phase5R2/RUN-P5R2-15-LOCAL-001/verification.json\u0027"
+                                  ],
+                      "powershell_location":  "C:\\project\\strategy_test",
+                      "exit_code":  0,
+                      "output":  "ewogICJzdGF0ZSI6ICJGQUlMRUQiLAogICJyZWFzb24iOiAidGVzdCDjgYzlpLHmlZfjgZfjgb7jgZfjgZ8iLAogICJnYXRlcyI6IFsKICAgIHsKICAgICAgImdhdGUiOiAiZm9ybWF0dGVyIiwKICAgICAgInN0YXR1cyI6ICJQQVNTIiwKICAgICAgImNvbW1hbmQiOiBbCiAgICAgICAgIi52ZW52L2Jpbi9weXRob24iLAogICAgICAgICItbSIsCiAgICAgICAgInJ1ZmYiLAogICAgICAgICJmb3JtYXQiLAogICAgICAgICItLWNoZWNrIiwKICAgICAgICAic3JjL2F1dG90cmFkZS9hcHBsaWNhdGlvbiIsCiAgICAgICAgInRlc3RzL2FwcGxpY2F0aW9uIiwKICAgICAgICAidGVzdHMvcGhhc2U1UiIsCiAgICAgICAgInNjcmlwdHMvcXVhbGl0eV9nYXRlIiwKICAgICAgICAic2NyaXB0cy93c2xfcXVhbGl0eV9nYXRlIgogICAgICBdLAogICAgICAiZXhpdF9jb2RlIjogMCwKICAgICAgImR1cmF0aW9uX21zIjogMjY0CiAgICB9LAogICAgewogICAgICAiZ2F0ZSI6ICJsaW50IiwKICAgICAgInN0YXR1cyI6ICJQQVNTIiwKICAgICAgImNvbW1hbmQiOiBbCiAgICAgICAgIi52ZW52L2Jpbi9weXRob24iLAogICAgICAgICItbSIsCiAgICAgICAgInJ1ZmYiLAogICAgICAgICJjaGVjayIsCiAgICAgICAgInNyYy9hdXRvdHJhZGUvYXBwbGljYXRpb24iLAogICAgICAgICJ0ZXN0cy9hcHBsaWNhdGlvbiIsCiAgICAgICAgInRlc3RzL3BoYXNlNVIiLAogICAgICAgICJzY3JpcHRzL3F1YWxpdHlfZ2F0ZSIsCiAgICAgICAgInNjcmlwdHMvd3NsX3F1YWxpdHlfZ2F0ZSIKICAgICAgXSwKICAgICAgImV4aXRfY29kZSI6IDAsCiAgICAgICJkdXJhdGlvbl9tcyI6IDIxNAogICAgfSwKICAgIHsKICAgICAgImdhdGUiOiAidHlwZSIsCiAgICAgICJzdGF0dXMiOiAiUEFTUyIsCiAgICAgICJjb21tYW5kIjogWwogICAgICAgICIudmVudi9iaW4vcHl0aG9uIiwKICAgICAgICAiLW0iLAogICAgICAgICJteXB5IiwKICAgICAgICAic3JjL2F1dG90cmFkZS9hcHBsaWNhdGlvbiIKICAgICAgXSwKICAgICAgImV4aXRfY29kZSI6IDAsCiAgICAgICJkdXJhdGlvbl9tcyI6IDMxNAogICAgfSwKICAgIHsKICAgICAgImdhdGUiOiAidGVzdCIsCiAgICAgICJzdGF0dXMiOiAiRkFJTCIsCiAgICAgICJjb21tYW5kIjogWwogICAgICAgICIudmVudi9iaW4vcHl0aG9uIiwKICAgICAgICAiLW0iLAogICAgICAgICJzY3JpcHRzLnF1YWxpdHlfZ2F0ZS5sb2NhbF9wNXIyX3AxNV9weXRlc3QiCiAgICAgIF0sCiAgICAgICJleGl0X2NvZGUiOiAxLAogICAgICAiZHVyYXRpb25fbXMiOiAxNTI0OAogICAgfQogIF0sCiAgImdlbmVyYXRlZF9hdCI6ICIyMDI2LTA4LTIyVDE4OjM2OjA2LjM3MzkxOSswMDowMCIsCiAgImV4aXRfY29kZSI6IDEsCiAgInRvb2xfdmVyc2lvbnMiOiB7CiAgICAicHl0aG9uIjogIlB5dGhvbiAzLjEyLjEzIiwKICAgICJydWZmIjogInJ1ZmYgMC4xNi4xIiwKICAgICJteXB5IjogIm15cHkgMi4zLjAgKGNvbXBpbGVkOiB5ZXMpIiwKICAgICJweXRlc3QiOiAicHl0ZXN0IDkuMS4xIiwKICAgICJweXRlc3RfY292IjogIjcuMS4wIgogIH0sCiAgInNjb3BlIjogInRhcmdldF9vbmx5IiwKICAiaW5wdXRfc2hhMjU2IjogInNoYTI1Njo5ZmJkOTc0ZjU3YzgyMzkyMzE4ZmNkZjU3ZWUzZmQyZmUwN2MwYWUzN2ZjNTFiMzhkYmMxZGI5OWQ0Y2M4NThkIiwKICAicG9zdF9pbnB1dF9zaGEyNTYiOiAic2hhMjU2OjlmYmQ5NzRmNTdjODIzOTIzMThmY2RmNTdlZTNmZDJmZTA3YzBhZTM3ZmM1MWIzOGRiYzFkYjk5ZDRjYzg1OGQiLAogICJob3N0X3dyYXBwZXJfZXhlY3V0aW9uX2lkIjogImY5OTgyZjUzOTY2ZDRiZGJhMTU3NDFhMWViNDMxMjdkIiwKICAicmVzdG9yZV9wZW5kaW5nIjogdHJ1ZSwKICAiZGJuX2RlY29kZXJfcHJvYmUiOiBudWxsLAogICJleGVjdXRpb25fdXNlciI6ICJvdWUiLAogICJleGVjdXRpb25fdWlkIjogMTAwMAp9Cg==",
+                      "recorded_at":  "2026-08-22T18:36:06.6829142Z"
+                  },
+                  {
+                      "kind":  "capture",
+                      "command":  [
+                                      "wsl.exe",
+                                      "-d",
+                                      "Ubuntu-24.04",
+                                      "--",
+                                      "bash",
+                                      "-lc",
+                                      "cd / \u0026\u0026 cat \u0027/home/oue/strategy_test/tests/evidence/phase5R2/RUN-P5R2-15-LOCAL-001/host-isolation.json\u0027"
+                                  ],
+                      "powershell_location":  "C:\\project\\strategy_test",
+                      "exit_code":  0,
+                      "output":  "{\n  \"state\": \"CONFIRMED\", \"wsl_version\": \"WSL ・・繝ｻ・ｸ0繝ｻ繝ｻ: 2.6.3.0\", \"kernel\": \"6.6.87.2-microsoft-standard-WSL2\", \"distro\": \"Ubuntu-24.04\", \"networking_mode\": \"none\",\n  \"host_wrapper_execution_id\": \"f9982f53966d4bdba15741a1eb43127d\", \"ip_addr_summary\": \"1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\\n    inet 127.0.0.1/8 scope host lo\\n       valid_lft forever preferred_lft forever\\n    inet6 ::1/128 scope host \\n       valid_lft forever preferred_lft forever\",\n  \"ip_route_summary\": \"\",\n  \"confirmed_at\": \"2026-08-22T18:35:50Z\", \"scope\": [\"src/autotrade/application\", \"tests/application\", \"tests/phase5R\", \"scripts/quality_gate\", \"scripts/wsl_quality_gate\"], \"input_sha256\": \"sha256:9fbd974f57c82392318fcdf57ee3fd2fe07c0ae37fc51b38dbc1db99d4cc858d\", \"input_kind\": \"fixture\"\n}",
+                      "recorded_at":  "2026-08-22T18:36:06.7959886Z"
+                  }
+              ],
+    "execution_id":  "f9982f53966d4bdba15741a1eb43127d",
+    "error":  "System.Management.Automation.RuntimeException: WSL runner returned non-zero; inspect verification.json",
+    "state":  "FAILED"
+}

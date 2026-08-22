@@ -1,0 +1,85 @@
+{
+  "schema_version": "P5R2-runtime-receipt-v1",
+  "phase_id": "phase5R2",
+  "step_id": "P5R2-15",
+  "run_id": "RUN-P5R2-15-LOCAL-001",
+  "recorded_on": "2026-08-23",
+  "requested_runtime": {
+    "coordinator": {
+      "name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "model": "gpt-5.6-terra",
+      "independent_dispatch": false,
+      "agent_id": "N/A"
+    },
+    "agents": [
+      "AutoTrade_A110_PythonTestEngineer_v0_1",
+      "AutoTrade_A120_PythonImplementer_v0_1",
+      "AutoTrade_A130_VerificationEngineer_v0_1",
+      "AutoTrade_A140_DebugEngineer_v0_1",
+      "AutoTrade_A150_PythonCodeReviewer_v0_1",
+      "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+      "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1"
+    ],
+    "model": "gpt-5.6-luna",
+    "a95_reasoning_effort": "low"
+  },
+  "actual_dispatches": [
+    {
+      "role": "final code review",
+      "agent_id": "01a02aa8-f0c0-73f0-bfd4-4ab2166a2322",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "max",
+      "service_tier": "priority",
+      "evidence": "tests/evidence/phase5R2/RUN-P5R2-15-LOCAL-001/P5R2-15_code_review_final.json",
+      "result": "APPROVE_CODE_PENDING_FIXED_GATE; fixed gate subsequently PASS"
+    },
+    {
+      "role": "protected hash policy review",
+      "agent_id": "01a02aa8-f19e-7c12-8419-77956478de47",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "low",
+      "service_tier": "priority",
+      "evidence": "tests/evidence/phase5R2/RUN-P5R2-15-LOCAL-001/P5R2-15_A95_policy_review_final.json",
+      "result": "ALLOW"
+    },
+    {
+      "role": "post-fix independent code review",
+      "agent_id": "01a02ad8-2f03-7a13-9c8a-9ab7b6c09273",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "max",
+      "service_tier": "priority",
+      "evidence": "tests/evidence/phase5R2/RUN-P5R2-15-LOCAL-001/P5R2-15_code_review_final_after_storage_fix.json",
+      "result": "APPROVE_CODE_PENDING_FIXED_GATE; fixed gate subsequently PASS"
+    }
+  ],
+  "dispatch_truth": {
+    "requested_project_roster_independently_completed": false,
+    "coordinator_agent_id": "N/A",
+    "specified_agents_independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK_PLUS_ACTUAL_FINAL_REVIEWS",
+    "unstarted_agents_not_claimed_as_executed": true
+  },
+  "quality_gate": {
+    "state": "PASS",
+    "verification": "tests/evidence/phase5R2/RUN-P5R2-15-LOCAL-001/verification.json",
+    "fixed_entrypoint": "scripts/wsl_quality_gate/run_test.ps1",
+    "host_isolation": "tests/evidence/phase5R2/RUN-P5R2-15-LOCAL-001/host-isolation.json",
+    "host_wrapper_execution_id": "a13964d2a4de4326b815feefc2017c65",
+    "networking_mode": "none",
+    "fixed_gates": ["formatter", "lint", "type", "test"],
+    "test_result": "42 passed",
+    "windows_targeted_regression": "24 passed",
+    "windows_quality_gate_contract": "11 passed"
+  },
+  "boundaries": {
+    "external_io": "PROHIBITED_AND_NOT_USED",
+    "provider_login_or_download": "PROHIBITED_AND_NOT_USED",
+    "secret": "PROHIBITED_AND_NOT_USED",
+    "cost": "PROHIBITED_AND_NOT_USED",
+    "physical_delete": "PROHIBITED_AND_NOT_USED",
+    "playwright": "PROHIBITED_AND_NOT_USED",
+    "new_management_hash_flow": "NOT_CREATED",
+    "p6_start": "NOT_STARTED"
+  },
+  "next_step": "P5R2-16"
+}

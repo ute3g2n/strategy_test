@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-002`
 > Version: `v0.2`
 > 作成日: `2026-08-22`
-> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_GREEN_CONFIRMED / P5R2-14_GREEN_CONFIRMED / P5R2-15_IN_PROGRESS / P5R2-DATA-G1_UNAPPROVED / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
+> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_GREEN_CONFIRMED / P5R2-14_GREEN_CONFIRMED / P5R2-15_GREEN_CONFIRMED / P5R2-16_READY / P5R2-DATA-G1_UNAPPROVED / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
 > 旧計画: [`Phase5R2_実行計画書_v0.1_2026-08-21.md`](./Phase5R2_実行計画書_v0.1_2026-08-21.md)（要件確定前の履歴。上書きしない）
 
 ## 1. この計画の結論
@@ -451,6 +451,12 @@ RDC-P5R2-0.2とquality fixed Run contractを適用する。A50のProvider Adapte
 - Job snapshotのserver ownership／CAS、Catalog staging tokenのJob再検証、preview操作束縛、Result owner、exclusive writeを実装し、追加read-only監査でin-scope Critical／High=0を確認した。
 - 指定Project Coordinator／Agentsの独立dispatchは成立していないため、runtime receiptでは`NOT_DISPATCHED`／`independent=false`／`SELF_REVIEW_FALLBACK`として記録した。P5R2-16へJob永続化・migration・統合recoveryを引き継ぐ。
 - 証拠: [`P5R2-14 GREEN`](../tests/evidence/phase5R2/RUN-P5R2-14-LOCAL-001/P5R2-14_GREEN.json)、[`verification`](../tests/evidence/phase5R2/RUN-P5R2-14-LOCAL-001/verification.json)、[`A95 policy`](../tests/evidence/phase5R2/RUN-P5R2-14-LOCAL-001/P5R2-14_A95_policy.json)、[`runtime receipt`](./phase5R2/quality/runtime-receipt-P5R2-14.md)。
+
+実績（P5R2-15、2026-08-23）:
+- `P5R2-15_GREEN_CONFIRMED`。Run取消のserver-owned OperationGuard、HTTP経路、terminal不変、同一token再送、revision競合、最終bar取消、queued checkpoint／resume競合を実装した。
+- ResultArtifactはDELETE-G1前のfail-closed guardまでを実装した。既存Data／Run／Audit／Evidence／CSVの実削除、unlink、tombstone、cascadeは実行していない。
+- Windows固定pytest 42件、WSL固定pytest 42件、対象storage／Backtest／cancel guard／non-hash境界回帰24件、品質Gate契約11件、固定WSL4 GateをPASS。host outbound isolationはCONFIRMED、修正後の独立レビューでin-scope Critical／High／Medium／Lowはすべて0件となった。
+- 証拠: [`P5R2-15 GREEN`](../tests/evidence/phase5R2/RUN-P5R2-15-LOCAL-001/P5R2-15_GREEN.json)、[`verification`](../tests/evidence/phase5R2/RUN-P5R2-15-LOCAL-001/verification.json)、[`修正後コードレビュー`](../tests/evidence/phase5R2/RUN-P5R2-15-LOCAL-001/P5R2-15_code_review_final_after_storage_fix.json)、[`A95 policy`](../tests/evidence/phase5R2/RUN-P5R2-15-LOCAL-001/P5R2-15_A95_policy_review_final.json)、[`runtime receipt`](./phase5R2/quality/runtime-receipt-P5R2-15.md)。
 
 ### P5R2-15 — Run取消・結果Artifact削除guard・OperationGuardを実装する
 
