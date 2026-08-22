@@ -3,8 +3,8 @@
 - 文書ID: `RQV4-CANDIDATE-P5R2-001`
 - 版: `v4-candidate.0.1`
 - 作成日: `2026-08-22`
-- 状態: `CANDIDATE / NOT_CURRENT / P5R2-06_REVIEWED_ADVISORY / P5R2-HREQ_UNAPPROVED`
-- 正式化条件: `P5R2-HREQ` の明示承認後に P5R2-06A で公開する。v3 は上書きも無効化もしない。
+- 状態: `CANDIDATE / SUPERSEDED_BY_AT-REQ-004 / P5R2-HREQ_APPROVED / NOT_CURRENT`
+- 正式化履歴: `P5R2-HREQ` の明示承認を2026-08-22に受領し、P5R2-06Aで `doc/requirements/01_自動トレードシステム要件定義書_v4.html` を正式公開した。v3は上書きも無効化もせず、candidateは承認前の入力履歴として保持する。
 
 ## 1. この候補の位置付け
 

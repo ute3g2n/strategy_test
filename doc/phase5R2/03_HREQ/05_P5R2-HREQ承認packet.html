@@ -6,7 +6,7 @@
 <meta name="document-id" content="P5R2-HREQ-PACKET-001">
 <meta name="phase-id" content="P5R2">
 <meta name="step-id" content="P5R2-06">
-<meta name="document-status" content="HREQ_PACKET / P5R2-06_REVIEWED_ADVISORY / UNAPPROVED / NOT_CURRENT">
+<meta name="document-status" content="HREQ_PACKET / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETED / HISTORY">
 <title>P5R2-HREQ 承認packet</title>
 <style>
 body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.7;max-width:1400px;margin:0 auto;padding:24px;color:#172033;background:#f6f8fb}
@@ -17,10 +17,12 @@ h1,h2{color:#172033}table{border-collapse:collapse;width:100%;table-layout:fixed
 <body>
 <main>
 <h1>P5R2-HREQ 承認packet</h1>
-<p>文書ID: <code>P5R2-HREQ-PACKET-001</code> ／ Phase: <code>P5R2</code> ／ Step: <code>P5R2-06</code> ／ 作成日: <code>2026-08-22</code> ／ 状態: <span class="open">HREQ_PACKET / P5R2-06_REVIEWED_ADVISORY / UNAPPROVED / NOT_CURRENT</span></p>
-<div class="danger"><strong>この文書は承認依頼の準備資料であり、HREQ承認ではない。</strong> A90のHigh 6件に対するユーザー最新回答を候補へ反映し、改訂後レビューでCritical／High=0を確認した。<code>P5R2-UNK-HD-004</code>はユーザー承認を受領したが、HREQ全体は未承認である。現行正式正本はv3、v4 candidateは候補、P6は停止中である。</div>
-<p>入力：<a href="../../../plan/phase5R2/requirements/drafts/01_自動トレードシステム要件定義書_v4_candidate.md">v4 candidate</a> ／ <a href="../01_要件追跡/01_P5R2現状差分・根因・要求追跡.html">ART-01</a> ／ <a href="../01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html">ART-02</a> ／ <a href="../02_要件候補/03_P5R2候補Requirement・Acceptance・追跡表.html">ART-03</a> ／ <a href="../02_要件候補/04_バックテスト手順書改訂要件.html">ART-04</a> ／ <a href="../../requirements/01_自動トレードシステム要件定義書_v3.html">現行v3</a></p>
+<p>文書ID: <code>P5R2-HREQ-PACKET-001</code> ／ Phase: <code>P5R2</code> ／ Step: <code>P5R2-06→P5R2-06A</code> ／ 作成日: <code>2026-08-22</code> ／ 状態: <span class="confirmed">HREQ_PACKET / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETED / HISTORY</span></p>
+<div class="note"><strong>承認履歴：</strong>このpacketは、承認前に作成した判断材料を履歴として保存している。ユーザーの明示文「P5R2-HREQを承認します。要件v4を正式化し、P5R2-07で後続実行計画を再作成してください。」を2026-08-22に受領し、P5R2-06Aでv4を正式公開した。現在の要件正本は <a href="../../requirements/01_自動トレードシステム要件定義書_v4.html">AT-REQ-004 v4</a> である。</div>
+<p>入力：<a href="../../../plan/phase5R2/requirements/drafts/01_自動トレードシステム要件定義書_v4_candidate.md">v4 candidate（承認前入力履歴）</a> ／ <a href="../01_要件追跡/01_P5R2現状差分・根因・要求追跡.html">ART-01</a> ／ <a href="../01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html">ART-02</a> ／ <a href="../02_要件候補/03_P5R2候補Requirement・Acceptance・追跡表.html">ART-03</a> ／ <a href="../02_要件候補/04_バックテスト手順書改訂要件.html">ART-04</a> ／ <a href="../../requirements/01_自動トレードシステム要件定義書_v3.html">v3（履歴）</a> ／ <a href="../../requirements/01_自動トレードシステム要件定義書_v4.html">v4（現在正本）</a></p>
 </main>
+
+<div class="note"><strong>履歴注記：</strong>以下の§1〜§13は、HREQ承認前の判断・レビュー・候補化の過程を保存した履歴である。本文中の「未承認」「candidate」「現行v3」は当時の時点を示す。現在状態は本書冒頭と<a href="#approval-sync">§14 HREQ承認・P5R2-06A同期記録</a>、要件正本は<a href="../../requirements/01_自動トレードシステム要件定義書_v4.html">AT-REQ-004 v4</a>を参照する。</div>
 
 <section>
 <h2>1. このpacketで人が判断する範囲</h2>
@@ -163,6 +165,18 @@ h1,h2{color:#172033}table{border-collapse:collapse;width:100%;table-layout:fixed
 <section>
 <h2>10. 関連証拠</h2>
 <p><a href="../../../plan/phase5R2/ログ/P5R2-05_要件candidate独立レビュー_2026-08-22.md">P5R2-05 reviewログ</a> ／ <a href="../../../plan/phase5R2/ログ/runtime-receipt-P5R2-05.md">P5R2-05 runtime receipt</a> ／ <a href="../../../plan/Phase5R2_実行計画書_v0.1_2026-08-21.md">Phase5R2実行計画</a> ／ <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></p>
+</section>
+
+<section id="approval-sync">
+<h2>14. HREQ承認・P5R2-06A同期記録（2026-08-22）</h2>
+<table><tr><th>項目</th><th>現在状態</th><th>証拠・境界</th></tr>
+<tr><td>ユーザー判断</td><td class="confirmed">P5R2-HREQ APPROVED</td><td>明示承認文を受領。自動承認ではない。</td></tr>
+<tr><td>正式要件</td><td class="confirmed">AT-REQ-004 / v4.0 / FORMAL_CURRENT_REQUIREMENTS_P5R2_HREQ_APPROVED</td><td><a href="../../requirements/01_自動トレードシステム要件定義書_v4.html">v4正式HTML</a>。v3はHISTORYとして保持。</td></tr>
+<tr><td>candidate</td><td class="partial">SUPERSEDED_BY_AT-REQ-004 / NOT_CURRENT</td><td><a href="../../../plan/phase5R2/requirements/drafts/01_自動トレードシステム要件定義書_v4_candidate.md">candidate</a>は入力履歴として保持。</td></tr>
+<tr><td>P5R2-07</td><td class="confirmed">再作成済み計画を現在入口にする</td><td><a href="../../../plan/Phase5R2_実行計画書_v0.2_2026-08-22.md">P5R2計画v0.2</a> ／ <a href="../../../plan/phase5R2/ログ/runtime-receipt-P5R2-06A.json">P5R2-06A receipt</a> ／ <a href="../../../plan/phase5R2/ログ/runtime-receipt-P5R2-07.json">P5R2-07 receipt</a>。P5R2-H1は未承認。</td></tr>
+<tr><td>未承認Gate</td><td class="open">H1／DATA-G1／DELETE-G1／H2</td><td>詳細設計候補の閲覧は可能だが、実装、test subprocess、Playwright、外部Data、Secret、費用、実削除、P6は停止。</td></tr>
+</table>
+<p class="danger"><strong>重要：</strong>HREQ承認は要件を正式化し、後続計画を再作成する許可である。H1、DATA-G1、DELETE-G1、H2を承認したものではない。</p>
 </section>
 </body>
 </html>

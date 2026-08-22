@@ -24,7 +24,7 @@
   <h1>ドキュメント インデックス</h1>
   <div class="note">
     <p>このファイルは、<code>doc/</code> 配下のHTML成果物への共通入口である。新しいHTML成果物を追加した場合は、この一覧も同時に更新する。</p>
-    <p><strong>更新状態:</strong> 要件定義書v3はP5R2-HREQまでは現在の正式正本として保持する。ただし、P5Rの利用者向け時間足1m固定、Historical Data取得・一覧管理、Run取消／削除を是正するP5R2をP6前に新設した。P5R2-04でv4 candidate、候補Requirement・Acceptance・追跡表、Manual改訂要件を作成した。これは候補であり、P5R2-HREQ/H1/DATA-G1/DELETE-G1/H2は未承認である。正式v4公開、実装、Test実行、外部Data取得、破壊的削除、P6開始は各Gateまで保留する。</p>
+    <p><strong>更新状態:</strong> 2026-08-22にP5R2-HREQの明示承認を受領し、P5R2-06Aで要件v4（AT-REQ-004）を正式Currentとして公開した。v3は履歴として保持する。P5Rの利用者向け時間足1m固定、Historical Data取得・一覧管理、Run取消／削除を是正するP5R2をP6前に置く。現在はP5R2-07計画v0.2が実行入口であり、P5R2-H1／DATA-G1／DELETE-G1／H2は未承認である。実装、Test実行、Playwright、外部Data取得、Secret、費用、破壊的削除、P6開始は各Gateまで保留する。</p>
   </div>
 
   <h2>全Phase共通：残課題・Blocked</h2>
@@ -34,9 +34,9 @@
   </div>
 
   <h2>要件定義</h2>
-    <p class="muted">設計の起点となる上流文書。現行正式正本はAT-REQ-003 / v3.0 / 2026-08-16。P5R2-04でv4 candidateを作成済みだが、P5R2-HREQ承認前の候補に限る。正式v4への更新はP5R2-HREQ承認後だけ行い、v3以下は削除せず履歴として保持する。</p>
+    <p class="muted">設計の起点となる上流文書。現行正式正本はAT-REQ-004 / v4.0 / 2026-08-22。v3はP5Rの履歴、v4 candidateは正式化前の入力履歴として削除せず保持する。</p>
   <ul>
-    <li><a href="./requirements/01_自動トレードシステム要件定義書_v3.html">01_自動トレードシステム要件定義書_v3.html</a> <span class="muted">（AT-REQ-003・v3.0現在正本・P5R挿入／P6〜P12能力順・P5R-H0/H1/H2代理承認済み・P5R完了）</span></li>
+    <li><a href="./requirements/01_自動トレードシステム要件定義書_v3.html">01_自動トレードシステム要件定義書_v3.html</a> <span class="muted">（AT-REQ-003・v3.0履歴・P5R挿入／P6〜P12能力順・P5R-H0/H1/H2代理承認済み・P5R完了）</span></li>
     <li><a href="./requirements/01_自動トレードシステム要件定義書_v2.html">01_自動トレードシステム要件定義書_v2.html</a> <span class="muted">（AT-REQ-002・v2.0旧正式基準線・履歴）</span></li>
     <li><a href="./requirements/01_自動トレードシステム要件定義書.html">01_自動トレードシステム要件定義書.html</a> <span class="muted">（AT-REQ-001・v0.4旧正式正本・履歴）</span></li>
   </ul>
@@ -289,19 +289,23 @@
     <li><a href="../plan/Phase5_実行計画書_v0.1_2026-08-12.md">Phase5実行計画Markdown（P5-PLAN-001）</a> / <a href="../plan/phase5/ログ/P5-PLAN-001_計画作成・起動契約検証_2026-08-12.md">計画作成・起動契約検証ログ</a></li>
   </ul>
   <h2>Phase 5R / Phase 5R2 — Backtest製品完全化・要件是正</h2>
-    <p class="muted">P5Rの限定Scope完了は履歴として保持する。P5R2-04で、利用者選択時間足15m／30m／1h／4h／1d、1m内部source、UI Historical Data取得・使用可能Data一覧、実行一覧・進捗／結果サマリーの取消・結果Artifact削除、既存バックテスト手順書v0.5の改訂について、v4 candidateと候補追跡を作成した。P5R2-06でP5R2-05の15件のadvisory findingとユーザー最新回答をcandidate、ART-03、ART-04、HREQ packetへ統合した。旧A90 High 6件は履歴として保持し、現在は改訂後A90でCritical／High=0を確認済み、HREQ未承認・v4未公開・P6保留中である。</p>
+    <p class="muted">P5Rの限定Scope完了は履歴として保持する。P5R2-04で、利用者選択時間足15m／30m／1h／4h／1d、1m内部source、UI Historical Data取得・使用可能Data一覧、実行一覧・進捗／結果サマリーの取消・結果Artifact削除、既存バックテスト手順書v0.5の改訂について、v4 candidateと候補追跡を作成した。P5R2-06でP5R2-05の15件のadvisory findingとユーザー最新回答をcandidate、ART-03、ART-04、HREQ packetへ統合した。2026-08-22にユーザーのP5R2-HREQ明示承認を受領し、P5R2-06AでAT-REQ-004 v4を正式化した。現在はv4がCurrent、P5R2-07計画v0.2が実行入口であり、H1／DATA-G1／DELETE-G1／H2未承認、P6保留中である。</p>
   <ul>
-    <li><a href="../plan/Phase5R2_実行計画書_v0.1_2026-08-21.md">Phase5R2 実行計画書</a> <span class="muted">（P5R2-06 改訂統合・技術レビュー済み／HREQ人判断待ち／v4未公開／P6停止）</span></li>
+    <li><a href="../plan/Phase5R2_実行計画書_v0.2_2026-08-22.md">Phase5R2 実行計画書 v0.2（現在入口）</a> <span class="muted">（P5R2-HREQ承認済み／P5R2-06A完了／P5R2-07後続全Step Prompt／H1・DATA-G1・DELETE-G1・H2未承認／P6停止）</span></li>
+    <li><a href="./requirements/01_自動トレードシステム要件定義書_v4.html">自動トレードシステム要件定義書 v4（AT-REQ-004）</a> <span class="muted">（FORMAL_CURRENT_REQUIREMENTS_P5R2_HREQ_APPROVED／v3は履歴保持）</span></li>
+    <li><a href="../plan/Phase5R2_実行計画書_v0.1_2026-08-21.md">Phase5R2 実行計画書 v0.1（履歴）</a> <span class="muted">（要件確定前の計画／P5R2-HREQ承認前の状態）</span></li>
     <li><a href="../plan/phase5R2/ログ/P5R2-05_要件candidate独立レビュー_2026-08-22.md">P5R2-05 review結果</a> <span class="muted">（direct fallback advisory／independent=false／High 9件・Medium 6件）</span></li>
     <li><a href="../plan/phase5R2/ログ/runtime-receipt-P5R2-05.md">P5R2-05 runtime receipt</a> <span class="muted">（Coordinator nested dispatch未成立／指定Agent direct fallbackの受領記録）</span></li>
     <li><a href="../plan/phase5R2/ログ/P5R2-06_レビュー統合・HREQ承認packet_2026-08-22.md">P5R2-06 review finding統合ログ</a> <span class="muted">（F-001〜F-015採否、ユーザー最新回答、A90 Critical／High=0確認済み、HREQ packet人判断待ち）</span></li>
     <li><a href="../plan/phase5R2/ログ/runtime-receipt-P5R2-06.md">P5R2-06 runtime receipt</a> <span class="muted">（Coordinator／direct fallback／A90・A95再レビューの実行事実）</span></li>
-    <li><a href="../plan/phase5R2/requirements/drafts/01_自動トレードシステム要件定義書_v4_candidate.md">P5R2 v4 candidate（Markdown）</a> <span class="muted">（CANDIDATE / NOT_CURRENT / 技術レビュー済み。HREQ未承認のため現行正本ではない）</span></li>
-    <li><a href="./phase5R2/01_要件追跡/01_P5R2現状差分・根因・要求追跡.html">P5R2-ART-01 現状差分・根因・要求追跡</a> <span class="muted">（P5R2-04完了／候補文書への追跡を追加／HREQ未承認）</span></li>
-    <li><a href="./phase5R2/01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html">P5R2-ART-02 ヒアリング回答・決定台帳</a> <span class="muted">（Round 1〜4回答をP5R2-04 candidateへ反映／HREQ未承認）</span></li>
-    <li><a href="./phase5R2/02_要件候補/03_P5R2候補Requirement・Acceptance・追跡表.html">P5R2-ART-03 候補Requirement・Acceptance・追跡表</a> <span class="muted">（CANDIDATE / NOT_CURRENT。REQ→AC→UI/API/Persistence/Test/Evidence/Manual）</span></li>
-    <li><a href="./phase5R2/02_要件候補/04_バックテスト手順書改訂要件.html">P5R2-ART-04 バックテスト手順書改訂要件</a> <span class="muted">（CANDIDATE / NOT_CURRENT。P5R2-06統合候補、Manual本体は未変更）</span></li>
-    <li><a href="./phase5R2/03_HREQ/05_P5R2-HREQ承認packet.html">P5R2-HREQ承認packet</a> <span class="muted">（P5R2-06候補／UNAPPROVED／A90・A95レビュー済み・人の明示承認待ち）</span></li>
+    <li><a href="../plan/phase5R2/ログ/P5R2-06A_要件v4正式化_2026-08-22.md">P5R2-06A 要件v4正式化ログ</a> ／ <a href="../plan/phase5R2/ログ/runtime-receipt-P5R2-06A.json">runtime receipt JSON</a> <span class="muted">（v4 Current化、requested componentとfallbackの事実を分離）</span></li>
+    <li><a href="../plan/phase5R2/ログ/P5R2-07_後続実行計画再作成_2026-08-22.md">P5R2-07 後続計画再作成ログ</a> ／ <a href="../plan/phase5R2/ログ/runtime-receipt-P5R2-07.json">runtime receipt JSON</a> <span class="muted">（v0.2 Current入口、後続Prompt全体、P6停止）</span></li>
+    <li><a href="../plan/phase5R2/requirements/drafts/01_自動トレードシステム要件定義書_v4_candidate.md">P5R2 v4 candidate（Markdown／履歴）</a> <span class="muted">（SUPERSEDED_BY_AT-REQ-004 / NOT_CURRENT。正式v4の入力履歴）</span></li>
+    <li><a href="./phase5R2/01_要件追跡/01_P5R2現状差分・根因・要求追跡.html">P5R2-ART-01 現状差分・根因・要求追跡</a> <span class="muted">（FACT_BASELINE_HISTORY。P5R2-06A／07同期済み、旧基線は履歴）</span></li>
+    <li><a href="./phase5R2/01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html">P5R2-ART-02 ヒアリング回答・決定台帳</a> <span class="muted">（DECISION_HISTORY。HREQ承認後のCurrentはAT-REQ-004 v4）</span></li>
+    <li><a href="./phase5R2/02_要件候補/03_P5R2候補Requirement・Acceptance・追跡表.html">P5R2-ART-03 候補Requirement・Acceptance・追跡表</a> <span class="muted">（CANDIDATE_HISTORY / SUPERSEDED_BY_AT-REQ-004 / NOT_CURRENT）</span></li>
+    <li><a href="./phase5R2/02_要件候補/04_バックテスト手順書改訂要件.html">P5R2-ART-04 バックテスト手順書改訂要件</a> <span class="muted">（CANDIDATE_HISTORY / SUPERSEDED_BY_AT-REQ-004 / NOT_CURRENT。Manual本体は未変更）</span></li>
+    <li><a href="./phase5R2/03_HREQ/05_P5R2-HREQ承認packet.html">P5R2-HREQ承認packet（履歴）</a> <span class="muted">（P5R2-HREQ_APPROVED／P5R2-06A_COMPLETED。承認前packetと承認後同期記録）</span></li>
     <li><a href="../plan/Phase5R_実行計画書_v0.1_2026-08-16.md">Phase5R 実行計画書</a> <span class="muted">（P5R-PLAN-001 / 全Prompt実行済み / COMPLETE_WITH_OPEN_UNKNOWN）</span></li>
     <li><a href="./phase5R/02_実装詳細設計/01_P5R実装詳細設計書.html">P5R実装詳細設計書</a> / <a href="./phase5R/02_実装詳細設計/02_P5R品質Gate_RunManifest設計書.html">P5R品質Gate・Run Manifest設計書</a> / <a href="./phase5R/07_運用手順/00_バックテスト操作手順書作成ルール.html">バックテスト操作手順書作成ルール</a> / <a href="./phase5R/07_運用手順/01_バックテスト手順書.html">初心者向けバックテスト手順書（v0.5）</a></li>
     <li><a href="./phase5R/02_実装詳細設計/03_再起動後バックテスト履歴復元実装詳細設計書.html">再起動後バックテスト履歴復元・実装詳細設計書</a> / <a href="../plan/Phase5R_再起動後バックテスト履歴復元_実行計画書_v0.1_2026-08-16.md">履歴復元実行計画書</a> <span class="muted">（実装・テスト完了、Open scopeあり）</span></li>

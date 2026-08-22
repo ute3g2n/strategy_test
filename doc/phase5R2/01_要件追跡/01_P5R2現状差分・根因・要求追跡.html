@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="document-id" content="P5R2-ART-01">
 <meta name="phase-id" content="P5R2">
-<meta name="step-id" content="P5R2-01 / P5R2-06">
-<meta name="document-status" content="FACT_BASELINE_READY / P5R2-06_REVIEWED_ADVISORY / P5R2-HREQ_UNAPPROVED">
+<meta name="step-id" content="P5R2-01 / P5R2-06 / P5R2-06A / P5R2-07">
+<meta name="document-status" content="FACT_BASELINE_HISTORY / P5R2-06A_COMPLETED / P5R2-07_COMPLETE / P5R2-HREQ_APPROVED / HISTORY">
 <title>P5R2 現状差分・根因・要求追跡</title>
 <style>
 body{font-family:system-ui,"Yu Gothic",sans-serif;line-height:1.75;max-width:1250px;margin:0 auto;padding:24px;color:#172033;background:#f6f8fb}
@@ -22,9 +22,9 @@ code{background:#eef2f7;padding:2px 4px;border-radius:4px}pre{background:#172033
 <body>
 <main>
 <h1>P5R2 現状差分・根因・要求追跡</h1>
-<p class="small">文書ID: <code>P5R2-ART-01</code> ／ Phase: <code>P5R2</code> ／ Step: <code>P5R2-01</code> ／ 版: <code>v0.1</code> ／ 作成日: <code>2026-08-21</code> ／ 状態: <span class="status">FACT_BASELINE_READY / AMENDED_AFTER_USER_CLARIFICATION</span></p>
-<p><strong>この文書は、要件ヒアリング前の事実基線です。</strong> ユーザーが決めたこと、local read-onlyで確認した現状、まだ決めていないことを分けます。正式な要件v4、実装、テスト、外部Data取得、削除の承認ではありません。</p>
-<div class="note"><strong>Human Gate状態：</strong> P5R2-H0はユーザーの明示文により承認済みです。P5R2-HREQ、P5R2-H1、P5R2-DATA-G1、P5R2-DELETE-G1、P5R2-H2は未承認です。P6はP5R2-H2まで停止します。</div>
+<p class="small">文書ID: <code>P5R2-ART-01</code> ／ Phase: <code>P5R2</code> ／ Step: <code>P5R2-01 / P5R2-06A / P5R2-07</code> ／ 版: <code>v0.1</code> ／ 作成日: <code>2026-08-21</code> ／ 状態: <span class="status">FACT_BASELINE_HISTORY / P5R2-06A_COMPLETED / P5R2-07_COMPLETE / P5R2-HREQ_APPROVED / HISTORY</span></p>
+<p><strong>この文書は、要件ヒアリング前の事実基線を保存した履歴です。</strong> ユーザーが決めたこと、local read-onlyで確認した現状、当時まだ決めていなかったことを分けます。現在の正式要件は<a href="../../requirements/01_自動トレードシステム要件定義書_v4.html">AT-REQ-004 v4</a>です。</p>
+<div class="note"><strong>Current同期：</strong> P5R2-H0とP5R2-HREQは承認済み、P5R2-06Aでv4正式化、P5R2-07で計画v0.2を完了しました。P5R2-H1、P5R2-DATA-G1、P5R2-DELETE-G1、P5R2-H2は未承認で、P6は停止中です。この基線本文に残る承認前の記述は当時の履歴であり、現在状態ではありません。<a href="../../../plan/phase5R2/ログ/P5R2-06A_要件v4正式化_2026-08-22.md">P5R2-06Aログ</a> ／ <a href="../../../plan/phase5R2/ログ/P5R2-07_後続実行計画再作成_2026-08-22.md">P5R2-07ログ</a></div>
 </main>
 
 <section>
@@ -250,6 +250,7 @@ code{background:#eef2f7;padding:2px 4px;border-radius:4px}pre{background:#172033
 <section id="p5r2-04"><h2>18. P5R2-04 candidate化完了（2026-08-22）</h2><p>Round 1〜4のユーザー回答を、v4 candidate、候補Requirement・Acceptance・追跡表、Manual改訂要件へ変換した。v3とP5R旧完了を上書き・無効化せず、candidateを現行正本とは表示しない。</p><table><tr><th>成果物</th><th>役割</th><th>状態</th></tr><tr><td><a href="../../../plan/phase5R2/requirements/drafts/01_自動トレードシステム要件定義書_v4_candidate.md">v4 candidate</a></td><td>ユーザー確定方針、Requirement、Acceptance、Gate、公式read-only記録。</td><td>CANDIDATE / NOT_CURRENT</td></tr><tr><td><a href="../02_要件候補/03_P5R2候補Requirement・Acceptance・追跡表.html">P5R2-ART-03</a></td><td>REQ→AC→UI/API/Persistence/Test/Evidence/Manual追跡、状態安全表。</td><td>CANDIDATE / NOT_CURRENT</td></tr><tr><td><a href="../02_要件候補/04_バックテスト手順書改訂要件.html">P5R2-ART-04</a></td><td>Manual v0.5の変更箇所、実装後の画像・Evidence・改訂履歴要件。</td><td>CANDIDATE / NOT_CURRENT</td></tr></table><p class="danger">P5R2-HREQ/H1/DATA-G1/DELETE-G1/H2は未承認。正式v4、実装、Test subprocess、Playwright、外部Data、Secret、費用、実削除、P6を開始しない。Coordinatorは起動・完了したがCoordinator配下のdispatchは成立せず、A10/A80/A81/A90/A95の直接read-only fallbackを補助証跡として受領した。P5R2-05の正式独立レビュー完了とは扱わない。</p><p>実行ログとreceipt: <a href="../../../plan/phase5R2/ログ/P5R2-04_要件v4candidate・追跡・Manual改訂要件_2026-08-22.md">P5R2-04実行ログ</a> / <a href="../../../plan/phase5R2/ログ/runtime-receipt-P5R2-04.md">runtime receipt</a>。</p></section>
 <section id="p5r2-06"><h2>19. P5R2-06 review finding統合候補（旧判定）</h2><p>P5R2-05で受領した15件のadvisory findingを、v4 candidate、ART-03、ART-04、HREQ packetの候補へ反映した。旧P5R-H2、v3正本、P5R旧完了は無効化せず、candidateを正式v4へ昇格させない。A90 High 6件の状態はユーザー最新回答を反映する前の履歴として保持する。</p><table><tr><th>確認項目</th><th>P5R2-06での扱い</th><th>現在状態</th></tr><tr><td>Finding採否</td><td>ADOPT／PARTIAL／NEEDS_HUMAN_GATEと理由、変更先を15件すべて記録。</td><td>改訂前候補／A90 High 6件</td></tr><tr><td>8 atomic要件</td><td>質問ID・回答・atomic ID・詳細Requirement・Acceptance・UI/API/DB・Test候補・Manual・Gateを1行で追跡。</td><td>候補として反映済み</td></tr><tr><td>未解決境界</td><td>補間閾値、全期間算出、Provider実行、物理削除、保護対象hash用途をfail-closedで保持。</td><td>改訂前High／H1／DATA-G1／DELETE-G1／Human Gate待ち</td></tr><tr><td>運用・文書</td><td>実行一覧・進捗・結果summaryの状態／表示／削除境界、Manual改訂Acceptanceを同期。</td><td>候補／Test・画像・Evidence未実施</td></tr></table><p class="danger">これはユーザー最新回答前の状態であり、現行候補の判定ではない。</p></section>
 <section id="p5r2-06-user-revision"><h2>20. ユーザー最新回答によるP5R2-06候補更新（2026-08-22）</h2><p class="note">最新回答により、F-001とF-006は推奨案を採用し、F-002は過去Run結果の変更と利用者開始のmerge／replaceを許容、F-003／F-007は保持したい結果・Export済みCSVを残したうえで不要なresult Artifactの物理削除を許容、F-004はフロント二重押下禁止を基本とする方針へ更新した。旧回答は履歴として残す。</p><table><tr><th>項目</th><th>最新候補</th><th>停止・Gate</th></tr><tr><td>Data merge／replace</td><td>影響Run／結果を確認後、古い結果を削除し、新Dataで再実行。値競合は置換を明示しない場合だけ停止。</td><td>H1／DATA-G1前の実Data操作は禁止。</td></tr><tr><td>結果削除</td><td>terminalの不要result Artifactのみ物理削除。Historical Data、Export済みCSV、監査記録は削除しない。復元なし。</td><td>DELETE-G1／H1前の実削除は禁止。</td></tr><tr><td>取消二重操作</td><td>UI in-flight disable＋最小サーバー状態検査。別画面・再送で状態を二重変更しない。</td><td>H1でAPI／Persistence／Testを確定。</td></tr><tr><td>現在状態</td><td><code>P5R2-06_REVIEWED_ADVISORY / P5R2-HREQ_UNAPPROVED</code></td><td>HREQの人の明示承認までHREQ、実装、Test、実削除、P6停止。</td></tr></table><p>承認記録：<a href="../../../plan/phase5R2/ログ/P5R2-UNK-HD-004_HumanGate承認_2026-08-22.md">P5R2-UNK-HD-004 Human Gate承認</a>。</p></section>
-<footer class="small">P5R2-ART-01。旧P5Rの完了判定を変更せず、P5R2の要件候補・実装・外部I/O・削除を承認済みとは表示しない。</footer>
+<section id="current-sync"><h2>Current同期記録（P5R2-06A／P5R2-07、2026-08-22）</h2><p>ART-01の事実基線・旧判断は削除せず履歴として保持する。現在の要件正本は<a href="../../requirements/01_自動トレードシステム要件定義書_v4.html">AT-REQ-004 v4</a>、現在の実行入口は<a href="../../../plan/Phase5R2_実行計画書_v0.2_2026-08-22.md">P5R2計画v0.2</a>である。v4の承認は要件正式化と後続計画再作成を許可するだけであり、H1／DATA-G1／DELETE-G1／H2未承認の実装、test subprocess、Playwright、外部Data、Secret、費用、実削除、P6開始は許可しない。</p></section>
+<footer class="small">P5R2-ART-01。旧P5Rの完了判定を変更せず、承認前の基線記述を履歴として保存する。現在状態はCurrent同期記録とAT-REQ-004を参照する。</footer>
 </body>
 </html>

@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="document-id" content="AT-REQ-004">
+  <meta name="document-version" content="v4.0">
+  <meta name="document-status" content="FORMAL_CURRENT_REQUIREMENTS_P5R2_HREQ_APPROVED">
+  <meta name="baseline-date" content="2026-08-22">
+  <meta name="previous-document-id" content="AT-REQ-003">
+  <title>自動トレードシステム要件定義書 v4</title>
+  <style>
+    :root { color-scheme: light; }
+    body { max-width: 1240px; margin: 36px auto; padding: 0 20px; background: #f8fafc; color: #172033; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.8; }
+    main { background: #fff; border: 1px solid #d7e0ea; padding: 28px; box-shadow: 0 1px 2px rgb(15 23 42 / 5%); }
+    h1, h2, h3 { color: #102a43; }
+    h1 { border-bottom: 4px solid #1d4ed8; padding-bottom: 10px; }
+    h2 { border-bottom: 1px solid #cbd5e1; margin-top: 38px; padding-bottom: 6px; }
+    h3 { margin-top: 27px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 0.95rem; }
+    th, td { border: 1px solid #cbd5e1; padding: 9px 11px; vertical-align: top; }
+    th { background: #eff6ff; text-align: left; }
+    code { background: #eef2f7; border-radius: 4px; padding: 1px 4px; overflow-wrap: anywhere; }
+    a { color: #1d4ed8; }
+    .meta, .notice, .warning, .danger, .ok { border-left: 5px solid; padding: 12px 16px; margin: 18px 0; }
+    .meta { background: #eff6ff; border-color: #2563eb; }
+    .notice { background: #f8fafc; border-color: #64748b; }
+    .warning { background: #fffbeb; border-color: #d97706; }
+    .danger { background: #fef2f2; border-color: #dc2626; }
+    .ok { background: #f0fdf4; border-color: #16a34a; }
+    .badge { display: inline-block; border-radius: 999px; padding: 2px 9px; font-size: 0.82rem; font-weight: 700; }
+    .current { color: #1e3a8a; background: #dbeafe; }
+    .approved { color: #166534; background: #dcfce7; }
+    .open { color: #991b1b; background: #fee2e2; }
+    .future { color: #475569; background: #e2e8f0; }
+    nav ul { margin: 0; padding-left: 20px; columns: 2; }
+    nav li { margin: 4px 0; }
+    .small { font-size: 0.9rem; color: #475569; }
+    @media (max-width: 760px) { body { margin: 0; padding: 0; } main { border: 0; padding: 18px; } table { display: block; overflow-x: auto; } nav ul { columns: 1; } }
+    @media print { body { margin: 0; background: #fff; } main { border: 0; box-shadow: none; } a { color: #000; text-decoration: none; } }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../index.html">ドキュメントインデックスへ戻る</a> ／ <a href="./01_自動トレードシステム要件定義書_v3.html">v3（履歴）</a></p>
+  <section class="meta" aria-labelledby="document-title">
+    <h1 id="document-title">自動トレードシステム要件定義書 v4</h1>
+    <p><strong>文書ID:</strong> <code>AT-REQ-004</code>　<strong>版:</strong> <code>v4.0</code>　<strong>正式化日:</strong> 2026-08-22</p>
+    <p><strong>状態:</strong> <span class="badge approved">FORMAL_CURRENT_REQUIREMENTS_P5R2_HREQ_APPROVED</span></p>
+    <p><strong>正式化根拠:</strong> ユーザーの明示文「P5R2-HREQを承認します。要件v4を正式化し、P5R2-07で後続実行計画を再作成してください。」を2026-08-22に受領した。</p>
+  </section>
+
+  <div class="ok">
+    <strong>読み方：</strong>この文書がP5R2の現在の要件正本である。P5Rの旧完了事実、v3、旧手順書は履歴として保持する。要件が正式化されたことは、実装・試験・外部Data取得・実削除・P6開始の承認を意味しない。
+  </div>
+
+  <nav aria-label="目次">
+    <h2>目次</h2>
+    <ul>
+      <li><a href="#position">1. 位置付けと継承</a></li>
+      <li><a href="#domains">2. 4領域と8件のatomic Requirement</a></li>
+      <li><a href="#timeframe">3. 時間足要件</a></li>
+      <li><a href="#historical">4. Historical Data要件</a></li>
+      <li><a href="#run">5. Backtest Run操作要件</a></li>
+      <li><a href="#manual">6. 手順書・監査要件</a></li>
+      <li><a href="#states">7. 状態・保存物・安全境界</a></li>
+      <li><a href="#gates">8. Unknown、Human Gate、停止条件</a></li>
+      <li><a href="#traceability">9. 追跡・レビュー・変更履歴</a></li>
+    </ul>
+  </nav>
+
+  <section id="position">
+    <h2>1. 位置付けと継承</h2>
+    <p>v4は、P5Rの旧完了範囲を無効化せず、P5RとP6の間にP5R2を追加してBacktest製品要件を是正する。P5Rは当時の限定Scopeにおける完了履歴として残し、P5R2-H2まではP6を開始しない。</p>
+    <table>
+      <caption>v3からv4への主要な差分</caption>
+      <thead><tr><th>継承元</th><th>v4での扱い</th><th>変更理由</th></tr></thead>
+      <tbody>
+        <tr><td><a href="./01_自動トレードシステム要件定義書_v3.html"><code>AT-REQ-003</code> v3</a></td><td>履歴として保持。v4の前提要件は継承する。</td><td>旧Phaseの完了事実と変更履歴を失わないため。</td></tr>
+        <tr><td><code>REQ-V2-0027</code>、<code>REQ-V2-0028</code>、<code>REQ-V2-0035</code></td><td>P5R2の時間足、UTC、source／derived境界へ具体化。</td><td>1m sourceと利用者が選ぶ戦略時間足を混同しないため。</td></tr>
+        <tr><td><code>REQ-V3-0113</code>〜<code>REQ-V3-0117</code>、P5R-AC</td><td>P5R2のData管理、Run操作、結果Artifact、監査へ補足。</td><td>既存Runを保護しながら、取消・削除を3画面で扱うため。</td></tr>
+        <tr><td>P5R完了HTML・Manual v0.5</td><td><span class="badge future">HISTORY / NOT_INVALIDATED</span>。実装・検証済みの旧内容を保持。</td><td>v4正式化だけで、未実装の新機能を旧手順書へ混ぜないため。</td></tr>
+      </tbody>
+    </table>
+    <p>関連する旧文書：<a href="./01_自動トレードシステム要件定義書_v3.html">v3</a>、<a href="../phase5R/06_完了/01_P5R完了判定・P6引渡し.html">P5R完了・P6引渡し（履歴）</a>、<a href="../phase5R/07_運用手順/01_バックテスト手順書.html">現行手順書（P5R履歴）</a>。</p>
+  </section>
+
+  <section id="domains">
+    <h2>2. 4領域と8件のatomic Requirement</h2>
+    <p>「4領域」は分類であり、「8件」はユーザー承認の単位である。分類数とRequirement数を同一視しない。下表の8件が正式なP5R2 Requirement単位であり、詳細Requirementはこの8件を実装・Acceptanceへ追跡する下位項目である。</p>
+    <table>
+      <caption>承認された4領域と8件</caption>
+      <thead><tr><th>領域</th><th>atomic Requirement ID</th><th>要件の要約</th><th>主要な詳細Requirement</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="3">時間足</td><td><code>P5R2-CREQ-TF-001</code></td><td>Single Backtestで15m／30m／1h／4h／1dを選択する。</td><td><code>P5R2-REQ-TF-001</code>、<code>TF-004</code></td></tr>
+        <tr><td><code>P5R2-CREQ-TF-002</code></td><td>1m sourceから上位足を生成し、不足時に生成画面へ誘導する。</td><td><code>P5R2-REQ-TF-002</code>、<code>TF-005</code>、<code>TF-006</code></td></tr>
+        <tr><td><code>P5R2-CREQ-TF-003</code></td><td>legacy、UTC、期間境界を新規Runの入力と分離する。</td><td><code>P5R2-REQ-TF-003</code>、<code>TF-004</code></td></tr>
+        <tr><td rowspan="2">Historical Data</td><td><code>P5R2-CREQ-HD-001</code></td><td>UIからDownload／生成Jobを開始・確認できる。</td><td><code>P5R2-REQ-HD-001</code>、<code>HD-002</code></td></tr>
+        <tr><td><code>P5R2-CREQ-HD-002</code></td><td>銘柄ごとの時間足・期間・品質・使用可能状態を一覧管理し、merge／replaceを利用者操作として扱う。</td><td><code>P5R2-REQ-HD-003</code>〜<code>HD-007</code></td></tr>
+        <tr><td rowspan="2">Backtest Run操作</td><td><code>P5R2-CREQ-RUN-001</code></td><td>実行一覧・進捗・結果サマリーからRunを取消できる。</td><td><code>P5R2-REQ-RUN-001</code>、<code>RUN-002</code></td></tr>
+        <tr><td><code>P5R2-CREQ-RUN-002</code></td><td>不要なterminal結果Artifactを物理削除できる。保持対象、CSV、Data、監査は保護する。</td><td><code>P5R2-REQ-RUN-003</code>、<code>RUN-004</code></td></tr>
+        <tr><td>手順書</td><td><code>P5R2-CREQ-DOC-001</code></td><td>時間足、Data管理、取消／削除、失敗・復旧を検証済み手順書へ反映する。</td><td><code>P5R2-REQ-AUDIT-001</code>、<code>DOC-001</code>、<code>GATE-001</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="timeframe">
+    <h2>3. 時間足要件</h2>
+    <table>
+      <caption>Single Backtest、source、生成、期間の要求</caption>
+      <thead><tr><th>ID</th><th>要求</th><th>Acceptanceの要点</th></tr></thead>
+      <tbody>
+        <tr><td><code>P5R2-REQ-ROADMAP-001</code></td><td>P5Rを履歴として保持し、P5R2をP5RとP6の間の必須是正Phaseとして扱う。P6はP5R2-H2まで停止する。</td><td>v3、P5R履歴、v4、台帳、index、P5R2計画でPhase順と停止条件が一致する。</td></tr>
+        <tr><td><code>P5R2-REQ-TF-001</code></td><td>Single Backtestの戦略時間足は<code>15m / 30m / 1h / 4h / 1d</code>から1つだけ選ぶ。<code>1m</code>を戦略時間足として選択させない。</td><td>UIの選択肢が5種類だけで、1 Runの選択時間足が1つに固定される。30mは選択可能である。</td></tr>
+        <tr><td><code>P5R2-REQ-TF-002</code></td><td>Historical sourceは<code>1m</code>とし、15m／30m／1h／4h／1dはローカル生成する。1m sourceとderived Dataを同一論理Dataとして混在させない。</td><td>Catalog、Run入力、provenanceでsource／derivedが区別され、1mだけ固定のUIへ戻らない。</td></tr>
+        <tr><td><code>P5R2-REQ-TF-003</code></td><td>既存の1m／M30保存Data・Run・結果は閲覧専用legacyとして表示する。新規30m選択、自動移行、再実行、実削除と混同しない。</td><td>legacy属性が表示され、legacyを新規Run入力へ自動使用しない。30mの新規選択は可能である。</td></tr>
+        <tr><td><code>P5R2-REQ-TF-004</code></td><td>上位足はUTC 00:00 anchorで生成し、終了時刻が境界でなければ直前の確定足まで切り下げる。指定終了と有効終了を表示し、partial barをRunへ渡さない。</td><td>UTC、指定期間、有効期間、閉じた足だけがRun条件として確認できる。開始前または有効足0件は拒否する。</td></tr>
+        <tr><td><code>P5R2-REQ-TF-005</code></td><td>内部の連続1分欠損がちょうど1本の場合だけ、未来値を使わず欠損直前の確定CloseでOHLCを補間し、Volumeを0とする。始端・終端欠損、2本以上、時系列逆転、上限超過、provenance欠落は使用禁止とする。</td><td>警告だけの<code>USABLE_WITH_WARNING</code>と<code>UNUSABLE</code>を区別し、補間位置・方式・参照Close・DataSet・Job・理由をprovenanceへ保存する。</td></tr>
+        <tr><td><code>P5R2-REQ-TF-006</code></td><td>必要期間・時間足が不足する場合はBacktest開始を止め、理由と「時間足を生成する」確認を表示する。OKの場合、その銘柄を引き継いだ時間足生成画面へ遷移する。</td><td>生成画面で銘柄、複数の対象時間足、期間を選択でき、既定期間は現在生成可能な全期間である。全期間の算出規則は<code>P5R2-UNK-TF-006</code>としてH1で確定する。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="historical">
+    <h2>4. Historical Data要件</h2>
+    <p>外部1m取得とlocal上位足生成は、同じJob基盤を再利用しても、<code>job_type</code>、ID、状態、入力、出力、Gateを分ける。Job完了だけではDataSetを使用可能へ昇格させない。</p>
+    <table>
+      <caption>Download、生成、Catalog、mergeの要求</caption>
+      <thead><tr><th>ID</th><th>要求</th><th>Acceptanceの要点</th></tr></thead>
+      <tbody>
+        <tr><td><code>P5R2-REQ-HD-001</code></td><td>UIは候補Providerを使う<code>HistoricalDownloadJob</code>の取得要求を作成できる。候補ProviderはBinance Data Visionとするが、実host、利用条件、symbol、期間、通信、Secret、費用、実downloadは<code>P5R2-DATA-G1</code>後だけ許可する。</td><td>Gate前は実通信が起きず、要求・確認・監査の候補だけを扱う。公開文書の閲覧は採用・契約・通信許可とみなさない。</td></tr>
+        <tr><td><code>P5R2-REQ-HD-002</code></td><td>Download JobとDataSetを別ID・別状態で管理する。<code>PARTIAL / FAILED / CANCELLED</code> Jobをusable DataSetへ自動昇格しない。</td><td>Jobの取消・失敗・再試行とDataSetの使用可能状態を別表示し、失敗成果物からRunを開始できない。</td></tr>
+        <tr><td><code>P5R2-REQ-HD-003</code></td><td>銘柄ごとに生成済み時間足、期間、品質、usable状態、legacy属性を一覧表示する。生成画面では銘柄、複数時間足、期間を選択し、既定期間を現在生成可能な全期間にする。</td><td>一覧と生成画面で値、期間coverage、品質、状態、入力引継ぎを確認できる。</td></tr>
+        <tr><td><code>P5R2-REQ-HD-004</code></td><td>同一論理DataはProvider、market、symbol、Data時間足、正規化schemaが全て同じ場合だけとする。Provider・market違い、1m sourceとderived Dataを自動混在・自動mergeしない。</td><td>identity属性を保存・比較し、identity違いを拒否する。</td></tr>
+        <tr><td><code>P5R2-REQ-HD-005</code></td><td>同一論理Dataの非重複期間は、利用者が開始したDownload／merge操作で追加できる。merge後に過去Run結果が変わることを理由にmergeを禁止しない。古いDataでのRun／結果を利用者確認後に削除し、新Dataで再実行できる。</td><td>current coverage、追加区間、影響Run／結果、再実行対象、確認内容をpreviewできる。システムが無断で旧Run／結果を削除しない。</td></tr>
+        <tr><td><code>P5R2-REQ-HD-006</code></td><td>同一timestampの完全一致barはdedupeする。値が異なる場合、利用者が明示的に新Dataでreplaceし影響Run／結果を削除する操作を選べる。選ばない場合は<code>CONFLICT</code>で停止する。</td><td>競合、replace対象、削除対象、再実行対象を表示し、確認後に一度のpromotion単位で反映する。値競合だけを理由に利用者の明示replaceを禁止しない。</td></tr>
+        <tr><td><code>P5R2-REQ-HD-007</code></td><td>品質検査は警告だけの<code>USABLE_WITH_WARNING</code>と、始端・終端欠損、許容上限超過、値競合、時系列逆転、必須provenance欠落等の<code>UNUSABLE</code>を区別する。</td><td>Preflightが警告・停止理由を返し、UNUSABLE、staging、orphan、partial promotion中のDataをRun入力から拒否する。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="run">
+    <h2>5. Backtest Run操作要件</h2>
+    <table>
+      <caption>3画面の取消、結果Artifact削除、保存物保護</caption>
+      <thead><tr><th>ID</th><th>要求</th><th>Acceptanceの要点</th></tr></thead>
+      <tbody>
+        <tr><td><code>P5R2-REQ-RUN-001</code></td><td><code>QUEUED / RUNNING</code>のRunだけを、実行一覧・進捗・結果サマリーの3画面から同じ判定で取消要求できる。フロントエンドはin-flight中の二重押下を禁止し、サーバーは対象Runの現在状態と操作tokenを確認する。</td><td>3画面で可否と理由が一致し、二重クリック、通信再送、別画面・別タブの操作で二重状態変更しない。汎用冪等性基盤ではなくRun操作に必要な最小guardを使う。</td></tr>
+        <tr><td><code>P5R2-REQ-RUN-002</code></td><td><code>SUCCEEDED / FAILED / CANCELLED / RECOVERY_REQUIRED / LEGACY_RESULT_ONLY / PARTIAL_FAILED</code>等terminal状態への取消はRun状態を変更しない受付・監査記録とする。表示削除と取消を混同しない。</td><td>terminal取消後も状態が変わらず、理由と監査記録を確認できる。</td></tr>
+        <tr><td><code>P5R2-REQ-RUN-003</code></td><td>結果サマリー画面の「削除」は、利用者が不要と明示したterminal Runのアプリ管理result Artifactを物理削除する。保持したい結果は削除しない。Export済みCSV、Runの実行状態、Historical Data、監査記録、Evidenceは削除しない。復元操作は提供しない。</td><td>削除前に対象Artifact、対象Run、CSV状態、影響数を確認し、削除後は結果を表示対象外にする。Export済みCSVと保護対象が残る。</td></tr>
+        <tr><td><code>P5R2-REQ-RUN-004</code></td><td>Result Artifactの削除状態をRunのterminal状態と分離し、要求・拒否・成功・失敗・CSV保護を監査する。入力は論理IDだけとし、許可root外、path traversal、symlink／reparse、任意path、Artifact ID不一致を拒否する。</td><td>terminal Artifactだけが対象となり、削除後は<code>RESULT_DELETED</code>、失敗時は<code>DELETE_FAILED</code>として表示する。Run、CSV、Data、監査、Evidenceは保護される。</td></tr>
+      </tbody>
+    </table>
+    <div class="warning"><strong>運用上の意味：</strong>「削除」はシステムが勝手に結果を消す機能ではない。利用者が不要な結果を選び、CSV Export状態と保護対象を確認し、明示操作したときだけ、許可されたresult Artifactを削除する。</div>
+  </section>
+
+  <section id="manual">
+    <h2>6. 手順書・監査要件</h2>
+    <table>
+      <caption>手順書と操作監査の正式Requirement</caption>
+      <thead><tr><th>ID</th><th>要求</th><th>Acceptanceの要点</th></tr></thead>
+      <tbody>
+        <tr><td><code>P5R2-REQ-AUDIT-001</code></td><td>Download開始・確認・取消・失敗・再試行、DataSet usable昇格、Run取消、結果表示・削除、delete拒否・成功・失敗・cascadeを監査対象とする。最低項目は操作者、理由、対象ID、旧状態、新状態、依存物件数とする。</td><td>各変更操作の結果と拒否理由を対象IDに追跡できる。保持期間・参照権限などの詳細はH1以降で設計する。</td></tr>
+        <tr><td><code>P5R2-REQ-DOC-001</code></td><td><code>doc/phase5R/07_運用手順/01_バックテスト手順書.html</code>をP5R2-H2前に改訂する。時間足、Data取得・一覧、Download取消・再試行、Run取消、結果削除、失敗・復旧、用語、画像、Evidence、改訂履歴を含める。</td><td>実装済み・検証済みの操作だけを記載し、旧1m固定説明を現在仕様として残さない。機能→手順→Test→Evidence→画像が追跡できる。</td></tr>
+        <tr><td><code>P5R2-REQ-GATE-001</code></td><td>HREQ、H1、DATA-G1、DELETE-G1、H2の承認対象を分離し、未承認の操作を実行可能にしない。</td><td>統合台帳に対象、期限、再開条件、証拠先、停止範囲がある。</td></tr>
+      </tbody>
+    </table>
+    <p>手順書の改訂要件は <a href="../phase5R2/02_要件候補/04_バックテスト手順書改訂要件.html">P5R2-ART-04</a> を正本入力とする。手順書本体は、実装・Test・UI検証が完了するまで旧版のまま保持する。</p>
+  </section>
+
+  <section id="states">
+    <h2>7. 状態・保存物・安全境界</h2>
+    <table>
+      <caption>状態と操作の共通契約</caption>
+      <thead><tr><th>対象</th><th>状態</th><th>許可される操作</th><th>必ず保護／拒否するもの</th></tr></thead>
+      <tbody>
+        <tr><td>Timeframe／DataSet</td><td><code>USABLE</code>、<code>USABLE_WITH_WARNING</code></td><td>warningとprovenanceを表示したうえで、要件を満たすRun入力へ使用。</td><td>future値、端点欠損、連続欠損超過、逆転、provenance欠落、staging、orphan。</td></tr>
+        <tr><td>Timeframe／DataSet</td><td><code>UNUSABLE</code>、<code>CONFLICT</code></td><td>理由を表示し、解決・再検査まで停止。</td><td>Run入力への使用、暗黙補間、暗黙replace、部分promotion。</td></tr>
+        <tr><td>Backtest Run</td><td><code>QUEUED</code>、<code>RUNNING</code></td><td>3画面から取消要求。操作中は二重押下不可。</td><td>Result Artifact削除、Run本体・Data・監査の削除。</td></tr>
+        <tr><td>Backtest Run</td><td>terminal、<code>RECOVERY_REQUIRED</code>、<code>LEGACY_RESULT_ONLY</code>、<code>PARTIAL_FAILED</code></td><td>状態不変の取消受付・監査、保持、明示されたresult Artifact削除。</td><td>Run状態の改変、Historical Data、CSV、監査、Evidence、復元操作。</td></tr>
+        <tr><td>Result Artifact</td><td><code>PRESENT</code>、<code>DELETE_PENDING</code>、<code>RESULT_DELETED</code>、<code>DELETE_FAILED</code></td><td>terminalかつ利用者が明示した対象だけを物理削除。削除後は表示対象外。</td><td>active Run、保持対象、Export済みCSV、Historical Data、Run本体、監査、Evidence、任意path。</td></tr>
+      </tbody>
+    </table>
+    <p>merge／replaceは利用者の確認操作に限定する。旧Dataの結果を削除して新Dataで再実行する運用をシステムが禁止しない一方、確認なしの削除・暗黙の競合上書き・部分promotionは拒否する。</p>
+  </section>
+
+  <section id="gates">
+    <h2>8. Unknown、Human Gate、停止条件</h2>
+    <table>
+      <caption>v4正式化後も未承認の事項</caption>
+      <thead><tr><th>ID</th><th>状態</th><th>決めること／再開条件</th><th>未承認中の禁止</th></tr></thead>
+      <tbody>
+        <tr><td><code>P5R2-H1</code></td><td><span class="badge open">UNAPPROVED</span></td><td>詳細設計、RED、対象path、fixture、固定command、local実装範囲、Quality Gateを承認する。</td><td>ソース実装、test subprocess、本試験、Playwright、外部Data、実削除。</td></tr>
+        <tr><td><code>P5R2-UNK-TF-004</code></td><td><span class="badge future">CANDIDATE_SPECIFIED / LATER_GATE</span></td><td>補間候補をAPI、Persistence、Negative Test、Manualへ写像する。別方式を選択しない。</td><td>候補外Dataをusable／Run入力へ昇格しない。</td></tr>
+        <tr><td><code>P5R2-UNK-TF-006</code></td><td><span class="badge future">OPEN / LATER_GATE</span></td><td>「現在生成可能な全期間」の算出規則（1m有効範囲、欠損、UTC境界、warning、legacy）をH1詳細設計で確定する。</td><td>規則未確定の既定期間を実装済み仕様と扱わない。</td></tr>
+        <tr><td><code>P5R2-DATA-G1</code></td><td><span class="badge open">UNAPPROVED</span></td><td>Provider、host、market、symbol、期間、source interval、利用条件、認証、費用、通信境界、保存先を承認する。</td><td>login、契約、API call、外部Data download、Secret、費用、外部通信。</td></tr>
+        <tr><td><code>P5R2-DELETE-G1</code></td><td><span class="badge open">UNAPPROVED</span></td><td>物理削除対象、許可root、依存、CSV保護、監査、path安全、復元なし、実Data受入範囲を承認する。</td><td>既存実Data、既存Run、Evidence、監査記録の削除。</td></tr>
+        <tr><td><code>P5R2-H2</code></td><td><span class="badge open">UNAPPROVED</span></td><td>全Acceptance、Data境界、取消／削除、改訂手順書、Open Unknown、P6再引渡しを承認する。</td><td>P5R2完了宣言、P6開始。H2後もP6-H0が必要。</td></tr>
+        <tr><td><code>P5R2-UNK-HD-004</code></td><td><span class="badge approved">USER_APPROVED_LIMITED / NO_HASH_FLOW</span></td><td>管理用hash経路を追加しない境界は承認済み。将来の保護対象hashは別の目的・対象・比較時点・停止範囲が明文化されるまで保留。</td><td>管理hash、manifest、checksum receipt、fingerprint、stale、hash retryを作成・要求・完了条件にしない。</td></tr>
+      </tbody>
+    </table>
+    <div class="danger"><strong>現在の停止：</strong>要件v4の正式化は完了したが、P5R2-H1、P5R2-DATA-G1、P5R2-DELETE-G1、P5R2-H2は未承認である。P6は停止中であり、外部Data取得・Secret・費用・実削除・test subprocess・Playwrightを開始しない。</div>
+  </section>
+
+  <section id="traceability">
+    <h2>9. 追跡・レビュー・変更履歴</h2>
+    <table>
+      <caption>正式要件から後続成果物への導線</caption>
+      <thead><tr><th>入力／成果物</th><th>役割</th></tr></thead>
+      <tbody>
+        <tr><td><a href="../phase5R2/01_要件追跡/01_P5R2現状差分・根因・要求追跡.html">P5R2-ART-01</a></td><td>現行実装・P5R旧完了・v3との差分と根因。</td></tr>
+        <tr><td><a href="../phase5R2/01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html">P5R2-ART-02</a></td><td>質問、原回答、推奨案、ユーザー決定、Later Gateの履歴。</td></tr>
+        <tr><td><a href="../phase5R2/02_要件候補/03_P5R2候補Requirement・Acceptance・追跡表.html">P5R2-ART-03</a></td><td>8件のatomic追跡、Acceptance、UI/API/Persistence/Test/Evidence候補。</td></tr>
+        <tr><td><a href="../phase5R2/02_要件候補/04_バックテスト手順書改訂要件.html">P5R2-ART-04</a></td><td>01_バックテスト手順書の改訂項目と実装・Test・画像・Evidence追跡。</td></tr>
+        <tr><td><a href="../phase5R2/03_HREQ/05_P5R2-HREQ承認packet.html">P5R2-HREQ packet</a></td><td>承認対象、旧Highの履歴、採否、Unknown、Gate、ユーザー明示承認の証拠。</td></tr>
+        <tr><td><a href="../../plan/Phase5R2_実行計画書_v0.2_2026-08-22.md">P5R2-07計画 v0.2</a></td><td>v4を入力にした、H1以降からH2・P6再引渡しまでの現在の実行入口。</td></tr>
+        <tr><td><a href="../00_全Phase残課題Blocked統合台帳.html">統合台帳</a></td><td>Human Gate、Unknown、Blocked、現在状態、再開条件、証拠先の正本。</td></tr>
+      </tbody>
+    </table>
+
+    <h3>9.1 レビューとユーザー変更の履歴</h3>
+    <table>
+      <thead><tr><th>日付</th><th>履歴</th><th>現在の扱い</th></tr></thead>
+      <tbody>
+        <tr><td>2026-08-22</td><td>P5R2-06でA90再レビュー Critical／High=0、A95 ALLOWを受領した。</td><td>direct fallback、<code>independent=false</code>の事実を保持。管理hash経路なし。</td></tr>
+        <tr><td>2026-08-22</td><td>F-001、F-002、F-003、F-004、F-006、F-007についてユーザーの最新方針を受領した。</td><td>candidate、ART-03、ART-04、packetへ反映。旧候補の不変version必須・表示非表示のみは履歴として保持。</td></tr>
+        <tr><td>2026-08-22</td><td>ユーザーがP5R2-HREQを明示承認した。</td><td>本書を<code>AT-REQ-004 / FORMAL_CURRENT_REQUIREMENTS_P5R2_HREQ_APPROVED</code>として公開。P5R2-06Aログ、台帳、indexを同期。</td></tr>
+      </tbody>
+    </table>
+
+    <h3>9.2 非hash・文書品質の確認範囲</h3>
+    <p>本書の完了確認は、文書ID、版、状態、UTF-8、HTML構造、相対リンク、index到達性、Secret非掲載、Requirement ID追跡、Gate状態の非hash確認で行う。管理用hash、manifest、stale、fingerprint、hash retry、hash receiptは導入しない。保護対象hashを将来採用する場合は、目的・対象・比較時点・不一致時の停止範囲を別Human Gateで明文化する。</p>
+  </section>
+</main>
+</body>
+</html>
