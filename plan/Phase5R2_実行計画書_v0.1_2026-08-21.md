@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-001`
 > Version: `v0.1`
 > 作成日: `2026-08-21`
-> 状態: `PLAN_CREATED / P5R2-H0_APPROVED / P5R2-01_COMPLETE / P5R2-02_ROUND1_COMPLETE / P5R2-03-ROUND4_WAITING_USER / P6_PAUSED`
+> 状態: `PLAN_CREATED / P5R2-H0_APPROVED / P5R2-01_COMPLETE / P5R2-02_ROUND1_COMPLETE / P5R2-03_COMPLETE / P5R2-04_READY / P6_PAUSED`
 > 現在の対象: 要件ヒアリング、要件候補の改訂、要件承認、承認後の実行計画再編まで
 > 現在の非対象: P5R2本実装、外部Data取得、Secret投入、費用発生、実Data削除、P6開始
 
@@ -94,14 +94,14 @@ P6は、ユーザーがP5R2をP6前に置くと指定したため、`P5R2-H2`ま
 | `P5R2-UNK-TF-001` | 1 Run 1時間足か、5種類の時間足同時参照を許可するか。 | P5R2-02〜03 | Strategy入力・比較条件・UI型を確定しない。 |
 | `P5R2-UNK-TF-002` | 集約をRun時に行うか、derived cacheを事前生成するか。UI生成画面の「現在生成可能な全期間」、生成Jobの状態・再試行・同時実行、品質警告と使用禁止エラーを分けたDataSet／usableの登録条件も決める。 | P5R2-02〜03 | Data Catalog・provenance・性能Acceptance・生成Job契約・警告付きDataの使用可否を確定しない。 |
 | `P5R2-UNK-TF-003` | UTC anchor、終了時刻の包含、partial／missing bar。既存1m／M30保存物はQ-TF-06=Aで閲覧専用に確定済み。 | P5R2-03 | 時刻境界・partial／missing・現行30mとの比較契約を確定しない。 |
-| `P5R2-UNK-TF-004` | Q-R3-04=Bで品質警告付きDataを使用可能にする方向を受領した。警告と使用禁止エラーの分類、補間Dataの状態名、品質表示、provenance、未来側のデータ利用禁止、再現性を決める。 | P5R2-03〜04／HREQ | Q-R4-01で境界を確認するまで、警告付きDataのusable条件とRequirementを確定しない。 |
+| `P5R2-UNK-TF-004` | Q-R4-01=Aにより、品質警告と使用禁止エラーを分類し、警告だけなら `USABLE_WITH_WARNING`、危険な品質異常は `UNUSABLE` とする方針を受領した。補間方式、provenance、未来側参照禁止、再現性は候補Requirementへ移す。 | P5R2-04／HREQ | ユーザー方針は確定したが、正式v4・Acceptance・実装仕様への昇格はP5R2-04とHREQ後まで行わない。 |
 | `P5R2-UNK-HD-001` | 製品要件上の初期provider、market、symbol、source interval、期間指定方式、routine downloadの承認単位。 | P5R2-02〜04／HREQ | local fake providerを含むDownload／Catalog要件を確定しない。 |
-| `P5R2-UNK-HD-002` | Data一覧の単位、必須列、同じ論理Dataのidentity、Provider・market・symbol・時間足・正規化の境界、非重複期間のmerge、immutable version、重複timestampの競合、使用可能判定、更新・取消・再試行を決める。任意symbolのcatalog／allowlist、未対応時の拒否も含む。 | P5R2-02〜04 | Catalog API／UI／永続化／入力境界／merge・version契約を確定しない。 |
+| `P5R2-UNK-HD-002` | Q-R4-02/03/04=Aにより、論理Data identity、非重複期間のimmutable version、旧version保持、Run固定参照、完全一致dedupe、値競合時停止を受領した。 | P5R2-04／HREQ／DATA-G1 | Catalog・Persistence・Provider境界・競合処理を候補Requirementへ変換する。実Provider・host・symbol範囲はDATA-G1まで未承認。 |
 | `P5R2-UNK-HD-003` | Historical Dataの削除可否、参照Runとの依存、Trash／保持期間。 | P5R2-02〜03 | Data削除機能をScopeに入れない。 |
 | `P5R2-UNK-HD-004` | provider sourceの直接整合確認に保護対象hashを使うか。使う場合の対象、比較時点、不一致時停止、再取得条件。 | P5R2-02〜04／HREQ | 用途不明のhashを追加せず、Dataを使用可能へ昇格させない。 |
-| `P5R2-UNK-RUN-001` | Run状態別の取消／削除可否とボタン表示。Q-R3-06では削除の意味を結果サマリー画面の表示削除と受領したため、terminal Run状態・表示状態・再表示・監査を分離して決める。 | P5R2-02〜04 | Run操作Acceptance、表示状態、terminal取消との境界を確定しない。 |
-| `P5R2-UNK-RUN-002` | 結果表示削除後の結果・CSV・checkpoint・比較・Sweep・audit・Data・Runの保持範囲。実削除と画面非表示を分離し、復元・DELETE-G1境界を決める。 | P5R2-02〜04 | delete API／保存契約／表示削除の復元を確定しない。 |
-| `P5R2-UNK-DOC-001` | 新規手順ID、画像数、旧1m説明の履歴表示、Data削除を手順に含めるか。 | P5R2-03〜04 | Manualの最終章立て・撮影台帳を確定しない。 |
+| `P5R2-UNK-RUN-001` | Q-R4-05/06=Aにより、結果サマリー画面の表示非表示をRun状態と分離し、terminal状態を変えず、再表示と監査を可能にする方針を受領した。 | P5R2-04／HREQ／DELETE-G1 | UI/API/Persistence/状態表を候補Requirementへ変換する。 |
+| `P5R2-UNK-RUN-002` | Q-R4-05/06=Aにより、Run・Data・保存結果・CSV・checkpoint・監査記録は画面非表示では削除しない。実削除・保持・復元・purgeはDELETE-G1へ分離する。 | P5R2-04／DELETE-G1 | 表示削除と実削除の保存契約を分けて候補化する。 |
+| `P5R2-UNK-DOC-001` | Q-R4-01〜06=Aにより、警告表示、Dataマージ、結果表示非表示、再表示、監査を手順書改訂候補へ移す。 | P5R2-04／H2 | Manual本体は要件・実装・検証後に改訂し、今回の回答だけで画面や画像を確定しない。 |
 
 HREQ前に閉じるUnknownと、後続Gateで実行直前に決める事項を混ぜない。
 
@@ -791,4 +791,24 @@ Round 4では、質問を次の6件に絞る。各質問は短い単語ではな
 | Q-R4-05 | A | 結果サマリー画面の表示だけを非表示にし、Run・Data・保存結果を残すか。 |
 | Q-R4-06 | A | 結果非表示をRun状態と分離し、terminal取消を別監査操作とし、再表示可能にするか。 |
 
-Round 4回答が揃い、これらのHigh Unknownを具体Requirementへ変換するまで、P5R2-03は `P5R2-03-ROUND4_WAITING_USER` とする。P5R2-04、P5R2-HREQ、H1、DATA-G1、DELETE-G1、H2、実装、test subprocess、Playwright、外部I/O、Provider login／契約／API call／Data download、Secret、費用、実削除、P6には進まない。P5R2-UNK-HD-004は `NEEDS_HUMAN_GATE` のまま維持する。
+回答受領前は、Round 4回答が揃い、これらのHigh Unknownを具体Requirementへ変換するまでP5R2-03を継続する状態としていた。現在はQ-R4-01〜06の回答を受領し、P5R2-03を完了、P5R2-04_READYへ移行する。P5R2-HREQ、H1、DATA-G1、DELETE-G1、H2、実装、test subprocess、Playwright、外部I/O、Provider login／契約／API call／Data download、Secret、費用、実削除、P6には進まない。
+
+
+### 17.9 P5R2-03 Round 4回答受領・P5R2-04準備（2026-08-22）
+
+Round 4の回答を受領した：Q-R4-01=A、Q-R4-02=A、Q-R4-03=A、Q-R4-04=A、Q-R4-05=A、Q-R4-06=A。ユーザーが推奨案を6件すべて明示選択したため、次の方針を候補Requirementへ移す。
+
+| 質問 | ユーザー確定方針 | 状態 |
+|---|---|---|
+| Q-R4-01=A | 品質警告だけなら `USABLE_WITH_WARNING` として使用可能。始端・終端欠損、上限超過、値の衝突、時系列逆転、必須provenance欠落などは `UNUSABLE`。 | USER_CONFIRMED / CANDIDATE_PENDING_HREQ |
+| Q-R4-02=A | Provider・market・symbol・Data時間足・正規化スキーマが同じ場合だけ同一論理Data。異なるProvider・market、1m sourceとderived Dataは混ぜない。 | USER_CONFIRMED / CANDIDATE_PENDING_HREQ |
+| Q-R4-03=A | 非重複期間のマージ結果を新しい不変versionとして保存し、旧versionを保持。Catalogはカバレッジとprovenanceを示し、RunはDataSet ID/versionを固定。 | USER_CONFIRMED / CANDIDATE_PENDING_HREQ |
+| Q-R4-04=A | 完全一致timestampはdedupeし、取得Jobをprovenanceに残す。値の競合は自動上書きせず、解決まで停止。 | USER_CONFIRMED / CANDIDATE_PENDING_HREQ |
+| Q-R4-05=A | 削除は結果サマリー画面の表示非表示だけ。Run、Data、保存結果、監査記録は残し、実削除はDELETE-G1へ分離。 | USER_CONFIRMED / CANDIDATE_PENDING_HREQ |
+| Q-R4-06=A | 結果非表示をRun状態と分離し、terminal状態を変更しない。再表示可能、表示操作を監査。terminal取消は別の状態不変操作。 | USER_CONFIRMED / CANDIDATE_PENDING_HREQ |
+
+Q-R3-05の自由回答により、Q-R2-05=Cの重複許可は履歴として保持し、現行方針へ流用しない。Q-R3-06の結果画面表示削除は実Data・Run・結果ファイル・監査記録の削除を意味しない。
+
+P5R2-03の人向け追加質問は全件回答済みで、P5R2-03を完了とする。次の `P5R2-04` は、候補Requirement、Acceptance、v4 candidate、P5R2-ART-03、P5R2-ART-04、UI/API/Persistence/Test/Manual traceを作成するStepである。P5R2-HREQは候補成果物を人が確認・承認する別Gateであり、今回の回答だけで自動承認しない。
+
+詳細は `plan/phase5R2/ログ/P5R2-03-Round4回答統合_2026-08-22.md`、ART-02 Section 12、ART-01 Section 17へ追跡する。

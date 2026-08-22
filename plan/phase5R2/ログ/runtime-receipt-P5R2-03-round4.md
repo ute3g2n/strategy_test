@@ -5,8 +5,9 @@
 - runtime_backend: multi_agent_v1
 - dispatch_mode: local_root_fallback_after_agent_thread_limit
 - recorded_at: 2026-08-22T00:48:06.4263034Z
+- answer_integrated_at: 2026-08-22T05:43:24.7904668Z
 - human_gate_status: P5R2-H0_APPROVED
-- next_step_status: P5R2-03-ROUND4_WAITING_USER
+- next_step_status: P5R2-04_READY
 - p6_status: P6_PAUSED
 
 ## Runtime dispatch status
@@ -48,7 +49,7 @@
 | Q-R4-05 | 結果サマリー画面だけの非表示範囲 | A |
 | Q-R4-06 | 非表示後のRun状態、取消分離、再表示、監査 | A |
 
-詳細本文は `plan/phase5R2/ログ/P5R2-03-Round4質問packet_2026-08-22.md` とART-01/ART-02のRound 4節に保存する。推奨案は回答済み・確定・Passとは扱わない。
+詳細本文は `plan/phase5R2/ログ/P5R2-03-Round4質問packet_2026-08-22.md`、回答統合は `plan/phase5R2/ログ/P5R2-03-Round4回答統合_2026-08-22.md` とART-01/ART-02のRound 4回答節に保存する。推奨案ではなく、Q-R4-01〜06のユーザー回答Aを確定方針候補として扱う。
 
 ## Runtime boundary
 
@@ -66,6 +67,19 @@
 
 ## Next state and stop condition
 
-P5R2-03-ROUND4_WAITING_USER。Q-R4-01〜Q-R4-06の回答が揃い、警告付きDataSet、非重複期間マージ、結果表示削除のHigh Unknownを具体Requirementへ変換するまで、P5R2-04、P5R2-HREQ、H1、DATA-G1、DELETE-G1、H2、実装、test subprocess、Playwright、外部I/O、Secret、費用、実削除、P6へ進まない。
+P5R2-04_READY。Q-R4-01〜Q-R4-06の回答を受領し、P5R2-03の要件ヒアリング・追加確認を完了した。回答を候補Requirementへ変換するP5R2-04へ移行可能だが、P5R2-HREQ、H1、DATA-G1、DELETE-G1、H2、実装、test subprocess、Playwright、外部I/O、Secret、費用、実削除、P6は停止する。
 
+
+## Round 4 user answer integration
+
+| ID | user answer | normalized status |
+|---|---|---|
+| Q-R4-01 | A | USER_CONFIRMED / warning-vs-error classification |
+| Q-R4-02 | A | USER_CONFIRMED / logical Data identity |
+| Q-R4-03 | A | USER_CONFIRMED / immutable merge version |
+| Q-R4-04 | A | USER_CONFIRMED / dedupe and conflict stop |
+| Q-R4-05 | A | USER_CONFIRMED / result-summary display only |
+| Q-R4-06 | A | USER_CONFIRMED / separate display state, restore, audit |
+
+正式v4、実装、外部I/O、実削除の承認ではない。詳細は `plan/phase5R2/ログ/P5R2-03-Round4回答統合_2026-08-22.md` を参照する。
 今回の正式ファイル統合はrootが行った。Agentは起動しておらず、Agentが正式ファイルを変更したとは記録しない。
