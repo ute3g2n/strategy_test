@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import os
 import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -10,7 +11,11 @@ from pathlib import Path
 import pytest
 
 from autotrade.application.backtest_product import BacktestProductService
-from autotrade.application.storage_paths import BACKTEST_STORAGE_ROOT, HISTORICAL_DATA_ROOT
+from autotrade.application.storage_paths import (
+    BACKTEST_STORAGE_ROOT,
+    HISTORICAL_DATA_ROOT,
+    filesystem_storage_path,
+)
 
 
 def _write_fixture(root: Path, symbol: str = "BTCUSDT", count: int = 180) -> Path:
@@ -78,10 +83,14 @@ def _wait(service: BacktestProductService, run_id: str, timeout: float = 5.0) ->
 
 def test_default_service_uses_e_drive_application_storage() -> None:
     service = BacktestProductService()
-    assert service.data_root == HISTORICAL_DATA_ROOT
-    assert service.runtime_root == BACKTEST_STORAGE_ROOT
-    assert service.data_root.drive.upper() == "E:"
-    assert service.runtime_root.drive.upper() == "E:"
+    assert service.data_root == filesystem_storage_path(HISTORICAL_DATA_ROOT)
+    assert service.runtime_root == filesystem_storage_path(BACKTEST_STORAGE_ROOT)
+    if os.name == "nt":
+        assert service.data_root.drive.upper() == "E:"
+        assert service.runtime_root.drive.upper() == "E:"
+    else:
+        assert service.data_root.as_posix().startswith("/mnt/e/")
+        assert service.runtime_root.as_posix().startswith("/mnt/e/")
     assert "phase5r" not in str(service.data_root).casefold()
     assert "phase5r" not in str(service.runtime_root).casefold()
 

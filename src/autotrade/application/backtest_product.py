@@ -37,7 +37,12 @@ from autotrade.strategy.service import process_closed_bars
 
 from .history_catalog import HistoryCatalog
 from .run_service import OperationGuard
-from .storage_paths import BACKTEST_STORAGE_ROOT, HISTORICAL_DATA_ROOT, validate_storage_path
+from .storage_paths import (
+    BACKTEST_STORAGE_ROOT,
+    HISTORICAL_DATA_ROOT,
+    filesystem_storage_path,
+    validate_storage_path,
+)
 
 JsonObject = dict[str, Any]
 RunCallback = Callable[[str, int, int], None]
@@ -159,16 +164,18 @@ class BacktestProductService:
     """Typed local service used by tests and the browser API."""
 
     def __init__(self, *, data_root: Path | None = None, runtime_root: Path | None = None) -> None:
-        self.data_root = (
+        logical_data_root = (
             validate_storage_path(HISTORICAL_DATA_ROOT, purpose="historical data")
             if data_root is None
             else Path(data_root)
         )
-        self.runtime_root = (
+        logical_runtime_root = (
             validate_storage_path(BACKTEST_STORAGE_ROOT, purpose="backtest runtime data")
             if runtime_root is None
             else Path(runtime_root)
         )
+        self.data_root = filesystem_storage_path(logical_data_root)
+        self.runtime_root = filesystem_storage_path(logical_runtime_root)
         self.data_root.mkdir(parents=True, exist_ok=True)
         self.runtime_root.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()

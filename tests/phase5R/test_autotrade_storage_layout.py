@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pytest
@@ -24,7 +25,10 @@ def test_default_storage_layout_is_on_e_drive_and_application_scoped() -> None:
 
     for path in paths:
         normalized = str(path).replace("/", "\\").lower()
-        assert path.drive.upper() == "E:", path
+        if os.name == "nt":
+            assert path.drive.upper() == "E:", path
+        else:
+            assert path.parts[:2] == ("E:\\", "strategy_test_data"), path
         assert "temp" not in normalized
         assert "phase5r" not in normalized
         assert "autotrade" in normalized
