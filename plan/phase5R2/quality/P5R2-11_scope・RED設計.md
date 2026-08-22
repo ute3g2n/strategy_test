@@ -47,7 +47,7 @@ Evidence pathの大文字小文字を一致させられなかった。
 | phase / step | `phase5R2` / `P5R2-11` |
 | scope mode | `target_only` |
 | Evidence root | `tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/` |
-| 実行状態 | P5R2-11はscope登録のみ。P5R2-12 preflight確認済み、RED／固定4 Gateは未実行 |
+| 実行状態 | P5R2-11はscope登録のみ。後続P5R2-12でpreflight、RED、固定4 Gateを実行し、RED_CONFIRMED |
 | network | host outbound isolation必須。未確認ならBLOCKED |
 | external I/O | 禁止 |
 | Secret / Broker / Live | 禁止 |
@@ -91,7 +91,7 @@ tests/evidence/phase5R2
 後続runnerが書き込むEvidence rootとして扱う。既存 `tests/evidence/phase5` は
 protected fixtureの保存場所を含むため、入力はread-only参照であり、scope変更対象ではない。
 
-P5R2-12のpreflight後、host isolationと既存protected fixture identityの一致をEvidenceで確認した。
+P5R2-12のpreflight後、host isolationと既存protected fixture identityの一致をEvidenceで確認した。固定入口のformatter／lint／typeはPASSし、testは期待REDとなった。詳細はP5R2-12 RED Evidenceへ分離して記録する。
 P5R2専用固定pytest入口は`local_p5r2_pytest`とし、既存P5Rの入口へ対象範囲を混在させない。
 
 ## 3. Protected fixture境界
@@ -108,8 +108,9 @@ path、name、version、protected identityの出典は、既存trusted scopeの
 いない。P5R2-11ではfixtureを開かず、再計算、変更、Evidence化を行っていない。
 
 この既存protected checksumの参照方式と現行quality runnerの実行時入力契約は、P5R2-12
-でread-only入力契約として確認する。実際のfixture読み取りまたはhost isolationに失敗
-した場合は `QUALITY_GATE_BLOCKED` とし、hashの再計算・retryは行わない。
+でread-only入力契約として確認した。実際のfixture読み取りまたはhost isolationに失敗
+した場合は `QUALITY_GATE_BLOCKED` とし、hashの再計算・retryは行わない。P5R2-12の
+Evidenceではfixture不一致は発生していない。
 
 ## 4. 固定4 Gateのscope案
 

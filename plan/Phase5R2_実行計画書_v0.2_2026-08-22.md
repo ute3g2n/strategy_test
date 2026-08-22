@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-002`
 > Version: `v0.2`
 > 作成日: `2026-08-22`
-> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_PREFLIGHT_CONFIRMED_RED_PENDING / P5R2-DATA-G1_UNAPPROVED / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
+> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_IN_PROGRESS / P5R2-DATA-G1_UNAPPROVED / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
 > 旧計画: [`Phase5R2_実行計画書_v0.1_2026-08-21.md`](./Phase5R2_実行計画書_v0.1_2026-08-21.md)（要件確定前の履歴。上書きしない）
 
 ## 1. この計画の結論
@@ -127,7 +127,7 @@ P5R2-HREQ承認後も、上表のH1、DATA-G1、DELETE-G1、H2の4つの人判�
 | `P5R2-HREQ-PACKET-001` | HREQ承認packet | `doc/phase5R2/03_HREQ/05_P5R2-HREQ承認packet.html` | approved history |
 | `P5R2-PLAN-002` | 本計画v0.2 | `plan/Phase5R2_実行計画書_v0.2_2026-08-22.md` | current |
 | `P5R2-ART-DD` | 実装詳細設計セット | `doc/phase5R2/04_実装詳細設計/` | P5R2-09以降で作成 |
-| `P5R2-ART-QG` | Quality／RED／Run scope | `plan/phase5R2/quality/`、`tests/evidence/phase5R2/<RunId>/` | H1後 |
+| `P5R2-ART-QG` | Quality／RED／Run scope | `plan/phase5R2/quality/`、`tests/evidence/phase5R2/<RunId>/` | P5R2-12 RED confirmed |
 | `P5R2-ART-MAN` | 改訂済みBacktest手順書 | `doc/phase5R/07_運用手順/01_バックテスト手順書.html` | H2前、検証後 |
 | `P5R2-ART-H2` | H2 packet／完了判定 | `doc/phase5R2/06_完了/`、`plan/phase5R2/ログ/` | 全Acceptance後 |
 
@@ -382,12 +382,17 @@ Acceptance:
 - 各8 atomic Requirementに少なくとも1つの失敗条件がある。
 - RED結果が期待どおり失敗し、未実装をPass扱いしない。
 - 外部I/O、Secret、既存実Data／Run／Evidence削除がない。
+
+実績（2026-08-22）:
+- `RED_CONFIRMED`。固定WSL入口でformatter／lint／typeはPASS、testは期待REDとしてFAILした。
+- `tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/P5R2-12_RED.json` に8件のfailure condition、対応test、runtime／禁止操作境界を記録した。
+- P5R2-13の開始条件を満たした。P5R2-13へ進み、GREEN実装を開始する。
 ```
 
 ### P5R2-13 — 時間足・Preflight・legacy境界を実装する
 
 ```text
-step_id=P5R2-13。開始条件はP5R2-12のREDが確認済み、H1承認範囲内、Dataはlocal fixture／fake providerだけ。実Provider、Secret、費用、実Data削除、P6は不可。
+step_id=P5R2-13。P5R2-12のRED_CONFIRMED（2026-08-22）を開始条件として確認済み。H1承認範囲内、Dataはlocal fixture／fake providerだけ。実Provider、Secret、費用、実Data削除、P6は不可。
 
 CoordinatorはAutoTradeProject_ImplementationQuality_Orchestrator_v0_1（.codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json、model=gpt-5.6-terra）。AgentはAutoTrade_A110_PythonTestEngineer_v0_1（.codex/agents/AutoTrade_A110_PythonTestEngineer_v0_1.json、model=gpt-5.6-luna）、AutoTrade_A120_PythonImplementer_v0_1（.codex/agents/AutoTrade_A120_PythonImplementer_v0_1.json、model=gpt-5.6-luna）、AutoTrade_A130_VerificationEngineer_v0_1（.codex/agents/AutoTrade_A130_VerificationEngineer_v0_1.json、model=gpt-5.6-luna）、AutoTrade_A140_DebugEngineer_v0_1（.codex/agents/AutoTrade_A140_DebugEngineer_v0_1.json、model=gpt-5.6-luna）、AutoTrade_A150_PythonCodeReviewer_v0_1（.codex/agents/AutoTrade_A150_PythonCodeReviewer_v0_1.json、model=gpt-5.6-luna）、AutoTrade_A160_TradingSecurityReviewer_v0_1（.codex/agents/AutoTrade_A160_TradingSecurityReviewer_v0_1.json、model=gpt-5.6-luna）、AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1（.codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json、model=gpt-5.6-luna、reasoning_effort=low）。Skillはautotrade_skill_python_implementation_v0_1、autotrade_skill_python_test_quality_v0_1、autotrade_skill_debug_recovery_v0_1、autotrade_skill_python_code_review_v0_1、autotrade_skill_test_strategy_v0_1、autotrade_skill_ops_security_v0_1、autotrade_skill_protected_hash_policy_guard_v0_1を使う。
 
