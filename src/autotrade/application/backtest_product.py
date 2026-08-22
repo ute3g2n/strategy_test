@@ -225,7 +225,7 @@ class BacktestProductService:
     @staticmethod
     def _stored_int(value: object) -> int:
         try:
-            parsed = int(value or 0)
+            parsed = int(str(value or "0"))
         except (TypeError, ValueError):
             return 0
         return max(parsed, 0)
@@ -233,14 +233,17 @@ class BacktestProductService:
     def _legacy_spec(self, record: Mapping[str, Any]) -> JsonObject:
         """Build only the conditions safely visible in an old result artifact."""
 
-        provenance = record.get("provenance") if isinstance(record.get("provenance"), Mapping) else {}
-        metrics = record.get("metrics") if isinstance(record.get("metrics"), Mapping) else {}
+        raw_provenance = record.get("provenance")
+        provenance: Mapping[str, Any] = raw_provenance if isinstance(raw_provenance, Mapping) else {}
+        raw_metrics = record.get("metrics")
+        metrics: Mapping[str, Any] = raw_metrics if isinstance(raw_metrics, Mapping) else {}
         fixture_scope = str(provenance.get("fixture_scope", ""))
         symbol = next((candidate for candidate in ALLOWED_SYMBOLS if candidate in fixture_scope), "UNKNOWN")
         explicit_symbol = provenance.get("symbol")
         if isinstance(explicit_symbol, str) and explicit_symbol in ALLOWED_SYMBOLS:
             symbol = explicit_symbol
-        core = provenance.get("core_validation") if isinstance(provenance.get("core_validation"), Mapping) else {}
+        raw_core = provenance.get("core_validation")
+        core: Mapping[str, Any] = raw_core if isinstance(raw_core, Mapping) else {}
         selected_system = core.get("selected_system")
         strategy = {"SYS1": "TURTLE_SYS1", "SYS2": "TURTLE_SYS2"}.get(str(selected_system), "UNKNOWN")
         return {
