@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import stat
 import tempfile
 import threading
 import uuid
@@ -18,6 +19,8 @@ from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
+
+from . import job_service
 
 JsonObject = dict[str, Any]
 
@@ -31,7 +34,16 @@ _BAR_FIELDS = frozenset({"timestamp", "open", "high", "low", "close", "volume"})
 _USABLE_QUALITIES = frozenset({"USABLE", "USABLE_WITH_WARNING"})
 _MAX_BARS = 200_000
 _PROVENANCE_FIELDS = frozenset(
-    {"source_job_id", "source_job_ids", "source_mode", "catalog_revision", "request_id", "merge_mode", "origin"}
+    {
+        "source_job_id",
+        "source_job_ids",
+        "source_mode",
+        "catalog_revision",
+        "request_id",
+        "merge_mode",
+        "origin",
+        "staging_id",
+    }
 )
 
 
@@ -48,6 +60,7 @@ class HistoryCatalog:
         self.versions_root = self.datasets_root / "versions"
         self._preview_lock = threading.RLock()
         self._preview_tokens: dict[str, JsonObject] = {}
+        self._staging_records: dict[str, JsonObject] = {}
         for directory in (self.catalog_root, self.runs_root, self.results_root, self.datasets_root, self.versions_root):
             self._ensure_directory_safe(directory)
 
@@ -62,20 +75,80 @@ class HistoryCatalog:
         safe_run_id = self._safe_run_id(run_id)
         if payload.get("run_id") != safe_run_id:
             raise ValueError("RESULT_RUN_ID_MISMATCH")
+        owner_id = payload.get("result_publish_id")
+        if not isinstance(owner_id, str) or not owner_id:
+            raise ValueError("RESULT_OWNER_MISSING")
+        run_path = self.runs_root / f"{safe_run_id}.json"
+        self._assert_path_chain_safe(run_path, self.runs_root)
+        run_record = self._read_json(run_path)
+        if (
+            run_record is None
+            or run_record.get("status") != "SUCCEEDED"
+            or run_record.get("result_reference") != f"results/{safe_run_id}/result.json"
+            or run_record.get("result_publish_id") != owner_id
+        ):
+            raise ValueError("RESULT_OWNER_MISMATCH")
         result_path = self.results_root / safe_run_id / "result.json"
         self._assert_path_chain_safe(result_path.parent, self.results_root)
-        result_path.parent.mkdir(parents=True, exist_ok=True)
-        if result_path.exists():
+        self._ensure_directory_safe(result_path.parent)
+        try:
+            self._write_json_exclusive(result_path, payload)
+        except FileExistsError:
             existing = self._read_json(result_path)
             if existing == payload:
                 return
-            raise ValueError("RESULT_ALREADY_PUBLISHED")
-        self._write_json_atomic(result_path, payload)
+            raise ValueError("RESULT_ALREADY_PUBLISHED") from None
 
     def preview_merge(self, request: Mapping[str, object]) -> JsonObject:
         """Build a user-reviewable merge result without changing the catalog."""
 
         return self._preview_merge(request, issue_token=True)
+
+    def stage_local_dataset(self, request: Mapping[str, object]) -> JsonObject:
+        """Create a server-owned local staging capability for Catalog validation."""
+
+        if not isinstance(request, Mapping):
+            raise ValueError("STAGING_REQUEST_INVALID")
+        identity = self._identity_payload(request.get("identity"))
+        self._assert_provider_boundary(identity)
+        provenance = self._safe_provenance(request.get("provenance"))
+        self._assert_provenance_identity(provenance, identity)
+        if provenance.get("source_mode") != "LOCAL_FAKE":
+            raise ValueError("DATA_PROVENANCE_MISMATCH")
+        raw_source_job = request.get("source_job")
+        if not isinstance(raw_source_job, Mapping):
+            raise ValueError("SOURCE_JOB_REQUIRED")
+        source_job = job_service.get_owned_job_snapshot(raw_source_job)
+        source_job_id = provenance.get("source_job_id")
+        if source_job_id != source_job.get("job_id"):
+            raise ValueError("SOURCE_JOB_OWNERSHIP_MISMATCH")
+        source_input = source_job.get("input")
+        if not isinstance(source_input, Mapping) or source_input.get("symbol") != identity.get("symbol"):
+            raise ValueError("SOURCE_JOB_IDENTITY_MISMATCH")
+        staging_id = request.get("staging_id")
+        request_id = request.get("request_id")
+        if self._safe_catalog_id(staging_id) is None or self._safe_catalog_id(request_id) is None:
+            raise ValueError("STAGING_ID_INVALID")
+        incoming_bars = self._normalise_bars(request.get("incoming_bars"))
+        token = uuid.uuid4().hex
+        record = {
+            "identity": identity,
+            "provenance": provenance,
+            "request_id": request_id,
+            "staging_id": staging_id,
+            "incoming_bars": incoming_bars,
+            "source_job": source_job,
+        }
+        with self._preview_lock:
+            self._staging_records[token] = record
+        return {
+            "staging_token": token,
+            "staging_id": staging_id,
+            "staging_state": "STAGED",
+            "promotion_state": "VALIDATING",
+            "quality": "PENDING_CATALOG_VALIDATION",
+            "usable": False,
+        }
 
     def _preview_merge(self, request: Mapping[str, object], *, issue_token: bool) -> JsonObject:
 
@@ -101,11 +174,15 @@ class HistoryCatalog:
                 existing_bars = self._normalise_bars(request.get("existing_bars"), allow_empty=True)
                 current_revision = 0
             incoming_bars = self._normalise_bars(request.get("incoming_bars"))
+            self._assert_staging_token(request, identity, provenance, incoming_bars)
             if dataset_id is not None:
                 self._safe_catalog_id(dataset_id)
             request_id = request.get("request_id")
             if not isinstance(request_id, str) or self._safe_catalog_id(request_id) is None:
                 raise ValueError("MERGE_REQUEST_ID_INVALID")
+            target_dataset_id = dataset_id or f"DATASET-MERGED-{request_id}"
+            if self._safe_catalog_id(target_dataset_id) is None:
+                raise ValueError("DATASET_ID_INVALID")
         except ValueError as error:
             return self._merge_rejection(str(error), request)
 
@@ -178,10 +255,20 @@ class HistoryCatalog:
             "promoted": False,
             "merged_bars": merged_bars,
             "dataset_id": dataset_id,
+            "target_dataset_id": target_dataset_id,
             "current_revision": current_revision,
             "expected_revision": request.get("expected_revision", current_revision),
             "operation_token": operation_token,
             "provenance": provenance,
+            "request_id": request_id,
+            "source_job_ids": self._reference_list(request.get("source_job_ids")),
+            "source_job_revision": self._source_job_revision(request.get("source_job")),
+            "staging_id": request.get("staging_id"),
+            "staging_token": request.get("staging_token"),
+            "staging_state": request.get("staging_state"),
+            "promotion_state": request.get("promotion_state"),
+            "quality": request.get("quality"),
+            "usable": request.get("usable"),
         }
         if issue_token and operation_token is not None:
             with self._preview_lock:
@@ -200,15 +287,18 @@ class HistoryCatalog:
         try:
             lock_dataset_id = self._promotion_dataset_id(request)
             with self._dataset_operation_lock(lock_dataset_id):
+                provided_token = request.get("preview_token")
+                if request.get("impact_confirmed") is not True or not isinstance(provided_token, str):
+                    return self._merge_rejection("MERGE_CONFIRMATION_REQUIRED", request)
                 preview = self._preview_merge(request, issue_token=False)
                 if preview.get("state") == "REJECTED":
+                    with self._preview_lock:
+                        token_exists = provided_token in self._preview_tokens
+                    if token_exists:
+                        preview["reason"] = "PREVIEW_TOKEN_MISMATCH"
                     preview["promoted"] = False
                     return preview
 
-                provided_token = request.get("preview_token")
-                if request.get("impact_confirmed") is not True or not isinstance(provided_token, str):
-                    preview.update({"state": "REJECTED", "reason": "MERGE_CONFIRMATION_REQUIRED", "promoted": False})
-                    return preview
                 with self._preview_lock:
                     token_record = self._preview_tokens.get(provided_token)
                 if token_record is None or token_record.get("binding") != self._preview_binding(preview):
@@ -231,7 +321,7 @@ class HistoryCatalog:
                     preview.update({"state": "REJECTED", "reason": "STALE_DATASET_REVISION", "promoted": False})
                     return preview
 
-                raw_dataset_id = preview.get("dataset_id")
+                raw_dataset_id = preview.get("target_dataset_id")
                 dataset_id = raw_dataset_id if isinstance(raw_dataset_id, str) and raw_dataset_id else lock_dataset_id
                 if self._safe_catalog_id(dataset_id) is None:
                     preview.update({"state": "REJECTED", "reason": "DATASET_ID_INVALID", "promoted": False})
@@ -250,7 +340,11 @@ class HistoryCatalog:
                     if version_path.exists():
                         preview.update({"state": "REJECTED", "reason": "DATASET_VERSION_CONFLICT", "promoted": False})
                         return preview
-                    self._write_json_atomic(version_path, current_record)
+                    try:
+                        self._write_json_exclusive(version_path, current_record)
+                    except FileExistsError:
+                        preview.update({"state": "REJECTED", "reason": "DATASET_VERSION_CONFLICT", "promoted": False})
+                        return preview
                 request_provenance = preview.get("provenance")
                 assert isinstance(request_provenance, Mapping)
                 output: JsonObject = {
@@ -271,6 +365,8 @@ class HistoryCatalog:
                         **dict(request_provenance),
                         "request_id": request.get("request_id"),
                         "source_job_ids": self._reference_list(request.get("source_job_ids")),
+                        "staging_id": request.get("staging_id"),
+                        "source_job_id": request_provenance.get("source_job_id"),
                         "merge_mode": "REPLACE" if request.get("explicit_replace") is True else "MERGE",
                     },
                 }
@@ -416,12 +512,62 @@ class HistoryCatalog:
 
     @staticmethod
     def _assert_staging_request(request: Mapping[str, object]) -> None:
+        required = ("staging_id", "staging_state", "promotion_state", "quality", "usable")
+        if any(key not in request for key in required):
+            raise ValueError("STAGING_METADATA_REQUIRED")
+        staging_id = request.get("staging_id")
+        if not isinstance(staging_id, str) or _CATALOG_ID_PATTERN.fullmatch(staging_id) is None:
+            raise ValueError("STAGING_ID_INVALID")
+        if request.get("staging_state") != "STAGED" or request.get("promotion_state") != "VALIDATING":
+            raise ValueError("PROMOTION_STAGING_STATE_INVALID")
+        if request.get("usable") is not False or request.get("quality") != "PENDING_CATALOG_VALIDATION":
+            raise ValueError("DATASET_NOT_STAGED")
         if request.get("staging_state") in {"ORPHAN_STAGING", "PARTIAL", "FAILED", "RECOVERY_REQUIRED"}:
             raise ValueError("PROMOTION_RECOVERY_REQUIRED")
         if request.get("promotion_state") in {"ORPHAN_STAGING", "RECOVERY_REQUIRED"}:
             raise ValueError("PROMOTION_RECOVERY_REQUIRED")
-        if request.get("usable") is False or request.get("quality") in {"UNUSABLE", "PENDING_CATALOG_VALIDATION"}:
+        if request.get("usable") is True or request.get("quality") == "UNUSABLE":
             raise ValueError("DATASET_NOT_USABLE")
+
+    def _assert_staging_token(
+        self,
+        request: Mapping[str, object],
+        identity: JsonObject,
+        provenance: JsonObject,
+        incoming_bars: list[JsonObject],
+    ) -> None:
+        token = request.get("staging_token")
+        if not isinstance(token, str) or not token:
+            raise ValueError("STAGING_TOKEN_REQUIRED")
+        with self._preview_lock:
+            record = self._staging_records.get(token)
+            record = json.loads(json.dumps(record, ensure_ascii=False)) if record is not None else None
+        if record is None:
+            raise ValueError("STAGING_TOKEN_INVALID")
+        try:
+            raw_source_job = request.get("source_job")
+            if not isinstance(raw_source_job, Mapping):
+                raise ValueError("SOURCE_JOB_REQUIRED")
+            source_job = job_service.get_owned_job_snapshot(raw_source_job)
+        except (KeyError, TypeError, ValueError) as error:
+            raise ValueError("SOURCE_JOB_SNAPSHOT_STALE") from error
+        expected = {
+            "identity": identity,
+            "provenance": provenance,
+            "request_id": request.get("request_id"),
+            "staging_id": request.get("staging_id"),
+            "incoming_bars": incoming_bars,
+            "source_job": source_job,
+        }
+        if record != expected:
+            raise ValueError("STAGING_TOKEN_MISMATCH")
+
+    @staticmethod
+    def _source_job_revision(value: object) -> int | None:
+        if not isinstance(value, Mapping):
+            return None
+        revision = value.get("revision")
+        return revision if isinstance(revision, int) and not isinstance(revision, bool) else None
 
     @classmethod
     def _normalise_bars(cls, value: object, *, allow_empty: bool = False) -> list[JsonObject]:
@@ -580,7 +726,9 @@ class HistoryCatalog:
             key: json.loads(json.dumps(preview.get(key), ensure_ascii=False, default=str))
             for key in (
                 "dataset_id",
+                "target_dataset_id",
                 "current_revision",
+                "expected_revision",
                 "identity",
                 "merged_bars",
                 "conflicts",
@@ -588,6 +736,14 @@ class HistoryCatalog:
                 "affected_results",
                 "explicit_replace",
                 "provenance",
+                "request_id",
+                "source_job_ids",
+                "staging_id",
+                "staging_token",
+                "staging_state",
+                "promotion_state",
+                "quality",
+                "usable",
             )
         }
 
@@ -940,6 +1096,11 @@ class HistoryCatalog:
             return None, self._issue("RESULT_REFERENCE_MISMATCH", run_id, result_path)
         if not self._result_payload_is_usable(result):
             return None, self._issue("RESULT_JSON_INVALID", run_id, result_path)
+        owner_id = record.get("result_publish_id")
+        if not isinstance(owner_id, str) or not owner_id:
+            return None, self._issue("RESULT_OWNER_MISSING", run_id, catalog_path)
+        if result.get("result_publish_id") != owner_id:
+            return None, self._issue("RESULT_OWNER_MISMATCH", run_id, result_path)
         return result, None
 
     def _safe_result_reference(self, reference: str, run_id: str) -> Path:
@@ -1046,10 +1207,24 @@ class HistoryCatalog:
 
     @staticmethod
     def _read_json(path: Path) -> JsonObject | None:
+        descriptor = -1
         try:
-            payload = json.loads(path.read_text(encoding="utf-8"))
+            flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0)
+            descriptor = os.open(path, flags)
+            file_stat = os.fstat(descriptor)
+            if not stat.S_ISREG(file_stat.st_mode):
+                return None
+            with os.fdopen(descriptor, "r", encoding="utf-8") as handle:
+                descriptor = -1
+                payload = json.load(handle)
         except (OSError, UnicodeDecodeError, json.JSONDecodeError):
             return None
+        finally:
+            if descriptor >= 0:
+                try:
+                    os.close(descriptor)
+                except OSError:
+                    pass
         return payload if isinstance(payload, dict) else None
 
     def _issue(self, code: str, run_id: str, path: Path) -> JsonObject:
@@ -1077,6 +1252,29 @@ class HistoryCatalog:
         finally:
             if temporary_path.exists():
                 temporary_path.unlink()
+
+    def _write_json_exclusive(self, path: Path, payload: JsonObject) -> None:
+        """Create a JSON record exactly once, never replacing a prior record."""
+
+        self._assert_path_chain_safe(path.parent, self.runtime_root)
+        if self._is_link_or_reparse(path):
+            raise ValueError("RUNTIME_PATH_UNSAFE")
+        encoded = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
+        flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0)
+        descriptor = os.open(path, flags, 0o600)
+        try:
+            with os.fdopen(descriptor, "wb") as handle:
+                descriptor = -1
+                handle.write(encoded)
+                handle.flush()
+                os.fsync(handle.fileno())
+            self._fsync_directory(path.parent)
+        finally:
+            if descriptor >= 0:
+                try:
+                    os.close(descriptor)
+                except OSError:
+                    pass
 
     @staticmethod
     def _fsync_directory(directory: Path) -> None:

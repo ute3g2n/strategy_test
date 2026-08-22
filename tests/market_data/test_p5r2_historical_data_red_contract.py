@@ -10,6 +10,8 @@ import pytest
 
 from autotrade.application import history_catalog, job_service
 
+_JOB_REQUEST_COUNTER = 0
+
 
 def _require_module_contract(module: ModuleType, name: str, requirement: str) -> Callable[..., object]:
     operation = getattr(module, name, None)
@@ -43,12 +45,14 @@ def _source_bars() -> list[dict[str, str]]:
 
 
 def _job_request() -> dict[str, object]:
+    global _JOB_REQUEST_COUNTER
+    _JOB_REQUEST_COUNTER += 1
     return {
         "source_dataset_id": "fixture-source-1m",
         "symbol": "BTCUSDT",
         "timeframes": ["15m", "30m"],
         "requested_range": {"start": "2026-08-20T00:00:00Z", "end": "2026-08-20T01:00:00Z"},
-        "request_id": "p5r2-local-request-001",
+        "request_id": f"p5r2-local-request-{_JOB_REQUEST_COUNTER:03d}",
         "reason": "fixed local RED fixture",
         "retry_of": None,
         "external_io_allowed": False,
@@ -72,6 +76,18 @@ def _job_request() -> dict[str, object]:
             "provenance": {"source_job_id": "fixture-job-001", "source_mode": "LOCAL_FAKE"},
         },
     }
+
+
+def _stage(catalog: history_catalog.HistoryCatalog, request: dict[str, object]) -> dict[str, object]:
+    source_job = job_service.create_timeframe_generation_job(_job_request())
+    assert source_job["state"] == "STAGED"
+    request["source_job"] = source_job
+    provenance = request["provenance"]
+    assert isinstance(provenance, dict)
+    provenance["source_job_id"] = source_job["job_id"]
+    provenance["source_mode"] = "LOCAL_FAKE"
+    request.update(catalog.stage_local_dataset(request))
+    return request
 
 
 def test_download_and_generation_jobs_are_separate_and_promote_only_after_recovery_safe_validation() -> None:
@@ -145,13 +161,20 @@ def test_local_generation_job_cancel_restart_and_retry_are_recovery_safe() -> No
         "retry_timeframe_generation_job",
         "P5R2-CREQ-HD-001",
     )
+    advance = _require_module_contract(
+        job_service,
+        "advance_timeframe_generation_job",
+        "P5R2-CREQ-HD-001",
+    )
 
     running = job_service.create_timeframe_generation_job(_job_request())
     assert isinstance(running, dict)
-    running["state"] = "RUNNING"
-    running["output"] = None
-    running["retry_of"] = None
-    cancelled = cancel(running)
+    caller_copy = dict(running)
+    caller_copy["state"] = "RUNNING"
+    stale_cancel = cancel(caller_copy)
+    assert _field(stale_cancel, "reason") == "JOB_STATE_STALE"
+    running_snapshot = advance(running)
+    cancelled = cancel(running_snapshot)
     assert _field(cancelled, "state") == "CANCELLED"
     assert _field(cancelled, "promoted") is False
     assert _field(cancelled, "reason") == "JOB_CANCELLED"
@@ -160,10 +183,8 @@ def test_local_generation_job_cancel_restart_and_retry_are_recovery_safe() -> No
         {**_job_request(), "request_id": "p5r2-restart-request-001"}
     )
     assert isinstance(recovery_source, dict)
-    recovery_source["state"] = "RUNNING"
-    recovery_source["output"] = None
-    recovery_source["retry_of"] = None
-    recovery = restart(recovery_source)
+    recovery_running = advance(recovery_source)
+    recovery = restart(recovery_running)
     assert _field(recovery, "state") == "RECOVERY_REQUIRED"
     assert _field(recovery, "orphan") is True
     assert _field(recovery, "promoted") is False
@@ -204,6 +225,31 @@ def test_job_lifecycle_rejects_unregistered_caller_snapshot() -> None:
     assert _field(result, "reason") == "JOB_NOT_FOUND"
 
 
+def test_job_lifecycle_rejects_mutated_snapshot_and_second_cas_transition() -> None:
+    advance = _require_module_contract(
+        job_service,
+        "advance_timeframe_generation_job",
+        "P5R2-CREQ-HD-001",
+    )
+    cancel = _require_module_contract(
+        job_service,
+        "cancel_timeframe_generation_job",
+        "P5R2-CREQ-HD-001",
+    )
+    original = job_service.create_timeframe_generation_job(_job_request())
+    assert isinstance(original, dict)
+    tampered = dict(original)
+    tampered["input"] = {**original["input"], "symbol": "ATTACKER"}
+    rejected = advance(tampered)
+    assert rejected["reason"] == "JOB_SNAPSHOT_TAMPERED"
+
+    running = advance(original)
+    cancelled = cancel(running)
+    assert cancelled["state"] == "CANCELLED"
+    replay = cancel(running)
+    assert replay["reason"] == "JOB_STATE_STALE"
+
+
 def test_catalog_merge_preview_requires_identity_dedupe_conflict_replace_and_impact_review(tmp_path) -> None:
     catalog = history_catalog.HistoryCatalog(tmp_path)
     preview = getattr(catalog, "preview_merge", None)
@@ -228,7 +274,13 @@ def test_catalog_merge_preview_requires_identity_dedupe_conflict_replace_and_imp
         "explicit_replace": False,
         "provenance": {"source_job_id": "merge-job-001", "source_mode": "LOCAL_FAKE"},
         "request_id": "p5r2-merge-preview-001",
+        "staging_id": "STAGING-merge-preview-001",
+        "staging_state": "STAGED",
+        "promotion_state": "VALIDATING",
+        "quality": "PENDING_CATALOG_VALIDATION",
+        "usable": False,
     }
+    _stage(catalog, request)
 
     preview_result = preview(request)
 
@@ -245,36 +297,40 @@ def test_catalog_merge_preview_requires_identity_dedupe_conflict_replace_and_imp
 
 def test_catalog_rejects_identity_mismatch_without_auto_merge(tmp_path) -> None:
     catalog = history_catalog.HistoryCatalog(tmp_path)
-    preview_result = catalog.preview_merge(
-        {
-            "identity": {
-                "provider": "LOCAL_FAKE",
-                "market": "SPOT",
-                "symbol": "BTCUSDT",
-                "source_timeframe": "1m",
-                "schema": "ohlcv-v1",
-            },
-            "existing_identity": {
-                "provider": "LOCAL_FAKE",
-                "market": "SPOT",
-                "symbol": "BTCUSDT",
-                "source_timeframe": "1m",
-                "schema": "ohlcv-v1",
-            },
-            "incoming_identity": {
-                "provider": "OTHER_PROVIDER",
-                "market": "SPOT",
-                "symbol": "BTCUSDT",
-                "source_timeframe": "1m",
-                "schema": "ohlcv-v1",
-            },
-            "existing_bars": [],
-            "incoming_bars": [_bar("2026-08-20T00:00:00Z", "100.00")],
-            "explicit_replace": False,
-            "provenance": {"source_job_id": "identity-job-001", "source_mode": "LOCAL_FAKE"},
-            "request_id": "p5r2-identity-mismatch-001",
-        }
-    )
+    identity_request = {
+        "identity": {
+            "provider": "LOCAL_FAKE",
+            "market": "SPOT",
+            "symbol": "BTCUSDT",
+            "source_timeframe": "1m",
+            "schema": "ohlcv-v1",
+        },
+        "existing_identity": {
+            "provider": "LOCAL_FAKE",
+            "market": "SPOT",
+            "symbol": "BTCUSDT",
+            "source_timeframe": "1m",
+            "schema": "ohlcv-v1",
+        },
+        "incoming_identity": {
+            "provider": "OTHER_PROVIDER",
+            "market": "SPOT",
+            "symbol": "BTCUSDT",
+            "source_timeframe": "1m",
+            "schema": "ohlcv-v1",
+        },
+        "existing_bars": [],
+        "incoming_bars": [_bar("2026-08-20T00:00:00Z", "100.00")],
+        "explicit_replace": False,
+        "provenance": {"source_job_id": "identity-job-001", "source_mode": "LOCAL_FAKE"},
+        "request_id": "p5r2-identity-mismatch-001",
+        "staging_id": "STAGING-identity-mismatch-001",
+        "staging_state": "STAGED",
+        "promotion_state": "VALIDATING",
+        "quality": "PENDING_CATALOG_VALIDATION",
+        "usable": False,
+    }
+    preview_result = catalog.preview_merge(identity_request)
 
     assert _field(preview_result, "state") == "REJECTED"
     assert _field(preview_result, "reason") == "DATA_IDENTITY_MISMATCH"
@@ -307,7 +363,13 @@ def test_catalog_explicit_replace_promotes_atomically_and_lists_usable_dataset(t
         "impact_confirmed": True,
         "provenance": {"source_job_id": "p5r2-merge-apply-001", "source_mode": "LOCAL_FAKE"},
         "request_id": "p5r2-merge-apply-001",
+        "staging_id": "STAGING-merge-apply-001",
+        "staging_state": "STAGED",
+        "promotion_state": "VALIDATING",
+        "quality": "PENDING_CATALOG_VALIDATION",
+        "usable": False,
     }
+    _stage(catalog, request)
     preview_result = catalog.preview_merge(request)
     request["preview_token"] = _field(preview_result, "operation_token")
     result = promote(request)
@@ -381,6 +443,11 @@ def test_catalog_rejects_external_provider_legacy_and_invalid_dataset_inputs(tmp
         "request_id": "p5r2-invalid-001",
         "provenance": {"source_job_id": "invalid-job-001", "source_mode": "OTHER_PROVIDER"},
         "explicit_replace": False,
+        "staging_id": "STAGING-invalid-001",
+        "staging_state": "STAGED",
+        "promotion_state": "VALIDATING",
+        "quality": "PENDING_CATALOG_VALIDATION",
+        "usable": False,
     }
     provider_result = catalog.preview_merge(base)
     assert provider_result["state"] == "REJECTED"
@@ -416,7 +483,13 @@ def test_catalog_requires_current_revision_and_confirmation_and_preserves_previo
         "impact_confirmed": True,
         "provenance": {"source_job_id": "revision-job-001", "source_mode": "LOCAL_FAKE"},
         "request_id": "revision-request-001",
+        "staging_id": "STAGING-revision-001",
+        "staging_state": "STAGED",
+        "promotion_state": "VALIDATING",
+        "quality": "PENDING_CATALOG_VALIDATION",
+        "usable": False,
     }
+    _stage(catalog, initial)
     initial["preview_token"] = catalog.preview_merge(initial)["operation_token"]
     first = catalog.promote_merge(initial)
     assert first["state"] == "PROMOTED"
@@ -441,6 +514,7 @@ def test_catalog_requires_current_revision_and_confirmation_and_preserves_previo
         "request_id": "revision-request-002",
         "impact_confirmed": True,
     }
+    _stage(catalog, current)
     current["preview_token"] = catalog.preview_merge(current)["operation_token"]
     second = catalog.promote_merge(current)
     assert second["state"] == "PROMOTED"
@@ -448,6 +522,7 @@ def test_catalog_requires_current_revision_and_confirmation_and_preserves_previo
     assert (tmp_path / "catalog" / "datasets" / "versions" / "dataset-revision-001.r1.json").exists()
 
     stale = {**current, "expected_revision": 1, "request_id": "revision-request-stale", "preview_token": None}
+    _stage(catalog, stale)
     stale_preview = catalog.preview_merge(stale)
     assert stale_preview["current_revision"] == 2
     assert stale_preview["state"] == "PREVIEW_READY"
@@ -470,12 +545,23 @@ def test_catalog_preview_token_is_bound_to_reviewed_content_and_consumed_once(tm
         "impact_confirmed": True,
         "provenance": {"source_job_id": "token-job-001", "source_mode": "LOCAL_FAKE"},
         "request_id": "token-request-001",
+        "staging_id": "STAGING-token-001",
+        "staging_state": "STAGED",
+        "promotion_state": "VALIDATING",
+        "quality": "PENDING_CATALOG_VALIDATION",
+        "usable": False,
     }
+    _stage(catalog, request)
     request["preview_token"] = catalog.preview_merge(request)["operation_token"]
     tampered = {**request, "incoming_bars": [_bar("2026-08-20T00:00:00Z", "999.00")]}
     rejected = catalog.promote_merge(tampered)
     assert rejected["state"] == "REJECTED"
     assert rejected["reason"] == "PREVIEW_TOKEN_MISMATCH"
+
+    request_id_tampered = {**request, "request_id": "token-request-other"}
+    rebound = catalog.promote_merge(request_id_tampered)
+    assert rebound["state"] == "REJECTED"
+    assert rebound["reason"] == "PREVIEW_TOKEN_MISMATCH"
 
     promoted = catalog.promote_merge(request)
     assert promoted["state"] == "PROMOTED"
@@ -485,13 +571,67 @@ def test_catalog_preview_token_is_bound_to_reviewed_content_and_consumed_once(tm
 
 def test_catalog_result_publication_is_write_once_for_different_payload(tmp_path) -> None:
     catalog = history_catalog.HistoryCatalog(tmp_path)
-    payload = {"run_id": "RUN-P5R2-WRITE-001", "metrics": {}, "rows": [], "provenance": {}}
+    owner_id = "RESULT-OWNER-RUN-P5R2-WRITE-001"
+    payload = {
+        "run_id": "RUN-P5R2-WRITE-001",
+        "metrics": {},
+        "rows": [],
+        "provenance": {},
+        "result_publish_id": owner_id,
+    }
+    catalog.persist_run(
+        {
+            "run_id": payload["run_id"],
+            "status": "SUCCEEDED",
+            "result_reference": "results/RUN-P5R2-WRITE-001/result.json",
+            "result_publish_id": owner_id,
+        }
+    )
     catalog.write_result(payload["run_id"], payload)
     catalog.write_result(payload["run_id"], dict(payload))
     with pytest.raises(ValueError, match="RESULT_ALREADY_PUBLISHED"):
         catalog.write_result(
             payload["run_id"],
-            {"run_id": payload["run_id"], "metrics": {"changed": True}, "rows": [], "provenance": {}},
+            {
+                "run_id": payload["run_id"],
+                "metrics": {"changed": True},
+                "rows": [],
+                "provenance": {},
+                "result_publish_id": owner_id,
+            },
+        )
+
+
+def test_catalog_requires_staging_metadata_and_result_owner(tmp_path) -> None:
+    catalog = history_catalog.HistoryCatalog(tmp_path)
+    identity = {
+        "provider": "LOCAL_FAKE",
+        "market": "SPOT",
+        "symbol": "BTCUSDT",
+        "source_timeframe": "1m",
+        "schema": "ohlcv-v1",
+    }
+    missing_staging = catalog.preview_merge(
+        {
+            "identity": identity,
+            "existing_bars": [],
+            "incoming_bars": [_bar("2026-08-20T00:00:00Z", "100.00")],
+            "request_id": "missing-staging-001",
+            "provenance": {"source_job_id": "job-001", "source_mode": "LOCAL_FAKE"},
+        }
+    )
+    assert missing_staging["reason"] == "STAGING_METADATA_REQUIRED"
+
+    with pytest.raises(ValueError, match="RESULT_OWNER_MISMATCH"):
+        catalog.write_result(
+            "RUN-P5R2-OWNER-001",
+            {
+                "run_id": "RUN-P5R2-OWNER-001",
+                "metrics": {},
+                "rows": [],
+                "provenance": {},
+                "result_publish_id": "RESULT-OWNER-RUN-P5R2-OWNER-001",
+            },
         )
 
 

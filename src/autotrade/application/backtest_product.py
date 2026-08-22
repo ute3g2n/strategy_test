@@ -1112,9 +1112,16 @@ class BacktestProductService:
         }
 
     def _publish_result(self, run: _Run) -> None:
-        payload = {"run_id": run.run_id, "metrics": run.metrics, "rows": run.rows, "provenance": run.provenance}
-        self._history_catalog.write_result(run.run_id, payload)
         self._persist_run(run)
+        result_publish_id = f"RESULT-OWNER-{run.run_id}"
+        payload = {
+            "run_id": run.run_id,
+            "metrics": run.metrics,
+            "rows": run.rows,
+            "provenance": run.provenance,
+            "result_publish_id": result_publish_id,
+        }
+        self._history_catalog.write_result(run.run_id, payload)
 
     def _execute_sweep(self, sweep_id: str, candidates: list[JsonObject]) -> None:
         with self._lock:
@@ -1249,6 +1256,7 @@ class BacktestProductService:
             "resume_count": run.resume_count,
             "recovery_mode": run.recovery_mode,
             "result_reference": f"results/{run.run_id}/result.json" if run.status == "SUCCEEDED" else None,
+            "result_publish_id": f"RESULT-OWNER-{run.run_id}" if run.status == "SUCCEEDED" else None,
         }
 
     @staticmethod
