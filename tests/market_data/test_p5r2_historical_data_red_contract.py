@@ -101,7 +101,10 @@ def test_catalog_merge_preview_requires_identity_dedupe_conflict_replace_and_imp
             "source_timeframe": "1m",
             "schema": "ohlcv-v1",
         },
-        "existing_bars": [{"timestamp": "2026-08-20T00:00:00Z", "close": "100.00"}],
+        "existing_bars": [
+            {"timestamp": "2026-08-20T00:00:00Z", "close": "100.00"},
+            {"timestamp": "2026-08-20T00:30:00Z", "close": "998.00"},
+        ],
         "incoming_bars": [
             {"timestamp": "2026-08-20T00:00:00Z", "close": "100.00"},
             {"timestamp": "2026-08-20T00:15:00Z", "close": "101.00"},
