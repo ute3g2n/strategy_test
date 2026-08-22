@@ -20,6 +20,17 @@ def _field(value: object, name: str) -> object:
     return getattr(value, name, None)
 
 
+def _bar(timestamp: str, close: str) -> dict[str, str]:
+    return {
+        "timestamp": timestamp,
+        "open": close,
+        "high": close,
+        "low": close,
+        "close": close,
+        "volume": "1.00",
+    }
+
+
 def _job_request() -> dict[str, object]:
     return {
         "source_dataset_id": "fixture-source-1m",
@@ -30,6 +41,21 @@ def _job_request() -> dict[str, object]:
         "reason": "fixed local RED fixture",
         "retry_of": None,
         "external_io_allowed": False,
+        "source_dataset": {
+            "dataset_id": "fixture-source-1m",
+            "identity": {
+                "provider": "LOCAL_FAKE",
+                "market": "SPOT",
+                "symbol": "BTCUSDT",
+                "source_timeframe": "1m",
+                "schema": "ohlcv-v1",
+            },
+            "coverage": {"start": "2026-08-19T00:00:00Z", "end": "2026-08-21T00:00:00Z"},
+            "quality": "USABLE",
+            "usable": True,
+            "legacy": False,
+            "provenance": {"source_job_id": "fixture-job-001", "source_mode": "LOCAL_FAKE"},
+        },
     }
 
 
@@ -126,7 +152,18 @@ def test_local_generation_job_cancel_restart_and_retry_are_recovery_safe() -> No
     retried = retry(recovery)
     assert _field(retried, "state") == "PROMOTED"
     assert _field(retried, "retry_of") == running["job_id"]
+    assert _field(retried, "job_id") != running["job_id"]
     assert _field(retried, "orphan") is False
+
+    download_retry = retry(
+        {
+            **running,
+            "job_type": "HISTORICAL_DOWNLOAD",
+            "state": "RECOVERY_REQUIRED",
+        }
+    )
+    assert _field(download_retry, "state") == "REJECTED"
+    assert _field(download_retry, "reason") == "JOB_TYPE_MISMATCH"
 
 
 def test_catalog_merge_preview_requires_identity_dedupe_conflict_replace_and_impact_review(tmp_path) -> None:
@@ -142,18 +179,16 @@ def test_catalog_merge_preview_requires_identity_dedupe_conflict_replace_and_imp
             "source_timeframe": "1m",
             "schema": "ohlcv-v1",
         },
-        "existing_bars": [
-            {"timestamp": "2026-08-20T00:00:00Z", "close": "100.00"},
-            {"timestamp": "2026-08-20T00:30:00Z", "close": "998.00"},
-        ],
+        "existing_bars": [_bar("2026-08-20T00:00:00Z", "100.00"), _bar("2026-08-20T00:30:00Z", "998.00")],
         "incoming_bars": [
-            {"timestamp": "2026-08-20T00:00:00Z", "close": "100.00"},
-            {"timestamp": "2026-08-20T00:15:00Z", "close": "101.00"},
-            {"timestamp": "2026-08-20T00:30:00Z", "close": "999.00"},
+            _bar("2026-08-20T00:00:00Z", "100.00"),
+            _bar("2026-08-20T00:15:00Z", "101.00"),
+            _bar("2026-08-20T00:30:00Z", "999.00"),
         ],
         "affected_runs": ["RUN-LOCAL-001"],
         "affected_results": ["RESULT-LOCAL-001"],
         "explicit_replace": False,
+        "provenance": {"source_job_id": "merge-job-001", "source_mode": "LOCAL_FAKE"},
         "request_id": "p5r2-merge-preview-001",
     }
 
@@ -165,6 +200,9 @@ def test_catalog_merge_preview_requires_identity_dedupe_conflict_replace_and_imp
     assert _field(preview_result, "affected_runs") == request["affected_runs"]
     assert _field(preview_result, "affected_results") == request["affected_results"]
     assert _field(preview_result, "requires_explicit_replace") is True
+    assert _field(preview_result, "state") == "CONFLICT"
+    assert _field(preview_result, "promotable") is False
+    assert _field(preview_result, "operation_token")
 
 
 def test_catalog_rejects_identity_mismatch_without_auto_merge(tmp_path) -> None:
@@ -193,8 +231,9 @@ def test_catalog_rejects_identity_mismatch_without_auto_merge(tmp_path) -> None:
                 "schema": "ohlcv-v1",
             },
             "existing_bars": [],
-            "incoming_bars": [{"timestamp": "2026-08-20T00:00:00Z", "close": "100.00"}],
+            "incoming_bars": [_bar("2026-08-20T00:00:00Z", "100.00")],
             "explicit_replace": False,
+            "provenance": {"source_job_id": "identity-job-001", "source_mode": "LOCAL_FAKE"},
             "request_id": "p5r2-identity-mismatch-001",
         }
     )
@@ -218,21 +257,22 @@ def test_catalog_explicit_replace_promotes_atomically_and_lists_usable_dataset(t
         "source_timeframe": "1m",
         "schema": "ohlcv-v1",
     }
-    result = promote(
-        {
-            "identity": identity,
-            "existing_bars": [{"timestamp": "2026-08-20T00:00:00Z", "close": "100.00"}],
-            "incoming_bars": [
-                {"timestamp": "2026-08-20T00:00:00Z", "close": "101.00"},
-                {"timestamp": "2026-08-20T00:15:00Z", "close": "102.00"},
-            ],
-            "affected_runs": ["RUN-LOCAL-001"],
-            "affected_results": ["RESULT-LOCAL-001"],
-            "explicit_replace": True,
-            "dataset_id": "dataset-local-001",
-            "request_id": "p5r2-merge-apply-001",
-        }
-    )
+    request = {
+        "identity": identity,
+        "existing_bars": [_bar("2026-08-20T00:00:00Z", "100.00")],
+        "incoming_bars": [_bar("2026-08-20T00:00:00Z", "101.00"), _bar("2026-08-20T00:15:00Z", "102.00")],
+        "affected_runs": ["RUN-LOCAL-001"],
+        "affected_results": ["RESULT-LOCAL-001"],
+        "explicit_replace": True,
+        "dataset_id": "dataset-local-001",
+        "expected_revision": 0,
+        "impact_confirmed": True,
+        "provenance": {"source_job_id": "p5r2-merge-apply-001", "source_mode": "LOCAL_FAKE"},
+        "request_id": "p5r2-merge-apply-001",
+    }
+    preview_result = catalog.preview_merge(request)
+    request["preview_token"] = _field(preview_result, "operation_token")
+    result = promote(request)
 
     assert _field(result, "state") == "PROMOTED"
     assert _field(result, "promoted") is True
@@ -254,3 +294,123 @@ def test_catalog_explicit_replace_promotes_atomically_and_lists_usable_dataset(t
     assert available[0]["usable"] is True
     assert available[0]["legacy"] is False
     assert available[0]["provenance"]["request_id"] == "p5r2-merge-apply-001"
+
+
+def test_generation_requires_verified_local_source_and_does_not_mark_job_output_usable() -> None:
+    generation = _require_module_contract(
+        job_service,
+        "create_timeframe_generation_job",
+        "P5R2-CREQ-HD-001",
+    )
+    missing_source = generation({**_job_request(), "source_dataset": None})
+    assert _field(missing_source, "state") == "REJECTED"
+    assert _field(missing_source, "reason") == "SOURCE_DATASET_UNAVAILABLE"
+
+    valid = generation(_job_request())
+    assert _field(valid, "state") == "PROMOTED"
+    output = _field(valid, "output")
+    assert isinstance(output, dict)
+    assert output["usable"] is False
+    assert all(dataset["usable"] is False for dataset in output["data_sets"])
+
+
+def test_catalog_rejects_external_provider_legacy_and_invalid_dataset_inputs(tmp_path) -> None:
+    catalog = history_catalog.HistoryCatalog(tmp_path)
+    base = {
+        "identity": {
+            "provider": "OTHER_PROVIDER",
+            "market": "SPOT",
+            "symbol": "BTCUSDT",
+            "source_timeframe": "1m",
+            "schema": "ohlcv-v1",
+        },
+        "incoming_bars": [_bar("2026-08-20T00:00:00Z", "100.00")],
+        "existing_bars": [],
+        "request_id": "p5r2-invalid-001",
+        "provenance": {"source_job_id": "invalid-job-001", "source_mode": "OTHER_PROVIDER"},
+        "explicit_replace": False,
+    }
+    provider_result = catalog.preview_merge(base)
+    assert provider_result["state"] == "REJECTED"
+    assert provider_result["reason"] == "EXTERNAL_PROVIDER_GATE_REQUIRED"
+
+    invalid_bar = catalog.preview_merge(
+        {
+            **base,
+            "identity": {**base["identity"], "provider": "LOCAL_FAKE"},
+            "provenance": {"source_job_id": "invalid-job-002", "source_mode": "LOCAL_FAKE"},
+            "incoming_bars": [{"timestamp": "not-a-time", "close": "100.00"}],
+        }
+    )
+    assert invalid_bar["state"] == "REJECTED"
+    assert invalid_bar["reason"] in {"BAR_TIMESTAMP_INVALID", "BAR_SCHEMA_INVALID"}
+
+
+def test_catalog_requires_current_revision_and_confirmation_and_preserves_previous_version(tmp_path) -> None:
+    catalog = history_catalog.HistoryCatalog(tmp_path)
+    identity = {
+        "provider": "LOCAL_FAKE",
+        "market": "SPOT",
+        "symbol": "BTCUSDT",
+        "source_timeframe": "1m",
+        "schema": "ohlcv-v1",
+    }
+    initial = {
+        "identity": identity,
+        "existing_bars": [],
+        "incoming_bars": [_bar("2026-08-20T00:00:00Z", "100.00")],
+        "dataset_id": "dataset-revision-001",
+        "expected_revision": 0,
+        "impact_confirmed": True,
+        "provenance": {"source_job_id": "revision-job-001", "source_mode": "LOCAL_FAKE"},
+        "request_id": "revision-request-001",
+    }
+    initial["preview_token"] = catalog.preview_merge(initial)["operation_token"]
+    first = catalog.promote_merge(initial)
+    assert first["state"] == "PROMOTED"
+
+    confirmation_missing = catalog.promote_merge(
+        {
+            **initial,
+            "incoming_bars": [_bar("2026-08-20T00:15:00Z", "101.00")],
+            "expected_revision": 1,
+            "request_id": "revision-request-002",
+            "preview_token": None,
+        }
+    )
+    assert confirmation_missing["state"] == "REJECTED"
+    assert confirmation_missing["reason"] == "MERGE_CONFIRMATION_REQUIRED"
+
+    current = {
+        **initial,
+        "existing_bars": [],
+        "incoming_bars": [_bar("2026-08-20T00:15:00Z", "101.00")],
+        "expected_revision": 1,
+        "request_id": "revision-request-002",
+        "impact_confirmed": True,
+    }
+    current["preview_token"] = catalog.preview_merge(current)["operation_token"]
+    second = catalog.promote_merge(current)
+    assert second["state"] == "PROMOTED"
+    assert second["output"]["bar_count"] == 2
+    assert (tmp_path / "catalog" / "datasets" / "versions" / "dataset-revision-001.r1.json").exists()
+
+    stale = {**current, "expected_revision": 1, "request_id": "revision-request-stale", "preview_token": None}
+    stale_preview = catalog.preview_merge(stale)
+    assert stale_preview["current_revision"] == 2
+    assert stale_preview["state"] == "PREVIEW_READY"
+
+
+def test_catalog_available_list_excludes_legacy_and_invalid_state(tmp_path) -> None:
+    catalog = history_catalog.HistoryCatalog(tmp_path)
+    datasets_root = tmp_path / "catalog" / "datasets"
+    datasets_root.mkdir(parents=True, exist_ok=True)
+    (datasets_root / "legacy.json").write_text(
+        '{"schema":"autotrade-historical-dataset/v1","dataset_id":"legacy","identity":{"provider":"LOCAL_FAKE","market":"SPOT","symbol":"BTCUSDT","source_timeframe":"1m","schema":"ohlcv-v1"},"quality":"USABLE","usable":true,"legacy":true,"state":"CURRENT","promotion_state":"PROMOTED","provenance":{"source_job_id":"legacy-job"},"bars":[]}',
+        encoding="utf-8",
+    )
+    (datasets_root / "staging.json").write_text(
+        '{"schema":"autotrade-historical-dataset/v1","dataset_id":"staging","identity":{"provider":"LOCAL_FAKE","market":"SPOT","symbol":"BTCUSDT","source_timeframe":"1m","schema":"ohlcv-v1"},"quality":"USABLE","usable":true,"legacy":false,"state":"STAGING","promotion_state":"VALIDATING","provenance":{"source_job_id":"staging-job"},"bars":[]}',
+        encoding="utf-8",
+    )
+    assert catalog.list_available_datasets() == []
