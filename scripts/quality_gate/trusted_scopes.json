@@ -1287,7 +1287,7 @@
         {
           "gate": "test",
           "command": [
-            ".venv/bin/python", "-m", "pytest", "tests/phase5R/test_p5r2_external_runner.py", "-q"
+            ".venv/bin/python", "-m", "scripts.quality_gate.local_p5r2_p18_pytest"
           ]
         }
       ],

@@ -603,6 +603,7 @@ def _validate_gate_command(
             "scripts.quality_gate.local_p5r2_p14_pytest",
             "scripts.quality_gate.local_p5r2_p15_pytest",
             "scripts.quality_gate.local_p5r2_p16_pytest",
+            "scripts.quality_gate.local_p5r2_p18_pytest",
         }
         paths = (
             ("tests/market_data",)
@@ -664,6 +665,8 @@ def _validate_gate_command(
                     "tests/phase5R/test_http_server_security.py",
                 )
                 if python_module == "scripts.quality_gate.local_p5r2_p16_pytest"
+                else ("tests/phase5R/test_p5r2_external_runner.py",)
+                if python_module == "scripts.quality_gate.local_p5r2_p18_pytest"
                 else ("tests/quality_gate",)
             )
         )
