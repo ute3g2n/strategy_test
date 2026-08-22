@@ -1104,6 +1104,7 @@
         "src/autotrade/application",
         "tests/application",
         "tests/market_data",
+        "tests/backtest",
         "tests/phase5R",
         "scripts/quality_gate",
         "scripts/wsl_quality_gate"
@@ -1161,7 +1162,7 @@
           "gate": "formatter",
           "command": [
             ".venv/bin/python", "-m", "ruff", "format", "--check",
-            "src/autotrade/application", "tests/application", "tests/market_data", "tests/phase5R",
+            "src/autotrade/application", "tests/application", "tests/market_data", "tests/backtest", "tests/phase5R",
             "scripts/quality_gate", "scripts/wsl_quality_gate"
           ]
         },
@@ -1169,7 +1170,7 @@
           "gate": "lint",
           "command": [
             ".venv/bin/python", "-m", "ruff", "check",
-            "src/autotrade/application", "tests/application", "tests/market_data", "tests/phase5R",
+            "src/autotrade/application", "tests/application", "tests/market_data", "tests/backtest", "tests/phase5R",
             "scripts/quality_gate", "scripts/wsl_quality_gate"
           ]
         },

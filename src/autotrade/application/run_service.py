@@ -412,13 +412,54 @@ class OperationGuard:
 
         if not run_id or not isinstance(record, Mapping) or record.get("run_id") != run_id:
             raise ValueError("OPERATION_RECORD_INVALID")
-        operation_token = self._text(record.get("operation_token"))
-        audit_id = self._text(record.get("audit_id"))
+        operation_token = record.get("operation_token")
+        request_id = record.get("request_id")
+        audit_id = record.get("audit_id")
         audit = record.get("audit")
-        revision_after = self._revision(record.get("revision_after"), default=0)
-        if not operation_token or not audit_id or not isinstance(audit, Mapping) or revision_after is None:
+        status_before = record.get("status_before")
+        status_after = record.get("status_after")
+        revision_before = record.get("revision_before")
+        revision_after = record.get("revision_after")
+        if (
+            not isinstance(operation_token, str)
+            or not operation_token
+            or not isinstance(request_id, str)
+            or not request_id
+            or not isinstance(audit_id, str)
+            or not audit_id
+            or not isinstance(audit, Mapping)
+            or record.get("accepted") is not True
+            or record.get("replayed") is not False
+            or record.get("error_code") is not None
+            or status_before not in _CANCELLABLE_RUN_STATES
+            or status_after != ("CANCELLED" if status_before == "QUEUED" else "STOP_REQUESTED")
+            or not isinstance(revision_before, int)
+            or isinstance(revision_before, bool)
+            or revision_before < 0
+            or not isinstance(revision_after, int)
+            or isinstance(revision_after, bool)
+            or revision_after != revision_before + 1
+            or not audit_id.startswith("AUDIT-RUN-CANCEL-")
+            or not audit_id.removeprefix("AUDIT-RUN-CANCEL-").isdigit()
+        ):
             raise ValueError("OPERATION_RECORD_INVALID")
-        if audit.get("audit_id") != audit_id or audit.get("aggregate_id") != run_id:
+        audit_fields = {
+            "audit_id": audit_id,
+            "aggregate_kind": "RUN",
+            "aggregate_id": run_id,
+            "event_type": "RUN_CANCEL_ACCEPTED",
+            "request_id": request_id,
+            "operation_token": operation_token,
+            "status_before": status_before,
+            "status_after": status_after,
+            "error_code": None,
+        }
+        if any(audit.get(key) != value for key, value in audit_fields.items()):
+            raise ValueError("OPERATION_RECORD_INVALID")
+        for field in ("actor", "origin_screen", "reason"):
+            if not isinstance(audit.get(field), str) or not audit[field]:
+                raise ValueError("OPERATION_RECORD_INVALID")
+        if any(not isinstance(record.get(field), str) or not record[field] for field in ("run_id",)):
             raise ValueError("OPERATION_RECORD_INVALID")
         with self._lock:
             existing = self._runs.get(run_id)
@@ -426,6 +467,9 @@ class OperationGuard:
                 current = existing.get("result")
                 if isinstance(current, Mapping) and dict(current) == dict(record):
                     return
+                raise ValueError("OPERATION_RECORD_CONFLICT")
+            existing_audit = self._audits.get(audit_id)
+            if existing_audit is not None and existing_audit != dict(audit):
                 raise ValueError("OPERATION_RECORD_CONFLICT")
             restored_audit = dict(audit)
             self._audits[audit_id] = restored_audit
@@ -439,6 +483,20 @@ class OperationGuard:
             suffix = audit_id[len(prefix) :] if audit_id.startswith(prefix) else ""
             if suffix.isdigit():
                 self._sequence = max(self._sequence, int(suffix))
+
+    def rollback_run_operation(self, run_id: str, record: Mapping[str, object]) -> None:
+        """Remove an accepted operation when its owning Run could not persist."""
+
+        with self._lock:
+            existing = self._runs.get(run_id)
+            if existing is None or existing.get("result") != dict(record):
+                return
+            audit_id = existing.get("audit_id")
+            self._runs.pop(run_id, None)
+            if isinstance(audit_id, str) and not any(
+                value.get("audit_id") == audit_id for value in self._runs.values()
+            ):
+                self._audits.pop(audit_id, None)
 
     def restore_retired_operation_tokens(self, run_id: str, tokens: object) -> None:
         """Restore operation tokens that must remain stale after a Run resume."""

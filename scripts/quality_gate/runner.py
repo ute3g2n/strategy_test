@@ -652,6 +652,7 @@ def _validate_gate_command(
                 if python_module == "scripts.quality_gate.local_p5r2_p15_pytest"
                 else (
                     "tests/phase5R/test_p5r2_local_integration_red.py",
+                    "tests/backtest/test_p5r2_timeframe_red_contract.py",
                     "tests/phase5R/test_backtest_history_recovery.py",
                     "tests/market_data/test_p5r2_historical_data_red_contract.py",
                     "tests/application/test_p5r2_run_operation_guard.py",

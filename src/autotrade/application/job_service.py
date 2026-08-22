@@ -9,10 +9,12 @@ import re
 import tempfile
 import threading
 import uuid
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
+from contextlib import contextmanager
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
+from typing import Any
 
 from .contracts import (
     ApplicationResponse,
@@ -46,7 +48,9 @@ class LocalJobRegistry:
         self._lock = threading.RLock()
         self._recovery_issues: list[JsonObject] = []
         if self.job_root is not None:
+            self._assert_job_path_chain(self.job_root)
             self.job_root.mkdir(parents=True, exist_ok=True)
+            self._assert_job_path_chain(self.job_root)
             self._load()
 
     def create_timeframe_generation_job(self, value: object) -> JsonObject:
@@ -86,6 +90,68 @@ class LocalJobRegistry:
             "recovery_required_job_ids": required,
         }
 
+    @contextmanager
+    def _job_file_lock(self, job_id: str) -> Iterator[None]:
+        """Serialize updates to one durable job across registry processes."""
+
+        if self.job_root is None:
+            yield
+            return
+        lock_path = self.job_root / f".{job_id}.lock"
+        self._assert_job_path_chain(lock_path)
+        try:
+            handle = lock_path.open("a+b")
+        except OSError as error:
+            raise ValueError("JOB_LOCK_FAILED") from error
+        with handle:
+            try:
+                handle.seek(0, os.SEEK_END)
+                if handle.tell() == 0:
+                    handle.write(b"0")
+                    handle.flush()
+                handle.seek(0)
+                if os.name == "nt":
+                    msvcrt: Any = __import__("msvcrt")
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_LOCK, 1)
+                else:
+                    fcntl: Any = __import__("fcntl")
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+            except OSError as error:
+                raise ValueError("JOB_LOCK_FAILED") from error
+            try:
+                yield
+            finally:
+                if os.name == "nt":
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+    def _read_persisted_job(self, job_id: str) -> JsonObject | None:
+        if self.job_root is None:
+            return None
+        path = self.job_root / f"{job_id}.json"
+        self._assert_job_path_chain(path)
+        if not path.exists():
+            return None
+        if self._path_is_unsafe(path) or not path.is_file():
+            raise ValueError("JOB_RUNTIME_PATH_UNSAFE")
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+            raise ValueError("JOB_JSON_INVALID") from error
+        if not isinstance(payload, dict) or payload.get("job_id") != job_id:
+            raise ValueError("JOB_RECORD_INVALID")
+        return payload
+
+    def _refresh_job(self, job_id: str) -> None:
+        if self.job_root is None:
+            return
+        with self._lock:
+            with self._job_file_lock(job_id):
+                persisted = self._read_persisted_job(job_id)
+                if persisted is not None:
+                    self._jobs[job_id] = persisted
+
     @staticmethod
     def _path_is_unsafe(path: Path) -> bool:
         try:
@@ -95,6 +161,23 @@ class LocalJobRegistry:
             return False
         except OSError:
             return True
+
+    def _assert_job_path_chain(self, path: Path) -> None:
+        if self.runtime_root is None:
+            return
+        try:
+            relative = path.relative_to(self.runtime_root)
+        except ValueError as error:
+            raise ValueError("JOB_RUNTIME_PATH_OUT_OF_SCOPE") from error
+        current = self.runtime_root
+        for part in relative.parts:
+            current /= part
+            if self._path_is_unsafe(current):
+                raise ValueError("JOB_RUNTIME_PATH_UNSAFE")
+        try:
+            path.resolve(strict=False).relative_to(self.runtime_root.resolve())
+        except (OSError, RuntimeError, ValueError) as error:
+            raise ValueError("JOB_RUNTIME_PATH_OUT_OF_SCOPE") from error
 
     def _load(self) -> None:
         assert self.job_root is not None
@@ -179,8 +262,7 @@ class LocalJobRegistry:
             raise ValueError("JOB_REFERENCE_INVALID")
         self.job_root.mkdir(parents=True, exist_ok=True)
         path = self.job_root / f"{job_id}.json"
-        if self._path_is_unsafe(path):
-            raise ValueError("JOB_RUNTIME_PATH_UNSAFE")
+        self._assert_job_path_chain(path)
         descriptor, temporary_name = tempfile.mkstemp(prefix=f".{job_id}.", suffix=".tmp", dir=self.job_root)
         temporary_path = Path(temporary_name)
         try:
@@ -189,6 +271,7 @@ class LocalJobRegistry:
                 json.dump(value, handle, ensure_ascii=False, indent=2)
                 handle.flush()
                 os.fsync(handle.fileno())
+            self._assert_job_path_chain(path.parent)
             os.replace(temporary_path, path)
         finally:
             if descriptor >= 0:
@@ -528,6 +611,16 @@ def _trusted_job(
             "accepted": False,
             "promoted": False,
         }
+    try:
+        registry._refresh_job(raw_job_id)
+    except ValueError as error:
+        return None, {
+            **_job_projection(value),
+            "state": "RECOVERY_REQUIRED",
+            "reason": str(error),
+            "accepted": False,
+            "promoted": False,
+        }
     with registry._lock:
         trusted = registry._jobs.get(raw_job_id)
         trusted = copy.deepcopy(trusted) if trusted is not None else None
@@ -590,26 +683,30 @@ def _register_job(result: JsonObject, *, registry: LocalJobRegistry) -> JsonObje
     request = result.get("input")
     request_id = request.get("request_id") if isinstance(request, Mapping) else None
     with registry._lock:
-        existing = registry._jobs.get(job_id)
-        if existing is not None:
-            if existing.get("input") != request:
-                return {
-                    **_job_projection(existing),
-                    "state": "REJECTED",
-                    "reason": "REQUEST_ID_REUSE",
-                    "accepted": False,
-                    "promoted": False,
-                }
-            return copy.deepcopy(existing)
-        stored = copy.deepcopy(result)
-        stored["operation_token"] = uuid.uuid4().hex
-        stored["owner_id"] = f"JOB-OWNER-{uuid.uuid4().hex}"
-        stored["revision"] = 0
-        registry._jobs[job_id] = stored
-        if isinstance(request_id, str):
-            registry._request_index[request_id] = job_id
-        registry._persist(stored)
-        return copy.deepcopy(stored)
+        with registry._job_file_lock(job_id):
+            persisted = registry._read_persisted_job(job_id)
+            existing = persisted if persisted is not None else registry._jobs.get(job_id)
+            if existing is not None:
+                registry._jobs[job_id] = copy.deepcopy(existing)
+                if existing.get("input") != request:
+                    return {
+                        **_job_projection(existing),
+                        "state": "REJECTED",
+                        "reason": "REQUEST_ID_REUSE",
+                        "accepted": False,
+                        "promoted": False,
+                    }
+                return copy.deepcopy(existing)
+            stored = copy.deepcopy(result)
+            stored["operation_token"] = uuid.uuid4().hex
+            stored["owner_id"] = f"JOB-OWNER-{uuid.uuid4().hex}"
+            stored["revision"] = 0
+            stored["accepted"] = stored.get("state") == "STAGED"
+            registry._persist(stored)
+            registry._jobs[job_id] = stored
+            if isinstance(request_id, str):
+                registry._request_index[request_id] = job_id
+            return copy.deepcopy(stored)
 
 
 def _transition_job(
@@ -625,28 +722,30 @@ def _transition_job(
     if not isinstance(job_id, str):
         return _rejected_job(_TIMEFRAME_GENERATION, "JOB_REFERENCE_INVALID", {})
     with registry._lock:
-        current = registry._jobs.get(job_id)
-        if current is None or current.get("revision") != trusted.get("revision"):
-            return {
-                **_job_projection(trusted),
-                "state": "REJECTED",
-                "reason": "JOB_SNAPSHOT_STALE",
-                "accepted": False,
-                "promoted": False,
-            }
-        updated = copy.deepcopy(current)
-        updated["state"] = state
-        updated["reason"] = reason
-        updated["accepted"] = True
-        updated["promoted"] = False
-        updated["orphan"] = orphan
-        updated["output"] = copy.deepcopy(output)
-        raw_revision = current.get("revision", 0)
-        revision = raw_revision if isinstance(raw_revision, int) and not isinstance(raw_revision, bool) else 0
-        updated["revision"] = revision + 1
-        registry._jobs[job_id] = updated
-        registry._persist(updated)
-        return copy.deepcopy(updated)
+        with registry._job_file_lock(job_id):
+            persisted = registry._read_persisted_job(job_id)
+            current = persisted if persisted is not None else registry._jobs.get(job_id)
+            if current is None or current.get("revision") != trusted.get("revision"):
+                return {
+                    **_job_projection(trusted),
+                    "state": "REJECTED",
+                    "reason": "JOB_SNAPSHOT_STALE",
+                    "accepted": False,
+                    "promoted": False,
+                }
+            updated = copy.deepcopy(current)
+            updated["state"] = state
+            updated["reason"] = reason
+            updated["accepted"] = True
+            updated["promoted"] = False
+            updated["orphan"] = orphan
+            updated["output"] = copy.deepcopy(output)
+            raw_revision = current.get("revision", 0)
+            revision = raw_revision if isinstance(raw_revision, int) and not isinstance(raw_revision, bool) else 0
+            updated["revision"] = revision + 1
+            registry._persist(updated)
+            registry._jobs[job_id] = updated
+            return copy.deepcopy(updated)
 
 
 def _normalise_generation_request(value: Mapping[str, object]) -> tuple[JsonObject | None, str | None]:
@@ -891,12 +990,27 @@ def _validate_source_dataset(
     }
     if not safe_provenance:
         return None, "SOURCE_DATASET_INVALID"
+    normalized_bars: list[JsonObject] = []
+    for raw_bar in raw_bars:
+        if not isinstance(raw_bar, Mapping):
+            return None, "SOURCE_DATASET_INVALID"
+        timestamp = _parse_utc(raw_bar.get("timestamp"))
+        if timestamp is None:
+            return None, "SOURCE_DATASET_INVALID"
+        normalized: JsonObject = {"timestamp": timestamp.isoformat().replace("+00:00", "Z")}
+        for field in ("open", "high", "low", "close", "volume"):
+            raw_value = raw_bar.get(field)
+            try:
+                normalized[field] = str(Decimal(str(raw_value)))
+            except (InvalidOperation, ValueError):
+                return None, "SOURCE_DATASET_INVALID"
+        normalized_bars.append(normalized)
     return {
         "dataset_id": dataset_id,
         "identity": {key: identity[key] for key in expected_identity},
         "coverage": {"start": coverage_start, "end": coverage_end},
         "bar_count": len(raw_bars),
-        "bars": [dict(bar) for bar in raw_bars if isinstance(bar, Mapping)],
+        "bars": normalized_bars,
         "quality": value.get("quality"),
         "usable": True,
         "legacy": False,

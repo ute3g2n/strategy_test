@@ -16,6 +16,8 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 $EvidencePhase = $EvidencePhase.Trim()
 if ($EvidencePhase -notmatch '^phase[0-9]+R?[0-9]*$') { throw "EvidencePhase must be phaseN, phaseNR, or phaseNRN" }
+$RunId = $RunId.Trim()
+if ($RunId -notmatch '^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$' -or $RunId.EndsWith('.') -or $RunId.EndsWith(' ')) { throw "RunId contains unsafe path characters" }
 $root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $evidence = Join-Path $root "tests/evidence/$EvidencePhase/$RunId"
 $config = Join-Path $env:UserProfile ".wslconfig"

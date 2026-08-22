@@ -12,10 +12,13 @@ import csv
 import gzip
 import io
 import json
+import os
+import stat
 import threading
 import time
 import uuid
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal, InvalidOperation
@@ -36,6 +39,7 @@ from autotrade.strategy.contracts import StrategyConfig, StrategyState
 from autotrade.strategy.service import process_closed_bars
 
 from . import job_service
+from .csv_job import atomic_csv_output
 from .history_catalog import HistoryCatalog
 from .run_service import OperationGuard
 from .storage_paths import (
@@ -55,6 +59,8 @@ P5_END = datetime(2026, 8, 1, tzinfo=UTC)
 HOLDOUT_START = datetime(2026, 7, 1, tzinfo=UTC)
 HOLDOUT_END = datetime(2026, 8, 1, tzinfo=UTC)
 MAX_BARS = 200_000
+SUPPORTED_BACKTEST_TIMEFRAMES = frozenset({"15m", "30m", "1h", "4h", "1d"})
+LEGACY_INTERNAL_TIMEFRAMES = frozenset({"1m"})
 
 
 def _utc(value: object) -> datetime:
@@ -200,6 +206,10 @@ class BacktestProductService:
             raw_job_issues = job_report.get("issues")
             job_issues: list[object] = raw_job_issues if isinstance(raw_job_issues, list) else []
             self._recovery_issues = [dict(issue) for issue in job_issues if isinstance(issue, Mapping)]
+            catalog_report = self._history_catalog.recovery_report()
+            raw_catalog_issues = catalog_report.get("issues")
+            catalog_issues: list[object] = raw_catalog_issues if isinstance(raw_catalog_issues, list) else []
+            self._recovery_issues.extend(dict(issue) for issue in catalog_issues if isinstance(issue, Mapping))
             self._recovery_issues.extend(dict(issue) for issue in issues)
             for record in restored:
                 run_id = record.get("run_id")
@@ -460,6 +470,12 @@ class BacktestProductService:
                 server_revision=run.operation_revision,
             )
             if operation.get("accepted") is True:
+                previous_status = run.status
+                previous_failure = run.failure
+                previous_checkpoint = run.checkpoint
+                previous_revision = run.operation_revision
+                previous_operation_record = run.operation_record
+                previous_cancelled = run.cancel_event.is_set()
                 run.failure = {
                     "code": "CANCELLED_BY_USER",
                     "message": str(request.get("reason", "USER_REQUESTED")),
@@ -477,7 +493,34 @@ class BacktestProductService:
                 elif run.status == "RUNNING":
                     run.status = "STOP_REQUESTED"
                 run.operation_record = dict(operation)
-                self._persist_run(run)
+                try:
+                    self._persist_run(run)
+                except (OSError, ValueError):
+                    run.status = previous_status
+                    run.failure = previous_failure
+                    run.checkpoint = previous_checkpoint
+                    run.operation_revision = previous_revision
+                    run.operation_record = previous_operation_record
+                    if previous_cancelled:
+                        run.cancel_event.set()
+                    else:
+                        run.cancel_event.clear()
+                    self._operation_guard.rollback_run_operation(raw_run_id, operation)
+                    failed_operation = dict(operation)
+                    failed_operation.update(
+                        {
+                            "accepted": False,
+                            "error_code": "PERSISTENCE_RECOVERY_REQUIRED",
+                            "status_before": previous_status,
+                            "status_after": previous_status,
+                            "audit_id": None,
+                            "audit": None,
+                            "revision_before": previous_revision,
+                            "revision_after": previous_revision,
+                            "replayed": False,
+                        }
+                    )
+                    return {"run": self._run_view(run), "operation": failed_operation}
             return {"run": self._run_view(run), "operation": operation}
 
     def resume_run(self, run_id: str) -> JsonObject:
@@ -771,7 +814,9 @@ class BacktestProductService:
         symbol = spec.get("symbol")
         if symbol not in ALLOWED_SYMBOLS:
             raise ValueError("SYMBOL_OUT_OF_SCOPE")
-        if spec.get("market") != "SPOT" or spec.get("timeframe") != "1m":
+        if spec.get("market") != "SPOT" or spec.get("timeframe") not in (
+            SUPPORTED_BACKTEST_TIMEFRAMES | LEGACY_INTERNAL_TIMEFRAMES
+        ):
             raise ValueError("MARKET_OR_TIMEFRAME_OUT_OF_SCOPE")
         if spec.get("timezone") != "UTC" or spec.get("calendar") != "CRYPTO_24_7_UTC":
             raise ValueError("UTC_CALENDAR_REQUIRED")
@@ -828,7 +873,12 @@ class BacktestProductService:
             self._persist_run(run)
         try:
             spec = run.spec
-            bars = self._load_bars(str(spec["symbol"]), _utc(spec["start"]), _utc(spec["end"]))
+            bars = self._load_bars(
+                str(spec["symbol"]),
+                _utc(spec["start"]),
+                _utc(spec["end"]),
+                str(spec["timeframe"]),
+            )
             if not bars:
                 raise ValueError("DATA_EMPTY")
             if bool(spec.get("force_fail")) or bool(spec.get("parameters", {}).get("force_fail")):
@@ -1341,9 +1391,8 @@ class BacktestProductService:
                 if index % 100 == 0:
                     time.sleep(0.001)
             content = stream.getvalue()
-            directory = self.runtime_root / "exports" / job_id
-            directory.mkdir(parents=True, exist_ok=True)
-            (directory / "result.csv").write_text(content, encoding="utf-8", newline="")
+            csv_rows = ({column: row.get(column, "") for column in job.columns} for row in rows)
+            atomic_csv_output(self.runtime_root, f"exports/{job_id}/result.csv", csv_rows, job.columns)
             with self._lock:
                 job.content = content
                 job.progress = 100
@@ -1353,23 +1402,21 @@ class BacktestProductService:
                 job.status = "FAILED"
                 job.failure = {"code": "CSV_WRITE_FAILED", "message": str(error)}
 
-    def _load_bars(self, symbol: str, start: datetime, end: datetime) -> list[_Bar]:
+    def _load_bars(self, symbol: str, start: datetime, end: datetime, timeframe: str = "1m") -> list[_Bar]:
         if symbol not in ALLOWED_SYMBOLS:
             raise ValueError("SYMBOL_OUT_OF_SCOPE")
         bars: list[_Bar] = []
         cursor = datetime(start.year, start.month, 1, tzinfo=UTC)
         while cursor < end:
             month = f"{cursor.year:04d}-{cursor.month:02d}"
-            candidates = [
-                self.data_root / f"{symbol}.csv",
-                self.data_root / symbol / f"{symbol}-1m-{month}.csv.gz",
-                self.data_root / symbol / month / f"{symbol}-1m-{month}.csv.gz",
-                self.data_root / symbol / month / f"{symbol}-1m-{month}.csv",
+            candidates = ([self.data_root / f"{symbol}.csv"] if timeframe == "1m" else []) + [
+                self.data_root / symbol / f"{symbol}-{timeframe}-{month}.csv.gz",
+                self.data_root / symbol / month / f"{symbol}-{timeframe}-{month}.csv.gz",
+                self.data_root / symbol / month / f"{symbol}-{timeframe}-{month}.csv",
             ]
-            existing = next((path for path in candidates if path.is_file()), None)
+            existing = next((path for path in candidates if self._safe_data_file(path)), None)
             if existing is not None:
-                opener: Any = gzip.open if existing.suffix == ".gz" else open
-                with opener(existing, "rt", encoding="utf-8", newline="") as handle:
+                with self._open_data_text(existing) as handle:
                     for raw in csv.DictReader(handle):
                         timestamp_value = raw.get("bar_start_utc") or raw.get("open_time_utc") or raw.get("open_time")
                         if timestamp_value is None:
@@ -1404,6 +1451,70 @@ class BacktestProductService:
         if len(bars) > MAX_BARS:
             raise ValueError("DATA_RANGE_TOO_LARGE")
         return bars
+
+    @staticmethod
+    def _is_link_or_reparse(path: Path) -> bool:
+        try:
+            attributes = getattr(path.lstat(), "st_file_attributes", 0)
+            return path.is_symlink() or bool(attributes & 0x0400)
+        except FileNotFoundError:
+            return False
+        except OSError as error:
+            raise ValueError("DATA_PATH_UNSAFE") from error
+
+    def _assert_data_path_safe(self, path: Path) -> None:
+        root = self.data_root
+        if self._is_link_or_reparse(root):
+            raise ValueError("DATA_PATH_UNSAFE")
+        try:
+            relative = path.relative_to(root)
+        except ValueError as error:
+            raise ValueError("DATA_PATH_OUT_OF_SCOPE") from error
+        current = root
+        for part in relative.parts:
+            current /= part
+            if self._is_link_or_reparse(current):
+                raise ValueError("DATA_PATH_UNSAFE")
+        try:
+            path.resolve(strict=False).relative_to(root.resolve())
+        except (OSError, RuntimeError, ValueError) as error:
+            raise ValueError("DATA_PATH_OUT_OF_SCOPE") from error
+
+    def _safe_data_file(self, path: Path) -> bool:
+        try:
+            self._assert_data_path_safe(path)
+            return path.is_file() and not self._is_link_or_reparse(path)
+        except ValueError:
+            return False
+
+    @contextmanager
+    def _open_data_text(self, path: Path) -> Iterator[io.TextIOBase]:
+        self._assert_data_path_safe(path)
+        descriptor = -1
+        raw: io.BufferedIOBase | None = None
+        stream: io.TextIOBase | None = None
+        try:
+            flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0)
+            descriptor = os.open(path, flags)
+            file_stat = os.fstat(descriptor)
+            if not stat.S_ISREG(file_stat.st_mode) or bool(getattr(file_stat, "st_file_attributes", 0) & 0x0400):
+                raise ValueError("DATA_PATH_UNSAFE")
+            raw = os.fdopen(descriptor, "rb")
+            descriptor = -1
+            if path.suffix == ".gz":
+                stream = io.TextIOWrapper(gzip.GzipFile(fileobj=raw, mode="rb"), encoding="utf-8", newline="")
+            else:
+                stream = io.TextIOWrapper(raw, encoding="utf-8", newline="")
+            yield stream
+        except OSError as error:
+            raise ValueError("DATA_READ_FAILED") from error
+        finally:
+            if stream is not None:
+                stream.close()
+            elif raw is not None:
+                raw.close()
+            if descriptor >= 0:
+                os.close(descriptor)
 
     def _run_view(self, run: _Run) -> JsonObject:
         return {

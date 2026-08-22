@@ -166,13 +166,19 @@ class HistoryCatalog:
                 }
                 self._recovery_issues.append(self._issue("PROMOTION_RECORD_INVALID", path.stem, path))
 
-    def _persist_staging_record(self, token: str, record: JsonObject) -> None:
+    def _persist_staging_record(self, token: str, record: JsonObject, *, replace_completed: bool = False) -> None:
         staging_id = record.get("staging_id")
         if not isinstance(staging_id, str) or self._safe_catalog_id(staging_id) is None:
             raise ValueError("STAGING_ID_INVALID")
         payload = dict(record)
         payload["staging_token"] = token
-        self._write_json_atomic(self.staging_root / f"{staging_id}.json", payload)
+        if replace_completed:
+            self._write_json_atomic(self.staging_root / f"{staging_id}.json", payload)
+            return
+        try:
+            self._write_json_exclusive(self.staging_root / f"{staging_id}.json", payload)
+        except FileExistsError:
+            raise ValueError("STAGING_ID_REUSE") from None
 
     def _persist_preview_token(self, token: str, record: JsonObject) -> None:
         if not token or not _CATALOG_ID_PATTERN.fullmatch(token):
@@ -193,6 +199,25 @@ class HistoryCatalog:
             if callable(getter):
                 return getter(value)
         return job_service.get_owned_job_snapshot(value)
+
+    @staticmethod
+    def _assert_source_job_usable(source_job: Mapping[str, object]) -> None:
+        """Reject a job that is not an accepted, local staging source."""
+
+        if (
+            source_job.get("state") != "STAGED"
+            or source_job.get("accepted") is not True
+            or source_job.get("orphan") is True
+        ):
+            raise ValueError("SOURCE_JOB_NOT_STAGED")
+        output = source_job.get("output")
+        if (
+            not isinstance(output, Mapping)
+            or output.get("staging_state") != "STAGED"
+            or output.get("promoted") is not False
+            or output.get("usable") is not False
+        ):
+            raise ValueError("SOURCE_JOB_NOT_STAGED")
 
     def persist_run(self, view: JsonObject) -> None:
         run_id = self._safe_run_id(view.get("run_id"))
@@ -249,6 +274,7 @@ class HistoryCatalog:
         if not isinstance(raw_source_job, Mapping):
             raise ValueError("SOURCE_JOB_REQUIRED")
         source_job = self._owned_job_snapshot(raw_source_job)
+        self._assert_source_job_usable(source_job)
         source_job_id = provenance.get("source_job_id")
         if source_job_id != source_job.get("job_id"):
             raise ValueError("SOURCE_JOB_OWNERSHIP_MISMATCH")
@@ -271,8 +297,19 @@ class HistoryCatalog:
             "source_job": source_job,
         }
         with self._preview_lock:
+            replaced_tokens = [
+                existing_token
+                for existing_token, candidate in self._staging_records.items()
+                if candidate.get("staging_id") == staging_id
+            ]
+            if replaced_tokens and not all(
+                self._staging_token_consumed(existing_token) for existing_token in replaced_tokens
+            ):
+                raise ValueError("STAGING_ID_REUSE")
+            self._persist_staging_record(token, record, replace_completed=bool(replaced_tokens))
+            for existing_token in replaced_tokens:
+                self._staging_records.pop(existing_token, None)
             self._staging_records[token] = record
-            self._persist_staging_record(token, record)
         return {
             "staging_token": token,
             "staging_id": staging_id,
@@ -410,8 +447,8 @@ class HistoryCatalog:
                     "revision": current_revision,
                     "consumed": False,
                 }
-                self._preview_tokens[operation_token] = token_record
                 self._persist_preview_token(operation_token, token_record)
+                self._preview_tokens[operation_token] = token_record
         return preview
 
     def promote_merge(self, request: Mapping[str, object]) -> JsonObject:
@@ -471,6 +508,7 @@ class HistoryCatalog:
                     preview.update({"state": "REJECTED", "reason": "LEGACY_DATASET_FORBIDDEN", "promoted": False})
                     return preview
 
+                current_record = self._load_current_dataset(dataset_id)
                 identity = preview["identity"]
                 assert isinstance(identity, dict)
                 new_revision = expected_revision + 1
@@ -483,9 +521,8 @@ class HistoryCatalog:
                     "staging_id": request.get("staging_id"),
                     "request_id": request.get("request_id"),
                 }
-                self._promotion_records[provided_token] = promotion_record
                 self._persist_promotion_record(provided_token, promotion_record)
-                current_record = self._load_current_dataset(dataset_id)
+                self._promotion_records[provided_token] = promotion_record
                 if current_record is not None:
                     version_path = self.versions_root / f"{dataset_id}.r{expected_revision}.json"
                     self._assert_path_chain_safe(version_path, self.versions_root)
@@ -526,12 +563,12 @@ class HistoryCatalog:
                 with self._preview_lock:
                     consumed = dict(token_record)
                     consumed["consumed"] = True
-                    self._preview_tokens[provided_token] = consumed
                     self._persist_preview_token(provided_token, consumed)
                     committed = dict(promotion_record)
                     committed["state"] = "COMMITTED"
-                    self._promotion_records[provided_token] = committed
                     self._persist_promotion_record(provided_token, committed)
+                    self._preview_tokens[provided_token] = consumed
+                    self._promotion_records[provided_token] = committed
                 promoted = dict(preview)
                 promoted.update(
                     {
@@ -576,6 +613,7 @@ class HistoryCatalog:
             identity = record.get("identity")
             identity_map = identity if isinstance(identity, dict) else {}
             coverage = record.get("coverage")
+            recovery_blocked = self._dataset_has_recovery_block(record.get("dataset_id", path.stem))
             dataset_valid = self._dataset_is_current_usable(record, path)
             views.append(
                 {
@@ -593,8 +631,9 @@ class HistoryCatalog:
                     "usable": dataset_valid,
                     "legacy": record.get("legacy") is True,
                     "provenance": record.get("provenance") if isinstance(record.get("provenance"), dict) else {},
-                    "state": record.get("state"),
-                    "promotion_state": record.get("promotion_state"),
+                    "state": "RECOVERY_REQUIRED" if recovery_blocked else record.get("state"),
+                    "promotion_state": "RECOVERY_REQUIRED" if recovery_blocked else record.get("promotion_state"),
+                    "recovery_mode": "RECOVERY_REQUIRED" if recovery_blocked else "NORMAL",
                 }
             )
         return views
@@ -713,6 +752,7 @@ class HistoryCatalog:
             if not isinstance(raw_source_job, Mapping):
                 raise ValueError("SOURCE_JOB_REQUIRED")
             source_job = self._owned_job_snapshot(raw_source_job)
+            self._assert_source_job_usable(source_job)
         except (KeyError, TypeError, ValueError) as error:
             raise ValueError("SOURCE_JOB_SNAPSHOT_STALE") from error
         expected = {
@@ -726,6 +766,14 @@ class HistoryCatalog:
         }
         if record != expected:
             raise ValueError("STAGING_TOKEN_MISMATCH")
+
+    def _staging_token_consumed(self, staging_token: str) -> bool:
+        return any(
+            record.get("consumed") is True
+            and isinstance(record.get("binding"), Mapping)
+            and record["binding"].get("staging_token") == staging_token
+            for record in self._preview_tokens.values()
+        )
 
     @staticmethod
     def _source_job_revision(value: object) -> int | None:
@@ -986,6 +1034,15 @@ class HistoryCatalog:
             raise ValueError("DATASET_CURRENT_INVALID")
         return record
 
+    def _dataset_has_recovery_block(self, dataset_id: object) -> bool:
+        if not isinstance(dataset_id, str):
+            return False
+        with self._preview_lock:
+            return any(
+                record.get("dataset_id") == dataset_id and record.get("state") != "COMMITTED"
+                for record in self._promotion_records.values()
+            )
+
     def _dataset_is_current_usable(self, record: JsonObject, path: Path | None = None) -> bool:
         if path is not None and (self._is_link_or_reparse(path) or not path.is_file()):
             return False
@@ -993,6 +1050,8 @@ class HistoryCatalog:
             return False
         dataset_id = record.get("dataset_id")
         if self._safe_catalog_id(dataset_id) is None:
+            return False
+        if self._dataset_has_recovery_block(dataset_id):
             return False
         if path is not None and path.stem != dataset_id:
             return False

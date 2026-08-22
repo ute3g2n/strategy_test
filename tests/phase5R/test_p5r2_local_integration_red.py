@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 
+import pytest
+
 from autotrade.application import history_catalog, job_service
-from autotrade.application.backtest_product import BacktestProductService
+from autotrade.application.backtest_product import BacktestProductService, _Run
 from autotrade.application.run_service import OperationGuard
 
 
@@ -60,8 +63,12 @@ def _job_request(request_id: str) -> dict[str, object]:
     }
 
 
-def _catalog_request(request_id: str) -> dict[str, object]:
-    source_job = job_service.create_timeframe_generation_job(_job_request(request_id))
+def _catalog_request(request_id: str, registry: job_service.LocalJobRegistry | None = None) -> dict[str, object]:
+    source_job = (
+        registry.create_timeframe_generation_job(_job_request(request_id))
+        if registry is not None
+        else job_service.create_timeframe_generation_job(_job_request(request_id))
+    )
     assert source_job["state"] == "STAGED"
     request: dict[str, object] = {
         "identity": {
@@ -157,18 +164,46 @@ def test_local_generation_job_running_state_becomes_recovery_after_restart(tmp_p
 
 
 def test_catalog_preview_and_staging_survive_restart_before_promotion(tmp_path: Path) -> None:
-    request = _catalog_request("catalog-restart-001")
-    first_catalog = history_catalog.HistoryCatalog(tmp_path / "runtime")
+    runtime_root = tmp_path / "runtime"
+    first_registry = job_service.LocalJobRegistry(runtime_root)
+    request = _catalog_request("catalog-restart-001", first_registry)
+    first_catalog = history_catalog.HistoryCatalog(runtime_root, job_registry=first_registry)
     request.update(first_catalog.stage_local_dataset(request))
     preview = first_catalog.preview_merge(request)
     request["preview_token"] = preview["operation_token"]
 
-    second_catalog = history_catalog.HistoryCatalog(tmp_path / "runtime")
+    second_registry = job_service.LocalJobRegistry(runtime_root)
+    second_catalog = history_catalog.HistoryCatalog(runtime_root, job_registry=second_registry)
     promoted = second_catalog.promote_merge(request)
 
     assert promoted["state"] == "PROMOTED"
     assert promoted["promoted"] is True
     assert second_catalog.list_available_datasets()[0]["dataset_id"] == request["dataset_id"]
+
+
+def test_catalog_rejects_a_source_job_that_is_not_staged(tmp_path: Path) -> None:
+    runtime_root = tmp_path / "runtime"
+    registry = job_service.LocalJobRegistry(runtime_root)
+    source_job = registry.create_timeframe_generation_job(_job_request("catalog-source-state-001"))
+    request = _catalog_request("catalog-source-state-001", registry)
+    running = registry.advance_timeframe_generation_job(source_job)
+    request["source_job"] = running
+
+    with pytest.raises(ValueError, match="SOURCE_JOB_NOT_STAGED"):
+        history_catalog.HistoryCatalog(runtime_root, job_registry=registry).stage_local_dataset(request)
+
+
+def test_catalog_does_not_overwrite_an_active_staging_id(tmp_path: Path) -> None:
+    runtime_root = tmp_path / "runtime"
+    registry = job_service.LocalJobRegistry(runtime_root)
+    catalog = history_catalog.HistoryCatalog(runtime_root, job_registry=registry)
+    first = _catalog_request("catalog-staging-reuse-001", registry)
+    catalog.stage_local_dataset(first)
+    second = _catalog_request("catalog-staging-reuse-002", registry)
+    second["staging_id"] = first["staging_id"]
+
+    with pytest.raises(ValueError, match="STAGING_ID_REUSE"):
+        catalog.stage_local_dataset(second)
 
 
 def test_cancelled_run_with_operation_record_survives_service_restart(tmp_path: Path) -> None:
@@ -221,6 +256,116 @@ def test_cancelled_run_with_operation_record_survives_service_restart(tmp_path: 
     assert not any(issue["code"] == "OPERATION_GUARD_STATE_MISSING" for issue in service.recovery_report()["issues"])
 
 
+def test_operation_restore_rejects_audit_token_mismatch() -> None:
+    request = {
+        "run_id": "RUN-P5R2-16-OPERATION-INVALID-001",
+        "operation_token": "p5r2-16-invalid-token",
+        "request_id": "p5r2-16-invalid-request",
+        "actor": "local-operator",
+        "origin_screen": "PROGRESS",
+        "reason": "invalid restore",
+        "current_state": "QUEUED",
+        "current_revision": 0,
+        "expected_revision": 0,
+    }
+    guard = OperationGuard()
+    record = guard.request_run_cancel(request)
+    invalid = dict(record)
+    invalid["audit"] = {**record["audit"], "operation_token": "different-token"}
+
+    with pytest.raises(ValueError, match="OPERATION_RECORD_INVALID"):
+        OperationGuard().restore_run_operation(str(request["run_id"]), invalid)
+
+
+def test_cancel_persistence_failure_rolls_back_in_memory_guard(tmp_path: Path, monkeypatch) -> None:
+    service = BacktestProductService(data_root=tmp_path / "data", runtime_root=tmp_path / "runtime")
+    run_id = "RUN-P5R2-16-PERSISTENCE-ROLLBACK-001"
+    service._runs[run_id] = _Run(run_id=run_id, spec={}, status="QUEUED")
+
+    def fail_persist(_run: _Run) -> None:
+        raise OSError("injected cancel persistence failure")
+
+    monkeypatch.setattr(service, "_persist_run", fail_persist)
+    result = service.request_run_cancel(
+        {
+            "run_id": run_id,
+            "operation_token": "p5r2-16-rollback-token",
+            "request_id": "p5r2-16-rollback-request",
+            "actor": "local-operator",
+            "origin_screen": "PROGRESS",
+            "reason": "rollback",
+        }
+    )
+
+    assert result["operation"]["accepted"] is False
+    assert result["operation"]["error_code"] == "PERSISTENCE_RECOVERY_REQUIRED"
+    assert result["run"]["status"] == "QUEUED"
+    assert service._operation_guard.export_run_operation(run_id) is None
+
+
+def test_generation_normalizes_decimal_source_values_before_persistence() -> None:
+    request = _job_request("job-decimal-normalization-001")
+    source_dataset = request["source_dataset"]
+    assert isinstance(source_dataset, dict)
+    bars = source_dataset["bars"]
+    assert isinstance(bars, list)
+    bars[0]["open"] = Decimal("100.00")
+
+    result = job_service.create_timeframe_generation_job(request)
+
+    assert result["state"] == "STAGED"
+
+
+@pytest.mark.parametrize("timeframe", ("15m", "30m", "1h", "4h", "1d"))
+def test_backtest_service_accepts_the_five_product_timeframes(tmp_path: Path, timeframe: str) -> None:
+    service = BacktestProductService(data_root=tmp_path / "data", runtime_root=tmp_path / f"runtime-{timeframe}")
+    normalized = service._validate_spec(
+        {
+            "symbol": "BTCUSDT",
+            "market": "SPOT",
+            "timeframe": timeframe,
+            "timezone": "UTC",
+            "calendar": "CRYPTO_24_7_UTC",
+            "start": "2025-02-24T00:00:00Z",
+            "end": "2025-02-24T01:00:00Z",
+            "strategy": "TURTLE_SYS1",
+            "parameters": {
+                "entry_lookback": "8",
+                "exit_lookback": "4",
+                "initial_balance": "100000",
+                "fee_bps": "1.0",
+                "slippage_bps": "2.0",
+            },
+        }
+    )
+
+    assert normalized["timeframe"] == timeframe
+
+
+def test_backtest_service_rejects_legacy_m30_selection(tmp_path: Path) -> None:
+    service = BacktestProductService(data_root=tmp_path / "data", runtime_root=tmp_path / "runtime")
+    with pytest.raises(ValueError, match="MARKET_OR_TIMEFRAME_OUT_OF_SCOPE"):
+        service._validate_spec(
+            {
+                "symbol": "BTCUSDT",
+                "market": "SPOT",
+                "timeframe": "M30",
+                "timezone": "UTC",
+                "calendar": "CRYPTO_24_7_UTC",
+                "start": "2025-02-24T00:00:00Z",
+                "end": "2025-02-24T01:00:00Z",
+                "strategy": "TURTLE_SYS1",
+                "parameters": {
+                    "entry_lookback": "8",
+                    "exit_lookback": "4",
+                    "initial_balance": "100000",
+                    "fee_bps": "1.0",
+                    "slippage_bps": "2.0",
+                },
+            }
+        )
+
+
 def test_corrupt_restart_records_are_reported_and_not_promoted(tmp_path: Path) -> None:
     runtime_root = tmp_path / "runtime"
     for directory, filename, contents in (
@@ -251,15 +396,14 @@ def test_promotion_interruption_is_recovery_required_after_restart(tmp_path: Pat
     request.update(first_catalog.stage_local_dataset(request))
     preview = first_catalog.preview_merge(request)
     request["preview_token"] = preview["operation_token"]
-    dataset_path = first_catalog._dataset_path(str(request["dataset_id"]))
-    original_write = first_catalog._write_json_atomic
+    original_persist_preview = first_catalog._persist_preview_token
 
-    def fail_dataset_write(path: Path, payload: dict[str, object]) -> None:
-        if path == dataset_path:
-            raise OSError("injected dataset promotion interruption")
-        original_write(path, payload)
+    def fail_preview_persist(token: str, record: dict[str, object]) -> None:
+        if token == preview["operation_token"] and record.get("consumed") is True:
+            raise OSError("injected promotion metadata interruption")
+        original_persist_preview(token, record)
 
-    monkeypatch.setattr(first_catalog, "_write_json_atomic", fail_dataset_write)
+    monkeypatch.setattr(first_catalog, "_persist_preview_token", fail_preview_persist)
     rejected = first_catalog.promote_merge(request)
 
     assert rejected["state"] == "REJECTED"
@@ -268,8 +412,12 @@ def test_promotion_interruption_is_recovery_required_after_restart(tmp_path: Pat
     second_catalog = history_catalog.HistoryCatalog(tmp_path / "runtime")
     report = second_catalog.recovery_report()
     blocked = second_catalog.promote_merge(request)
+    datasets = second_catalog.list_datasets()
 
     assert report["status"] == "RECOVERY_REQUIRED"
     assert any(issue["code"] == "PROMOTION_INCOMPLETE" for issue in report["issues"])
     assert blocked["state"] == "REJECTED"
     assert blocked["reason"] == "PROMOTION_RECOVERY_REQUIRED"
+    assert second_catalog.list_available_datasets() == []
+    assert datasets and datasets[0]["usable"] is False
+    assert datasets[0]["recovery_mode"] == "RECOVERY_REQUIRED"
