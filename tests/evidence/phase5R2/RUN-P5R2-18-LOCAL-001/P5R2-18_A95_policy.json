@@ -1,0 +1,47 @@
+{
+  "schema_version": "P5R2-A95-static-policy-v1",
+  "step_id": "P5R2-18",
+  "run_id": "RUN-P5R2-18-LOCAL-001",
+  "mode": "STATIC_FALLBACK",
+  "runtime_agent_dispatched": false,
+  "decision": "ALLOW",
+  "targets": [
+    "scripts/phase5_external_data/run_p5r2_binance_data_vision.py",
+    "tests/phase5R/test_p5r2_external_runner.py",
+    "scripts/wsl_quality_gate/run_isolated_p2.sh",
+    "scripts/quality_gate/trusted_scopes.json",
+    "tests/evidence/phase5R2/RUN-P5R2-18-EXTERNAL-001/request.json",
+    "tests/evidence/phase5R2/RUN-P5R2-18-EXTERNAL-001/allowlist.json",
+    "tests/evidence/phase5R2/RUN-P5R2-18-EXTERNAL-001/runner-registration.json",
+    "tests/evidence/phase5R2/RUN-P5R2-18-EXTERNAL-001/host-isolation.json"
+  ],
+  "findings": [
+    {
+      "category": "PROTECTED_DATA_INTEGRITY",
+      "target": "run_p5r2_binance_data_vision.py",
+      "decision": "ALLOW",
+      "reason": "The provider .CHECKSUM is used only to validate downloaded source data; mismatch stops the bounded Run. It is not a management identity or receipt mechanism."
+    },
+    {
+      "category": "PROTECTED_FIXTURE_REFERENCE",
+      "target": "trusted_scopes.json",
+      "decision": "ALLOW",
+      "reason": "The existing protected fixture identity is referenced read-only for the local quality Gate. No new protected value is calculated or introduced by P5R2-18."
+    },
+    {
+      "category": "PROHIBITION_TEXT_FALSE_POSITIVE",
+      "target": "P5R2-18 request and allowlist contracts",
+      "decision": "ALLOW",
+      "reason": "Management hash, manifest, stale, fingerprint, and retry wording appears only as an explicit prohibition. No such flow is implemented or required."
+    }
+  ],
+  "policy_result": {
+    "new_management_hash": false,
+    "new_management_manifest": false,
+    "new_fingerprint_or_stale_gate": false,
+    "new_hash_retry_or_receipt_hash": false,
+    "external_checksum_purpose": "source-data integrity only",
+    "existing_protected_fixture_identity": "read-only reference only"
+  },
+  "truthfulness_note": "A95 runtime Agent was not independently dispatched. This is a static fallback and is not represented as an A95 Agent execution."
+}

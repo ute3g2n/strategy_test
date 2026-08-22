@@ -32,7 +32,7 @@ if [[ "$evidence_phase" == "phase5R2" && ! -f "$manifest" ]]; then
   case "$run_id" in
     RUN-P5R2-13-*) manifest="$repository_path/plan/phase5R2/quality/P5R2-13_run-manifest.json" ;;
     RUN-P5R2-14-*) manifest="$repository_path/plan/phase5R2/quality/P5R2-14_run-manifest.json" ;;
-    RUN-P5R2-15-*|RUN-P5R2-16-*) trusted_scope_mode=1 ;;
+    RUN-P5R2-15-*|RUN-P5R2-16-*|RUN-P5R2-18-LOCAL-*) trusted_scope_mode=1 ;;
     *) manifest="$repository_path/plan/phase5R2/quality/P5R2-11_run-manifest.json" ;;
   esac
 fi

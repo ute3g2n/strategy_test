@@ -1,0 +1,91 @@
+{
+  "schema_version": "P5R2-runtime-receipt-v1",
+  "phase_id": "phase5R2",
+  "step_id": "P5R2-18",
+  "run_id": "RUN-P5R2-18-EXTERNAL-001",
+  "recorded_on": "2026-08-23",
+  "status": "BLOCKED_HOST_LEVEL_ISOLATION_NOT_VERIFIED",
+  "requested_runtime": {
+    "coordinator": {
+      "name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "path": ".codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json",
+      "model": "gpt-5.6-terra"
+    },
+    "agents": [
+      {"name": "AutoTrade_A110_PythonTestEngineer_v0_1", "model": "gpt-5.6-luna", "status": "NOT_STARTED"},
+      {"name": "AutoTrade_A120_PythonImplementer_v0_1", "model": "gpt-5.6-luna", "status": "NOT_STARTED"},
+      {"name": "AutoTrade_A130_VerificationEngineer_v0_1", "model": "gpt-5.6-luna", "status": "NOT_STARTED"},
+      {"name": "AutoTrade_A150_PythonCodeReviewer_v0_1", "model": "gpt-5.6-luna", "status": "NOT_STARTED"},
+      {"name": "AutoTrade_A160_TradingSecurityReviewer_v0_1", "model": "gpt-5.6-luna", "status": "NOT_STARTED"},
+      {"name": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1", "model": "gpt-5.6-luna", "reasoning_effort": "low", "status": "NOT_STARTED"}
+    ]
+  },
+  "actual_runtime": {
+    "runtime_backend": "multi_agent_v1",
+    "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK",
+    "coordinator_agent_id": "N/A",
+    "unstarted_agents": [
+      "AutoTrade_A110_PythonTestEngineer_v0_1",
+      "AutoTrade_A120_PythonImplementer_v0_1",
+      "AutoTrade_A130_VerificationEngineer_v0_1",
+      "AutoTrade_A150_PythonCodeReviewer_v0_1",
+      "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+      "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1"
+    ],
+    "truthfulness_note": "Nested independent dispatch was unavailable. Root responsibility checklist and local commands were used; this receipt does not claim independent Agent completion."
+  },
+  "scope": {
+    "provider": "binance_data_vision",
+    "host": "data.binance.vision:443",
+    "market_segment": "spot",
+    "symbols": ["BTCUSDT", "ETHUSDT"],
+    "source_interval": "1m",
+    "derived_intervals": ["15m", "30m", "1h", "4h", "1d"],
+    "period_utc": {"start": "2025-02-24T00:00:00Z", "end": "2025-03-01T00:00:00Z", "end_exclusive": true},
+    "archive_object_limit": 4,
+    "external_run_id": "RUN-P5R2-18-EXTERNAL-001",
+    "staging_root": "E:\\strategy_test_data\\autotrade\\historical\\.staging\\RUN-P5R2-18-EXTERNAL-001",
+    "promotion_root": "E:\\strategy_test_data\\autotrade\\historical\\spot\\klines\\1m"
+  },
+  "verification": {
+    "local_pytest": "PASS: 9 passed",
+    "local_formatter": "PASS",
+    "local_lint": "PASS",
+    "local_type": "PASS",
+    "dry_run": "BLOCKED",
+    "dry_run_blocking_reason": "HOST_LEVEL_ISOLATION_NOT_VERIFIED",
+    "preflight_evidence": "tests/evidence/phase5R2/RUN-P5R2-18-EXTERNAL-001/preflight/registration-preflight.json"
+  },
+  "external_io": {
+    "performed": false,
+    "data_acquired": false,
+    "normalized": false,
+    "catalog_promoted": false,
+    "api_key_or_secret_read": false,
+    "provider_fee_usd": 0,
+    "raw_data_redistributed": false,
+    "reason_stopped": "Host-level isolation is NOT_VERIFIED; execute mode is fail-closed."
+  },
+  "forbidden_actions_not_performed": [
+    "provider login or contract",
+    "API key, Secret, Authorization, REST, or WebSocket use",
+    "external Data download",
+    "physical deletion",
+    "overwrite of existing Historical Data",
+    "Playwright",
+    "P6 implementation or execution"
+  ],
+  "a95": {
+    "mode": "STATIC_FALLBACK",
+    "runtime_agent_dispatched": false,
+    "evidence": "tests/evidence/phase5R2/RUN-P5R2-18-LOCAL-001/P5R2-18_A95_policy.json"
+  },
+  "unknowns": [
+    "P5R2-18 host-level isolation remains NOT_VERIFIED",
+    "provider retention and raw-data redistribution terms remain UNKNOWN",
+    "archive completeness and future coverage remain UNKNOWN"
+  ],
+  "next_step": "P5R2-19 local Web UI integration may proceed with external request policy zero; P5R2-18 external acquisition remains blocked."
+}

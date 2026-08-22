@@ -1,0 +1,68 @@
+{
+  "schema_version": "p5r2-18-binance-request-v1",
+  "phase_id": "phase5R2",
+  "step_id": "P5R2-18",
+  "run_id": "RUN-P5R2-18-EXTERNAL-001",
+  "request_id": "P5R2-18-BINANCE-SPOT-1M-001",
+  "provider": "binance_data_vision",
+  "host": "data.binance.vision",
+  "source_mode": "external_public_archive",
+  "external_io_allowed": true,
+  "no_live": true,
+  "market_segment": "spot",
+  "symbols": ["BTCUSDT", "ETHUSDT"],
+  "source_interval": "1m",
+  "derived_intervals": ["15m", "30m", "1h", "4h", "1d"],
+  "period_utc": {
+    "start": "2025-02-24T00:00:00Z",
+    "end": "2025-03-01T00:00:00Z",
+    "end_exclusive": true
+  },
+  "calendar": "CRYPTO_24_7_UTC",
+  "url_template": "https://data.binance.vision/data/spot/monthly/klines/{symbol}/1m/{symbol}-1m-{YYYY-MM}.zip",
+  "checksum_url_template": "https://data.binance.vision/data/spot/monthly/klines/{symbol}/1m/{symbol}-1m-{YYYY-MM}.zip.CHECKSUM",
+  "evidence_root": "tests/evidence/phase5R2/RUN-P5R2-18-EXTERNAL-001",
+  "approval_evidence": "tests/evidence/phase5R2/RUN-P5R2-DATA-G1-P5R2-001/human-gate-p5r2-data-g1.md",
+  "staging_root": "E:\\strategy_test_data\\autotrade\\historical\\.staging\\RUN-P5R2-18-EXTERNAL-001",
+  "promotion_root": "E:\\strategy_test_data\\autotrade\\historical\\spot\\klines\\1m",
+  "archive_object_limit": 4,
+  "provider_fee_cap_usd": 0,
+  "redirect_policy": "reject",
+  "proxy_policy": "disabled",
+  "overwrite_existing_files": false,
+  "host_level_isolation_required": true,
+  "secret_policy": {
+    "api_key_used": false,
+    "secret_used": false,
+    "login": false,
+    "authorization_header": false
+  },
+  "provider_terms": {
+    "status": "UNKNOWN",
+    "retention": "LOCAL_ONLY",
+    "redistribution": "PROHIBITED_UNLESS_SEPARATELY_APPROVED",
+    "terms_unknown_does_not_authorize_redistribution": true
+  },
+  "target_templates": {
+    "archive": "raw/spot/klines/1m/{symbol}/{YYYY-MM}.zip",
+    "checksum": "raw/spot/klines/1m/{symbol}/{YYYY-MM}.zip.CHECKSUM",
+    "normalized": "normalized/spot/klines/1m/{symbol}/{YYYY-MM}/{symbol}-1m-{YYYY-MM}.csv.gz"
+  },
+  "stop_conditions": [
+    "P5R2_DATA_G1_APPROVAL_EVIDENCE_MISSING",
+    "HOST_LEVEL_ISOLATION_NOT_VERIFIED",
+    "URL_ALLOWLIST_MISMATCH",
+    "REDIRECT_NOT_ALLOWED",
+    "承認範囲外のprovider、host、symbol、period、interval",
+    "API key、Secret、login、Authorization、REST、WebSocket",
+    "PROVIDER_FEE_MUST_BE_ZERO",
+    "SOURCE_CHECKSUM_MISMATCH",
+    "CSV_SCHEMA_INVALID",
+    "TIMESTAMP_UNIT_UNSUPPORTED",
+    "CSV_DUPLICATE_TIMESTAMP",
+    "CSV_GAP_DETECTED",
+    "検査前のusable昇格",
+    "既存Dataの上書き",
+    "Data再配布、physical delete、P6開始"
+  ]
+}

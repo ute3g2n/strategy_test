@@ -1,0 +1,22 @@
+{
+  "schema_version": "p5r2-18-binance-host-isolation-v1",
+  "status": "NOT_VERIFIED",
+  "verification_scope": "Independent host-level outbound isolation for RUN-P5R2-18-EXTERNAL-001",
+  "provider_host": "data.binance.vision",
+  "provider_port": 443,
+  "required_allowed_destination": "https://data.binance.vision:443",
+  "required_denied_destinations": ["all other hosts", "all other ports", "proxy endpoints"],
+  "api_key_or_secret_read": false,
+  "verification_method": "Capture pre/post host policy and execution ID in a controlled allow-only environment before execute mode.",
+  "checked_on": "2026-08-23",
+  "verification_observation": "Current Windows sandbox outbound policy is not an independent allow-only environment for this provider; no host-level pre/post evidence is available.",
+  "does_not_prove": [
+    "provider terms",
+    "archive completeness",
+    "source checksum",
+    "normalized quality",
+    "P5R2-18 external acquisition",
+    "P5R2-18 PASS"
+  ],
+  "stop_rule": "NOT_VERIFIED blocks external execute and promotion. Process-level allowlist is not substituted for host-level isolation."
+}

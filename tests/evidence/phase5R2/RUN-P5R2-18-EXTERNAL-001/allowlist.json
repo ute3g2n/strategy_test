@@ -1,0 +1,17 @@
+{
+  "schema_version": "p5r2-18-binance-https-allowlist-v1",
+  "status": "REGISTERED_NOT_VERIFIED",
+  "entries": [
+    {
+      "scheme": "https",
+      "host": "data.binance.vision",
+      "port": 443
+    }
+  ],
+  "redirect_policy": "reject",
+  "proxy_policy": "disabled",
+  "path_policy": "/data/spot/monthly/klines/{symbol}/1m/{symbol}-1m-{YYYY-MM}.zip[.CHECKSUM]",
+  "process_egress_policy": "HTTPS allowlist is enforced by the runner; process-level control is not host-level isolation evidence.",
+  "protected_integrity_policy": "Provider .CHECKSUM is source-data integrity only; management hash, manifest, fingerprint, stale, and hash retry flows are prohibited.",
+  "host_isolation_ref": "tests/evidence/phase5R2/RUN-P5R2-18-EXTERNAL-001/host-isolation.json"
+}
