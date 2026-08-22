@@ -41,6 +41,7 @@ from autotrade.strategy.service import process_closed_bars
 from . import job_service
 from .csv_job import atomic_csv_output
 from .history_catalog import HistoryCatalog
+from .result_view import LocalResultArtifacts
 from .run_service import OperationGuard
 from .storage_paths import (
     BACKTEST_STORAGE_ROOT,
@@ -195,6 +196,7 @@ class BacktestProductService:
         self._holdout_consumed = False
         self._job_registry = job_service.LocalJobRegistry(self.runtime_root)
         self._history_catalog = HistoryCatalog(self.runtime_root, job_registry=self._job_registry)
+        self._result_artifacts = LocalResultArtifacts(self.runtime_root)
         self._operation_guard = OperationGuard()
         self._recovery_issues: list[JsonObject] = []
         self._restore_history()
@@ -402,6 +404,115 @@ class BacktestProductService:
         except ValueError as error:
             checks.append({"id": "INPUT", "status": "FAIL", "message": str(error)})
             return {"status": "STOPPED", "checks": checks, "failure": {"code": str(error), "retryable": False}}
+
+    def p5r2_preflight(self, raw_spec: Mapping[str, Any]) -> JsonObject:
+        """Bind the Web Product preflight to a currently usable derived dataset."""
+
+        result = self.preflight(raw_spec)
+        if result.get("status") != "PASS":
+            return result
+        normalized = result.get("normalized_spec")
+        if not isinstance(normalized, Mapping):
+            return {
+                **result,
+                "status": "STOPPED",
+                "failure": {"code": "NORMALIZED_SPEC_INVALID", "retryable": False},
+            }
+        requested_range: JsonObject = {
+            "start": normalized.get("start"),
+            "end": normalized.get("end"),
+        }
+        requirement: JsonObject = {
+            "symbol": normalized.get("symbol"),
+            "timeframe": normalized.get("timeframe"),
+            "requested_range": requested_range,
+            "source_timeframe": "1m",
+        }
+        matches: list[JsonObject] = []
+        for dataset in self._history_catalog.list_available_datasets():
+            if (
+                dataset.get("symbol") != requirement["symbol"]
+                or dataset.get("data_timeframe") != requirement["timeframe"]
+                or dataset.get("legacy") is True
+            ):
+                continue
+            coverage = dataset.get("coverage")
+            if not isinstance(coverage, Mapping):
+                continue
+            if str(coverage.get("start", "")) <= str(requested_range["start"]) and str(coverage.get("end", "")) >= str(
+                requested_range["end"]
+            ):
+                matches.append(dataset)
+        if not matches:
+            checks = list(result.get("checks", []))
+            checks.append(
+                {"id": "DATA_COVERAGE", "status": "FAIL", "message": "必要な上位足DataがCatalogにありません。"}
+            )
+            return {
+                "status": "STOPPED",
+                "checks": checks,
+                "normalized_spec": dict(normalized),
+                "failure": {
+                    "code": "DATA_INSUFFICIENT",
+                    "message": "指定期間の指定時間足がありません。時間足を生成してください。",
+                    "retryable": False,
+                },
+                "data_requirement": requirement,
+            }
+        return {
+            **result,
+            "data_requirement": requirement,
+            "data_set": matches[0],
+        }
+
+    def catalog_snapshot(self) -> list[JsonObject]:
+        """Return sanitized Catalog views for the local Web Product UI."""
+
+        return self._history_catalog.catalog_snapshot()
+
+    def available_catalog(self) -> list[JsonObject]:
+        return self._history_catalog.list_available_datasets()
+
+    def create_historical_download_job(self, value: object) -> JsonObject:
+        """Expose the bounded external boundary without opening a connection."""
+
+        return {
+            "job_id": None,
+            "job_type": "HISTORICAL_DOWNLOAD",
+            "state": "REJECTED",
+            "reason": "HOST_LEVEL_ISOLATION_NOT_VERIFIED",
+            "input": dict(value) if isinstance(value, Mapping) else {},
+            "output": None,
+            "retry_of": None,
+            "orphan": False,
+            "external_io_performed": False,
+        }
+
+    def create_timeframe_generation_job(self, value: object) -> JsonObject:
+        return self._job_registry.create_timeframe_generation_job(value)
+
+    def get_timeframe_generation_job(self, job_id: str) -> JsonObject:
+        job = self._job_registry.get_job(job_id)
+        if job is None:
+            raise KeyError("TIMEFRAME_GENERATION_JOB_NOT_FOUND")
+        return job
+
+    def advance_timeframe_generation_job(
+        self, value: Mapping[str, object], target_state: str = "RUNNING"
+    ) -> JsonObject:
+        return self._job_registry.advance_timeframe_generation_job(value, target_state)
+
+    def cancel_timeframe_generation_job(self, value: Mapping[str, object]) -> JsonObject:
+        return self._job_registry.cancel_timeframe_generation_job(value)
+
+    def restart_timeframe_generation_job(self, value: Mapping[str, object]) -> JsonObject:
+        return self._job_registry.restart_timeframe_generation_job(value)
+
+    def retry_timeframe_generation_job(self, value: Mapping[str, object]) -> JsonObject:
+        return self._job_registry.retry_timeframe_generation_job(value)
+
+    def delete_result_artifact(self, value: Mapping[str, object] | object) -> JsonObject:
+        return self._result_artifacts.delete_result_artifact(value)
 
     def create_run(
         self, raw_spec: Mapping[str, Any], *, kind: str = "SINGLE_BACKTEST", parent_id: str | None = None

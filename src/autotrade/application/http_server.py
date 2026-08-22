@@ -68,6 +68,18 @@ class _Handler(BaseHTTPRequestHandler):
                         "live": "OUT_OF_SCOPE",
                     },
                 )
+            elif path == ["api", "p5r2", "catalog"]:
+                self._send(
+                    200,
+                    {
+                        "items": self.service.catalog_snapshot(),
+                        "available_items": self.service.available_catalog(),
+                        "strategy_timeframes": ["15m", "30m", "1h", "4h", "1d"],
+                        "source_timeframe": "1m",
+                    },
+                )
+            elif len(path) == 4 and path[:3] == ["api", "p5r2", "timeframe-generation-jobs"]:
+                self._send(200, self.service.get_timeframe_generation_job(path[3]))
             elif path == ["api", "backtest", "runs"]:
                 self._send(200, {"items": self.service.list_runs()})
             elif path == ["api", "backtest", "runs", "history"]:
@@ -95,7 +107,42 @@ class _Handler(BaseHTTPRequestHandler):
         path = [unquote(part) for part in urlparse(self.path).path.split("/") if part]
         try:
             body = self._body()
-            if path == ["api", "backtest", "preflight"]:
+            if path == ["api", "p5r2", "backtest", "preflight"]:
+                result = self.service.p5r2_preflight(body.get("spec", body))
+                self._send(200 if result["status"] == "PASS" else 422, result)
+            elif path == ["api", "p5r2", "backtest", "runs"]:
+                result = self.service.p5r2_preflight(body.get("spec", body))
+                if result["status"] != "PASS":
+                    self._send(422, result)
+                else:
+                    self._send(201, self.service.create_run(body.get("spec", body)))
+            elif path == ["api", "p5r2", "historical-download-jobs"]:
+                result = self.service.create_historical_download_job(body)
+                self._send(409, result)
+            elif path == ["api", "p5r2", "timeframe-generation-jobs"]:
+                result = self.service.create_timeframe_generation_job(body)
+                self._send(201 if result.get("state") == "STAGED" else 422, result)
+            elif len(path) == 5 and path[:3] == ["api", "p5r2", "timeframe-generation-jobs"]:
+                snapshot = dict(body)
+                snapshot.setdefault("job_id", path[3])
+                if path[4] == "advance":
+                    result = self.service.advance_timeframe_generation_job(
+                        snapshot, str(body.get("target_state", "RUNNING"))
+                    )
+                elif path[4] == "cancel":
+                    result = self.service.cancel_timeframe_generation_job(snapshot)
+                elif path[4] == "restart":
+                    result = self.service.restart_timeframe_generation_job(snapshot)
+                elif path[4] == "retry":
+                    result = self.service.retry_timeframe_generation_job(snapshot)
+                else:
+                    self._error(404, "NOT_FOUND")
+                    return
+                self._send(200 if result.get("state") != "REJECTED" else 409, result)
+            elif path == ["api", "p5r2", "result-artifacts", "delete"]:
+                result = self.service.delete_result_artifact(body)
+                self._send(200 if result.get("accepted") is True else 409, result)
+            elif path == ["api", "backtest", "preflight"]:
                 result = self.service.preflight(body.get("spec", body))
                 self._send(200 if result["status"] == "PASS" else 422, result)
             elif path == ["api", "backtest", "runs"]:
