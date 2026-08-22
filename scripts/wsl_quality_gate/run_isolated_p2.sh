@@ -19,6 +19,14 @@ evidence_root="$repository_path/tests/evidence/$evidence_phase/$run_id"
 manifest="$evidence_root/run-manifest.json"
 python_bin="$repository_path/.venv/bin/python"
 
+# P5R2 keeps the approved Run Manifest as a plan artifact on the Windows-side
+# source of truth. Do not copy or edit a manifest inside the WSL clone merely
+# to satisfy the runner; use the synced plan artifact instead. Existing phase
+# namespaces retain the historical Evidence-root manifest contract.
+if [[ "$evidence_phase" == "phase5R2" && ! -f "$manifest" ]]; then
+  manifest="$repository_path/plan/phase5R2/quality/P5R2-11_run-manifest.json"
+fi
+
 blocked() {
   local reason="$1"
   mkdir -p "$evidence_root"
