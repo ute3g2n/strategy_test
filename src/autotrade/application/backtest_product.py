@@ -398,6 +398,11 @@ class BacktestProductService:
                 run.cancel_event.set()
                 run.operation_revision += 1
                 if run.status == "QUEUED":
+                    run.checkpoint = {
+                        "cursor": int(run.state.get("cursor", -1)),
+                        "row_count": len(run.rows),
+                        "state": dict(run.state),
+                    }
                     run.status = "CANCELLED"
                 elif run.status == "RUNNING":
                     run.status = "STOP_REQUESTED"
