@@ -1236,10 +1236,7 @@
       "baseline_ref": "HEAD",
       "scope_mode": "target_only",
       "evidence_root": "tests/evidence/phase5R2/RUN-P5R2-18-LOCAL-001/",
-      "unknowns": [
-        "P5R2-18 external host-level isolation is NOT_VERIFIED",
-        "P5R2-18 provider terms and raw-data redistribution remain UNKNOWN"
-      ],
+      "unknowns": [],
       "open_project_unknowns": [
         "P5R2-DELETE-G1",
         "P5R2-H2",
