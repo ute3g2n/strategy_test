@@ -3,11 +3,16 @@
 from __future__ import annotations
 
 import csv
+import json
+import threading
 import time
 from datetime import UTC, datetime, timedelta
+from http.client import HTTPConnection
+from http.server import ThreadingHTTPServer
 from pathlib import Path
 
 from autotrade.application.backtest_product import BacktestProductService
+from autotrade.application.http_server import _Handler
 
 
 def _write_fixture(root: Path, count: int = 5000) -> None:
@@ -60,49 +65,118 @@ def test_service_cancel_uses_server_state_and_rejects_second_tab(tmp_path: Path)
     created = service.create_run(_spec())
     run_id = str(created["run_id"])
 
-    deadline = time.monotonic() + 2
-    while time.monotonic() < deadline:
-        state = str(service.get_run(run_id)["status"])
-        if state == "RUNNING":
-            break
-        if state in {"SUCCEEDED", "FAILED", "CANCELLED"}:
-            raise AssertionError(f"run finished before cancel guard test: {state}")
-        time.sleep(0.005)
-    else:
-        raise AssertionError(f"run did not reach RUNNING: {service.get_run(run_id)}")
+    entered_step = threading.Event()
+    release_step = threading.Event()
+    original_step = service._step_run
 
-    first = service.request_run_cancel(
-        {
-            "run_id": run_id,
-            "operation_token": "service-cancel-token-1",
-            "request_id": "service-cancel-request-1",
-            "actor": "local-operator",
-            "origin_screen": "PROGRESS",
-            "reason": "operator requested cancel",
-            "current_state": "SUCCEEDED",
-            "current_revision": 999,
-            "expected_revision": 999,
-        }
-    )
-    second = service.request_run_cancel(
-        {
-            "run_id": run_id,
-            "operation_token": "service-cancel-token-2",
-            "request_id": "service-cancel-request-2",
-            "actor": "local-operator",
-            "origin_screen": "RESULT_SUMMARY",
-            "reason": "second tab replay",
-            "current_state": "QUEUED",
-            "current_revision": 0,
-            "expected_revision": 0,
-        }
-    )
+    def paused_step(run, bars, index, entry_lookback, exit_lookback):
+        entered_step.set()
+        if not release_step.wait(2):
+            raise AssertionError("paused worker was not released")
+        return original_step(run, bars, index, entry_lookback, exit_lookback)
 
-    first_operation = first["operation"]
-    second_operation = second["operation"]
-    assert first_operation["accepted"] is True
-    assert first_operation["status_before"] == "RUNNING"
-    assert first_operation["status_after"] == "STOP_REQUESTED"
-    assert second_operation["accepted"] is False
-    assert second_operation["error_code"] == "OPERATION_IN_FLIGHT"
-    assert second_operation["status_after"] == "STOP_REQUESTED"
+    service._step_run = paused_step
+
+    try:
+        deadline = time.monotonic() + 2
+        while time.monotonic() < deadline:
+            state = str(service.get_run(run_id)["status"])
+            if state == "RUNNING" and entered_step.is_set():
+                break
+            if state in {"SUCCEEDED", "FAILED", "CANCELLED"}:
+                raise AssertionError(f"run finished before cancel guard test: {state}")
+            time.sleep(0.005)
+        else:
+            raise AssertionError(f"run did not reach paused RUNNING: {service.get_run(run_id)}")
+
+        first = service.request_run_cancel(
+            {
+                "run_id": run_id,
+                "operation_token": "service-cancel-token-1",
+                "request_id": "service-cancel-request-1",
+                "actor": "local-operator",
+                "origin_screen": "PROGRESS",
+                "reason": "operator requested cancel",
+                "current_state": "SUCCEEDED",
+                "current_revision": 999,
+                "expected_revision": 999,
+            }
+        )
+        second = service.request_run_cancel(
+            {
+                "run_id": run_id,
+                "operation_token": "service-cancel-token-2",
+                "request_id": "service-cancel-request-2",
+                "actor": "local-operator",
+                "origin_screen": "RESULT_SUMMARY",
+                "reason": "second tab replay",
+                "current_state": "QUEUED",
+                "current_revision": 0,
+                "expected_revision": 0,
+            }
+        )
+
+        first_operation = first["operation"]
+        second_operation = second["operation"]
+        assert first_operation["accepted"] is True
+        assert first_operation["status_before"] == "RUNNING"
+        assert first_operation["status_after"] == "STOP_REQUESTED"
+        assert second_operation["accepted"] is False
+        assert second_operation["error_code"] == "OPERATION_IN_FLIGHT"
+        assert second_operation["status_after"] == "STOP_REQUESTED"
+    finally:
+        release_step.set()
+
+
+class _HttpCancelService:
+    def __init__(self) -> None:
+        self.requests: list[dict[str, object]] = []
+
+    def request_run_cancel(self, request: dict[str, object]) -> dict[str, object]:
+        self.requests.append(dict(request))
+        return {
+            "run": {"run_id": str(request["run_id"]), "status": "STOP_REQUESTED"},
+            "operation": {
+                "accepted": True,
+                "status_before": "RUNNING",
+                "status_after": "STOP_REQUESTED",
+                "audit_id": "AUDIT-HTTP-CANCEL-001",
+            },
+        }
+
+
+def test_http_cancel_route_returns_operation_guard_result() -> None:
+    previous_service = _Handler.service
+    fake_service = _HttpCancelService()
+    server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
+    _Handler.service = fake_service
+    worker = threading.Thread(target=server.serve_forever, daemon=True)
+    worker.start()
+    try:
+        connection = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        connection.request(
+            "POST",
+            "/api/backtest/runs/RUN-P5R2-HTTP-001/cancel",
+            body=json.dumps(
+                {
+                    "operation_token": "http-token-1",
+                    "request_id": "http-request-1",
+                    "origin_screen": "PROGRESS",
+                    "reason": "operator requested cancel",
+                }
+            ),
+            headers={"Content-Type": "application/json"},
+        )
+        response = connection.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        connection.close()
+    finally:
+        server.shutdown()
+        server.server_close()
+        worker.join(timeout=5)
+        _Handler.service = previous_service
+
+    assert response.status == 202
+    assert payload["operation"]["status_after"] == "STOP_REQUESTED"
+    assert fake_service.requests[0]["run_id"] == "RUN-P5R2-HTTP-001"
+    assert fake_service.requests[0]["operation_token"] == "http-token-1"

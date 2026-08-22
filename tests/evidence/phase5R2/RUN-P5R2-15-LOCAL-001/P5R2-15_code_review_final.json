@@ -1,0 +1,30 @@
+{
+  "run_id": "RUN-P5R2-15-LOCAL-001",
+  "phase_id": "phase5R2",
+  "step_id": "P5R2-15",
+  "review_role": "code-reviewer",
+  "agent_id": "01a02aa8-f0c0-73f0-bfd4-4ab2166a2322",
+  "model": "gpt-5.6-luna",
+  "reasoning_effort": "max",
+  "service_tier": "priority",
+  "decision": "APPROVE_CODE_PENDING_FIXED_GATE",
+  "severity_summary": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0
+  },
+  "resolved_findings": [
+    "最終barのcancel_event／STOP_REQUESTEDをlock内で再確認し、取消済みRunをSUCCEEDED／result publishへ進めない。",
+    "terminal到達後も同一tokenを保存audit／prior_resultへ結び、二重遷移・二重監査を行わない。",
+    "P5R2-15 wrapper、runner、trusted scopeの固定テスト集合を一致させた。"
+  ],
+  "scope_out": [
+    "P5R2-16 restart persistence/recovery",
+    "P5R2-19実UI・ブラウザ検証",
+    "DELETE-G1物理削除",
+    "H2/P6",
+    "module-level guardとBacktestProductService guardの統合"
+  ],
+  "note": "固定4 Gateの再実行とEvidence更新が完了するまでGREEN_CONFIRMEDへ遷移しない。"
+}

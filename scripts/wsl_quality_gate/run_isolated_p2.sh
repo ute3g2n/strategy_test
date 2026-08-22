@@ -18,6 +18,7 @@ fi
 evidence_root="$repository_path/tests/evidence/$evidence_phase/$run_id"
 manifest="$evidence_root/run-manifest.json"
 python_bin="$repository_path/.venv/bin/python"
+trusted_scope_mode=0
 
 # P5R2 keeps the approved Run Manifest as a plan artifact on the Windows-side
 # source of truth. Do not copy or edit a manifest inside the WSL clone merely
@@ -27,6 +28,7 @@ if [[ "$evidence_phase" == "phase5R2" && ! -f "$manifest" ]]; then
   case "$run_id" in
     RUN-P5R2-13-*) manifest="$repository_path/plan/phase5R2/quality/P5R2-13_run-manifest.json" ;;
     RUN-P5R2-14-*) manifest="$repository_path/plan/phase5R2/quality/P5R2-14_run-manifest.json" ;;
+    RUN-P5R2-15-*) trusted_scope_mode=1 ;;
     *) manifest="$repository_path/plan/phase5R2/quality/P5R2-11_run-manifest.json" ;;
   esac
 fi
@@ -39,7 +41,10 @@ blocked() {
   exit 20
 }
 
-[[ -d "$repository_path" && -f "$manifest" ]] || blocked "repository or manifest is missing"
+[[ -d "$repository_path" ]] || blocked "repository is missing"
+if [[ "$trusted_scope_mode" == "0" ]]; then
+  [[ -f "$manifest" ]] || blocked "repository or manifest is missing"
+fi
 [[ -x "$python_bin" ]] || blocked "Linux .venv/bin/python is missing"
 [[ -d "$repository_path/wheelhouse" ]] || blocked "approved Linux wheelhouse is missing"
 [[ -f "$repository_path/scripts/quality_gate/trusted_scopes.json" ]] || blocked "trusted scope registry is missing"
@@ -278,7 +283,14 @@ EOF
 export QUALITY_GATE_NETWORK_ISOLATION_CONFIRMED=1
 export QUALITY_GATE_HOST_ISOLATION_EVIDENCE="$evidence_root/host-isolation.json"
 set +e
-"$python_bin" -m scripts.quality_gate.run_quality_gate --manifest "$manifest" --project-root "$repository_path"
+if [[ "$trusted_scope_mode" == "1" ]]; then
+  "$python_bin" -m scripts.quality_gate.run_quality_gate \
+    --trusted-scope "$repository_path/scripts/quality_gate/trusted_scopes.json" \
+    --run-id "$run_id" \
+    --project-root "$repository_path"
+else
+  "$python_bin" -m scripts.quality_gate.run_quality_gate --manifest "$manifest" --project-root "$repository_path"
+fi
 gate_exit=$?
 set -e
 post_input_hash="sha256:$(sha256sum "$input_location" | awk '{print $1}')"

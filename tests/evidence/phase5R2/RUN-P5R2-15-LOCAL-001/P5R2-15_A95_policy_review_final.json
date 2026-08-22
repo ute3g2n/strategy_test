@@ -1,0 +1,30 @@
+{
+  "run_id": "RUN-P5R2-15-LOCAL-001",
+  "phase_id": "phase5R2",
+  "step_id": "P5R2-15",
+  "review_role": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1",
+  "agent_id": "01a02aa8-f19e-7c12-8419-77956478de47",
+  "model": "gpt-5.6-luna",
+  "reasoning_effort": "low",
+  "service_tier": "priority",
+  "decision": "ALLOW",
+  "severity": "NONE",
+  "rationale": [
+    "trusted_scopes直接入力はin-memory生成で、manifestを書き込まない。",
+    "--trusted-scopeとWSL P5R2-15分岐は既存trusted scopeを参照するだけで、新規管理hash経路を追加していない。",
+    "既存protected fixture identityは安全・再現性目的の再利用のみで、新規計算しない。",
+    "管理hash、manifest fingerprint、stale、hash retry、hash receipt、ファイルmanifest、hash値計算の再導入は確認されなかった。"
+  ],
+  "scope_out": [
+    "P5R2-16",
+    "P5R2-19",
+    "DELETE-G1",
+    "P6"
+  ],
+  "unresolved_high": [],
+  "external_io": "PROHIBITED",
+  "secret": "PROHIBITED",
+  "physical_delete": "PROHIBITED",
+  "management_hash": "NOT_CREATED",
+  "note": "固定WSL品質Gateのtest失敗は別の機械検証状態であり、A95判定をBLOCKEDにはしない。"
+}

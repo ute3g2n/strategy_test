@@ -404,6 +404,55 @@ def load_manifest(path: Path) -> Mapping[str, object]:
     return _mapping(data, "Run Manifest")
 
 
+def load_trusted_scope_gate_input(path: Path, run_id: str) -> Mapping[str, object]:
+    """Build an in-memory gate input from the trusted scope registry.
+
+    This is intentionally not written to disk. P5R2 fixed gates use the
+    repository's trusted scope as their source of target paths, checks, and
+    protected fixture reference without introducing a new management artifact.
+    """
+
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ManifestValidationError("trusted scope registry JSONを読めません") from error
+    scopes = _mapping(data.get("scopes"), "trusted scope registry.scopes")
+    scope = _mapping(scopes.get(run_id), f"trusted scope {run_id}")
+    fixture = _mapping(scope.get("fixture"), "trusted scope.fixture")
+
+    def required_list(key: str) -> list[str]:
+        return list(_string_list(scope.get(key), f"trusted scope.{key}", allow_empty=False))
+
+    return {
+        "run_id": run_id,
+        "phase_id": _required_nonempty_string(scope, "phase_id"),
+        "step_id": _required_nonempty_string(scope, "step_id"),
+        "design": _required_nonempty_string(scope, "design"),
+        "requirements": required_list("requirements"),
+        "orchestrator": _required_nonempty_string(scope, "orchestrator"),
+        "component_lifecycle_orchestrator": _required_nonempty_string(scope, "component_lifecycle_orchestrator"),
+        "agents": list(scope.get("agents", ["trusted-scope-quality-gate"])),
+        "skills": list(scope.get("skills", ["autotrade_skill_orchestration_v0_1"])),
+        "data_version": str(scope.get("data_version", f"{run_id}-trusted-scope")),
+        "baseline_ref": _required_nonempty_string(scope, "baseline_ref"),
+        "scope_mode": _required_nonempty_string(scope, "scope_mode"),
+        "target_paths": required_list("target_paths"),
+        "excluded_paths": required_list("excluded_paths"),
+        "evidence_root": _required_nonempty_string(scope, "evidence_root"),
+        "input_fixture": dict(fixture),
+        "checks": scope.get("checks"),
+        "review": scope.get("review", {"critical": 0, "high": 0}),
+        "human_gate_policy": str(
+            scope.get(
+                "human_gate_policy",
+                "P5R2-H1=APPROVED_BY_DELEGATED_AUTHORITY for local-only fixed quality gate;"
+                " DATA-G1, DELETE-G1, H2, and P6 remain unapproved.",
+            )
+        ),
+        "unknowns": list(_string_list(scope.get("unknowns", []), "trusted scope.unknowns", allow_empty=True)),
+    }
+
+
 def _load_trusted_scope(project_root: Path, run_id: str) -> Mapping[str, object]:
     """Load one repository-managed scope; the manifest cannot create scopes."""
     registry_path = project_root / TRUSTED_SCOPE_REGISTRY_PATH
@@ -593,6 +642,9 @@ def _validate_gate_command(
                     "tests/phase5R/test_p5r2_result_artifact_red_contract.py",
                     "tests/phase5R/test_p5r2_result_artifact_guard.py",
                     "tests/phase5R/test_p5r2_backtest_service_cancel_guard.py",
+                    "tests/phase5R/test_backtest_product_red.py",
+                    "tests/phase5R/test_http_server_routes.py",
+                    "tests/phase5R/test_http_server_security.py",
                     "tests/application/test_p4_07_execution.py",
                     "tests/application/test_nonhash_management_boundaries.py",
                 )

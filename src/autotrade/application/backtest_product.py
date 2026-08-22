@@ -795,6 +795,12 @@ class BacktestProductService:
             if len(bars) > 1_000 or index % 20 == 0:
                 time.sleep(0.001)
         with self._lock:
+            if run.cancel_event.is_set() or run.status == "STOP_REQUESTED":
+                run.status = "CANCELLED"
+                run.checkpoint = {"cursor": len(bars) - 1, "row_count": len(run.rows), "state": dict(run.state)}
+                run.ended_at = _iso(datetime.now(UTC))
+                self._persist_run(run)
+                return
             final_equity = _decimal(run.state["last_equity"], "last_equity")
             initial = _decimal(parameters["initial_balance"], "initial_balance")
             closed = [Decimal(value) for value in run.state.get("closed_pnl", [])]

@@ -71,6 +71,32 @@ def test_revision_conflict_keeps_run_state_unchanged_and_is_audited() -> None:
     assert len(guard.audit_log("RUN-P5R2-GUARD-001")) == 1
 
 
+def test_same_token_replay_after_queued_run_reaches_terminal_state_keeps_prior_result() -> None:
+    guard = OperationGuard()
+    first = guard.request_run_cancel(
+        {
+            **_request("token-queued-replay", state="QUEUED"),
+            "current_revision": 0,
+            "expected_revision": 0,
+        }
+    )
+    replay = guard.request_run_cancel(
+        {
+            **_request("token-queued-replay", state="CANCELLED"),
+            "current_revision": 1,
+            "expected_revision": 1,
+        }
+    )
+
+    assert first["accepted"] is True
+    assert first["status_after"] == "CANCELLED"
+    assert replay["accepted"] is False
+    assert replay["error_code"] == "ALREADY_CANCELLED"
+    assert replay["replayed"] is True
+    assert replay["prior_result"]["audit_id"] == first["audit_id"]
+    assert len(guard.audit_log("RUN-P5R2-GUARD-001")) == 1
+
+
 def test_terminal_cancel_is_state_invariant_and_keeps_reason_in_audit() -> None:
     guard = OperationGuard()
     result = guard.request_run_cancel(

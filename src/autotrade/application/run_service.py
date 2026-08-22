@@ -221,6 +221,34 @@ class OperationGuard:
                 )
 
             existing = self._runs.get(run_id)
+            if existing is not None:
+                stored_audit_id = str(existing["audit_id"])
+                stored_audit = self._audits[stored_audit_id]
+                stored_token = existing["operation_token"]
+                stored_result = existing["result"]
+                assert isinstance(stored_token, str)
+                assert isinstance(stored_result, Mapping)
+                if operation_token == stored_token:
+                    stored_revision = existing["revision_after"]
+                    assert isinstance(stored_revision, int)
+                    stored_status = self._text(stored_result.get("status_after"), "UNKNOWN")
+                    stored_error = "ALREADY_CANCELLED" if stored_status == "CANCELLED" else "OPERATION_IN_FLIGHT"
+                    replay_result = self._result(
+                        run_id=run_id,
+                        request_id=request_id,
+                        operation_token=operation_token,
+                        status_before=stored_status,
+                        status_after=stored_status,
+                        accepted=False,
+                        error_code=stored_error,
+                        audit_id=stored_audit_id,
+                        audit=stored_audit,
+                        revision_before=stored_revision,
+                        revision_after=stored_revision,
+                        replayed=True,
+                    )
+                    replay_result["prior_result"] = dict(stored_result)
+                    return replay_result
             if (
                 current_state in _CANCELLABLE_RUN_STATES or current_state in _OPERATION_IN_FLIGHT_STATES
             ) and existing is not None:
