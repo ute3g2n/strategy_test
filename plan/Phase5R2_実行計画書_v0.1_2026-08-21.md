@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-001`
 > Version: `v0.1`
 > 作成日: `2026-08-21`
-> 状態: `PLAN_CREATED / P5R2-H0_APPROVED / P5R2-01_COMPLETE / P5R2-02_ROUND1_COMPLETE / P5R2-03_COMPLETE / P5R2-04_COMPLETE / P5R2-05_READY / P5R2-HREQ_UNAPPROVED / P6_PAUSED`
+> 状態: `PLAN_CREATED / P5R2-H0_APPROVED / P5R2-01_COMPLETE / P5R2-02_ROUND1_COMPLETE / P5R2-03_COMPLETE / P5R2-04_COMPLETE / P5R2-05_REVIEW_RUNTIME_BLOCKED / P5R2-05_FORMAL_INDEPENDENT_REVIEW_NOT_ESTABLISHED / P5R2-06_BLOCKED / P5R2-HREQ_UNAPPROVED / P6_PAUSED`
 > 現在の対象: 要件ヒアリング、要件候補の改訂、要件承認、承認後の実行計画再編まで
 > 現在の非対象: P5R2本実装、外部Data取得、Secret投入、費用発生、実Data削除、P6開始
 
@@ -818,3 +818,11 @@ P5R2-03の人向け追加質問は全件回答済みで、P5R2-03を完了とす
 P5R2-04は、`plan/phase5R2/requirements/drafts/01_自動トレードシステム要件定義書_v4_candidate.md`、`P5R2-ART-03`、`P5R2-ART-04`を作成して完了した。v3とP5R旧完了は上書きせず、candidateは`CANDIDATE / NOT_CURRENT / P5R2-HREQ_UNAPPROVED`を維持する。Manual本体、ソース、Test subprocess、Playwright、外部Data、Secret、費用、実削除は変更・実行していない。
 
 Coordinator `AutoTradeProject_DesignDocSet_Orchestrator_v0_1`は`multi_agent_v1`で起動・完了したが、Coordinator配下の指定Agent dispatchは成立しなかったため、A10/A80/A81/A90/A95を直接read-only fallbackとして個別起動・waitした。direct fallbackは補助証跡であり、P5R2-05の正式独立レビュー完了とは扱わない。`COORDINATOR_STARTED / NESTED_DISPATCH_FAILED / DIRECT_READ_ONLY_FALLBACK`、`independent=false`、`review_mode=ADVISORY_FALLBACK`をreceiptへ記録した。次は`P5R2-05_READY`であり、Formal Findings firstレビューを実施する。正式runtimeが成立しなければHREQ packet完成へ進まず`REVIEW_RUNTIME_BLOCKED`で停止する。
+
+### 17.11 P5R2-05 review runtime blocked・advisory findings受領（2026-08-22）
+
+P5R2-05のCoordinator `AutoTradeProject_DesignDocSet_Orchestrator_v0_1` は起動したが、約120秒のwaitで指定Agentのnested dispatch結果を返さなかったため終了した。指定Agentは直接read-only fallbackとして個別起動・waitし、A10/A81/A90/A95のレビュー出力とA80のruntime unavailable報告を受領した。ただし、Coordinator配下の独立実行ではないため、`independent=false`、`review_mode=ADVISORY_FALLBACK`、`P5R2-05_FORMAL_INDEPENDENT_REVIEW=NOT_ESTABLISHED` とする。
+
+レビューではHigh Finding 9件、Medium Finding 6件を統合した。欠損補間の使用可能条件、期間マージ境界、Run／結果／CSV等の依存状態表、冪等性・競合、Provider通信境界、Job途中失敗・孤児Data、削除path防御、HREQ再開条件の矛盾、8件crosswalkの一意性が未閉鎖である。`P5R2-UNK-TF-006`、`P5R2-UNK-HD-004`も未解消のまま保持する。詳細は `plan/phase5R2/ログ/P5R2-05_要件candidate独立レビュー_2026-08-22.md` とruntime receiptへ追跡する。
+
+したがって、`P5R2-06`、HREQ承認packet、正式v4公開、実装、Test subprocess、Playwright、外部Data取得、Provider login／API call、Secret、費用、実削除、P6開始は停止する。P5R2-06は、独立レビューruntimeが成立し、High Findingが閉鎖されるまで開始しない。
