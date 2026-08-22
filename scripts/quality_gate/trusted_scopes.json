@@ -896,6 +896,100 @@
         "target": "ui/mock/src and ui/mock/tests",
         "external_request_policy": "zero"
       }
+    },
+    "RUN-P5R2-14-LOCAL-001": {
+      "phase_id": "phase5R2",
+      "step_id": "P5R2-14",
+      "design": "P5R2-ART-D02-HISTORICAL-DATA-CATALOG",
+      "requirements": [
+        "P5R2-CREQ-TF-002",
+        "P5R2-CREQ-HD-001",
+        "P5R2-CREQ-HD-002"
+      ],
+      "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+      "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+      "target_paths": [
+        "src/autotrade/application",
+        "tests/market_data",
+        "tests/application",
+        "scripts/quality_gate",
+        "scripts/wsl_quality_gate"
+      ],
+      "excluded_paths": [
+        ".env",
+        ".env.*",
+        "doc",
+        "plan",
+        "research",
+        "third_party",
+        "broker",
+        "cloud",
+        "secrets",
+        "tests/evidence/phase5",
+        "tests/evidence/phase5R",
+        "tests/evidence/phase5R2"
+      ],
+      "fixture": {
+        "path": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2025-02/BTCUSDT-1m-2025-02.csv.gz",
+        "name": "existing protected local fixture reference; not modified by P5R2-14",
+        "version": "P5-09-local-quality-pass-readonly",
+        "checksum": "sha256:9fbd974f57c82392318fcdf57ee3fd2fe07c0ae37fc51b38dbc1db99d4cc858d",
+        "protected_identity_ref": "scopes.RUN-P5R-03-20260816-001.fixture",
+        "purpose": "既存protected fixtureのread-only参照。新規checksum・hashを作成しない",
+        "on_failure": "BLOCKED"
+      },
+      "baseline_ref": "HEAD",
+      "scope_mode": "target_only",
+      "evidence_root": "tests/evidence/phase5R2/RUN-P5R2-14-LOCAL-001/",
+      "unknowns": [
+        "P5R2-UNK-TF-006 remains a later-gate rule; unresolved default range is rejected.",
+        "External provider selection and download remain DATA-G1 blocked."
+      ],
+      "open_project_unknowns": [],
+      "network_isolation_required": true,
+      "external_io": "PROHIBITED",
+      "secret_policy": "PROHIBITED",
+      "physical_delete": "PROHIBITED",
+      "execution_allowed": false,
+      "registration_status": "REGISTERED_PREFLIGHT_REQUIRED",
+      "approval": {
+        "gate": "P5R2-H1",
+        "status": "APPROVED_BY_DELEGATED_AUTHORITY",
+        "approved_at": "2026-08-22",
+        "evidence": "doc/phase5R2/05_H1/06_P5R2-H1承認packet.html",
+        "decision_log": "plan/phase5R2/ログ/P5R2-H1_承認判断_2026-08-22.md"
+      },
+      "checks": [
+        {
+          "gate": "formatter",
+          "command": [
+            ".venv/bin/python", "-m", "ruff", "format", "--check",
+            "src/autotrade/application", "tests/market_data", "tests/application",
+            "scripts/quality_gate", "scripts/wsl_quality_gate"
+          ]
+        },
+        {
+          "gate": "lint",
+          "command": [
+            ".venv/bin/python", "-m", "ruff", "check",
+            "src/autotrade/application", "tests/market_data", "tests/application",
+            "scripts/quality_gate", "scripts/wsl_quality_gate"
+          ]
+        },
+        {
+          "gate": "type",
+          "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/application"]
+        },
+        {
+          "gate": "test",
+          "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p5r2_p14_pytest"]
+        }
+      ],
+      "ui_checks": {
+        "status": "P5R2-19_SEPARATE_STEP_NOT_RUN",
+        "target": "ui/mock/src and ui/mock/tests",
+        "external_request_policy": "zero"
+      }
     }
   }
 }

@@ -551,6 +551,7 @@ def _validate_gate_command(
             "scripts.quality_gate.local_p5r_pytest",
             "scripts.quality_gate.local_p5r2_pytest",
             "scripts.quality_gate.local_p5r2_p13_pytest",
+            "scripts.quality_gate.local_p5r2_p14_pytest",
         }
         paths = (
             ("tests/market_data",)
@@ -577,7 +578,16 @@ def _validate_gate_command(
                 "tests/application/test_p4_07_execution.py",
             )
             if python_module == "scripts.quality_gate.local_p5r2_p13_pytest"
-            else ("tests/quality_gate",)
+            else (
+                (
+                    "tests/market_data/test_p5r2_historical_data_red_contract.py",
+                    "tests/market_data/test_acquisition_protocol.py",
+                    "tests/market_data/test_catalog_resolver.py",
+                    "tests/application/test_p4_07_execution.py",
+                )
+                if python_module == "scripts.quality_gate.local_p5r2_p14_pytest"
+                else ("tests/quality_gate",)
+            )
         )
         if python_module == "pytest":
             valid = _is_project_python(command[0]) and args[2:] == ("tests/market_data", "-q")
