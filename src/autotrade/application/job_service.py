@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import uuid
 from collections.abc import Mapping, Sequence
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
@@ -21,6 +22,7 @@ _JOB_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
 _TIMEFRAME_GENERATION = "TIMEFRAME_GENERATION"
 _HISTORICAL_DOWNLOAD = "HISTORICAL_DOWNLOAD"
 _SUPPORTED_TIMEFRAMES = frozenset({"15m", "30m", "1h", "4h", "1d"})
+_LOCAL_JOB_REGISTRY: dict[str, JsonObject] = {}
 
 
 class JobService:
@@ -96,7 +98,7 @@ def create_timeframe_generation_job(value: object) -> JsonObject:
         job_id = f"{job_id}-RETRY-{request['attempt']}"
     retry_of = request["retry_of"]
     if value.get("failure_injection") == "PARTIAL_AFTER_VALIDATION":
-        return {
+        result = {
             "job_id": job_id,
             "job_type": _TIMEFRAME_GENERATION,
             "state": "RECOVERY_REQUIRED",
@@ -112,6 +114,8 @@ def create_timeframe_generation_job(value: object) -> JsonObject:
             "orphan": True,
             "external_io_performed": False,
         }
+        _register_job(result)
+        return result
 
     raw_timeframes = request["timeframes"]
     assert isinstance(raw_timeframes, list)
@@ -119,23 +123,25 @@ def create_timeframe_generation_job(value: object) -> JsonObject:
         _derived_dataset(request, job_id, timeframe) for timeframe in raw_timeframes if isinstance(timeframe, str)
     ]
     output: JsonObject = {
-        "staging_state": "PROMOTED",
-        "promoted": True,
+        "staging_state": "STAGED",
+        "promoted": False,
         "usable": False,
         "data_sets": data_sets,
         "source_dataset_id": request["source_dataset_id"],
     }
-    return {
+    result = {
         "job_id": job_id,
         "job_type": _TIMEFRAME_GENERATION,
-        "state": "PROMOTED",
-        "reason": "TIMEFRAME_GENERATION_PROMOTED",
+        "state": "STAGED",
+        "reason": "TIMEFRAME_GENERATION_VALIDATION_REQUIRED",
         "input": request,
         "output": output,
         "retry_of": retry_of,
         "orphan": False,
         "external_io_performed": False,
     }
+    _register_job(result)
+    return result
 
 
 def cancel_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
@@ -151,6 +157,10 @@ def cancel_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
             "accepted": False,
             "promoted": False,
         }
+    trusted, rejection = _trusted_job(value)
+    if rejection is not None:
+        return rejection
+    assert trusted is not None
     state = value.get("state")
     if state not in {"QUEUED", "RUNNING", "CANCEL_REQUESTED"}:
         return {
@@ -160,7 +170,7 @@ def cancel_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
             "accepted": False,
             "promoted": value.get("promoted") is True,
         }
-    return {
+    result = {
         **_job_projection(value),
         "state": "CANCELLED",
         "reason": "JOB_CANCELLED",
@@ -169,6 +179,8 @@ def cancel_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
         "orphan": False,
         "output": {"staging_state": "CANCELLED", "promoted": False, "usable": False},
     }
+    _LOCAL_JOB_REGISTRY[str(trusted["job_id"])] = result
+    return result
 
 
 def restart_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
@@ -184,6 +196,10 @@ def restart_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
             "accepted": False,
             "promoted": False,
         }
+    trusted, rejection = _trusted_job(value)
+    if rejection is not None:
+        return rejection
+    assert trusted is not None
     state = value.get("state")
     if state not in {"QUEUED", "RUNNING", "CANCEL_REQUESTED"}:
         return {
@@ -193,7 +209,7 @@ def restart_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
             "accepted": False,
             "promoted": value.get("promoted") is True,
         }
-    return {
+    result = {
         **_job_projection(value),
         "state": "RECOVERY_REQUIRED",
         "reason": "RESTART_RECOVERY_REQUIRED",
@@ -202,6 +218,8 @@ def restart_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
         "orphan": True,
         "output": {"staging_state": "ORPHAN_STAGING", "promoted": False, "usable": False},
     }
+    _LOCAL_JOB_REGISTRY[str(trusted["job_id"])] = result
+    return result
 
 
 def retry_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
@@ -217,6 +235,10 @@ def retry_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
             "accepted": False,
             "promoted": False,
         }
+    trusted, rejection = _trusted_job(value)
+    if rejection is not None:
+        return rejection
+    assert trusted is not None
     if value.get("state") not in {"FAILED", "CANCELLED", "RECOVERY_REQUIRED"}:
         return {
             **_job_projection(value),
@@ -225,8 +247,8 @@ def retry_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
             "accepted": False,
             "promoted": False,
         }
-    raw_input = value.get("input")
-    job_id = value.get("job_id")
+    raw_input = trusted.get("input")
+    job_id = trusted.get("job_id")
     if not isinstance(raw_input, Mapping) or not isinstance(job_id, str) or not _valid_identifier(job_id):
         return {
             **_job_projection(value),
@@ -242,7 +264,7 @@ def retry_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
     raw_attempt = request.get("attempt", 0)
     request["attempt"] = raw_attempt + 1 if isinstance(raw_attempt, int) and raw_attempt >= 0 else 1
     retried = create_timeframe_generation_job(request)
-    retried["accepted"] = retried.get("state") == "PROMOTED"
+    retried["accepted"] = retried.get("state") == "STAGED"
     return retried
 
 
@@ -255,7 +277,62 @@ def _job_projection(value: Mapping[str, object]) -> JsonObject:
         "retry_of": value.get("retry_of"),
         "orphan": value.get("orphan") is True,
         "external_io_performed": False,
+        "operation_token": value.get("operation_token"),
     }
+
+
+def _trusted_job(value: Mapping[str, object]) -> tuple[JsonObject | None, JsonObject | None]:
+    raw_job_id = value.get("job_id")
+    if not isinstance(raw_job_id, str) or not _valid_identifier(raw_job_id):
+        return None, {
+            **_job_projection(value),
+            "state": "REJECTED",
+            "reason": "JOB_REFERENCE_INVALID",
+            "accepted": False,
+            "promoted": False,
+        }
+    trusted = _LOCAL_JOB_REGISTRY.get(raw_job_id)
+    if trusted is None:
+        return None, {
+            **_job_projection(value),
+            "state": "REJECTED",
+            "reason": "JOB_NOT_FOUND",
+            "accepted": False,
+            "promoted": False,
+        }
+    if value.get("operation_token") != trusted.get("operation_token"):
+        return None, {
+            **_job_projection(value),
+            "state": "REJECTED",
+            "reason": "JOB_OPERATION_TOKEN_INVALID",
+            "accepted": False,
+            "promoted": False,
+        }
+    if value.get("job_type") != trusted.get("job_type"):
+        return None, {
+            **_job_projection(value),
+            "state": "REJECTED",
+            "reason": "JOB_TYPE_MISMATCH",
+            "accepted": False,
+            "promoted": False,
+        }
+    if value.get("state") != trusted.get("state"):
+        return None, {
+            **_job_projection(value),
+            "state": "REJECTED",
+            "reason": "JOB_STATE_STALE",
+            "accepted": False,
+            "promoted": False,
+        }
+    return trusted, None
+
+
+def _register_job(result: JsonObject) -> None:
+    job_id = result.get("job_id")
+    if not isinstance(job_id, str):
+        return
+    result.setdefault("operation_token", uuid.uuid4().hex)
+    _LOCAL_JOB_REGISTRY[job_id] = result
 
 
 def _normalise_generation_request(value: Mapping[str, object]) -> tuple[JsonObject | None, str | None]:
@@ -477,8 +554,16 @@ def _validate_source_dataset(
     if value.get("state") != "CURRENT" or value.get("promotion_state") != "PROMOTED":
         return None, "SOURCE_DATASET_INVALID"
     raw_bars = value.get("bars")
-    if not _valid_source_bars(raw_bars):
+    source_bounds = _source_bar_bounds(raw_bars)
+    if source_bounds is None:
         return None, "SOURCE_DATASET_INVALID"
+    assert isinstance(raw_bars, (list, tuple))
+    if value.get("bar_count") != len(raw_bars):
+        return None, "SOURCE_DATASET_INVALID"
+    if not _range_covers(coverage_start, coverage_end, source_bounds[0], source_bounds[1]):
+        return None, "SOURCE_DATASET_INVALID"
+    if not _range_covers(source_bounds[0], source_bounds[1], start, end):
+        return None, "SOURCE_DATASET_COVERAGE_INSUFFICIENT"
     safe_provenance = {
         key: item
         for key, item in provenance.items()
@@ -490,11 +575,15 @@ def _validate_source_dataset(
         return None, "SOURCE_DATASET_INVALID"
     return {
         "dataset_id": dataset_id,
-        "identity": dict(identity),
+        "identity": {key: identity[key] for key in expected_identity},
         "coverage": {"start": coverage_start, "end": coverage_end},
+        "bar_count": len(raw_bars),
+        "bars": [dict(bar) for bar in raw_bars if isinstance(bar, Mapping)],
         "quality": value.get("quality"),
         "usable": True,
         "legacy": False,
+        "state": "CURRENT",
+        "promotion_state": "PROMOTED",
         "provenance": safe_provenance,
     }, None
 
@@ -511,36 +600,47 @@ def _range_covers(outer_start: str, outer_end: str, inner_start: str, inner_end:
 
 
 def _valid_source_bars(value: object) -> bool:
+    return _source_bar_bounds(value) is not None
+
+
+def _source_bar_bounds(value: object) -> tuple[str, str] | None:
     if not isinstance(value, (list, tuple)) or not value or len(value) > 200_000:
-        return False
+        return None
     previous: datetime | None = None
+    first_timestamp: str | None = None
+    last_timestamp: str | None = None
     required = {"timestamp", "open", "high", "low", "close", "volume"}
     for raw_bar in value:
         if not isinstance(raw_bar, Mapping) or set(raw_bar) != required:
-            return False
+            return None
         timestamp = _parse_utc(raw_bar.get("timestamp"))
         if timestamp is None or (previous is not None and timestamp <= previous):
-            return False
+            return None
         previous = timestamp
+        timestamp_text = timestamp.isoformat().replace("+00:00", "Z")
+        first_timestamp = first_timestamp or timestamp_text
+        last_timestamp = timestamp_text
         numbers: dict[str, Decimal] = {}
         for field in ("open", "high", "low", "close", "volume"):
             raw_value = raw_bar.get(field)
             if isinstance(raw_value, bool) or not isinstance(raw_value, (str, int, float, Decimal)):
-                return False
+                return None
             try:
                 numeric = Decimal(str(raw_value))
             except (InvalidOperation, ValueError):
-                return False
+                return None
             if not numeric.is_finite():
-                return False
+                return None
             numbers[field] = numeric
         if (
             numbers["high"] < max(numbers["open"], numbers["close"])
             or numbers["low"] > min(numbers["open"], numbers["close"])
             or numbers["volume"] < 0
         ):
-            return False
-    return True
+            return None
+    if first_timestamp is None or last_timestamp is None:
+        return None
+    return first_timestamp, last_timestamp
 
 
 def _parse_utc(value: object) -> datetime | None:

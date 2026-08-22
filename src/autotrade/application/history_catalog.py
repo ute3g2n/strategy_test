@@ -10,7 +10,10 @@ import json
 import os
 import re
 import tempfile
-from collections.abc import Mapping
+import threading
+import uuid
+from collections.abc import Iterator, Mapping
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -20,12 +23,16 @@ JsonObject = dict[str, Any]
 
 CATALOG_SCHEMA = "autotrade-backtest-history/v1"
 DATASET_SCHEMA = "autotrade-historical-dataset/v1"
+LEGACY_IMPORT_TICKET = "P5R-LEGACY-MIGRATION-V1"
 _RUN_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
 _CATALOG_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
 _DATA_IDENTITY_FIELDS = ("provider", "market", "symbol", "source_timeframe", "schema")
 _BAR_FIELDS = frozenset({"timestamp", "open", "high", "low", "close", "volume"})
 _USABLE_QUALITIES = frozenset({"USABLE", "USABLE_WITH_WARNING"})
 _MAX_BARS = 200_000
+_PROVENANCE_FIELDS = frozenset(
+    {"source_job_id", "source_job_ids", "source_mode", "catalog_revision", "request_id", "merge_mode", "origin"}
+)
 
 
 class HistoryCatalog:
@@ -39,6 +46,8 @@ class HistoryCatalog:
         self.results_root = self.runtime_root / "results"
         self.datasets_root = self.catalog_root / "datasets"
         self.versions_root = self.datasets_root / "versions"
+        self._preview_lock = threading.RLock()
+        self._preview_tokens: dict[str, JsonObject] = {}
         for directory in (self.catalog_root, self.runs_root, self.results_root, self.datasets_root, self.versions_root):
             self._ensure_directory_safe(directory)
 
@@ -56,10 +65,19 @@ class HistoryCatalog:
         result_path = self.results_root / safe_run_id / "result.json"
         self._assert_path_chain_safe(result_path.parent, self.results_root)
         result_path.parent.mkdir(parents=True, exist_ok=True)
+        if result_path.exists():
+            existing = self._read_json(result_path)
+            if existing == payload:
+                return
+            raise ValueError("RESULT_ALREADY_PUBLISHED")
         self._write_json_atomic(result_path, payload)
 
     def preview_merge(self, request: Mapping[str, object]) -> JsonObject:
         """Build a user-reviewable merge result without changing the catalog."""
+
+        return self._preview_merge(request, issue_token=True)
+
+    def _preview_merge(self, request: Mapping[str, object], *, issue_token: bool) -> JsonObject:
 
         if not isinstance(request, Mapping):
             return self._merge_rejection("MERGE_REQUEST_INVALID", {})
@@ -68,9 +86,7 @@ class HistoryCatalog:
             self._assert_provider_boundary(identity)
             self._assert_identity_compatibility(request, identity)
             raw_provenance = request.get("provenance")
-            self._require_provenance(raw_provenance)
-            assert isinstance(raw_provenance, Mapping)
-            provenance = dict(raw_provenance)
+            provenance = self._safe_provenance(raw_provenance)
             self._assert_provenance_identity(provenance, identity)
             self._assert_staging_request(request)
             dataset_id = self._request_dataset_id(request)
@@ -138,8 +154,8 @@ class HistoryCatalog:
         affected_results = self._reference_list(request.get("affected_results"))
         requires_explicit_replace = conflict_count > 0 and not explicit_replace
         state = "CONFLICT" if requires_explicit_replace else "PREVIEW_READY"
-        operation_token = self._operation_token(dataset_id, str(request["request_id"]), current_revision)
-        return {
+        operation_token = uuid.uuid4().hex if issue_token else None
+        preview = {
             "state": state,
             "reason": "DATA_CONFLICT" if requires_explicit_replace else None,
             "identity": identity,
@@ -167,90 +183,115 @@ class HistoryCatalog:
             "operation_token": operation_token,
             "provenance": provenance,
         }
+        if issue_token and operation_token is not None:
+            with self._preview_lock:
+                self._preview_tokens[operation_token] = {
+                    "binding": self._preview_binding(preview),
+                    "dataset_id": dataset_id,
+                    "revision": current_revision,
+                }
+        return preview
 
     def promote_merge(self, request: Mapping[str, object]) -> JsonObject:
         """Atomically promote a reviewed local merge while preserving protected records."""
 
         if not isinstance(request, Mapping):
             return self._merge_rejection("MERGE_REQUEST_INVALID", {})
-        preview = self.preview_merge(request)
-        if preview.get("state") == "REJECTED":
-            preview["promoted"] = False
-            return preview
+        try:
+            lock_dataset_id = self._promotion_dataset_id(request)
+            with self._dataset_operation_lock(lock_dataset_id):
+                preview = self._preview_merge(request, issue_token=False)
+                if preview.get("state") == "REJECTED":
+                    preview["promoted"] = False
+                    return preview
 
-        if request.get("impact_confirmed") is not True or request.get("preview_token") != preview.get(
-            "operation_token"
-        ):
-            preview.update({"state": "REJECTED", "reason": "MERGE_CONFIRMATION_REQUIRED", "promoted": False})
-            return preview
-        if preview.get("promotable") is not True:
-            preview["promoted"] = False
-            return preview
+                provided_token = request.get("preview_token")
+                if request.get("impact_confirmed") is not True or not isinstance(provided_token, str):
+                    preview.update({"state": "REJECTED", "reason": "MERGE_CONFIRMATION_REQUIRED", "promoted": False})
+                    return preview
+                with self._preview_lock:
+                    token_record = self._preview_tokens.get(provided_token)
+                if token_record is None or token_record.get("binding") != self._preview_binding(preview):
+                    preview.update({"state": "REJECTED", "reason": "PREVIEW_TOKEN_MISMATCH", "promoted": False})
+                    return preview
+                if preview.get("promotable") is not True:
+                    preview["promoted"] = False
+                    return preview
 
-        expected_revision = request.get("expected_revision")
-        current_revision = preview.get("current_revision")
-        if not isinstance(expected_revision, int) or isinstance(expected_revision, bool) or expected_revision < 0:
-            preview.update({"state": "REJECTED", "reason": "DATASET_REVISION_INVALID", "promoted": False})
-            return preview
-        if not isinstance(current_revision, int) or expected_revision != current_revision:
-            preview.update({"state": "REJECTED", "reason": "STALE_DATASET_REVISION", "promoted": False})
-            return preview
+                expected_revision = request.get("expected_revision")
+                current_revision = preview.get("current_revision")
+                if (
+                    not isinstance(expected_revision, int)
+                    or isinstance(expected_revision, bool)
+                    or expected_revision < 0
+                ):
+                    preview.update({"state": "REJECTED", "reason": "DATASET_REVISION_INVALID", "promoted": False})
+                    return preview
+                if not isinstance(current_revision, int) or expected_revision != current_revision:
+                    preview.update({"state": "REJECTED", "reason": "STALE_DATASET_REVISION", "promoted": False})
+                    return preview
 
-        raw_dataset_id = preview.get("dataset_id")
-        dataset_id = raw_dataset_id if isinstance(raw_dataset_id, str) and raw_dataset_id else None
-        if dataset_id is None:
-            request_id = request.get("request_id")
-            dataset_id = (
-                f"DATASET-MERGED-{request_id}" if isinstance(request_id, str) and request_id else "DATASET-MERGED-LOCAL"
+                raw_dataset_id = preview.get("dataset_id")
+                dataset_id = raw_dataset_id if isinstance(raw_dataset_id, str) and raw_dataset_id else lock_dataset_id
+                if self._safe_catalog_id(dataset_id) is None:
+                    preview.update({"state": "REJECTED", "reason": "DATASET_ID_INVALID", "promoted": False})
+                    return preview
+                if request.get("legacy") is True:
+                    preview.update({"state": "REJECTED", "reason": "LEGACY_DATASET_FORBIDDEN", "promoted": False})
+                    return preview
+
+                identity = preview["identity"]
+                assert isinstance(identity, dict)
+                new_revision = expected_revision + 1
+                current_record = self._load_current_dataset(dataset_id)
+                if current_record is not None:
+                    version_path = self.versions_root / f"{dataset_id}.r{expected_revision}.json"
+                    self._assert_path_chain_safe(version_path, self.versions_root)
+                    if version_path.exists():
+                        preview.update({"state": "REJECTED", "reason": "DATASET_VERSION_CONFLICT", "promoted": False})
+                        return preview
+                    self._write_json_atomic(version_path, current_record)
+                request_provenance = preview.get("provenance")
+                assert isinstance(request_provenance, Mapping)
+                output: JsonObject = {
+                    "schema": DATASET_SCHEMA,
+                    "dataset_id": dataset_id,
+                    "identity": identity,
+                    "coverage": preview["merged_coverage"],
+                    "bar_count": preview["merged_bar_count"],
+                    "bars": preview["merged_bars"],
+                    "quality": "USABLE",
+                    "usable": True,
+                    "legacy": False,
+                    "state": "CURRENT",
+                    "promotion_state": "PROMOTED",
+                    "current_revision": new_revision,
+                    "data_version": f"{dataset_id}.v{new_revision}",
+                    "provenance": {
+                        **dict(request_provenance),
+                        "request_id": request.get("request_id"),
+                        "source_job_ids": self._reference_list(request.get("source_job_ids")),
+                        "merge_mode": "REPLACE" if request.get("explicit_replace") is True else "MERGE",
+                    },
+                }
+                self._write_json_atomic(self._dataset_path(dataset_id), output)
+                with self._preview_lock:
+                    self._preview_tokens.pop(provided_token, None)
+                promoted = dict(preview)
+                promoted.update(
+                    {
+                        "state": "PROMOTED",
+                        "reason": "DATASET_PROMOTED",
+                        "dataset_id": dataset_id,
+                        "output": output,
+                        "promoted": True,
+                    }
+                )
+                return promoted
+        except (OSError, ValueError) as error:
+            return self._merge_rejection(
+                "PROMOTION_RECOVERY_REQUIRED" if isinstance(error, OSError) else str(error), request
             )
-        if self._safe_catalog_id(dataset_id) is None:
-            preview.update({"state": "REJECTED", "reason": "DATASET_ID_INVALID", "promoted": False})
-            return preview
-        if request.get("legacy") is True:
-            preview.update({"state": "REJECTED", "reason": "LEGACY_DATASET_FORBIDDEN", "promoted": False})
-            return preview
-
-        identity = preview["identity"]
-        assert isinstance(identity, dict)
-        new_revision = expected_revision + 1
-        current_record = self._load_current_dataset(dataset_id)
-        if current_record is not None:
-            self._write_json_atomic(self.versions_root / f"{dataset_id}.r{expected_revision}.json", current_record)
-        request_provenance = request.get("provenance")
-        assert isinstance(request_provenance, Mapping)
-        output: JsonObject = {
-            "schema": DATASET_SCHEMA,
-            "dataset_id": dataset_id,
-            "identity": identity,
-            "coverage": preview["merged_coverage"],
-            "bar_count": preview["merged_bar_count"],
-            "bars": preview["merged_bars"],
-            "quality": "USABLE",
-            "usable": True,
-            "legacy": False,
-            "state": "CURRENT",
-            "promotion_state": "PROMOTED",
-            "current_revision": new_revision,
-            "data_version": f"{dataset_id}.v{new_revision}",
-            "provenance": {
-                **dict(request_provenance),
-                "request_id": request.get("request_id"),
-                "source_job_ids": self._reference_list(request.get("source_job_ids")),
-                "merge_mode": "REPLACE" if request.get("explicit_replace") is True else "MERGE",
-            },
-        }
-        self._write_json_atomic(self._dataset_path(dataset_id), output)
-        promoted = dict(preview)
-        promoted.update(
-            {
-                "state": "PROMOTED",
-                "reason": "DATASET_PROMOTED",
-                "dataset_id": dataset_id,
-                "output": output,
-                "promoted": True,
-            }
-        )
-        return promoted
 
     def list_available_datasets(self) -> list[JsonObject]:
         """Return the user-facing list of currently usable local datasets."""
@@ -339,6 +380,33 @@ class HistoryCatalog:
     def _require_provenance(value: object) -> None:
         if not isinstance(value, Mapping) or not value:
             raise ValueError("PROVENANCE_REQUIRED")
+
+    @classmethod
+    def _safe_provenance(cls, value: object) -> JsonObject:
+        cls._require_provenance(value)
+        assert isinstance(value, Mapping)
+        if len(value) > 16:
+            raise ValueError("PROVENANCE_INVALID")
+        safe: JsonObject = {}
+        for key, item in value.items():
+            if not isinstance(key, str) or key not in _PROVENANCE_FIELDS:
+                raise ValueError("PROVENANCE_INVALID")
+            if isinstance(item, str):
+                if not item or len(item) > 256:
+                    raise ValueError("PROVENANCE_INVALID")
+                safe[key] = item
+            elif key == "source_job_ids":
+                references = cls._reference_list(item)
+                if any(len(reference) > 128 for reference in references):
+                    raise ValueError("PROVENANCE_INVALID")
+                safe[key] = references
+            elif isinstance(item, int) and not isinstance(item, bool):
+                safe[key] = item
+            else:
+                raise ValueError("PROVENANCE_INVALID")
+        if not safe.get("source_job_id") and not safe.get("source_job_ids"):
+            raise ValueError("PROVENANCE_REQUIRED")
+        return safe
 
     @staticmethod
     def _assert_provenance_identity(provenance: Mapping[str, object], identity: JsonObject) -> None:
@@ -431,7 +499,24 @@ class HistoryCatalog:
 
     @staticmethod
     def _bar_signature(bar: JsonObject) -> str:
-        return json.dumps(bar, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str)
+        signature = {
+            "timestamp": bar.get("timestamp"),
+            "values": {
+                field: HistoryCatalog._canonical_decimal(bar.get(field))
+                for field in ("open", "high", "low", "close", "volume")
+            },
+        }
+        return json.dumps(signature, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str)
+
+    @staticmethod
+    def _canonical_decimal(value: object) -> str:
+        try:
+            decimal_value = Decimal(str(value))
+        except (InvalidOperation, ValueError):
+            return str(value)
+        if not decimal_value.is_finite():
+            return str(value)
+        return format(decimal_value.normalize(), "f")
 
     @staticmethod
     def _coverage(bars: list[JsonObject]) -> JsonObject | None:
@@ -490,9 +575,63 @@ class HistoryCatalog:
         return raw_dataset_id
 
     @staticmethod
-    def _operation_token(dataset_id: str | None, request_id: str, revision: int) -> str:
-        scope = dataset_id if dataset_id is not None else "NEW"
-        return f"PREVIEW-{scope}-{request_id}-R{revision}"
+    def _preview_binding(preview: JsonObject) -> JsonObject:
+        return {
+            key: json.loads(json.dumps(preview.get(key), ensure_ascii=False, default=str))
+            for key in (
+                "dataset_id",
+                "current_revision",
+                "identity",
+                "merged_bars",
+                "conflicts",
+                "affected_runs",
+                "affected_results",
+                "explicit_replace",
+                "provenance",
+            )
+        }
+
+    def _promotion_dataset_id(self, request: Mapping[str, object]) -> str:
+        raw_dataset_id = request.get("dataset_id")
+        if raw_dataset_id is None:
+            request_id = request.get("request_id")
+            raw_dataset_id = f"DATASET-MERGED-{request_id}" if isinstance(request_id, str) and request_id else None
+        safe_dataset_id = self._safe_catalog_id(raw_dataset_id)
+        if safe_dataset_id is None:
+            raise ValueError("DATASET_ID_INVALID")
+        return safe_dataset_id
+
+    @contextmanager
+    def _dataset_operation_lock(self, dataset_id: str) -> Iterator[None]:
+        safe_dataset_id = self._safe_catalog_id(dataset_id)
+        if safe_dataset_id is None:
+            raise ValueError("DATASET_ID_INVALID")
+        lock_path = self.datasets_root / f".{safe_dataset_id}.lock"
+        self._assert_path_chain_safe(lock_path, self.datasets_root)
+        lock_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            with lock_path.open("a+b") as handle:
+                handle.seek(0, os.SEEK_END)
+                if handle.tell() == 0:
+                    handle.write(b"0")
+                    handle.flush()
+                handle.seek(0)
+                if os.name == "nt":
+                    import msvcrt
+
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_LOCK, 1)
+                else:
+                    fcntl: Any = __import__("fcntl")
+
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+                with self._preview_lock:
+                    yield
+                if os.name == "nt":
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        except OSError as error:
+            raise ValueError("DATASET_LOCK_FAILED") from error
 
     @staticmethod
     def _revision(record: JsonObject) -> int:
@@ -539,7 +678,7 @@ class HistoryCatalog:
         try:
             identity = self._identity_payload(record.get("identity"))
             self._assert_provider_boundary(identity)
-            self._require_provenance(record.get("provenance"))
+            self._safe_provenance(record.get("provenance"))
             coverage = record.get("coverage")
             if not isinstance(coverage, Mapping):
                 return False
@@ -568,7 +707,7 @@ class HistoryCatalog:
         return {
             "state": "REJECTED",
             "reason": reason,
-            "identity": request.get("identity"),
+            "identity": HistoryCatalog._safe_identity_for_error(request.get("identity")),
             "promotable": False,
             "promoted": False,
             "dedupe_count": 0,
@@ -578,10 +717,28 @@ class HistoryCatalog:
             "requires_explicit_replace": False,
         }
 
+    @staticmethod
+    def _safe_identity_for_error(value: object) -> JsonObject | None:
+        if not isinstance(value, Mapping):
+            return None
+        return {
+            key: item
+            for key in (*_DATA_IDENTITY_FIELDS, "data_timeframe")
+            if isinstance(item := value.get(key), str) and len(item) <= 128
+        }
+
     @classmethod
     def _is_link_or_reparse(cls, path: Path) -> bool:
-        is_junction = getattr(path, "is_junction", None)
-        return path.is_symlink() or os.path.islink(path) or (callable(is_junction) and bool(is_junction()))
+        try:
+            is_junction = getattr(path, "is_junction", None)
+            if path.is_symlink() or os.path.islink(path) or (callable(is_junction) and bool(is_junction())):
+                return True
+            if not path.exists():
+                return False
+            attributes = getattr(os.lstat(path), "st_file_attributes", 0)
+            return bool(attributes & 0x400)
+        except OSError:
+            return True
 
     @classmethod
     def _ensure_directory_safe(cls, path: Path) -> None:
@@ -633,13 +790,18 @@ class HistoryCatalog:
                 issues.append(self._issue("CATALOG_JSON_INVALID", path.stem, path))
                 continue
             run_id = record.get("run_id")
-            if not isinstance(run_id, str) or not _RUN_ID_PATTERN.fullmatch(run_id) or path.stem != run_id:
+            if not isinstance(run_id, str) or path.stem != run_id:
                 issues.append(self._issue("CATALOG_RUN_ID_INVALID", str(run_id or path.stem), path))
                 continue
-            catalog_ids.add(run_id)
+            try:
+                self._safe_run_id(run_id)
+            except ValueError:
+                issues.append(self._issue("CATALOG_RUN_ID_INVALID", run_id, path))
+                continue
             if record.get("schema") not in {None, CATALOG_SCHEMA}:
                 issues.append(self._issue("CATALOG_SCHEMA_UNSUPPORTED", run_id, path))
                 continue
+            catalog_ids.add(run_id)
             status = str(record.get("status", "UNKNOWN"))
             if status in {"QUEUED", "RUNNING", "CANCELLED"}:
                 restored.append(
@@ -711,7 +873,12 @@ class HistoryCatalog:
             if not self._result_payload_is_usable(result):
                 issues.append(self._issue("RESULT_JSON_INVALID", folder_run_id, result_path))
                 continue
-            if result.get("legacy_import") is not True:
+            if (
+                result.get("legacy_import") is not True
+                or result.get("legacy_import_ticket") != LEGACY_IMPORT_TICKET
+                or not isinstance(result.get("provenance"), dict)
+                or result["provenance"].get("source_mode") != "P5_LOCAL_READ_ONLY"
+            ):
                 restored.append(
                     self._orphan_result_record(
                         result_run_id,

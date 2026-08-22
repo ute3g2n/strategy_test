@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
 from types import ModuleType
+
+import pytest
 
 from autotrade.application import history_catalog, job_service
 
@@ -31,6 +34,14 @@ def _bar(timestamp: str, close: str) -> dict[str, str]:
     }
 
 
+def _source_bars() -> list[dict[str, str]]:
+    start = datetime(2026, 8, 20, tzinfo=UTC)
+    return [
+        _bar((start + timedelta(minutes=index)).isoformat().replace("+00:00", "Z"), f"{100 + index / 100:.2f}")
+        for index in range(61)
+    ]
+
+
 def _job_request() -> dict[str, object]:
     return {
         "source_dataset_id": "fixture-source-1m",
@@ -56,11 +67,8 @@ def _job_request() -> dict[str, object]:
             "legacy": False,
             "state": "CURRENT",
             "promotion_state": "PROMOTED",
-            "bar_count": 2,
-            "bars": [
-                _bar("2026-08-19T00:00:00Z", "100.00"),
-                _bar("2026-08-19T00:01:00Z", "100.10"),
-            ],
+            "bar_count": 61,
+            "bars": _source_bars(),
             "provenance": {"source_job_id": "fixture-job-001", "source_mode": "LOCAL_FAKE"},
         },
     }
@@ -138,28 +146,32 @@ def test_local_generation_job_cancel_restart_and_retry_are_recovery_safe() -> No
         "P5R2-CREQ-HD-001",
     )
 
-    running = {
-        "job_id": "JOB-TIMEFRAME_GENERATION-lifecycle-001",
-        "job_type": "TIMEFRAME_GENERATION",
-        "state": "RUNNING",
-        "input": _job_request(),
-        "output": None,
-        "retry_of": None,
-    }
+    running = job_service.create_timeframe_generation_job(_job_request())
+    assert isinstance(running, dict)
+    running["state"] = "RUNNING"
+    running["output"] = None
+    running["retry_of"] = None
     cancelled = cancel(running)
     assert _field(cancelled, "state") == "CANCELLED"
     assert _field(cancelled, "promoted") is False
     assert _field(cancelled, "reason") == "JOB_CANCELLED"
 
-    recovery = restart(running)
+    recovery_source = job_service.create_timeframe_generation_job(
+        {**_job_request(), "request_id": "p5r2-restart-request-001"}
+    )
+    assert isinstance(recovery_source, dict)
+    recovery_source["state"] = "RUNNING"
+    recovery_source["output"] = None
+    recovery_source["retry_of"] = None
+    recovery = restart(recovery_source)
     assert _field(recovery, "state") == "RECOVERY_REQUIRED"
     assert _field(recovery, "orphan") is True
     assert _field(recovery, "promoted") is False
 
     retried = retry(recovery)
-    assert _field(retried, "state") == "PROMOTED"
-    assert _field(retried, "retry_of") == running["job_id"]
-    assert _field(retried, "job_id") != running["job_id"]
+    assert _field(retried, "state") == "STAGED"
+    assert _field(retried, "retry_of") == recovery_source["job_id"]
+    assert _field(retried, "job_id") != recovery_source["job_id"]
     assert _field(retried, "orphan") is False
 
     download_retry = retry(
@@ -171,6 +183,25 @@ def test_local_generation_job_cancel_restart_and_retry_are_recovery_safe() -> No
     )
     assert _field(download_retry, "state") == "REJECTED"
     assert _field(download_retry, "reason") == "JOB_TYPE_MISMATCH"
+
+
+def test_job_lifecycle_rejects_unregistered_caller_snapshot() -> None:
+    retry = _require_module_contract(
+        job_service,
+        "retry_timeframe_generation_job",
+        "P5R2-CREQ-HD-001",
+    )
+    result = retry(
+        {
+            "job_id": "JOB-TIMEFRAME_GENERATION-unregistered-001",
+            "job_type": "TIMEFRAME_GENERATION",
+            "state": "RECOVERY_REQUIRED",
+            "operation_token": "not-server-owned",
+            "input": _job_request(),
+        }
+    )
+    assert _field(result, "state") == "REJECTED"
+    assert _field(result, "reason") == "JOB_NOT_FOUND"
 
 
 def test_catalog_merge_preview_requires_identity_dedupe_conflict_replace_and_impact_review(tmp_path) -> None:
@@ -314,11 +345,25 @@ def test_generation_requires_verified_local_source_and_does_not_mark_job_output_
     assert _field(missing_source, "reason") == "SOURCE_DATASET_UNAVAILABLE"
 
     valid = generation(_job_request())
-    assert _field(valid, "state") == "PROMOTED"
+    assert _field(valid, "state") == "STAGED"
     output = _field(valid, "output")
     assert isinstance(output, dict)
     assert output["usable"] is False
     assert all(dataset["usable"] is False for dataset in output["data_sets"])
+
+
+def test_generation_rejects_source_whose_bars_do_not_cover_requested_range() -> None:
+    generation = _require_module_contract(
+        job_service,
+        "create_timeframe_generation_job",
+        "P5R2-CREQ-HD-001",
+    )
+    source_dataset = dict(_job_request()["source_dataset"])
+    source_dataset["bars"] = _source_bars()[:2]
+    source_dataset["bar_count"] = 2
+    result = generation({**_job_request(), "source_dataset": source_dataset})
+    assert _field(result, "state") == "REJECTED"
+    assert _field(result, "reason") == "SOURCE_DATASET_COVERAGE_INSUFFICIENT"
 
 
 def test_catalog_rejects_external_provider_legacy_and_invalid_dataset_inputs(tmp_path) -> None:
@@ -406,6 +451,48 @@ def test_catalog_requires_current_revision_and_confirmation_and_preserves_previo
     stale_preview = catalog.preview_merge(stale)
     assert stale_preview["current_revision"] == 2
     assert stale_preview["state"] == "PREVIEW_READY"
+
+
+def test_catalog_preview_token_is_bound_to_reviewed_content_and_consumed_once(tmp_path) -> None:
+    catalog = history_catalog.HistoryCatalog(tmp_path)
+    request = {
+        "identity": {
+            "provider": "LOCAL_FAKE",
+            "market": "SPOT",
+            "symbol": "BTCUSDT",
+            "source_timeframe": "1m",
+            "schema": "ohlcv-v1",
+        },
+        "existing_bars": [],
+        "incoming_bars": [_bar("2026-08-20T00:00:00Z", "100.00")],
+        "dataset_id": "dataset-token-001",
+        "expected_revision": 0,
+        "impact_confirmed": True,
+        "provenance": {"source_job_id": "token-job-001", "source_mode": "LOCAL_FAKE"},
+        "request_id": "token-request-001",
+    }
+    request["preview_token"] = catalog.preview_merge(request)["operation_token"]
+    tampered = {**request, "incoming_bars": [_bar("2026-08-20T00:00:00Z", "999.00")]}
+    rejected = catalog.promote_merge(tampered)
+    assert rejected["state"] == "REJECTED"
+    assert rejected["reason"] == "PREVIEW_TOKEN_MISMATCH"
+
+    promoted = catalog.promote_merge(request)
+    assert promoted["state"] == "PROMOTED"
+    replay = catalog.promote_merge(request)
+    assert replay["state"] == "REJECTED"
+
+
+def test_catalog_result_publication_is_write_once_for_different_payload(tmp_path) -> None:
+    catalog = history_catalog.HistoryCatalog(tmp_path)
+    payload = {"run_id": "RUN-P5R2-WRITE-001", "metrics": {}, "rows": [], "provenance": {}}
+    catalog.write_result(payload["run_id"], payload)
+    catalog.write_result(payload["run_id"], dict(payload))
+    with pytest.raises(ValueError, match="RESULT_ALREADY_PUBLISHED"):
+        catalog.write_result(
+            payload["run_id"],
+            {"run_id": payload["run_id"], "metrics": {"changed": True}, "rows": [], "provenance": {}},
+        )
 
 
 def test_catalog_available_list_excludes_legacy_and_invalid_state(tmp_path) -> None:

@@ -106,6 +106,7 @@ def _write_legacy_result(runtime_root: Path, run_id: str = "RUN-AUTOTRADE-LEGACY
             {
                 "run_id": run_id,
                 "legacy_import": True,
+                "legacy_import_ticket": "P5R-LEGACY-MIGRATION-V1",
                 "metrics": {
                     "total_pnl": "0.0000",
                     "maximum_drawdown": "0.0000",
