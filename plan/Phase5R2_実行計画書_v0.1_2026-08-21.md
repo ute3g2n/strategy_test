@@ -176,9 +176,9 @@ HREQ前に閉じるUnknownと、後続Gateで実行直前に決める事項を�
 |---|---|---|
 | `P5R2-ART-01` | `doc/phase5R2/01_要件追跡/01_P5R2現状差分・根因・要求追跡.html` | P5R2-01で作成・統合レビュー完了。source／derived／strategy／displayの分離、Data管理未接続、Run操作欠落、初期trace、Unknownを記録し、P5R2-02へ引き渡した。 |
 | `P5R2-ART-02` | `doc/phase5R2/01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html` | Round 1の10回答、Q-TF-06=A、Q-R2-01〜08のRound 2質問packet、A90 High指摘、A95判定、変更影響。Q-TF-05の矛盾、補間・任意symbol・Provider範囲・Run cancel/delete・Manualの詳細は未確定。 |
-| `P5R2-ART-03` | `doc/phase5R2/01_要件追跡/03_P5R2要件・AC・UI・API・Test追跡マトリクス.html` | RequirementからTest／Manualまでの追跡 |
-| `P5R2-ART-04` | `doc/phase5R2/01_要件追跡/04_01_バックテスト手順書改訂要件.html` | 手順書の章・機能ID・操作ID・画像・失敗／復旧の改訂仕様 |
-| `P5R2-REQ-V4-CANDIDATE` | `plan/phase5R2/requirements/drafts/01_自動トレードシステム要件定義書_v4_candidate.html` | HREQ前の候補。現在正本とは表示しない |
+| `P5R2-ART-03` | `doc/phase5R2/02_要件候補/03_P5R2候補Requirement・Acceptance・追跡表.html` | RequirementからTest／Manualまでの追跡 |
+| `P5R2-ART-04` | `doc/phase5R2/02_要件候補/04_バックテスト手順書改訂要件.html` | 手順書の章・機能ID・操作ID・画像・失敗／復旧の改訂仕様 |
+| `P5R2-REQ-V4-CANDIDATE` | `plan/phase5R2/requirements/drafts/01_自動トレードシステム要件定義書_v4_candidate.md` | HREQ前の候補。現在正本とは表示しない |
 | `AT-REQ-004` | `doc/requirements/01_自動トレードシステム要件定義書_v4.html` | HREQ後の正式要件正本。v3は履歴保持 |
 | `P5R2-PLAN-002` | `plan/Phase5R2_実行計画書_v0.2_<HREQ承認日>.md` | 確定要件から再編した最終Stepまでの全Prompt |
 
@@ -817,4 +817,4 @@ P5R2-03の人向け追加質問は全件回答済みで、P5R2-03を完了とす
 
 P5R2-04は、`plan/phase5R2/requirements/drafts/01_自動トレードシステム要件定義書_v4_candidate.md`、`P5R2-ART-03`、`P5R2-ART-04`を作成して完了した。v3とP5R旧完了は上書きせず、candidateは`CANDIDATE / NOT_CURRENT / P5R2-HREQ_UNAPPROVED`を維持する。Manual本体、ソース、Test subprocess、Playwright、外部Data、Secret、費用、実削除は変更・実行していない。
 
-指定runtimeの`multi_agent_v1__spawn_agent`／`multi_agent_v1__wait_agent`は利用できず、CoordinatorとA10/A80/A81/A90/A95は未起動である。`RUNTIME_DISPATCH_FALLBACK_REQUIRED / LOCAL_FALLBACK_NO_SUBAGENTS`、`independent=false`、`review_mode=SELF_REVIEW_FALLBACK`をreceiptへ記録し、独立レビュー済みとは扱わない。次は`P5R2-05_READY`であり、実runtimeを再試行してFindings firstレビューを受領する。レビューを受領できなければHREQ packet完成へ進まず`REVIEW_RUNTIME_BLOCKED`で停止する。
+Coordinator `AutoTradeProject_DesignDocSet_Orchestrator_v0_1`は`multi_agent_v1`で起動・完了したが、Coordinator配下の指定Agent dispatchは成立しなかったため、A10/A80/A81/A90/A95を直接read-only fallbackとして個別起動・waitした。direct fallbackは補助証跡であり、P5R2-05の正式独立レビュー完了とは扱わない。`COORDINATOR_STARTED / NESTED_DISPATCH_FAILED / DIRECT_READ_ONLY_FALLBACK`、`independent=false`、`review_mode=ADVISORY_FALLBACK`をreceiptへ記録した。次は`P5R2-05_READY`であり、Formal Findings firstレビューを実施する。正式runtimeが成立しなければHREQ packet完成へ進まず`REVIEW_RUNTIME_BLOCKED`で停止する。

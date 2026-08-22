@@ -40,9 +40,11 @@ P5R2 は P5R と P6 の間に置く。P6、Broker、Paper、Live、実注文、�
 
 ### 3.2 Historical Data Download Job と DataSet Catalog
 
+外部の1m Historical Dataを取得する `HistoricalDownloadJob` と、取得済み1m sourceから15m／30m／1h／4h／1dをローカル生成する `TimeframeGenerationJob` は、同じJob基盤を再利用する場合でも `job_type`、ID、状態、入力、出力を分けて管理する。前者はProvider境界と`P5R2-DATA-G1`、後者はlocal生成・品質検査・銘柄／期間引継ぎの境界に属する。どちらのJobも、完了しただけではDataSetを使用可能へ昇格させない。
+
 | ID | Shall | 受入候補 |
 |---|---|---|
-| `P5R2-REQ-HD-001` | UIは、Binance Data Visionを候補ProviderとするHistorical Data取得要求を作成できなければならない。ただし実host、利用条件、symbol、期間、通信、Secret、費用、実downloadは `P5R2-DATA-G1` 承認後だけに許可する。 | Gate前には実通信が起きず、取得要求の候補UI/API/監査要件だけが存在する。 |
+| `P5R2-REQ-HD-001` | UIは、Binance Data Visionを候補Providerとする`HistoricalDownloadJob`の取得要求を作成できなければならない。ただし実host、利用条件、symbol、期間、通信、Secret、費用、実downloadは `P5R2-DATA-G1` 承認後だけに許可する。Binanceは候補Providerであり、HREQ承認や公式文書のread-only閲覧だけで採用・契約・通信許可が確定したとは扱わない。 | Gate前には実通信が起きず、取得要求の候補UI/API/監査要件だけが存在する。 |
 | `P5R2-REQ-HD-002` | Download Job と DataSet を別ID・別状態で管理しなければならない。`PARTIAL / FAILED / CANCELLED` Jobをusable DataSetへ自動昇格してはならない。 | Job状態とDataSet usable状態が別表示で、失敗JobからRunを開始できない。 |
 | `P5R2-REQ-HD-003` | UIは銘柄別に生成済みの時間足・期間・品質・usable状態・legacy属性を一覧表示し、銘柄、複数の生成対象時間足、期間を選べなければならない。既定期間は現在生成可能な全期間とする。 | 一覧と生成画面で選択値、既定期間、状態、期間カバレッジを確認できる。 |
 | `P5R2-REQ-HD-004` | 同一論理Dataは Provider、market、symbol、Data時間足、正規化スキーマが全て同じ場合だけとする。Provider・marketが異なるData、1m sourceとderived Dataを自動混在・自動マージしてはならない。 | identity属性が全て保存・比較され、異なるidentityのマージを拒否する。 |
@@ -67,6 +69,21 @@ P5R2 は P5R と P6 の間に置く。P6、Broker、Paper、Live、実注文、�
 | `P5R2-REQ-DOC-001` | `doc/phase5R/07_運用手順/01_バックテスト手順書.html` はP5R2-H2の前に、実装済みかつ検証済みの操作だけを反映して改訂しなければならない。時間足、Data取得・一覧、Download取消・再試行、Run取消、結果非表示・再表示、失敗・復旧、用語、画像、Evidence、改訂履歴を対象にする。 | Manual改訂要件表の各項目にTest・画像・Evidence・実装状態が追跡され、未実装を操作可能と書かない。 |
 | `P5R2-REQ-GATE-001` | HREQ、H1、DATA-G1、DELETE-G1、H2の承認対象を分離し、未承認操作を実行可能にしてはならない。 | Gateごとの対象、再開条件、証拠先、停止範囲が統合台帳にある。 |
 
+### 3.5 H0で確認した4領域・8件のatomic candidate crosswalk
+
+H0で確認した8件は、人が承認する製品要求の単位として次のIDに固定する。右欄の詳細Requirementは、8件を実装・Acceptanceへ分解する下位追跡であり、推奨案や正式v4ではない。P5R2-HREQは、この8件とその下位追跡の整合を対象にする。
+
+| 領域 | atomic candidate ID | 追跡する詳細Requirement | 現在状態 |
+|---|---|---|---|
+| 時間足 | `P5R2-CREQ-TF-001` | `P5R2-REQ-TF-001`、`P5R2-REQ-TF-003`、`P5R2-REQ-TF-004` | USER_CONFIRMED / CANDIDATE_PENDING_HREQ |
+| 時間足 | `P5R2-CREQ-TF-002` | `P5R2-REQ-TF-002`、`P5R2-REQ-TF-005`、`P5R2-REQ-TF-006` | USER_CONFIRMED / CANDIDATE_PENDING_HREQ |
+| 時間足 | `P5R2-CREQ-TF-003` | `P5R2-REQ-TF-003`、legacy・UTC・期間境界 | USER_CONFIRMED / CANDIDATE_PENDING_HREQ |
+| Historical Data | `P5R2-CREQ-HD-001` | `P5R2-REQ-HD-001`、`P5R2-REQ-HD-002`、`HistoricalDownloadJob`、`TimeframeGenerationJob` | USER_CONFIRMED / CANDIDATE_PENDING_HREQ |
+| Historical Data | `P5R2-CREQ-HD-002` | `P5R2-REQ-HD-003`〜`P5R2-REQ-HD-007` | USER_CONFIRMED / CANDIDATE_PENDING_HREQ |
+| Backtest Run操作 | `P5R2-CREQ-RUN-001` | `P5R2-REQ-RUN-001`、`P5R2-REQ-RUN-002` | USER_CONFIRMED / CANDIDATE_PENDING_HREQ |
+| Backtest Run操作 | `P5R2-CREQ-RUN-002` | `P5R2-REQ-RUN-003`、`P5R2-REQ-RUN-004` | USER_CONFIRMED / CANDIDATE_PENDING_HREQ |
+| 手順書 | `P5R2-CREQ-DOC-001` | `P5R2-REQ-DOC-001`、`P5R2-REQ-AUDIT-001`、`P5R2-REQ-GATE-001` | USER_CONFIRMED / CANDIDATE_PENDING_HREQ |
+
 ## 4. 状態・操作の候補表
 
 | 対象 | 状態 | 取消 | 結果非表示 | 実削除 |
@@ -87,16 +104,17 @@ P5R2 は P5R と P6 の間に置く。P6、Broker、Paper、Live、実注文、�
 | `P5R2-H1` | 未承認 | API、永続化、UI、RED、実装、Test実行は不可。 |
 | `P5R2-DATA-G1` | 未承認 | host、利用条件、symbol、期間、通信、Secret、費用、実downloadは不可。 |
 | `P5R2-DELETE-G1` | 未承認 | 実Data・実Run・保存結果の物理削除、Trash、purge、復元運用は不可。 |
+| `P5R2-UNK-TF-006` | `OPEN / LATER_GATE` | 「現在生成可能な全期間」の算出規則（元1mの最初・最後の有効UTC、欠損区間、UTC境界、`USABLE_WITH_WARNING`の包含、legacy包含）をH1の詳細設計で確定する。確定前はデフォルト期間を実装済み仕様と扱わない。 |
 | `P5R2-UNK-HD-004` | `NEEDS_HUMAN_GATE` | Provider配布物の保護対象hashの目的・停止範囲が不明。管理用hashは導入しない。 |
 | `P5R2-H2` | 未承認 | 完了判定とP6開始は不可。 |
 
 ## 6. 公式一次情報のread-only記録
 
 - 確認日: 2026-08-22
-- [Binance Academy: How to Retrieve Binance Spot Market Data Efficiently](https://academy.binance.com/ka-GE/articles/how-to-retrieve-binance-spot-market-data-efficiently): Public Dataを `data.binance.vision` として案内し、Spot marketのhistorical dataとKline取得例を示す。
-- [Binance Developer Docs: General REST API Information](https://developers.binance.com/en/docs/products/spot/rest-api): public market data向けendpointの案内と時系列の返却順を示す。
+- [Binance Developer Docs: General REST API Information](https://developers.binance.com/en/docs/products/spot/rest-api): 公開market data向けのendpoint、時刻・時系列の返却順、公開Data用base endpointの説明をread-onlyで確認した。
+- [Binance Academy: How to Retrieve Binance Spot Market Data Efficiently](https://academy.binance.com/ka-GE/articles/how-to-retrieve-binance-spot-market-data-efficiently): 確認時点ではBinance本体へredirectされたため、候補Requirementの根拠には採用しない。URLとredirect事実だけを調査履歴として残す。
 
-この調査は公開文書の閲覧だけであり、ログイン、契約、API call、Data downloadを含まない。利用条件、実host、費用、実通信の承認ではない。
+この調査は公開文書の閲覧だけであり、ログイン、契約、API call、Data downloadを含まない。Provider採用、利用条件、実host、費用、実通信の承認ではなく、Binanceは候補Providerのまま`P5R2-DATA-G1`で確定する。
 
 ## 7. P5R2-04 出口
 
