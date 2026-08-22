@@ -1,0 +1,22 @@
+{
+  "schema_version": "P5R2-A95-static-policy-v1",
+  "step_id": "P5R2-16",
+  "run_id": "RUN-P5R2-16-LOCAL-001",
+  "mode": "STATIC_FALLBACK",
+  "runtime_agent_dispatched": false,
+  "decision": "ALLOW",
+  "scope": [
+    "P5R2-16 source changes",
+    "P5R2-16 plan and runtime receipts",
+    "P5R2-16 evidence and persistence design status"
+  ],
+  "findings": [],
+  "policy_result": {
+    "new_management_hash": false,
+    "new_manifest_for_management": false,
+    "fingerprint_or_stale_gate_added": false,
+    "hash_retry_or_hash_receipt_added": false,
+    "existing_protected_fixture_identity": "read-only reference only"
+  },
+  "truthfulness_note": "A95 was not independently runtime-dispatched in this step. This static fallback is not represented as an A95 agent execution."
+}

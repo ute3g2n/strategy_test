@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-002`
 > Version: `v0.2`
 > 作成日: `2026-08-22`
-> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_GREEN_CONFIRMED / P5R2-14_GREEN_CONFIRMED / P5R2-15_GREEN_CONFIRMED / P5R2-16_READY / P5R2-DATA-G1_UNAPPROVED / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
+> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_GREEN_CONFIRMED / P5R2-14_GREEN_CONFIRMED / P5R2-15_GREEN_CONFIRMED / P5R2-16_GREEN_CONFIRMED / P5R2-17_READY / P5R2-DATA-G1_UNAPPROVED / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
 > 旧計画: [`Phase5R2_実行計画書_v0.1_2026-08-21.md`](./Phase5R2_実行計画書_v0.1_2026-08-21.md)（要件確定前の履歴。上書きしない）
 
 ## 1. この計画の結論
@@ -503,6 +503,15 @@ RDC-P5R2-0.2とquality fixed Run contractを適用する。失敗原因ごとの
 
 未解消Critical／High、network isolation不足、実Data削除検出、Gate逸脱があればP5R2-LOCAL_INTEGRATION_BLOCKEDで停止する。
 ```
+
+実績（P5R2-16、2026-08-23）:
+- `P5R2-16_GREEN_CONFIRMED`。Job registry、staging／promotion、Catalog current pointer、Run固定DataSet、merge／replace、restart、migration、promotion途中停止、OperationGuard復元、CSV／path安全を統合確認した。
+- 固定WSL入口 `RUN-P5R2-16-LOCAL-001` はformatter／lint／type／testの4 GateすべてPASS（108 tests）。host outbound isolationは`CONFIRMED`、`networking_mode=none`、wrapper exit 0である。Windowsの同一固定対象も108 tests PASSした。
+- read-onlyレビューで検出されたHigh相当論点を修正し、Critical／High=0とした。指定roster全員の独立dispatchは成立していないため、runtime receiptには実際のagent、未起動、A95 static fallbackを分離して記録した。
+- 外部Provider、login、契約、API call、Data download、Secret、費用、実Data／Run／Audit／Evidence／CSV削除、Playwright、P6開始、新規管理hashは行っていない。
+- 証拠: [`P5R2-16 GREEN`](../tests/evidence/phase5R2/RUN-P5R2-16-LOCAL-001/P5R2-16_local-integration/P5R2-16_GREEN.json)、[`verification`](../tests/evidence/phase5R2/RUN-P5R2-16-LOCAL-001/verification.json)、[`host isolation`](../tests/evidence/phase5R2/RUN-P5R2-16-LOCAL-001/host-isolation.json)、[`runtime receipt`](./phase5R2/quality/runtime-receipt-P5R2-16.md)。
+
+P5R2-16は完了し、P5R2-17 DATA-G1 packet作成へ移行可能とする。DATA-G1／DELETE-G1／H2は未承認のまま保持する。
 
 ### P5R2-17 — DATA-G1承認packetを作成する
 

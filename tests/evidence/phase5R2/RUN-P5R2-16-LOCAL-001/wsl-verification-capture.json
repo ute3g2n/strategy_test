@@ -1,0 +1,117 @@
+﻿{
+    "execution_id":  "72bc6bcb0db448b381f57765d5f1757d",
+    "source_repository_path":  "/home/oue/strategy_test",
+    "source_kind":  "wsl_verification",
+    "verification_raw":  "{\n  \"state\": \"PASS\",\n  \"reason\": \"ユーザーが明示的に承認しました\",\n  \"gates\": [\n    {\n      \"gate\": \"formatter\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"format\",\n        \"--check\",\n        \"src/autotrade/application\",\n        \"tests/application\",\n        \"tests/market_data\",\n        \"tests/backtest\",\n        \"tests/phase5R\",\n        \"scripts/quality_gate\",\n        \"scripts/wsl_quality_gate\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 264\n    },\n    {\n      \"gate\": \"lint\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"ruff\",\n        \"check\",\n        \"src/autotrade/application\",\n        \"tests/application\",\n        \"tests/market_data\",\n        \"tests/backtest\",\n        \"tests/phase5R\",\n        \"scripts/quality_gate\",\n        \"scripts/wsl_quality_gate\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 214\n    },\n    {\n      \"gate\": \"type\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"mypy\",\n        \"src/autotrade/application\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 314\n    },\n    {\n      \"gate\": \"test\",\n      \"status\": \"PASS\",\n      \"command\": [\n        \".venv/bin/python\",\n        \"-m\",\n        \"scripts.quality_gate.local_p5r2_p16_pytest\"\n      ],\n      \"exit_code\": 0,\n      \"duration_ms\": 17355\n    }\n  ],\n  \"generated_at\": \"2026-08-22T20:20:08.565211+00:00\",\n  \"exit_code\": 0,\n  \"tool_versions\": {\n    \"python\": \"Python 3.12.13\",\n    \"ruff\": \"ruff 0.16.1\",\n    \"mypy\": \"mypy 2.3.0 (compiled: yes)\",\n    \"pytest\": \"pytest 9.1.1\",\n    \"pytest_cov\": \"7.1.0\"\n  },\n  \"scope\": \"target_only\",\n  \"input_sha256\": \"sha256:9fbd974f57c82392318fcdf57ee3fd2fe07c0ae37fc51b38dbc1db99d4cc858d\",\n  \"post_input_sha256\": \"sha256:9fbd974f57c82392318fcdf57ee3fd2fe07c0ae37fc51b38dbc1db99d4cc858d\",\n  \"host_wrapper_execution_id\": \"72bc6bcb0db448b381f57765d5f1757d\",\n  \"restore_pending\": true,\n  \"dbn_decoder_probe\": null,\n  \"execution_user\": \"oue\",\n  \"execution_uid\": 1000\n}\n",
+    "retrieval_exit_code":  0,
+    "captured_at":  "2026-08-22T20:20:09.0053867Z",
+    "state":  "CAPTURED",
+    "verification":  {
+                         "state":  "PASS",
+                         "reason":  "ユーザーが明示的に承認しました",
+                         "gates":  [
+                                       {
+                                           "gate":  "formatter",
+                                           "status":  "PASS",
+                                           "command":  [
+                                                           ".venv/bin/python",
+                                                           "-m",
+                                                           "ruff",
+                                                           "format",
+                                                           "--check",
+                                                           "src/autotrade/application",
+                                                           "tests/application",
+                                                           "tests/market_data",
+                                                           "tests/backtest",
+                                                           "tests/phase5R",
+                                                           "scripts/quality_gate",
+                                                           "scripts/wsl_quality_gate"
+                                                       ],
+                                           "exit_code":  0,
+                                           "duration_ms":  264
+                                       },
+                                       {
+                                           "gate":  "lint",
+                                           "status":  "PASS",
+                                           "command":  [
+                                                           ".venv/bin/python",
+                                                           "-m",
+                                                           "ruff",
+                                                           "check",
+                                                           "src/autotrade/application",
+                                                           "tests/application",
+                                                           "tests/market_data",
+                                                           "tests/backtest",
+                                                           "tests/phase5R",
+                                                           "scripts/quality_gate",
+                                                           "scripts/wsl_quality_gate"
+                                                       ],
+                                           "exit_code":  0,
+                                           "duration_ms":  214
+                                       },
+                                       {
+                                           "gate":  "type",
+                                           "status":  "PASS",
+                                           "command":  [
+                                                           ".venv/bin/python",
+                                                           "-m",
+                                                           "mypy",
+                                                           "src/autotrade/application"
+                                                       ],
+                                           "exit_code":  0,
+                                           "duration_ms":  314
+                                       },
+                                       {
+                                           "gate":  "test",
+                                           "status":  "PASS",
+                                           "command":  [
+                                                           ".venv/bin/python",
+                                                           "-m",
+                                                           "scripts.quality_gate.local_p5r2_p16_pytest"
+                                                       ],
+                                           "exit_code":  0,
+                                           "duration_ms":  17355
+                                       }
+                                   ],
+                         "generated_at":  "2026-08-22T20:20:08.565211+00:00",
+                         "exit_code":  0,
+                         "tool_versions":  {
+                                               "python":  "Python 3.12.13",
+                                               "ruff":  "ruff 0.16.1",
+                                               "mypy":  "mypy 2.3.0 (compiled: yes)",
+                                               "pytest":  "pytest 9.1.1",
+                                               "pytest_cov":  "7.1.0"
+                                           },
+                         "scope":  "target_only",
+                         "input_sha256":  "sha256:9fbd974f57c82392318fcdf57ee3fd2fe07c0ae37fc51b38dbc1db99d4cc858d",
+                         "post_input_sha256":  "sha256:9fbd974f57c82392318fcdf57ee3fd2fe07c0ae37fc51b38dbc1db99d4cc858d",
+                         "host_wrapper_execution_id":  "72bc6bcb0db448b381f57765d5f1757d",
+                         "restore_pending":  true,
+                         "dbn_decoder_probe":  null,
+                         "execution_user":  "oue",
+                         "execution_uid":  1000
+                     },
+    "source_path":  "/home/oue/strategy_test/tests/evidence/phase5R2/RUN-P5R2-16-LOCAL-001/verification.json",
+    "host_isolation":  {
+                           "state":  "CONFIRMED",
+                           "wsl_version":  "WSL ・・繝ｻ・ｸ0繝ｻ繝ｻ: 2.6.3.0",
+                           "kernel":  "6.6.87.2-microsoft-standard-WSL2",
+                           "distro":  "Ubuntu-24.04",
+                           "networking_mode":  "none",
+                           "host_wrapper_execution_id":  "72bc6bcb0db448b381f57765d5f1757d",
+                           "ip_addr_summary":  "1: lo: \u003cLOOPBACK,UP,LOWER_UP\u003e mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\n    inet 127.0.0.1/8 scope host lo\n       valid_lft forever preferred_lft forever\n    inet6 ::1/128 scope host \n       valid_lft forever preferred_lft forever",
+                           "ip_route_summary":  "",
+                           "confirmed_at":  "2026-08-22T20:19:50Z",
+                           "scope":  [
+                                         "src/autotrade/application",
+                                         "tests/application",
+                                         "tests/market_data",
+                                         "tests/backtest",
+                                         "tests/phase5R",
+                                         "scripts/quality_gate",
+                                         "scripts/wsl_quality_gate"
+                                     ],
+                           "input_sha256":  "sha256:9fbd974f57c82392318fcdf57ee3fd2fe07c0ae37fc51b38dbc1db99d4cc858d",
+                           "input_kind":  "fixture"
+                       }
+}

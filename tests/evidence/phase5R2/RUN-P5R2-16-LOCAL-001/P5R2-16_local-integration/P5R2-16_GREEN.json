@@ -1,0 +1,60 @@
+{
+  "schema_version": "P5R2-16-green-evidence-v1",
+  "phase_id": "phase5R2",
+  "step_id": "P5R2-16",
+  "run_id": "RUN-P5R2-16-LOCAL-001",
+  "state": "GREEN_CONFIRMED",
+  "confirmed_on": "2026-08-23",
+  "integrated_contracts": {
+    "timeframe_and_legacy_boundary": "PASS",
+    "job_catalog_promotion_and_merge": "PASS",
+    "run_dataset_reference_and_result_protection": "PASS",
+    "restart_persistence_and_recovery": "PASS",
+    "migration_preserves_legacy_history": "PASS",
+    "path_and_reparse_safety": "PASS"
+  },
+  "local_verification": {
+    "fixed_quality_gate": {
+      "state": "PASS",
+      "entrypoint": "scripts/wsl_quality_gate/run_test.ps1",
+      "verification": "tests/evidence/phase5R2/RUN-P5R2-16-LOCAL-001/verification.json",
+      "automation_summary": "tests/evidence/phase5R2/RUN-P5R2-16-LOCAL-001/automation/run-test-summary.json",
+      "host_isolation": "tests/evidence/phase5R2/RUN-P5R2-16-LOCAL-001/host-isolation.json",
+      "networking_mode": "none",
+      "gates": ["formatter", "lint", "type", "test"],
+      "test_result": "108 passed",
+      "protected_fixture": "existing trusted-scope identity was read-only referenced; no new management hash flow was created"
+    },
+    "targeted_windows_regression": "108 passed"
+  },
+  "review": {
+    "critical": 0,
+    "high": 0,
+    "actual_read_only_review_agents": [
+      "01a02af7-bd7c-72c1-b15e-d3835c883e93",
+      "01a02af7-e28e-7f91-9607-e54d3fc1f964",
+      "01a02af7-d10b-7900-9b45-52891533f549"
+    ],
+    "a95": "tests/evidence/phase5R2/RUN-P5R2-16-LOCAL-001/P5R2-16_local-integration/P5R2-16_A95_policy.json",
+    "decision": "APPROVED_AFTER_FIXED_GATE"
+  },
+  "prohibited_operations": {
+    "external_network": false,
+    "provider_login_or_download": false,
+    "secret_read_or_storage": false,
+    "cost": false,
+    "physical_delete": false,
+    "playwright": false,
+    "p6_start": false,
+    "new_management_hash_flow": false
+  },
+  "deferred_scope": [
+    "P5R2-DATA-G1 external Provider acceptance",
+    "P5R2-18 external acceptance",
+    "P5R2-19 real Application UI and browser validation",
+    "P5R2-DELETE-G1 physical Result Artifact deletion",
+    "P5R2-H2 and P5R2-25"
+  ],
+  "decision": "P5R2-16_GREEN_CONFIRMED",
+  "next_step": "P5R2-17"
+}
