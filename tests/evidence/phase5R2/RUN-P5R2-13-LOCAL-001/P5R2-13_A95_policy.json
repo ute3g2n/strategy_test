@@ -1,0 +1,32 @@
+{
+  "schema_version": "P5R2-A95-policy-v1",
+  "step_id": "P5R2-13",
+  "decision": "ALLOW_NO_NEW_MANAGEMENT_HASH_FLOW",
+  "checked_paths": [
+    "src/autotrade/application/preflight.py",
+    "src/autotrade/application/api.py",
+    "src/autotrade/application/contracts.py",
+    "src/autotrade/application/run_service.py",
+    "src/autotrade/application/sweep_service.py",
+    "tests/backtest/test_p5r2_timeframe_red_contract.py",
+    "tests/application/test_nonhash_management_boundaries.py"
+  ],
+  "direct_results": {
+    "preflight.py": "ALLOW",
+    "api.py": "ALLOW_WITH_EXISTING_PROTECTED_DATA_IDENTITY_CANDIDATE",
+    "contracts.py": "BASELINE_BLOCKED_MANAGEMENT_LEXICAL_CANDIDATES_ONLY",
+    "run_service.py": "BASELINE_BLOCKED_MANAGEMENT_LEXICAL_CANDIDATE_ONLY",
+    "sweep_service.py": "BASELINE_NEEDS_HUMAN_GATE_HASH_WORDING_ONLY",
+    "timeframe_test": "ALLOW",
+    "nonhash_boundary_test": "BASELINE_BLOCKED_MANAGEMENT_LEXICAL_CANDIDATES_ONLY"
+  },
+  "policy": {
+    "management_hash_created": false,
+    "manifest_fingerprint_created": false,
+    "stale_check_created": false,
+    "hash_retry_created": false,
+    "receipt_hash_created": false,
+    "protected_fixture_identity": "existing trusted-scope identity referenced read-only; no new checksum or identity created"
+  },
+  "required_action": "Continue with path, schema, link, state, Secret, external-I/O, and Human Gate boundary checks. Do not remove baseline fields by assumption."
+}

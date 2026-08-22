@@ -1,0 +1,6 @@
+﻿{
+    "output":  "{\"state\": \"PASS\", \"reason\": \"繝ｦ繝ｼ繧ｶ繝ｼ縺梧・遉ｺ逧・↓謇ｿ隱阪＠縺ｾ縺励◆\", \"gates\": [{\"gate\": \"formatter\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"ruff\", \"format\", \"--check\", \"src/autotrade/application\", \"tests/application\", \"tests/backtest\", \"scripts/quality_gate\", \"scripts/wsl_quality_gate\"], \"exit_code\": 0, \"duration_ms\": 264}, {\"gate\": \"lint\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"ruff\", \"check\", \"src/autotrade/application\", \"tests/application\", \"tests/backtest\", \"scripts/quality_gate\", \"scripts/wsl_quality_gate\"], \"exit_code\": 0, \"duration_ms\": 214}, {\"gate\": \"type\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"mypy\", \"src/autotrade/application\"], \"exit_code\": 0, \"duration_ms\": 465}, {\"gate\": \"test\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"scripts.quality_gate.local_p5r2_p13_pytest\"], \"exit_code\": 0, \"duration_ms\": 816}], \"generated_at\": \"2026-08-22T15:30:21.439152+00:00\"}",
+    "exit_code":  0,
+    "execution_id":  "bc58f63950d34bb3ba7b1a831197e0a7",
+    "state":  "RUNNER_COMPLETED"
+}

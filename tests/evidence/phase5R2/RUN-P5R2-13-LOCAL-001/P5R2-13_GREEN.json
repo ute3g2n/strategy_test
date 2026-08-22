@@ -1,0 +1,98 @@
+{
+  "schema_version": "P5R2-13-green-evidence-v1",
+  "phase_id": "phase5R2",
+  "step_id": "P5R2-13",
+  "run_id": "RUN-P5R2-13-LOCAL-001",
+  "state": "GREEN_CONFIRMED",
+  "requirements": {
+    "P5R2-CREQ-TF-001": {
+      "status": "PASS",
+      "evidence": "tests/backtest/test_p5r2_timeframe_red_contract.py",
+      "scope": "15m/30m/1h/4h/1d are the only canonical strategy inputs; 1m is source-only; M30 and H1/H4/D1 aliases are rejected for new canonical Runs; M15 remains legacy P4 compatibility."
+    },
+    "P5R2-CREQ-TF-002": {
+      "status": "PASS",
+      "evidence": "tests/backtest/test_p5r2_timeframe_red_contract.py",
+      "scope": "UTC anchor, bar cadence, closed-bar validation, requested/effective range, start/end coverage, unresolved default, and explicit partial-bar warning are enforced."
+    },
+    "P5R2-CREQ-TF-003": {
+      "status": "PASS",
+      "evidence": "tests/backtest/test_p5r2_timeframe_red_contract.py",
+      "scope": "Future values, reversed/duplicate bars, invalid OHLCV, unknown provenance, dataset mismatch, invalid gap position/count, future prior-close spoof, and incomplete warning coverage are rejected. A single repaired internal gap requires prior-bar provenance and full coverage."
+    }
+  },
+  "local_verification": {
+    "targeted_pytest": "49 passed",
+    "existing_application_backtest_regression": "174 passed, 43 deselected",
+    "formatter": "PASS",
+    "lint": "PASS",
+    "type": "PASS",
+    "fixed_isolated_quality_gate": {
+      "state": "PASS",
+      "verification": "tests/evidence/phase5R2/RUN-P5R2-13-LOCAL-001/verification.json",
+      "automation_summary": "tests/evidence/phase5R2/RUN-P5R2-13-LOCAL-001/automation/run-test-summary.json",
+      "host_wrapper_execution_id": "bc58f63950d34bb3ba7b1a831197e0a7",
+      "network_isolation": "CONFIRMED",
+      "fixture": "existing protected fixture referenced read-only; input and post-input identity matched",
+      "gates": ["formatter", "lint", "type", "test"]
+    }
+  },
+  "reviews": {
+    "final_python_review": {
+      "agent_id": "01a02a09-750f-7f30-8811-dde551feb67a",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "max",
+      "service_tier": "priority",
+      "critical": 0,
+      "high": 0,
+      "status": "PASS"
+    },
+    "final_security_review": {
+      "agent_id": "01a02a14-eede-7701-b001-930082d67884",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "max",
+      "service_tier": "priority",
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "status": "PASS",
+      "catalog_trust_boundary": "deferred to P5R2-14; no P5R2-13 Run/Sweep bypass observed"
+    },
+    "review_history": [
+      "An earlier post-fix review found Sweep config-preflight and alias/data-identity issues; they were corrected before the final gate.",
+      "A later security review found warning-path terminal coverage; it was corrected before this GREEN evidence."
+    ]
+  },
+  "runtime_dispatch": {
+    "backend": "multi_agent_v1",
+    "requested_project_coordinator_and_agents": "NOT_INDEPENDENTLY_DISPATCHED",
+    "coordinator_agent_id": "N/A",
+    "specified_agents_independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK_PLUS_ACTUAL_READ_ONLY_PROBES",
+    "truthfulness_note": "The actual probe IDs above are not represented as the requested project Agent roster. No unstarted Coordinator/Agent was claimed as independently executed."
+  },
+  "a95_policy": {
+    "evidence": "tests/evidence/phase5R2/RUN-P5R2-13-LOCAL-001/P5R2-13_A95_policy.json",
+    "decision": "ALLOW_NO_NEW_MANAGEMENT_HASH_FLOW",
+    "new_management_hash_flow": false,
+    "protected_fixture": "read-only direct identity reference",
+    "baseline_candidates": "Existing contracts/run/test lexical candidates remain classified as baseline BLOCKED/NEEDS_HUMAN_GATE; they are not introduced or used by P5R2-13."
+  },
+  "prohibited_operations": {
+    "external_network": false,
+    "provider_login_or_download": false,
+    "secret_read_or_storage": false,
+    "cost": false,
+    "physical_delete": false,
+    "playwright": false,
+    "npm": false,
+    "p6_start": false
+  },
+  "historical_runner_recovery": [
+    "Initial attempt stopped before tests because the new Evidence root was not initialized.",
+    "Second attempt stopped before tests because the fixed quality runner did not yet allow the P5R2-13 test template.",
+    "The runner was corrected and the final isolated execution passed."
+  ],
+  "decision": "P5R2-13_GREEN_CONFIRMED",
+  "next_step": "P5R2-14_IN_PROGRESS"
+}

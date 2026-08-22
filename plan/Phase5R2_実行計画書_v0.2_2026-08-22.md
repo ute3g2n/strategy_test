@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-002`
 > Version: `v0.2`
 > 作成日: `2026-08-22`
-> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_IN_PROGRESS / P5R2-DATA-G1_UNAPPROVED / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
+> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_GREEN_CONFIRMED / P5R2-14_IN_PROGRESS / P5R2-DATA-G1_UNAPPROVED / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
 > 旧計画: [`Phase5R2_実行計画書_v0.1_2026-08-21.md`](./Phase5R2_実行計画書_v0.1_2026-08-21.md)（要件確定前の履歴。上書きしない）
 
 ## 1. この計画の結論
@@ -383,10 +383,11 @@ Acceptance:
 - RED結果が期待どおり失敗し、未実装をPass扱いしない。
 - 外部I/O、Secret、既存実Data／Run／Evidence削除がない。
 
-実績（2026-08-22）:
+実績（2026-08-22〜2026-08-23）:
 - `RED_CONFIRMED`。固定WSL入口でformatter／lint／typeはPASS、testは期待REDとしてFAILした。
 - `tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/P5R2-12_RED.json` に8件のfailure condition、対応test、runtime／禁止操作境界を記録した。
-- P5R2-13の開始条件を満たした。P5R2-13へ進み、GREEN実装を開始する。
+- P5R2-13を完了し、時間足正規化、Preflight、Run／Sweepのstrict boundary、1m source／derived identity、gap／coverage／provenance検査をGREEN確認した。固定WSL品質Gateはformatter／lint／type／testの4項目すべてPASS（49 tests）。Critical／Highなし、A95は新規管理hashフローなしとしてALLOW判定した。実Provider、外部Data、Secret、費用、実削除、Playwrightは実施していない。
+- P5R2-14の開始条件を満たした。local fake provider／既存fixtureだけでHistorical Data Job・Catalog・時間足生成を実装し、DATA-G1未承認境界を維持する。
 ```
 
 ### P5R2-13 — 時間足・Preflight・legacy境界を実装する
@@ -415,6 +416,12 @@ RDC-P5R2-0.2とImplementationQualityのfixed Run contractを適用する。A110�
 - RED→GREENの対象Test、format／lint／type、固定Quality Gate、A150／A160レビュー、A95判定をEvidenceへ保存。
 - Critical／High、network、Secret、対象外path、未承認Gateがあれば停止。
 ```
+
+P5R2-13実行結果（2026-08-23）:
+- `GREEN_CONFIRMED`。固定4 Gateはformatter／lint／type／testすべてPASS。最終testは49件PASS、既存application／backtest回帰は174件PASS・43件deselected。
+- 固定WSL入口 `RUN-P5R2-13-LOCAL-001` はhost outbound isolation確認を含めてPASS。対象はlocal-onlyであり、DATA-G1／DELETE-G1／H2／P6の承認状態は変更していない。
+- 実装はP5R2-13の時間足・Preflight契約に限定した。Requested Project Coordinator／Agentsの独立runtime dispatchは成立していないため、runtime receiptでは`NOT_DISPATCHED`／`independent=false`／`SELF_REVIEW_FALLBACK`として記録し、実行済みと偽っていない。別途実施した最終レビューprobeは証跡上分離した。
+- 証拠: [`P5R2-13 GREEN`](../tests/evidence/phase5R2/RUN-P5R2-13-LOCAL-001/P5R2-13_GREEN.json)、[`verification`](../tests/evidence/phase5R2/RUN-P5R2-13-LOCAL-001/verification.json)、[`A95 policy`](../tests/evidence/phase5R2/RUN-P5R2-13-LOCAL-001/P5R2-13_A95_policy.json)、[`runtime receipt`](./phase5R2/quality/runtime-receipt-P5R2-13.md)。
 
 ### P5R2-14 — Historical Data Job・Catalog・local generationを実装する
 
