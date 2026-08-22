@@ -1,0 +1,26 @@
+{
+  "step_id": "P5R2-08",
+  "runtime_backend": "unavailable",
+  "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+  "reason": "multi_agent_v1__spawn_agent と multi_agent_v1__wait_agent がこの実行環境に提供されていない。",
+  "orchestrator": {
+    "name": "AutoTradePhasePlanning_Orchestrator_v0_1",
+    "json_path": ".codex/orchestrators/AutoTradePhasePlanning_Orchestrator_v0_1.json",
+    "model": "gpt-5.6-terra",
+    "orchestrator_agent_id": "N/A",
+    "accepted_status": "NOT_DISPATCHED",
+    "completion_status": "NOT_DISPATCHED"
+  },
+  "agents": [
+    {"agent_name":"AutoTrade_A05_PhaseExecutionPlanner_v0_1","agent_json_path":".codex/agents/AutoTrade_A05_PhaseExecutionPlanner_v0_1.json","agent_model":"gpt-5.6-luna","agent_id":"N/A","accepted_status":"NOT_DISPATCHED","completion_status":"NOT_DISPATCHED","independent":false,"review_mode":"SELF_REVIEW_FALLBACK"},
+    {"agent_name":"AutoTrade_A10_RequirementsCurator_v0_1","agent_json_path":".codex/agents/AutoTrade_A10_RequirementsCurator_v0_1.json","agent_model":"gpt-5.6-luna","agent_id":"N/A","accepted_status":"NOT_DISPATCHED","completion_status":"NOT_DISPATCHED","independent":false,"review_mode":"SELF_REVIEW_FALLBACK"},
+    {"agent_name":"AutoTrade_A80_DocumentIntegrator_v0_1","agent_json_path":".codex/agents/AutoTrade_A80_DocumentIntegrator_v0_1.json","agent_model":"gpt-5.6-luna","reasoning_effort":"low","agent_id":"N/A","accepted_status":"NOT_DISPATCHED","completion_status":"NOT_DISPATCHED","independent":false,"review_mode":"SELF_REVIEW_FALLBACK"},
+    {"agent_name":"AutoTrade_A90_DesignReviewer_v0_1","agent_json_path":".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json","agent_model":"gpt-5.6-luna","agent_id":"N/A","accepted_status":"NOT_DISPATCHED","completion_status":"NOT_DISPATCHED","independent":false,"review_mode":"SELF_REVIEW_FALLBACK"},
+    {"agent_name":"AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1","agent_json_path":".codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json","agent_model":"gpt-5.6-luna","reasoning_effort":"low","agent_id":"N/A","accepted_status":"NOT_DISPATCHED","completion_status":"NOT_DISPATCHED","independent":false,"review_mode":"SELF_REVIEW_FALLBACK"}
+  ],
+  "skills": ["autotrade_skill_source_reader_v0_1","autotrade_skill_traceability_v0_1","autotrade_skill_orchestration_v0_1","autotrade_skill_protected_hash_policy_guard_v0_1"],
+  "protected_hash_policy": "管理用hashは計算・保存・比較・retryしない。安全・データ・再現性に直結する既存の保護対象だけを、目的と失敗時の停止範囲が明記される場合に別Human Gateで扱う。",
+  "output_reference": ["plan/phase5R2/requirements/P5R2-08_requirement-coverage.md","plan/phase5R2/requirements/P5R2-08_component-reuse.md","plan/phase5R2/ログ/P5R2-08_入力・部品再利用判定_2026-08-22.md"],
+  "independent": false,
+  "review_mode": "SELF_REVIEW_FALLBACK"
+}
