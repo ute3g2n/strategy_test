@@ -135,6 +135,100 @@ def create_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
     }
 
 
+def cancel_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
+    """Cancel only an active local generation job without promoting data."""
+
+    if not isinstance(value, Mapping):
+        return _rejected_job(_TIMEFRAME_GENERATION, "JOB_REQUEST_INVALID", {})
+    state = value.get("state")
+    if state not in {"QUEUED", "RUNNING", "CANCEL_REQUESTED"}:
+        return {
+            **_job_projection(value),
+            "state": state if isinstance(state, str) else "REJECTED",
+            "reason": "JOB_NOT_CANCELLABLE",
+            "accepted": False,
+            "promoted": value.get("promoted") is True,
+        }
+    return {
+        **_job_projection(value),
+        "state": "CANCELLED",
+        "reason": "JOB_CANCELLED",
+        "accepted": True,
+        "promoted": False,
+        "orphan": False,
+        "output": {"staging_state": "CANCELLED", "promoted": False, "usable": False},
+    }
+
+
+def restart_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
+    """Convert an interrupted active job into an explicit recovery state."""
+
+    if not isinstance(value, Mapping):
+        return _rejected_job(_TIMEFRAME_GENERATION, "JOB_REQUEST_INVALID", {})
+    state = value.get("state")
+    if state not in {"QUEUED", "RUNNING", "CANCEL_REQUESTED"}:
+        return {
+            **_job_projection(value),
+            "state": state if isinstance(state, str) else "REJECTED",
+            "reason": "RESTART_NOT_REQUIRED",
+            "accepted": False,
+            "promoted": value.get("promoted") is True,
+        }
+    return {
+        **_job_projection(value),
+        "state": "RECOVERY_REQUIRED",
+        "reason": "RESTART_RECOVERY_REQUIRED",
+        "accepted": True,
+        "promoted": False,
+        "orphan": True,
+        "output": {"staging_state": "ORPHAN_STAGING", "promoted": False, "usable": False},
+    }
+
+
+def retry_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
+    """Retry only failed/cancelled/recovery jobs and retain the parent job ID."""
+
+    if not isinstance(value, Mapping):
+        return _rejected_job(_TIMEFRAME_GENERATION, "JOB_REQUEST_INVALID", {})
+    if value.get("state") not in {"FAILED", "CANCELLED", "RECOVERY_REQUIRED"}:
+        return {
+            **_job_projection(value),
+            "state": "REJECTED",
+            "reason": "JOB_RETRY_NOT_ALLOWED",
+            "accepted": False,
+            "promoted": False,
+        }
+    raw_input = value.get("input")
+    job_id = value.get("job_id")
+    if not isinstance(raw_input, Mapping) or not isinstance(job_id, str) or not _valid_identifier(job_id):
+        return {
+            **_job_projection(value),
+            "state": "REJECTED",
+            "reason": "RETRY_REFERENCE_INVALID",
+            "accepted": False,
+            "promoted": False,
+        }
+    request = dict(raw_input)
+    request["job_type"] = _TIMEFRAME_GENERATION
+    request["retry_of"] = job_id
+    request["failure_injection"] = None
+    retried = create_timeframe_generation_job(request)
+    retried["accepted"] = retried.get("state") == "PROMOTED"
+    return retried
+
+
+def _job_projection(value: Mapping[str, object]) -> JsonObject:
+    return {
+        "job_id": value.get("job_id"),
+        "job_type": value.get("job_type", _TIMEFRAME_GENERATION),
+        "input": value.get("input"),
+        "output": value.get("output"),
+        "retry_of": value.get("retry_of"),
+        "orphan": value.get("orphan") is True,
+        "external_io_performed": False,
+    }
+
+
 def _normalise_generation_request(value: Mapping[str, object]) -> tuple[JsonObject | None, str | None]:
     source_dataset_id = _safe_text(value.get("source_dataset_id"))
     symbol = _safe_text(value.get("symbol"))
