@@ -3,15 +3,41 @@
   "step_id": "P5R2-12",
   "run_id": "RUN-P5R2-11-LOCAL-001",
   "phase_id": "phase5R2",
-  "state": "QUALITY_GATE_BLOCKED",
-  "result_kind": "ENVIRONMENT_BLOCKED",
-  "red_test_status": "NOT_CREATED_BLOCKED",
+  "state": "RED_CONFIRMED",
+  "result_kind": "EXPECTED_RED",
+  "red_test_status": "RED_EXPECTED_FAILURE",
   "green_implementation": "NOT_STARTED",
   "test_subprocess": {
-    "started": false,
-    "pytest_started": false,
-    "fixed_quality_entry_started": false,
-      "reason": "固定Quality入口とnamespaceは確認できたが、host outbound isolation、scope実行許可、Unknown解消を確認できないためtest subprocessを起動していない。"
+    "started": true,
+    "pytest_started": true,
+    "fixed_quality_entry_started": true,
+    "fixed_quality_entry": "scripts.quality_gate.local_p5r2_pytest",
+    "fixed_quality_entry_path": "scripts/quality_gate/local_p5r2_pytest.py",
+    "official_isolated_execution": {
+      "run_id": "RUN-P5R2-11-LOCAL-001",
+      "host_wrapper_execution_id": "ea3807ceb9f24f659ef577246ca1c2e5",
+      "host_isolation": "CONFIRMED",
+      "verification_state": "FAILED",
+      "wrapper_exit_code": 1,
+      "test_gate_status": "FAIL_EXPECTED_RED",
+      "test_gate_exit_code": 2,
+      "evidence": "tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/verification.json"
+    },
+    "fixed_four_gates": {
+      "formatter": "PASS",
+      "lint": "PASS",
+      "type": "PASS",
+      "test": "FAIL_EXPECTED_RED"
+    },
+    "supporting_native_diagnostic": {
+      "scope": "same P5R2 application/backtest/market_data/phase5R directories",
+      "passed": 306,
+      "failed": 29,
+      "exit_code": 1,
+      "status": "READ_ONLY_DIAGNOSTIC_NOT_OFFICIAL_ISOLATED_RESULT",
+      "meaning": "8件のP5R2契約テストが未実装APIを明示して失敗し、skip/xfailは使用していない。"
+    },
+    "reason": "固定4 Gateの前段3件はPASSし、test Gateで未実装のP5R2契約が期待どおりFAILした。GREEN実装へ変換していない。"
   },
   "read_only_preflight": {
     "h1_packet": {
@@ -21,18 +47,18 @@
       "approval_scope": "local only"
     },
     "trusted_scope": {
-      "status": "PASS_FOR_REGISTRATION",
+      "status": "EXECUTION_ENABLED_AFTER_PREFLIGHT",
       "path": "scripts/quality_gate/trusted_scopes.json",
       "run_id": "RUN-P5R2-11-LOCAL-001",
       "phase_id": "phase5R2",
       "step_id": "P5R2-11",
       "scope_mode": "target_only",
-      "registration_status": "REGISTERED_SCOPE_ONLY_EVIDENCE_NOT_GENERATED",
-      "execution_allowed": false,
+      "registration_status": "EXECUTION_ENABLED_HOST_ISOLATION_AND_FIXTURE_CONFIRMED",
+      "execution_allowed": true,
       "evidence_root": "tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/"
     },
     "run_manifest": {
-      "status": "PASS_FOR_REGISTRATION_CONTRACT",
+      "status": "EXECUTED_FIXED_ENTRY",
       "path": "plan/phase5R2/quality/P5R2-11_run-manifest.json",
       "manifest_step_id": "P5R2-11",
       "scope_mode": "target_only",
@@ -46,87 +72,98 @@
       "name": "P5-09 local BTCUSDT 1m February fixture slice",
       "version": "P5-09-local-quality-pass-readonly",
       "protected_identity_ref": "scopes.RUN-P5R-03-20260816-001.fixture",
-      "path_exists": true,
-      "path_matches_existing_trusted_record": true,
-      "protected_identity_matches_existing_trusted_record": true,
       "access": "READ_ONLY_REFERENCE",
-      "protected_checksum_recalculated": false,
+      "protected_identity_recalculated": false,
       "new_checksum_created": false,
       "new_identity_created": false
     },
     "evidence_root": {
-      "status": "CONTRACT_MATCH_INITIAL_STATE_MISSING",
+      "status": "EXISTS_AND_POPULATED",
       "path": "tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/",
-      "initial_state": "MISSING",
-      "created_only_for_blocked_evidence": true
+      "contract": "MATCHED"
     },
     "fixed_quality_entry": {
-      "status": "PASS_FOR_REGISTERED_TEMPLATE",
-      "expected_path": "scripts/quality_gate/local_p5r_pytest.py",
-      "path_exists": true,
-      "scope_registered_test_command": ".venv/Scripts/python.exe -m scripts.quality_gate.local_p5r_pytest",
-      "reason": "既存P5R固定入口がscopeの固定test commandとして登録され、runner allowlistにも含まれる。P5R2用に別moduleを新設する必要はない。"
+      "status": "EXECUTED",
+      "path": "scripts/quality_gate/local_p5r2_pytest.py",
+      "scope_registered_test_command": ".venv/bin/python -m scripts.quality_gate.local_p5r2_pytest",
+      "target": "tests/application tests/backtest tests/market_data tests/phase5R"
     },
     "p5r2_namespace": {
-      "wrapper_phase_pattern": "PASS_LEXICAL_AND_TEMPLATE",
-      "fixed_dispatch": "PASS_FOR_REGISTERED_TEMPLATE",
-      "reason": "run_test.ps1、run_isolated_p2.ps1、shell runnerがphase5R2を受理し、固定manifest/runnerが既存local_p5r_pytest入口へdispatchする契約である。"
+      "status": "EXECUTED",
+      "wrapper_phase_pattern": "PASS",
+      "fixed_dispatch": "PASS"
     },
     "host_outbound_isolation": {
-      "status": "BLOCKED",
+      "status": "CONFIRMED",
       "contract": "CONFIRMED_REQUIRED_BEFORE_TEST_SUBPROCESS",
-      "current_state": "NOT_VERIFIED",
-      "probe_started": false
+      "current_state": "networkingMode=none; default route absent; outward NIC absent",
+      "evidence": "tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/host-isolation.json"
     }
   },
   "atomic_requirement_failure_conditions": [
     {
       "requirement": "P5R2-CREQ-TF-001",
       "failure_condition": "1mを利用者選択肢に出す、またはlegacy M30/1m入力を受け付ける",
-      "test_created": false,
-      "status": "NOT_CREATED_BLOCKED"
+      "test_file": "tests/backtest/test_p5r2_timeframe_red_contract.py",
+      "test_created": true,
+      "failure_observed": true,
+      "status": "RED_CONFIRMED"
     },
     {
       "requirement": "P5R2-CREQ-TF-002",
       "failure_condition": "UTC boundary、effective end、closed barを誤る、または全期間未確定を通す",
-      "test_created": false,
-      "status": "NOT_CREATED_BLOCKED"
+      "test_file": "tests/backtest/test_p5r2_timeframe_red_contract.py",
+      "test_created": true,
+      "failure_observed": true,
+      "status": "RED_CONFIRMED"
     },
     {
       "requirement": "P5R2-CREQ-TF-003",
       "failure_condition": "端点欠損、2本以上欠損、未来値、時系列逆転、provenanceなしの補間をusableにする",
-      "test_created": false,
-      "status": "NOT_CREATED_BLOCKED"
+      "test_file": "tests/backtest/test_p5r2_timeframe_red_contract.py",
+      "test_created": true,
+      "failure_observed": true,
+      "status": "RED_CONFIRMED"
     },
     {
       "requirement": "P5R2-CREQ-HD-001",
       "failure_condition": "DownloadJobとGenerationJobを混同する、staging中またはpartialをatomic promotionする",
-      "test_created": false,
-      "status": "NOT_CREATED_BLOCKED"
+      "test_file": "tests/market_data/test_p5r2_historical_data_red_contract.py",
+      "test_created": true,
+      "failure_observed": true,
+      "status": "RED_CONFIRMED"
     },
     {
       "requirement": "P5R2-CREQ-HD-002",
       "failure_condition": "identity違いを自動mergeする、conflictを隠す、明示replaceなしで影響Run/resultを変更する",
-      "test_created": false,
-      "status": "NOT_CREATED_BLOCKED"
+      "test_file": "tests/market_data/test_p5r2_historical_data_red_contract.py",
+      "test_created": true,
+      "failure_observed": true,
+      "status": "RED_CONFIRMED"
     },
     {
       "requirement": "P5R2-CREQ-RUN-001",
       "failure_condition": "QUEUED/RUNNINGのcancel、terminal不変、二重押下、再送、別tab、OperationGuardを破る",
-      "test_created": false,
-      "status": "NOT_CREATED_BLOCKED"
+      "test_file": "tests/application/test_p5r2_run_operation_red_contract.py",
+      "test_created": true,
+      "failure_observed": true,
+      "status": "RED_CONFIRMED"
     },
     {
       "requirement": "P5R2-CREQ-RUN-002",
       "failure_condition": "active Run、CSV、許可root外、path traversal、symlink、reparse、別IDを削除対象として通す",
-      "test_created": false,
-      "status": "NOT_CREATED_BLOCKED"
+      "test_file": "tests/phase5R/test_p5r2_result_artifact_red_contract.py",
+      "test_created": true,
+      "failure_observed": true,
+      "status": "RED_CONFIRMED"
     },
     {
       "requirement": "P5R2-CREQ-DOC-001",
       "failure_condition": "操作者・理由・target・旧/新state・依存数・request/correlation ID・失敗理由またはManual registryを欠落させ、restart/partial/migration failureを隠す",
-      "test_created": false,
-      "status": "NOT_CREATED_BLOCKED"
+      "test_file": "tests/application/test_p5r2_doc_evidence_red_contract.py",
+      "test_created": true,
+      "failure_observed": true,
+      "status": "RED_CONFIRMED"
     }
   ],
   "runtime": {
@@ -135,12 +172,18 @@
     "specified_agents_independent": false,
     "review_mode": "SELF_REVIEW_FALLBACK"
   },
+  "local_quality_hygiene_corrections": {
+    "performed": true,
+    "purpose": "固定4 Gateのformatter/lint/typeを実行可能にするため、既存P5R対象コード・テストの整形、lint、型注釈だけを補正した。",
+    "p5r2_contract_behavior_implemented": false,
+    "commits": ["c58e22b", "5714eff", "1e6edaa"]
+  },
   "debug_recovery": {
-    "hypothesis": "固定入口欠落とhost outbound isolation未確認という環境契約不成立",
-    "classification": "ENVIRONMENT",
+    "hypothesis": "P5R2契約未実装のためREDテストが失敗する",
+    "classification": "EXPECTED_RED",
     "attempts": 0,
     "same_hypothesis_retries": 0,
-    "recovery_action": "停止。固定entry、namespace dispatch、host isolation Evidenceを別Stepで整備してから再開する。"
+    "recovery_action": "GREEN実装へ進めず、P5R2-13でtimeframe/preflightの最小実装へ引き渡す。"
   },
   "prohibited_operations": {
     "external_network": false,
@@ -148,13 +191,14 @@
     "provider_login_or_download": false,
     "existing_data_run_audit_evidence_csv_delete": false,
     "playwright_or_npm": false,
-    "production_source_change": false,
+    "production_source_change_during_red": false,
     "green_implementation": false,
     "management_hash_flow_created": false
   },
-  "unknowns_preserved": [
+  "unknowns_resolved_by_preflight": [
     "P5R2-UNK-QG-001",
     "P5R2-UNK-QG-002"
   ],
-  "decision": "QUALITY_GATE_BLOCKED"
+  "unknowns_preserved": [],
+  "decision": "RED_CONFIRMED"
 }

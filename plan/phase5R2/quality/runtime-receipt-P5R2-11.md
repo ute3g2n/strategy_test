@@ -53,3 +53,9 @@ root checklistの判定は、`ALLOW_NO_NEW_MANAGEMENT_HASH_FLOW`。これはA95 
 既存protected identityは参照だけに留め、管理用hash、manifest hash、fingerprint、stale、
 receipt hashの経路は追加していない。P5R2-12で接続確認に失敗した場合は`QUALITY_GATE_BLOCKED`
 で停止する。
+
+## 後続P5R2-12の確定状態（2026-08-22）
+
+P5R2-11自体はscope登録Stepのため固定4 Gateを実行していない。このRun IDを用いた後続P5R2-12では、preflight確認後に固定入口を実行し、formatter／lint／typeはPASS、testは未実装契約の期待REDとしてFAILした。P5R2-12の判定は`RED_CONFIRMED`であり、P5R2-13へ移行した。
+
+証拠: [P5R2-12 RED](../../../tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/P5R2-12_RED.json) / [固定4 Gate](../../../tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/verification.json)

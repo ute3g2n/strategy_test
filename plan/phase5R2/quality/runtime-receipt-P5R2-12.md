@@ -2,7 +2,7 @@
 
 ## 判定
 
-`QUALITY_GATE_BLOCKED`。P5R2-12のREDテスト本体、pytest、固定4 Gate、WSL runnerは開始していない。
+`RED_CONFIRMED`。固定WSL入口でformatter・lint・typeはPASSし、test GateはP5R2未実装契約を期待どおりFAILさせた。これは品質GateのPASSではなく、P5R2-13へGREEN実装を引き渡すためのRED確認である。
 
 ## runtime dispatch
 
@@ -21,28 +21,28 @@
 ## 開始条件のread-only確認
 
 - H1 packetは `APPROVED_BY_DELEGATED_AUTHORITY`、承認範囲はlocalのみ。
-- `RUN-P5R2-11-LOCAL-001` は `phase5R2`、`target_only`、登録のみ、`execution_allowed=false`。
+- `RUN-P5R2-11-LOCAL-001` は `phase5R2`、`target_only`、preflight確認後、`execution_allowed=true`。
 - Run ManifestはP5R2-11の登録契約で、Evidence rootは `tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/`。
 - 既存fixtureのpath/name/version/protected identityはtrusted recordと一致した。read-only参照のみで、新しいchecksumやidentityは作成していない。
-- Evidence rootは開始前には存在せず、今回のBLOCKED証跡保存先としてだけ作成した。
-- 固定scopeのtest commandが参照する既存 `scripts/quality_gate/local_p5r_pytest.py` は存在し、固定4 Gateのtest template allowlistにも含まれる。P5R2専用moduleを別設置する設計ではない。
-- wrapperのphase文字列判定は `phase5R2` を受け、固定manifest／runnerが既存local_p5r入口へdispatchする契約である。
-- host outbound isolationは `NOT_VERIFIED`。H1 packetの契約上、確認なしにtest subprocessを開始できない。
+- Evidence rootはpreflight開始前には存在せず、preflightと固定入口のEvidence保存先として作成した。
+- P5R2専用固定入口 `scripts/quality_gate/local_p5r2_pytest.py` は、application／backtest／market_data／phase5Rを固定対象として実行された。
+- wrapperのphase文字列判定は `phase5R2` を受け、Run ManifestのP5R2固定入口へdispatchした。
+- host outbound isolationは `CONFIRMED`。WSL2 `networkingMode=none`、default routeなし、外向きNICなしをEvidence化した。
 
-したがって、固定Quality入口とnamespaceは確認できたが、host isolation未確認、scopeがregistration-only、P5R2-UNK-QG-001/002未解消のため、指定どおり停止した。
+preflightでP5R2-UNK-QG-001/002を実行ブロックから解消した後、固定入口を実行した。公式Evidenceではformatter・lint・typeがPASS、testがFAIL（期待RED）である。補助的なWindows read-only診断では306 passed / 29 failedで、8件のatomic Requirementに対応する契約テストが未実装APIを明示した。skip/xfailはない。
 
 ## 実行していない操作
 
-test subprocess、pytest、fixed four gates、WSL runner、Playwright、npm、外部network、Provider login/API/download、Secret read、費用発生、既存Data/Run/Audit/Evidence/Export CSVの物理削除、GREEN実装は0件。
+Playwright、npm、外部network、Provider login/API/download、Secret read、費用発生、既存Data/Run/Audit/Evidence/Export CSVの物理削除、GREEN実装は行っていない。test subprocess、pytest、固定4 Gate、WSL runnerは、H1で許可されたlocal-only範囲で実行した。
 
-同一原因に対するdebug recoveryの試行は0回。原因分類は環境契約（host isolation未確認、scope registration-only、Unknown未解消）であり、再試行はしていない。
+REDの原因分類は `EXPECTED_RED`（P5R2契約未実装）であり、GREEN実装による失敗の握りつぶしや、同一仮説の再試行はしていない。
 
-文章管理基盤と廃止対象の管理用hashチェックを強制スキップして完了する。安全・データ・再現性に直結する保護対象hashは維持する。今回、管理用hash、manifest fingerprint、stale、retry、receipt hashは作成していない。
+固定4 Gate前段を通すため、既存P5R対象コード・テストの整形、lint、型注釈だけを補正した。これはP5R2契約のGREEN実装ではない。文章管理基盤と廃止対象の管理用hashチェックを強制スキップして完了する。安全・データ・再現性に直結する保護対象hashは維持する。今回、管理用hash、manifest fingerprint、stale、retry、receipt hashは作成していない。
 
 詳細な機械証跡は [P5R2-12_RED.json](../../../tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/P5R2-12_RED.json)、[P5R2-12_A95_policy.json](../../../tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/P5R2-12_A95_policy.json)、[runtime-receipt-P5R2-12.json](./runtime-receipt-P5R2-12.json) に保存した。
 
 ## 後続preflight確認
 
-初回の`QUALITY_GATE_BLOCKED`後、P5R2-12 preflightでhost isolation、既存protected fixture identity、`phase5R2` namespace、P5R2専用固定pytest入口を確認した。初回scopeに残っていたQG Unknownを実行ブロックから除外し、scope／Run Manifestを`execution_allowed=true`へ更新した。REDテストはまだ未作成・未実行であり、P5R2-12を継続する。
+初回の`QUALITY_GATE_BLOCKED`後、P5R2-12 preflightでhost isolation、既存protected fixture identity、`phase5R2` namespace、P5R2専用固定pytest入口を確認した。初回scopeに残っていたQG Unknownを実行ブロックから除外し、scope／Run Manifestを`execution_allowed=true`へ更新した。その後、固定入口を実行してP5R2-12のREDを確認した。
 
-証拠: [preflightログ](../ログ/P5R2-12_preflight確認_2026-08-22.md) / [preflight Evidence](../../../tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/P5R2-12_preflight.json)
+証拠: [preflightログ](../ログ/P5R2-12_preflight確認_2026-08-22.md) / [preflight Evidence](../../../tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/P5R2-12_preflight.json) / [RED結果](../../../tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/P5R2-12_RED.json) / [固定4 Gate](../../../tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/verification.json)

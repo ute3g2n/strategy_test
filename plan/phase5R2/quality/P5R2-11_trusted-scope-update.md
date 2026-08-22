@@ -38,3 +38,9 @@ P5R2-12でhost outbound isolation、既存protected identityとの接続、Evide
 P5R2-12の固定入口preflightで、WSL2 `networkingMode=none`、default routeなし、外向きNICなしをEvidence化した。既存protected fixtureのpath/name/versionと記録済みprotected checksumも一致した。`phase5R2` namespaceとP5R2専用固定pytest入口（application／backtest／market_data／phase5R）を確認した。
 
 この確認を根拠に、P5R2-UNK-QG-001/002をtrusted scope／Run Manifestの実行ブロックUnknownから除外し、`execution_allowed=true`、`registration_status=EXECUTION_ENABLED_HOST_ISOLATION_AND_FIXTURE_CONFIRMED`へ更新した。P5R2-12のREDテスト、固定4 GateのPass、P5R2完了、DATA-G1、DELETE-G1、H2、P6開始を意味しない。
+
+## P5R2-12 RED実行後の現在状態（2026-08-22）
+
+後続P5R2-12で同じRun IDの固定入口を実行した。formatter／lint／typeはPASS、testは8件のatomic Requirementに対応する未実装契約を検出して期待REDとなった。これはQuality Gate全体のPASSではなく、P5R2-13でGREEN実装へ進むためのRED確認である。DATA-G1、DELETE-G1、H2、P6開始条件は変わらない。
+
+Evidence: `tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/P5R2-12_RED.json`

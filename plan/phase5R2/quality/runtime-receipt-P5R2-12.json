@@ -77,23 +77,33 @@
     "protected_fixture_handling": "既存trusted scopeのpath/name/version/protected identityを参照した。新しい値は作成していない。"
   },
   "quality_gate": {
-    "state": "QUALITY_GATE_BLOCKED",
-    "blockers": [
-      "host outbound isolation is NOT_VERIFIED",
-      "trusted scope is registration-only with execution_allowed=false",
-      "P5R2-UNK-QG-001/002 remain unresolved until isolation and protected fixture connection are evidenced"
-    ],
-    "test_subprocess": "NOT_STARTED",
-    "pytest": "NOT_STARTED",
-    "fixed_four_gates": "NOT_STARTED"
+    "state": "RED_CONFIRMED_EXPECTED_FAILURE",
+    "blockers": [],
+    "test_subprocess": "STARTED_AND_FAILED_EXPECTED_RED",
+    "pytest": "STARTED_AND_FAILED_EXPECTED_RED",
+    "fixed_four_gates": {
+      "formatter": "PASS",
+      "lint": "PASS",
+      "type": "PASS",
+      "test": "FAIL_EXPECTED_RED"
+    },
+    "official_execution": {
+      "run_id": "RUN-P5R2-11-LOCAL-001",
+      "host_wrapper_execution_id": "ea3807ceb9f24f659ef577246ca1c2e5",
+      "host_isolation": "CONFIRMED",
+      "wrapper_exit_code": 1,
+      "test_gate_exit_code": 2,
+      "verification": "tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/verification.json"
+    },
+    "supporting_native_diagnostic": "306 passed / 29 failed; read-only diagnostic, not the official isolated result"
   },
   "actions_not_performed": {
     "production_source_change": false,
-    "red_test_creation": false,
+    "red_test_creation_in_final_gate_fallback": false,
     "green_implementation": false,
-    "pytest": false,
-    "fixed_quality_entry": false,
-    "wsl_runner": false,
+    "pytest": true,
+    "fixed_quality_entry": true,
+    "wsl_runner": true,
     "playwright": false,
     "npm": false,
     "external_network": false,
@@ -115,7 +125,8 @@
     "protected_fixture_identity": "CONFIRMED_READ_ONLY",
     "fixed_entry": "scripts.quality_gate.local_p5r2_pytest",
     "scope_execution_enabled": true,
-    "red_tests": "PENDING"
+    "red_tests": "EXECUTED_EXPECTED_RED",
+    "final_execution": "tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/P5R2-12_RED.json"
   },
-  "decision": "QUALITY_GATE_BLOCKED"
+  "decision": "RED_CONFIRMED"
 }
