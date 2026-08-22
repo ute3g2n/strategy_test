@@ -3,14 +3,20 @@
   "run_id": "RUN-P5R2-11-LOCAL-001",
   "runtime_backend": "multi_agent_v1",
   "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+  "nested_dispatch": "NOT_ESTABLISHED",
+  "requested_continuation_profile": "gpt-5.6-luna max reasoning / priority-fast requested by user; requested project components were not independently bound",
   "root_probe": {
     "role": "root planner probe",
-    "spawn_wait_call": "NOT_PERFORMED",
-    "status": "NOT_AVAILABLE",
-    "agent_id": "N/A",
-    "independent": false,
-    "review_mode": "SELF_REVIEW_FALLBACK",
-    "reason": "このruntimeではmulti_agent_v1__spawn_agentとmulti_agent_v1__wait_agentが公開されていない。"
+    "spawn_wait_call": "PERFORMED",
+    "status": "COMPLETED",
+    "agent_id": "01a02990-9221-7cc3-8aad-f06ee9e1e91d",
+    "nickname": "Bacon",
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "max",
+    "service_tier": "priority",
+    "independent": true,
+    "review_mode": "ROOT_PLANNER_PROBE",
+    "correction_note": "multi_agent_v1のroot probeは実行・wait完了。要求されたCoordinator/Agentのnested dispatchとは別物であり、未起動の指定部品を独立実行済みとは扱わない。"
   },
   "coordinator": {
     "name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
@@ -73,9 +79,9 @@
   "quality_gate": {
     "state": "QUALITY_GATE_BLOCKED",
     "blockers": [
-      "scripts/quality_gate/local_p5r2_pytest.py is missing",
       "host outbound isolation is NOT_VERIFIED",
-      "trusted scope is registration-only with execution_allowed=false"
+      "trusted scope is registration-only with execution_allowed=false",
+      "P5R2-UNK-QG-001/002 remain unresolved until isolation and protected fixture connection are evidenced"
     ],
     "test_subprocess": "NOT_STARTED",
     "pytest": "NOT_STARTED",

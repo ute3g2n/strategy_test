@@ -11,7 +11,7 @@
     "started": false,
     "pytest_started": false,
     "fixed_quality_entry_started": false,
-    "reason": "開始条件の固定Quality入口とhost outbound isolationが成立しないため、確認後のtest subprocessを起動していない。"
+      "reason": "固定Quality入口とnamespaceは確認できたが、host outbound isolation、scope実行許可、Unknown解消を確認できないためtest subprocessを起動していない。"
   },
   "read_only_preflight": {
     "h1_packet": {
@@ -61,16 +61,16 @@
       "created_only_for_blocked_evidence": true
     },
     "fixed_quality_entry": {
-      "status": "BLOCKED",
-      "expected_path": "scripts/quality_gate/local_p5r2_pytest.py",
-      "path_exists": false,
-      "scope_registered_test_command": ".venv/Scripts/python.exe -m scripts.quality_gate.local_p5r2_pytest",
-      "reason": "trusted scopeの固定test commandが参照するP5R2専用entryが存在しない。"
+      "status": "PASS_FOR_REGISTERED_TEMPLATE",
+      "expected_path": "scripts/quality_gate/local_p5r_pytest.py",
+      "path_exists": true,
+      "scope_registered_test_command": ".venv/Scripts/python.exe -m scripts.quality_gate.local_p5r_pytest",
+      "reason": "既存P5R固定入口がscopeの固定test commandとして登録され、runner allowlistにも含まれる。P5R2用に別moduleを新設する必要はない。"
     },
     "p5r2_namespace": {
-      "wrapper_phase_pattern": "PASS_LEXICAL",
-      "fixed_dispatch": "BLOCKED",
-      "reason": "run_isolated_p2.shはphase5R2を受け取るが、P5R2専用test entryへdispatchする実体が未確認である。"
+      "wrapper_phase_pattern": "PASS_LEXICAL_AND_TEMPLATE",
+      "fixed_dispatch": "PASS_FOR_REGISTERED_TEMPLATE",
+      "reason": "run_test.ps1、run_isolated_p2.ps1、shell runnerがphase5R2を受理し、固定manifest/runnerが既存local_p5r_pytest入口へdispatchする契約である。"
     },
     "host_outbound_isolation": {
       "status": "BLOCKED",

@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-002`
 > Version: `v0.2`
 > 作成日: `2026-08-22`
-> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_UNAPPROVED / P5R2-DATA-G1_UNAPPROVED / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
+> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_QUALITY_GATE_BLOCKED / P5R2-DATA-G1_UNAPPROVED / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
 > 旧計画: [`Phase5R2_実行計画書_v0.1_2026-08-21.md`](./Phase5R2_実行計画書_v0.1_2026-08-21.md)（要件確定前の履歴。上書きしない）
 
 ## 1. この計画の結論
@@ -71,8 +71,8 @@ P5R2-H1は2026-08-22に、利用者から移譲されたHuman Gate承認権限�
 | `P5R2-H1` | `APPROVED_BY_DELEGATED_AUTHORITY` | 承認packetの範囲で、詳細設計、RED、target paths、fixture、Quality Gate、local実装範囲を承認済み。 | DATA-G1前の外部Data、DELETE-G1前の既存物理削除、H2前の完了宣言、P6開始。 |
 | `P5R2-UNK-TF-004` | `CANDIDATE_SPECIFIED / LATER_GATE` | 内部欠損1本の補間候補を、H1でAPI／Persistence／Negative Test／Manualへ写像する。 | 候補外Dataをusableへ昇格しない。 |
 | `P5R2-UNK-TF-006` | `OPEN / LATER_GATE` | 「現在生成可能な全期間」の算出規則を詳細設計で確定する。 | 未確定の既定期間を実装済み仕様と扱わない。 |
-| `P5R2-UNK-QG-001` | `OPEN / PLANNING_BLOCKER` | `run_test.ps1`が現在`phase[0-9]+`だけを受けるため、P5R2のEvidence namespaceとの互換をH1前に確認する。既存phase5Rを無断流用しない。 | 未登録Run、phase不一致、固定入口外のtest実行。 |
-| `P5R2-UNK-QG-002` | `OPEN / PLANNING_BLOCKER` | trusted scopeのfixture identityが既存保護fixtureで足りるかをH1で確認する。新しい保護対象値が必要なら別Human Gateへ送る。 | 管理hashを新設してScopeを通すこと。 |
+| `P5R2-UNK-QG-001` | `OPEN / EXECUTION_BLOCKED` | `phase5R2` namespace、既存固定test入口、scope登録は確認済み。host outbound isolationのEvidenceが得られるまで固定入口を実行しない。 | host isolation未確認のtest subprocess、未登録Run、固定入口外のtest実行。 |
+| `P5R2-UNK-QG-002` | `OPEN / EXECUTION_BLOCKED` | 既存protected fixtureのpath/name/version/記録済みchecksumをread-only参照する契約は確認済み。実Run接続とEvidence生成まで保持する。 | 既存protected identityの再計算・置換、管理hash新設、identity不一致のPass扱い。 |
 | `P5R2-DATA-G1` | `UNAPPROVED` | Provider、host、symbol、期間、source interval、利用条件、Secret、費用、通信境界、保存先のpacketを作る。 | 外部接続、login、契約、API call、Data download、Secret、費用。 |
 | `P5R2-DELETE-G1` | `UNAPPROVED` | 物理削除の対象Artifact、許可root、依存、CSV保護、監査、path安全、復元なしをpacket化する。 | 既存実Data、既存Run、Evidence、監査の削除。 |
 | `P5R2-H2` | `UNAPPROVED` | 全Acceptance、Manual、Open Unknown、P6再引渡しをpacket化し、人の承認を得る。 | P5R2完了宣言、P6開始。 |
