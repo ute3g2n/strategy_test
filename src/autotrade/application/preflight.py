@@ -177,7 +177,12 @@ def _finite_decimal(value: object) -> Decimal | None:
 
 
 def _valid_safe_id(value: object) -> bool:
-    return is_safe_id(value)
+    return (
+        is_safe_id(value)
+        and isinstance(value, str)
+        and not _FORBIDDEN_TEXT.search(value)
+        and not value.lower().startswith(("sk_", "pk_", "bearer_"))
+    )
 
 
 def _valid_bar_provenance(value: object) -> bool:
@@ -230,6 +235,7 @@ def _quality_evaluation(
     requested_start: datetime,
     requested_end: datetime,
     gap_timeframe: str,
+    bars: object,
     data_identity: Mapping[str, object],
 ) -> tuple[str, list[str], PreflightProvenance | None]:
     if not isinstance(value, Mapping):
@@ -276,23 +282,49 @@ def _quality_evaluation(
         gap_open_time = _utc(gap.get("gap_open_time_utc"))
     except (TypeError, ValueError):
         return "REJECT", ["DATA_QUALITY_REJECTED"], None
-    if (
-        not _aligned_to_utc_anchor(gap_open_time, gap_timeframe)
-        or previous_close_time is None
-        or not requested_start <= gap_open_time < requested_end
-        or previous_close_time != gap_open_time
-    ):
+    if not _aligned_to_utc_anchor(gap_open_time, gap_timeframe) or not requested_start <= gap_open_time < requested_end:
         return "REJECT", ["DATA_QUALITY_REJECTED"], None
+    prior_close = previous_close
+    prior_close_time = previous_close_time
+    if isinstance(bars, (list, tuple)):
+        observed: list[tuple[datetime, object]] = []
+        for bar in bars:
+            if not isinstance(bar, Mapping) or bar.get("is_closed") is not True:
+                continue
+            try:
+                observed_close_time = _utc(bar.get("close_time_utc"))
+            except (TypeError, ValueError):
+                return "REJECT", ["DATA_QUALITY_REJECTED"], None
+            if observed_close_time <= gap_open_time:
+                observed.append((observed_close_time, bar.get("close")))
+        if observed:
+            prior_close_time, prior_close = max(observed, key=lambda item: item[0])
+    if prior_close_time != gap_open_time:
+        return "REJECT", ["DATA_QUALITY_REJECTED"], None
+    for bar in bars if isinstance(bars, (list, tuple)) else ():
+        if not isinstance(bar, Mapping):
+            continue
+        try:
+            bar_open_time = _utc(bar.get("open_time_utc"))
+        except (TypeError, ValueError):
+            return "REJECT", ["DATA_QUALITY_REJECTED"], None
+        if bar_open_time == gap_open_time and (
+            not _valid_ohlcv(bar)
+            or bar.get("volume") != 0
+            or not all(_decimal_equal(bar.get(name), bar.get("close")) for name in ("open", "high", "low", "close"))
+            or not _decimal_equal(bar.get("close"), prior_close)
+        ):
+            return "REJECT", ["DATA_QUALITY_REJECTED"], None
     try:
         reference_close_time = _utc(provenance.get("reference_close_time_utc"))
     except (TypeError, ValueError):
         return "REJECT", ["DATA_QUALITY_REJECTED"], None
-    if reference_close_time != previous_close_time:
+    if reference_close_time != prior_close_time:
         return "REJECT", ["DATA_QUALITY_REJECTED"], None
     supplied_close = value.get("previous_closed_close")
-    if supplied_close is not None and not _decimal_equal(supplied_close, previous_close):
+    if supplied_close is not None and not _decimal_equal(supplied_close, prior_close):
         return "REJECT", ["DATA_QUALITY_REJECTED"], None
-    expected_close = previous_close
+    expected_close = prior_close
     valid_single_gap = (
         isinstance(ohlcv, Mapping)
         and ohlcv.get("volume") == 0
@@ -517,7 +549,21 @@ def preflight_run_input(input_value: Mapping[str, object]) -> PreflightResult:
     )
     if bar_errors:
         return _reject(bar_errors, requested_range=_range_view(start, effective_end), data_version=data_version)
-
+    bars = input_value.get("bars")
+    if not isinstance(bars, (list, tuple)) or not bars or not isinstance(bars[0], Mapping):
+        return _reject(
+            ["DATA_COVERAGE_INCOMPLETE"], requested_range=_range_view(start, effective_end), data_version=data_version
+        )
+    try:
+        first_open = _utc(bars[0].get("open_time_utc"))
+    except (TypeError, ValueError):
+        return _reject(
+            ["DATA_COVERAGE_INCOMPLETE"], requested_range=_range_view(start, effective_end), data_version=data_version
+        )
+    if first_open != start:
+        return _reject(
+            ["DATA_COVERAGE_INCOMPLETE"], requested_range=_range_view(start, effective_end), data_version=data_version
+        )
     quality_decision, quality_codes, provenance = _quality_evaluation(
         input_value.get("data_quality"),
         previous_close,
@@ -525,11 +571,14 @@ def preflight_run_input(input_value: Mapping[str, object]) -> PreflightResult:
         start,
         end,
         timeframe,
+        input_value.get("bars"),
         verified_data_identity,
     )
     effective_range = _range_view(start, effective_end)
     if quality_decision == "REJECT":
         return _reject(quality_codes, requested_range=effective_range, data_version=data_version)
+    if not bar_warnings and effective_end != end:
+        return _reject(["DATA_COVERAGE_INCOMPLETE"], requested_range=effective_range, data_version=data_version)
     reason_codes = [*bar_warnings, *quality_codes]
     result: PreflightResult = {
         "decision": "WARNING" if bar_warnings or quality_decision == "WARNING" else "PASS",

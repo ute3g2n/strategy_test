@@ -21,14 +21,22 @@ _FORBIDDEN_TEXT = re.compile(r"(?i)(api[_-]?key|secret|password|bearer|credentia
 def _valid_candidate(candidate: object) -> bool:
     if not isinstance(candidate, Mapping) or not set(candidate).issubset(_ALLOWED_CANDIDATE_KEYS):
         return False
-    for value in candidate.values():
+    integer_keys = {"n", "entry_lookback", "exit_lookback"}
+    numeric_keys = {"initial_balance", "fee_bps", "slippage_bps"}
+    for key, value in candidate.items():
         if isinstance(value, (Mapping, list, tuple)):
             return False
-        if not isinstance(value, (str, int, float, bool)) and value is not None:
+        if value is None:
+            continue
+        if key in integer_keys and (isinstance(value, bool) or not isinstance(value, int)):
+            return False
+        if key in numeric_keys and (isinstance(value, bool) or not isinstance(value, (int, float))):
+            return False
+        if key == "force_fail" and not isinstance(value, bool):
+            return False
+        if key not in integer_keys | numeric_keys | {"force_fail"}:
             return False
         if isinstance(value, float) and not math.isfinite(value):
-            return False
-        if isinstance(value, str) and (len(value) > 64 or _FORBIDDEN_TEXT.search(value)):
             return False
     return True
 
@@ -61,6 +69,9 @@ class SweepService:
         if base_config.unit_key.timeframe in {"15m", "30m", "1h", "4h", "1d"}:
             if preflight_run_for_command(base_config, preflight_input).get("decision") == "REJECT":
                 raise PersistenceConflict("PREFLIGHT_REQUIRED")
+        if not isinstance(candidates, (tuple, list)):
+            raise PersistenceConflict("SWEEP_CANDIDATE_SCHEMA_INVALID")
+        candidates = tuple(candidates)
         if not candidates or len(candidates) > 200:
             raise PersistenceConflict("SWEEP_CANDIDATE_LIMIT")
         if any(not _valid_candidate(candidate) for candidate in candidates):

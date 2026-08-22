@@ -45,10 +45,11 @@ def _closed_bar(
     closed: object = True,
     provenance: object = DEFAULT_BAR_PROVENANCE,
     close_time: str | None = None,
+    ohlcv: dict[str, object] | None = None,
 ) -> dict[str, object]:
     opened = datetime.fromisoformat(open_time.replace("Z", "+00:00"))
     closed_at = opened + TIMEFRAME_DELTAS[timeframe]
-    return {
+    bar = {
         "open_time_utc": open_time,
         "close_time_utc": close_time or closed_at.astimezone(UTC).isoformat().replace("+00:00", "Z"),
         "open": "100.00",
@@ -60,6 +61,9 @@ def _closed_bar(
         "timeframe": timeframe,
         "provenance": dict(provenance) if isinstance(provenance, dict) else provenance,
     }
+    if ohlcv is not None:
+        bar.update(ohlcv)
+    return bar
 
 
 def _run_input(
@@ -71,7 +75,8 @@ def _run_input(
 ) -> dict[str, object]:
     start = datetime(2026, 8, 20, tzinfo=UTC)
     fixture_timeframe = strategy_timeframe if strategy_timeframe in TIMEFRAME_DELTAS else "15m"
-    default_end = start + TIMEFRAME_DELTAS[fixture_timeframe] * 2
+    delta = TIMEFRAME_DELTAS[fixture_timeframe]
+    default_end = start + delta * 2
     quality: dict[str, object] = {"quality_state": "USABLE"}
     if data_quality is not None:
         quality.update(data_quality)
@@ -88,7 +93,12 @@ def _run_input(
             "record_id": "dataset-p5r2-v1",
             "data_version": "fixture-only-p5r2-v1",
         },
-        "bars": bars if bars is not None else (_closed_bar("2026-08-20T00:00:00Z", timeframe=fixture_timeframe),),
+        "bars": bars
+        if bars is not None
+        else (
+            _closed_bar("2026-08-20T00:00:00Z", timeframe=fixture_timeframe),
+            _closed_bar((start + delta).isoformat().replace("+00:00", "Z"), timeframe=fixture_timeframe),
+        ),
         "data_quality": quality,
     }
 
@@ -214,6 +224,37 @@ def test_preflight_rejects_non_anchor_range_boundaries(requested_range: dict[str
 
     assert _field(result, "decision") == "REJECT"
     assert "UTC_ANCHOR_INVALID" in _codes(result)
+
+
+def test_preflight_rejects_uncovered_start_or_end_without_partial_evidence() -> None:
+    operation = _require_contract(
+        preflight_module,
+        "preflight_run_input",
+        "P5R2-CREQ-TF-002",
+    )
+    missing_start = operation(
+        _run_input(
+            requested_range={"start": "2026-08-20T00:00:00Z", "end": "2026-08-20T01:00:00Z"},
+            bars=(
+                _closed_bar("2026-08-20T00:15:00Z"),
+                _closed_bar("2026-08-20T00:30:00Z"),
+            ),
+        )
+    )
+    missing_end = operation(
+        _run_input(
+            requested_range={"start": "2026-08-20T00:00:00Z", "end": "2026-08-20T01:00:00Z"},
+            bars=(
+                _closed_bar("2026-08-20T00:00:00Z"),
+                _closed_bar("2026-08-20T00:15:00Z"),
+            ),
+        )
+    )
+
+    assert _field(missing_start, "decision") == "REJECT"
+    assert "DATA_COVERAGE_INCOMPLETE" in _codes(missing_start)
+    assert _field(missing_end, "decision") == "REJECT"
+    assert "DATA_COVERAGE_INCOMPLETE" in _codes(missing_end)
 
 
 def test_preflight_rejects_empty_closed_data() -> None:
@@ -403,6 +444,7 @@ def test_preflight_rejects_missing_ohlcv_and_secret_provenance() -> None:
     secret_ohlcv["bars"][0]["api_key"] = "should-not-echo"
     secret_provenance = operation(
         _run_input(
+            bars=(_closed_bar("2026-08-20T00:00:00Z"),),
             data_quality={
                 "quality_state": "USABLE_WITH_WARNING",
                 "missing_bars": [
@@ -427,7 +469,7 @@ def test_preflight_rejects_missing_ohlcv_and_secret_provenance() -> None:
                         },
                     }
                 ],
-            }
+            },
         )
     )
 
@@ -491,6 +533,16 @@ def test_single_internal_gap_is_usable_with_prior_close_warning_and_provenance()
 
     result = operation(
         _run_input(
+            requested_range={"start": "2026-08-20T00:00:00Z", "end": "2026-08-20T00:45:00Z"},
+            bars=(
+                _closed_bar("2026-08-20T00:00:00Z"),
+                _closed_bar(
+                    "2026-08-20T00:15:00Z",
+                    close_time="2026-08-20T00:30:00Z",
+                    ohlcv={"open": "100.50", "high": "100.50", "low": "100.50", "close": "100.50", "volume": 0},
+                ),
+                _closed_bar("2026-08-20T00:30:00Z"),
+            ),
             data_quality={
                 "missing_bars": [
                     {
@@ -508,7 +560,7 @@ def test_single_internal_gap_is_usable_with_prior_close_warning_and_provenance()
                     }
                 ],
                 "quality_state": "USABLE_WITH_WARNING",
-            }
+            },
         )
     )
 
