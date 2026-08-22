@@ -398,6 +398,9 @@ def test_preflight_rejects_missing_ohlcv_and_secret_provenance() -> None:
     missing_ohlcv = _run_input()
     assert isinstance(missing_ohlcv["bars"], tuple)
     missing_ohlcv["bars"][0].pop("open")
+    secret_ohlcv = _run_input()
+    assert isinstance(secret_ohlcv["bars"], tuple)
+    secret_ohlcv["bars"][0]["api_key"] = "should-not-echo"
     secret_provenance = operation(
         _run_input(
             data_quality={
@@ -429,9 +432,12 @@ def test_preflight_rejects_missing_ohlcv_and_secret_provenance() -> None:
     )
 
     missing_result = operation(missing_ohlcv)
+    secret_ohlcv_result = operation(secret_ohlcv)
 
     assert _field(missing_result, "decision") == "REJECT"
     assert "DATA_QUALITY_REJECTED" in _codes(missing_result)
+    assert _field(secret_ohlcv_result, "decision") == "REJECT"
+    assert "DATA_QUALITY_REJECTED" in _codes(secret_ohlcv_result)
     assert _field(secret_provenance, "decision") == "REJECT"
     assert "DATA_QUALITY_REJECTED" in _codes(secret_provenance)
 

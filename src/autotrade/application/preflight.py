@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal, InvalidOperation
@@ -14,9 +15,6 @@ StrategyTimeframe = Literal["15m", "30m", "1h", "4h", "1d"]
 _STRATEGY_TIMEFRAMES = frozenset({"15m", "30m", "1h", "4h", "1d"})
 _STRATEGY_TIMEFRAME_ALIASES = {
     "M15": "15m",
-    "H1": "1h",
-    "H4": "4h",
-    "D1": "1d",
 }
 _TIMEFRAME_DELTAS: dict[str, timedelta] = {
     "15m": timedelta(minutes=15),
@@ -66,6 +64,8 @@ _ALLOWED_BAR_KEYS = frozenset(
         "provenance",
     }
 )
+_ALLOWED_OHLCV_KEYS = frozenset({"open", "high", "low", "close", "volume"})
+_FORBIDDEN_TEXT = re.compile(r"(?i)(api[_-]?key|secret|password|bearer|credential)\s*[:=]")
 
 
 class EffectiveRange(TypedDict):
@@ -205,11 +205,12 @@ def _valid_data_identity(value: object, data_version: str) -> bool:
     )
 
 
-def _valid_ohlcv(value: object) -> bool:
+def _valid_ohlcv(value: object, *, exact: bool = False) -> bool:
     if not isinstance(value, Mapping):
         return False
     required = {"open", "high", "low", "close", "volume"}
-    if not required.issubset(value):
+    allowed = _ALLOWED_OHLCV_KEYS if exact else _ALLOWED_OHLCV_KEYS | _ALLOWED_BAR_KEYS
+    if not required.issubset(value) or not set(value).issubset(allowed):
         return False
     opened = _finite_decimal(value.get("open"))
     high = _finite_decimal(value.get("high"))
@@ -226,6 +227,8 @@ def _quality_evaluation(
     value: object,
     previous_close: object | None,
     previous_close_time: datetime | None,
+    requested_start: datetime,
+    requested_end: datetime,
     gap_timeframe: str,
     data_identity: Mapping[str, object],
 ) -> tuple[str, list[str], PreflightProvenance | None]:
@@ -259,7 +262,7 @@ def _quality_evaluation(
         or isinstance(gap.get("count"), bool)
         or gap.get("count") != 1
         or gap.get("repair") != "PRIOR_CLOSE_OHLC_VOLUME_ZERO"
-        or not _valid_ohlcv(ohlcv)
+        or not _valid_ohlcv(ohlcv, exact=True)
         or not isinstance(provenance, Mapping)
         or set(provenance) != _ALLOWED_PROVENANCE_KEYS
         or provenance.get("source") != "prior_close"
@@ -276,7 +279,8 @@ def _quality_evaluation(
     if (
         not _aligned_to_utc_anchor(gap_open_time, gap_timeframe)
         or previous_close_time is None
-        or previous_close_time > gap_open_time
+        or not requested_start <= gap_open_time < requested_end
+        or previous_close_time != gap_open_time
     ):
         return "REJECT", ["DATA_QUALITY_REJECTED"], None
     try:
@@ -432,6 +436,16 @@ def preflight_run_for_command(config: BacktestConfig, input_value: Mapping[str, 
         return _reject(["INPUT_BINDING_MISMATCH"], data_version=result.get("data_version"))
     if result.get("data_version") != config.data.data_version:
         return _reject(["INPUT_BINDING_MISMATCH"], data_version=result.get("data_version"))
+    identity = input_value.get("data_identity")
+    if (
+        not isinstance(identity, Mapping)
+        or config.data.source_mode != identity.get("source_mode")
+        or not _valid_safe_id(config.data.dataset_id)
+        or not _valid_safe_id(config.data.record_id)
+        or identity.get("dataset_id") != config.data.dataset_id
+        or identity.get("record_id") != config.data.record_id
+    ):
+        return _reject(["DATA_IDENTITY_NOT_BOUND"], data_version=result.get("data_version"))
     requested = _requested_range(input_value.get("requested_range"))
     configured = _requested_range(config.experiment_plan)
     if requested is None or configured is None or requested != configured:
@@ -505,7 +519,13 @@ def preflight_run_input(input_value: Mapping[str, object]) -> PreflightResult:
         return _reject(bar_errors, requested_range=_range_view(start, effective_end), data_version=data_version)
 
     quality_decision, quality_codes, provenance = _quality_evaluation(
-        input_value.get("data_quality"), previous_close, previous_close_time, timeframe, verified_data_identity
+        input_value.get("data_quality"),
+        previous_close,
+        previous_close_time,
+        start,
+        end,
+        timeframe,
+        verified_data_identity,
     )
     effective_range = _range_view(start, effective_end)
     if quality_decision == "REJECT":

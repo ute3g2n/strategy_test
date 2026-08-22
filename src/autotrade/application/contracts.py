@@ -95,6 +95,10 @@ class DataReference:
     fixture_sha256: Sha256
     input_sequence_sha256: Sha256
     source_mode: Literal["fixture_only", "local_published"] = "fixture_only"
+    # P5R2 catalog identity.  Legacy P4 callers may omit these fields; the
+    # canonical P5R2 Run boundary requires them before persistence.
+    dataset_id: str | None = None
+    record_id: str | None = None
 
 
 @dataclass(frozen=True)
