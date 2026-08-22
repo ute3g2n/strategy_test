@@ -114,8 +114,10 @@ class HistoryCatalog:
                 issues.append(self._issue("RESULT_JSON_INVALID", folder_run_id, result_path))
                 continue
             result_run_id = result.get("run_id")
-            if not isinstance(result_run_id, str) or result_run_id != folder_run_id or not _RUN_ID_PATTERN.fullmatch(
-                result_run_id
+            if (
+                not isinstance(result_run_id, str)
+                or result_run_id != folder_run_id
+                or not _RUN_ID_PATTERN.fullmatch(result_run_id)
             ):
                 issues.append(self._issue("RESULT_RUN_ID_MISMATCH", folder_run_id, result_path))
                 continue
@@ -166,8 +168,10 @@ class HistoryCatalog:
 
     @staticmethod
     def _result_payload_is_usable(payload: JsonObject) -> bool:
-        return isinstance(payload.get("metrics"), dict) and isinstance(payload.get("rows"), list) and isinstance(
-            payload.get("provenance"), dict
+        return (
+            isinstance(payload.get("metrics"), dict)
+            and isinstance(payload.get("rows"), list)
+            and isinstance(payload.get("provenance"), dict)
         )
 
     @staticmethod

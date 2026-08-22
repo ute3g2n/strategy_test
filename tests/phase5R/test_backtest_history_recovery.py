@@ -227,7 +227,10 @@ def test_corrupt_and_mismatched_history_are_reported_without_hiding_other_runs(t
     issue_codes = {item["code"] for item in report["issues"]}
 
     assert "RUN-AUTOTRADE-VALID-LEGACY" in run_ids
-    assert "RUN-AUTOTRADE-MISMATCH" not in run_ids or service.get_run("RUN-AUTOTRADE-MISMATCH")["status"] == "RECOVERY_REQUIRED"
+    assert (
+        "RUN-AUTOTRADE-MISMATCH" not in run_ids
+        or service.get_run("RUN-AUTOTRADE-MISMATCH")["status"] == "RECOVERY_REQUIRED"
+    )
     assert "CATALOG_JSON_INVALID" in issue_codes
     assert "RESULT_REFERENCE_MISMATCH" in issue_codes
     assert all(not Path(str(item["path"])).is_absolute() for item in report["issues"])

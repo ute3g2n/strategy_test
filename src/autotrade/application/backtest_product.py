@@ -213,9 +213,7 @@ class BacktestProductService:
                     if isinstance(record.get("provenance"), Mapping)
                     else {},
                     failure=dict(record["failure"]) if isinstance(record.get("failure"), Mapping) else None,
-                    checkpoint=dict(record["checkpoint"])
-                    if isinstance(record.get("checkpoint"), Mapping)
-                    else None,
+                    checkpoint=dict(record["checkpoint"]) if isinstance(record.get("checkpoint"), Mapping) else None,
                     resume_count=self._stored_int(record.get("resume_count")),
                     recovery_mode=str(record.get("recovery_mode", "NORMAL")),
                 )
