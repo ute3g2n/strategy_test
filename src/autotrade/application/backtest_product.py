@@ -259,7 +259,9 @@ class BacktestProductService:
                 "fee_bps": str(provenance.get("fee_bps", "UNKNOWN")),
                 "slippage_bps": str(provenance.get("slippage_bps", "UNKNOWN")),
             },
-            "recovery_note": "旧形式result.jsonから安全に読める情報だけを表示しています。UNKNOWNは当時の保存対象外です。",
+            "recovery_note": (
+                "旧形式result.jsonから安全に読める情報だけを表示しています。UNKNOWNは当時の保存対象外です。"
+            ),
         }
 
     def _persist_run(self, run: _Run) -> None:

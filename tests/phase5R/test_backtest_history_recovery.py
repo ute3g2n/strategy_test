@@ -15,9 +15,9 @@ from http.client import HTTPConnection
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 
+from autotrade.application import storage_paths
 from autotrade.application.backtest_product import BacktestProductService
 from autotrade.application.http_server import _Handler
-from autotrade.application import storage_paths
 
 
 def _write_fixture(root: Path, symbol: str = "BTCUSDT", count: int = 180) -> None:
