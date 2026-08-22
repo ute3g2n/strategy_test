@@ -602,6 +602,7 @@ def _validate_gate_command(
             "scripts.quality_gate.local_p5r2_p13_pytest",
             "scripts.quality_gate.local_p5r2_p14_pytest",
             "scripts.quality_gate.local_p5r2_p15_pytest",
+            "scripts.quality_gate.local_p5r2_p16_pytest",
         }
         paths = (
             ("tests/market_data",)
@@ -649,6 +650,19 @@ def _validate_gate_command(
                     "tests/application/test_nonhash_management_boundaries.py",
                 )
                 if python_module == "scripts.quality_gate.local_p5r2_p15_pytest"
+                else (
+                    "tests/phase5R/test_p5r2_local_integration_red.py",
+                    "tests/phase5R/test_backtest_history_recovery.py",
+                    "tests/market_data/test_p5r2_historical_data_red_contract.py",
+                    "tests/application/test_p5r2_run_operation_guard.py",
+                    "tests/phase5R/test_p5r2_backtest_service_cancel_guard.py",
+                    "tests/phase5R/test_backtest_product_red.py",
+                    "tests/phase5R/test_autotrade_storage_layout.py",
+                    "tests/application/test_nonhash_management_boundaries.py",
+                    "tests/phase5R/test_http_server_routes.py",
+                    "tests/phase5R/test_http_server_security.py",
+                )
+                if python_module == "scripts.quality_gate.local_p5r2_p16_pytest"
                 else ("tests/quality_gate",)
             )
         )
