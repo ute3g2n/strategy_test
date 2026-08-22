@@ -50,19 +50,149 @@ _PROVENANCE_FIELDS = frozenset(
 class HistoryCatalog:
     """Read and atomically write Backtest history records and result artifacts."""
 
-    def __init__(self, runtime_root: Path) -> None:
+    def __init__(self, runtime_root: Path, *, job_registry: object | None = None) -> None:
         self.runtime_root = Path(runtime_root)
+        self.job_registry = job_registry
         self._ensure_directory_safe(self.runtime_root)
         self.catalog_root = self.runtime_root / "catalog"
         self.runs_root = self.catalog_root / "runs"
         self.results_root = self.runtime_root / "results"
         self.datasets_root = self.catalog_root / "datasets"
         self.versions_root = self.datasets_root / "versions"
+        self.staging_root = self.catalog_root / "staging"
+        self.preview_root = self.catalog_root / "previews"
+        self.promotion_root = self.catalog_root / "promotions"
         self._preview_lock = threading.RLock()
         self._preview_tokens: dict[str, JsonObject] = {}
         self._staging_records: dict[str, JsonObject] = {}
-        for directory in (self.catalog_root, self.runs_root, self.results_root, self.datasets_root, self.versions_root):
+        self._promotion_records: dict[str, JsonObject] = {}
+        self._recovery_issues: list[JsonObject] = []
+        for directory in (
+            self.catalog_root,
+            self.runs_root,
+            self.results_root,
+            self.datasets_root,
+            self.versions_root,
+            self.staging_root,
+            self.preview_root,
+            self.promotion_root,
+        ):
             self._ensure_directory_safe(directory)
+        self._load_restart_state()
+
+    def recovery_report(self) -> JsonObject:
+        """Report catalog staging/preview records that could not be restored."""
+
+        with self._preview_lock:
+            issues = [dict(issue) for issue in self._recovery_issues]
+        return {
+            "status": "RECOVERY_REQUIRED" if issues else "CLEAN",
+            "issues": issues,
+            "staged_count": len(self._staging_records),
+            "preview_count": len(self._preview_tokens),
+            "promotion_count": len(self._promotion_records),
+        }
+
+    def _load_restart_state(self) -> None:
+        for path in sorted(self.staging_root.glob("*.json")):
+            try:
+                self._assert_path_chain_safe(path, self.staging_root)
+                if self._is_link_or_reparse(path) or not path.is_file():
+                    raise ValueError("RUNTIME_PATH_UNSAFE")
+                record = self._read_json(path)
+                token = record.get("staging_token") if record is not None else None
+                staging_id = record.get("staging_id") if record is not None else None
+                if (
+                    record is None
+                    or not isinstance(token, str)
+                    or not token
+                    or not isinstance(staging_id, str)
+                    or staging_id != path.stem
+                    or self._safe_catalog_id(staging_id) is None
+                ):
+                    raise ValueError("STAGING_RECORD_INVALID")
+                self._staging_records[token] = record
+            except (OSError, ValueError):
+                self._recovery_issues.append(self._issue("STAGING_RECORD_INVALID", path.stem, path))
+        for path in sorted(self.preview_root.glob("*.json")):
+            try:
+                self._assert_path_chain_safe(path, self.preview_root)
+                if self._is_link_or_reparse(path) or not path.is_file():
+                    raise ValueError("RUNTIME_PATH_UNSAFE")
+                record = self._read_json(path)
+                token = record.get("operation_token") if record is not None else None
+                binding = record.get("binding") if record is not None else None
+                revision = record.get("revision") if record is not None else None
+                consumed = record.get("consumed") if record is not None else None
+                if (
+                    record is None
+                    or not isinstance(token, str)
+                    or token != path.stem
+                    or self._safe_catalog_id(token) is None
+                    or not isinstance(binding, Mapping)
+                    or not isinstance(revision, int)
+                    or isinstance(revision, bool)
+                    or revision < 0
+                    or not isinstance(consumed, bool)
+                ):
+                    raise ValueError("PREVIEW_RECORD_INVALID")
+                self._preview_tokens[token] = record
+            except (OSError, ValueError):
+                self._recovery_issues.append(self._issue("PREVIEW_RECORD_INVALID", path.stem, path))
+        for path in sorted(self.promotion_root.glob("*.json")):
+            try:
+                self._assert_path_chain_safe(path, self.promotion_root)
+                if self._is_link_or_reparse(path) or not path.is_file():
+                    raise ValueError("RUNTIME_PATH_UNSAFE")
+                record = self._read_json(path)
+                token = record.get("operation_token") if record is not None else None
+                state = record.get("state") if record is not None else None
+                if (
+                    record is None
+                    or not isinstance(token, str)
+                    or token != path.stem
+                    or self._safe_catalog_id(token) is None
+                ):
+                    raise ValueError("PROMOTION_RECORD_INVALID")
+                if state not in {"PREPARED", "COMMITTED"}:
+                    raise ValueError("PROMOTION_RECORD_INVALID")
+                self._promotion_records[token] = record
+                if state == "PREPARED":
+                    self._recovery_issues.append(self._issue("PROMOTION_INCOMPLETE", token, path))
+            except (OSError, ValueError):
+                self._promotion_records[path.stem] = {
+                    "operation_token": path.stem,
+                    "state": "RECOVERY_REQUIRED",
+                }
+                self._recovery_issues.append(self._issue("PROMOTION_RECORD_INVALID", path.stem, path))
+
+    def _persist_staging_record(self, token: str, record: JsonObject) -> None:
+        staging_id = record.get("staging_id")
+        if not isinstance(staging_id, str) or self._safe_catalog_id(staging_id) is None:
+            raise ValueError("STAGING_ID_INVALID")
+        payload = dict(record)
+        payload["staging_token"] = token
+        self._write_json_atomic(self.staging_root / f"{staging_id}.json", payload)
+
+    def _persist_preview_token(self, token: str, record: JsonObject) -> None:
+        if not token or not _CATALOG_ID_PATTERN.fullmatch(token):
+            raise ValueError("PREVIEW_TOKEN_INVALID")
+        payload = {"operation_token": token, **dict(record)}
+        self._write_json_atomic(self.preview_root / f"{token}.json", payload)
+
+    def _persist_promotion_record(self, token: str, record: JsonObject) -> None:
+        if not token or not _CATALOG_ID_PATTERN.fullmatch(token):
+            raise ValueError("PROMOTION_TOKEN_INVALID")
+        payload = {"operation_token": token, **dict(record)}
+        self._write_json_atomic(self.promotion_root / f"{token}.json", payload)
+
+    def _owned_job_snapshot(self, value: Mapping[str, object]) -> JsonObject:
+        registry = self.job_registry
+        if registry is not None:
+            getter = getattr(registry, "get_owned_job_snapshot", None)
+            if callable(getter):
+                return getter(value)
+        return job_service.get_owned_job_snapshot(value)
 
     def persist_run(self, view: JsonObject) -> None:
         run_id = self._safe_run_id(view.get("run_id"))
@@ -118,7 +248,7 @@ class HistoryCatalog:
         raw_source_job = request.get("source_job")
         if not isinstance(raw_source_job, Mapping):
             raise ValueError("SOURCE_JOB_REQUIRED")
-        source_job = job_service.get_owned_job_snapshot(raw_source_job)
+        source_job = self._owned_job_snapshot(raw_source_job)
         source_job_id = provenance.get("source_job_id")
         if source_job_id != source_job.get("job_id"):
             raise ValueError("SOURCE_JOB_OWNERSHIP_MISMATCH")
@@ -136,11 +266,13 @@ class HistoryCatalog:
             "provenance": provenance,
             "request_id": request_id,
             "staging_id": staging_id,
+            "staging_token": token,
             "incoming_bars": incoming_bars,
             "source_job": source_job,
         }
         with self._preview_lock:
             self._staging_records[token] = record
+            self._persist_staging_record(token, record)
         return {
             "staging_token": token,
             "staging_id": staging_id,
@@ -272,11 +404,14 @@ class HistoryCatalog:
         }
         if issue_token and operation_token is not None:
             with self._preview_lock:
-                self._preview_tokens[operation_token] = {
+                token_record = {
                     "binding": self._preview_binding(preview),
                     "dataset_id": dataset_id,
                     "revision": current_revision,
+                    "consumed": False,
                 }
+                self._preview_tokens[operation_token] = token_record
+                self._persist_preview_token(operation_token, token_record)
         return preview
 
     def promote_merge(self, request: Mapping[str, object]) -> JsonObject:
@@ -290,6 +425,9 @@ class HistoryCatalog:
                 provided_token = request.get("preview_token")
                 if request.get("impact_confirmed") is not True or not isinstance(provided_token, str):
                     return self._merge_rejection("MERGE_CONFIRMATION_REQUIRED", request)
+                promotion_record = self._promotion_records.get(provided_token)
+                if promotion_record is not None and promotion_record.get("state") != "COMMITTED":
+                    return self._merge_rejection("PROMOTION_RECOVERY_REQUIRED", request)
                 preview = self._preview_merge(request, issue_token=False)
                 if preview.get("state") == "REJECTED":
                     with self._preview_lock:
@@ -301,6 +439,9 @@ class HistoryCatalog:
 
                 with self._preview_lock:
                     token_record = self._preview_tokens.get(provided_token)
+                if token_record is not None and token_record.get("consumed") is True:
+                    preview.update({"state": "REJECTED", "reason": "PREVIEW_TOKEN_ALREADY_CONSUMED", "promoted": False})
+                    return preview
                 if token_record is None or token_record.get("binding") != self._preview_binding(preview):
                     preview.update({"state": "REJECTED", "reason": "PREVIEW_TOKEN_MISMATCH", "promoted": False})
                     return preview
@@ -333,6 +474,17 @@ class HistoryCatalog:
                 identity = preview["identity"]
                 assert isinstance(identity, dict)
                 new_revision = expected_revision + 1
+                promotion_record = {
+                    "operation_token": provided_token,
+                    "state": "PREPARED",
+                    "dataset_id": dataset_id,
+                    "expected_revision": expected_revision,
+                    "new_revision": new_revision,
+                    "staging_id": request.get("staging_id"),
+                    "request_id": request.get("request_id"),
+                }
+                self._promotion_records[provided_token] = promotion_record
+                self._persist_promotion_record(provided_token, promotion_record)
                 current_record = self._load_current_dataset(dataset_id)
                 if current_record is not None:
                     version_path = self.versions_root / f"{dataset_id}.r{expected_revision}.json"
@@ -372,7 +524,14 @@ class HistoryCatalog:
                 }
                 self._write_json_atomic(self._dataset_path(dataset_id), output)
                 with self._preview_lock:
-                    self._preview_tokens.pop(provided_token, None)
+                    consumed = dict(token_record)
+                    consumed["consumed"] = True
+                    self._preview_tokens[provided_token] = consumed
+                    self._persist_preview_token(provided_token, consumed)
+                    committed = dict(promotion_record)
+                    committed["state"] = "COMMITTED"
+                    self._promotion_records[provided_token] = committed
+                    self._persist_promotion_record(provided_token, committed)
                 promoted = dict(preview)
                 promoted.update(
                     {
@@ -542,13 +701,18 @@ class HistoryCatalog:
         with self._preview_lock:
             record = self._staging_records.get(token)
             record = json.loads(json.dumps(record, ensure_ascii=False)) if record is not None else None
+            if record is None:
+                for candidate in self._staging_records.values():
+                    if candidate.get("staging_token") == token:
+                        record = json.loads(json.dumps(candidate, ensure_ascii=False))
+                        break
         if record is None:
             raise ValueError("STAGING_TOKEN_INVALID")
         try:
             raw_source_job = request.get("source_job")
             if not isinstance(raw_source_job, Mapping):
                 raise ValueError("SOURCE_JOB_REQUIRED")
-            source_job = job_service.get_owned_job_snapshot(raw_source_job)
+            source_job = self._owned_job_snapshot(raw_source_job)
         except (KeyError, TypeError, ValueError) as error:
             raise ValueError("SOURCE_JOB_SNAPSHOT_STALE") from error
         expected = {
@@ -556,6 +720,7 @@ class HistoryCatalog:
             "provenance": provenance,
             "request_id": request.get("request_id"),
             "staging_id": request.get("staging_id"),
+            "staging_token": token,
             "incoming_bars": incoming_bars,
             "source_job": source_job,
         }
@@ -766,7 +931,11 @@ class HistoryCatalog:
         self._assert_path_chain_safe(lock_path, self.datasets_root)
         lock_path.parent.mkdir(parents=True, exist_ok=True)
         try:
-            with lock_path.open("a+b") as handle:
+            handle = lock_path.open("a+b")
+        except OSError as error:
+            raise ValueError("DATASET_LOCK_FAILED") from error
+        with handle:
+            try:
                 handle.seek(0, os.SEEK_END)
                 if handle.tell() == 0:
                     handle.write(b"0")
@@ -780,14 +949,16 @@ class HistoryCatalog:
                     fcntl: Any = __import__("fcntl")
 
                     fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+            except OSError as error:
+                raise ValueError("DATASET_LOCK_FAILED") from error
+            try:
                 with self._preview_lock:
                     yield
+            finally:
                 if os.name == "nt":
                     msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
                 else:
                     fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
-        except OSError as error:
-            raise ValueError("DATASET_LOCK_FAILED") from error
 
     @staticmethod
     def _revision(record: JsonObject) -> int:
@@ -959,7 +1130,7 @@ class HistoryCatalog:
                 continue
             catalog_ids.add(run_id)
             status = str(record.get("status", "UNKNOWN"))
-            if status in {"QUEUED", "RUNNING", "CANCELLED"}:
+            if status in {"QUEUED", "RUNNING", "STOP_REQUESTED"}:
                 restored.append(
                     self._recovery_required_record(
                         record,
@@ -969,6 +1140,22 @@ class HistoryCatalog:
                     )
                 )
                 issues.append(self._issue("INCOMPLETE_AFTER_RESTART", run_id, path))
+                continue
+            if status == "CANCELLED":
+                operation_record = record.get("operation_record")
+                checkpoint = record.get("checkpoint")
+                if isinstance(operation_record, Mapping) and isinstance(checkpoint, Mapping):
+                    restored.append(dict(record))
+                else:
+                    restored.append(
+                        self._recovery_required_record(
+                            record,
+                            run_id,
+                            "OPERATION_GUARD_STATE_MISSING",
+                            "取消済みRunの再開情報が不足しているため、復旧確認が必要です。",
+                        )
+                    )
+                    issues.append(self._issue("OPERATION_GUARD_STATE_MISSING", run_id, path))
                 continue
             if status == "SUCCEEDED":
                 result, result_issue = self._read_referenced_result(record, run_id, path)

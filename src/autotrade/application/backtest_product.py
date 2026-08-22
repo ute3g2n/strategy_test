@@ -35,6 +35,7 @@ from autotrade.market_data.store_contracts import DataVersionManifest, MarketEve
 from autotrade.strategy.contracts import StrategyConfig, StrategyState
 from autotrade.strategy.service import process_closed_bars
 
+from . import job_service
 from .history_catalog import HistoryCatalog
 from .run_service import OperationGuard
 from .storage_paths import (
@@ -132,6 +133,8 @@ class _Run:
     resume_count: int = 0
     recovery_mode: str = "NORMAL"
     operation_revision: int = 0
+    operation_record: JsonObject | None = None
+    retired_operation_tokens: list[str] = field(default_factory=list)
     cancel_event: threading.Event = field(default_factory=threading.Event)
     thread: threading.Thread | None = None
     state: JsonObject = field(default_factory=dict)
@@ -184,7 +187,8 @@ class BacktestProductService:
         self._sweeps: dict[str, _Sweep] = {}
         self._csv_jobs: dict[str, _CsvJob] = {}
         self._holdout_consumed = False
-        self._history_catalog = HistoryCatalog(self.runtime_root)
+        self._job_registry = job_service.LocalJobRegistry(self.runtime_root)
+        self._history_catalog = HistoryCatalog(self.runtime_root, job_registry=self._job_registry)
         self._operation_guard = OperationGuard()
         self._recovery_issues: list[JsonObject] = []
         self._restore_history()
@@ -192,7 +196,11 @@ class BacktestProductService:
     def _restore_history(self) -> None:
         restored, issues = self._history_catalog.restore()
         with self._lock:
-            self._recovery_issues = [dict(issue) for issue in issues]
+            job_report = self._job_registry.recovery_report()
+            raw_job_issues = job_report.get("issues")
+            job_issues: list[object] = raw_job_issues if isinstance(raw_job_issues, list) else []
+            self._recovery_issues = [dict(issue) for issue in job_issues if isinstance(issue, Mapping)]
+            self._recovery_issues.extend(dict(issue) for issue in issues)
             for record in restored:
                 run_id = record.get("run_id")
                 if not isinstance(run_id, str) or run_id in self._runs:
@@ -209,6 +217,11 @@ class BacktestProductService:
                 spec = dict(raw_spec) if isinstance(raw_spec, Mapping) else {}
                 if not spec:
                     spec = self._legacy_spec(record)
+                operation_record = record.get("operation_record")
+                raw_retired_tokens = record.get("retired_operation_tokens", [])
+                retired_tokens_valid = isinstance(raw_retired_tokens, list) and all(
+                    isinstance(token, str) and token for token in raw_retired_tokens
+                )
                 run = _Run(
                     run_id=run_id,
                     spec=spec,
@@ -228,7 +241,63 @@ class BacktestProductService:
                     resume_count=self._stored_int(record.get("resume_count")),
                     recovery_mode=str(record.get("recovery_mode", "NORMAL")),
                     operation_revision=self._stored_int(record.get("operation_revision")),
+                    operation_record=dict(operation_record) if isinstance(operation_record, Mapping) else None,
+                    retired_operation_tokens=list(raw_retired_tokens) if retired_tokens_valid else [],
                 )
+                if not retired_tokens_valid:
+                    run.status = "RECOVERY_REQUIRED"
+                    run.recovery_mode = "RECOVERY_REQUIRED"
+                    run.failure = {
+                        "code": "RETIRED_OPERATION_RECORD_INVALID",
+                        "message": "取消操作の世代情報が壊れているため、再実行を許可しません。",
+                        "retryable": False,
+                    }
+                    self._recovery_issues.append(
+                        {
+                            "code": "RETIRED_OPERATION_RECORD_INVALID",
+                            "run_id": run_id,
+                            "path": "catalog/runs",
+                            "message": "取消操作の世代情報が壊れています。",
+                        }
+                    )
+                try:
+                    self._operation_guard.restore_retired_operation_tokens(run_id, run.retired_operation_tokens)
+                except ValueError:
+                    if run.status != "RECOVERY_REQUIRED":
+                        run.status = "RECOVERY_REQUIRED"
+                        run.recovery_mode = "RECOVERY_REQUIRED"
+                        run.failure = {
+                            "code": "RETIRED_OPERATION_RECORD_INVALID",
+                            "message": "取消操作の世代情報が壊れているため、再実行を許可しません。",
+                            "retryable": False,
+                        }
+                        self._recovery_issues.append(
+                            {
+                                "code": "RETIRED_OPERATION_RECORD_INVALID",
+                                "run_id": run_id,
+                                "path": "catalog/runs",
+                                "message": "取消操作の世代情報が壊れています。",
+                            }
+                        )
+                if run.operation_record is not None:
+                    try:
+                        self._operation_guard.restore_run_operation(run_id, run.operation_record)
+                    except ValueError:
+                        run.status = "RECOVERY_REQUIRED"
+                        run.recovery_mode = "RECOVERY_REQUIRED"
+                        run.failure = {
+                            "code": "OPERATION_GUARD_RECORD_INVALID",
+                            "message": "取消操作の保存記録が壊れているため、再実行を許可しません。",
+                            "retryable": False,
+                        }
+                        self._recovery_issues.append(
+                            {
+                                "code": "OPERATION_GUARD_RECORD_INVALID",
+                                "run_id": run_id,
+                                "path": "catalog/runs",
+                                "message": "取消操作の保存記録が壊れています。",
+                            }
+                        )
                 rows = record.get("rows")
                 if isinstance(rows, list):
                     run.rows = [dict(row) for row in rows if isinstance(row, Mapping)]
@@ -407,6 +476,7 @@ class BacktestProductService:
                     run.status = "CANCELLED"
                 elif run.status == "RUNNING":
                     run.status = "STOP_REQUESTED"
+                run.operation_record = dict(operation)
                 self._persist_run(run)
             return {"run": self._run_view(run), "operation": operation}
 
@@ -432,7 +502,13 @@ class BacktestProductService:
             run.cancel_event.clear()
             run.failure = None
             run.status = "QUEUED"
+            if run.operation_record is not None:
+                old_token = run.operation_record.get("operation_token")
+                if isinstance(old_token, str) and old_token not in run.retired_operation_tokens:
+                    run.retired_operation_tokens.append(old_token)
+            run.operation_record = None
             self._operation_guard.reset_run(run_id)
+            self._operation_guard.restore_retired_operation_tokens(run_id, run.retired_operation_tokens)
             self._persist_run(run)
             run.thread = threading.Thread(
                 target=self._execute_run, args=(run_id,), daemon=True, name=f"autotrade-resume-{run_id}"
@@ -1349,6 +1425,8 @@ class BacktestProductService:
             "resume_count": run.resume_count,
             "recovery_mode": run.recovery_mode,
             "operation_revision": run.operation_revision,
+            "operation_record": dict(run.operation_record) if run.operation_record else None,
+            "retired_operation_tokens": list(run.retired_operation_tokens),
             "result_reference": f"results/{run.run_id}/result.json" if run.status == "SUCCEEDED" else None,
             "result_publish_id": f"RESULT-OWNER-{run.run_id}" if run.status == "SUCCEEDED" else None,
         }

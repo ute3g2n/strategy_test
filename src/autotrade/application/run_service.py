@@ -26,20 +26,14 @@ _TERMINAL_RUN_STATES = frozenset(
 
 
 class OperationGuard:
-    """Serialize local Run operations shared by all three Run screens.
-
-    P5R2-15 intentionally keeps this guard local and in-memory.  Persistence,
-    restart recovery, and migration are P5R2-16 responsibilities.  The guard
-    still applies the production-facing rules now: only QUEUED/RUNNING can be
-    cancelled, a replay cannot perform a second transition, and every
-    accepted or rejected request receives an audit record.
-    """
+    """Serialize Run operations and restore one durable operation generation."""
 
     def __init__(self) -> None:
         self._lock = threading.RLock()
         self._sequence = 0
         self._runs: dict[str, dict[str, object]] = {}
         self._audits: dict[str, dict[str, object]] = {}
+        self._retired_tokens: dict[str, set[str]] = {}
 
     @staticmethod
     def _text(value: object, default: str = "") -> str:
@@ -220,6 +214,32 @@ class OperationGuard:
                     revision_after=current_revision,
                 )
 
+            if operation_token in self._retired_tokens.get(run_id, set()):
+                audit_id, audit = self._next_audit(
+                    run_id=run_id,
+                    request_id=request_id,
+                    operation_token=operation_token,
+                    status_before=current_state,
+                    status_after=current_state,
+                    error_code="STALE_OPERATION",
+                    actor=actor,
+                    origin_screen=origin_screen,
+                    reason=reason,
+                )
+                return self._result(
+                    run_id=run_id,
+                    request_id=request_id,
+                    operation_token=operation_token,
+                    status_before=current_state,
+                    status_after=current_state,
+                    accepted=False,
+                    error_code="STALE_OPERATION",
+                    audit_id=audit_id,
+                    audit=audit,
+                    revision_before=current_revision,
+                    revision_after=current_revision,
+                )
+
             existing = self._runs.get(run_id)
             if existing is not None:
                 stored_audit_id = str(existing["audit_id"])
@@ -375,6 +395,62 @@ class OperationGuard:
             )
         return values
 
+    def export_run_operation(self, run_id: str) -> dict[str, object] | None:
+        """Return the server-owned operation result for durable Run storage."""
+
+        with self._lock:
+            existing = self._runs.get(run_id)
+            if existing is None:
+                return None
+            result = existing.get("result")
+            if not isinstance(result, Mapping):
+                return None
+            return dict(result)
+
+    def restore_run_operation(self, run_id: str, record: Mapping[str, object]) -> None:
+        """Hydrate a previously persisted operation without creating an audit."""
+
+        if not run_id or not isinstance(record, Mapping) or record.get("run_id") != run_id:
+            raise ValueError("OPERATION_RECORD_INVALID")
+        operation_token = self._text(record.get("operation_token"))
+        audit_id = self._text(record.get("audit_id"))
+        audit = record.get("audit")
+        revision_after = self._revision(record.get("revision_after"), default=0)
+        if not operation_token or not audit_id or not isinstance(audit, Mapping) or revision_after is None:
+            raise ValueError("OPERATION_RECORD_INVALID")
+        if audit.get("audit_id") != audit_id or audit.get("aggregate_id") != run_id:
+            raise ValueError("OPERATION_RECORD_INVALID")
+        with self._lock:
+            existing = self._runs.get(run_id)
+            if existing is not None:
+                current = existing.get("result")
+                if isinstance(current, Mapping) and dict(current) == dict(record):
+                    return
+                raise ValueError("OPERATION_RECORD_CONFLICT")
+            restored_audit = dict(audit)
+            self._audits[audit_id] = restored_audit
+            self._runs[run_id] = {
+                "operation_token": operation_token,
+                "audit_id": audit_id,
+                "revision_after": revision_after,
+                "result": dict(record),
+            }
+            prefix = "AUDIT-RUN-CANCEL-"
+            suffix = audit_id[len(prefix) :] if audit_id.startswith(prefix) else ""
+            if suffix.isdigit():
+                self._sequence = max(self._sequence, int(suffix))
+
+    def restore_retired_operation_tokens(self, run_id: str, tokens: object) -> None:
+        """Restore operation tokens that must remain stale after a Run resume."""
+
+        if not run_id or not isinstance(tokens, (list, tuple, set)):
+            raise ValueError("RETIRED_OPERATION_RECORD_INVALID")
+        parsed = {token for token in tokens if isinstance(token, str) and token}
+        if len(parsed) != len(tokens):
+            raise ValueError("RETIRED_OPERATION_RECORD_INVALID")
+        with self._lock:
+            self._retired_tokens[run_id] = parsed
+
     def reset_for_local_test(self) -> None:
         """Reset only this local in-memory guard; no persisted data is touched."""
 
@@ -382,12 +458,17 @@ class OperationGuard:
             self._sequence = 0
             self._runs.clear()
             self._audits.clear()
+            self._retired_tokens.clear()
 
     def reset_run(self, run_id: str) -> None:
         """Start a new operation generation for one locally resumed Run."""
 
         with self._lock:
-            self._runs.pop(run_id, None)
+            existing = self._runs.pop(run_id, None)
+            if existing is not None:
+                token = existing.get("operation_token")
+                if isinstance(token, str) and token:
+                    self._retired_tokens.setdefault(run_id, set()).add(token)
 
 
 _DEFAULT_OPERATION_GUARD = OperationGuard()

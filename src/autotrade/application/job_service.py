@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import copy
+import json
+import os
 import re
+import tempfile
 import threading
 import uuid
 from collections.abc import Mapping, Sequence
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
+from pathlib import Path
 
 from .contracts import (
     ApplicationResponse,
@@ -18,15 +22,179 @@ from .contracts import (
     failure_response,
 )
 from .persistence import MetadataStore, PersistenceConflict
+from .storage_paths import validate_local_storage_path
 
 JsonObject = dict[str, object]
 _JOB_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
 _TIMEFRAME_GENERATION = "TIMEFRAME_GENERATION"
 _HISTORICAL_DOWNLOAD = "HISTORICAL_DOWNLOAD"
 _SUPPORTED_TIMEFRAMES = frozenset({"15m", "30m", "1h", "4h", "1d"})
-_LOCAL_JOB_REGISTRY: dict[str, JsonObject] = {}
-_LOCAL_JOB_REQUEST_INDEX: dict[str, str] = {}
-_JOB_REGISTRY_LOCK = threading.RLock()
+
+
+class LocalJobRegistry:
+    """Persist local generation-job snapshots and recover interrupted jobs."""
+
+    def __init__(self, runtime_root: Path | None = None) -> None:
+        self.runtime_root = (
+            validate_local_storage_path(Path(runtime_root), purpose="local job runtime")
+            if runtime_root is not None
+            else None
+        )
+        self.job_root = self.runtime_root / "catalog" / "jobs" if self.runtime_root is not None else None
+        self._jobs: dict[str, JsonObject] = {}
+        self._request_index: dict[str, str] = {}
+        self._lock = threading.RLock()
+        self._recovery_issues: list[JsonObject] = []
+        if self.job_root is not None:
+            self.job_root.mkdir(parents=True, exist_ok=True)
+            self._load()
+
+    def create_timeframe_generation_job(self, value: object) -> JsonObject:
+        return create_timeframe_generation_job(value, _registry=self)
+
+    def advance_timeframe_generation_job(
+        self, value: Mapping[str, object], target_state: str = "RUNNING"
+    ) -> JsonObject:
+        return advance_timeframe_generation_job(value, target_state, _registry=self)
+
+    def cancel_timeframe_generation_job(self, value: Mapping[str, object]) -> JsonObject:
+        return cancel_timeframe_generation_job(value, _registry=self)
+
+    def restart_timeframe_generation_job(self, value: Mapping[str, object]) -> JsonObject:
+        return restart_timeframe_generation_job(value, _registry=self)
+
+    def retry_timeframe_generation_job(self, value: Mapping[str, object]) -> JsonObject:
+        return retry_timeframe_generation_job(value, _registry=self)
+
+    def get_owned_job_snapshot(self, value: Mapping[str, object]) -> JsonObject:
+        return get_owned_job_snapshot(value, _registry=self)
+
+    def get_job(self, job_id: str) -> JsonObject | None:
+        with self._lock:
+            value = self._jobs.get(job_id)
+            return copy.deepcopy(value) if value is not None else None
+
+    def recovery_report(self) -> JsonObject:
+        with self._lock:
+            issues = copy.deepcopy(self._recovery_issues)
+            required = sorted(
+                job_id for job_id, value in self._jobs.items() if value.get("state") == "RECOVERY_REQUIRED"
+            )
+        return {
+            "status": "RECOVERY_REQUIRED" if issues or required else "CLEAN",
+            "issues": issues,
+            "recovery_required_job_ids": required,
+        }
+
+    @staticmethod
+    def _path_is_unsafe(path: Path) -> bool:
+        try:
+            attributes = getattr(path.lstat(), "st_file_attributes", 0)
+            return path.is_symlink() or bool(attributes & 0x400)
+        except FileNotFoundError:
+            return False
+        except OSError:
+            return True
+
+    def _load(self) -> None:
+        assert self.job_root is not None
+        for path in sorted(self.job_root.glob("*.json")):
+            if self._path_is_unsafe(path) or not path.is_file():
+                self._recovery_issues.append(
+                    {"code": "JOB_RUNTIME_PATH_UNSAFE", "job_id": path.stem, "path": "catalog/jobs"}
+                )
+                continue
+            try:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+                self._recovery_issues.append({"code": "JOB_JSON_INVALID", "job_id": path.stem, "path": "catalog/jobs"})
+                continue
+            if not isinstance(payload, dict) or not isinstance(payload.get("job_id"), str):
+                self._recovery_issues.append(
+                    {"code": "JOB_RECORD_INVALID", "job_id": path.stem, "path": "catalog/jobs"}
+                )
+                continue
+            job_id = payload["job_id"]
+            if path.stem != job_id or not _valid_identifier(job_id):
+                self._recovery_issues.append({"code": "JOB_ID_INVALID", "job_id": str(job_id), "path": "catalog/jobs"})
+                continue
+            recovered = copy.deepcopy(payload)
+            state = recovered.get("state")
+            if recovered.get("job_type") != _TIMEFRAME_GENERATION or state not in {
+                "STAGED",
+                "QUEUED",
+                "RUNNING",
+                "CANCEL_REQUESTED",
+                "CANCELLED",
+                "FAILED",
+                "RECOVERY_REQUIRED",
+            }:
+                self._recovery_issues.append({"code": "JOB_RECORD_INVALID", "job_id": job_id, "path": "catalog/jobs"})
+                continue
+            operation_token = recovered.get("operation_token")
+            owner_id = recovered.get("owner_id")
+            revision = recovered.get("revision")
+            raw_input = recovered.get("input")
+            if (
+                not isinstance(operation_token, str)
+                or not _valid_identifier(operation_token)
+                or not isinstance(owner_id, str)
+                or not _valid_identifier(owner_id)
+                or not isinstance(revision, int)
+                or isinstance(revision, bool)
+                or revision < 0
+                or not isinstance(raw_input, Mapping)
+            ):
+                self._recovery_issues.append({"code": "JOB_RECORD_INVALID", "job_id": job_id, "path": "catalog/jobs"})
+                continue
+            if state in {"QUEUED", "RUNNING", "CANCEL_REQUESTED"}:
+                recovered["state"] = "RECOVERY_REQUIRED"
+                recovered["reason"] = "RESTART_RECOVERY_REQUIRED"
+                recovered["output"] = {
+                    "staging_state": "ORPHAN_STAGING",
+                    "promoted": False,
+                    "usable": False,
+                }
+                recovered["orphan"] = True
+                recovered["accepted"] = False
+                raw_revision = recovered.get("revision", 0)
+                recovered["revision"] = (
+                    raw_revision + 1 if isinstance(raw_revision, int) and not isinstance(raw_revision, bool) else 1
+                )
+                self._recovery_issues.append(
+                    {"code": "JOB_RESTART_RECOVERY_REQUIRED", "job_id": job_id, "path": "catalog/jobs"}
+                )
+                self._persist(recovered)
+            self._jobs[job_id] = recovered
+            request = recovered.get("input")
+            request_id = request.get("request_id") if isinstance(request, Mapping) else None
+            if isinstance(request_id, str):
+                self._request_index[request_id] = job_id
+
+    def _persist(self, value: JsonObject) -> None:
+        if self.job_root is None:
+            return
+        job_id = value.get("job_id")
+        if not isinstance(job_id, str) or not _valid_identifier(job_id):
+            raise ValueError("JOB_REFERENCE_INVALID")
+        self.job_root.mkdir(parents=True, exist_ok=True)
+        path = self.job_root / f"{job_id}.json"
+        if self._path_is_unsafe(path):
+            raise ValueError("JOB_RUNTIME_PATH_UNSAFE")
+        descriptor, temporary_name = tempfile.mkstemp(prefix=f".{job_id}.", suffix=".tmp", dir=self.job_root)
+        temporary_path = Path(temporary_name)
+        try:
+            with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+                descriptor = -1
+                json.dump(value, handle, ensure_ascii=False, indent=2)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary_path, path)
+        finally:
+            if descriptor >= 0:
+                os.close(descriptor)
+            if temporary_path.exists():
+                temporary_path.unlink()
 
 
 class JobService:
@@ -78,8 +246,10 @@ def create_historical_download_job(value: object) -> JsonObject:
     }
 
 
-def create_timeframe_generation_job(value: object) -> JsonObject:
+def create_timeframe_generation_job(value: object, *, _registry: LocalJobRegistry | None = None) -> JsonObject:
     """Create a local-only generation result with recovery-safe promotion state."""
+
+    registry = _registry or _DEFAULT_REGISTRY
 
     if not isinstance(value, Mapping):
         return _rejected_job(_TIMEFRAME_GENERATION, "JOB_REQUEST_INVALID", {})
@@ -118,7 +288,7 @@ def create_timeframe_generation_job(value: object) -> JsonObject:
             "orphan": True,
             "external_io_performed": False,
         }
-        return _register_job(result)
+        return _register_job(result, registry=registry)
 
     raw_timeframes = request["timeframes"]
     assert isinstance(raw_timeframes, list)
@@ -143,10 +313,12 @@ def create_timeframe_generation_job(value: object) -> JsonObject:
         "orphan": False,
         "external_io_performed": False,
     }
-    return _register_job(result)
+    return _register_job(result, registry=registry)
 
 
-def cancel_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
+def cancel_timeframe_generation_job(
+    value: Mapping[str, object], *, _registry: LocalJobRegistry | None = None
+) -> JsonObject:
     """Cancel only an active local generation job without promoting data."""
 
     if not isinstance(value, Mapping):
@@ -159,7 +331,8 @@ def cancel_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
             "accepted": False,
             "promoted": False,
         }
-    trusted, rejection = _trusted_job(value)
+    registry = _registry or _DEFAULT_REGISTRY
+    trusted, rejection = _trusted_job(value, registry=registry)
     if rejection is not None:
         return rejection
     assert trusted is not None
@@ -178,10 +351,13 @@ def cancel_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
         reason="JOB_CANCELLED",
         output={"staging_state": "CANCELLED", "promoted": False, "usable": False},
         orphan=False,
+        registry=registry,
     )
 
 
-def restart_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
+def restart_timeframe_generation_job(
+    value: Mapping[str, object], *, _registry: LocalJobRegistry | None = None
+) -> JsonObject:
     """Convert an interrupted active job into an explicit recovery state."""
 
     if not isinstance(value, Mapping):
@@ -194,7 +370,8 @@ def restart_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
             "accepted": False,
             "promoted": False,
         }
-    trusted, rejection = _trusted_job(value)
+    registry = _registry or _DEFAULT_REGISTRY
+    trusted, rejection = _trusted_job(value, registry=registry)
     if rejection is not None:
         return rejection
     assert trusted is not None
@@ -213,10 +390,13 @@ def restart_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
         reason="RESTART_RECOVERY_REQUIRED",
         output={"staging_state": "ORPHAN_STAGING", "promoted": False, "usable": False},
         orphan=True,
+        registry=registry,
     )
 
 
-def advance_timeframe_generation_job(value: Mapping[str, object], target_state: str = "RUNNING") -> JsonObject:
+def advance_timeframe_generation_job(
+    value: Mapping[str, object], target_state: str = "RUNNING", *, _registry: LocalJobRegistry | None = None
+) -> JsonObject:
     """Advance a server-owned local job without accepting a caller mutation.
 
     This is intentionally small: it is the local execution seam used by the
@@ -234,7 +414,8 @@ def advance_timeframe_generation_job(value: Mapping[str, object], target_state: 
             "accepted": False,
             "promoted": False,
         }
-    trusted, rejection = _trusted_job(value)
+    registry = _registry or _DEFAULT_REGISTRY
+    trusted, rejection = _trusted_job(value, registry=registry)
     if rejection is not None:
         return rejection
     assert trusted is not None
@@ -252,15 +433,17 @@ def advance_timeframe_generation_job(value: Mapping[str, object], target_state: 
         reason="JOB_STATE_ADVANCED",
         output=trusted.get("output") if isinstance(trusted.get("output"), Mapping) else None,
         orphan=trusted.get("orphan") is True,
+        registry=registry,
     )
 
 
-def get_owned_job_snapshot(value: Mapping[str, object]) -> JsonObject:
+def get_owned_job_snapshot(value: Mapping[str, object], *, _registry: LocalJobRegistry | None = None) -> JsonObject:
     """Return a verified server-owned capability snapshot for local consumers."""
 
     if not isinstance(value, Mapping):
         raise ValueError("JOB_REQUEST_INVALID")
-    trusted, rejection = _trusted_job(value)
+    registry = _registry or _DEFAULT_REGISTRY
+    trusted, rejection = _trusted_job(value, registry=registry)
     if rejection is not None:
         raise ValueError(str(rejection.get("reason", "JOB_NOT_FOUND")))
     assert trusted is not None
@@ -269,7 +452,9 @@ def get_owned_job_snapshot(value: Mapping[str, object]) -> JsonObject:
     return copy.deepcopy(trusted)
 
 
-def retry_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
+def retry_timeframe_generation_job(
+    value: Mapping[str, object], *, _registry: LocalJobRegistry | None = None
+) -> JsonObject:
     """Retry only failed/cancelled/recovery jobs and retain the parent job ID."""
 
     if not isinstance(value, Mapping):
@@ -282,7 +467,8 @@ def retry_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
             "accepted": False,
             "promoted": False,
         }
-    trusted, rejection = _trusted_job(value)
+    registry = _registry or _DEFAULT_REGISTRY
+    trusted, rejection = _trusted_job(value, registry=registry)
     if rejection is not None:
         return rejection
     assert trusted is not None
@@ -310,7 +496,7 @@ def retry_timeframe_generation_job(value: Mapping[str, object]) -> JsonObject:
     request["failure_injection"] = None
     raw_attempt = request.get("attempt", 0)
     request["attempt"] = raw_attempt + 1 if isinstance(raw_attempt, int) and raw_attempt >= 0 else 1
-    retried = create_timeframe_generation_job(request)
+    retried = create_timeframe_generation_job(request, _registry=registry)
     retried["accepted"] = retried.get("state") == "STAGED"
     return retried
 
@@ -330,7 +516,9 @@ def _job_projection(value: Mapping[str, object]) -> JsonObject:
     }
 
 
-def _trusted_job(value: Mapping[str, object]) -> tuple[JsonObject | None, JsonObject | None]:
+def _trusted_job(
+    value: Mapping[str, object], *, registry: LocalJobRegistry
+) -> tuple[JsonObject | None, JsonObject | None]:
     raw_job_id = value.get("job_id")
     if not isinstance(raw_job_id, str) or not _valid_identifier(raw_job_id):
         return None, {
@@ -340,8 +528,8 @@ def _trusted_job(value: Mapping[str, object]) -> tuple[JsonObject | None, JsonOb
             "accepted": False,
             "promoted": False,
         }
-    with _JOB_REGISTRY_LOCK:
-        trusted = _LOCAL_JOB_REGISTRY.get(raw_job_id)
+    with registry._lock:
+        trusted = registry._jobs.get(raw_job_id)
         trusted = copy.deepcopy(trusted) if trusted is not None else None
     if trusted is None:
         return None, {
@@ -395,14 +583,14 @@ def _trusted_job(value: Mapping[str, object]) -> tuple[JsonObject | None, JsonOb
     return trusted, None
 
 
-def _register_job(result: JsonObject) -> JsonObject:
+def _register_job(result: JsonObject, *, registry: LocalJobRegistry) -> JsonObject:
     job_id = result.get("job_id")
     if not isinstance(job_id, str):
         return result
     request = result.get("input")
     request_id = request.get("request_id") if isinstance(request, Mapping) else None
-    with _JOB_REGISTRY_LOCK:
-        existing = _LOCAL_JOB_REGISTRY.get(job_id)
+    with registry._lock:
+        existing = registry._jobs.get(job_id)
         if existing is not None:
             if existing.get("input") != request:
                 return {
@@ -417,9 +605,10 @@ def _register_job(result: JsonObject) -> JsonObject:
         stored["operation_token"] = uuid.uuid4().hex
         stored["owner_id"] = f"JOB-OWNER-{uuid.uuid4().hex}"
         stored["revision"] = 0
-        _LOCAL_JOB_REGISTRY[job_id] = stored
+        registry._jobs[job_id] = stored
         if isinstance(request_id, str):
-            _LOCAL_JOB_REQUEST_INDEX[request_id] = job_id
+            registry._request_index[request_id] = job_id
+        registry._persist(stored)
         return copy.deepcopy(stored)
 
 
@@ -430,12 +619,13 @@ def _transition_job(
     reason: str,
     output: object,
     orphan: bool,
+    registry: LocalJobRegistry,
 ) -> JsonObject:
     job_id = trusted.get("job_id")
     if not isinstance(job_id, str):
         return _rejected_job(_TIMEFRAME_GENERATION, "JOB_REFERENCE_INVALID", {})
-    with _JOB_REGISTRY_LOCK:
-        current = _LOCAL_JOB_REGISTRY.get(job_id)
+    with registry._lock:
+        current = registry._jobs.get(job_id)
         if current is None or current.get("revision") != trusted.get("revision"):
             return {
                 **_job_projection(trusted),
@@ -454,7 +644,8 @@ def _transition_job(
         raw_revision = current.get("revision", 0)
         revision = raw_revision if isinstance(raw_revision, int) and not isinstance(raw_revision, bool) else 0
         updated["revision"] = revision + 1
-        _LOCAL_JOB_REGISTRY[job_id] = updated
+        registry._jobs[job_id] = updated
+        registry._persist(updated)
         return copy.deepcopy(updated)
 
 
@@ -781,3 +972,6 @@ def _parse_utc(value: object) -> datetime | None:
     if parsed.tzinfo is None or offset is None or offset.total_seconds() != 0:
         return None
     return parsed
+
+
+_DEFAULT_REGISTRY = LocalJobRegistry()
