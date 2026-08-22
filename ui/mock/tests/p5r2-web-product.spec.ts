@@ -96,8 +96,8 @@ test('P5R2-19: local Web Product journey remains bounded and fail-closed', async
   await page.getByTestId('nav-SCREEN-10').click()
   await expect(page.getByTestId('screen-SCREEN-10')).toHaveAttribute('data-p5r2-real-api', 'true')
   await expect(page.getByText('表示できるP5R2結果はありません')).toBeVisible()
-  await expect(page.getByRole('button', { name: '結果表示を削除（DELETE-G1未承認）' })).toBeDisabled()
-  await expect(page.getByText(/DELETE_GATE_REQUIRED/)).toBeVisible()
+  await expect(page.getByText('結果表示の削除は承認済み範囲で実行できます')).toBeVisible()
+  await expect(page.getByText(/削除対象のRunカードで確認ダイアログ/)).toBeVisible()
   const resultAxe = await runAxe(page)
   axeResults.push({
     screen: 'SCREEN-10',
@@ -121,7 +121,7 @@ test('P5R2-19: local Web Product journey remains bounded and fail-closed', async
       source_timeframe: '1m (説明だけ、選択不可)',
       strategy_timeframes: ['15m', '30m', '1h', '4h', '1d'],
       external_download: 'HOST_LEVEL_ISOLATION_NOT_VERIFIED',
-      delete: 'DELETE-G1_UNAPPROVED',
+      delete: 'DELETE-G1_APPROVED_BOUNDED_P5R2_21_FIXTURE_ONLY',
       p6: 'NOT_STARTED',
     },
   }, null, 2), 'utf-8')

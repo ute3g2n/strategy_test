@@ -70,7 +70,7 @@ function sourceCandidates(catalog: P5R2CatalogResponse | null, symbol: string) {
 function cancellationReason(run: P5R2RunView) {
   if (isCancellable(run.status)) return '取消できます。処理中は同じRunへの二重操作を防ぎます。'
   if (run.status === 'CANCELLED') return 'すでに取消済みです。'
-  if (run.status === 'SUCCEEDED') return '完了済みのRunは取消できません。結果表示はDELETE-G1未承認のため削除できません。'
+  if (run.status === 'SUCCEEDED') return '完了済みのRunは取消できません。不要な結果表示だけ削除できます。'
   if (run.status === 'RECOVERY_REQUIRED') return '復旧確認が必要なため取消操作は受け付けません。'
   return '現在のRun状態では取消できません。'
 }
@@ -108,8 +108,28 @@ function SourceCatalogTable({ catalog, jobStates }: { catalog: P5R2CatalogRespon
   )
 }
 
-function RunStateCard({ run, onCancel, busy }: { run: P5R2RunView; onCancel: (run: P5R2RunView) => void; busy: boolean }) {
+function RunStateCard({
+  run,
+  onCancel,
+  busy,
+  onDelete,
+  deleteBusy,
+}: {
+  run: P5R2RunView
+  onCancel: (run: P5R2RunView) => void
+  busy: boolean
+  onDelete: (run: P5R2RunView) => void
+  deleteBusy: boolean
+}) {
   const canCancel = isCancellable(run.status)
+  const canDelete = run.status === 'SUCCEEDED' && run.result_deleted !== true
+  const deleteLabel = run.result_deleted === true
+    ? '結果表示は削除済み'
+    : deleteBusy
+      ? '削除処理中'
+      : canDelete
+        ? '結果表示を削除'
+        : '結果表示を削除（完了後）'
   return (
     <article className="run-card" data-testid={`p5r2-run-${run.run_id}`}>
       <div className="section-heading">
@@ -121,12 +141,21 @@ function RunStateCard({ run, onCancel, busy }: { run: P5R2RunView; onCancel: (ru
         <div><dt>進捗</dt><dd>{run.progress_percent}% / {run.progress} of {run.total}</dd></div>
         <div><dt>条件</dt><dd>{text(run.spec.symbol)} / {text(run.spec.timeframe)} / {text(run.spec.strategy)}</dd></div>
         <div><dt>取消可否</dt><dd>{cancellationReason(run)}</dd></div>
+        <div><dt>結果表示</dt><dd>{run.result_deleted === true ? '削除済み（復元不可）' : run.status === 'SUCCEEDED' ? '表示可能' : '完了後に表示'}</dd></div>
         {run.failure && <div><dt>停止理由</dt><dd>{run.failure.code}: {text(run.failure.message, '詳細なし')}</dd></div>}
       </dl>
       <ProgressBar value={run.progress_percent} label={`${run.run_id} の進捗`} />
       <div className="button-row compact-buttons">
         <button className="secondary-button" type="button" disabled={!canCancel || busy} onClick={() => onCancel(run)}>{busy ? '取消処理中' : '取消'}</button>
+        <button
+          className="danger-button"
+          type="button"
+          disabled={!canDelete || deleteBusy}
+          onClick={() => onDelete(run)}
+          aria-describedby={`p5r2-delete-result-${run.run_id}`}
+        >{deleteLabel}</button>
       </div>
+      <p id={`p5r2-delete-result-${run.run_id}`} className="muted">結果表示の削除は、完了済みのResultArtifactだけを対象にします。CSV、Historical Data、Run本体、Audit、Evidenceは削除しません。</p>
     </article>
   )
 }
@@ -134,10 +163,9 @@ function RunStateCard({ run, onCancel, busy }: { run: P5R2RunView; onCancel: (ru
 function ResultProtectionPanel() {
   return (
     <section className="panel-card" aria-labelledby="p5r2-delete-gate-title" data-testid="p5r2-delete-gate">
-      <div className="section-heading"><div><p className="card-kicker">ResultArtifact 保護</p><h3 id="p5r2-delete-gate-title">結果表示の削除はまだ実行できません</h3></div><StateBadge state="UNAPPROVED" compact /></div>
-      <p className="muted">DELETE-G1が未承認です。CSV、Historical Data、Run、Audit、Evidenceは保護され、物理削除は行いません。</p>
-      <button className="danger-button" type="button" disabled aria-describedby="p5r2-delete-gate-reason">結果表示を削除（DELETE-G1未承認）</button>
-      <p id="p5r2-delete-gate-reason" className="inline-notice error-notice" role="status">DELETE_GATE_REQUIRED。削除APIは呼び出していません。</p>
+      <div className="section-heading"><div><p className="card-kicker">ResultArtifact 保護</p><h3 id="p5r2-delete-gate-title">結果表示の削除は承認済み範囲で実行できます</h3></div><StateBadge state="NORMAL" compact /></div>
+      <p className="muted">DELETE-G1は、完了済みのResultArtifactだけを対象に承認済みです。削除前にCSVをExportしてください。CSV、Historical Data、Run本体、Audit、Evidenceは保護され、復元APIはありません。</p>
+      <p id="p5r2-delete-gate-reason" className="inline-notice" role="status">削除対象のRunカードで確認ダイアログを開き、明示的に確定した場合だけ削除APIを呼び出します。</p>
     </section>
   )
 }
@@ -156,6 +184,8 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [cancellingRunId, setCancellingRunId] = useState<string | null>(null)
+  const [deletingRunId, setDeletingRunId] = useState<string | null>(null)
+  const [deleteCandidate, setDeleteCandidate] = useState<P5R2RunView | null>(null)
 
   const p5r2Runs = useMemo(
     () => runs.filter((run) => isP5R2StrategyTimeframe(run.spec.timeframe)),
@@ -342,6 +372,33 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
     }
   }
 
+  const requestResultDelete = (run: P5R2RunView) => {
+    if (run.status !== 'SUCCEEDED' || run.result_deleted === true || deletingRunId) return
+    setDeleteCandidate(run)
+  }
+
+  const deleteResult = async () => {
+    const candidate = deleteCandidate
+    if (!candidate) return
+    setDeleteCandidate(null)
+    setDeletingRunId(candidate.run_id)
+    setError('')
+    setMessage('')
+    try {
+      const response = await p5r2Api.deleteResultArtifact(candidate.run_id)
+      await refresh()
+      if (response.accepted === true) {
+        setMessage(`${candidate.run_id}の結果表示を削除しました。CSV、Historical Data、Run本体、Audit、Evidenceは保持されています。`)
+      } else {
+        setError(`結果表示を削除できません: ${text(response.error_code, response.reason ?? '不明な理由')}`)
+      }
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : '結果表示の削除に失敗しました。')
+    } finally {
+      setDeletingRunId(null)
+    }
+  }
+
   const generationPanel = generation && (
     <section className="panel-card" aria-labelledby="p5r2-generation-title" data-testid="p5r2-generation-form">
       <div className="section-heading"><div><p className="card-kicker">時間足生成 / local-only</p><h3 id="p5r2-generation-title">指定時間足を生成する</h3></div><StateBadge state={uiStateForJob(generationJob)} compact /></div>
@@ -401,14 +458,14 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
   const runScreen = (
     <>
       <section className="p5r2-scope-strip"><strong>実行一覧・進捗 / 実Application API</strong><span>Run state、進捗、取消可否・理由を同じAPI状態から表示</span></section>
-      <section className="panel-card"><div className="section-heading"><div><p className="card-kicker">Backtest実行一覧・進捗</p><h2>現在のP5R2 Backtest Run</h2></div><button className="secondary-button" type="button" disabled={loading} onClick={() => void refresh()}>実行一覧を更新</button></div>{p5r2Runs.length > 0 ? <div className="run-list">{p5r2Runs.map((run) => <RunStateCard key={run.run_id} run={run} busy={cancellingRunId === run.run_id} onCancel={(candidate) => void cancelRun(candidate)} />)}</div> : <EmptyState title="P5R2のBacktest Runはありません" />}</section>
+      <section className="panel-card"><div className="section-heading"><div><p className="card-kicker">Backtest実行一覧・進捗</p><h2>現在のP5R2 Backtest Run</h2></div><button className="secondary-button" type="button" disabled={loading} onClick={() => void refresh()}>実行一覧を更新</button></div>{p5r2Runs.length > 0 ? <div className="run-list">{p5r2Runs.map((run) => <RunStateCard key={run.run_id} run={run} busy={cancellingRunId === run.run_id} onCancel={(candidate) => void cancelRun(candidate)} onDelete={requestResultDelete} deleteBusy={deletingRunId === run.run_id} />)}</div> : <EmptyState title="P5R2のBacktest Runはありません" />}</section>
     </>
   )
 
   const resultScreen = (
     <>
       <section className="p5r2-scope-strip"><strong>Backtest結果サマリー / 実Application API</strong><span>Run state、取消可否・理由は実行一覧と同一</span></section>
-      <section className="panel-card"><div className="section-heading"><div><p className="card-kicker">Backtest結果サマリー</p><h2>結果の表示対象</h2></div><button className="secondary-button" type="button" disabled={loading} onClick={() => void refresh()}>結果一覧を更新</button></div>{p5r2Runs.length > 0 ? <div className="run-list">{p5r2Runs.map((run) => <RunStateCard key={run.run_id} run={run} busy={cancellingRunId === run.run_id} onCancel={(candidate) => void cancelRun(candidate)} />)}</div> : <EmptyState title="表示できるP5R2結果はありません" />}</section>
+      <section className="panel-card"><div className="section-heading"><div><p className="card-kicker">Backtest結果サマリー</p><h2>結果の表示対象</h2></div><button className="secondary-button" type="button" disabled={loading} onClick={() => void refresh()}>結果一覧を更新</button></div>{p5r2Runs.length > 0 ? <div className="run-list">{p5r2Runs.map((run) => <RunStateCard key={run.run_id} run={run} busy={cancellingRunId === run.run_id} onCancel={(candidate) => void cancelRun(candidate)} onDelete={requestResultDelete} deleteBusy={deletingRunId === run.run_id} />)}</div> : <EmptyState title="表示できるP5R2結果はありません" />}</section>
       <ResultProtectionPanel />
     </>
   )
@@ -419,7 +476,7 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
       {error && <StateAlert state="FAILED" title="Application APIの応答を確認してください">{error}</StateAlert>}
       {message && <p className="inline-notice" role="status">{message}</p>}
       {screen.id === 'SCREEN-08' ? conditionScreen : screen.id === 'SCREEN-09' ? runScreen : resultScreen}
-      <HelpTip title="この画面の安全境界">外部Dataの取得、Secret、Provider接続、費用、実削除、P6開始はこの画面から実行しません。Backtest計算はApplication APIの責務です。</HelpTip>
+      <HelpTip title="この画面の安全境界">外部Dataの取得、Secret、Provider接続、費用、Historical DataやRun本体の削除、P6開始はこの画面から実行しません。承認済みの結果表示削除だけが、完了済みのResultArtifactに限定して実行されます。Backtest計算はApplication APIの責務です。</HelpTip>
       <ConfirmDialog
         open={missingData !== null}
         onOpenChange={(open) => { if (!open) setMissingData(null) }}
@@ -428,6 +485,16 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
         confirmLabel="時間足を生成する"
         cancelLabel="取消"
         onConfirm={() => { if (missingData) openGenerationFromRequirement(missingData) }}
+      />
+      <ConfirmDialog
+        open={deleteCandidate !== null}
+        onOpenChange={(open) => { if (!open) setDeleteCandidate(null) }}
+        title={`${deleteCandidate?.run_id ?? '結果'}の表示を削除しますか？`}
+        description={deleteCandidate ? `${deleteCandidate.run_id}の完了済みResultArtifactだけを物理削除します。先にCSVをExportしてください。Historical Data、Run本体、Audit、Evidenceは削除されず、削除後に復元できません。` : ''}
+        confirmLabel="結果表示を削除する"
+        cancelLabel="戻る"
+        danger
+        onConfirm={() => void deleteResult()}
       />
     </div>
   )

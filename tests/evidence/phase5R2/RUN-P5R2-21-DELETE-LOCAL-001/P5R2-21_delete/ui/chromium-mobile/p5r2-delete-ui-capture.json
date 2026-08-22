@@ -1,0 +1,34 @@
+{
+  "schema_version": "P5R2-21-delete-ui-capture-v1",
+  "run_id": "RUN-P5R2-21-DELETE-LOCAL-001",
+  "created_run_id": "RUN-P5R2-21-UI-SEED-001",
+  "project": "chromium-mobile",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "external_requests": [],
+  "delete_request": {
+    "logical_artifact_id": "RESULT-OWNER-RUN-P5R2-21-UI-SEED-001",
+    "artifact_kind": "RESULT",
+    "confirmation": true,
+    "operation_token": "p5r2-ui-result-delete-RUN-P5R2-21-UI-SEED-001",
+    "request_id": "p5r2-ui-result-delete-request-RUN-P5R2-21-UI-SEED-001",
+    "reason": "operator requested result display removal from P5R2 result screen"
+  },
+  "axe_serious_or_critical": [],
+  "screenshot": "tests/evidence/phase5R2/RUN-P5R2-21-DELETE-LOCAL-001/P5R2-21_delete/ui/chromium-mobile/P5R2-21-SCREEN-10-result-deleted.png",
+  "boundaries": {
+    "artifact": "terminal ResultArtifact only",
+    "protected": [
+      "CSV",
+      "Historical Data",
+      "Run",
+      "Audit",
+      "Evidence"
+    ],
+    "restore_api": false,
+    "external_io": false,
+    "p6": "NOT_STARTED"
+  }
+}

@@ -1254,6 +1254,9 @@ class HistoryCatalog:
                     issues.append(self._issue("OPERATION_GUARD_STATE_MISSING", run_id, path))
                 continue
             if status == "SUCCEEDED":
+                if record.get("result_deleted") is True:
+                    restored.append(dict(record))
+                    continue
                 result, result_issue = self._read_referenced_result(record, run_id, path)
                 if result_issue is not None:
                     restored.append(

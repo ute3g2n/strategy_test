@@ -107,8 +107,27 @@ export type P5R2RunView = {
   checkpoint: Record<string, unknown> | null
   resume_count: number
   recovery_mode: string
+  result_deleted?: boolean
+  result_deleted_at?: string | null
   result_reference: string | null
+  result_publish_id?: string | null
   operation?: P5R2RunOperation
+}
+
+export type P5R2ResultDeleteResponse = {
+  logical_artifact_id: string
+  artifact_kind: string
+  accepted: boolean
+  deleted: boolean
+  status: string
+  artifact_state: string
+  error_code?: string | null
+  reason?: string
+  request_id?: string
+  operation_token?: string
+  audit_id?: string
+  physical_io_performed?: boolean
+  replayed?: boolean
 }
 
 export type P5R2GenerationJob = {
@@ -188,6 +207,18 @@ export const p5r2Api = {
       request_id: `p5r2-ui-cancel-request-${runId}`,
     }),
     [202],
+  ),
+  deleteResultArtifact: (runId: string) => request<P5R2ResultDeleteResponse>(
+    '/api/p5r2/result-artifacts/delete',
+    jsonBody({
+      logical_artifact_id: `RESULT-OWNER-${runId}`,
+      artifact_kind: 'RESULT',
+      confirmation: true,
+      operation_token: `p5r2-ui-result-delete-${runId}`,
+      request_id: `p5r2-ui-result-delete-request-${runId}`,
+      reason: 'operator requested result display removal from P5R2 result screen',
+    }),
+    [409],
   ),
   createTimeframeGenerationJob: (value: P5R2GenerationRequest) => request<P5R2GenerationJob>(
     '/api/p5r2/timeframe-generation-jobs',

@@ -139,6 +139,8 @@ class _Run:
     checkpoint: JsonObject | None = None
     resume_count: int = 0
     recovery_mode: str = "NORMAL"
+    result_deleted: bool = False
+    result_deleted_at: str | None = None
     operation_revision: int = 0
     operation_record: JsonObject | None = None
     retired_operation_tokens: list[str] = field(default_factory=list)
@@ -174,7 +176,13 @@ class _CsvJob:
 class BacktestProductService:
     """Typed local service used by tests and the browser API."""
 
-    def __init__(self, *, data_root: Path | None = None, runtime_root: Path | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        data_root: Path | None = None,
+        runtime_root: Path | None = None,
+        delete_gate_approved: bool = False,
+    ) -> None:
         logical_data_root = (
             validate_storage_path(HISTORICAL_DATA_ROOT, purpose="historical data")
             if data_root is None
@@ -194,9 +202,13 @@ class BacktestProductService:
         self._sweeps: dict[str, _Sweep] = {}
         self._csv_jobs: dict[str, _CsvJob] = {}
         self._holdout_consumed = False
+        self._delete_gate_approved = delete_gate_approved
         self._job_registry = job_service.LocalJobRegistry(self.runtime_root)
         self._history_catalog = HistoryCatalog(self.runtime_root, job_registry=self._job_registry)
-        self._result_artifacts = LocalResultArtifacts(self.runtime_root)
+        self._result_artifacts = LocalResultArtifacts(
+            self.runtime_root,
+            physical_delete_enabled=delete_gate_approved,
+        )
         self._operation_guard = OperationGuard()
         self._recovery_issues: list[JsonObject] = []
         self._restore_history()
@@ -252,6 +264,12 @@ class BacktestProductService:
                     checkpoint=dict(record["checkpoint"]) if isinstance(record.get("checkpoint"), Mapping) else None,
                     resume_count=self._stored_int(record.get("resume_count")),
                     recovery_mode=str(record.get("recovery_mode", "NORMAL")),
+                    result_deleted=record.get("result_deleted") is True,
+                    result_deleted_at=(
+                        record.get("result_deleted_at")
+                        if isinstance(record.get("result_deleted_at"), str)
+                        else None
+                    ),
                     operation_revision=self._stored_int(record.get("operation_revision")),
                     operation_record=dict(operation_record) if isinstance(operation_record, Mapping) else None,
                     retired_operation_tokens=list(raw_retired_tokens) if retired_tokens_valid else [],
@@ -525,7 +543,53 @@ class BacktestProductService:
         return self._job_registry.retry_timeframe_generation_job(value)
 
     def delete_result_artifact(self, value: Mapping[str, object] | object) -> JsonObject:
-        return self._result_artifacts.delete_result_artifact(value)
+        if not isinstance(value, Mapping):
+            return self._result_artifacts.delete_result_artifact(value)
+
+        request = dict(value)
+        logical_artifact_id = request.get("logical_artifact_id")
+        run_id = (
+            LocalResultArtifacts._artifact_run_id(logical_artifact_id)
+            if isinstance(logical_artifact_id, str)
+            else None
+        )
+        with self._lock:
+            run = self._runs.get(run_id) if run_id is not None else None
+            if run is None:
+                # Never let a browser-supplied state turn an unowned result
+                # path into a deletable target.
+                request["_server_run_missing"] = True
+                request["physical_io_allowed"] = False
+                return self._result_artifacts.delete_result_artifact(request)
+            # The browser may identify the requested artifact, but the server
+            # owns the current Run state and the only approved runtime root.
+            request["run_state"] = run.status
+            request["allowed_root"] = str(self.runtime_root)
+            request["physical_io_allowed"] = self._delete_gate_approved
+            result = self._result_artifacts.delete_result_artifact(request)
+            if result.get("accepted") is True and result.get("status") == "RESULT_DELETED":
+                run.result_deleted = True
+                audit = result.get("audit")
+                run.result_deleted_at = (
+                    audit.get("deleted_at")
+                    if isinstance(audit, Mapping) and isinstance(audit.get("deleted_at"), str)
+                    else run.result_deleted_at or _iso(datetime.now(UTC))
+                )
+                run.recovery_mode = "RESULT_DELETED"
+                try:
+                    self._persist_run(run)
+                except (OSError, ValueError) as error:
+                    return {
+                        **result,
+                        "accepted": False,
+                        "deleted": False,
+                        "status": "DELETE_FAILED",
+                        "artifact_state": "DELETED",
+                        "error_code": "RUN_TOMBSTONE_PERSIST_FAILED",
+                        "reason": "物理削除後のRun削除状態保存に失敗しました。",
+                        "persistence_error": str(error),
+                    }
+            return result
 
     def create_run(
         self, raw_spec: Mapping[str, Any], *, kind: str = "SINGLE_BACKTEST", parent_id: str | None = None
@@ -1659,11 +1723,21 @@ class BacktestProductService:
             "checkpoint": dict(run.checkpoint) if run.checkpoint else None,
             "resume_count": run.resume_count,
             "recovery_mode": run.recovery_mode,
+            "result_deleted": run.result_deleted,
+            "result_deleted_at": run.result_deleted_at,
             "operation_revision": run.operation_revision,
             "operation_record": dict(run.operation_record) if run.operation_record else None,
             "retired_operation_tokens": list(run.retired_operation_tokens),
-            "result_reference": f"results/{run.run_id}/result.json" if run.status == "SUCCEEDED" else None,
-            "result_publish_id": f"RESULT-OWNER-{run.run_id}" if run.status == "SUCCEEDED" else None,
+            "result_reference": (
+                f"results/{run.run_id}/result.json"
+                if run.status == "SUCCEEDED" and not run.result_deleted
+                else None
+            ),
+            "result_publish_id": (
+                f"RESULT-OWNER-{run.run_id}"
+                if run.status == "SUCCEEDED" and not run.result_deleted
+                else None
+            ),
         }
 
     @staticmethod

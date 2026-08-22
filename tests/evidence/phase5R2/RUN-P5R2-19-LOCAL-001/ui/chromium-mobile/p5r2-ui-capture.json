@@ -36,7 +36,7 @@
       "1d"
     ],
     "external_download": "HOST_LEVEL_ISOLATION_NOT_VERIFIED",
-    "delete": "DELETE-G1_UNAPPROVED",
+    "delete": "DELETE-G1_APPROVED_BOUNDED_P5R2_21_FIXTURE_ONLY",
     "p6": "NOT_STARTED"
   }
 }

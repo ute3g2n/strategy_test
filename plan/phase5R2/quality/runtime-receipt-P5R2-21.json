@@ -1,0 +1,58 @@
+{
+  "schema_version": "P5R2-runtime-receipt-v1",
+  "step_id": "P5R2-21",
+  "run_id": "RUN-P5R2-21-DELETE-LOCAL-001",
+  "date": "2026-08-23",
+  "coordinator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+  "requested_agents": [
+    "AutoTrade_A110_PythonTestEngineer_v0_1",
+    "AutoTrade_A120_PythonImplementer_v0_1",
+    "AutoTrade_A130_VerificationEngineer_v0_1",
+    "AutoTrade_A140_DebugEngineer_v0_1",
+    "AutoTrade_A150_PythonCodeReviewer_v0_1",
+    "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+    "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1"
+  ],
+  "dispatch": {
+    "status": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "agent_id": "N/A",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK",
+    "reason": "この実行環境では指定nested named Agentの個別dispatchを起動できなかったため、rootが実装・検証・レビューを実施した。"
+  },
+  "scope": {
+    "physical_acceptance": "new_temporary_fixture_only",
+    "runtime_root": "server_owned_or_pytest_temporary_root",
+    "protected": ["CSV", "HISTORICAL_DATA", "RUN", "AUDIT", "EVIDENCE"],
+    "external_io": false,
+    "secrets": false,
+    "cost": false,
+    "p6": "NOT_STARTED"
+  },
+  "commands": [
+    "python -m pytest -q tests/phase5R/test_p5r2_result_artifact_physical_delete.py",
+    "python -m pytest -q tests/phase5R/test_p5r2_result_artifact_physical_delete.py tests/phase5R/test_p5r2_result_artifact_guard.py tests/phase5R/test_backtest_history_recovery.py tests/application/test_p5r2_web_product_adapter_red.py tests/phase5R/test_p5r2_local_integration_red.py",
+    "npm test",
+    "npm run build",
+    "npm run lint",
+    "npx playwright test tests/p5r2-delete-product.spec.ts --config playwright.p5r2-delete.config.ts",
+    ".venv\\Scripts\\ruff.exe check <P5R2-21 target paths>",
+    ".venv\\Scripts\\mypy.exe <P5R2-21 Python source paths>"
+  ],
+  "results": {
+    "backend_target": "5 passed",
+    "backend_regression": "40 passed",
+    "ui_unit": "14 passed",
+    "ui_e2e": "2 passed",
+    "axe_serious_or_critical": 0,
+    "external_requests": 0,
+    "a95_static_policy": "ALLOW",
+    "status": "LOCAL_GREEN"
+  },
+  "evidence": [
+    "tests/evidence/phase5R2/RUN-P5R2-21-DELETE-LOCAL-001/P5R2-21_delete/verification.md",
+    "tests/evidence/phase5R2/RUN-P5R2-21-DELETE-LOCAL-001/P5R2-21_delete/P5R2-21_GREEN.json",
+    "tests/evidence/phase5R2/RUN-P5R2-21-DELETE-LOCAL-001/P5R2-21_delete/ui/chromium-desktop/p5r2-delete-ui-capture.json",
+    "tests/evidence/phase5R2/RUN-P5R2-21-DELETE-LOCAL-001/P5R2-21_delete/ui/chromium-mobile/p5r2-delete-ui-capture.json"
+  ]
+}

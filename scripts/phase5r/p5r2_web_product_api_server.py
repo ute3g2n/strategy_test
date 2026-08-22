@@ -1,4 +1,4 @@
-"""Fixed local fixture server for the P5R2-19 Web Product journey.
+"""Fixed local fixture server for the P5R2-19/P5R2-21 Web Product journey.
 
 It seeds a small, server-owned LOCAL_FAKE 1m Catalog source so browser tests
 can exercise the real P5R2 adapter without receiving OHLCV bars or contacting
@@ -18,7 +18,7 @@ sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 from http.server import ThreadingHTTPServer  # noqa: E402
 
-from autotrade.application.backtest_product import BacktestProductService  # noqa: E402
+from autotrade.application.backtest_product import BacktestProductService, _Run  # noqa: E402
 from autotrade.application.http_server import _Handler  # noqa: E402
 
 
@@ -101,19 +101,87 @@ def _seed_source(service: BacktestProductService) -> None:
         raise RuntimeError("P5R2_19_FIXTURE_SOURCE_PROMOTION_FAILED")
 
 
+def _seed_completed_results(service: BacktestProductService) -> None:
+    """Create only new local result fixtures for the bounded P5R2-21 browser run."""
+
+    spec = {
+        "symbol": "BTCUSDT",
+        "market": "SPOT",
+        "timeframe": "15m",
+        "timezone": "UTC",
+        "calendar": "CRYPTO_24_7_UTC",
+        "start": "2025-02-24T00:00:00Z",
+        "end": "2025-02-24T01:00:00Z",
+        "strategy": "TURTLE_SYS1",
+        "parameters": {
+            "entry_lookback": "8",
+            "exit_lookback": "4",
+            "initial_balance": "100000.0000",
+            "fee_bps": "1.0000",
+            "slippage_bps": "2.0000",
+        },
+    }
+    for index in range(1, 3):
+        run_id = f"RUN-P5R2-21-UI-SEED-{index:03d}"
+        run = _Run(
+            run_id=run_id,
+            spec=dict(spec),
+            status="SUCCEEDED",
+            progress=1,
+            total=1,
+            started_at="2026-08-23T00:00:00Z",
+            ended_at="2026-08-23T00:01:00Z",
+            metrics={
+                "total_pnl": "1.0000",
+                "maximum_drawdown": "0.0000",
+                "trade_count": 0,
+                "win_rate": "0.0000",
+                "ending_balance": "100001.0000",
+                "period_start_utc": spec["start"],
+                "period_end_utc": spec["end"],
+            },
+            provenance={
+                "source_mode": "LOCAL_FAKE",
+                "fixture_scope": "P5R2-21 new temporary browser ResultArtifact fixture",
+                "period_start_utc": spec["start"],
+                "period_end_utc": spec["end"],
+            },
+            rows=[{"row_kind": "BALANCE", "equity": "100001.0000"}],
+        )
+        service._runs[run_id] = run
+        service._persist_run(run)
+        service._history_catalog.write_result(
+            run_id,
+            {
+                "run_id": run_id,
+                "metrics": run.metrics,
+                "rows": run.rows,
+                "provenance": run.provenance,
+                "result_publish_id": f"RESULT-OWNER-{run_id}",
+            },
+        )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--runtime-root", type=Path)
     parser.add_argument("--data-root", type=Path)
+    parser.add_argument("--seed-completed-results", action="store_true")
     args = parser.parse_args()
     if args.host not in {"127.0.0.1", "localhost"}:
         raise ValueError("LOOPBACK_ONLY")
     runtime_root = args.runtime_root or Path(tempfile.mkdtemp(prefix="autotrade-p5r2-19-runtime-"))
     data_root = args.data_root or runtime_root / "data"
-    service = BacktestProductService(data_root=data_root, runtime_root=runtime_root)
+    service = BacktestProductService(
+        data_root=data_root,
+        runtime_root=runtime_root,
+        delete_gate_approved=True,
+    )
     _seed_source(service)
+    if args.seed_completed_results:
+        _seed_completed_results(service)
     _Handler.service = service
     server = ThreadingHTTPServer((args.host, args.port), _Handler)
     server.serve_forever()

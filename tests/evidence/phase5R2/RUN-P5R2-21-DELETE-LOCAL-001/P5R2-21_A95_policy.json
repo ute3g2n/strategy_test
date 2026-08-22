@@ -1,0 +1,14 @@
+{
+  "schema_version": "P5R2-A95-static-policy-v1",
+  "step_id": "P5R2-21",
+  "run_id": "RUN-P5R2-21-DELETE-LOCAL-001",
+  "policy": "ALLOW",
+  "scope": "path/schema/link/secret/state/traceability review only",
+  "management_hash": false,
+  "manifest": false,
+  "stale_or_fingerprint": false,
+  "hash_retry": false,
+  "hash_receipt": false,
+  "protected_data_identity_hash": "not_added",
+  "reason": "P5R2-21成果物は管理hash経路を再導入せず、固定root、状態、path safety、保護対象、要件追跡を確認した。"
+}

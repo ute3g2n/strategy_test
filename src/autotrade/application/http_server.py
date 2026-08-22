@@ -28,7 +28,7 @@ def _p5r2_generation_job_view(value: object) -> dict[str, Any]:
 
 
 class _Handler(BaseHTTPRequestHandler):
-    service = BacktestProductService()
+    service = BacktestProductService(delete_gate_approved=True)
 
     def _send(self, status: int, payload: Any, *, content_type: str = "application/json; charset=utf-8") -> None:
         if content_type.startswith("application/json"):

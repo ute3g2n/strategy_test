@@ -55,15 +55,27 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-function installApiMock() {
+function installApiMock(runs: unknown[] = []) {
   const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input)
     if (url.endsWith('/api/p5r2/catalog')) return response(catalog)
-    if (url.endsWith('/api/backtest/runs')) return response({ items: [] })
+    if (url.endsWith('/api/backtest/runs')) return response({ items: runs })
     if (url.endsWith('/api/p5r2/backtest/preflight')) return response(insufficient, 422)
     if (url.endsWith('/api/p5r2/timeframe-generation-jobs')) {
       expect(init?.method).toBe('POST')
       return response({ job_id: 'JOB-TIMEFRAME_GENERATION-UI-001', job_type: 'TIMEFRAME_GENERATION', state: 'STAGED', reason: 'TIMEFRAME_GENERATION_VALIDATION_REQUIRED', external_io_performed: false })
+    }
+    if (url.endsWith('/api/p5r2/result-artifacts/delete')) {
+      expect(init?.method).toBe('POST')
+      return response({
+        logical_artifact_id: 'RESULT-OWNER-RUN-UI-001',
+        artifact_kind: 'RESULT',
+        accepted: true,
+        deleted: true,
+        status: 'RESULT_DELETED',
+        artifact_state: 'DELETED',
+        physical_io_performed: true,
+      })
     }
     return response({ ok: false, error: { code: 'NOT_FOUND' } }, 404)
   })
@@ -113,15 +125,59 @@ describe('P5R2 Web Product UI', () => {
     expect(body).not.toHaveProperty('source_dataset')
   })
 
-  it('keeps DELETE-G1 fail-closed and has no automated axe violations in the actual-result screen shell', async () => {
+  it('shows the approved bounded DELETE-G1 boundary and has no automated axe violations in the actual-result screen shell', async () => {
     installApiMock()
     const resultScreen: ScreenDefinition = { ...screen08, id: 'SCREEN-10', title: 'Backtest結果サマリー' }
     const { container } = render(<P5R2WebProductScreen screen={resultScreen} onOpenLegacy={() => undefined} />)
 
     await waitFor(() => expect(screen.getByTestId('p5r2-delete-gate')).toBeInTheDocument())
-    expect(screen.getByRole('button', { name: '結果表示を削除（DELETE-G1未承認）' })).toBeDisabled()
-    expect(screen.getByText('DELETE_GATE_REQUIRED。削除APIは呼び出していません。')).toBeInTheDocument()
+    expect(screen.getByText('結果表示の削除は承認済み範囲で実行できます')).toBeInTheDocument()
+    expect(screen.getByText(/削除対象のRunカードで確認ダイアログ/)).toBeInTheDocument()
     const results = await axe(container)
     expect(results.violations).toEqual([])
+  })
+
+  it('requires confirmation before requesting deletion for a completed Run', async () => {
+    const user = userEvent.setup()
+    const fetchMock = installApiMock([{
+      run_id: 'RUN-UI-001',
+      kind: 'SINGLE_BACKTEST',
+      parent_id: null,
+      status: 'SUCCEEDED',
+      progress: 10,
+      total: 10,
+      progress_percent: 100,
+      started_at: '2026-08-23T00:00:00Z',
+      ended_at: '2026-08-23T00:01:00Z',
+      eta: '完了',
+      spec: { symbol: 'BTCUSDT', timeframe: '30m', strategy: 'TURTLE_SYS1' },
+      metrics: { total_pnl: '1.00' },
+      provenance: {},
+      failure: null,
+      checkpoint: null,
+      resume_count: 0,
+      recovery_mode: 'NORMAL',
+      result_deleted: false,
+      result_reference: 'results/RUN-UI-001/result.json',
+      result_publish_id: 'RESULT-OWNER-RUN-UI-001',
+    }])
+    const resultScreen: ScreenDefinition = { ...screen08, id: 'SCREEN-10', title: 'Backtest結果サマリー' }
+    render(<P5R2WebProductScreen screen={resultScreen} onOpenLegacy={() => undefined} />)
+
+    await waitFor(() => expect(screen.getByTestId('p5r2-run-RUN-UI-001')).toBeInTheDocument())
+    await user.click(screen.getByRole('button', { name: '結果表示を削除' }))
+    const dialog = await screen.findByRole('dialog', { name: 'RUN-UI-001の表示を削除しますか？' })
+    expect(dialog).toHaveTextContent('先にCSVをExportしてください')
+    expect(fetchMock.mock.calls.some(([input]) => String(input).endsWith('/api/p5r2/result-artifacts/delete'))).toBe(false)
+
+    await user.click(screen.getByRole('button', { name: '結果表示を削除する' }))
+    await waitFor(() => expect(fetchMock.mock.calls.some(([input]) => String(input).endsWith('/api/p5r2/result-artifacts/delete'))).toBe(true))
+    const deleteCall = fetchMock.mock.calls.find(([input]) => String(input).endsWith('/api/p5r2/result-artifacts/delete'))
+    expect(JSON.parse(String(deleteCall?.[1]?.body))).toMatchObject({
+      logical_artifact_id: 'RESULT-OWNER-RUN-UI-001',
+      artifact_kind: 'RESULT',
+      confirmation: true,
+    })
+    expect(await screen.findByText(/RUN-UI-001の結果表示を削除しました/)).toBeInTheDocument()
   })
 })

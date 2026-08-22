@@ -14,7 +14,7 @@
 | Generation entry point | PASS | The generation form can be opened directly from the Catalog at any time. |
 | Run list / result summary | PASS | SCREEN-09 and SCREEN-10 consume the same Application API Run state and cancellation reason model. |
 | Cancel double-submit boundary | PASS | In-flight UI controls are disabled while the request is pending; server cancellation remains the existing OperationGuard path. |
-| Delete boundary | PASS | The result delete control is disabled with `DELETE_GATE_REQUIRED`; no delete API or physical I/O was executed before DELETE-G1. |
+| Delete boundary | PASS | The original P5R2-19 acceptance was fail-closed before DELETE-G1. The current re-capture after bounded DELETE-G1 shows the approved panel; no physical delete was executed in this P5R2-19 journey. The actual confirmation-to-delete acceptance is recorded separately in P5R2-21. |
 | External boundary | PASS | Provider download remains disabled with `HOST_LEVEL_ISOLATION_NOT_VERIFIED`; no external host, Secret, login, cost, or data download was used. |
 | Accessibility / visual | PASS | Fixed Chromium desktop `1280x900` and mobile `390x844`; dedicated Playwright journey had no critical/serious axe violations and captured screenshots after assertions. |
 
@@ -30,3 +30,5 @@
 ## Explicit non-actions
 
 No external provider request, authentication, Secret, cost, physical deletion, existing Data/Run/Audit/Evidence deletion, or P6 activity was performed.
+
+The result-screen screenshot and capture registry were refreshed after P5R2-DELETE-G1 approval so the current UI wording is not mistaken for the historical pre-gate state. P5R2-19 remains the UI integration record; P5R2-21 is the authoritative physical-delete acceptance.

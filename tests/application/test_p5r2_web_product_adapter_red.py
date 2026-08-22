@@ -169,7 +169,7 @@ def test_p5r2_external_download_is_blocked_without_host_level_isolation(tmp_path
     assert result["external_io_performed"] is False
 
 
-def test_p5r2_delete_adapter_returns_delete_gate_without_physical_io(tmp_path: Path) -> None:
+def test_p5r2_delete_adapter_rejects_unknown_run_without_physical_io(tmp_path: Path) -> None:
     service = BacktestProductService(data_root=tmp_path / "data", runtime_root=tmp_path / "runtime")
 
     result = service.delete_result_artifact(
@@ -184,7 +184,7 @@ def test_p5r2_delete_adapter_returns_delete_gate_without_physical_io(tmp_path: P
     )
 
     assert result["accepted"] is False
-    assert result["error_code"] == "DELETE_GATE_REQUIRED"
+    assert result["error_code"] == "RUN_NOT_FOUND"
     assert result["physical_io_performed"] is False
 
 

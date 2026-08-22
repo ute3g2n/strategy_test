@@ -1,0 +1,45 @@
+{
+  "schema_version": "P5R2-21-green-v1",
+  "step_id": "P5R2-21",
+  "run_id": "RUN-P5R2-21-DELETE-LOCAL-001",
+  "status": "LOCAL_GREEN",
+  "date": "2026-08-23",
+  "gate": "P5R2-DELETE-G1_APPROVED_BOUNDED_P5R2_21_FIXTURE_ONLY",
+  "acceptance": {
+    "terminal_result_only": true,
+    "logical_id_only": true,
+    "server_owned_run_state": true,
+    "fixed_runtime_root": true,
+    "protected_csv_historical_run_audit_evidence": true,
+    "active_run_rejected": true,
+    "unsafe_path_and_toctou_rejected": true,
+    "unknown_run_rejected_without_physical_io": true,
+    "idempotent_replay": true,
+    "result_deleted_audit_tombstone": true,
+    "restart_clean_without_result_recovery": true,
+    "restore_api_added": false,
+    "existing_user_data_touched": false
+  },
+  "verification": {
+    "python_targeted": "5 passed",
+    "python_regression": "40 passed",
+    "ui_vitest": "14 passed",
+    "ui_build": "PASS",
+    "ui_lint": "PASS_WITH_EXISTING_FAST_REFRESH_WARNINGS",
+    "playwright": "2 passed (desktop/mobile)",
+    "axe_serious_or_critical": 0,
+    "external_requests": 0,
+    "ruff": "PASS",
+    "mypy": "PASS",
+    "compileall": "PASS"
+  },
+  "prohibited_scope": {
+    "provider_login": false,
+    "provider_api_call": false,
+    "external_data_download": false,
+    "secret": false,
+    "cost": false,
+    "existing_data_or_run_delete": false,
+    "p6_started": false
+  }
+}

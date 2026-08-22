@@ -5,10 +5,12 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import stat
 import threading
 import uuid
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +29,7 @@ _PROTECTED_ARTIFACT_KINDS = frozenset(
 )
 _ACTIVE_RUN_STATES = frozenset({"QUEUED", "RUNNING", "STOP_REQUESTED", "CANCEL_REQUESTED", "RECOVERY_REQUIRED"})
 _UNSAFE_PATH_KINDS = frozenset({"SYMLINK", "REPARSE", "SYMLINK_OR_REPARSE", "TOCTOU", "TRAVERSAL", "ABSOLUTE"})
+_TERMINAL_RESULT_STATES = frozenset({"SUCCEEDED"})
 
 
 @dataclass(frozen=True)
@@ -48,13 +51,149 @@ class MetricSet:
 class LocalResultArtifacts:
     """Relative, atomic result files owned outside metadata persistence."""
 
-    def __init__(self, root: Path) -> None:
-        self.root = root.resolve()
+    def __init__(self, root: Path, *, physical_delete_enabled: bool = False) -> None:
+        raw_root = Path(root)
+        if raw_root.exists() and self._is_link_or_reparse(raw_root):
+            raise ValueError("RESULT_PATH_UNSAFE")
+        self.root = raw_root.resolve()
         self.root.mkdir(parents=True, exist_ok=True)
+        self.results_root = self.root / "results"
+        self.audit_root = self.root / "audit" / "result-delete"
+        self._ensure_directory_safe(self.results_root)
+        self._ensure_directory_safe(self.audit_root)
+        self._physical_delete_enabled = physical_delete_enabled
         self._delete_lock = threading.RLock()
         self._delete_sequence = 0
         self._delete_cache: dict[tuple[str, str], dict[str, object]] = {}
         self._delete_audits: dict[str, dict[str, object]] = {}
+        self._delete_tombstones: dict[str, dict[str, object]] = {}
+        self._load_delete_audits()
+
+    @staticmethod
+    def _is_link_or_reparse(path: Path) -> bool:
+        try:
+            attributes = getattr(path.lstat(), "st_file_attributes", 0)
+            return path.is_symlink() or bool(attributes & 0x0400)
+        except FileNotFoundError:
+            return False
+        except OSError:
+            return True
+
+    @classmethod
+    def _ensure_directory_safe(cls, path: Path) -> None:
+        if path.exists() and cls._is_link_or_reparse(path):
+            raise ValueError("RESULT_PATH_UNSAFE")
+        path.mkdir(parents=True, exist_ok=True)
+        if cls._is_link_or_reparse(path):
+            raise ValueError("RESULT_PATH_UNSAFE")
+
+    @classmethod
+    def _assert_path_chain_safe(cls, path: Path, root: Path) -> None:
+        if cls._is_link_or_reparse(root):
+            raise ValueError("RESULT_PATH_UNSAFE")
+        root_resolved = root.resolve(strict=False)
+        path_resolved = path.resolve(strict=False)
+        try:
+            path_resolved.relative_to(root_resolved)
+        except ValueError as error:
+            raise ValueError("RESULT_PATH_OUT_OF_SCOPE") from error
+        current = root
+        relative_parts = path.relative_to(root).parts
+        for part in relative_parts:
+            current = current / part
+            if current.exists() and cls._is_link_or_reparse(current):
+                raise ValueError("RESULT_PATH_UNSAFE")
+
+    @staticmethod
+    def _artifact_run_id(logical_artifact_id: str) -> str | None:
+        for prefix in ("RESULT-OWNER-", "RESULT-"):
+            if logical_artifact_id.startswith(prefix):
+                run_id = logical_artifact_id[len(prefix) :]
+                if run_id and is_safe_id(run_id):
+                    return run_id
+        return None
+
+    @staticmethod
+    def _stat_signature(path: Path) -> tuple[int, int, int, int, int, int]:
+        file_stat = path.lstat()
+        return (
+            int(file_stat.st_mode),
+            int(file_stat.st_size),
+            int(file_stat.st_mtime_ns),
+            int(file_stat.st_ino),
+            int(file_stat.st_dev),
+            int(getattr(file_stat, "st_file_attributes", 0)),
+        )
+
+    def _tree_snapshot(self, target: Path) -> dict[str, tuple[int, int, int, int, int, int]]:
+        self._assert_path_chain_safe(target, self.results_root)
+        if not target.exists():
+            raise ValueError("RESULT_ARTIFACT_NOT_FOUND")
+        if self._is_link_or_reparse(target) or not target.is_dir():
+            raise ValueError("PATH_SAFETY_REJECTED")
+        snapshot: dict[str, tuple[int, int, int, int, int, int]] = {}
+        pending = [target]
+        while pending:
+            current = pending.pop()
+            if self._is_link_or_reparse(current):
+                raise ValueError("PATH_SAFETY_REJECTED")
+            try:
+                signature = self._stat_signature(current)
+            except OSError as error:
+                raise ValueError("PATH_SAFETY_REJECTED") from error
+            relative = current.relative_to(self.results_root).as_posix()
+            snapshot[relative] = signature
+            if stat.S_ISDIR(signature[0]):
+                try:
+                    with os.scandir(current) as entries:
+                        pending.extend(Path(entry.path) for entry in entries)
+                except OSError as error:
+                    raise ValueError("PATH_SAFETY_REJECTED") from error
+            elif not stat.S_ISREG(signature[0]):
+                raise ValueError("PATH_SAFETY_REJECTED")
+        return snapshot
+
+    def _persist_delete_audit(self, audit: Mapping[str, object]) -> None:
+        audit_id = audit.get("audit_id")
+        if not isinstance(audit_id, str) or not is_safe_id(audit_id):
+            raise ValueError("AUDIT_ID_INVALID")
+        self._assert_path_chain_safe(self.audit_root, self.root)
+        target = self.audit_root / f"{audit_id}.json"
+        if self._is_link_or_reparse(target):
+            raise ValueError("RESULT_PATH_UNSAFE")
+        temporary = self.audit_root / f".{audit_id}.{uuid.uuid4().hex}.tmp"
+        payload = json.dumps(dict(audit), ensure_ascii=False, sort_keys=True, indent=2).encode("utf-8")
+        try:
+            with temporary.open("xb") as handle:
+                handle.write(payload)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, target)
+        finally:
+            temporary.unlink(missing_ok=True)
+
+    def _load_delete_audits(self) -> None:
+        if not self.audit_root.exists():
+            return
+        for path in sorted(self.audit_root.glob("AUDIT-RESULT-DELETE-*.json")):
+            if self._is_link_or_reparse(path) or not path.is_file():
+                continue
+            try:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+                continue
+            if not isinstance(payload, dict) or not isinstance(payload.get("audit_id"), str):
+                continue
+            audit_id = str(payload["audit_id"])
+            self._delete_audits[audit_id] = dict(payload)
+            try:
+                self._delete_sequence = max(self._delete_sequence, int(audit_id.rsplit("-", 1)[-1]))
+            except ValueError:
+                pass
+            if payload.get("event_type") == "RESULT_DELETED":
+                aggregate_id = payload.get("aggregate_id")
+                if isinstance(aggregate_id, str):
+                    self._delete_tombstones[aggregate_id] = dict(payload)
 
     def _next_delete_audit(
         self,
@@ -65,6 +204,9 @@ class LocalResultArtifacts:
         artifact_kind: str,
         error_code: str,
         reason: str,
+        event_type: str = "RESULT_DELETE_REJECTED",
+        artifact_state: str = "PRESENT",
+        physical_io_performed: bool = False,
     ) -> tuple[str, dict[str, object]]:
         self._delete_sequence += 1
         audit_id = f"AUDIT-RESULT-DELETE-{self._delete_sequence:06d}"
@@ -72,16 +214,25 @@ class LocalResultArtifacts:
             "audit_id": audit_id,
             "aggregate_kind": "RESULT_ARTIFACT",
             "aggregate_id": logical_artifact_id,
-            "event_type": "RESULT_DELETE_REJECTED",
+            "event_type": event_type,
             "request_id": request_id,
             "operation_token": operation_token,
             "artifact_kind": artifact_kind,
             "error_code": error_code,
             "reason": reason,
-            "physical_io_performed": False,
+            "artifact_state": artifact_state,
+            "physical_io_performed": physical_io_performed,
         }
         self._delete_audits[audit_id] = dict(audit)
+        self._persist_delete_audit(audit)
         return audit_id, audit
+
+    def _update_delete_audit(self, audit_id: str, **updates: object) -> dict[str, object]:
+        current = dict(self._delete_audits[audit_id])
+        current.update(updates)
+        self._delete_audits[audit_id] = current
+        self._persist_delete_audit(current)
+        return current
 
     @staticmethod
     def _delete_text(value: object, default: str = "") -> str:
@@ -125,13 +276,7 @@ class LocalResultArtifacts:
         }
 
     def delete_result_artifact(self, request: Mapping[str, object] | object) -> dict[str, object]:
-        """Reject ResultArtifact deletion until DELETE-G1 is approved.
-
-        The request accepts only a logical artifact identifier.  It never
-        accepts a caller-supplied path and deliberately contains no unlink or
-        tombstone branch.  P5R2-15 proves the guard and negative cases; the
-        physical deletion workflow is a later, separately gated change.
-        """
+        """Delete one approved terminal ResultArtifact without cascading."""
 
         if not isinstance(request, Mapping):
             with self._delete_lock:
@@ -206,6 +351,15 @@ class LocalResultArtifacts:
                     error_code="PATH_SAFETY_REJECTED",
                     reason="許可rootがResult Artifact rootと一致しません。",
                 )
+            elif request.get("_server_run_missing") is True:
+                result = self._delete_rejection(
+                    request_id=request_id,
+                    operation_token=operation_token,
+                    logical_artifact_id=logical_artifact_id,
+                    artifact_kind=artifact_kind,
+                    error_code="RUN_NOT_FOUND",
+                    reason="サーバーが管理する対象Runを解決できないため、削除を拒否しました。",
+                )
             elif artifact_kind in _PROTECTED_ARTIFACT_KINDS:
                 result = self._delete_rejection(
                     request_id=request_id,
@@ -224,6 +378,24 @@ class LocalResultArtifacts:
                     error_code="ACTIVE_RUN",
                     reason="実行中又は回復確認中のRunに紐づくArtifactは削除できません。",
                 )
+            elif artifact_kind != "RESULT":
+                result = self._delete_rejection(
+                    request_id=request_id,
+                    operation_token=operation_token,
+                    logical_artifact_id=logical_artifact_id,
+                    artifact_kind=artifact_kind,
+                    error_code="UNSUPPORTED_ARTIFACT_KIND",
+                    reason="物理削除できるArtifact種別はterminal Resultだけです。",
+                )
+            elif run_state not in _TERMINAL_RESULT_STATES:
+                result = self._delete_rejection(
+                    request_id=request_id,
+                    operation_token=operation_token,
+                    logical_artifact_id=logical_artifact_id,
+                    artifact_kind=artifact_kind,
+                    error_code="TERMINAL_STATE_REQUIRED",
+                    reason="terminal状態のResultArtifactだけを削除できます。",
+                )
             elif request.get("confirmation") is not True:
                 result = self._delete_rejection(
                     request_id=request_id,
@@ -233,9 +405,7 @@ class LocalResultArtifacts:
                     error_code="CONFIRMATION_REQUIRED",
                     reason="明示的な確認が必要です。",
                 )
-            else:
-                # DELETE-G1 is intentionally a hard boundary in this step.
-                # Even physical_io_allowed=True cannot bypass the gate.
+            elif not self._physical_delete_enabled:
                 result = self._delete_rejection(
                     request_id=request_id,
                     operation_token=operation_token,
@@ -244,11 +414,178 @@ class LocalResultArtifacts:
                     error_code="DELETE_GATE_REQUIRED",
                     reason="DELETE-G1未承認のため物理削除は実行できません。",
                 )
+            elif request.get("physical_io_allowed") is not True:
+                result = self._delete_rejection(
+                    request_id=request_id,
+                    operation_token=operation_token,
+                    logical_artifact_id=logical_artifact_id,
+                    artifact_kind=artifact_kind,
+                    error_code="PHYSICAL_IO_NOT_ALLOWED",
+                    reason="物理削除を実行する明示的なlocal受入許可がありません。",
+                )
+            else:
+                run_id = self._artifact_run_id(logical_artifact_id)
+                if run_id is None:
+                    result = self._delete_rejection(
+                        request_id=request_id,
+                        operation_token=operation_token,
+                        logical_artifact_id=logical_artifact_id,
+                        artifact_kind=artifact_kind,
+                        error_code="ARTIFACT_ID_MISMATCH",
+                        reason="ResultArtifactのlogical IDから安全なRunを解決できません。",
+                    )
+                elif logical_artifact_id in self._delete_tombstones:
+                    tombstone = self._delete_tombstones[logical_artifact_id]
+                    result = {
+                        "logical_artifact_id": logical_artifact_id,
+                        "artifact_kind": artifact_kind,
+                        "accepted": True,
+                        "deleted": False,
+                        "status": "RESULT_DELETED",
+                        "artifact_state": "DELETED",
+                        "error_code": None,
+                        "reason": "ResultArtifactは既に削除済みです。",
+                        "request_id": request_id,
+                        "operation_token": operation_token,
+                        "audit_id": tombstone["audit_id"],
+                        "audit": dict(tombstone),
+                        "physical_io_performed": False,
+                        "replayed": True,
+                    }
+                else:
+                    target = self.results_root / run_id
+                    try:
+                        snapshot = self._tree_snapshot(target)
+                    except ValueError as error:
+                        code = str(error)
+                        if code not in {"RESULT_ARTIFACT_NOT_FOUND", "PATH_SAFETY_REJECTED"}:
+                            code = "PATH_SAFETY_REJECTED"
+                        result = self._delete_rejection(
+                            request_id=request_id,
+                            operation_token=operation_token,
+                            logical_artifact_id=logical_artifact_id,
+                            artifact_kind=artifact_kind,
+                            error_code=code,
+                            reason="ResultArtifactの物理対象を安全に解決できません。",
+                        )
+                    else:
+                        audit_id, pending = self._next_delete_audit(
+                            request_id=request_id,
+                            operation_token=operation_token,
+                            logical_artifact_id=logical_artifact_id,
+                            artifact_kind=artifact_kind,
+                            error_code="DELETE_PENDING",
+                            reason="安全検査を通過し、ResultArtifactだけの削除を開始します。",
+                            event_type="RESULT_DELETE_PENDING",
+                            artifact_state="DELETE_PENDING",
+                        )
+                        physical_io_performed = False
+                        try:
+                            current = self._tree_snapshot(target)
+                            if not self._snapshots_match(snapshot, current):
+                                raise ValueError("TOCTOU_DETECTED")
+                            for relative in sorted(snapshot, key=lambda value: len(Path(value).parts), reverse=True):
+                                path = self.results_root / Path(relative)
+                                if self._is_link_or_reparse(path) or not path.exists():
+                                    raise ValueError("TOCTOU_DETECTED")
+                                current_signature = self._stat_signature(path)
+                                if not self._signatures_match(snapshot[relative], current_signature):
+                                    raise ValueError("TOCTOU_DETECTED")
+                                if stat.S_ISDIR(current_signature[0]):
+                                    path.rmdir()
+                                else:
+                                    path.unlink()
+                                physical_io_performed = True
+                            if target.exists():
+                                raise ValueError("DELETE_INCOMPLETE")
+                        except (OSError, ValueError) as error:
+                            error_code = str(error) if isinstance(error, ValueError) else "DELETE_FAILED"
+                            if error_code not in {"TOCTOU_DETECTED", "DELETE_INCOMPLETE"}:
+                                error_code = "DELETE_FAILED"
+                            failed_audit = self._update_delete_audit(
+                                audit_id,
+                                event_type="RESULT_DELETE_FAILED",
+                                status="DELETE_FAILED",
+                                artifact_state="PARTIAL" if physical_io_performed else "PRESENT",
+                                error_code=error_code,
+                                reason="物理削除に失敗したためcascadeを行わず停止しました。",
+                                physical_io_performed=physical_io_performed,
+                            )
+                            result = {
+                                "logical_artifact_id": logical_artifact_id,
+                                "artifact_kind": artifact_kind,
+                                "accepted": False,
+                                "deleted": False,
+                                "status": "DELETE_FAILED",
+                                "artifact_state": "PARTIAL" if physical_io_performed else "PRESENT",
+                                "error_code": error_code,
+                                "reason": "物理削除に失敗したためcascadeを行わず停止しました。",
+                                "request_id": request_id,
+                                "operation_token": operation_token,
+                                "audit_id": audit_id,
+                                "audit": dict(failed_audit),
+                                "physical_io_performed": physical_io_performed,
+                                "replayed": False,
+                            }
+                        else:
+                            deleted_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
+                            deleted_audit = self._update_delete_audit(
+                                audit_id,
+                                event_type="RESULT_DELETED",
+                                status="RESULT_DELETED",
+                                artifact_state="DELETED",
+                                error_code=None,
+                                reason="terminal ResultArtifactだけを物理削除しました。",
+                                physical_io_performed=True,
+                                deleted_at=deleted_at,
+                                run_id=run_id,
+                            )
+                            self._delete_tombstones[logical_artifact_id] = dict(deleted_audit)
+                            result = {
+                                "logical_artifact_id": logical_artifact_id,
+                                "artifact_kind": artifact_kind,
+                                "accepted": True,
+                                "deleted": True,
+                                "status": "RESULT_DELETED",
+                                "artifact_state": "DELETED",
+                                "error_code": None,
+                                "reason": "terminal ResultArtifactだけを物理削除しました。",
+                                "request_id": request_id,
+                                "operation_token": operation_token,
+                                "audit_id": audit_id,
+                                "audit": dict(deleted_audit),
+                                "physical_io_performed": True,
+                                "replayed": False,
+                            }
 
             result["request_reason"] = reason
             if operation_token and logical_artifact_id:
                 self._delete_cache[(logical_artifact_id, operation_token)] = dict(result)
             return result
+
+    @classmethod
+    def _signatures_match(
+        cls,
+        expected: tuple[int, int, int, int, int, int],
+        actual: tuple[int, int, int, int, int, int],
+    ) -> bool:
+        if stat.S_ISDIR(expected[0]) or stat.S_ISDIR(actual[0]):
+            return (
+                stat.S_ISDIR(expected[0])
+                and stat.S_ISDIR(actual[0])
+                and expected[3:] == actual[3:]
+            )
+        return expected == actual
+
+    @classmethod
+    def _snapshots_match(
+        cls,
+        expected: Mapping[str, tuple[int, int, int, int, int, int]],
+        actual: Mapping[str, tuple[int, int, int, int, int, int]],
+    ) -> bool:
+        if expected.keys() != actual.keys():
+            return False
+        return all(cls._signatures_match(expected[key], actual[key]) for key in expected)
 
     def _is_allowed_root(self, candidate: object) -> bool:
         if not isinstance(candidate, str):
