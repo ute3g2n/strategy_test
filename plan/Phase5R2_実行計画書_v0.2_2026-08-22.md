@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-002`
 > Version: `v0.2`
 > 作成日: `2026-08-22`
-> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_GREEN_CONFIRMED / P5R2-14_GREEN_CONFIRMED / P5R2-15_GREEN_CONFIRMED / P5R2-16_GREEN_CONFIRMED / P5R2-17_PACKET_READY / P5R2-DATA-G1_APPROVED_BOUNDED / P5R2-18_READY / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
+> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_GREEN_CONFIRMED / P5R2-14_GREEN_CONFIRMED / P5R2-15_GREEN_CONFIRMED / P5R2-16_GREEN_CONFIRMED / P5R2-17_PACKET_READY / P5R2-DATA-G1_APPROVED_BOUNDED / P5R2-18_LOCAL_GREEN / P5R2-18_EXTERNAL_BLOCKED_HOST_ISOLATION / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
 > 旧計画: [`Phase5R2_実行計画書_v0.1_2026-08-21.md`](./Phase5R2_実行計画書_v0.1_2026-08-21.md)（要件確定前の履歴。上書きしない）
 
 ## 1. この計画の結論
@@ -71,8 +71,9 @@ P5R2-H1は2026-08-22に、利用者から移譲されたHuman Gate承認権限�
 | `P5R2-H1` | `APPROVED_BY_DELEGATED_AUTHORITY` | 承認packetの範囲で、詳細設計、RED、target paths、fixture、Quality Gate、local実装範囲を承認済み。 | DATA-G1前の外部Data、DELETE-G1前の既存物理削除、H2前の完了宣言、P6開始。 |
 | `P5R2-UNK-TF-004` | `CANDIDATE_SPECIFIED / LATER_GATE` | 内部欠損1本の補間候補を、H1でAPI／Persistence／Negative Test／Manualへ写像する。 | 候補外Dataをusableへ昇格しない。 |
 | `P5R2-UNK-TF-006` | `OPEN / LATER_GATE` | 「現在生成可能な全期間」の算出規則を詳細設計で確定する。 | 未確定の既定期間を実装済み仕様と扱わない。 |
-| `P5R2-UNK-QG-001` | `OPEN / EXECUTION_BLOCKED` | `phase5R2` namespace、既存固定test入口、scope登録は確認済み。host outbound isolationのEvidenceが得られるまで固定入口を実行しない。 | host isolation未確認のtest subprocess、未登録Run、固定入口外のtest実行。 |
-| `P5R2-UNK-QG-002` | `OPEN / EXECUTION_BLOCKED` | 既存protected fixtureのpath/name/version/記録済みchecksumをread-only参照する契約は確認済み。実Run接続とEvidence生成まで保持する。 | 既存protected identityの再計算・置換、管理hash新設、identity不一致のPass扱い。 |
+| `P5R2-UNK-QG-001` | `RESOLVED_LOCAL / EXTERNAL_SEPARATE` | `phase5R2` namespace、固定入口、scope登録、WSL host outbound isolationのEvidenceをP5R2-18 local Runで確認した。 | External Runのhost-level isolation確認へ読み替えない。未登録Run、固定入口外のtest実行は禁止。 |
+| `P5R2-UNK-QG-002` | `RESOLVED_LOCAL_READONLY` | 既存protected fixtureのpath/name/version/記録済みprotected identityをread-only参照し、固定Gate Evidenceへ記録した。 | 既存protected identityの置換、新規管理hash、identity不一致のPass扱いは禁止。 |
+| `P5R2-UNK-QG-003` | `OPEN / EXTERNAL_RUN_BLOCKED` | P5R2-18 external Runのhost-level isolation。process-level allowlistと独立host証拠を分け、現在は`NOT_VERIFIED`としてexecute／promotionを停止する。 | host-level allow-only環境のpre/post証拠なしの外部接続、既存P5 waiverの流用、proxy／別host／別期間への拡張。 |
 | `P5R2-DATA-G1` | `APPROVED_BOUNDED_P5R2_18 (2026-08-23)` | Binance Data Vision public archive、Spot BTCUSDT／ETHUSDT、source 1m、UTC 2025-02-24以上2025-03-01未満、最大4 archive objects、local derived 15m／30m／1h／4h／1d、Run／Evidence／保存先をP5R2-18へ限定する。 | 承認範囲外のProvider・host・symbol・期間・interval、login、契約、API call、Secret、費用、Data再配布、実削除、P6開始。 |
 | `P5R2-DELETE-G1` | `UNAPPROVED` | 物理削除の対象Artifact、許可root、依存、CSV保護、監査、path安全、復元なしをpacket化する。 | 既存実Data、既存Run、Evidence、監査の削除。 |
 | `P5R2-H2` | `UNAPPROVED` | 全Acceptance、Manual、Open Unknown、P6再引渡しをpacket化し、人の承認を得る。 | P5R2完了宣言、P6開始。 |
@@ -594,6 +595,14 @@ RDC-P5R2-0.2とquality fixed Run contractを適用する。実行前にGateの�
 物理削除はこのStepの対象外。P5R2-DELETE-G1が未承認なら、実Data／Run／Evidence／監査の削除を行わない。
 ```
 
+P5R2-18実績（2026-08-23）:
+
+- 状態は`P5R2-18_LOCAL_GREEN / P5R2-18_EXTERNAL_BLOCKED_HOST_ISOLATION`。専用Runner、request、allowlist、registration、外部Runのhost-isolation記録を作成した。
+- `RUN-P5R2-18-LOCAL-001`の固定WSL Gateはformatter／lint／type／testの4 GateすべてPASS。WSLは`networking_mode=none`、default routeなし、外向きNICなしを確認した。
+- External dry-runは`BLOCKED`、理由は`HOST_LEVEL_ISOLATION_NOT_VERIFIED`。`RUN-P5R2-18-EXTERNAL-001`のexecute、download、normalization、staging、Catalog promotionは0件である。
+- P5R2-DATA-G1の承認範囲は変更しない。host-level isolationが独立に`VERIFIED`になるまで、P5R2-18 externalは再開しない。P5R2-19は外部request 0のlocal UI統合として進められる。
+- 証拠: [`P5R2-18 log`](./phase5R2/ログ/P5R2-18_外部Data受入・専用Runner_2026-08-23.md)、[`runtime receipt`](./phase5R2/quality/runtime-receipt-P5R2-18.json)、[`local verification`](../tests/evidence/phase5R2/RUN-P5R2-18-LOCAL-001/verification.json)、[`external preflight`](../tests/evidence/phase5R2/RUN-P5R2-18-EXTERNAL-001/preflight/registration-preflight.json)。
+
 ### P5R2-19 — Web製品UIと3画面の統合・a11y・visual・E2E
 
 ```text
@@ -753,7 +762,7 @@ RDC-P5R2-0.2を適用する。A10は8件coverageとUnknownを確認し、A80は�
 
 作業:
 1. AT-REQ-004の8 atomic Requirementごとに、実装、Test、Evidence、Manual、Gate、残Unknownを1行で追跡する。
-2. P5R2-23のreview finding、採否、再試験、P5R2-DATA-G1／DELETE-G1の承認範囲、P5R2-UNK-QG-001／002をpacketへ反映する。
+2. P5R2-23のreview finding、採否、再試験、P5R2-DATA-G1／DELETE-G1の承認範囲、P5R2-UNK-QG-003をpacketへ反映する。P5R2-UNK-QG-001／002はlocal解消済みとしてEvidenceを参照する。
 3. P5R2完了候補、P6再引渡し候補、P6-H0が別Gateであることを分離する。
 4. 統合台帳、doc/index、Manual、v4、P5R2成果物の現在状態を確認する。H2はUNAPPROVEDのまま。
 
@@ -782,7 +791,7 @@ RDC-P5R2-0.2を適用し、H2 packet作成のruntime receiptを保存する。H2
 - Historical Data Download／Generation、Catalog、merge／replace、conflict、provider境界。
 - 3画面のcancel、結果保持、result Artifact物理削除、CSV／Data／Audit／Evidence保護、復元なし。
 - Manual本体、実画像、axe、Evidence、改訂履歴、旧1m説明の履歴化。
-- Open Unknown、P5R2-UNK-QG-001／002、DATA-G1／DELETE-G1の残り、P6停止と再引渡し。
+- Open Unknown、P5R2-UNK-QG-003、DATA-G1／DELETE-G1の残り、P6停止と再引渡し。
 
 出力:
 - doc/phase5R2/06_完了/09_P5R2-H2完了・P6再引渡しpacket.html（未承認）
@@ -857,4 +866,4 @@ P5R2-CREQ-DOC-001は、単なる文言更新ではなく、実装・検証済み
 
 この計画は作成済みであり、現在の実行入口は本書である。P5R2-H1は承認packet、詳細設計再レビュー、権限移譲記録に基づき承認済みである。H1の承認範囲は、詳細設計、RED、対象path、Quality Gate、fixture、Evidence root、local実装に限定する。DATA-G1、DELETE-G1、H2の承認があるまで、外部Data、実削除、完了宣言、P6は開始しない。
 
-要件v4正式化、計画v0.2再作成、P5R2-08〜10、P5R2-H1は完了した。DATA-G1、DELETE-G1、H2は承認済みではない。
+要件v4正式化、計画v0.2再作成、P5R2-08〜10、P5R2-H1、P5R2-18 local qualityは完了した。P5R2-18 externalはhost-level isolation未確認でBlocked、DELETE-G1、H2は承認済みではない。P5R2-19は外部request 0のlocal UI統合として継続する。

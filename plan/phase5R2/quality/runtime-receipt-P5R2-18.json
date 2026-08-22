@@ -58,6 +58,15 @@
     "dry_run_blocking_reason": "HOST_LEVEL_ISOLATION_NOT_VERIFIED",
     "preflight_evidence": "tests/evidence/phase5R2/RUN-P5R2-18-EXTERNAL-001/preflight/registration-preflight.json"
   },
+  "local_quality_gate": {
+    "run_id": "RUN-P5R2-18-LOCAL-001",
+    "status": "PASS",
+    "gates": ["formatter", "lint", "type", "test"],
+    "verification_evidence": "tests/evidence/phase5R2/RUN-P5R2-18-LOCAL-001/verification.json",
+    "host_isolation_evidence": "tests/evidence/phase5R2/RUN-P5R2-18-LOCAL-001/host-isolation.json",
+    "networking_mode": "none",
+    "external_io": false
+  },
   "external_io": {
     "performed": false,
     "data_acquired": false,

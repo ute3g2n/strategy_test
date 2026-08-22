@@ -1,0 +1,6 @@
+﻿{
+    "output":  "{\"state\": \"PASS\", \"reason\": \"繝ｦ繝ｼ繧ｶ繝ｼ縺梧・遉ｺ逧・↓謇ｿ隱阪＠縺ｾ縺励◆\", \"gates\": [{\"gate\": \"formatter\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"ruff\", \"format\", \"--check\", \"scripts/phase5_external_data/run_p5r2_binance_data_vision.py\", \"tests/phase5R/test_p5r2_external_runner.py\"], \"exit_code\": 0, \"duration_ms\": 264}, {\"gate\": \"lint\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"ruff\", \"check\", \"scripts/phase5_external_data/run_p5r2_binance_data_vision.py\", \"tests/phase5R/test_p5r2_external_runner.py\"], \"exit_code\": 0, \"duration_ms\": 214}, {\"gate\": \"type\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"mypy\", \"scripts/phase5_external_data/run_p5r2_binance_data_vision.py\"], \"exit_code\": 0, \"duration_ms\": 415}, {\"gate\": \"test\", \"status\": \"PASS\", \"command\": [\".venv/bin/python\", \"-m\", \"scripts.quality_gate.local_p5r2_p18_pytest\"], \"exit_code\": 0, \"duration_ms\": 515}], \"generated_at\": \"2026-08-22T21:22:52.234528+00:00\"}",
+    "exit_code":  0,
+    "execution_id":  "752faf67cffe4201b32a7417a4d06379",
+    "state":  "RUNNER_COMPLETED"
+}
