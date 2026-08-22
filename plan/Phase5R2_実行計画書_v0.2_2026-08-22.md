@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-002`
 > Version: `v0.2`
 > 作成日: `2026-08-22`
-> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_GREEN_CONFIRMED / P5R2-14_IN_PROGRESS / P5R2-DATA-G1_UNAPPROVED / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
+> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_GREEN_CONFIRMED / P5R2-14_GREEN_CONFIRMED / P5R2-15_IN_PROGRESS / P5R2-DATA-G1_UNAPPROVED / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
 > 旧計画: [`Phase5R2_実行計画書_v0.1_2026-08-21.md`](./Phase5R2_実行計画書_v0.1_2026-08-21.md)（要件確定前の履歴。上書きしない）
 
 ## 1. この計画の結論
@@ -445,6 +445,12 @@ RDC-P5R2-0.2とquality fixed Run contractを適用する。A50のProvider Adapte
 - local fake providerで開始・取消・失敗・再試行・restart・partial failure・merge／replace・dedupe／conflictをRED→GREEN確認。
 - 外部host、Secret、費用、実Data削除が0であることをEvidenceへ記録。
 ```
+
+実績（2026-08-23）:
+- `P5R2-14_GREEN_CONFIRMED`。固定WSL入口 `RUN-P5R2-14-LOCAL-001` はformatter／lint／type／testの4 GateすべてPASS（52 tests）で、host outbound isolationを確認した。対象回帰33 testsもPASSした。
+- Job snapshotのserver ownership／CAS、Catalog staging tokenのJob再検証、preview操作束縛、Result owner、exclusive writeを実装し、追加read-only監査でin-scope Critical／High=0を確認した。
+- 指定Project Coordinator／Agentsの独立dispatchは成立していないため、runtime receiptでは`NOT_DISPATCHED`／`independent=false`／`SELF_REVIEW_FALLBACK`として記録した。P5R2-16へJob永続化・migration・統合recoveryを引き継ぐ。
+- 証拠: [`P5R2-14 GREEN`](../tests/evidence/phase5R2/RUN-P5R2-14-LOCAL-001/P5R2-14_GREEN.json)、[`verification`](../tests/evidence/phase5R2/RUN-P5R2-14-LOCAL-001/verification.json)、[`A95 policy`](../tests/evidence/phase5R2/RUN-P5R2-14-LOCAL-001/P5R2-14_A95_policy.json)、[`runtime receipt`](./phase5R2/quality/runtime-receipt-P5R2-14.md)。
 
 ### P5R2-15 — Run取消・結果Artifact削除guard・OperationGuardを実装する
 

@@ -1,0 +1,74 @@
+{
+  "step_id": "P5R2-14",
+  "run_id": "RUN-P5R2-14-LOCAL-001",
+  "runtime_backend": "multi_agent_v1",
+  "requested_continuation_profile": "gpt-5.6-luna max reasoning / priority-fast",
+  "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+  "nested_dispatch": "NOT_ESTABLISHED",
+  "requested_coordinator": {
+    "name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+    "json_path": ".codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json",
+    "model": "gpt-5.6-terra",
+    "agent_id": "N/A",
+    "spawn_status": "NOT_BOUND",
+    "wait_status": "NOT_DISPATCHED",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK"
+  },
+  "requested_agents": [
+    "AutoTrade_A110_PythonTestEngineer_v0_1",
+    "AutoTrade_A120_PythonImplementer_v0_1",
+    "AutoTrade_A130_VerificationEngineer_v0_1",
+    "AutoTrade_A140_DebugEngineer_v0_1",
+    "AutoTrade_A150_PythonCodeReviewer_v0_1",
+    "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+    "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1"
+  ],
+  "requested_agent_runtime_status": {
+    "model": "gpt-5.6-luna",
+    "A95_reasoning_effort": "low",
+    "agent_id": "N/A",
+    "spawn_status": "NOT_DISPATCHED",
+    "wait_status": "NOT_DISPATCHED",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK"
+  },
+  "actual_read_only_audits": [
+    {
+      "agent_id": "01a02a70-9fa1-75d1-b831-4863a6a8ef0b",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "max",
+      "service_tier": "priority",
+      "status": "COMPLETED",
+      "result": "No remaining in-scope Critical/High blockers"
+    },
+    {
+      "agent_id": "01a02a6c-7313-7a60-b40b-73e34b13fee5",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "max",
+      "service_tier": "priority",
+      "status": "INTERRUPTED",
+      "result": "No final result received; not counted as a pass"
+    }
+  ],
+  "quality_gate": {
+    "state": "PASS",
+    "verification": "tests/evidence/phase5R2/RUN-P5R2-14-LOCAL-001/verification.json",
+    "host_wrapper_execution_id": "b6f24f77135244be8c7f0a992f105857",
+    "host_isolation": "CONFIRMED",
+    "fixed_entry": "scripts.quality_gate.local_p5r2_p14_pytest",
+    "gates": ["formatter", "lint", "type", "test"],
+    "targeted_pytest": "52 passed",
+    "targeted_regression": "33 passed"
+  },
+  "a95_static_policy": {
+    "decision": "ALLOW_NO_NEW_MANAGEMENT_HASH_FLOW",
+    "policy_evidence": "tests/evidence/phase5R2/RUN-P5R2-14-LOCAL-001/P5R2-14_A95_policy.json",
+    "new_management_hash_flow": false,
+    "baseline_lexical_candidates": "preserved and separately classified"
+  },
+  "human_gate_policy": "P5R2-H1 approved local-only; DATA-G1, DELETE-G1, H2, and P6 remain unapproved",
+  "prohibited_operations": ["external_io", "provider_login", "download", "secret", "cost", "physical_delete", "playwright", "npm", "p6_start"],
+  "decision": "P5R2-14_GREEN_CONFIRMED",
+  "next_step": "P5R2-15_IN_PROGRESS"
+}

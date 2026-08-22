@@ -1,0 +1,88 @@
+{
+  "schema_version": "P5R2-14-green-evidence-v1",
+  "phase_id": "phase5R2",
+  "step_id": "P5R2-14",
+  "run_id": "RUN-P5R2-14-LOCAL-001",
+  "state": "GREEN_CONFIRMED",
+  "requirements": {
+    "P5R2-CREQ-TF-002": {
+      "status": "PASS",
+      "evidence": "P5R2-13 GREEN is the prerequisite; P5R2-14 preserves the canonical 15m/30m/1h/4h/1d and 1m-source boundary."
+    },
+    "P5R2-CREQ-HD-001": {
+      "status": "PASS",
+      "evidence": "tests/market_data/test_p5r2_historical_data_red_contract.py",
+      "scope": "HistoricalDownloadJob is gate-rejected before DATA-G1; TimeframeGenerationJob is local-only, server-owned, recovery-safe, and does not mark output usable before Catalog validation."
+    },
+    "P5R2-CREQ-HD-002": {
+      "status": "PASS",
+      "evidence": "src/autotrade/application/history_catalog.py and tests/market_data/test_p5r2_historical_data_red_contract.py",
+      "scope": "Local Catalog staging token is bound to a verified Job snapshot, identity, provenance, bars, request, preview, revision, dedupe/conflict/replace, exclusive versioning, and usable listing."
+    }
+  },
+  "local_verification": {
+    "fixed_target_pytest": "52 passed",
+    "targeted_regression": "33 passed",
+    "formatter": "PASS",
+    "lint": "PASS",
+    "type": "PASS",
+    "fixed_isolated_quality_gate": {
+      "state": "PASS",
+      "verification": "tests/evidence/phase5R2/RUN-P5R2-14-LOCAL-001/verification.json",
+      "automation_summary": "tests/evidence/phase5R2/RUN-P5R2-14-LOCAL-001/automation/run-test-summary.json",
+      "host_wrapper_execution_id": "b6f24f77135244be8c7f0a992f105857",
+      "network_isolation": "CONFIRMED",
+      "gates": ["formatter", "lint", "type", "test"],
+      "protected_fixture": "existing trusted-scope identity referenced read-only; input and post-input identity matched"
+    }
+  },
+  "review": {
+    "critical": 0,
+    "high": 0,
+    "actual_read_only_audit": {
+      "agent_id": "01a02a70-9fa1-75d1-b831-4863a6a8ef0b",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "max",
+      "service_tier": "priority",
+      "status": "PASS",
+      "result": "No remaining in-scope Critical/High blockers; persistence/recovery and Windows symlink/TOCTOU are deferred or accepted local-scope residuals."
+    },
+    "remediation_history": [
+      "Earlier read-only reviewers identified mutable Job snapshots, incomplete preview binding, fail-open staging metadata, Result TOCTOU/ownership, and path race concerns.",
+      "P5R2-14 remediation added deep-copy server registry, owner/token/revision CAS, server-owned staging token revalidation against Job registry, full preview binding, mandatory Result owner, O_EXCL publication, and exclusive dataset version creation.",
+      "The requested project Coordinator/Agent roster was not independently dispatched; no unstarted component was represented as executed."
+    ]
+  },
+  "runtime_dispatch": {
+    "backend": "multi_agent_v1",
+    "requested_project_coordinator_and_agents": "NOT_INDEPENDENTLY_DISPATCHED",
+    "coordinator_agent_id": "N/A",
+    "specified_agents_independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK_PLUS_ACTUAL_READ_ONLY_AUDIT",
+    "truthfulness_note": "The completed audit agent is recorded separately from the requested project roster. Two additional max-effort review attempts were interrupted before a final result and are not counted as PASS."
+  },
+  "a95_policy": {
+    "evidence": "tests/evidence/phase5R2/RUN-P5R2-14-LOCAL-001/P5R2-14_A95_policy.json",
+    "decision": "ALLOW_NO_NEW_MANAGEMENT_HASH_FLOW",
+    "new_management_hash_flow": false,
+    "protected_fixture": "read-only direct identity reference"
+  },
+  "prohibited_operations": {
+    "external_network": false,
+    "provider_login_or_download": false,
+    "secret_read_or_storage": false,
+    "cost": false,
+    "physical_delete": false,
+    "playwright": false,
+    "npm": false,
+    "p6_start": false
+  },
+  "deferred_scope": [
+    "P5R2-16 process restart persistence, migration, and integrated recovery",
+    "P5R2-DATA-G1 external Provider acceptance",
+    "P5R2-DELETE-G1 physical Result Artifact deletion",
+    "P5R2-19 real Application UI and browser validation"
+  ],
+  "decision": "P5R2-14_GREEN_CONFIRMED",
+  "next_step": "P5R2-15_IN_PROGRESS"
+}

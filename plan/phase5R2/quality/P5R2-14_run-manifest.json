@@ -97,11 +97,13 @@
   "review": {
     "critical": 0,
     "high": 0,
-    "source": "P5R2-14 read-only review and fixed gate receipt pending"
+    "source": "P5R2-14 actual read-only audit and fixed isolated gate receipt",
+    "final_audit_agent_id": "01a02a70-9fa1-75d1-b831-4863a6a8ef0b",
+    "final_audit_result": "No remaining in-scope Critical/High blockers"
   },
   "human_gate_policy": "P5R2-H1=APPROVED_BY_DELEGATED_AUTHORITY for local implementation only; DATA-G1, DELETE-G1, H2, and P6 remain unapproved.",
   "unknowns": [],
-  "registration_status": "EXECUTION_ENABLED_HOST_ISOLATION_AND_FIXTURE_CONFIRMED",
+  "registration_status": "GREEN_CONFIRMED_HOST_ISOLATION_AND_FIXTURE_CONFIRMED",
   "execution_allowed": true,
   "notes": [
     "This manifest covers local fake generation, recovery-safe job transitions, Catalog preview/promotion/listing, identity, dedupe, conflict, and explicit replace.",

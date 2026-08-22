@@ -1,0 +1,26 @@
+﻿{
+    "state":  "PASS",
+    "run_id":  "RUN-P5R2-14-LOCAL-001",
+    "evidence_phase":  "phase5R2",
+    "distro":  "Ubuntu-24.04",
+    "repository_path":  "/home/oue/strategy_test",
+    "started_at":  "2026-08-22T17:11:45.6708342Z",
+    "finished_at":  "2026-08-22T17:12:00.4387648Z",
+    "wrapper_command":  "powershell.exe \"-NoProfile\" \"-ExecutionPolicy\" \"Bypass\" \"-File\" \"C:\\project\\strategy_test\\scripts\\wsl_quality_gate\\run_isolated_p2.ps1\" \"-Distro\" \"Ubuntu-24.04\" \"-RepositoryPath\" \"/home/oue/strategy_test\" \"-RunId\" \"RUN-P5R2-14-LOCAL-001\" \"-EvidencePhase\" \"phase5R2\" \"-AllowRunningDistro\"",
+    "wrapper_exit_code":  0,
+    "raw_wrapper_exit_code":  null,
+    "wrapper_error":  null,
+    "evidence_command":  "Get-Content C:\\project\\strategy_test\\tests\\evidence\\phase5R2\\RUN-P5R2-14-LOCAL-001\\wsl-verification-capture.json (captured from WSL during isolation)",
+    "evidence_exit_code":  0,
+    "evidence_error":  "",
+    "evidence_state":  "PASS",
+    "evidence_source":  "wsl_verification_capture",
+    "expected_execution_id":  "b6f24f77135244be8c7f0a992f105857",
+    "preflight_is_recent":  false,
+    "wsl_verification_capture_path":  "C:\\project\\strategy_test\\tests\\evidence\\phase5R2\\RUN-P5R2-14-LOCAL-001\\wsl-verification-capture.json",
+    "files":  {
+                  "wrapper_log":  "C:\\project\\strategy_test\\tests\\evidence\\phase5R2\\RUN-P5R2-14-LOCAL-001\\automation\\run-test-wrapper.log",
+                  "evidence_log":  "C:\\project\\strategy_test\\tests\\evidence\\phase5R2\\RUN-P5R2-14-LOCAL-001\\automation\\run-test-evidence.log",
+                  "exit_code":  "C:\\project\\strategy_test\\tests\\evidence\\phase5R2\\RUN-P5R2-14-LOCAL-001\\automation\\run-test-exit-code.txt"
+              }
+}

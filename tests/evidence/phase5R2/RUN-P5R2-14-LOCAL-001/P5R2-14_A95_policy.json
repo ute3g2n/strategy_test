@@ -1,0 +1,29 @@
+{
+  "schema_version": "P5R2-A95-policy-v1",
+  "step_id": "P5R2-14",
+  "decision": "ALLOW_NO_NEW_MANAGEMENT_HASH_FLOW",
+  "checked_paths": [
+    "src/autotrade/application/job_service.py",
+    "src/autotrade/application/history_catalog.py",
+    "src/autotrade/application/backtest_product.py",
+    "tests/market_data/test_p5r2_historical_data_red_contract.py",
+    "plan/phase5R2/quality/P5R2-14_run-manifest.json",
+    "tests/evidence/phase5R2/RUN-P5R2-14-LOCAL-001/verification.json"
+  ],
+  "direct_results": {
+    "job_service.py": "ALLOW_NO_NEW_MANAGEMENT_HASH_FLOW",
+    "history_catalog.py": "ALLOW_NO_NEW_MANAGEMENT_HASH_FLOW",
+    "backtest_product.py": "ALLOW_NO_NEW_MANAGEMENT_HASH_FLOW",
+    "historical_data_tests": "ALLOW",
+    "quality_evidence": "ALLOW_EXISTING_PROTECTED_FIXTURE_IDENTITY_ONLY"
+  },
+  "policy": {
+    "management_hash_created": false,
+    "manifest_fingerprint_created": false,
+    "stale_check_created": false,
+    "hash_retry_created": false,
+    "receipt_hash_created": false,
+    "protected_fixture_identity": "existing trusted-scope identity referenced read-only; no new checksum or identity created"
+  },
+  "required_action": "Keep external I/O, Secret, cost, physical delete, and P6 blocked by their separate Gates. Do not introduce a management hash flow."
+}
