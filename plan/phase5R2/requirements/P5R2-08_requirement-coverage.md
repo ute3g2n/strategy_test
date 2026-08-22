@@ -1,13 +1,13 @@
 # P5R2-08 要件入力・coverage
 
-状態: `READ_ONLY_INPUT / P5R2-HREQ_APPROVED / P5R2-H1_UNAPPROVED`。根拠は `AT-REQ-004 v4.0`、`P5R2-PLAN-002 v0.2`、P5R/P5R2のHTML・既存ソース・UI・Test・Manualである。P5Rの完了は履歴であり、P5R2の未実装要件を完了扱いにしない。
+状態: `READ_ONLY_INPUT / P5R2-HREQ_APPROVED / P5R2-H1_APPROVED_BY_DELEGATED_AUTHORITY`。これは入力整理成果物の現在同期状態であり、P5R2-08作成時点のH1未承認という履歴はログへ保持する。根拠は `AT-REQ-004 v4.0`、`P5R2-PLAN-002 v0.2`、P5R/P5R2のHTML・既存ソース・UI・Test・Manualである。P5Rの完了は履歴であり、P5R2の未実装要件を完了扱いにしない。
 
 ## 4領域・8 atomic Requirement
 
 |領域|atomic Requirement|下位Requirement|既存入口（read-only根拠）|設計入力・後続Step|Manual / Gate|
 |---|---|---|---|---|---|
 |時間足|`P5R2-CREQ-TF-001`|TF-001, TF-004|`backtest_product.py` と `backtestApi.ts` は現在1m固定|戦略足の選択・UTC/closed barをP5R2-09で設計、P5R2-13で実装候補|Manual改訂はP5R2-22。H1前は変更不可|
-|時間足|`P5R2-CREQ-TF-002`|TF-002, TF-005, TF-006|`timeframe_aggregator.py`、`market_data/quality.py`、`preflight.py`|source/derived、補間、生成遷移、qualityをP5R2-09で設計|`P5R2-UNK-TF-004/006` はOPENのまま。H1|
+|時間足|`P5R2-CREQ-TF-002`|TF-002, TF-005, TF-006|`timeframe_aggregator.py`、`market_data/quality.py`、`preflight.py`|source/derived、補間、生成遷移、qualityをP5R2-09で設計し、P5R2-13／14／22でlocal確認|`P5R2-UNK-TF-004/006` はH1判断済み、H2 review|
 |時間足|`P5R2-CREQ-TF-003`|TF-003, TF-004|`history_catalog.py`、`backtest_product.py` は既存Run復元を保持|legacy表示と指定/有効期間の分離をP5R2-09で設計|Manual P5R2-22、H1|
 |Historical Data|`P5R2-CREQ-HD-001`|HD-001, HD-002|`job_service.py`、`persistence.py`、`market_data/acquisition_protocol.py`|Download/Generation Jobを別契約としてP5R2-09、local実装はP5R2-14|DATA-G1前は候補・local fake providerだけ。外部I/O禁止|
 |Historical Data|`P5R2-CREQ-HD-002`|HD-003〜HD-007|`catalog_resolver.py`、`quality.py`、`persistence.py`|Catalog/identity/coverage/promotion/recoveryをP5R2-09で設計|`P5R2-UNK-TF-004/006`、DATA-G1、H1|
@@ -27,9 +27,9 @@
 
 |ID|決定期限・owner|停止範囲|Evidence先|
 |---|---|---|---|
-|`P5R2-UNK-TF-004`|P5R2-H1 packet前。owner: P5R2詳細設計責任者＋人承認者|候補外Dataのusable昇格・Run入力を禁止|`doc/requirements/01_自動トレードシステム要件定義書_v4.html`、P5R2-09設計、P5R2-H1 packet|
-|`P5R2-UNK-TF-006`|P5R2-H1 packet前。owner: P5R2詳細設計責任者＋人承認者|「現在生成可能な全期間」の既定値実装・表示を禁止|同v4、P5R2-09設計、P5R2-H1 packet|
-|`P5R2-UNK-QG-001`|P5R2-H1で固定入口を承認する前。owner: Quality Gate責任者＋人承認者|未登録Run、`phase5R`無断流用、test subprocessを禁止|`scripts/wsl_quality_gate/run_test.ps1`、`scripts/quality_gate/trusted_scopes.json`、P5R2-11 quality成果物|
-|`P5R2-UNK-QG-002`|P5R2-H1でfixtureと保護境界を承認する前。owner: Quality Gate責任者＋人承認者|未確認fixtureでのRun、管理用hash新設を禁止|同trusted scopes、P5R2-H1 packet、必要時の別Human Gate|
+|`P5R2-UNK-TF-004`|H1判断済み、P5R2-13 local evidence、H2 review。owner: P5R2詳細設計責任者＋root承認者|候補外Dataのusable昇格・Run入力を禁止|`doc/requirements/01_自動トレードシステム要件定義書_v4.html`、P5R2-13 GREEN、P5R2-22 Manual evidence、P5R2-H1 packet|
+|`P5R2-UNK-TF-006`|H1判断済み、P5R2-13／14／22 local evidence、H2 review。owner: P5R2詳細設計責任者＋root承認者|sourceなし・品質未承認の既定期間表示・送信を禁止|同v4、P5R2-13／14 GREEN、P5R2-22 Manual evidence、P5R2-H1 packet|
+|`P5R2-UNK-QG-001`|RESOLVED_LOCAL / EXTERNAL_SEPARATE。P5R2-12／18 local evidenceで確認済み|External Runのhost-level isolation未確認をlocal Gateへ読み替えない|`scripts/wsl_quality_gate/run_test.ps1`、`scripts/quality_gate/trusted_scopes.json`、P5R2-12／18 quality成果物|
+|`P5R2-UNK-QG-002`|RESOLVED_LOCAL_READONLY。P5R2-12／18で既存protected fixtureをread-only確認済み|identity置換、管理用hash新設、未確認fixtureのPass扱いを禁止|trusted scopes、P5R2-H1 packet、P5R2-12／18 Evidence|
 
 UnknownはPassではない。期限までに決まらない場合は、該当する実装・Test・Gateを止める。

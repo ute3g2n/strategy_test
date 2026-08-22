@@ -1,0 +1,13 @@
+{
+  "schema_version": "P5R2-A95-static-policy-v1",
+  "step_id": "P5R2-23",
+  "run_id": "RUN-P5R2-23-FINAL-LOCAL-001",
+  "policy": "ALLOW",
+  "scope": "path/schema/link/secret/state/traceability review only",
+  "management_hash": false,
+  "manifest": false,
+  "stale_or_fingerprint": false,
+  "hash_retry": false,
+  "hash_receipt": false,
+  "reason": "P5R2-23のCurrent同期、ui_contract追加、Manual／UI／Evidenceレビューは管理hash経路を追加せず、H2未承認・P6停止・外部I/O境界を維持した。"
+}

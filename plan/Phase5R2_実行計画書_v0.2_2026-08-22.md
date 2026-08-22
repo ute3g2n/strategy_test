@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-002`
 > Version: `v0.2`
 > 作成日: `2026-08-22`
-> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_GREEN_CONFIRMED / P5R2-14_GREEN_CONFIRMED / P5R2-15_GREEN_CONFIRMED / P5R2-16_GREEN_CONFIRMED / P5R2-17_PACKET_READY / P5R2-DATA-G1_APPROVED_BOUNDED / P5R2-18_LOCAL_GREEN / P5R2-18_EXTERNAL_BLOCKED_HOST_ISOLATION / P5R2-19_LOCAL_UI_VERIFIED_RUNTIME_FALLBACK / P5R2-20_COMPLETE / P5R2-DELETE-G1_APPROVED_BOUNDED_P5R2_21 / P5R2-21_LOCAL_GREEN / P5R2-H2_UNAPPROVED / P6_PAUSED`
+> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_GREEN_CONFIRMED / P5R2-14_GREEN_CONFIRMED / P5R2-15_GREEN_CONFIRMED / P5R2-16_GREEN_CONFIRMED / P5R2-17_PACKET_READY / P5R2-DATA-G1_APPROVED_BOUNDED / P5R2-18_LOCAL_GREEN / P5R2-18_EXTERNAL_BLOCKED_HOST_ISOLATION / P5R2-19_LOCAL_UI_VERIFIED_RUNTIME_FALLBACK / P5R2-20_COMPLETE / P5R2-DELETE-G1_APPROVED_BOUNDED_P5R2_21 / P5R2-21_LOCAL_GREEN / P5R2-22_LOCAL_GREEN_CANDIDATE / P5R2-23_LOCAL_GREEN / P5R2-H2_UNAPPROVED / P6_PAUSED`
 > 旧計画: [`Phase5R2_実行計画書_v0.1_2026-08-21.md`](./Phase5R2_実行計画書_v0.1_2026-08-21.md)（要件確定前の履歴。上書きしない）
 
 ## 1. この計画の結論
@@ -69,8 +69,8 @@ P5R2-H1は2026-08-22に、利用者から移譲されたHuman Gate承認権限�
 |---|---|---|---|
 | `P5R2-HREQ` | `APPROVED (2026-08-22)` | v4正式化とP5R2-07計画再編の根拠。 | HREQ前の状態へ戻さない。承認範囲をH1へ拡張しない。 |
 | `P5R2-H1` | `APPROVED_BY_DELEGATED_AUTHORITY` | 承認packetの範囲で、詳細設計、RED、target paths、fixture、Quality Gate、local実装範囲を承認済み。 | DATA-G1前の外部Data、DELETE-G1前の既存物理削除、H2前の完了宣言、P6開始。 |
-| `P5R2-UNK-TF-004` | `CANDIDATE_SPECIFIED / LATER_GATE` | 内部欠損1本の補間候補を、H1でAPI／Persistence／Negative Test／Manualへ写像する。 | 候補外Dataをusableへ昇格しない。 |
-| `P5R2-UNK-TF-006` | `OPEN / LATER_GATE` | 「現在生成可能な全期間」の算出規則を詳細設計で確定する。 | 未確定の既定期間を実装済み仕様と扱わない。 |
+| `P5R2-UNK-TF-004` | `H1_DECISION_CONFIRMED / LOCAL_EVIDENCE / H2_REVIEW` | H1で確定した単一内部欠損の補間条件をP5R2-13の実装・negative test・provenanceへ反映した。P5R2-23で最終追跡する。 | 条件外Dataをusable／Run入力へ昇格しない。 |
+| `P5R2-UNK-TF-006` | `H1_DECISION_CONFIRMED / LOCAL_EVIDENCE / H2_REVIEW` | Catalog時点のclosedかつquality承認済みsourceの最小〜最大時刻を既定値とするH1判断をP5R2-13／14／22で実装・確認した。P5R2-23で最終追跡する。 | sourceなし、品質未承認、境界不明の期間を推測して表示・送信しない。 |
 | `P5R2-UNK-QG-001` | `RESOLVED_LOCAL / EXTERNAL_SEPARATE` | `phase5R2` namespace、固定入口、scope登録、WSL host outbound isolationのEvidenceをP5R2-18 local Runで確認した。 | External Runのhost-level isolation確認へ読み替えない。未登録Run、固定入口外のtest実行は禁止。 |
 | `P5R2-UNK-QG-002` | `RESOLVED_LOCAL_READONLY` | 既存protected fixtureのpath/name/version/記録済みprotected identityをread-only参照し、固定Gate Evidenceへ記録した。 | 既存protected identityの置換、新規管理hash、identity不一致のPass扱いは禁止。 |
 | `P5R2-UNK-QG-003` | `OPEN / EXTERNAL_RUN_BLOCKED` | P5R2-18 external Runのhost-level isolation。process-level allowlistと独立host証拠を分け、現在は`NOT_VERIFIED`としてexecute／promotionを停止する。 | host-level allow-only環境のpre/post証拠なしの外部接続、既存P5 waiverの流用、proxy／別host／別期間への拡張。 |
@@ -129,7 +129,7 @@ P5R2-HREQ承認後も、上表のH1、DATA-G1、DELETE-G1、H2の4つの人判�
 | `P5R2-PLAN-002` | 本計画v0.2 | `plan/Phase5R2_実行計画書_v0.2_2026-08-22.md` | current |
 | `P5R2-ART-DD` | 実装詳細設計セット | `doc/phase5R2/04_実装詳細設計/` | P5R2-09以降で作成 |
 | `P5R2-ART-QG` | Quality／RED／Run scope | `plan/phase5R2/quality/`、`tests/evidence/phase5R2/<RunId>/` | P5R2-12 RED confirmed |
-| `P5R2-ART-MAN` | 改訂済みBacktest手順書 | `doc/phase5R/07_運用手順/01_バックテスト手順書.html` | P5R2-22改訂候補・実画像／a11y／link確認済み、P5R2-23／H2待ち |
+| `P5R2-ART-MAN` | 改訂済みBacktest手順書 | `doc/phase5R/07_運用手順/01_バックテスト手順書.html` | P5R2-22改訂候補・実画像／a11y／link確認済み、P5R2-23統合レビューLOCAL_GREEN、H2待ち |
 | `P5R2-ART-DELETE-G1` | DELETE-G1承認packet | `doc/phase5R2/08_DELETE-G1/08_P5R2-DELETE-G1承認packet.html` | bounded承認済み／P5R2-21受入済み |
 | `P5R2-ART-H2` | H2 packet／完了判定 | `doc/phase5R2/06_完了/`、`plan/phase5R2/ログ/` | 全Acceptance後 |
 

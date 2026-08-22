@@ -1,0 +1,90 @@
+{
+  "schema_version": "P5R2-runtime-receipt-v1",
+  "step_id": "P5R2-23",
+  "run_id": "RUN-P5R2-23-FINAL-LOCAL-001",
+  "date": "2026-08-23",
+  "coordinator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+  "requested_agents": [
+    "AutoTrade_A130_VerificationEngineer_v0_1",
+    "AutoTrade_A150_PythonCodeReviewer_v0_1",
+    "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+    "AutoTrade_A171_UiVisualQaReviewer_v0_1",
+    "AutoTrade_A90_DesignReviewer_v0_1",
+    "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1"
+  ],
+  "requested_skills": [
+    "autotrade_skill_python_test_quality_v0_1",
+    "autotrade_skill_python_code_review_v0_1",
+    "autotrade_skill_ops_security_v0_1",
+    "autotrade_skill_ui_visual_validation_v0_1",
+    "autotrade_skill_ui_accessibility_validation_v0_1",
+    "autotrade_skill_design_review_v0_1",
+    "autotrade_skill_red_team_review_v0_1",
+    "autotrade_skill_traceability_v0_1",
+    "autotrade_skill_protected_hash_policy_guard_v0_1"
+  ],
+  "dispatch": {
+    "status": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "agent_id": "N/A",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK",
+    "reason": "この環境では指定nested named Agent dispatchを起動できず、rootがFindings firstレビューと再試験を実施した。"
+  },
+  "scope": {
+    "requirements": "AT-REQ-004 4 domains / 8 atomic requirements",
+    "documents": [
+      "doc/requirements/01_自動トレードシステム要件定義書_v4.html",
+      "doc/phase5R2/04_実装詳細設計/",
+      "doc/phase5R/07_運用手順/01_バックテスト手順書.html",
+      "doc/00_全Phase残課題Blocked統合台帳.html",
+      "doc/index.html"
+    ],
+    "external_io": false,
+    "provider_login": false,
+    "secrets": false,
+    "cost": false,
+    "physical_delete": "only prior P5R2-21 bounded fixture evidence was read; no delete in P5R2-23",
+    "p6": "NOT_STARTED"
+  },
+  "findings": {
+    "critical": 0,
+    "high": 0,
+    "medium_open": 0,
+    "resolved": [
+      "P5R2-23-F-001 current-state document synchronization",
+      "P5R2-23-F-002 ui_contract fail-closed Manual Evidence boundary"
+    ],
+    "accepted_advisory": [
+      "P5R2-23-F-003 Windows root lacks ruff/mypy CLI; prior fixed WSL receipts and current black/compileall/pytest evidence retained"
+    ]
+  },
+  "commands": {
+    "pytest": "112 passed",
+    "black_compileall": "PASS",
+    "ui_build": "PASS",
+    "ui_vitest": "14 passed",
+    "ui_lint": "PASS with existing Fast Refresh warnings",
+    "playwright": {
+      "p5r2_19": "2 passed",
+      "p5r2_21": "2 passed",
+      "p5r2_22": "2 passed, axe serious/critical 0"
+    },
+    "html_local_references": {
+      "references": 882,
+      "missing": 0,
+      "duplicate_ids": 0
+    },
+    "external_requests": 0
+  },
+  "results": {
+    "status": "P5R2-23_LOCAL_GREEN",
+    "a95_static_policy": "ALLOW",
+    "p5r2_h2": "UNAPPROVED",
+    "p6": "NOT_STARTED"
+  },
+  "evidence": [
+    "plan/phase5R2/ログ/P5R2-23_最終統合レビュー・再試験_2026-08-23.md",
+    "tests/evidence/phase5R2/RUN-P5R2-23-FINAL-LOCAL-001/P5R2-23_final/P5R2-23_GREEN.json",
+    "tests/evidence/phase5R2/RUN-P5R2-23-FINAL-LOCAL-001/P5R2-23_final/verification.md"
+  ]
+}

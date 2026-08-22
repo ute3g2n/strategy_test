@@ -116,7 +116,7 @@
         <tr><td><code>P5R2-REQ-TF-003</code></td><td>既存の1m／M30保存Data・Run・結果は閲覧専用legacyとして表示する。新規30m選択、自動移行、再実行、実削除と混同しない。</td><td>legacy属性が表示され、legacyを新規Run入力へ自動使用しない。30mの新規選択は可能である。</td></tr>
         <tr><td><code>P5R2-REQ-TF-004</code></td><td>上位足はUTC 00:00 anchorで生成し、終了時刻が境界でなければ直前の確定足まで切り下げる。指定終了と有効終了を表示し、partial barをRunへ渡さない。</td><td>UTC、指定期間、有効期間、閉じた足だけがRun条件として確認できる。開始前または有効足0件は拒否する。</td></tr>
         <tr><td><code>P5R2-REQ-TF-005</code></td><td>内部の連続1分欠損がちょうど1本の場合だけ、未来値を使わず欠損直前の確定CloseでOHLCを補間し、Volumeを0とする。始端・終端欠損、2本以上、時系列逆転、上限超過、provenance欠落は使用禁止とする。</td><td>警告だけの<code>USABLE_WITH_WARNING</code>と<code>UNUSABLE</code>を区別し、補間位置・方式・参照Close・DataSet・Job・理由をprovenanceへ保存する。</td></tr>
-        <tr><td><code>P5R2-REQ-TF-006</code></td><td>必要期間・時間足が不足する場合はBacktest開始を止め、理由と「時間足を生成する」確認を表示する。OKの場合、その銘柄を引き継いだ時間足生成画面へ遷移する。</td><td>生成画面で銘柄、複数の対象時間足、期間を選択でき、既定期間は現在生成可能な全期間である。全期間の算出規則は<code>P5R2-UNK-TF-006</code>としてH1で確定する。</td></tr>
+        <tr><td><code>P5R2-REQ-TF-006</code></td><td>必要期間・時間足が不足する場合はBacktest開始を止め、理由と「時間足を生成する」確認を表示する。OKの場合、その銘柄を引き継いだ時間足生成画面へ遷移する。</td><td>生成画面で銘柄、複数の対象時間足、期間を選択でき、既定期間は現在生成可能な全期間である。全期間の算出規則はH1で確定し、local実装・検証Evidenceへ追跡する。</td></tr>
       </tbody>
     </table>
   </section>
@@ -190,16 +190,16 @@
       <caption>v4正式化後も未承認の事項</caption>
       <thead><tr><th>ID</th><th>状態</th><th>決めること／再開条件</th><th>未承認中の禁止</th></tr></thead>
       <tbody>
-        <tr><td><code>P5R2-H1</code></td><td><span class="badge open">UNAPPROVED</span></td><td>詳細設計、RED、対象path、fixture、固定command、local実装範囲、Quality Gateを承認する。</td><td>ソース実装、test subprocess、本試験、Playwright、外部Data、実削除。</td></tr>
-        <tr><td><code>P5R2-UNK-TF-004</code></td><td><span class="badge future">CANDIDATE_SPECIFIED / LATER_GATE</span></td><td>補間候補をAPI、Persistence、Negative Test、Manualへ写像する。別方式を選択しない。</td><td>候補外Dataをusable／Run入力へ昇格しない。</td></tr>
-        <tr><td><code>P5R2-UNK-TF-006</code></td><td><span class="badge future">OPEN / LATER_GATE</span></td><td>「現在生成可能な全期間」の算出規則（1m有効範囲、欠損、UTC境界、warning、legacy）をH1詳細設計で確定する。</td><td>規則未確定の既定期間を実装済み仕様と扱わない。</td></tr>
-        <tr><td><code>P5R2-DATA-G1</code></td><td><span class="badge open">UNAPPROVED</span></td><td>Provider、host、market、symbol、期間、source interval、利用条件、認証、費用、通信境界、保存先を承認する。</td><td>login、契約、API call、外部Data download、Secret、費用、外部通信。</td></tr>
-        <tr><td><code>P5R2-DELETE-G1</code></td><td><span class="badge open">UNAPPROVED</span></td><td>物理削除対象、許可root、依存、CSV保護、監査、path安全、復元なし、実Data受入範囲を承認する。</td><td>既存実Data、既存Run、Evidence、監査記録の削除。</td></tr>
+        <tr><td><code>P5R2-H1</code></td><td><span class="badge approved">APPROVED_BY_DELEGATED_AUTHORITY</span></td><td>詳細設計、RED、対象path、fixture、固定command、local実装範囲、Quality Gateをlocal範囲に限り承認済み。</td><td>DATA-G1範囲外の外部Data、DELETE-G1範囲外の物理削除、H2前の完了宣言、P6開始。</td></tr>
+        <tr><td><code>P5R2-UNK-TF-004</code></td><td><span class="badge future">H1_DECISION_CONFIRMED / LOCAL_EVIDENCE / H2_REVIEW</span></td><td>単一内部欠損の補間条件をH1で確定し、P5R2-13のlocal実装・negative test・provenanceへ写像した。候補外Dataはusable／Run入力へ渡さない。</td><td>候補条件外、始端・終端欠損、2本以上、provenance欠落をusable／Run入力へ昇格しない。</td></tr>
+        <tr><td><code>P5R2-UNK-TF-006</code></td><td><span class="badge future">H1_DECISION_CONFIRMED / LOCAL_EVIDENCE / H2_REVIEW</span></td><td>Catalog時点のclosedかつquality承認済みsourceの最小時刻から最大時刻までを既定値とし、P5R2-13／14／22でlocal実装・表示・停止条件を確認した。</td><td>sourceなし、品質未承認、欠損条件不明の期間を推測して表示・送信・Run入力へ渡さない。</td></tr>
+        <tr><td><code>P5R2-DATA-G1</code></td><td><span class="badge approved">APPROVED_BOUNDED_P5R2_18 / EXTERNAL_BLOCKED</span></td><td>Provider、host、market、symbol、期間、source interval、保存先のbounded pilot範囲を承認済み。ただしhost-level isolation未確認のため実受入は未完了。</td><td>host-level isolation確認なしのlogin、契約、API call、外部Data download、Secret、費用、promotion。</td></tr>
+        <tr><td><code>P5R2-DELETE-G1</code></td><td><span class="badge approved">APPROVED_BOUNDED_P5R2_21_FIXTURE_ONLY</span></td><td>terminal ResultArtifactの新規一時fixture限定の物理削除受入を承認済み。protected artifactは維持し、P5R2-21で確認した。</td><td>既存実Data、既存Run、Export済みCSV、Evidence、監査記録、一括purge、restoreの削除。</td></tr>
         <tr><td><code>P5R2-H2</code></td><td><span class="badge open">UNAPPROVED</span></td><td>全Acceptance、Data境界、取消／削除、改訂手順書、Open Unknown、P6再引渡しを承認する。</td><td>P5R2完了宣言、P6開始。H2後もP6-H0が必要。</td></tr>
         <tr><td><code>P5R2-UNK-HD-004</code></td><td><span class="badge approved">USER_APPROVED_LIMITED / NO_HASH_FLOW</span></td><td>管理用hash経路を追加しない境界は承認済み。将来の保護対象hashは別の目的・対象・比較時点・停止範囲が明文化されるまで保留。</td><td>管理hash、manifest、checksum receipt、fingerprint、stale、hash retryを作成・要求・完了条件にしない。</td></tr>
       </tbody>
     </table>
-    <div class="danger"><strong>現在の停止：</strong>要件v4の正式化は完了したが、P5R2-H1、P5R2-DATA-G1、P5R2-DELETE-G1、P5R2-H2は未承認である。P6は停止中であり、外部Data取得・Secret・費用・実削除・test subprocess・Playwrightを開始しない。</div>
+    <div class="danger"><strong>現在の停止：</strong>P5R2-H1はlocal範囲、P5R2-DATA-G1はbounded pilot、P5R2-DELETE-G1は新規一時fixture限定で承認済みである。DATA-G1の外部受入はhost-level isolation未確認でBlocked、H2は未承認である。P6は停止中であり、承認範囲外の外部Data取得・Secret・費用・既存Artifactの破壊的削除・P6開始を行わない。local test subprocessとPlaywrightは各承認範囲内で既に実行済みである。</div>
   </section>
 
   <section id="traceability">
@@ -225,6 +225,7 @@
         <tr><td>2026-08-22</td><td>P5R2-06でA90再レビュー Critical／High=0、A95 ALLOWを受領した。</td><td>direct fallback、<code>independent=false</code>の事実を保持。管理hash経路なし。</td></tr>
         <tr><td>2026-08-22</td><td>F-001、F-002、F-003、F-004、F-006、F-007についてユーザーの最新方針を受領した。</td><td>candidate、ART-03、ART-04、packetへ反映。旧候補の不変version必須・表示非表示のみは履歴として保持。</td></tr>
         <tr><td>2026-08-22</td><td>ユーザーがP5R2-HREQを明示承認した。</td><td>本書を<code>AT-REQ-004 / FORMAL_CURRENT_REQUIREMENTS_P5R2_HREQ_APPROVED</code>として公開。P5R2-06Aログ、台帳、indexを同期。</td></tr>
+        <tr><td>2026-08-23</td><td>P5R2-H1、DATA-G1 bounded pilot、DELETE-G1 bounded fixture受入、P5R2-22 local手順書候補を反映した。</td><td>H1／bounded Gate／H2の状態を混同せず、P5R2-18 external blocked、P5R2-23 review、P6停止をCurrentとして同期。</td></tr>
       </tbody>
     </table>
 
