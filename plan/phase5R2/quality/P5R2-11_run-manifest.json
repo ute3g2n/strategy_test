@@ -100,7 +100,7 @@
     },
     {
       "gate": "test",
-      "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p5r_pytest"]
+      "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p5r2_pytest"]
     }
   ],
   "review": {
@@ -109,12 +109,9 @@
     "source": "P5R2-10 detailed design review; not a P5R2-11 gate result"
   },
   "human_gate_policy": "P5R2-H1=APPROVED_BY_DELEGATED_AUTHORITY for the local scope only; DATA-G1, DELETE-G1, H2, and P6 remain unapproved.",
-  "unknowns": [
-    "P5R2-UNK-QG-001",
-    "P5R2-UNK-QG-002"
-  ],
-  "registration_status": "REGISTERED_SCOPE_ONLY_EVIDENCE_NOT_GENERATED",
-  "execution_allowed": false,
+  "unknowns": [],
+  "registration_status": "EXECUTION_ENABLED_HOST_ISOLATION_AND_FIXTURE_CONFIRMED",
+  "execution_allowed": true,
   "notes": [
     "This is the business Run contract for P5R2-11 planning and scope registration.",
     "The protected fixture is referenced from the existing trusted record without creating a new identity.",

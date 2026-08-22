@@ -749,18 +749,17 @@
       "baseline_ref": "HEAD",
       "scope_mode": "target_only",
       "evidence_root": "tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/",
-      "unknowns": ["P5R2-UNK-QG-001", "P5R2-UNK-QG-002"],
+      "unknowns": [],
       "open_project_unknowns": [
-        "P5R2-12前のhost outbound isolation確認",
-        "P5R2-11 test subprocess未実行・Evidence未生成",
-        "既存protected identityの実Run接続確認"
+        "P5R2-12 RED未作成・固定4 Gate未実行",
+        "P5R2-12で8 atomic RequirementのRED失敗条件とEvidenceを確認"
       ],
       "network_isolation_required": true,
       "external_io": "PROHIBITED",
       "secret_policy": "PROHIBITED",
       "physical_delete": "PROHIBITED",
-      "execution_allowed": false,
-      "registration_status": "REGISTERED_SCOPE_ONLY_EVIDENCE_NOT_GENERATED",
+      "execution_allowed": true,
+      "registration_status": "EXECUTION_ENABLED_HOST_ISOLATION_AND_FIXTURE_CONFIRMED",
       "approval": {
         "gate": "P5R2-H1",
         "status": "APPROVED_BY_DELEGATED_AUTHORITY",
@@ -796,7 +795,7 @@
         },
         {
           "gate": "test",
-          "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p5r_pytest"]
+          "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p5r2_pytest"]
         }
       ],
       "ui_checks": {

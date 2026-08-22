@@ -33,7 +33,7 @@
 - trusted scope: `scripts/quality_gate/trusted_scopes.json`へ登録済み
 - fixture: 既存 `RUN-P5R-03-20260816-001.fixture` のpath/name/versionと登録済みprotected checksumをread-only再利用。新しいchecksum/hashの計算はしていない
 - 固定4 Gate: 登録済み、未実行
-- host outbound isolation: `NOT_VERIFIED`
+- host outbound isolation: P5R2-11時点は`NOT_VERIFIED`。P5R2-12 preflightで`CONFIRMED`（Evidence: `tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/host-isolation.json`）
 
 ## 実行していない操作
 
@@ -42,10 +42,10 @@ login/API/download、実Data操作、物理削除は0回である。Evidence roo
 
 ## Unknown
 
-- `P5R2-UNK-QG-001`: scope登録済み。P5R2-12前のnamespace／host isolation／Evidence確認待ち。
-- `P5R2-UNK-QG-002`: scope登録済み。既存protected identityへの実Run接続とEvidence生成は未確認。
+- `P5R2-UNK-QG-001`: P5R2-11時点は未確認。P5R2-12 preflightでnamespace／host isolation／Evidence rootを確認し、実行ブロックUnknownから除外した。
+- `P5R2-UNK-QG-002`: P5R2-11時点は未確認。P5R2-12 preflightで既存protected identity接続とchecksum一致を確認し、実行ブロックUnknownから除外した。
 
-上記Unknown、DATA-G1、DELETE-G1、H2、P6をPassまたは承認済みへ変更していない。
+DATA-G1、DELETE-G1、H2、P6は未承認のまま維持している。QG-001/002だけは、後続P5R2-12 preflightのEvidenceにより実行ブロックUnknownから解消した。
 
 ## Root fallback policy
 

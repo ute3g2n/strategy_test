@@ -40,3 +40,9 @@ test subprocess、pytest、fixed four gates、WSL runner、Playwright、npm、�
 文章管理基盤と廃止対象の管理用hashチェックを強制スキップして完了する。安全・データ・再現性に直結する保護対象hashは維持する。今回、管理用hash、manifest fingerprint、stale、retry、receipt hashは作成していない。
 
 詳細な機械証跡は [P5R2-12_RED.json](../../../tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/P5R2-12_RED.json)、[P5R2-12_A95_policy.json](../../../tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/P5R2-12_A95_policy.json)、[runtime-receipt-P5R2-12.json](./runtime-receipt-P5R2-12.json) に保存した。
+
+## 後続preflight確認
+
+初回の`QUALITY_GATE_BLOCKED`後、P5R2-12 preflightでhost isolation、既存protected fixture identity、`phase5R2` namespace、P5R2専用固定pytest入口を確認した。初回scopeに残っていたQG Unknownを実行ブロックから除外し、scope／Run Manifestを`execution_allowed=true`へ更新した。REDテストはまだ未作成・未実行であり、P5R2-12を継続する。
+
+証拠: [preflightログ](../ログ/P5R2-12_preflight確認_2026-08-22.md) / [preflight Evidence](../../../tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/P5R2-12_preflight.json)

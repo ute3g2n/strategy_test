@@ -7,7 +7,7 @@
 P5R2-H1の承認範囲に従い、Quality入口のnamespace互換修正と
 `RUN-P5R2-11-LOCAL-001`のscope登録を行った。固定4 Gate、RED分類、Evidence rootは
 設計・登録済みであるが、P5R2-11ではtest subprocess、pytest、Playwright、npm、WSLを
-起動していない。P5R2-UNK-QG-001/002は解消済みとせず、P5R2-12前の確認待ちとして保持する。
+起動していない。P5R2-11登録時点ではP5R2-UNK-QG-001/002を確認待ちとして保持し、後続P5R2-12 preflightで解消条件を確認した。
 
 ## H1承認の参照
 
@@ -47,7 +47,7 @@ Evidence pathの大文字小文字を一致させられなかった。
 | phase / step | `phase5R2` / `P5R2-11` |
 | scope mode | `target_only` |
 | Evidence root | `tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/` |
-| 実行状態 | scope登録済み、Evidence未生成、P5R2-12前の確認待ち |
+| 実行状態 | P5R2-11はscope登録のみ。P5R2-12 preflight確認済み、RED／固定4 Gateは未実行 |
 | network | host outbound isolation必須。未確認ならBLOCKED |
 | external I/O | 禁止 |
 | Secret / Broker / Live | 禁止 |
@@ -90,6 +90,9 @@ tests/evidence/phase5R2
 `tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/`は、scopeのコード変更対象ではなく、
 後続runnerが書き込むEvidence rootとして扱う。既存 `tests/evidence/phase5` は
 protected fixtureの保存場所を含むため、入力はread-only参照であり、scope変更対象ではない。
+
+P5R2-12のpreflight後、host isolationと既存protected fixture identityの一致をEvidenceで確認した。
+P5R2専用固定pytest入口は`local_p5r2_pytest`とし、既存P5Rの入口へ対象範囲を混在させない。
 
 ## 3. Protected fixture境界
 
@@ -140,8 +143,8 @@ P5R2-12でREDを作るときの分類であり、P5R2-11ではテストファイ
 
 | ID | P5R2-11現在状態 | 再開条件 |
 |---|---|---|
-| `P5R2-UNK-QG-001` | scope登録済み。namespaceの静的変更は反映済みだが、P5R2-12前のhost isolationと実Evidence確認待ち | 固定入口、scope、host outbound isolation、Evidence rootをP5R2-12で確認 |
-| `P5R2-UNK-QG-002` | scope登録済み。既存fixtureへのread-only参照を登録したが、実Run Evidenceは未生成 | 既存protected identity接続を再確認し、矛盾時はBLOCKED |
+| `P5R2-UNK-QG-001` | P5R2-12 preflightでhost isolation、namespace、固定入口を確認済み | 解消済み。RED実行結果とは別管理 |
+| `P5R2-UNK-QG-002` | P5R2-12 preflightで既存protected identityの一致を確認済み | 解消済み。fixtureはread-only、既存record不一致はBLOCKED |
 
 scope登録、H1承認、設計レビューの存在は、固定4 GateのPass、REDのPass、P5R2完了、
 DATA-G1、DELETE-G1、H2、P6開始を意味しない。

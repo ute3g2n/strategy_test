@@ -1,0 +1,24 @@
+﻿{
+    "state":  "BLOCKED",
+    "reason":  "Unknown が未解決です",
+    "gates":  [
+
+              ],
+    "generated_at":  "2026-08-22T13:30:04.031297+00:00",
+    "exit_code":  1,
+    "tool_versions":  {
+                          "python":  "Python 3.12.13",
+                          "ruff":  "ruff 0.16.1",
+                          "mypy":  "mypy 2.3.0 (compiled: yes)",
+                          "pytest":  "pytest 9.1.1",
+                          "pytest_cov":  "7.1.0"
+                      },
+    "scope":  "target_only",
+    "input_sha256":  "sha256:9fbd974f57c82392318fcdf57ee3fd2fe07c0ae37fc51b38dbc1db99d4cc858d",
+    "post_input_sha256":  "sha256:9fbd974f57c82392318fcdf57ee3fd2fe07c0ae37fc51b38dbc1db99d4cc858d",
+    "host_wrapper_execution_id":  "8eca0e477440425bb875d23790e26864",
+    "restore_pending":  true,
+    "dbn_decoder_probe":  null,
+    "execution_user":  "oue",
+    "execution_uid":  1000
+}

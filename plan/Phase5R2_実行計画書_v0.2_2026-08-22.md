@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-002`
 > Version: `v0.2`
 > 作成日: `2026-08-22`
-> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_QUALITY_GATE_BLOCKED / P5R2-DATA-G1_UNAPPROVED / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
+> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_PREFLIGHT_CONFIRMED_RED_PENDING / P5R2-DATA-G1_UNAPPROVED / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
 > 旧計画: [`Phase5R2_実行計画書_v0.1_2026-08-21.md`](./Phase5R2_実行計画書_v0.1_2026-08-21.md)（要件確定前の履歴。上書きしない）
 
 ## 1. この計画の結論
@@ -360,7 +360,7 @@ Acceptance:
 ### P5R2-12 — REDテストを作成する
 
 ```text
-step_id=P5R2-12。開始条件はP5R2-H1承認、P5R2-11のScope登録、fixture／Evidence rootの確認。RED作成だけを行い、GREEN実装は同じStepで行わない。DATA-G1前はlocal fake providerのみ、DELETE-G1前は一時fixtureのみ。
+step_id=P5R2-12。開始条件はP5R2-H1承認、P5R2-11のScope登録、fixture／Evidence rootの確認、host outbound isolation Evidence、scopeの`execution_allowed=true`確認。RED作成だけを行い、GREEN実装は同じStepで行わない。DATA-G1前はlocal fake providerのみ、DELETE-G1前は一時fixtureのみ。
 
 CoordinatorはAutoTradeProject_ImplementationQuality_Orchestrator_v0_1（.codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json、model=gpt-5.6-terra）。AgentはAutoTrade_A110_PythonTestEngineer_v0_1（.codex/agents/AutoTrade_A110_PythonTestEngineer_v0_1.json、model=gpt-5.6-luna）、AutoTrade_A130_VerificationEngineer_v0_1（.codex/agents/AutoTrade_A130_VerificationEngineer_v0_1.json、model=gpt-5.6-luna）、AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1（.codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json、model=gpt-5.6-luna、reasoning_effort=low）。Skillはautotrade_skill_python_test_quality_v0_1、autotrade_skill_test_strategy_v0_1、autotrade_skill_debug_recovery_v0_1、autotrade_skill_protected_hash_policy_guard_v0_1を使う。
 

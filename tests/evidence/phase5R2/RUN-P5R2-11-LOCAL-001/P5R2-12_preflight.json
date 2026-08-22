@@ -1,0 +1,52 @@
+{
+  "schema_version": "P5R2-12-preflight-evidence-v1",
+  "step_id": "P5R2-12",
+  "run_id": "RUN-P5R2-11-LOCAL-001",
+  "phase_id": "phase5R2",
+  "state": "PRECONDITION_CONFIRMED_SCOPE_UNLOCK_PENDING",
+  "host_isolation": {
+    "state": "CONFIRMED",
+    "networking_mode": "none",
+    "kernel": "6.6.87.2-microsoft-standard-WSL2",
+    "distro": "Ubuntu-24.04",
+    "route_default": false,
+    "outward_facing_nic": false,
+    "source": "tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/host-isolation.json",
+    "host_wrapper_execution_id": "8eca0e477440425bb875d23790e26864"
+  },
+  "fixed_entry": {
+    "state": "CONFIRMED",
+    "namespace": "phase5R2",
+    "test_module": "scripts.quality_gate.local_p5r2_pytest",
+    "target_paths": [
+      "tests/application",
+      "tests/backtest",
+      "tests/market_data",
+      "tests/phase5R"
+    ],
+    "source": "scripts/quality_gate/runner.py and P5R2 trusted scope"
+  },
+  "protected_fixture": {
+    "state": "CONFIRMED_READ_ONLY_IDENTITY",
+    "path": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2025-02/BTCUSDT-1m-2025-02.csv.gz",
+    "protected_identity_ref": "scopes.RUN-P5R-03-20260816-001.fixture",
+    "recorded_checksum": "sha256:9fbd974f57c82392318fcdf57ee3fd2fe07c0ae37fc51b38dbc1db99d4cc858d",
+    "new_identity_created": false,
+    "management_hash_created": false,
+    "source": "host-isolation.json and verification.json"
+  },
+  "quality_runner": {
+    "preflight_run": "BLOCKED_BEFORE_GATES",
+    "reason": "初回scopeにP5R2-UNK-QG-001/002が残っていたため、固定4 Gateは開始されなかった。host isolationとprotected fixture identityは確認済み。",
+    "pytest_started": false,
+    "fixed_four_gates_started": false
+  },
+  "next_action": "trusted scope/Run Manifestから解消済みQG Unknownを除外し、P5R2専用固定pytest入口を同期後、REDテスト作成・実行へ進む。",
+  "prohibited_operations": {
+    "external_network": false,
+    "secret_read": false,
+    "provider_login_or_download": false,
+    "green_implementation": false,
+    "physical_delete": false
+  }
+}
