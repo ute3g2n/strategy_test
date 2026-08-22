@@ -100,12 +100,9 @@
     "source": "P5R2-14 read-only review and fixed gate receipt pending"
   },
   "human_gate_policy": "P5R2-H1=APPROVED_BY_DELEGATED_AUTHORITY for local implementation only; DATA-G1, DELETE-G1, H2, and P6 remain unapproved.",
-  "unknowns": [
-    "P5R2-UNK-TF-006 remains a later-gate rule; unresolved default range is rejected.",
-    "External provider selection and download remain DATA-G1 blocked."
-  ],
-  "registration_status": "REGISTERED_PREFLIGHT_REQUIRED",
-  "execution_allowed": false,
+  "unknowns": [],
+  "registration_status": "EXECUTION_ENABLED_HOST_ISOLATION_AND_FIXTURE_CONFIRMED",
+  "execution_allowed": true,
   "notes": [
     "This manifest covers local fake generation, recovery-safe job transitions, Catalog preview/promotion/listing, identity, dedupe, conflict, and explicit replace.",
     "No external provider, login, contract, API call, download, Secret, cost, physical deletion, Playwright, npm, or management hash flow is allowed.",

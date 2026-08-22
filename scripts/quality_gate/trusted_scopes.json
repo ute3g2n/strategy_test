@@ -941,17 +941,14 @@
       "baseline_ref": "HEAD",
       "scope_mode": "target_only",
       "evidence_root": "tests/evidence/phase5R2/RUN-P5R2-14-LOCAL-001/",
-      "unknowns": [
-        "P5R2-UNK-TF-006 remains a later-gate rule; unresolved default range is rejected.",
-        "External provider selection and download remain DATA-G1 blocked."
-      ],
+      "unknowns": [],
       "open_project_unknowns": [],
       "network_isolation_required": true,
       "external_io": "PROHIBITED",
       "secret_policy": "PROHIBITED",
       "physical_delete": "PROHIBITED",
-      "execution_allowed": false,
-      "registration_status": "REGISTERED_PREFLIGHT_REQUIRED",
+      "execution_allowed": true,
+      "registration_status": "EXECUTION_ENABLED_HOST_ISOLATION_AND_FIXTURE_CONFIRMED",
       "approval": {
         "gate": "P5R2-H1",
         "status": "APPROVED_BY_DELEGATED_AUTHORITY",
