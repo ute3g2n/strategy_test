@@ -489,7 +489,20 @@ class BacktestProductService:
         }
 
     def create_timeframe_generation_job(self, value: object) -> JsonObject:
-        return self._job_registry.create_timeframe_generation_job(value)
+        if not isinstance(value, Mapping):
+            return self._job_registry.create_timeframe_generation_job(value)
+        request = dict(value)
+        if not isinstance(request.get("source_dataset"), Mapping):
+            source_dataset_id = request.get("source_dataset_id")
+            if isinstance(source_dataset_id, str):
+                try:
+                    request["source_dataset"] = self._history_catalog.generation_source_dataset(source_dataset_id)
+                except ValueError:
+                    # The job registry deliberately returns the public, stable
+                    # SOURCE_DATASET_UNAVAILABLE rejection without exposing a
+                    # Catalog storage detail to the browser.
+                    pass
+        return self._job_registry.create_timeframe_generation_job(request)
 
     def get_timeframe_generation_job(self, job_id: str) -> JsonObject:
         job = self._job_registry.get_job(job_id)

@@ -20,7 +20,7 @@ type BrowserEvents = {
 const browserEvents = new Map<Page, BrowserEvents>()
 
 function isAllowedRequest(url: string) {
-  return url.startsWith('http://127.0.0.1:4173') || url.startsWith('file:') || url.startsWith('data:') || url.startsWith('blob:') || url.startsWith('about:')
+  return url.startsWith('http://127.0.0.1:4173') || url.startsWith('http://127.0.0.1:8765') || url.startsWith('file:') || url.startsWith('data:') || url.startsWith('blob:') || url.startsWith('about:')
 }
 
 function watchBrowser(page: Page) {
@@ -44,7 +44,20 @@ async function openReactScreen(page: Page, screenId: string) {
     const menu = page.getByRole('button', { name: 'メニューを開く' })
     if (await menu.isVisible()) await menu.click()
   }
+  if (screenId === 'SCREEN-09' || screenId === 'SCREEN-10') {
+    await page.getByTestId('nav-SCREEN-08').click()
+    const legacyEntry = page.getByRole('button', { name: 'P5R旧履歴表示を開く' })
+    if (await legacyEntry.isVisible()) await legacyEntry.click()
+    if ((page.viewportSize()?.width ?? 0) < 820) {
+      const menu = page.getByRole('button', { name: 'メニューを開く' })
+      if (await menu.isVisible()) await menu.click()
+    }
+  }
   await page.getByTestId(`nav-${screenId}`).click()
+  if (screenId === 'SCREEN-08') {
+    const legacyEntry = page.getByRole('button', { name: 'P5R旧履歴表示を開く' })
+    if (await legacyEntry.isVisible()) await legacyEntry.click()
+  }
   await expect(page.getByTestId(`screen-${screenId}`)).toBeVisible()
   await waitForDrawerSettled(page)
 }

@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-002`
 > Version: `v0.2`
 > 作成日: `2026-08-22`
-> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_GREEN_CONFIRMED / P5R2-14_GREEN_CONFIRMED / P5R2-15_GREEN_CONFIRMED / P5R2-16_GREEN_CONFIRMED / P5R2-17_PACKET_READY / P5R2-DATA-G1_APPROVED_BOUNDED / P5R2-18_LOCAL_GREEN / P5R2-18_EXTERNAL_BLOCKED_HOST_ISOLATION / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
+> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_GREEN_CONFIRMED / P5R2-14_GREEN_CONFIRMED / P5R2-15_GREEN_CONFIRMED / P5R2-16_GREEN_CONFIRMED / P5R2-17_PACKET_READY / P5R2-DATA-G1_APPROVED_BOUNDED / P5R2-18_LOCAL_GREEN / P5R2-18_EXTERNAL_BLOCKED_HOST_ISOLATION / P5R2-19_LOCAL_UI_VERIFIED_RUNTIME_FALLBACK / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
 > 旧計画: [`Phase5R2_実行計画書_v0.1_2026-08-21.md`](./Phase5R2_実行計画書_v0.1_2026-08-21.md)（要件確定前の履歴。上書きしない）
 
 ## 1. この計画の結論
@@ -600,7 +600,7 @@ P5R2-18実績（2026-08-23）:
 - 状態は`P5R2-18_LOCAL_GREEN / P5R2-18_EXTERNAL_BLOCKED_HOST_ISOLATION`。専用Runner、request、allowlist、registration、外部Runのhost-isolation記録を作成した。
 - `RUN-P5R2-18-LOCAL-001`の固定WSL Gateはformatter／lint／type／testの4 GateすべてPASS。WSLは`networking_mode=none`、default routeなし、外向きNICなしを確認した。
 - External dry-runは`BLOCKED`、理由は`HOST_LEVEL_ISOLATION_NOT_VERIFIED`。`RUN-P5R2-18-EXTERNAL-001`のexecute、download、normalization、staging、Catalog promotionは0件である。
-- P5R2-DATA-G1の承認範囲は変更しない。host-level isolationが独立に`VERIFIED`になるまで、P5R2-18 externalは再開しない。P5R2-19は外部request 0のlocal UI統合として進められる。
+- P5R2-DATA-G1の承認範囲は変更しない。host-level isolationが独立に`VERIFIED`になるまで、P5R2-18 externalは再開しない。P5R2-19は外部request 0のlocal UI統合として完了候補を確認し、P5R2-20へ進める。
 - 証拠: [`P5R2-18 log`](./phase5R2/ログ/P5R2-18_外部Data受入・専用Runner_2026-08-23.md)、[`runtime receipt`](./phase5R2/quality/runtime-receipt-P5R2-18.json)、[`local verification`](../tests/evidence/phase5R2/RUN-P5R2-18-LOCAL-001/verification.json)、[`external preflight`](../tests/evidence/phase5R2/RUN-P5R2-18-EXTERNAL-001/preflight/registration-preflight.json)。
 
 ### P5R2-19 — Web製品UIと3画面の統合・a11y・visual・E2E
@@ -866,4 +866,4 @@ P5R2-CREQ-DOC-001は、単なる文言更新ではなく、実装・検証済み
 
 この計画は作成済みであり、現在の実行入口は本書である。P5R2-H1は承認packet、詳細設計再レビュー、権限移譲記録に基づき承認済みである。H1の承認範囲は、詳細設計、RED、対象path、Quality Gate、fixture、Evidence root、local実装に限定する。DATA-G1、DELETE-G1、H2の承認があるまで、外部Data、実削除、完了宣言、P6は開始しない。
 
-要件v4正式化、計画v0.2再作成、P5R2-08〜10、P5R2-H1、P5R2-18 local qualityは完了した。P5R2-18 externalはhost-level isolation未確認でBlocked、DELETE-G1、H2は承認済みではない。P5R2-19は外部request 0のlocal UI統合として継続する。
+要件v4正式化、計画v0.2再作成、P5R2-08〜10、P5R2-H1、P5R2-18 local qualityは完了した。P5R2-18 externalはhost-level isolation未確認でBlocked、DELETE-G1、H2は承認済みではない。P5R2-19は外部request 0のlocal UI統合として完了候補を確認し、P5R2-20へ進む。

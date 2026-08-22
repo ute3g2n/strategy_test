@@ -3,6 +3,7 @@ import { Button as BaseButton, Dialog as BaseDialog } from '@base-ui/react'
 import { allScreens, ConfirmDialog, EmptyState, ErrorState, HelpTip, MetricCard, navGroups, ProgressBar, seedData, StateAlert, StateBadge, type ScreenDefinition, type UiState } from './ui'
 import { p4ScreenContracts, type P4ScreenContract } from './p4Contract'
 import { P5RBacktestScreen } from './P5RBacktestScreen'
+import { P5R2WebProductScreen } from './P5R2WebProductScreen'
 import './App.css'
 
 function BaseDialogPilot() {
@@ -115,7 +116,8 @@ function HomeScreen({ onKill, demoState, onStateChange }: { onKill: () => void; 
   )
 }
 
-const coreScreenIds: ScreenDefinition['id'][] = ['SCREEN-03', 'SCREEN-04', 'SCREEN-08', 'SCREEN-09', 'SCREEN-10', 'SCREEN-11', 'SCREEN-12']
+const coreScreenIds: ScreenDefinition['id'][] = ['SCREEN-03', 'SCREEN-04', 'SCREEN-11', 'SCREEN-12']
+const p5r2ProductScreenIds: ScreenDefinition['id'][] = ['SCREEN-08', 'SCREEN-09', 'SCREEN-10']
 const p4BoundaryScreenIds: ScreenDefinition['id'][] = ['SCREEN-01', 'SCREEN-18', 'SCREEN-21']
 const boundaryOnlyScreenIds: ScreenDefinition['id'][] = ['SCREEN-05', 'SCREEN-06', 'SCREEN-07', 'SCREEN-13', 'SCREEN-14', 'SCREEN-15', 'SCREEN-16', 'SCREEN-20']
 
@@ -433,7 +435,9 @@ function App() {
   const [killOpen, setKillOpen] = useState(false)
   const [killed, setKilled] = useState(false)
   const [demoState, setDemoState] = useState<UiState>('NORMAL')
+  const [legacyBacktestMode, setLegacyBacktestMode] = useState(false)
   const activeScreen = useMemo(() => allScreens.find((item) => item.id === activeScreenId) ?? allScreens[0], [activeScreenId])
+  const isP5R2ProductScreen = p5r2ProductScreenIds.includes(activeScreen.id)
 
   useEffect(() => {
     document.querySelectorAll<HTMLElement>('.table-scroll').forEach((element) => {
@@ -445,6 +449,7 @@ function App() {
   const navigate = (screenId: ScreenDefinition['id']) => {
     setActiveScreenId(screenId)
     setDemoState(allScreens.find((item) => item.id === screenId)?.defaultState ?? 'NORMAL')
+    if (!p5r2ProductScreenIds.includes(screenId)) setLegacyBacktestMode(false)
     setMobileNavOpen(false)
   }
 
@@ -462,9 +467,10 @@ function App() {
         <header className="topbar"><button className="menu-button" type="button" aria-label="メニューを開く" aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen(true)}>☰</button><div className="breadcrumb"><span>運用者</span><span aria-hidden="true">/</span><strong>{activeScreen.title}</strong></div><div className="topbar-actions"><StateBadge state={killed ? 'STOPPED' : 'UNAPPROVED'} compact /><span className="as-of">基準日時: {seedData.asOf}</span></div></header>
         <main className="app-content">
           <div className="content-heading"><div><p className="eyebrow">RQU-UI-07 / 固定Seed 20260811 / SCREEN-ID追跡</p><h1>{activeScreen.title}</h1></div><div className="content-heading-actions"><span className="small-label">モック状態</span><StateBadge state={killed ? 'STOPPED' : demoState} compact /></div></div>
-          <P4ContractStrip screenId={activeScreen.id} contract={p4ScreenContracts[activeScreen.id]} />
+          {(!isP5R2ProductScreen || legacyBacktestMode) && <P4ContractStrip screenId={activeScreen.id} contract={p4ScreenContracts[activeScreen.id]} />}
           {killed && <StateAlert state="STOPPED" title="全体Kill Switchが有効です">新規Signal・注文は停止しています。データ・注文・Positionの照合が終わるまで再開できません。</StateAlert>}
-          {activeScreen.id === 'SCREEN-02' ? <HomeScreen onKill={() => setKillOpen(true)} demoState={demoState} onStateChange={setDemoState} /> : activeScreen.id === 'SCREEN-08' ? <P5RBacktestScreen screen={activeScreen} demoState={demoState} onStateChange={setDemoState} /> : coreScreenIds.includes(activeScreen.id) ? <CoreScreen screen={activeScreen} demoState={demoState} onStateChange={setDemoState} onNavigate={navigate} /> : p4BoundaryScreenIds.includes(activeScreen.id) || boundaryOnlyScreenIds.includes(activeScreen.id) ? <P4BoundaryScreen screen={activeScreen} contract={p4ScreenContracts[activeScreen.id]} demoState={demoState} onStateChange={setDemoState} /> : safetyScreenIds.includes(activeScreen.id) ? <SafetyScreen screen={activeScreen} demoState={demoState} onStateChange={setDemoState} onNavigate={navigate} /> : <ScreenPlaceholder screen={activeScreen} demoState={demoState} onStateChange={setDemoState} />}
+          {isP5R2ProductScreen && legacyBacktestMode && <section className="p5r-legacy-return"><span>旧P5R履歴表示</span><button className="secondary-button" type="button" onClick={() => { setLegacyBacktestMode(false); navigate('SCREEN-08') }}>P5R2現在画面へ戻る</button></section>}
+          {activeScreen.id === 'SCREEN-02' ? <HomeScreen onKill={() => setKillOpen(true)} demoState={demoState} onStateChange={setDemoState} /> : isP5R2ProductScreen ? (legacyBacktestMode ? (activeScreen.id === 'SCREEN-08' ? <P5RBacktestScreen screen={activeScreen} demoState={demoState} onStateChange={setDemoState} /> : <CoreScreen screen={activeScreen} demoState={demoState} onStateChange={setDemoState} onNavigate={navigate} />) : <P5R2WebProductScreen screen={activeScreen} onOpenLegacy={() => setLegacyBacktestMode(true)} />) : coreScreenIds.includes(activeScreen.id) ? <CoreScreen screen={activeScreen} demoState={demoState} onStateChange={setDemoState} onNavigate={navigate} /> : p4BoundaryScreenIds.includes(activeScreen.id) || boundaryOnlyScreenIds.includes(activeScreen.id) ? <P4BoundaryScreen screen={activeScreen} contract={p4ScreenContracts[activeScreen.id]} demoState={demoState} onStateChange={setDemoState} /> : safetyScreenIds.includes(activeScreen.id) ? <SafetyScreen screen={activeScreen} demoState={demoState} onStateChange={setDemoState} onNavigate={navigate} /> : <ScreenPlaceholder screen={activeScreen} demoState={demoState} onStateChange={setDemoState} />}
         </main>
       </div>
       <ConfirmDialog open={killOpen} onOpenChange={setKillOpen} title="全体Kill Switchを実行しますか？" description="全運用単位の新規Signal・注文を停止します。解除には照合と運用者の確認が必要です。" confirmLabel="停止する" cancelLabel="取消" danger onConfirm={() => { setKilled(true); setKillOpen(false); setDemoState('STOPPED') }} />

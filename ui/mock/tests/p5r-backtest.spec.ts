@@ -18,6 +18,7 @@ async function openBacktest(page: Page) {
     if (await menu.isVisible()) await menu.click()
   }
   await page.getByTestId('nav-SCREEN-08').click()
+  await page.getByRole('button', { name: 'P5R旧履歴表示を開く' }).click()
   await expect(page.getByTestId('screen-SCREEN-08')).toHaveAttribute('data-p5r-real-api', 'true')
 }
 

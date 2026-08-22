@@ -598,6 +598,43 @@ class HistoryCatalog:
     def catalog_snapshot(self) -> list[JsonObject]:
         return self.list_datasets()
 
+    def generation_source_dataset(self, dataset_id: str) -> JsonObject:
+        """Return one server-owned, usable 1m source for a local generation job.
+
+        The Web Product receives only Catalog metadata.  Bar data remains on the
+        local service and is resolved here immediately before the job registry
+        validates it.  This method is not an HTTP response model.
+        """
+
+        record = self._load_current_dataset(dataset_id)
+        if record is None:
+            raise ValueError("SOURCE_DATASET_UNAVAILABLE")
+        identity = self._identity_payload(record.get("identity"))
+        if identity.get("source_timeframe") != "1m":
+            raise ValueError("SOURCE_DATASET_TIMEFRAME_INVALID")
+        bars = self._normalise_bars(record.get("bars"), allow_empty=False)
+        coverage = record.get("coverage")
+        if not isinstance(coverage, Mapping):
+            raise ValueError("SOURCE_DATASET_INVALID")
+        start = coverage.get("start")
+        end = coverage.get("end")
+        if not isinstance(start, str) or not isinstance(end, str) or not self._valid_coverage(start, end):
+            raise ValueError("SOURCE_DATASET_INVALID")
+        provenance = self._safe_provenance(record.get("provenance"))
+        return {
+            "dataset_id": record["dataset_id"],
+            "identity": identity,
+            "coverage": {"start": start, "end": end},
+            "bar_count": len(bars),
+            "bars": bars,
+            "quality": record["quality"],
+            "usable": True,
+            "legacy": False,
+            "state": "CURRENT",
+            "promotion_state": "PROMOTED",
+            "provenance": provenance,
+        }
+
     def _list_dataset_views(self) -> list[JsonObject]:
         views: list[JsonObject] = []
         for path in sorted(self.datasets_root.glob("*.json")):

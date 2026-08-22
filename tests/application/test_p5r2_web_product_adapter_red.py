@@ -69,6 +69,36 @@ def _generation_request() -> dict[str, object]:
     }
 
 
+def _promote_source_dataset(service: BacktestProductService, request_id: str) -> None:
+    """Create one durable 1m Catalog source without exposing its bars to HTTP."""
+
+    source = _source_dataset()
+    source_request = {**_generation_request(), "request_id": f"{request_id}-source"}
+    source_job = service.create_timeframe_generation_job(source_request)
+    assert source_job["state"] == "STAGED"
+    stage_request: dict[str, object] = {
+        "identity": source["identity"],
+        "existing_bars": [],
+        "incoming_bars": source["bars"],
+        "dataset_id": source["dataset_id"],
+        "expected_revision": 0,
+        "impact_confirmed": True,
+        "provenance": {"source_job_id": source_job["job_id"], "source_mode": "LOCAL_FAKE"},
+        "request_id": request_id,
+        "staging_id": f"staging-{request_id}",
+        "staging_state": "STAGED",
+        "promotion_state": "VALIDATING",
+        "quality": "PENDING_CATALOG_VALIDATION",
+        "usable": False,
+        "source_job": source_job,
+    }
+    stage_request.update(service._history_catalog.stage_local_dataset(stage_request))
+    preview = service._history_catalog.preview_merge(stage_request)
+    stage_request["preview_token"] = preview["operation_token"]
+    promoted = service._history_catalog.promote_merge(stage_request)
+    assert promoted["state"] == "PROMOTED"
+
+
 def _spec(timeframe: str = "15m") -> dict[str, object]:
     return {
         "symbol": "BTCUSDT",
@@ -195,6 +225,45 @@ def test_p5r2_http_routes_expose_local_catalog_and_blocked_download(tmp_path: Pa
         download = json.loads(download_response.read().decode("utf-8"))
         assert download_response.status == 409
         assert download["reason"] == "HOST_LEVEL_ISOLATION_NOT_VERIFIED"
+        connection.close()
+    finally:
+        _Handler.service = original_service
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_p5r2_http_generation_uses_a_server_owned_catalog_source_and_hides_bars(tmp_path: Path) -> None:
+    service = BacktestProductService(data_root=tmp_path / "data", runtime_root=tmp_path / "runtime")
+    _promote_source_dataset(service, "p5r2-http-source-001")
+    server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
+    original_service = _Handler.service
+    _Handler.service = service
+    thread = Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        request = _generation_request()
+        request.pop("source_dataset")
+        request["request_id"] = "p5r2-http-generation-001"
+        connection = HTTPConnection("127.0.0.1", server.server_address[1], timeout=2)
+        connection.request(
+            "POST",
+            "/api/p5r2/timeframe-generation-jobs",
+            body=json.dumps(request),
+            headers={"Content-Type": "application/json"},
+        )
+        created_response = connection.getresponse()
+        created = json.loads(created_response.read().decode("utf-8"))
+        assert created_response.status == 201
+        assert created["state"] == "STAGED"
+        assert "source_dataset" not in created["input"]
+        assert created["external_io_performed"] is False
+
+        connection.request("GET", f"/api/p5r2/timeframe-generation-jobs/{created['job_id']}")
+        loaded_response = connection.getresponse()
+        loaded = json.loads(loaded_response.read().decode("utf-8"))
+        assert loaded_response.status == 200
+        assert "source_dataset" not in loaded["input"]
         connection.close()
     finally:
         _Handler.service = original_service

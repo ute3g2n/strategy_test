@@ -1,9 +1,13 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'vitest-axe'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { p4ScreenContracts } from './p4Contract'
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
 
 describe('RQU-UI-03 component pilot', () => {
   it('renders deterministic mock data and required controls', () => {
@@ -56,7 +60,7 @@ describe('RQU-UI-07 common UI skeleton', () => {
   it('binds every screen to the fixed P4 contract and keeps out-of-scope screens fail-closed', async () => {
     const user = userEvent.setup()
     render(<App />)
-    for (const [screenId, contract] of Object.entries(p4ScreenContracts)) {
+    for (const [screenId, contract] of Object.entries(p4ScreenContracts).filter(([screenId]) => !['SCREEN-08', 'SCREEN-09', 'SCREEN-10'].includes(screenId))) {
       await user.click(screen.getByTestId(`nav-${screenId}`))
       const strip = screen.getByTestId(`p4-contract-${screenId}`)
       expect(strip).toHaveAttribute('data-p4-scope', contract.scope)
@@ -82,17 +86,38 @@ describe('RQU-UI-07 common UI skeleton', () => {
 })
 
 describe('RQU-UI-08 core operation journeys', () => {
-  it('exposes the real P5R Backtest tabs and fail-closed start condition', async () => {
+  it('exposes the current P5R2 Web Product condition screen with only supported strategy timeframes', async () => {
     const user = userEvent.setup()
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      const payload = url.endsWith('/api/p5r2/catalog')
+        ? { items: [], available_items: [], strategy_timeframes: ['15m', '30m', '1h', '4h', '1d'], source_timeframe: '1m' }
+        : { items: [] }
+      return { ok: true, status: 200, json: async () => payload } as Response
+    }))
     render(<App />)
 
     await user.click(screen.getByTestId('nav-SCREEN-08'))
+    expect(screen.getByTestId('screen-SCREEN-08')).toHaveAttribute('data-p5r2-real-api', 'true')
+    const timeframe = screen.getByLabelText('戦略時間足')
+    expect(timeframe).toHaveTextContent('15m')
+    expect(timeframe).toHaveTextContent('30m')
+    expect(timeframe).toHaveTextContent('1h')
+    expect(timeframe).toHaveTextContent('4h')
+    expect(timeframe).toHaveTextContent('1d')
+    expect(timeframe).not.toHaveTextContent('1m')
+    expect(screen.getByRole('button', { name: '事前確認' })).toBeEnabled()
+  })
+
+  it('keeps the completed P5R 1m view behind the explicit legacy-history entry', async () => {
+    const user = userEvent.setup()
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ items: [], available_items: [], strategy_timeframes: ['15m', '30m', '1h', '4h', '1d'], source_timeframe: '1m' }) }) as Response))
+    render(<App />)
+
+    await user.click(screen.getByTestId('nav-SCREEN-08'))
+    await user.click(screen.getByRole('button', { name: 'P5R旧履歴表示を開く' }))
+    expect(screen.getByTestId('screen-SCREEN-08')).toHaveAttribute('data-p5r-real-api', 'true')
     expect(screen.getByRole('tab', { name: 'Single Run' })).toBeInTheDocument()
-    await user.click(screen.getByRole('tab', { name: 'Sweep' }))
-    expect(screen.getByRole('button', { name: 'Sweep開始' })).toBeEnabled()
-    await user.click(screen.getByRole('tab', { name: 'Single Run' }))
-    expect(screen.getByRole('button', { name: 'Single Run開始' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Preflight実行' })).toBeEnabled()
   })
 
   it('prevents a duplicate operation unit and saves a distinct combination', async () => {

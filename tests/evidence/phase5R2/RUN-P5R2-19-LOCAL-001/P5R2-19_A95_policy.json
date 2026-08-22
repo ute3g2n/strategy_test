@@ -1,0 +1,34 @@
+{
+  "schema_version": "P5R2-A95-policy-v1",
+  "step_id": "P5R2-19",
+  "decision": "ALLOW",
+  "runtime_mode": "SELF_REVIEW_FALLBACK",
+  "targets": [
+    "src/autotrade/application/backtest_product.py",
+    "src/autotrade/application/history_catalog.py",
+    "src/autotrade/application/http_server.py",
+    "ui/mock/src/App.tsx",
+    "ui/mock/src/App.css",
+    "ui/mock/src/P5R2WebProductScreen.tsx",
+    "ui/mock/src/p5r2Api.ts",
+    "ui/mock/tests/p5r2-web-product.spec.ts",
+    "scripts/phase5r/p5r2_web_product_api_server.py"
+  ],
+  "findings": [
+    {
+      "category": "PROTECTED",
+      "decision": "ALLOW",
+      "target": "src/autotrade/application/backtest_product.py",
+      "reason": "Existing protected data identity boundary remains fail-closed; no management hash flow was added."
+    },
+    {
+      "category": "PROTECTED",
+      "decision": "ALLOW",
+      "target": "ui/mock/src/App.tsx",
+      "reason": "Existing protected data identity wording remains boundary text; no management hash flow was added."
+    }
+  ],
+  "management_hash_flow": "NOT_INTRODUCED",
+  "hash_values_or_manifests": "NOT_COMPUTED_OR_STORED",
+  "required_action": "Keep the protected boundary and continue with non-hash path, schema, link, state, and external-I/O checks."
+}

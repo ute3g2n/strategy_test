@@ -13,6 +13,20 @@ MAX_JSON_BODY_BYTES = 1_000_000
 ALLOWED_UI_ORIGIN = "http://127.0.0.1:4173"
 
 
+def _p5r2_generation_job_view(value: object) -> dict[str, Any]:
+    """Project a job for the browser without disclosing source OHLCV bars."""
+
+    if not isinstance(value, dict):
+        return {"state": "REJECTED", "reason": "JOB_RESPONSE_INVALID"}
+    view = dict(value)
+    raw_input = view.get("input")
+    if isinstance(raw_input, dict):
+        safe_input = dict(raw_input)
+        safe_input.pop("source_dataset", None)
+        view["input"] = safe_input
+    return view
+
+
 class _Handler(BaseHTTPRequestHandler):
     service = BacktestProductService()
 
@@ -79,7 +93,7 @@ class _Handler(BaseHTTPRequestHandler):
                     },
                 )
             elif len(path) == 4 and path[:3] == ["api", "p5r2", "timeframe-generation-jobs"]:
-                self._send(200, self.service.get_timeframe_generation_job(path[3]))
+                self._send(200, _p5r2_generation_job_view(self.service.get_timeframe_generation_job(path[3])))
             elif path == ["api", "backtest", "runs"]:
                 self._send(200, {"items": self.service.list_runs()})
             elif path == ["api", "backtest", "runs", "history"]:
@@ -121,7 +135,7 @@ class _Handler(BaseHTTPRequestHandler):
                 self._send(409, result)
             elif path == ["api", "p5r2", "timeframe-generation-jobs"]:
                 result = self.service.create_timeframe_generation_job(body)
-                self._send(201 if result.get("state") == "STAGED" else 422, result)
+                self._send(201 if result.get("state") == "STAGED" else 422, _p5r2_generation_job_view(result))
             elif len(path) == 5 and path[:3] == ["api", "p5r2", "timeframe-generation-jobs"]:
                 snapshot = dict(body)
                 snapshot.setdefault("job_id", path[3])
@@ -138,7 +152,7 @@ class _Handler(BaseHTTPRequestHandler):
                 else:
                     self._error(404, "NOT_FOUND")
                     return
-                self._send(200 if result.get("state") != "REJECTED" else 409, result)
+                self._send(200 if result.get("state") != "REJECTED" else 409, _p5r2_generation_job_view(result))
             elif path == ["api", "p5r2", "result-artifacts", "delete"]:
                 result = self.service.delete_result_artifact(body)
                 self._send(200 if result.get("accepted") is True else 409, result)
