@@ -29,6 +29,7 @@ if [[ "$evidence_phase" == "phase5R2" && ! -f "$manifest" ]]; then
     *) manifest="$repository_path/plan/phase5R2/quality/P5R2-11_run-manifest.json" ;;
   esac
 fi
+mkdir -p "$evidence_root"
 
 blocked() {
   local reason="$1"
