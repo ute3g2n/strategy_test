@@ -10,6 +10,7 @@ from autotrade.application.storage_paths import (
     BACKTEST_RESULT_ROOT,
     HISTORICAL_DATA_ROOT,
     StoragePathError,
+    validate_local_storage_path,
     validate_storage_path,
 )
 
@@ -54,3 +55,17 @@ def test_storage_path_validation_accepts_application_path_without_creating_it() 
     validated = validate_storage_path(candidate, purpose="test", create=False)
 
     assert validated == candidate
+
+
+def test_storage_path_validation_rejects_parent_traversal() -> None:
+    with pytest.raises(StoragePathError, match="parent traversal"):
+        validate_storage_path(
+            Path(r"E:\strategy_test_data\autotrade\..\outside"),
+            purpose="test",
+            create=False,
+        )
+
+
+def test_injected_storage_path_requires_an_absolute_path() -> None:
+    with pytest.raises(StoragePathError, match="absolute"):
+        validate_local_storage_path(Path("relative-runtime"), purpose="test")

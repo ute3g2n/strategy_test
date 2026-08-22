@@ -41,6 +41,7 @@ from .storage_paths import (
     BACKTEST_STORAGE_ROOT,
     HISTORICAL_DATA_ROOT,
     filesystem_storage_path,
+    validate_local_storage_path,
     validate_storage_path,
 )
 
@@ -167,12 +168,12 @@ class BacktestProductService:
         logical_data_root = (
             validate_storage_path(HISTORICAL_DATA_ROOT, purpose="historical data")
             if data_root is None
-            else Path(data_root)
+            else validate_local_storage_path(Path(data_root), purpose="injected historical data")
         )
         logical_runtime_root = (
             validate_storage_path(BACKTEST_STORAGE_ROOT, purpose="backtest runtime data")
             if runtime_root is None
-            else Path(runtime_root)
+            else validate_local_storage_path(Path(runtime_root), purpose="injected backtest runtime data")
         )
         self.data_root = filesystem_storage_path(logical_data_root)
         self.runtime_root = filesystem_storage_path(logical_runtime_root)
