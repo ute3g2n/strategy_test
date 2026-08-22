@@ -1,0 +1,111 @@
+{
+  "run_id": "RUN-P5R2-13-LOCAL-001",
+  "phase_id": "phase5R2",
+  "step_id": "P5R2-13",
+  "design": "P5R2-ART-D01-PRE-FLIGHT-GREEN",
+  "requirements": [
+    "P5R2-CREQ-TF-001",
+    "P5R2-CREQ-TF-002",
+    "P5R2-CREQ-TF-003"
+  ],
+  "orchestrator": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
+  "component_lifecycle_orchestrator": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
+  "agents": [
+    "AutoTrade_A110_PythonTestEngineer_v0_1",
+    "AutoTrade_A120_PythonImplementer_v0_1",
+    "AutoTrade_A130_VerificationEngineer_v0_1",
+    "AutoTrade_A140_DebugEngineer_v0_1",
+    "AutoTrade_A150_PythonCodeReviewer_v0_1",
+    "AutoTrade_A160_TradingSecurityReviewer_v0_1",
+    "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1"
+  ],
+  "skills": [
+    "autotrade_skill_python_implementation_v0_1",
+    "autotrade_skill_python_test_quality_v0_1",
+    "autotrade_skill_debug_recovery_v0_1",
+    "autotrade_skill_python_code_review_v0_1",
+    "autotrade_skill_test_strategy_v0_1",
+    "autotrade_skill_ops_security_v0_1",
+    "autotrade_skill_protected_hash_policy_guard_v0_1"
+  ],
+  "data_version": "P5R2-13-local-timeframe-preflight-v1",
+  "baseline_ref": "HEAD",
+  "scope_mode": "target_only",
+  "target_paths": [
+    "src/autotrade/application",
+    "tests/application",
+    "tests/backtest",
+    "scripts/quality_gate",
+    "scripts/wsl_quality_gate"
+  ],
+  "excluded_paths": [
+    ".env",
+    ".env.*",
+    "doc",
+    "plan",
+    "research",
+    "third_party",
+    "broker",
+    "cloud",
+    "secrets",
+    "tests/evidence/phase5",
+    "tests/evidence/phase5R",
+    "tests/evidence/phase5R2"
+  ],
+  "evidence_root": "tests/evidence/phase5R2/RUN-P5R2-13-LOCAL-001/",
+  "input_fixture": {
+    "path": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2025-02/BTCUSDT-1m-2025-02.csv.gz",
+    "name": "P5-09 local BTCUSDT 1m February fixture slice",
+    "version": "P5-09-local-quality-pass-readonly",
+    "checksum": "sha256:9fbd974f57c82392318fcdf57ee3fd2fe07c0ae37fc51b38dbc1db99d4cc858d",
+    "protected_identity_ref": "scopes.RUN-P5R-03-20260816-001.fixture",
+    "read_only": true,
+    "checksum_source": "existing trusted scope protected identity; value reused without recalculation",
+    "new_identity_created": false
+  },
+  "network_isolation_required": true,
+  "external_io": "PROHIBITED",
+  "secret_policy": "PROHIBITED",
+  "physical_delete": "PROHIBITED",
+  "checks": [
+    {
+      "gate": "formatter",
+      "command": [
+        ".venv/bin/python", "-m", "ruff", "format", "--check",
+        "src/autotrade/application", "tests/application", "tests/backtest",
+        "scripts/quality_gate", "scripts/wsl_quality_gate"
+      ]
+    },
+    {
+      "gate": "lint",
+      "command": [
+        ".venv/bin/python", "-m", "ruff", "check",
+        "src/autotrade/application", "tests/application", "tests/backtest",
+        "scripts/quality_gate", "scripts/wsl_quality_gate"
+      ]
+    },
+    {
+      "gate": "type",
+      "command": [".venv/bin/python", "-m", "mypy", "src/autotrade/application"]
+    },
+    {
+      "gate": "test",
+      "command": [".venv/bin/python", "-m", "scripts.quality_gate.local_p5r2_p13_pytest"]
+    }
+  ],
+  "review": {
+    "critical": 0,
+    "high": 0,
+    "source": "P5R2-13 post-fix local review pending final receipt"
+  },
+  "human_gate_policy": "P5R2-H1=APPROVED_BY_DELEGATED_AUTHORITY for local implementation only; DATA-G1, DELETE-G1, H2, and P6 remain unapproved.",
+  "unknowns": [],
+  "registration_status": "EXECUTION_ENABLED_HOST_ISOLATION_AND_FIXTURE_CONFIRMED",
+  "execution_allowed": true,
+  "notes": [
+    "This manifest narrows the fixed test subprocess to P5R2-13 timeframe/preflight and affected P4 regression contracts.",
+    "The full RUN-P5R2-11-LOCAL-001 scope remains the aggregate P5R2 RED scope for later steps.",
+    "The protected fixture is referenced from the existing trusted record without creating a new identity.",
+    "No external provider, Secret, download, physical deletion, Playwright, npm, or management hash flow is allowed."
+  ]
+}

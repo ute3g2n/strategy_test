@@ -24,7 +24,10 @@ python_bin="$repository_path/.venv/bin/python"
 # to satisfy the runner; use the synced plan artifact instead. Existing phase
 # namespaces retain the historical Evidence-root manifest contract.
 if [[ "$evidence_phase" == "phase5R2" && ! -f "$manifest" ]]; then
-  manifest="$repository_path/plan/phase5R2/quality/P5R2-11_run-manifest.json"
+  case "$run_id" in
+    RUN-P5R2-13-*) manifest="$repository_path/plan/phase5R2/quality/P5R2-13_run-manifest.json" ;;
+    *) manifest="$repository_path/plan/phase5R2/quality/P5R2-11_run-manifest.json" ;;
+  esac
 fi
 
 blocked() {
