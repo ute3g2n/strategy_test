@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="document-id" content="P5R2-ART-DATA-G1-001">
-  <meta name="document-status" content="READY_FOR_DELEGATED_DECISION">
+  <meta name="document-status" content="APPROVED_BOUNDED_P5R2_18">
   <meta name="created-on" content="2026-08-23">
   <title>P5R2 DATA-G1 承認packet</title>
   <style>
@@ -16,7 +16,7 @@
 <body>
 <main>
   <h1>P5R2-DATA-G1 外部Historical Data承認packet</h1>
-  <div class="warn"><strong>状態：READY_FOR_DELEGATED_DECISION</strong><br>この文書は承認判断の材料であり、作成しただけではDATA-G1承認にならない。ここでは公開文書の閲覧だけを行い、Providerへの接続、login、契約、API call、Data download、Secret、費用発生を行っていない。</div>
+  <div class="ok"><strong>状態：APPROVED_BOUNDED_P5R2_18</strong><br>利用者から移譲されたP5R2 Human Gate権限に基づき、下記のbounded pilotだけを承認した。無制限のProvider利用、他銘柄・他期間への拡張、Data再配布、Secret、費用、P6開始は承認していない。</div>
 
   <h2>1. このpacketで判断すること</h2>
   <p>判断対象は、P5R2-18で実Providerからsource 1mを限定取得し、品質検査後にlocal Catalogへ昇格する範囲である。上位足をProviderから直接取得せず、取得した1m sourceからアプリ内で15m／30m／1h／4h／1dを生成する。P5R2-19以降のUI、DELETE-G1、H2、P6の承認はこのpacketの対象外である。</p>
@@ -83,11 +83,12 @@
   <h2>8. 人の判断欄</h2>
   <table>
     <tr><th>判断項目</th><th>状態</th></tr>
-    <tr><td>上記のProvider、host、market、symbol、期間、source interval、保存先、allowlist、Secret境界、費用上限、停止条件</td><td><code>UNAPPROVED</code></td></tr>
+    <tr><td>上記のProvider、host、market、symbol、期間、source interval、保存先、allowlist、Secret境界、費用上限、停止条件</td><td><code>APPROVED_BOUNDED_P5R2_18</code></td></tr>
     <tr><td>承認後の許可</td><td>上記bounded pilotのP5R2-18だけ。上位足直接取得、REST API、他銘柄、他期間、再配布、Live、Brokerへ拡張しない。</td></tr>
     <tr><td>承認後の禁止</td><td>login、契約、Secret保存、課金操作、allowlist外通信、physical delete、P6開始。</td></tr>
   </table>
-  <p><strong>承認文の例：</strong>「P5R2-DATA-G1を、上記bounded pilotの範囲で承認する。承認外の外部I/O、Secret、費用、Data再配布、実削除、P6開始は承認しない。」</p>
+  <p><strong>承認文：</strong>「P5R2-DATA-G1を、上記bounded pilotの範囲で承認する。承認外の外部I/O、Secret、費用、Data再配布、実削除、P6開始は承認しない。」</p>
+  <p>判断者は本スレッドのroot責務を持つCodex。根拠は<a href="../../../plan/phase5R2/ログ/P5R2-HumanGate権限移譲_2026-08-22.md">P5R2 Human Gate権限移譲記録</a>、本packet、P5R2-16 GREEN、Unknownと停止条件の明記である。判断Evidenceは<a href="../../../tests/evidence/phase5R2/RUN-P5R2-DATA-G1-P5R2-001/human-gate-p5r2-data-g1.md">こちら</a>。</p>
 
   <h2>9. 追跡</h2>
   <p><code>P5R2-CREQ-HD-001</code>、<code>P5R2-CREQ-HD-002</code>、<code>P5R2-UNK-HD-004</code>、<code>P5R2-UNK-QG-001</code>、<code>P5R2-UNK-QG-002</code>、<code>P5R2-UNK-HD-005/006</code>、<code>P5R2-UNK-QG-003</code>を、P5R2-18のrequest、runner、Job、Catalog、quality、Evidenceへ追跡する。P5R2-17の完了はDATA-G1の承認やP5R2-18の実行を意味しない。</p>
