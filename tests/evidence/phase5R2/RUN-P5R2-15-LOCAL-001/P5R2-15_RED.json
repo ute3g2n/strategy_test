@@ -1,0 +1,25 @@
+{
+  "run_id": "RUN-P5R2-15-LOCAL-001",
+  "phase_id": "phase5R2",
+  "step_id": "P5R2-15",
+  "state": "RED_CONFIRMED",
+  "executed_at": "2026-08-23",
+  "command": "python -m pytest -q tests/application/test_p5r2_run_operation_red_contract.py tests/phase5R/test_p5r2_result_artifact_red_contract.py",
+  "result": {
+    "failed": 6,
+    "passed": 0,
+    "reason": "request_run_cancel と delete_result_artifact が未実装で、P5R2-15 RED契約が期待どおり失敗した。"
+  },
+  "scope": [
+    "P5R2-CREQ-RUN-001",
+    "P5R2-CREQ-RUN-002"
+  ],
+  "boundary": {
+    "external_io": "PROHIBITED",
+    "secret": "PROHIBITED",
+    "physical_delete": "PROHIBITED",
+    "playwright": "PROHIBITED",
+    "management_hash": "NOT_CREATED"
+  },
+  "note": "これは実装前のRED証跡であり、GREEN判定ではない。"
+}

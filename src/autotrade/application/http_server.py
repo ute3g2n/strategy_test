@@ -101,7 +101,18 @@ class _Handler(BaseHTTPRequestHandler):
             elif path == ["api", "backtest", "runs"]:
                 self._send(201, self.service.create_run(body.get("spec", body)))
             elif len(path) == 5 and path[:3] == ["api", "backtest", "runs"] and path[4] == "cancel":
-                self._send(202, self.service.cancel_run(path[3], str(body.get("reason", "USER_REQUESTED"))))
+                cancel_request = dict(body)
+                cancel_request["run_id"] = path[3]
+                cancel_request.setdefault("operation_token", f"http-cancel-{path[3]}")
+                cancel_request.setdefault("request_id", f"http-cancel-request-{path[3]}")
+                operation_result = self.service.request_run_cancel(cancel_request)
+                run_view = operation_result.get("run")
+                operation = operation_result.get("operation")
+                if not isinstance(run_view, dict) or not isinstance(operation, dict):
+                    raise RuntimeError("RUN_CANCEL_RESULT_INVALID")
+                response = dict(run_view)
+                response["operation"] = operation
+                self._send(202, response)
             elif len(path) == 5 and path[:3] == ["api", "backtest", "runs"] and path[4] == "resume":
                 self._send(202, self.service.resume_run(path[3]))
             elif path == ["api", "backtest", "sweeps"]:

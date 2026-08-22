@@ -1,0 +1,35 @@
+{
+  "run_id": "RUN-P5R2-15-LOCAL-001",
+  "phase_id": "phase5R2",
+  "step_id": "P5R2-15",
+  "review_role": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1",
+  "agent_id": "01a02a95-fdf0-75c3-bcda-349e1bb35813",
+  "model": "gpt-5.6-luna",
+  "reasoning_effort": "low",
+  "service_tier": "priority",
+  "decision": "ALLOW",
+  "severity": "NONE",
+  "targets": [
+    "今回変更されたコード・テスト・ログ・設計HTML",
+    "scripts/quality_gate/trusted_scopes.json の RUN-P5R2-15-LOCAL-001"
+  ],
+  "rationale": [
+    "新規の管理hash、manifest fingerprint、stale、hash retry、hash receipt経路は確認されなかった。",
+    "trusted_scopes.jsonは既存protected fixture identityを再利用し、目的を安全・再現性に限定し、失敗時をBLOCKEDとしている。",
+    "外部I/O、Secret、実削除、Playwrightは禁止またはDELETE-G1後続へ明示的に隔離されている。",
+    "P5R2-16、P5R2-19、DELETE-G1、P6への越境はscope外として明示されている。",
+    "前回指摘の新規run-manifest.jsonは撤去済みである。"
+  ],
+  "scope_out": [
+    "P5R2-16",
+    "P5R2-19",
+    "DELETE-G1",
+    "P6"
+  ],
+  "unresolved_high": [],
+  "external_io": "PROHIBITED",
+  "secret": "PROHIBITED",
+  "physical_delete": "PROHIBITED",
+  "management_hash": "NOT_CREATED",
+  "note": "固定WSL品質Gate完了まではGREEN_CONFIRMEDへ遷移しない。"
+}

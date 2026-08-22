@@ -36,6 +36,7 @@ from autotrade.strategy.contracts import StrategyConfig, StrategyState
 from autotrade.strategy.service import process_closed_bars
 
 from .history_catalog import HistoryCatalog
+from .run_service import OperationGuard
 from .storage_paths import BACKTEST_STORAGE_ROOT, HISTORICAL_DATA_ROOT, validate_storage_path
 
 JsonObject = dict[str, Any]
@@ -124,6 +125,7 @@ class _Run:
     checkpoint: JsonObject | None = None
     resume_count: int = 0
     recovery_mode: str = "NORMAL"
+    operation_revision: int = 0
     cancel_event: threading.Event = field(default_factory=threading.Event)
     thread: threading.Thread | None = None
     state: JsonObject = field(default_factory=dict)
@@ -175,6 +177,7 @@ class BacktestProductService:
         self._csv_jobs: dict[str, _CsvJob] = {}
         self._holdout_consumed = False
         self._history_catalog = HistoryCatalog(self.runtime_root)
+        self._operation_guard = OperationGuard()
         self._recovery_issues: list[JsonObject] = []
         self._restore_history()
 
@@ -216,6 +219,7 @@ class BacktestProductService:
                     checkpoint=dict(record["checkpoint"]) if isinstance(record.get("checkpoint"), Mapping) else None,
                     resume_count=self._stored_int(record.get("resume_count")),
                     recovery_mode=str(record.get("recovery_mode", "NORMAL")),
+                    operation_revision=self._stored_int(record.get("operation_revision")),
                 )
                 rows = record.get("rows")
                 if isinstance(rows, list):
@@ -292,6 +296,7 @@ class BacktestProductService:
             self._sweeps.clear()
             self._csv_jobs.clear()
             self._holdout_consumed = False
+            self._operation_guard.reset_for_local_test()
 
     def preflight(self, raw_spec: Mapping[str, Any]) -> JsonObject:
         checks: list[JsonObject] = []
@@ -346,16 +351,51 @@ class BacktestProductService:
             return [dict(row) for row in run.rows]
 
     def cancel_run(self, run_id: str, reason: str = "USER_REQUESTED") -> JsonObject:
+        request = {
+            "run_id": run_id,
+            "operation_token": f"legacy-cancel-{run_id}",
+            "request_id": f"legacy-cancel-request-{run_id}",
+            "actor": "local-application",
+            "origin_screen": "LEGACY_SERVICE_CALL",
+            "reason": reason,
+        }
+        result = self.request_run_cancel(request)
+        run = result.get("run")
+        if not isinstance(run, dict):
+            raise RuntimeError("RUN_CANCEL_RESULT_INVALID")
+        return run
+
+    def request_run_cancel(self, request: Mapping[str, Any] | object) -> JsonObject:
+        """Apply the shared cancel guard against the server-owned Run state."""
+
+        if not isinstance(request, Mapping):
+            raise ValueError("CANCEL_REQUEST_INVALID")
+        raw_run_id = request.get("run_id")
+        if not isinstance(raw_run_id, str) or not raw_run_id:
+            raise ValueError("RUN_ID_REQUIRED")
         with self._lock:
-            run = self._runs.get(run_id)
+            run = self._runs.get(raw_run_id)
             if run is None:
                 raise KeyError("RUN_NOT_FOUND")
-            if run.status not in {"QUEUED", "RUNNING"}:
-                return self._run_view(run)
-            run.failure = {"code": "CANCELLED_BY_USER", "message": reason, "retryable": True}
-            run.cancel_event.set()
-            self._persist_run(run)
-            return self._run_view(run)
+            operation = self._operation_guard.request_run_cancel(
+                request,
+                server_state=run.status,
+                server_revision=run.operation_revision,
+            )
+            if operation.get("accepted") is True:
+                run.failure = {
+                    "code": "CANCELLED_BY_USER",
+                    "message": str(request.get("reason", "USER_REQUESTED")),
+                    "retryable": True,
+                }
+                run.cancel_event.set()
+                run.operation_revision += 1
+                if run.status == "QUEUED":
+                    run.status = "CANCELLED"
+                elif run.status == "RUNNING":
+                    run.status = "STOP_REQUESTED"
+                self._persist_run(run)
+            return {"run": self._run_view(run), "operation": operation}
 
     def resume_run(self, run_id: str) -> JsonObject:
         with self._lock:
@@ -368,6 +408,7 @@ class BacktestProductService:
             run.cancel_event.clear()
             run.failure = None
             run.status = "QUEUED"
+            self._operation_guard.reset_run(run_id)
             self._persist_run(run)
             run.thread = threading.Thread(
                 target=self._execute_run, args=(run_id,), daemon=True, name=f"autotrade-resume-{run_id}"
@@ -676,7 +717,13 @@ class BacktestProductService:
     def _execute_run(self, run_id: str) -> None:
         with self._lock:
             run = self._runs[run_id]
-            run.status = "RUNNING"
+            if run.cancel_event.is_set():
+                run.status = "CANCELLED"
+                run.ended_at = _iso(datetime.now(UTC))
+                self._persist_run(run)
+                return
+            if run.status != "STOP_REQUESTED":
+                run.status = "RUNNING"
             run.started_at = _iso(datetime.now(UTC))
             self._persist_run(run)
         try:
@@ -700,14 +747,30 @@ class BacktestProductService:
             self._run_bars(run, bars, start_index)
         except ValueError as error:
             with self._lock:
-                run.status = "FAILED"
-                run.failure = {"code": str(error), "retryable": False}
+                if run.cancel_event.is_set():
+                    run.status = "CANCELLED"
+                    run.failure = {
+                        "code": "CANCELLED_BY_USER",
+                        "message": "取消要求を受付済みです。",
+                        "retryable": True,
+                    }
+                else:
+                    run.status = "FAILED"
+                    run.failure = {"code": str(error), "retryable": False}
                 run.ended_at = _iso(datetime.now(UTC))
                 self._persist_run(run)
         except Exception:
             with self._lock:
-                run.status = "FAILED"
-                run.failure = {"code": "UNEXPECTED_LOCAL_FAILURE", "retryable": False}
+                if run.cancel_event.is_set():
+                    run.status = "CANCELLED"
+                    run.failure = {
+                        "code": "CANCELLED_BY_USER",
+                        "message": "取消要求を受付済みです。",
+                        "retryable": True,
+                    }
+                else:
+                    run.status = "FAILED"
+                    run.failure = {"code": "UNEXPECTED_LOCAL_FAILURE", "retryable": False}
                 run.ended_at = _iso(datetime.now(UTC))
                 self._persist_run(run)
 
@@ -1255,6 +1318,7 @@ class BacktestProductService:
             "checkpoint": dict(run.checkpoint) if run.checkpoint else None,
             "resume_count": run.resume_count,
             "recovery_mode": run.recovery_mode,
+            "operation_revision": run.operation_revision,
             "result_reference": f"results/{run.run_id}/result.json" if run.status == "SUCCEEDED" else None,
             "result_publish_id": f"RESULT-OWNER-{run.run_id}" if run.status == "SUCCEEDED" else None,
         }
