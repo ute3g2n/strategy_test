@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 
 from tests.application.test_p4_07_execution import HASH, _config
 
 from autotrade.application.api import ProductApplicationApi, build_create_run_command
+from autotrade.application.contracts import PreflightReport
 from autotrade.application.evidence import evidence_reference
 from autotrade.application.persistence import MetadataStore
 from autotrade.application.preflight import preflight_run
@@ -61,5 +63,24 @@ def test_new_metadata_rows_leave_management_hash_columns_empty() -> None:
         assert transition["payload_sha256"] is None
         assert audit["payload_sha256"] is None
         api.close()
+    finally:
+        store.close()
+
+
+def test_run_boundary_recomputes_preflight_and_rejects_forged_pass_report() -> None:
+    config = _config()
+    invalid_config = replace(config, unit_key=replace(config.unit_key, timeframe="1m"))
+    forged_pass = PreflightReport("PASS", ())
+    store = MetadataStore()
+    try:
+        with ProductApplicationApi(store=store) as api:
+            response = api.create_run(
+                build_create_run_command("forged-p5r2-preflight", invalid_config, forged_pass),
+                forged_pass,
+            )
+            assert response.status_code == 403
+            assert response.failure is not None
+            assert response.failure.code == "PREFLIGHT_REQUIRED"
+            assert api.list_runs().data == ()
     finally:
         store.close()

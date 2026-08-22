@@ -7,6 +7,7 @@ from typing import Any
 
 from .contracts import BacktestConfig, CreateRunCommand, PreflightReport, RunView, canonical_hash, utc_now
 from .persistence import MetadataStore, PersistenceConflict
+from .preflight import preflight_run
 
 
 @dataclass(frozen=True)
@@ -30,7 +31,8 @@ class SweepService:
         *,
         correlation_id: str,
     ) -> SweepView:
-        if preflight.status != "PASS":
+        del preflight
+        if preflight_run(base_config).status != "PASS":
             raise PersistenceConflict("PREFLIGHT_REQUIRED")
         if not candidates or len(candidates) > 200:
             raise PersistenceConflict("SWEEP_CANDIDATE_LIMIT")

@@ -89,7 +89,10 @@ class ProductApplicationApi:
     ) -> ApplicationResponse[RunView]:
         if not isinstance(command, CreateRunCommand):
             return failure_response("TYPED_INPUT_INVALID", "P4-MSG-TYPED_INPUT_INVALID", status_code=422)
-        report = preflight or preflight_run(command.config)
+        # A caller-supplied report is display context only.  The Run boundary
+        # always recomputes the decision from the immutable command config.
+        del preflight
+        report = preflight_run(command.config)
         return self.runs.create_run(command, report, correlation_id=self._correlation())
 
     def create_sweep(
@@ -99,7 +102,8 @@ class ProductApplicationApi:
         candidates: tuple[dict[str, Any], ...],
         preflight: PreflightReport | None = None,
     ) -> ApplicationResponse[SweepView]:
-        report = preflight or preflight_run(config)
+        del preflight
+        report = preflight_run(config)
         try:
             view = self.sweeps.create_sweep(
                 client_request_id, config, candidates, report, correlation_id=self._correlation()
