@@ -62,6 +62,32 @@ def test_download_and_generation_jobs_are_separate_and_promote_only_after_recove
     assert _field(partial_result, "orphan") is True
 
 
+def test_historical_download_is_gate_blocked_and_default_range_is_fail_closed() -> None:
+    download = _require_module_contract(
+        job_service,
+        "create_historical_download_job",
+        "P5R2-CREQ-HD-001",
+    )
+    generation = _require_module_contract(
+        job_service,
+        "create_timeframe_generation_job",
+        "P5R2-CREQ-HD-001",
+    )
+
+    download_result = download(_job_request())
+    assert _field(download_result, "state") == "REJECTED"
+    assert _field(download_result, "reason") == "EXTERNAL_DOWNLOAD_GATE_REQUIRED"
+    assert _field(download_result, "job_id") is None
+
+    default_result = generation({**_job_request(), "requested_range": None, "use_default_range": True})
+    assert _field(default_result, "state") == "REJECTED"
+    assert _field(default_result, "reason") == "DEFAULT_RANGE_UNRESOLVED"
+
+    external_result = generation({**_job_request(), "external_io_allowed": True})
+    assert _field(external_result, "state") == "REJECTED"
+    assert _field(external_result, "reason") == "EXTERNAL_IO_FORBIDDEN"
+
+
 def test_catalog_merge_preview_requires_identity_dedupe_conflict_replace_and_impact_review(tmp_path) -> None:
     catalog = history_catalog.HistoryCatalog(tmp_path)
     preview = getattr(catalog, "preview_merge", None)
@@ -95,3 +121,92 @@ def test_catalog_merge_preview_requires_identity_dedupe_conflict_replace_and_imp
     assert _field(preview_result, "affected_runs") == request["affected_runs"]
     assert _field(preview_result, "affected_results") == request["affected_results"]
     assert _field(preview_result, "requires_explicit_replace") is True
+
+
+def test_catalog_rejects_identity_mismatch_without_auto_merge(tmp_path) -> None:
+    catalog = history_catalog.HistoryCatalog(tmp_path)
+    preview_result = catalog.preview_merge(
+        {
+            "identity": {
+                "provider": "LOCAL_FAKE",
+                "market": "SPOT",
+                "symbol": "BTCUSDT",
+                "source_timeframe": "1m",
+                "schema": "ohlcv-v1",
+            },
+            "existing_identity": {
+                "provider": "LOCAL_FAKE",
+                "market": "SPOT",
+                "symbol": "BTCUSDT",
+                "source_timeframe": "1m",
+                "schema": "ohlcv-v1",
+            },
+            "incoming_identity": {
+                "provider": "OTHER_PROVIDER",
+                "market": "SPOT",
+                "symbol": "BTCUSDT",
+                "source_timeframe": "1m",
+                "schema": "ohlcv-v1",
+            },
+            "existing_bars": [],
+            "incoming_bars": [{"timestamp": "2026-08-20T00:00:00Z", "close": "100.00"}],
+            "explicit_replace": False,
+            "request_id": "p5r2-identity-mismatch-001",
+        }
+    )
+
+    assert _field(preview_result, "state") == "REJECTED"
+    assert _field(preview_result, "reason") == "DATA_IDENTITY_MISMATCH"
+    assert _field(preview_result, "promotable") is False
+
+
+def test_catalog_explicit_replace_promotes_atomically_and_lists_usable_dataset(tmp_path) -> None:
+    catalog = history_catalog.HistoryCatalog(tmp_path)
+    promote = getattr(catalog, "promote_merge", None)
+    list_available = getattr(catalog, "list_available_datasets", None)
+    assert callable(promote), "P5R2-CREQ-HD-002 RED: HistoryCatalog.promote_merge が未実装"
+    assert callable(list_available), "P5R2-CREQ-HD-002 RED: HistoryCatalog.list_available_datasets が未実装"
+
+    identity = {
+        "provider": "LOCAL_FAKE",
+        "market": "SPOT",
+        "symbol": "BTCUSDT",
+        "source_timeframe": "1m",
+        "schema": "ohlcv-v1",
+    }
+    result = promote(
+        {
+            "identity": identity,
+            "existing_bars": [{"timestamp": "2026-08-20T00:00:00Z", "close": "100.00"}],
+            "incoming_bars": [
+                {"timestamp": "2026-08-20T00:00:00Z", "close": "101.00"},
+                {"timestamp": "2026-08-20T00:15:00Z", "close": "102.00"},
+            ],
+            "affected_runs": ["RUN-LOCAL-001"],
+            "affected_results": ["RESULT-LOCAL-001"],
+            "explicit_replace": True,
+            "dataset_id": "dataset-local-001",
+            "request_id": "p5r2-merge-apply-001",
+        }
+    )
+
+    assert _field(result, "state") == "PROMOTED"
+    assert _field(result, "promoted") is True
+    assert _field(result, "dataset_id") == "dataset-local-001"
+    assert _field(result, "affected_runs") == ["RUN-LOCAL-001"]
+    assert _field(result, "affected_results") == ["RESULT-LOCAL-001"]
+    output = _field(result, "output")
+    assert isinstance(output, dict)
+    assert output["usable"] is True
+    assert output["quality"] == "USABLE"
+    assert output["bars"][0]["close"] == "101.00"
+
+    available = list_available()
+    assert len(available) == 1
+    assert available[0]["dataset_id"] == "dataset-local-001"
+    assert available[0]["symbol"] == "BTCUSDT"
+    assert available[0]["source_timeframe"] == "1m"
+    assert available[0]["quality"] == "USABLE"
+    assert available[0]["usable"] is True
+    assert available[0]["legacy"] is False
+    assert available[0]["provenance"]["request_id"] == "p5r2-merge-apply-001"
