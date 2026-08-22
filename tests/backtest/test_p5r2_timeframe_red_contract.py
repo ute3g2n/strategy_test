@@ -58,7 +58,7 @@ def _closed_bar(
         "volume": 10,
         "is_closed": closed,
         "timeframe": timeframe,
-        "provenance": provenance,
+        "provenance": dict(provenance) if isinstance(provenance, dict) else provenance,
     }
 
 
@@ -82,6 +82,12 @@ def _run_input(
         "requested_range": requested_range
         or {"start": "2026-08-20T00:00:00Z", "end": default_end.isoformat().replace("+00:00", "Z")},
         "data_version": "fixture-only-p5r2-v1",
+        "data_identity": {
+            "source_mode": "fixture_only",
+            "dataset_id": "fixture-p5r2-v1",
+            "record_id": "dataset-p5r2-v1",
+            "data_version": "fixture-only-p5r2-v1",
+        },
         "bars": bars if bars is not None else (_closed_bar("2026-08-20T00:00:00Z", timeframe=fixture_timeframe),),
         "data_quality": quality,
     }
@@ -190,6 +196,26 @@ def test_preflight_rejects_unresolved_all_period_default() -> None:
     assert "DEFAULT_RANGE_UNRESOLVED" in _codes(result)
 
 
+@pytest.mark.parametrize(
+    "requested_range",
+    (
+        {"start": "2026-08-20T00:05:00Z", "end": "2026-08-20T01:00:00Z"},
+        {"start": "2026-08-20T00:00:00Z", "end": "2026-08-20T01:05:00Z"},
+    ),
+)
+def test_preflight_rejects_non_anchor_range_boundaries(requested_range: dict[str, str]) -> None:
+    operation = _require_contract(
+        preflight_module,
+        "preflight_run_input",
+        "P5R2-CREQ-TF-002",
+    )
+
+    result = operation(_run_input(requested_range=requested_range))
+
+    assert _field(result, "decision") == "REJECT"
+    assert "UTC_ANCHOR_INVALID" in _codes(result)
+
+
 def test_preflight_rejects_empty_closed_data() -> None:
     operation = _require_contract(
         preflight_module,
@@ -264,8 +290,8 @@ def test_preflight_rejects_future_close_and_wrong_bar_cadence() -> None:
     future = operation(
         _run_input(
             strategy_timeframe="1h",
-            requested_range={"start": "2026-08-20T00:00:00Z", "end": "2026-08-20T00:30:00Z"},
-            bars=(_closed_bar("2026-08-20T00:00:00Z", timeframe="1h"),),
+            requested_range={"start": "2026-08-20T00:00:00Z", "end": "2026-08-20T01:00:00Z"},
+            bars=(_closed_bar("2026-08-20T01:00:00Z", timeframe="1h"),),
         )
     )
     wrong_cadence = operation(
@@ -279,6 +305,88 @@ def test_preflight_rejects_future_close_and_wrong_bar_cadence() -> None:
     assert "FUTURE_VALUE" in _codes(future)
     assert _field(wrong_cadence, "decision") == "REJECT"
     assert "DATA_QUALITY_REJECTED" in _codes(wrong_cadence)
+
+
+def test_prior_close_cannot_use_a_bar_after_the_gap() -> None:
+    operation = _require_contract(
+        preflight_module,
+        "preflight_run_input",
+        "P5R2-CREQ-TF-003",
+    )
+    result = operation(
+        _run_input(
+            requested_range={"start": "2026-08-20T00:00:00Z", "end": "2026-08-20T01:00:00Z"},
+            bars=(
+                _closed_bar("2026-08-20T00:00:00Z"),
+                _closed_bar("2026-08-20T00:15:00Z"),
+                _closed_bar("2026-08-20T00:30:00Z"),
+            ),
+            data_quality={
+                "quality_state": "USABLE_WITH_WARNING",
+                "missing_bars": [
+                    {
+                        "position": "internal",
+                        "count": 1,
+                        "gap_open_time_utc": "2026-08-20T00:15:00Z",
+                        "repair": "PRIOR_CLOSE_OHLC_VOLUME_ZERO",
+                        "ohlcv": {
+                            "open": "100.50",
+                            "high": "100.50",
+                            "low": "100.50",
+                            "close": "100.50",
+                            "volume": 0,
+                        },
+                        "provenance": {
+                            "source": "prior_close",
+                            "warning": "SINGLE_INTERNAL_GAP",
+                            "source_dataset_id": "fixture-p5r2-v1",
+                            "reference_close_time_utc": "2026-08-20T00:45:00Z",
+                        },
+                    }
+                ],
+            },
+        )
+    )
+
+    assert _field(result, "decision") == "REJECT"
+    assert "DATA_QUALITY_REJECTED" in _codes(result)
+
+
+def test_preflight_binds_bar_provenance_and_rejects_unknown_fields() -> None:
+    operation = _require_contract(
+        preflight_module,
+        "preflight_run_input",
+        "P5R2-CREQ-TF-002",
+    )
+    mismatched = _run_input()
+    assert isinstance(mismatched["bars"], tuple)
+    mismatched["bars"][0]["provenance"] = {
+        "source_mode": "fixture_only",
+        "dataset_id": "other-dataset-v1",
+        "record_id": "bar-0001",
+    }
+    unknown = _run_input()
+    unknown["unexpected"] = "reject-me"
+
+    mismatched_result = operation(mismatched)
+    unknown_result = operation(unknown)
+
+    assert _field(mismatched_result, "decision") == "REJECT"
+    assert "DATA_QUALITY_REJECTED" in _codes(mismatched_result)
+    assert _field(unknown_result, "decision") == "REJECT"
+    assert "INPUT_SCHEMA_INVALID" in _codes(unknown_result)
+
+
+def test_preflight_rejects_warning_state_without_warning_evidence() -> None:
+    operation = _require_contract(
+        preflight_module,
+        "preflight_run_input",
+        "P5R2-CREQ-TF-003",
+    )
+    result = operation(_run_input(data_quality={"quality_state": "USABLE_WITH_WARNING"}))
+
+    assert _field(result, "decision") == "REJECT"
+    assert "DATA_QUALITY_REJECTED" in _codes(result)
 
 
 def test_preflight_rejects_missing_ohlcv_and_secret_provenance() -> None:
@@ -298,6 +406,7 @@ def test_preflight_rejects_missing_ohlcv_and_secret_provenance() -> None:
                     {
                         "position": "internal",
                         "count": 1,
+                        "gap_open_time_utc": "2026-08-20T00:15:00Z",
                         "repair": "PRIOR_CLOSE_OHLC_VOLUME_ZERO",
                         "ohlcv": {
                             "open": "100.50",
@@ -342,6 +451,7 @@ def test_prior_close_must_match_observed_bar() -> None:
                     {
                         "position": "internal",
                         "count": 1,
+                        "gap_open_time_utc": "2026-08-20T00:15:00Z",
                         "repair": "PRIOR_CLOSE_OHLC_VOLUME_ZERO",
                         "ohlcv": {
                             "open": "100.50",
@@ -380,6 +490,7 @@ def test_single_internal_gap_is_usable_with_prior_close_warning_and_provenance()
                     {
                         "position": "internal",
                         "count": 1,
+                        "gap_open_time_utc": "2026-08-20T00:15:00Z",
                         "repair": "PRIOR_CLOSE_OHLC_VOLUME_ZERO",
                         "ohlcv": {"open": "100.50", "high": "100.50", "low": "100.50", "close": "100.50", "volume": 0},
                         "provenance": {

@@ -14,7 +14,6 @@ StrategyTimeframe = Literal["15m", "30m", "1h", "4h", "1d"]
 _STRATEGY_TIMEFRAMES = frozenset({"15m", "30m", "1h", "4h", "1d"})
 _STRATEGY_TIMEFRAME_ALIASES = {
     "M15": "15m",
-    "M30": "30m",
     "H1": "1h",
     "H4": "4h",
     "D1": "1d",
@@ -29,6 +28,44 @@ _TIMEFRAME_DELTAS: dict[str, timedelta] = {
 _ALLOWED_QUALITY_STATES = frozenset({"USABLE", "USABLE_WITH_WARNING"})
 _ALLOWED_PROVENANCE_KEYS = frozenset({"source", "warning", "source_dataset_id", "reference_close_time_utc"})
 _ALLOWED_BAR_PROVENANCE_KEYS = frozenset({"source_mode", "dataset_id", "record_id"})
+_ALLOWED_INPUT_KEYS = frozenset(
+    {
+        "symbol",
+        "strategy_timeframe",
+        "source_timeframe",
+        "requested_range",
+        "data_version",
+        "data_identity",
+        "bars",
+        "data_quality",
+        "legacy",
+        "data_legacy",
+        "default_range",
+        "requested_range_default",
+        "range_is_default",
+        "all_period_default",
+        "range_mode",
+    }
+)
+_ALLOWED_QUALITY_KEYS = frozenset(
+    {"quality_state", "future_value", "reversed_order", "missing_bars", "previous_closed_close"}
+)
+_ALLOWED_GAP_KEYS = frozenset({"position", "count", "repair", "gap_open_time_utc", "ohlcv", "provenance"})
+_ALLOWED_DATA_IDENTITY_KEYS = frozenset({"source_mode", "dataset_id", "record_id", "data_version"})
+_ALLOWED_BAR_KEYS = frozenset(
+    {
+        "open_time_utc",
+        "close_time_utc",
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume",
+        "is_closed",
+        "timeframe",
+        "provenance",
+    }
+)
 
 
 class EffectiveRange(TypedDict):
@@ -116,6 +153,19 @@ def _decimal_equal(left: object, right: object) -> bool:
         return False
 
 
+def _aligned_to_utc_anchor(value: datetime, timeframe: str) -> bool:
+    if value.second != 0 or value.microsecond != 0:
+        return False
+    if timeframe == "1d":
+        return value.hour == 0 and value.minute == 0
+    if timeframe == "4h":
+        return value.minute == 0 and value.hour % 4 == 0
+    if timeframe == "1h":
+        return value.minute == 0
+    minutes = 15 if timeframe == "15m" else 30
+    return value.minute % minutes == 0
+
+
 def _finite_decimal(value: object) -> Decimal | None:
     if isinstance(value, bool) or not isinstance(value, (str, int, Decimal)):
         return None
@@ -142,6 +192,19 @@ def _valid_bar_provenance(value: object) -> bool:
     )
 
 
+def _valid_data_identity(value: object, data_version: str) -> bool:
+    if not isinstance(value, Mapping) or set(value) != _ALLOWED_DATA_IDENTITY_KEYS:
+        return False
+    source_mode = value.get("source_mode")
+    return (
+        isinstance(source_mode, str)
+        and source_mode in {"fixture_only", "local_published"}
+        and _valid_safe_id(value.get("dataset_id"))
+        and _valid_safe_id(value.get("record_id"))
+        and value.get("data_version") == data_version
+    )
+
+
 def _valid_ohlcv(value: object) -> bool:
     if not isinstance(value, Mapping):
         return False
@@ -160,9 +223,15 @@ def _valid_ohlcv(value: object) -> bool:
 
 
 def _quality_evaluation(
-    value: object, previous_close: object | None, previous_close_time: datetime | None
+    value: object,
+    previous_close: object | None,
+    previous_close_time: datetime | None,
+    gap_timeframe: str,
+    data_identity: Mapping[str, object],
 ) -> tuple[str, list[str], PreflightProvenance | None]:
     if not isinstance(value, Mapping):
+        return "REJECT", ["DATA_QUALITY_REJECTED"], None
+    if not set(value).issubset(_ALLOWED_QUALITY_KEYS):
         return "REJECT", ["DATA_QUALITY_REJECTED"], None
     quality_state = value.get("quality_state")
     if not isinstance(quality_state, str) or quality_state not in _ALLOWED_QUALITY_STATES:
@@ -175,15 +244,13 @@ def _quality_evaluation(
 
     missing = value.get("missing_bars")
     if missing is None or missing == []:
-        return (
-            ("WARNING", ["DATA_QUALITY_WARNING"], None)
-            if quality_state == "USABLE_WITH_WARNING"
-            else ("PASS", [], None)
-        )
+        return ("PASS", [], None) if quality_state == "USABLE" else ("REJECT", ["DATA_QUALITY_REJECTED"], None)
     if not isinstance(missing, list) or len(missing) != 1 or not isinstance(missing[0], Mapping):
         return "REJECT", ["DATA_QUALITY_REJECTED"], None
 
     gap = missing[0]
+    if not set(gap).issubset(_ALLOWED_GAP_KEYS):
+        return "REJECT", ["DATA_QUALITY_REJECTED"], None
     provenance = gap.get("provenance")
     ohlcv = gap.get("ohlcv")
     if (
@@ -198,7 +265,18 @@ def _quality_evaluation(
         or provenance.get("source") != "prior_close"
         or provenance.get("warning") != "SINGLE_INTERNAL_GAP"
         or not _valid_safe_id(provenance.get("source_dataset_id"))
+        or provenance.get("source_dataset_id") != data_identity.get("dataset_id")
         or previous_close_time is None
+    ):
+        return "REJECT", ["DATA_QUALITY_REJECTED"], None
+    try:
+        gap_open_time = _utc(gap.get("gap_open_time_utc"))
+    except (TypeError, ValueError):
+        return "REJECT", ["DATA_QUALITY_REJECTED"], None
+    if (
+        not _aligned_to_utc_anchor(gap_open_time, gap_timeframe)
+        or previous_close_time is None
+        or previous_close_time > gap_open_time
     ):
         return "REJECT", ["DATA_QUALITY_REJECTED"], None
     try:
@@ -233,7 +311,7 @@ def _quality_evaluation(
 
 
 def _bar_effective_end(
-    value: object, start: datetime, end: datetime, timeframe: str
+    value: object, start: datetime, end: datetime, timeframe: str, data_identity: Mapping[str, object]
 ) -> tuple[datetime, list[str], list[str], object | None, datetime | None]:
     if value is None or (isinstance(value, (list, tuple)) and not value):
         return end, ["DATA_EMPTY"], [], None, None
@@ -247,9 +325,16 @@ def _bar_effective_end(
     partial_opened: list[datetime] = []
     partial_excluded = False
     for bar in value:
-        if not isinstance(bar, Mapping):
+        if not isinstance(bar, Mapping) or not set(bar).issubset(_ALLOWED_BAR_KEYS):
             return end, ["DATA_QUALITY_REJECTED"], [], None, None
-        if bar.get("timeframe") != timeframe or not _valid_bar_provenance(bar.get("provenance")):
+        bar_provenance = bar.get("provenance")
+        if (
+            bar.get("timeframe") != timeframe
+            or not _valid_bar_provenance(bar_provenance)
+            or not isinstance(bar_provenance, Mapping)
+            or bar_provenance.get("source_mode") != data_identity.get("source_mode")
+            or bar_provenance.get("dataset_id") != data_identity.get("dataset_id")
+        ):
             return end, ["DATA_QUALITY_REJECTED"], [], None, None
         if not isinstance(bar.get("is_closed"), bool):
             return end, ["DATA_QUALITY_REJECTED"], [], None, None
@@ -259,6 +344,8 @@ def _bar_effective_end(
             opened_at = _utc(bar.get("open_time_utc"))
         except (TypeError, ValueError):
             return end, ["DATA_QUALITY_REJECTED"], [], None, None
+        if not _aligned_to_utc_anchor(opened_at, timeframe):
+            return end, ["UTC_ANCHOR_INVALID"], [], None, None
         if opened_at < start or opened_at >= end:
             return end, ["FUTURE_VALUE"], [], None, None
         if not bar.get("is_closed"):
@@ -289,6 +376,8 @@ def _bar_effective_end(
         return end, ["DUPLICATE_BAR"], [], None, None
     if len(set(closed_at)) != len(closed_at):
         return end, ["DUPLICATE_BAR"], [], None, None
+    if any(right - left != expected_delta for left, right in zip(opened, opened[1:], strict=False)):
+        return end, ["DATA_QUALITY_REJECTED"], [], None, None
     if partial_opened and (partial_opened != sorted(partial_opened) or min(partial_opened) <= max(opened)):
         return end, ["UNCONFIRMED_BAR"], [], None, None
     warnings = ["PARTIAL_BAR_EXCLUDED"] if partial_excluded else []
@@ -321,10 +410,41 @@ def _typed_config_errors(config: BacktestConfig) -> tuple[str, ...]:
     return tuple(errors)
 
 
+def _canonical_config_timeframe(config: BacktestConfig) -> str | None:
+    value = config.unit_key.timeframe
+    return value if value in _STRATEGY_TIMEFRAMES else None
+
+
+def preflight_run_for_command(config: BacktestConfig, input_value: Mapping[str, object] | None) -> PreflightResult:
+    """Revalidate and bind a canonical P5R2 input immediately before Run persistence."""
+
+    if _canonical_config_timeframe(config) is None:
+        return _reject(["PREFLIGHT_REQUIRED"])
+    if input_value is None:
+        return _reject(["PREFLIGHT_INPUT_REQUIRED"])
+    result = preflight_run_input(input_value)
+    if result.get("decision") == "REJECT":
+        return result
+    expected_timeframe = _canonical_config_timeframe(config)
+    if input_value.get("strategy_timeframe") != expected_timeframe:
+        return _reject(["INPUT_BINDING_MISMATCH"], data_version=result.get("data_version"))
+    if input_value.get("symbol") != config.unit_key.instrument_id:
+        return _reject(["INPUT_BINDING_MISMATCH"], data_version=result.get("data_version"))
+    if result.get("data_version") != config.data.data_version:
+        return _reject(["INPUT_BINDING_MISMATCH"], data_version=result.get("data_version"))
+    requested = _requested_range(input_value.get("requested_range"))
+    configured = _requested_range(config.experiment_plan)
+    if requested is None or configured is None or requested != configured:
+        return _reject(["INPUT_BINDING_MISMATCH"], data_version=result.get("data_version"))
+    return result
+
+
 def preflight_run_input(input_value: Mapping[str, object]) -> PreflightResult:
     """Validate a new Single Backtest input without persistence or I/O."""
 
     if not isinstance(input_value, Mapping):
+        return _reject(["INPUT_SCHEMA_INVALID"])
+    if not set(input_value).issubset(_ALLOWED_INPUT_KEYS):
         return _reject(["INPUT_SCHEMA_INVALID"])
     symbol = input_value.get("symbol")
     if not _valid_safe_id(symbol):
@@ -352,18 +472,15 @@ def preflight_run_input(input_value: Mapping[str, object]) -> PreflightResult:
         return _reject(["LEGACY_DATA_READ_ONLY"], data_version=data_version)
     data_identity = input_value.get("data_identity")
     if data_identity is not None:
-        if not isinstance(data_identity, Mapping):
-            return _reject(["INPUT_SCHEMA_INVALID"], data_version=data_version)
-        source_mode = data_identity.get("source_mode")
-        if isinstance(source_mode, str) and source_mode in {"legacy", "legacy_read_only"}:
-            return _reject(["LEGACY_DATA_READ_ONLY"], data_version=data_version)
         if (
-            not isinstance(source_mode, str)
-            or source_mode not in {"fixture_only", "local_published"}
-            or not _valid_safe_id(data_identity.get("dataset_id"))
-            or not _valid_safe_id(data_identity.get("record_id"))
+            isinstance(data_identity, Mapping)
+            and isinstance(data_identity.get("source_mode"), str)
+            and data_identity.get("source_mode") in {"legacy", "legacy_read_only"}
         ):
-            return _reject(["INPUT_SCHEMA_INVALID"], data_version=data_version)
+            return _reject(["LEGACY_DATA_READ_ONLY"], data_version=data_version)
+    if not isinstance(data_identity, Mapping) or not _valid_data_identity(data_identity, data_version):
+        return _reject(["INPUT_SCHEMA_INVALID"], data_version=data_version)
+    verified_data_identity = data_identity
     source_timeframe = input_value.get("source_timeframe")
     if source_timeframe != "1m":
         return _reject(["SOURCE_TIMEFRAME_INVALID"], data_version=data_version)
@@ -379,14 +496,16 @@ def preflight_run_input(input_value: Mapping[str, object]) -> PreflightResult:
     if parsed_range is None:
         return _reject(["UTC_RANGE_INVALID"], data_version=data_version)
     start, end = parsed_range
+    if not _aligned_to_utc_anchor(start, timeframe) or not _aligned_to_utc_anchor(end, timeframe):
+        return _reject(["UTC_ANCHOR_INVALID"], requested_range=_range_view(start, end), data_version=data_version)
     effective_end, bar_errors, bar_warnings, previous_close, previous_close_time = _bar_effective_end(
-        input_value.get("bars"), start, end, timeframe
+        input_value.get("bars"), start, end, timeframe, verified_data_identity
     )
     if bar_errors:
         return _reject(bar_errors, requested_range=_range_view(start, effective_end), data_version=data_version)
 
     quality_decision, quality_codes, provenance = _quality_evaluation(
-        input_value.get("data_quality"), previous_close, previous_close_time
+        input_value.get("data_quality"), previous_close, previous_close_time, timeframe, verified_data_identity
     )
     effective_range = _range_view(start, effective_end)
     if quality_decision == "REJECT":

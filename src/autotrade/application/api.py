@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import uuid
+from collections.abc import Mapping
 from dataclasses import asdict
 from typing import Any, Literal
 
@@ -101,12 +102,19 @@ class ProductApplicationApi:
         config: BacktestConfig,
         candidates: tuple[dict[str, Any], ...],
         preflight: PreflightReport | None = None,
+        *,
+        preflight_input: Mapping[str, object] | None = None,
     ) -> ApplicationResponse[SweepView]:
         del preflight
         report = preflight_run(config)
         try:
             view = self.sweeps.create_sweep(
-                client_request_id, config, candidates, report, correlation_id=self._correlation()
+                client_request_id,
+                config,
+                candidates,
+                report,
+                correlation_id=self._correlation(),
+                preflight_input=preflight_input,
             )
         except PersistenceConflict as error:
             code = str(error)
@@ -405,7 +413,8 @@ def build_create_run_command(
     preflight_report: PreflightReport,
     *,
     run_kind: Literal["SINGLE_BACKTEST", "SWEEP_CHILD"] = "SINGLE_BACKTEST",
+    preflight_input: Mapping[str, object] | None = None,
 ) -> CreateRunCommand:
     if run_kind not in {"SINGLE_BACKTEST", "SWEEP_CHILD"}:
         raise ValueError("RUN_KIND_INVALID")
-    return CreateRunCommand(client_request_id, run_kind, config, utc_now(), None)
+    return CreateRunCommand(client_request_id, run_kind, config, utc_now(), None, preflight_input)

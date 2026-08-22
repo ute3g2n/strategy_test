@@ -2,12 +2,31 @@
 
 from __future__ import annotations
 
+import math
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
 from .contracts import BacktestConfig, CreateRunCommand, PreflightReport, RunView, canonical_hash, utc_now
 from .persistence import MetadataStore, PersistenceConflict
-from .preflight import preflight_run
+from .preflight import preflight_run, preflight_run_for_command
+
+_ALLOWED_CANDIDATE_KEYS = frozenset(
+    {"n", "entry_lookback", "exit_lookback", "initial_balance", "fee_bps", "slippage_bps", "force_fail"}
+)
+
+
+def _valid_candidate(candidate: object) -> bool:
+    if not isinstance(candidate, Mapping) or not set(candidate).issubset(_ALLOWED_CANDIDATE_KEYS):
+        return False
+    for value in candidate.values():
+        if isinstance(value, (Mapping, list, tuple)):
+            return False
+        if not isinstance(value, (str, int, float, bool)) and value is not None:
+            return False
+        if isinstance(value, float) and not math.isfinite(value):
+            return False
+    return True
 
 
 @dataclass(frozen=True)
@@ -30,17 +49,26 @@ class SweepService:
         preflight: PreflightReport,
         *,
         correlation_id: str,
+        preflight_input: Mapping[str, object] | None = None,
     ) -> SweepView:
         del preflight
-        if preflight_run(base_config).status != "PASS":
+        if base_config.unit_key.timeframe in {"15m", "30m", "1h", "4h", "1d"}:
+            if preflight_run_for_command(base_config, preflight_input).get("decision") == "REJECT":
+                raise PersistenceConflict("PREFLIGHT_REQUIRED")
+        elif preflight_run(base_config).status != "PASS":
             raise PersistenceConflict("PREFLIGHT_REQUIRED")
         if not candidates or len(candidates) > 200:
             raise PersistenceConflict("SWEEP_CANDIDATE_LIMIT")
-        candidate_hashes = tuple(canonical_hash(candidate) for candidate in candidates)
+        if any(not _valid_candidate(candidate) for candidate in candidates):
+            raise PersistenceConflict("SWEEP_CANDIDATE_INVALID")
+        try:
+            candidate_hashes = tuple(canonical_hash(candidate) for candidate in candidates)
+        except (TypeError, ValueError, OverflowError) as error:
+            raise PersistenceConflict("SWEEP_CANDIDATE_INVALID") from error
         if len(set(candidate_hashes)) != len(candidate_hashes):
             raise PersistenceConflict("SWEEP_DUPLICATE_CANDIDATE")
         parent_command = CreateRunCommand(
-            f"{client_request_id}-parent", "SINGLE_BACKTEST", base_config, utc_now(), None
+            f"{client_request_id}-parent", "SINGLE_BACKTEST", base_config, utc_now(), None, preflight_input
         )
         child_commands: list[CreateRunCommand] = []
         for ordinal, candidate in enumerate(candidates):
@@ -57,6 +85,19 @@ class SweepService:
                 config_sha256=canonical_hash({"base": base_config.config_sha256, "candidate": candidate}),
             )
             child_command = CreateRunCommand(f"{client_request_id}-{ordinal}", "SWEEP_CHILD", config, utc_now(), None)
+            if base_config.unit_key.timeframe in {"15m", "30m", "1h", "4h", "1d"}:
+                if preflight_run_for_command(config, preflight_input).get("decision") == "REJECT":
+                    raise PersistenceConflict("PREFLIGHT_REQUIRED")
+                child_command = CreateRunCommand(
+                    f"{client_request_id}-{ordinal}",
+                    "SWEEP_CHILD",
+                    config,
+                    utc_now(),
+                    None,
+                    preflight_input,
+                )
+            elif preflight_run(config).status != "PASS":
+                raise PersistenceConflict("SWEEP_CANDIDATE_INVALID")
             child_commands.append(child_command)
         parent_id, parent, members, candidate_set_hash, _ = self.store.create_sweep(
             client_request_id,

@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -165,6 +166,10 @@ class CreateRunCommand:
     # Legacy input accepted for deserialisation only.  The active path checks
     # the preflight status and never stores or compares this management hash.
     preflight_report_sha256: Sha256 | None = None
+    # P5R2 canonical runs carry the exact local input that was preflighted.
+    # It is revalidated at the Run/Sweep persistence boundary and is never
+    # treated as a caller-owned PASS report.
+    preflight_input: Mapping[str, object] | None = None
 
 
 @dataclass(frozen=True)

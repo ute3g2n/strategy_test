@@ -5,7 +5,7 @@ from __future__ import annotations
 from .config import condition_sha256
 from .contracts import ApplicationResponse, CreateRunCommand, PreflightReport, RunView, failure_response
 from .persistence import MetadataStore, PersistenceConflict
-from .preflight import preflight_run
+from .preflight import preflight_run, preflight_run_for_command
 
 
 class RunService:
@@ -21,6 +21,10 @@ class RunService:
         fresh_preflight = preflight_run(command.config)
         if fresh_preflight.status != "PASS":
             return failure_response("PREFLIGHT_REQUIRED", "P4-MSG-PREFLIGHT_REQUIRED", status_code=403)
+        if command.config.unit_key.timeframe in {"15m", "30m", "1h", "4h", "1d"}:
+            strict_result = preflight_run_for_command(command.config, command.preflight_input)
+            if strict_result.get("decision") == "REJECT":
+                return failure_response("PREFLIGHT_REQUIRED", "P4-MSG-PREFLIGHT_REQUIRED", status_code=403)
         try:
             view, _ = self.store.create_run(command, correlation_id)
         except PersistenceConflict as error:
