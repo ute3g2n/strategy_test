@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
+from pathlib import Path
 
 
 def main() -> int:
     """Run only the P5R2-16 integration contracts and affected local regressions."""
 
-    return subprocess.run(
+    completed = subprocess.run(
         [
             sys.executable,
             "-m",
@@ -28,7 +30,18 @@ def main() -> int:
             "-q",
         ],
         check=False,
-    ).returncode
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        evidence_hint = os.environ.get("QUALITY_GATE_HOST_ISOLATION_EVIDENCE")
+        if evidence_hint:
+            diagnostic = Path(evidence_hint).with_name("p5r2-16-test-output.txt")
+            diagnostic.write_text(
+                f"STDOUT:\n{completed.stdout}\n\nSTDERR:\n{completed.stderr}\n",
+                encoding="utf-8",
+            )
+    return completed.returncode
 
 
 if __name__ == "__main__":
