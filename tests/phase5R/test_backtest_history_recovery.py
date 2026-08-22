@@ -105,6 +105,7 @@ def _write_legacy_result(runtime_root: Path, run_id: str = "RUN-AUTOTRADE-LEGACY
         json.dumps(
             {
                 "run_id": run_id,
+                "legacy_import": True,
                 "metrics": {
                     "total_pnl": "0.0000",
                     "maximum_drawdown": "0.0000",
@@ -155,6 +156,22 @@ def test_legacy_result_is_restored_with_explicit_legacy_mode(tmp_path: Path) -> 
     assert restored["recovery_mode"] == "LEGACY_RESULT_ONLY"
     assert service.get_rows("RUN-AUTOTRADE-LEGACY") == rows
     assert restored["spec"]["symbol"] == "BTCUSDT"
+
+
+def test_unowned_result_requires_recovery_instead_of_implicit_success(tmp_path: Path) -> None:
+    runtime_root = tmp_path / "runtime"
+    result_dir = runtime_root / "results" / "RUN-AUTOTRADE-ORPHAN"
+    result_dir.mkdir(parents=True, exist_ok=True)
+    (result_dir / "result.json").write_text(
+        json.dumps({"run_id": "RUN-AUTOTRADE-ORPHAN", "metrics": {}, "rows": [], "provenance": {}}),
+        encoding="utf-8",
+    )
+
+    service = BacktestProductService(data_root=tmp_path / "data", runtime_root=runtime_root)
+
+    restored = service.get_run("RUN-AUTOTRADE-ORPHAN")
+    assert restored["status"] == "RECOVERY_REQUIRED"
+    assert restored["failure"]["code"] == "ORPHAN_RESULT_UNOWNED"
 
 
 def test_incomplete_after_restart_is_recovery_required_not_success(tmp_path: Path) -> None:

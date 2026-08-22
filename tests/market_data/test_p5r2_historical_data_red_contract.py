@@ -54,6 +54,13 @@ def _job_request() -> dict[str, object]:
             "quality": "USABLE",
             "usable": True,
             "legacy": False,
+            "state": "CURRENT",
+            "promotion_state": "PROMOTED",
+            "bar_count": 2,
+            "bars": [
+                _bar("2026-08-19T00:00:00Z", "100.00"),
+                _bar("2026-08-19T00:01:00Z", "100.10"),
+            ],
             "provenance": {"source_job_id": "fixture-job-001", "source_mode": "LOCAL_FAKE"},
         },
     }
