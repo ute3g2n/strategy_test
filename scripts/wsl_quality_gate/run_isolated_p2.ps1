@@ -167,7 +167,13 @@ try {
     & wsl.exe --shutdown
     if ($LASTEXITCODE -ne 0) { throw "wsl --shutdown failed" }
     $approvalPath = Join-Path $evidence "human-gate-user-declaration.md"
-    $userApproved = (Test-Path -LiteralPath $approvalPath -PathType Leaf) -and [bool](Select-String -LiteralPath $approvalPath -Pattern "USER_APPROVAL_DECLARED=1" -Quiet)
+    $declarationApproved = (Test-Path -LiteralPath $approvalPath -PathType Leaf) -and [bool](Select-String -LiteralPath $approvalPath -Pattern "USER_APPROVAL_DECLARED=1" -Quiet)
+    # The trusted wrapper may receive the delegated approval through the
+    # explicit environment variable. Preserve that approval when WSLENV is
+    # rebuilt; otherwise the wrapper would discard it merely because the
+    # declaration file is stored in the Windows worktree rather than the WSL
+    # clone.
+    $userApproved = ($originalHumanApproved -eq "1") -or $declarationApproved
     if ($userApproved) { $env:QUALITY_GATE_HUMAN_APPROVED = "1" } else { Remove-Item Env:QUALITY_GATE_HUMAN_APPROVED -ErrorAction SilentlyContinue }
     $wslVersionValue = (($wslVersion -replace "`0", "" -split "`r?`n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -First 1).Trim())
     $env:WSL_HOST_WRAPPER_EXECUTION_ID = $executionId; $env:WSL_VERSION = $wslVersionValue; $env:WSL_DISTRO_NAME = $Distro
