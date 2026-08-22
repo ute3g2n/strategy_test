@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P5R2-H1 承認packet</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.7;max-width:1240px;margin:28px auto;padding:0 22px;color:#172033;background:#f8fafc}
+    main{background:#fff;border:1px solid #d9e2ec;padding:28px}
+    h1,h2{color:#111827} h1{border-bottom:3px solid #1f2937;padding-bottom:10px} h2{border-bottom:1px solid #cbd5e1;padding-bottom:6px;margin-top:32px}
+    table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px} th,td{border:1px solid #cbd5e1;padding:8px 10px;vertical-align:top} th{background:#eef2f7}
+    .approval{border-left:5px solid #15803d;background:#f0fdf4;padding:16px;margin:16px 0}.stop{border-left:5px solid #b45309;background:#fff7ed;padding:16px;margin:16px 0}.meta{background:#eff6ff;padding:14px;border-left:5px solid #2563eb}
+    code{font-family:Consolas,"Courier New",monospace;background:#f1f5f9;padding:1px 4px;overflow-wrap:anywhere} a{color:#0f5db8}
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="../../index.html">ドキュメントインデックスへ戻る</a></p>
+  <h1>P5R2-H1 詳細設計・RED・local実装範囲 承認packet</h1>
+  <section class="meta">
+    <p><strong>Packet ID:</strong> P5R2-ART-H1-001<br>
+    <strong>対象Step:</strong> P5R2-H1<br>
+    <strong>作成日:</strong> 2026-08-22<br>
+    <strong>状態:</strong> <strong>APPROVED_BY_DELEGATED_AUTHORITY</strong><br>
+    <strong>承認判断者:</strong> 本スレッドのroot責務を持つCodex（利用者からP5R2-25完了までのHuman Gate承認権限を移譲済み）<br>
+    <strong>承認範囲:</strong> P5R2-11〜P5R2-16、P5R2-19のlocal実装・RED／GREEN・統合検証へ進むための設計、対象path、Quality scope、local fake provider、削除guard範囲</p>
+  </section>
+  <section class="approval"><strong>判断:</strong> P5R2-H1を承認する。承認はこのpacketに記載したlocal範囲だけに及び、P5R2-DATA-G1、P5R2-DELETE-G1、P5R2-H2、P6開始を承認しない。</section>
+
+  <h2>1. 承認の前提</h2>
+  <p>この表は、何を確認してから承認したかを示す。P5R旧完了は履歴として扱い、P5R2の合否証拠へ昇格しない。</p>
+  <table><thead><tr><th>確認項目</th><th>確認結果</th><th>根拠</th></tr></thead><tbody>
+    <tr><td>要件</td><td>AT-REQ-004 v4.0の4領域・8 atomic Requirementを確認した。</td><td><a href="../../requirements/01_自動トレードシステム要件定義書_v4.html">要件v4</a>、<a href="../../../plan/phase5R2/requirements/P5R2-09_design-coverage-matrix.md">coverage matrix</a></td></tr>
+    <tr><td>詳細設計</td><td>5冊すべてをAF-D16の0〜22章、Mermaid受渡し、型契約、永続化、例外、復旧、全テスト表まで改訂した。</td><td><a href="../04_実装詳細設計/01_P5R2時間足・Preflight設計書.html">D01</a>〜<a href="../04_実装詳細設計/05_P5R2UI・Manual・Evidence接続設計書.html">D05</a></td></tr>
+    <tr><td>レビュー</td><td>Findings firstの改訂・再レビューでCritical=0、High=0を確認した。</td><td><a href="../../../plan/phase5R2/ログ/P5R2-10_詳細設計レビュー・改訂・再レビュー_2026-08-22.md">P5R2-10ログ</a></td></tr>
+    <tr><td>管理hash境界</td><td>管理用hash、manifest、stale、fingerprint、hash retry、receipt hashを追加していない。既存fixtureの保護対象identityは再計算せず参照する。</td><td><a href="../../../plan/phase5R2/ログ/runtime-receipt-P5R2-10.md">P5R2-10 receipt</a></td></tr>
+  </tbody></table>
+
+  <h2>2. 8 atomic Requirementの承認範囲</h2>
+  <p>この表は、H1で実装・REDへ渡してよい要件と、後続Gateまで止める要件を分ける。</p>
+  <table><thead><tr><th>領域</th><th>atomic Requirement</th><th>H1で許可する範囲</th><th>残る停止条件</th></tr></thead><tbody>
+    <tr><td>時間足</td><td><code>P5R2-CREQ-TF-001〜003</code></td><td>15m、30m、1h、4h、1dを戦略足として選択し、1mは内部sourceだけにする。UTC、closed bar、legacy分離、Preflightをlocalで実装・検証する。</td><td>未確認DataはRunへ渡さない。実ProviderはDATA-G1前に扱わない。</td></tr>
+    <tr><td>Historical Data</td><td><code>P5R2-CREQ-HD-001〜002</code></td><td>Download JobとGeneration Jobの別契約、Catalog、merge/dedupe/conflict、local fake provider・既存fixtureによる生成を実装・検証する。</td><td>実Provider、login、API call、download、Secret、費用はDATA-G1前に禁止する。</td></tr>
+    <tr><td>Run操作</td><td><code>P5R2-CREQ-RUN-001</code></td><td>実行一覧・進捗・結果サマリーの3画面でcancel、二重押下防止、OperationGuard、terminal状態不変＋監査をlocalで実装・検証する。</td><td>承認範囲外のRun・Data・Evidenceを変更しない。</td></tr>
+    <tr><td>ResultArtifact</td><td><code>P5R2-CREQ-RUN-002</code></td><td>表示からの削除、logical Artifact ID、許可root、保護対象拒否、path安全のguardをlocal一時fixtureでRED／GREENする。</td><td>実Data、実Run、既存Evidence、監査、Export済みCSVのunlinkはDELETE-G1前に禁止する。</td></tr>
+    <tr><td>手順書</td><td><code>P5R2-CREQ-DOC-001</code></td><td>Manual／Evidence接続の設計と、実装後に検証済み操作だけを記録する準備を許可する。</td><td><code>01_バックテスト手順書</code>本体の改訂はP5R2-22、最終承認はH2まで行わない。</td></tr>
+  </tbody></table>
+
+  <h2>3. H1で確定する設計判断</h2>
+  <p>この表は、P5R2-08〜10でUnknownとして残った事項を、H1の判断として具体化する。判断後も負のケースと停止条件をテストで確認する。</p>
+  <table><thead><tr><th>判断ID</th><th>判断内容</th><th>未成立時の停止</th></tr></thead><tbody>
+    <tr><td><code>P5R2-H1-DEC-TF-004</code></td><td>1m sourceの内部欠損がちょうど1本で、前後の時系列が正しく、future値を参照しない場合だけ、直前の確定CloseをOHLCへ設定しVolume=0とする。補間位置・理由・警告をprovenanceへ記録し、始端・終端・2本以上・逆転・上限超過・provenance欠落はUNUSABLEとする。sourceそのものを改変せずderived候補として扱う。</td><td>条件外のDataはusableへ昇格せず、Runを開始しない。</td></tr>
+    <tr><td><code>P5R2-H1-DEC-TF-006</code></td><td>生成画面の期間既定値は、選択銘柄のCatalogがその時点で持つ最小のclosedかつquality承認済みsource時刻から最大時刻までとする。画面に解決済み開始・終了を表示し、内部欠損は品質検査へ渡す。利用可能なsourceがない場合は既定値を表示せずエラーにする。</td><td>全期間を推測して表示せず、生成・Run入力を停止する。</td></tr>
+    <tr><td><code>P5R2-H1-DEC-QG-001</code></td><td>固定入口は<code>scripts/wsl_quality_gate/run_test.ps1</code>と<code>run_isolated_p2.ps1</code>をP5R2 namespaceへ対応させ、既存phase5Rを流用しない。P5R2-11で<code>phase5R2</code> scopeを登録してから固定4 Gateを実行する。</td><td>scope未登録、namespace不一致、host outbound isolation未確認ならsubprocessを開始しない。</td></tr>
+    <tr><td><code>P5R2-H1-DEC-QG-002</code></td><td>fixtureは既存の保護済みlocal fixture <code>tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2025-02/BTCUSDT-1m-2025-02.csv.gz</code>（既存trusted scope記録のidentity）をread-onlyで再利用する。新しい保護対象hashは作成しない。</td><td>fixtureが存在しない、identityが既存記録と一致しない、または変更対象へ入る場合はP5R2 quality runを停止する。</td></tr>
+  </tbody></table>
+
+  <h2>4. 実装対象path</h2>
+  <p>この表は、H1後に変更してよい具体的範囲を示す。記載のないpathは、必要性を別packetで判断するまで変更しない。</p>
+  <table><thead><tr><th>区分</th><th>許可path</th><th>許可する変更</th></tr></thead><tbody>
+    <tr><td>Application</td><td><code>src/autotrade/application/api.py</code>、<code>http_server.py</code>、<code>backtest_product.py</code>、<code>preflight.py</code>、<code>job_service.py</code>、<code>history_catalog.py</code>、<code>persistence.py</code>、<code>storage_paths.py</code>、<code>run_service.py</code>、<code>result_view.py</code>、<code>contracts.py</code>、<code>run_manifest.py</code></td><td>v4要件に必要なDTO、Job、Catalog、Preflight、Run Guard、Artifact guard、保存・復旧契約だけ。</td></tr>
+    <tr><td>Backtest / Data / Strategy</td><td><code>src/autotrade/backtest/timeframe_aggregator.py</code>、<code>src/autotrade/backtest/contracts.py</code>、<code>src/autotrade/market_data/acquisition_protocol.py</code>、<code>catalog_resolver.py</code>、<code>normalized_store.py</code>、<code>quality.py</code>、<code>store_contracts.py</code>、必要最小限の<code>src/autotrade/strategy/contracts.py</code></td><td>1m source、5戦略足、local fake provider境界、品質・provenance・契約だけ。売買戦略ルールの変更は対象外。</td></tr>
+    <tr><td>UI</td><td><code>ui/mock/src/P5RBacktestScreen.tsx</code>、<code>ui/mock/src/backtestApi.ts</code>、必要な同一UI契約・テストファイル</td><td>3画面のcancel、Data一覧・生成遷移、時間足・期間、dialog、focus/a11y、Artifact表示削除のUI/API DTO接続。</td></tr>
+    <tr><td>Tests</td><td><code>tests/application/</code>、<code>tests/backtest/</code>、<code>tests/phase5R/</code>、必要に応じて新設する<code>tests/market_data/</code>、<code>ui/mock/tests/</code></td><td>RED、local fake provider、temporary fixture、negative、restart/recovery、UI contractのテスト。既存Evidence fixtureは変更しない。</td></tr>
+    <tr><td>Quality entry</td><td><code>scripts/quality_gate/trusted_scopes.json</code>、<code>scripts/quality_gate/local_p5r2_pytest.py</code>、<code>scripts/wsl_quality_gate/run_test.ps1</code>、<code>scripts/wsl_quality_gate/run_isolated_p2.ps1</code>、必要な同一Gate補助</td><td>P5R2 namespace、target_only、固定4 Gate、host outbound isolation、既存保護fixture参照を登録・検証する。管理用hash経路は追加しない。</td></tr>
+  </tbody></table>
+
+  <h2>5. Quality scopeとfixture</h2>
+  <p>この表は、P5R2-11で登録するQuality scopeを固定する。P5R2-11で登録が完了するまでTest subprocessは開始しない。</p>
+  <table><thead><tr><th>項目</th><th>H1承認値</th></tr></thead><tbody>
+    <tr><td>Run ID / phase</td><td><code>RUN-P5R2-11-LOCAL-001</code> ／ <code>phase5R2</code></td></tr>
+    <tr><td>Evidence root</td><td><code>tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/</code>。自動生成物の保存先であり、H1時点では未作成。</td></tr>
+    <tr><td>scope mode</td><td><code>target_only</code>。Application、Backtest、Market Data、Strategy contract、UI、対象Tests、quality entryだけを対象にする。</td></tr>
+    <tr><td>fixture</td><td>既存のP5R local BTCUSDT 1m February fixtureをread-only参照する。既存trusted scopeに記録されたprotected identityを使い、新しいchecksumや管理hashは作らない。</td></tr>
+    <tr><td>固定入口</td><td><code>scripts/wsl_quality_gate/run_test.ps1</code> → <code>run_isolated_p2.ps1</code> → network isolated WSL runner。P5R2-11でnamespace互換を実装・静的確認してから使う。</td></tr>
+    <tr><td>固定Gate</td><td>formatter、lint、type、testの4 Gate。各GateはscopeとEvidenceを満たさない場合にBLOCKEDとする。UI build/unit/Playwrightは対応Stepで別途実行し、既存P5R Evidenceを流用しない。</td></tr>
+    <tr><td>通信</td><td>H1後もDATA-G1前は外部通信ゼロ、local fake providerと既存fixtureだけ。host outbound isolationが確認できないRunは開始しない。</td></tr>
+  </tbody></table>
+
+  <h2>6. 除外pathと禁止操作</h2>
+  <p>この表は、H1承認後も変更・実行してはいけない境界を示す。</p>
+  <table><thead><tr><th>除外または禁止</th><th>理由</th></tr></thead><tbody>
+    <tr><td><code>.env</code>、Secret、鍵、認証情報、口座・Broker権限</td><td>H1はSecretや外部権限を承認しない。</td></tr>
+    <tr><td>実Providerのlogin、契約、API call、Data download、外部host、費用</td><td>P5R2-DATA-G1で別途対象・上限・通信・保存先を判断する。</td></tr>
+    <tr><td>既存のHistorical Data、Run本体、Audit、Evidence、Export済みCSVの物理削除</td><td>P5R2-DELETE-G1前は実unlinkを禁止する。P5R2-15はtemporary fixtureだけを扱う。</td></tr>
+    <tr><td><code>doc/phase5R/07_運用手順/01_バックテスト手順書.html</code>本体</td><td>P5R2-22で実装・検証済み操作だけを改訂する。</td></tr>
+    <tr><td><code>doc/</code>・<code>plan/</code>・既存P5R Evidenceの合否変更</td><td>設計・証跡の更新は対象成果物に限定し、過去履歴を改変しない。</td></tr>
+    <tr><td>管理用hash、manifest、stale、fingerprint、hash retry、receipt hash</td><td>現行Protected Hash Policyにより追加しない。</td></tr>
+  </tbody></table>
+
+  <h2>7. Gateと残Unknown</h2>
+  <p>この表は、H1承認後も自動的に承認済みにならない事項を明示する。</p>
+  <table><thead><tr><th>ID</th><th>H1後の状態</th><th>次の開始条件</th></tr></thead><tbody>
+    <tr><td><code>P5R2-H1</code></td><td>承認済み。承認範囲は本packetのlocal設計・RED・local実装に限定する。</td><td>P5R2-11開始可。</td></tr>
+    <tr><td><code>P5R2-DATA-G1</code></td><td>未承認。実Provider・Secret・費用・外部Dataは不可。</td><td>P5R2-16後に対象packetを作成し、root Codexが別判断する。</td></tr>
+    <tr><td><code>P5R2-DELETE-G1</code></td><td>未承認。既存Data/Run/Audit/Evidence/CSVの実削除は不可。</td><td>P5R2-20後に対象packetを作成し、root Codexが別判断する。</td></tr>
+    <tr><td><code>P5R2-H2</code></td><td>未承認。完了宣言とP6開始は不可。</td><td>P5R2-24後に全AcceptanceとManual/Evidenceを確認する。</td></tr>
+    <tr><td><code>P5R2-UNK-TF-004/006</code></td><td>H1判断で設計契約を確定したが、negative testとlocal実装でEvidenceを得るまでusable昇格・既定値表示を成功扱いしない。</td><td>P5R2-12〜16のlocal RED/GREENと再レビュー。</td></tr>
+    <tr><td><code>P5R2-UNK-QG-001/002</code></td><td>H1で固定値・既存fixture再利用方針を承認した。P5R2-11で実登録・静的互換を確認するまでsubprocess不可。</td><td>P5R2-11のscope登録、host isolation、fixture存在確認。</td></tr>
+  </tbody></table>
+
+  <h2>8. 承認記録</h2>
+  <section class="approval">
+    <p><strong>承認結果:</strong> `P5R2-H1_APPROVED_BY_DELEGATED_AUTHORITY`</p>
+    <p><strong>承認理由:</strong> 要件v4の8件coverage、P5R2-09の5冊、P5R2-10のCritical=0／High=0、P5R2-11のQuality scope予定値、既存fixtureのread-only identity、local／外部／削除の境界を確認し、実装へ進む範囲を限定できるため。</p>
+    <p><strong>明示的な非承認:</strong> DATA-G1、DELETE-G1、H2、P6、実Provider、Secret、費用、既存Data／Run／Evidence／CSVの物理削除。</p>
+  </section>
+
+  <h2>9. 関連成果物・履歴</h2>
+  <ul>
+    <li><a href="../../requirements/01_自動トレードシステム要件定義書_v4.html">AT-REQ-004 v4</a></li>
+    <li><a href="../04_実装詳細設計/01_P5R2時間足・Preflight設計書.html">P5R2-09/10 D01</a> ／ <a href="../04_実装詳細設計/02_P5R2HistoricalDataJob・Catalog設計書.html">D02</a> ／ <a href="../04_実装詳細設計/03_P5R2Run操作・ResultArtifact設計書.html">D03</a> ／ <a href="../04_実装詳細設計/04_P5R2Persistence・Migration・Recovery設計書.html">D04</a> ／ <a href="../04_実装詳細設計/05_P5R2UI・Manual・Evidence接続設計書.html">D05</a></li>
+    <li><a href="../../../plan/phase5R2/requirements/P5R2-08_requirement-coverage.md">P5R2-08 coverage</a> ／ <a href="../../../plan/phase5R2/requirements/P5R2-09_design-coverage-matrix.md">P5R2-09 coverage</a></li>
+    <li><a href="../../../plan/phase5R2/ログ/P5R2-10_詳細設計レビュー・改訂・再レビュー_2026-08-22.md">P5R2-10 review</a> ／ <a href="../../../plan/phase5R2/ログ/P5R2-HumanGate権限移譲_2026-08-22.md">Human Gate権限移譲</a></li>
+    <li><a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a> ／ <a href="../../../plan/Phase5R2_実行計画書_v0.2_2026-08-22.md">P5R2計画v0.2</a></li>
+  </ul>
+</main>
+</body>
+</html>

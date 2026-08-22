@@ -1,0 +1,81 @@
+{
+  "step_id": "P5R2-10",
+  "runtime_backend": "multi_agent_v1",
+  "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+  "planner_probe": {
+    "agent_id": "01a02962-29f3-7501-8822-db4b45bf46a3",
+    "role": "planner_probe",
+    "model": "gpt-5.6-terra",
+    "status": "COMPLETED",
+    "wait_status": "COMPLETED",
+    "independent": false,
+    "review_mode": "ROOT_FALLBACK_REVIEW"
+  },
+  "orchestrator": {
+    "requested": "AutoTradeProject_ImplementationDesign_Orchestrator_v0_1",
+    "model": "gpt-5.6-terra",
+    "agent_id": "N/A",
+    "status": "NOT_BOUND",
+    "independent": false
+  },
+  "requested_agents": [
+    {
+      "name": "AutoTrade_A91_ImplementationDetailReviewer_v0_1",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": null,
+      "agent_id": "N/A",
+      "status": "NOT_DISPATCHED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A90_DesignReviewer_v0_1",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": null,
+      "agent_id": "N/A",
+      "status": "NOT_DISPATCHED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A80_DocumentIntegrator_v0_1",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "low",
+      "agent_id": "N/A",
+      "status": "NOT_DISPATCHED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A81_DesignDocSetWriter_v0_1",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": null,
+      "agent_id": "N/A",
+      "status": "NOT_DISPATCHED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A82_ImplementationDetailDesigner_v0_1",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": null,
+      "agent_id": "N/A",
+      "status": "NOT_DISPATCHED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    },
+    {
+      "name": "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1",
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "low",
+      "agent_id": "N/A",
+      "status": "NOT_DISPATCHED",
+      "independent": false,
+      "review_mode": "SELF_REVIEW_FALLBACK"
+    }
+  ],
+  "nested_dispatch": "NOT_ESTABLISHED",
+  "unstarted_agents_are_not_completed": true,
+  "review_mode": "SELF_REVIEW_FALLBACK",
+  "note": "指定Coordinator/Agentsを独立起動済みとは記録しない。"
+}

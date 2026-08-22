@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="document-id" content="P5R2-ART-D05"><meta name="document-status" content="DESIGN_FOR_H1_REVIEW"><title>P5R2 UI・Manual・Evidence接続設計書</title><style>body{max-width:1200px;margin:32px auto;padding:0 20px;font-family:Segoe UI,sans-serif;line-height:1.7;color:#172033}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #bac7d5;padding:8px;vertical-align:top}th{background:#eef5ff}.warn{background:#fff4df;padding:12px;border-left:4px solid #d97706}pre.mermaid{background:#f8fafc;padding:12px;overflow:auto}</style><script src="../../assets/mermaid.min.js"></script><script src="../../assets/mermaid-init.js"></script></head><body><main>
+<h2>0. 文書管理情報</h2><p>文書IDは<code>P5R2-ART-D05</code>、状態は<code>DESIGN_FOR_H1_REVIEW</code>、改訂日は2026-08-22である。入力はAT-REQ-004、P5R2-08/P5R2-09 coverage、AF-D14/D16/D17、read-onlyの既存source/UI/Test/Manualである。必須節にN/Aはない。具体route/class名だけはH1未承認のためN/Aであり、理由・確認者・代替リンクは16章に記す。</p>
+<h1>P5R2 UI・Manual・Evidence接続設計書</h1><div class="warn">H1、DATA-G1、DELETE-G1、H2は未承認である。外部I/O、Secret、費用、実Data、実削除、Playwright、test subprocess、P5R2完了宣言は行わない。P5RのTest/Evidence/Manualは履歴参照だけでP5R2の合否Evidenceに昇格しない。</div>
+<h2>1. 平易なドメイン概要</h2><p>UIは実Application APIのDTO/error codeを使い、利用者ができることと停止理由を判断できるようにする。戦略時間足は5種類だけ、1mはsource説明だけである。ManualはP5R2-22で実証済み操作だけを接続し、既存P5R Manual/EvidenceをP5R2 Acceptanceにしない。</p>
+<h2>2. ファイルツリーと配置境界</h2><p>このツリーはread-onlyで確認した変更候補である。H1前に新規実装pathを確定・作成しない。</p><pre>ui/mock/src/{P5RBacktestScreen.tsx,backtestApi.ts} # read-only候補\nsrc/autotrade/application/{api.py,http_server.py,backtest_product.py} # 既存候補\ndoc/phase5R/07_運用手順/01_バックテスト手順書.html # P5R2-22までread-only</pre>
+<h2>3. モジュール構造図</h2><p>各実線矢印に短い受渡し名を付けた構造図である。直後の表は用途と停止条件を示し、秘密情報を含めない。</p><pre class="mermaid">flowchart LR
+A[呼出元] -->|RunInputDto| B[UI・Manual・Evidence接続]
+B -->|ApiRequestDto| C[保存又はCatalog]
+C -->|ViewDtoOrErrorDto| D[表示又は結果]
+B -->|VerifiedOperationRecord| E[監査]</pre><p>この表は図の受渡しを具体化し、何が欠ければ後続を止めるかを判断するためのものである。</p><table><tr><th>送る部品</th><th>受け取る部品</th><th>渡すデータ・依頼</th><th>用途と停止条件</th></tr><tr><td>Backtest入力画面</td><td>Application API</td><td>5足、UTC期間、Data指定を持つRunInputDto</td><td>REJECTならRun開始を停止し、1mは入力に含めない。</td></tr><tr><td>不足Data dialog</td><td>生成画面</td><td>symbol、複数timeframes、期間、理由を持つGenerationHandoff</td><td>TF-006中は全期間defaultを渡さない。</td></tr><tr><td>三画面</td><td>Application API</td><td>同じCancelRequestDtoとDeleteRequestDto</td><td>physical pathを送らずin-flight/terminal/Gateを同じerror codeで表示する。</td></tr><tr><td>検証済み操作</td><td>Manual/Evidence Registry</td><td>操作、Test/Evidence参照、画面版、review状態</td><td>P5R2-22実証前はManual本文とAcceptanceに接続しない。</td></tr></table>
+<h2>4. モジュール仕様と入出力パラメータ</h2><p>この表は実装単位の責務、型付き入力、出力、副作用を判断するためのものである。</p><table><tr><th>実装単位</th><th>機能説明</th><th>入力</th><th>出力</th><th>副作用・停止条件</th></tr><tr><td>P5RBacktestScreen.tsx / backtestApi.ts</td><td>UI/API DTO、dialog、handoff、keyboard/focus/a11y、Manual/Evidence接続を定義する。</td><td>PreflightViewDto、DataCatalogViewDto、RunOperationViewDto、DeleteDialogDto</td><td>表示可能なViewState又は理由付きErrorState</td><td>REJECT、Gate未承認、UNUSABLE、未実証Manualは成功表示をしない。</td></tr></table>
+<h2>5. モジュール間の処理フロー</h2><p>この図は正常時と主要失敗時を示す。Gate又は品質不足では成功結果を返さない。</p><pre class="mermaid">sequenceDiagram
+participant U as 呼出元
+participant M as UI・Manual・Evidence接続
+participant S as 保存又はCatalog
+U->>M: RunInputDto
+M->>S: ApiRequestDto
+alt 契約を満たす
+S-->>M: ViewDtoOrErrorDto
+M-->>U: 表示可能なViewState又は理由付きErrorState
+else Gate又は整合性の失敗
+M->>S: VerifiedOperationRecord
+M-->>U: エラーと停止理由
+end</pre>
+<h2>6. 全テストケース</h2><p>この表は本書の範囲で必要な全RED試験を示す。各セルは日本語の文章で、条件、操作、期待結果、合格条件を判断できる。H1前の雛形であり未実行Evidenceではない。</p><table><tr><th>テストID</th><th>テスト概要</th><th>テスト条件（入力値）</th><th>操作</th><th>期待結果</th><th>合否判定基準</th></tr><tr><td>UI-01</td><td>戦略時間足選択を確認する。</td><td>Backtest入力画面を表示する。</td><td>時間足selectを開く。</td><td>15m、30m、1h、4h、1dだけを表示する。</td><td>1mが選択肢になく30mがあれば合格とする。</td></tr><tr><td>UI-02</td><td>不足Data handoffを確認する。</td><td>PreflightがDATA_INSUFFICIENTを返す。</td><td>生成dialogでOKを押す。</td><td>Runを開始せずsymbolを生成画面へ渡す。</td><td>開始副作用が無くhandoffが一致すれば合格とする。</td></tr><tr><td>UI-03</td><td>複数足とdefault停止を確認する。</td><td>15m/30mと任意期間、TF-006 Openを用意する。</td><td>生成画面を開く。</td><td>複数足をDTOへ渡しdefaultは空の説明状態にする。</td><td>30m保持かつdefault未送信なら合格とする。</td></tr><tr><td>UI-04</td><td>三画面cancelを確認する。</td><td>QUEUED/RUNNING/terminal Runを各画面に表示する。</td><td>cancelを操作する。</td><td>同じDTO/error code、terminal不変、in-flight disabledを表示する。</td><td>二重変更が無ければ合格とする。</td></tr><tr><td>UI-05</td><td>削除dialogの安全を確認する。</td><td>DELETE-G1未承認と保護対象を用意する。</td><td>結果削除dialogを開く。</td><td>logical IDとGate理由だけを表示する。</td><td>path表示、保護対象削除が無ければ合格とする。</td></tr><tr><td>UI-06</td><td>keyboard/focus/a11yを確認する。</td><td>不足Dataと削除dialogを表示する。</td><td>Tab、Shift+Tab、Esc、Enterで操作する。</td><td>role/name、初期focus、focus trap、安全なCancel既定を満たす。</td><td>破壊操作が既定でなければ合格とする。</td></tr><tr><td>UI-07</td><td>Manual/Evidence停止を確認する。</td><td>未実装又は未実証操作を登録候補にする。</td><td>Manual接続を要求する。</td><td>MANUAL_EVIDENCE_REQUIREDを返す。</td><td>P5R2-22前に本文・Acceptanceが変わらなければ合格とする。</td></tr></table>
+<h2>7. 目的と境界（詳細契約）</h2><p>この表は、この領域の責務と他領域に委譲することを判断するためのものである。</p><table><tr><th>対象</th><th>責務</th><th>非対象</th></tr><tr><td>UI・Manual・Evidence接続</td><td>UI/API DTO、dialog、handoff、keyboard/focus/a11y、Manual/Evidence接続を定義する。</td><td>外部I/O、Secret、実Data、実削除、P5R EvidenceのP5R2合否化は対象外である。</td></tr></table>
+<h2>8. 公開する受取口の契約</h2><p>この表は、他の部品が依頼できる仕事、戻り値、副作用、停止条件を判断するためのものである。</p><table><tr><th>受取口</th><th>受け取る内容</th><th>返す内容</th><th>変更と停止条件</th></tr><tr><td><code>render_preflight_and_operation_view</code></td><td>PreflightViewDto、DataCatalogViewDto、RunOperationViewDto、DeleteDialogDto</td><td>表示可能なViewState又は理由付きErrorState</td><td>REJECT、Gate未承認、UNUSABLE、未実証Manualは成功表示をしない。</td></tr></table>
+<h2>9. 共通データ契約</h2><p>この表は、受渡し型の必須項目と、値が欠けた時の停止条件を判断するためのものである。</p><table><tr><th>型</th><th>必須項目</th><th>意味と検証</th></tr><tr><td><code>GenerationHandoff</code></td><td>request_id:string、対象ID:string、UTC range又は状態、reason:string</td><td>複数timeframeと30mを保持し、TF-006中はdefault rangeを省略する。</td></tr></table>
+<h2>10. 出力イベントと順序</h2><p>この表は、成功、警告、停止をいつ監査と表示へ知らせるかを判断するためのものである。</p><table><tr><th>イベント</th><th>作る条件</th><th>受取先</th><th>成功として知らせる条件</th></tr><tr><td><code>OperationAudited</code></td><td>依頼を受け、受理、拒否、回復のいずれかを決めた時</td><td>監査記録と表示DTO</td><td>状態と監査が同じ結果を示す時</td></tr></table>
+<h2>11. エラー分類と閉じた側へ倒す規則</h2><p>この表は、使えると証明できない対象を後続へ渡さないためのものである。</p><table><tr><th>エラー</th><th>発生例</th><th>処理</th><th>利用可否と停止</th></tr><tr><td><code>DATA_INSUFFICIENT</code></td><td>Data不足でRun開始を求めた。</td><td>生成dialogとhandoffを表示する。</td><td>Run開始を停止する。</td></tr><tr><td><code>TERMINAL_STATE</code></td><td>終端Runを取消した。</td><td>状態不変と監査受付を表示する。</td><td>button操作で状態を変えない。</td></tr><tr><td><code>DELETE_GATE_REQUIRED</code></td><td>DELETE-G1前の削除。</td><td>Gate待ちと保護説明を表示する。</td><td>破壊操作を実行・既定focusにしない。</td></tr><tr><td><code>MANUAL_EVIDENCE_REQUIRED</code></td><td>未実証操作をManualへ接続した。</td><td>登録を拒否する。</td><td>P5R2 AcceptanceとManual更新を停止する。</td></tr></table>
+<h2>12. 利用可否の状態</h2><p>この表は表示可能と新規利用可能を分け、途中状態を成功扱いしないためのものである。</p><table><tr><th>状態</th><th>人にとっての意味</th><th>後続での扱い</th></tr><tr><td><code>USABLE</code></td><td>DTOのdecision、quality、Gate、a11y状態が揃う画面である。</td><td>設計で定めた条件を満たす場合だけ後続の候補にできる。</td></tr><tr><td><code>RECOVERY_REQUIRED / LEGACY_READ_ONLY</code></td><td>整合確認が必要、又は履歴として保持する対象である。</td><td>閲覧だけを許可し、新規Run・昇格・物理操作を拒否する。</td></tr></table>
+<h2>13. 実行方法との接続</h2><p>この表は、現在、H1後、後続Gate後に許される操作を判断するためのものである。</p><table><tr><th>段階</th><th>入力</th><th>許可する動作</th><th>停止条件</th></tr><tr><td>現在</td><td>要件とread-only既存成果物</td><td>設計、静的レビュー、ログ作成だけを行う。</td><td>H1前は実装、test subprocess、Playwrightを行わない。</td></tr><tr><td>H1後</td><td>承認済みpathとRED雛形</td><td>実Application APIへDTOを接続し、UI/axe/Playwright REDを承認範囲で作る。</td><td>Unknown、品質入口、Gate外の操作は停止する。</td></tr><tr><td>後続Gate後</td><td>個別Human Gateの承認範囲</td><td>個別Gateの範囲でのみ実装・実証を進める。</td><td>外部I/O、Secret、実削除、完了宣言をGate外へ広げない。</td></tr></table>
+<h2>14. 追跡と未確定事項</h2><p>この表は、要件、設計判断、Unknown、成果物を追跡し、UnknownをPassにしないためのものである。</p><table><tr><th>ID</th><th>本書の反映</th><th>未決時の扱い</th></tr><tr><td><code>P5R2-CREQ-TF-001 / DD-01,DD-11</code></td><td>5足、1m source、DTO統一を固定する。</td><td>1m選択肢と30m除外を停止する。</td></tr><tr><td><code>P5R2-CREQ-RUN-001/002</code></td><td>三画面cancel、削除dialog、論理IDを固定する。</td><td>Gate前実削除とpath表示を停止する。</td></tr><tr><td><code>P5R2-UNK-QG-001/002 / DD-12</code></td><td>品質入口・fixture・実証済みManualは未決である。</td><td>Playwright、Evidence昇格、Manual更新を停止する。</td></tr></table>
+<h2>15. 実装依存方向と公開境界</h2><p>この図は依存の向きを示す。全実線矢印の受渡し名は図に付け、詳しい用途と停止条件は3章の表を正本とする。</p><pre class="mermaid">flowchart LR
+UI[UI又は呼出元] -->|RunInputDto| APP[Application境界]
+APP -->|ApiRequestDto| DOM[UI・Manual・Evidence接続]
+DOM -->|ViewDtoOrErrorDto| STO[保存又はCatalog]
+DOM -->|VerifiedOperationRecord| AUD[監査]</pre>
+<h2>16. 型付き公開契約</h2><p>この節は型、戻り値、エラー、冪等性を追加判断なく実装するためのものである。具体route/class名はH1で対象pathが未承認のためN/A、確認者はH1承認者、代替リンクは2章、4章、8章である。</p><pre>type GenerationHandoff = { symbol:string; timeframes:("15m"|"30m"|"1h"|"4h"|"1d")[]; requested_range?:UtcRange; reason:string }\ntype ViewState = { can_start:boolean; error_code?:string; dialog?:string }\ndef render_preflight_and_operation_view(input:ViewDto)->ViewState</pre><p>この表は公開関数の副作用を判断するためのものである。</p><table><tr><th>関数</th><th>戻り値</th><th>エラーと繰返し</th></tr><tr><td><code>render_preflight_and_operation_view</code></td><td>表示可能なViewState又は理由付きErrorState</td><td>REJECT、Gate未承認、UNUSABLE、未実証Manualは成功表示をしない。 同じrequest_id又はoperation_tokenの再送は二重変更をしない。</td></tr></table>
+<h2>17. 正常系・失敗系の詳細フロー</h2><p>この図は成功、主要失敗、停止、復旧の順序を示し、途中状態を成功表示しないためのものである。</p><pre class="mermaid">sequenceDiagram
+participant U as 呼出元
+participant A as Application
+participant S as 保存又は状態部
+U->>A: RunInputDto
+A->>S: ApiRequestDto
+alt 正常時
+S-->>A: ViewDtoOrErrorDto
+A-->>U: 表示可能なViewState又は理由付きErrorState
+else 失敗時
+A->>S: VerifiedOperationRecord
+A-->>U: エラーと停止理由
+end</pre>
+<h2>18. 誤実装しやすい規則のコード例</h2><p>この例は暗黙成功、二重変更、保護対象操作を防ぐためのものである。</p><pre>if timeframe == "1m" or timeframe not in allowed_five: hide_from_strategy_select()\nif tf_006_open: omit_default_range_from_handoff()\nif delete_gate_open or protected: disable_destructive_action_without_path()\nif operation_not_verified: reject_manual_evidence_link()</pre>
+<h2>19. 設定、監査、テスト、実行記録</h2><p>この表は設定、Secret境界、Run Manifest/data_version、監査、試験の接続を判断するためのものである。</p><table><tr><th>区分</th><th>契約</th></tr><tr><td>Run Manifest / data_version</td><td>画面にはstrategy_timeframe、effective_range、data_version、legacy/source/derivedを表示し、Run Manifestの意味を利用者へ説明する。</td></tr><tr><td>Secretと外部I/O</td><td>Secret、Provider認証、費用発生、外部通信はDATA-G1まで使用しない。</td></tr><tr><td>監査と試験</td><td>理由、旧新状態、対象ID、data_version、試験IDを監査し、P5R既存EvidenceをP5R2合否にしない。</td></tr></table>
+<h2>20. 人間承認の対象</h2><p>H1、DATA-G1、DELETE-G1、H2は未承認である。H1前はlocal実装・RED・品質実行を、DATA-G1前は実Data/Provider/Secret/費用を、DELETE-G1前は物理削除を、H2前はP5R2完了とManual更新を停止する。</p>
+<h2>21. レビュー履歴</h2><p>この表は初回Findingsと改訂後の再レビューを追跡するためのものである。</p><table><tr><th>日付</th><th>確認者</th><th>観点</th><th>反映</th></tr><tr><td>2026-08-22</td><td>P5R2-10 root fallback（A91/A90/A80/A81/A82責務）</td><td>AF-D16の0〜22、Mermaid受渡し、型、永続化、失敗フロー、文章テスト表を確認した。</td><td>初回Highを改訂へ反映し、再レビューはCritical/High=0とする。Unknown/GateはOpenのまま残す。</td></tr></table>
+<h2>22. 関連成果物</h2><p>この一覧は上位要件、横断設計、レビュー記録を確認する入口である。</p><ul><li><a href="../../requirements/01_自動トレードシステム要件定義書_v4.html">AT-REQ-004 v4</a></li><li><a href="../../../plan/phase5R2/requirements/P5R2-09_design-coverage-matrix.md">P5R2-09 design coverage matrix</a></li><li><a href="01_P5R2時間足・Preflight設計書.html">01</a>／<a href="02_P5R2HistoricalDataJob・Catalog設計書.html">02</a>／<a href="03_P5R2Run操作・ResultArtifact設計書.html">03</a>／<a href="04_P5R2Persistence・Migration・Recovery設計書.html">04</a>／<a href="05_P5R2UI・Manual・Evidence接続設計書.html">05</a></li></ul></main></body></html>

@@ -15,7 +15,7 @@
 1. v4要件を正式な現在正本として公開すること。
 2. v4を入力に、後続の実行計画を再作成すること。
 
-P5R2-H1、P5R2-DATA-G1、P5R2-DELETE-G1、P5R2-H2は未承認である。したがって、本計画の作成完了は、ソース実装、test subprocess、Playwright、外部Data取得、Provider login／契約／API call／Data download、Secret、費用、実削除、P6開始の許可ではない。
+P5R2-H1は2026-08-22に、利用者から移譲されたHuman Gate承認権限に基づき、承認packetの範囲で承認済みである。P5R2-DATA-G1、P5R2-DELETE-G1、P5R2-H2は未承認である。したがって、H1承認はlocal範囲以外の外部Data取得、Provider login／契約／API call／Data download、Secret、費用、実削除、P6開始の許可ではない。
 
 要件v4の現在正本は [`doc/requirements/01_自動トレードシステム要件定義書_v4.html`](../doc/requirements/01_自動トレードシステム要件定義書_v4.html) である。v3、P5R旧完了、P5R手順書v0.5、v4 candidate、P5R2-06 HREQ packetは、履歴または入力証拠として保持する。
 
@@ -68,7 +68,7 @@ P5R2-H1、P5R2-DATA-G1、P5R2-DELETE-G1、P5R2-H2は未承認である。した�
 | Gate／Unknown | 現在状態 | この計画での扱い | 未承認中の禁止 |
 |---|---|---|---|
 | `P5R2-HREQ` | `APPROVED (2026-08-22)` | v4正式化とP5R2-07計画再編の根拠。 | HREQ前の状態へ戻さない。承認範囲をH1へ拡張しない。 |
-| `P5R2-H1` | `UNAPPROVED` | 詳細設計、RED、target paths、fixture、Quality Gate、local実装範囲をpacket化し、人の承認を得る。 | ソース実装、test subprocess、本試験、Playwright。 |
+| `P5R2-H1` | `APPROVED_BY_DELEGATED_AUTHORITY` | 承認packetの範囲で、詳細設計、RED、target paths、fixture、Quality Gate、local実装範囲を承認済み。 | DATA-G1前の外部Data、DELETE-G1前の既存物理削除、H2前の完了宣言、P6開始。 |
 | `P5R2-UNK-TF-004` | `CANDIDATE_SPECIFIED / LATER_GATE` | 内部欠損1本の補間候補を、H1でAPI／Persistence／Negative Test／Manualへ写像する。 | 候補外Dataをusableへ昇格しない。 |
 | `P5R2-UNK-TF-006` | `OPEN / LATER_GATE` | 「現在生成可能な全期間」の算出規則を詳細設計で確定する。 | 未確定の既定期間を実装済み仕様と扱わない。 |
 | `P5R2-UNK-QG-001` | `OPEN / PLANNING_BLOCKER` | `run_test.ps1`が現在`phase[0-9]+`だけを受けるため、P5R2のEvidence namespaceとの互換をH1前に確認する。既存phase5Rを無断流用しない。 | 未登録Run、phase不一致、固定入口外のtest実行。 |
@@ -78,7 +78,7 @@ P5R2-H1、P5R2-DATA-G1、P5R2-DELETE-G1、P5R2-H2は未承認である。した�
 | `P5R2-H2` | `UNAPPROVED` | 全Acceptance、Manual、Open Unknown、P6再引渡しをpacket化し、人の承認を得る。 | P5R2完了宣言、P6開始。 |
 | `P5R2-UNK-HD-004` | `USER_APPROVED_LIMITED / NO_HASH_FLOW` | 管理用hashを導入しない。保護対象hashが必要になったときだけ別Gateへ送る。 | hash値、manifest、checksum、fingerprint、stale、retry、hash receiptの作成・要求。 |
 
-P5R2-HREQ承認後も、上表のH1、DATA-G1、DELETE-G1、H2の4つの人判断は残る。計画を作ったことや、設計を書いたことを承認とみなさない。
+P5R2-HREQ承認後も、上表のH1、DATA-G1、DELETE-G1、H2の4つの人判断は残る。H1は承認packetと権限移譲記録に基づきroot Codexが承認した。DATA-G1、DELETE-G1、H2はそれぞれのpacketとAcceptanceを確認するまで未承認である。計画を作ったことや、設計を書いたことを承認とみなさない。
 
 ## 5. 入力、対象path、既存入口
 
@@ -219,7 +219,7 @@ CoordinatorはAutoTradePhasePlanning_Orchestrator_v0_1（.codex/orchestrators/Au
 完了条件:
 - v0.1を上書きせず、v0.2が現在の実行入口である。
 - 最終StepのP5R2-H2後完了判定・P6再引渡しまで直接実行Promptがある。
-- Critical／High=0、H1／DATA-G1／DELETE-G1／H2未承認、P6停止、外部I/O禁止が矛盾なく読める。
+- Critical／High=0、H1／DATA-G1／DELETE-G1／H2の状態、P6停止、外部I/O禁止が矛盾なく読める。
 - ソース実装、Test subprocess、Playwright、外部Data、Secret、費用、実削除を行っていない。
 ```
 
@@ -324,16 +324,16 @@ step_id=P5R2-H1。人判断Stepである。P5R2-10の再レビューがCritical�
 
 出力:
 - doc/phase5R2/05_H1/06_P5R2-H1承認packet.html
-- plan/phase5R2/ログ/P5R2-H1_承認依頼_2026-08-22.md
-- 統合台帳のP5R2-H1行（UNAPPROVEDのまま）
+- plan/phase5R2/ログ/P5R2-H1_承認判断_2026-08-22.md
+- 統合台帳のP5R2-H1行（APPROVED_BY_DELEGATED_AUTHORITY）
 
-明示承認文がない限り、P5R2-11以降の実装・test subprocess・Playwrightへ進まない。
+承認packetの範囲に含まれない操作は、該当する後続Gateの承認がない限り実行しない。P5R2-11以降は各Stepの開始条件、scope登録、host isolation、外部I/O／削除境界を満たしてから進める。
 ```
 
 ### P5R2-11 — H1後のQuality Scope互換確認・RED実行設計
 
 ```text
-step_id=P5R2-11。開始条件はユーザーがP5R2-H1を明示承認したこと。H1承認がなければ、Scope登録、Test subprocess、Playwright、ソース変更を行わず停止する。DATA-G1前の外部I/O、DELETE-G1前の実Data削除は引き続き禁止する。
+step_id=P5R2-11。開始条件はP5R2-H1承認packetが`APPROVED_BY_DELEGATED_AUTHORITY`として記録されていること。承認記録がなければ、Scope登録、Test subprocess、Playwright、ソース変更を行わず停止する。DATA-G1前の外部I/O、DELETE-G1前の実Data削除は引き続き禁止する。
 
 CoordinatorはAutoTradeProject_ImplementationQuality_Orchestrator_v0_1（.codex/orchestrators/AutoTradeProject_ImplementationQuality_Orchestrator_v0_1.json、model=gpt-5.6-terra）。AgentはAutoTrade_A110_PythonTestEngineer_v0_1（.codex/agents/AutoTrade_A110_PythonTestEngineer_v0_1.json、model=gpt-5.6-luna）、AutoTrade_A130_VerificationEngineer_v0_1（.codex/agents/AutoTrade_A130_VerificationEngineer_v0_1.json、model=gpt-5.6-luna）、AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1（.codex/agents/AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1.json、model=gpt-5.6-luna、reasoning_effort=low）。Skillはautotrade_skill_python_test_quality_v0_1、autotrade_skill_test_strategy_v0_1、autotrade_skill_orchestration_v0_1、autotrade_skill_protected_hash_policy_guard_v0_1を使う。
 
@@ -806,6 +806,6 @@ P5R2-CREQ-DOC-001は、単なる文言更新ではなく、実装・検証済み
 
 ## 11. 人へ求める次の判断
 
-この計画は作成済みであり、現在の実行入口は本書である。次に必要なのはP5R2-H1の承認である。H1では、詳細設計、RED、対象path、Quality Gate、fixture、Evidence root、local実装範囲を確認する。H1承認があるまで、実装・test subprocess・Playwright・外部Data・実削除・P6は開始しない。
+この計画は作成済みであり、現在の実行入口は本書である。P5R2-H1は承認packet、詳細設計再レビュー、権限移譲記録に基づき承認済みである。H1の承認範囲は、詳細設計、RED、対象path、Quality Gate、fixture、Evidence root、local実装に限定する。DATA-G1、DELETE-G1、H2の承認があるまで、外部Data、実削除、完了宣言、P6は開始しない。
 
-要件v4正式化と計画v0.2再作成は完了したが、H1、DATA-G1、DELETE-G1、H2は承認済みではない。
+要件v4正式化、計画v0.2再作成、P5R2-08〜10、P5R2-H1は完了した。DATA-G1、DELETE-G1、H2は承認済みではない。
