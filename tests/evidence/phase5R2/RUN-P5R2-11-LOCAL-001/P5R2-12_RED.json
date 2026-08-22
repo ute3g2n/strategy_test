@@ -1,0 +1,160 @@
+{
+  "schema_version": "P5R2-12-RED-evidence-v1",
+  "step_id": "P5R2-12",
+  "run_id": "RUN-P5R2-11-LOCAL-001",
+  "phase_id": "phase5R2",
+  "state": "QUALITY_GATE_BLOCKED",
+  "result_kind": "ENVIRONMENT_BLOCKED",
+  "red_test_status": "NOT_CREATED_BLOCKED",
+  "green_implementation": "NOT_STARTED",
+  "test_subprocess": {
+    "started": false,
+    "pytest_started": false,
+    "fixed_quality_entry_started": false,
+    "reason": "開始条件の固定Quality入口とhost outbound isolationが成立しないため、確認後のtest subprocessを起動していない。"
+  },
+  "read_only_preflight": {
+    "h1_packet": {
+      "status": "PASS",
+      "path": "doc/phase5R2/05_H1/06_P5R2-H1承認packet.html",
+      "packet_status": "APPROVED_BY_DELEGATED_AUTHORITY",
+      "approval_scope": "local only"
+    },
+    "trusted_scope": {
+      "status": "PASS_FOR_REGISTRATION",
+      "path": "scripts/quality_gate/trusted_scopes.json",
+      "run_id": "RUN-P5R2-11-LOCAL-001",
+      "phase_id": "phase5R2",
+      "step_id": "P5R2-11",
+      "scope_mode": "target_only",
+      "registration_status": "REGISTERED_SCOPE_ONLY_EVIDENCE_NOT_GENERATED",
+      "execution_allowed": false,
+      "evidence_root": "tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/"
+    },
+    "run_manifest": {
+      "status": "PASS_FOR_REGISTRATION_CONTRACT",
+      "path": "plan/phase5R2/quality/P5R2-11_run-manifest.json",
+      "manifest_step_id": "P5R2-11",
+      "scope_mode": "target_only",
+      "external_io": "PROHIBITED",
+      "secret_policy": "PROHIBITED",
+      "physical_delete": "PROHIBITED"
+    },
+    "fixture": {
+      "status": "PASS_READ_ONLY_IDENTITY",
+      "path": "tests/evidence/phase5/RUN-P5-09-BINANCE-001/normalized/spot/klines/1m/BTCUSDT/2025-02/BTCUSDT-1m-2025-02.csv.gz",
+      "name": "P5-09 local BTCUSDT 1m February fixture slice",
+      "version": "P5-09-local-quality-pass-readonly",
+      "protected_identity_ref": "scopes.RUN-P5R-03-20260816-001.fixture",
+      "path_exists": true,
+      "path_matches_existing_trusted_record": true,
+      "protected_identity_matches_existing_trusted_record": true,
+      "access": "READ_ONLY_REFERENCE",
+      "protected_checksum_recalculated": false,
+      "new_checksum_created": false,
+      "new_identity_created": false
+    },
+    "evidence_root": {
+      "status": "CONTRACT_MATCH_INITIAL_STATE_MISSING",
+      "path": "tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/",
+      "initial_state": "MISSING",
+      "created_only_for_blocked_evidence": true
+    },
+    "fixed_quality_entry": {
+      "status": "BLOCKED",
+      "expected_path": "scripts/quality_gate/local_p5r2_pytest.py",
+      "path_exists": false,
+      "scope_registered_test_command": ".venv/Scripts/python.exe -m scripts.quality_gate.local_p5r2_pytest",
+      "reason": "trusted scopeの固定test commandが参照するP5R2専用entryが存在しない。"
+    },
+    "p5r2_namespace": {
+      "wrapper_phase_pattern": "PASS_LEXICAL",
+      "fixed_dispatch": "BLOCKED",
+      "reason": "run_isolated_p2.shはphase5R2を受け取るが、P5R2専用test entryへdispatchする実体が未確認である。"
+    },
+    "host_outbound_isolation": {
+      "status": "BLOCKED",
+      "contract": "CONFIRMED_REQUIRED_BEFORE_TEST_SUBPROCESS",
+      "current_state": "NOT_VERIFIED",
+      "probe_started": false
+    }
+  },
+  "atomic_requirement_failure_conditions": [
+    {
+      "requirement": "P5R2-CREQ-TF-001",
+      "failure_condition": "1mを利用者選択肢に出す、またはlegacy M30/1m入力を受け付ける",
+      "test_created": false,
+      "status": "NOT_CREATED_BLOCKED"
+    },
+    {
+      "requirement": "P5R2-CREQ-TF-002",
+      "failure_condition": "UTC boundary、effective end、closed barを誤る、または全期間未確定を通す",
+      "test_created": false,
+      "status": "NOT_CREATED_BLOCKED"
+    },
+    {
+      "requirement": "P5R2-CREQ-TF-003",
+      "failure_condition": "端点欠損、2本以上欠損、未来値、時系列逆転、provenanceなしの補間をusableにする",
+      "test_created": false,
+      "status": "NOT_CREATED_BLOCKED"
+    },
+    {
+      "requirement": "P5R2-CREQ-HD-001",
+      "failure_condition": "DownloadJobとGenerationJobを混同する、staging中またはpartialをatomic promotionする",
+      "test_created": false,
+      "status": "NOT_CREATED_BLOCKED"
+    },
+    {
+      "requirement": "P5R2-CREQ-HD-002",
+      "failure_condition": "identity違いを自動mergeする、conflictを隠す、明示replaceなしで影響Run/resultを変更する",
+      "test_created": false,
+      "status": "NOT_CREATED_BLOCKED"
+    },
+    {
+      "requirement": "P5R2-CREQ-RUN-001",
+      "failure_condition": "QUEUED/RUNNINGのcancel、terminal不変、二重押下、再送、別tab、OperationGuardを破る",
+      "test_created": false,
+      "status": "NOT_CREATED_BLOCKED"
+    },
+    {
+      "requirement": "P5R2-CREQ-RUN-002",
+      "failure_condition": "active Run、CSV、許可root外、path traversal、symlink、reparse、別IDを削除対象として通す",
+      "test_created": false,
+      "status": "NOT_CREATED_BLOCKED"
+    },
+    {
+      "requirement": "P5R2-CREQ-DOC-001",
+      "failure_condition": "操作者・理由・target・旧/新state・依存数・request/correlation ID・失敗理由またはManual registryを欠落させ、restart/partial/migration failureを隠す",
+      "test_created": false,
+      "status": "NOT_CREATED_BLOCKED"
+    }
+  ],
+  "runtime": {
+    "receipt": "plan/phase5R2/quality/runtime-receipt-P5R2-12.json",
+    "dispatch_mode": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "specified_agents_independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK"
+  },
+  "debug_recovery": {
+    "hypothesis": "固定入口欠落とhost outbound isolation未確認という環境契約不成立",
+    "classification": "ENVIRONMENT",
+    "attempts": 0,
+    "same_hypothesis_retries": 0,
+    "recovery_action": "停止。固定entry、namespace dispatch、host isolation Evidenceを別Stepで整備してから再開する。"
+  },
+  "prohibited_operations": {
+    "external_network": false,
+    "secret_read": false,
+    "provider_login_or_download": false,
+    "existing_data_run_audit_evidence_csv_delete": false,
+    "playwright_or_npm": false,
+    "production_source_change": false,
+    "green_implementation": false,
+    "management_hash_flow_created": false
+  },
+  "unknowns_preserved": [
+    "P5R2-UNK-QG-001",
+    "P5R2-UNK-QG-002"
+  ],
+  "decision": "QUALITY_GATE_BLOCKED"
+}

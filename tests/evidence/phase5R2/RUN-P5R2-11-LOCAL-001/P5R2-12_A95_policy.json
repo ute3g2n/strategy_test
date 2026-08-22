@@ -1,0 +1,11 @@
+{
+  "decision": "ALLOW",
+  "targets": [
+    "tests/evidence/phase5R2/RUN-P5R2-11-LOCAL-001/P5R2-12_RED.json",
+    "plan/phase5R2/quality/runtime-receipt-P5R2-12.json",
+    "plan/phase5R2/quality/runtime-receipt-P5R2-12.md",
+    "plan/phase5R2/ログ/P5R2-12_RED作成_2026-08-22.md"
+  ],
+  "candidates": [],
+  "required_action": "管理目的の識別子を追加せず、path・schema・state・linkの確認を継続する。既存fixture identityの不一致はBLOCKEDとする。"
+}
