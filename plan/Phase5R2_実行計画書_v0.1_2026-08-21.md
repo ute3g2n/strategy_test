@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-001`
 > Version: `v0.1`
 > 作成日: `2026-08-21`
-> 状態: `PLAN_CREATED / P5R2-H0_APPROVED / P5R2-01_COMPLETE / P5R2-02_ROUND1_COMPLETE / P5R2-03_ROUND2_WAITING_USER / P6_PAUSED`
+> 状態: `PLAN_CREATED / P5R2-H0_APPROVED / P5R2-01_COMPLETE / P5R2-02_ROUND1_COMPLETE / P5R2-03-ROUND3_WAITING_USER / P6_PAUSED`
 > 現在の対象: 要件ヒアリング、要件候補の改訂、要件承認、承認後の実行計画再編まで
 > 現在の非対象: P5R2本実装、外部Data取得、Secret投入、費用発生、実Data削除、P6開始
 
@@ -637,7 +637,7 @@ P5R2-H0を承認します。要件ヒアリングを開始してください。
 
 ## 17. P5R2-03実行結果・Round 2質問packet（2026-08-21）
 
-P5R2-03は、root-direct fallbackによるread-only設計・要件・red-teamレビューと、Round 2質問packet作成まで完了した。ユーザー回答が未取得のため、状態は `P5R2-03_ROUND2_WAITING_USER` とする。P5R2-04、P5R2-HREQ、実装、test subprocess、Playwright、外部Data取得、Secret、費用、実削除、P6には進まない。
+P5R2-03は、root-direct fallbackによるread-only設計・要件・red-teamレビューと、Round 2質問packet作成まで完了した。この実行時点ではユーザー回答未取得で、当時の状態を `P5R2-03_ROUND2_WAITING_USER` と記録した。現在はRound 2回答を受領し、Round 3へ移行している。P5R2-04、P5R2-HREQ、実装、test subprocess、Playwright、外部Data取得、Secret、費用、実削除、P6には進まない。
 
 ### 17.1 Runtime受領
 
@@ -734,7 +734,7 @@ P5R2-03は、root-direct fallbackによるread-only設計・要件・red-teamレ
 - `P5R2-DELETE-G1`：実Data／実Runの削除対象、保持期間、purge可否、復元運用。test evidenceとaudit tombstoneは削除対象にしない。
 - `P5R2-UNK-HD-004`：Provider配布物の整合確認に保護対象hashを使う要否。用途・直接因果・失敗時停止範囲が未確定のため `NEEDS_HUMAN_GATE`。
 
-Round 2の回答が揃うまで、P5R2-03は `P5R2-03_ROUND2_WAITING_USER` とする。P5R2-04、P5R2-HREQ、H1、DATA-G1、DELETE-G1、H2、実装、test subprocess、Playwright、外部I/O、Secret、費用、実削除、P6へ進まない。
+Round 2提示時点では、回答が揃うまでP5R2-03は `P5R2-03_ROUND2_WAITING_USER` とした。現在はRound 3 receiptと質問packetを正本とする。
 
 ### 17.6 質問packetの説明補正（2026-08-22）
 
@@ -753,4 +753,25 @@ Round 2の回答が揃うまで、P5R2-03は `P5R2-03_ROUND2_WAITING_USER` と�
 | Q-R2-07 | A | 依存中のcascadeと不可逆削除を避け、Trash・tombstone・監査で復旧可能性を残す。 |
 | Q-R2-08 | A | 成功だけでなく拒否・失敗・再試行を監査し、検証済み操作だけを01_バックテスト手順書へ反映する。 |
 
-この補正は質問の説明品質だけを変更する。Q-TF-05のconflictは未解消のまま、P5R2-03は `P5R2-03_ROUND2_WAITING_USER`、P6は停止中とする。
+この補正は質問の説明品質だけを変更した履歴である。Round 2回答を受領し、Q-R2-02=Bで補間方向を更新したため、P5R2-03は `P5R2-03-ROUND3_WAITING_USER` とし、Q-R3-01〜08で詳細を確認する。
+
+### 17.7 P5R2-03 Round 2回答受領・Round 3移行（2026-08-22）
+
+Round 2の回答原文を受領した：Q-R2-01=A、Q-R2-02=B、Q-R2-03=A、Q-R2-04=A、Q-R2-05=C、Q-R2-06=C、Q-R2-07=B、Q-R2-08=A。Q-R2-02は今回のBを最新の明示回答として記録し、限定欠損を警告付きで使用可能にする方向までを方針として受領する。Round 1の「5. C」は履歴として保持し、詳細条件未確定のためP5R2-UNK-TF-004は解消しない。
+
+A05/A10/A80/A90/A95のroot-direct fallback read-only確認では、Q-R2-01/03/04/08は方針レベルで整理可能、Q-R2-02/05/06/07はHREQ-blocking detail Unknownが残ると判定した。A95は新たな管理用hash、manifest、fingerprint、stale、checksum、hash retryの導入なし、P5R2-UNK-HD-004のNEEDS_HUMAN_GATE継続と判定した。Coordinatorのnested child dispatchは利用できず、未起動Agentを独立完了とは扱わない。
+
+Round 3では、終了時刻境界、補間上限、補間方式・provenance・usable、DataSet品質昇格、重複Dataのversion固定、terminal取消の意味、cascade対象・依存、cascade原子性・復旧・監査・手順書を最大8問で確認する。詳細は plan/phase5R2/ログ/P5R2-03-Round3質問packet_2026-08-22.md と ART-02 Section 10 に保存する。
+
+| 質問 | 暫定推奨 | 主な目的 |
+|---|---|---|
+| Q-R3-01 | A | 指定終了と有効終了、UTC、開始前・ゼロ期間を確定する。 |
+| Q-R3-02 | A | 補間可能な欠損を内部・連続1分までに限定する。 |
+| Q-R3-03 | A | 未来側を使わない補間方式とUSABLE_WITH_WARNING、provenanceを確定する。 |
+| Q-R3-04 | A | Job SUCCEEDEDとDataSet USABLEを分離し、品質検査を必須にする。 |
+| Q-R3-05 | A | 重複Dataを明示選択し、RunへDataSet ID/versionを固定保存する。 |
+| Q-R3-06 | A | terminal取消を状態変更しない監査付き受付とし、削除と分離する。 |
+| Q-R3-07 | A | 専有出力だけをcascade対象とし、外部参照・監査・Test Evidenceを保護する。 |
+| Q-R3-08 | A | cascadeを一括Trash・RECOVERY_REQUIRED・監査・復旧付きにする。 |
+
+Round 3の回答が揃い、Q-R2-02/05/06/07のHigh Unknownを具体Requirementへ変換するまで、P5R2-03は P5R2-03-ROUND3_WAITING_USER とする。P5R2-04、P5R2-HREQ、H1、DATA-G1、DELETE-G1、H2、実装、test subprocess、Playwright、外部I/O、Secret、費用、実削除、P6には進まない。

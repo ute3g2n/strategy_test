@@ -202,9 +202,24 @@ code{background:#eef2f7;padding:2px 4px;border-radius:4px}pre{background:#172033
 <tr><td><code>Q-R2-08</code></td><td><code>P5R2-UNK-DOC-001</code>、Q-AUDIT-01</td><td>監査、01_バックテスト手順書、Manual、Test追跡</td><td><span class="open">OPEN</span></td></tr>
 </table>
 <p class="note"><strong>2026-08-22説明補正：</strong>前回のRound 2質問は選択肢の短い一覧に留まり、利用者が判断するための背景、決める範囲、選択肢ごとの具体的影響、推奨理由が不足していた。Q-R2-01〜08は、これらを補った<a href="../../../plan/phase5R2/ログ/P5R2-03質問packet説明補正_2026-08-22.md">説明補正版</a>とART-02 Section 9へ追跡する。暫定推奨はQ-R2-01=A、Q-R2-02=C、Q-R2-03=A、Q-R2-04=A、Q-R2-05=A、Q-R2-06=A、Q-R2-07=A、Q-R2-08=Aだが、すべて未回答・未確定である。</p>
-<p class="danger">P5R2-03は<code>P5R2-03_ROUND2_WAITING_USER</code>。P5R2-04、P5R2-HREQ、実装、test subprocess、Playwright、外部Data取得、実削除、P6へ進めない。現行<code>01_バックテスト手順書</code>は要件確定後まで変更しない。</p>
+<p class="note"><strong>Round 2提示時点の履歴：</strong><code>P5R2-03_ROUND2_WAITING_USER</code>。現在はRound 2回答を受領し、Section 15の<code>P5R2-03-ROUND3_WAITING_USER</code>へ移行している。現行<code>01_バックテスト手順書</code>は要件確定後まで変更しない。</p>
 </section>
 
+<section id="p5r2-03-round3"><h2>15. P5R2-03 Round 2回答・Round 3移行（2026-08-22）</h2>
+<p>ユーザー回答を原文のまま受領した：<code>Q-R2-01=A</code>、<code>Q-R2-02=B</code>、<code>Q-R2-03=A</code>、<code>Q-R2-04=A</code>、<code>Q-R2-05=C</code>、<code>Q-R2-06=C</code>、<code>Q-R2-07=B</code>、<code>Q-R2-08=A</code>。Q-R2-02は今回のBを最新回答として、限定欠損の警告付き使用可能という方向へ更新した。Round 1の「5. C」は履歴として保持し、補間の具体条件が未確定のためUnknownは解消しない。</p>
+<table><tr><th>回答済み方針</th><th>残る詳細Unknown</th><th>状態</th></tr>
+<tr><td>Q-R2-01=A：指定終了／有効終了の表示、確認、Run保存</td><td>UTC、開始前、ゼロ期間、境界切下げ</td><td><span class="open">DETAIL OPEN</span></td></tr>
+<tr><td>Q-R2-02=B：限定欠損を補間し警告付きで使用可能</td><td>欠損上限、補間方式、usable、provenance、look-ahead</td><td><span class="danger">HIGH OPEN</span></td></tr>
+<tr><td>Q-R2-03=A：対応CatalogのSpot symbolのみ、自由入力不可</td><td>Catalog範囲、更新責任、DATA-G1境界</td><td><span class="open">DETAIL OPEN</span></td></tr>
+<tr><td>Q-R2-04=A：DownloadJob／DataSetを分離、品質確認前は使用不可</td><td>品質検査、部分成功、retry、同時実行</td><td><span class="open">DETAIL OPEN</span></td></tr>
+<tr><td>Q-R2-05=C：重複Dataを許可し利用者が選択</td><td>同一性、version、一覧、Run固定参照</td><td><span class="danger">HIGH OPEN</span></td></tr>
+<tr><td>Q-R2-06=C：terminal状態にも取消操作</td><td>取消の意味、結果・監査・CSV・checkpoint</td><td><span class="danger">HIGH OPEN</span></td></tr>
+<tr><td>Q-R2-07=B：明示選択した対象のcascade</td><td>依存、対象範囲、部分失敗、復旧、DELETE-G1</td><td><span class="danger">HIGH OPEN</span></td></tr>
+<tr><td>Q-R2-08=A：成功・失敗・拒否・取消・retry・復旧を監査、検証済み手順だけ反映</td><td>schema、保持期間、権限、反映単位</td><td><span class="open">DETAIL OPEN</span></td></tr>
+</table>
+<p>選択肢回答だけではP5R2-03 Exit条件（HREQ-blocking Unknown=0）を満たさないため、Round 3を開始した。詳細質問は<a href="../../../plan/phase5R2/ログ/P5R2-03-Round3質問packet_2026-08-22.md">P5R2-03 Round 3質問packet</a>と<a href="../../../doc/phase5R2/01_要件追跡/02_P5R2ヒアリング回答・決定台帳.html#round3">ART-02 Section 10</a>に記録する。</p>
+<p class="danger"><strong>現在状態：</strong><code>P5R2-03-ROUND3_WAITING_USER</code>。P5R2-04、P5R2-HREQ、実装、test subprocess、Playwright、外部Data取得、実削除、P6は停止中。<code>P5R2-UNK-HD-004</code>は<code>NEEDS_HUMAN_GATE</code>を維持する。</p>
+</section>
 <footer class="small">P5R2-ART-01。旧P5Rの完了判定を変更せず、P5R2の要件候補・実装・外部I/O・削除を承認済みとは表示しない。</footer>
 </body>
 </html>
