@@ -1,0 +1,64 @@
+{
+  "schema_version": "P5R2-runtime-receipt-v1",
+  "phase_id": "phase5R2",
+  "step_id": "P5R2-17",
+  "recorded_on": "2026-08-23",
+  "requested_runtime": {
+    "coordinator": {
+      "name": "AutoTradeProject_DesignDocSet_Orchestrator_v0_1",
+      "model": "gpt-5.6-terra",
+      "independent_dispatch": false,
+      "agent_id": "N/A"
+    },
+    "agents": [
+      "AutoTrade_A10_RequirementsCurator_v0_1",
+      "AutoTrade_A50_AdapterArchitect_v0_1",
+      "AutoTrade_A80_DocumentIntegrator_v0_1",
+      "AutoTrade_A90_DesignReviewer_v0_1",
+      "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1"
+    ],
+    "model": "gpt-5.6-luna",
+    "a95_reasoning_effort": "low"
+  },
+  "actual_dispatches": [],
+  "dispatch_truth": {
+    "requested_project_roster_independently_completed": false,
+    "coordinator_agent_id": "N/A",
+    "specified_agents_independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK",
+    "a95_runtime_dispatched": false,
+    "unstarted_agents_not_claimed_as_executed": true
+  },
+  "official_research": {
+    "mode": "read_only_public_pages",
+    "checked_on": "2026-08-23",
+    "urls": [
+      "https://github.com/binance/binance-public-data/blob/master/README.md",
+      "https://data.binance.vision/",
+      "https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md",
+      "https://www.binance.com/en/terms"
+    ],
+    "login": false,
+    "contract": false,
+    "api_call": false,
+    "data_download": false
+  },
+  "packet": {
+    "path": "doc/phase5R2/07_DATA-G1/07_P5R2-DATA-G1承認packet.html",
+    "state": "READY_FOR_DELEGATED_DECISION",
+    "recommended_provider": "Binance Data Vision public archive",
+    "recommended_scope": "Spot BTCUSDT/ETHUSDT, source 1m, UTC 2025-02-24 inclusive through 2025-03-01 exclusive",
+    "external_run_id": "RUN-P5R2-18-EXTERNAL-001",
+    "data_gate": "UNAPPROVED"
+  },
+  "boundaries": {
+    "external_io": "PROHIBITED_AND_NOT_USED",
+    "secret": "PROHIBITED_AND_NOT_USED",
+    "cost": "PROHIBITED_AND_NOT_USED",
+    "physical_delete": "PROHIBITED_AND_NOT_USED",
+    "p6_start": "NOT_STARTED",
+    "new_management_hash_flow": "NOT_CREATED"
+  },
+  "hash_policy_note": "Do not calculate, store, compare, or retry management hashes; this receipt records only the prohibited boundary.",
+  "next_step": "P5R2-DATA-G1_DECISION"
+}

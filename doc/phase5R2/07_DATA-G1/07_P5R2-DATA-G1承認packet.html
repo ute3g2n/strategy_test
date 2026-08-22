@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="document-id" content="P5R2-ART-DATA-G1-001">
+  <meta name="document-status" content="READY_FOR_DELEGATED_DECISION">
+  <meta name="created-on" content="2026-08-23">
+  <title>P5R2 DATA-G1 承認packet</title>
+  <style>
+    body{max-width:1200px;margin:32px auto;padding:0 20px;font-family:Segoe UI,sans-serif;line-height:1.7;color:#172033}
+    table{border-collapse:collapse;width:100%;margin:14px 0}th,td{border:1px solid #b9c7d8;padding:8px;vertical-align:top}th{background:#eef5ff}
+    .warn{background:#fff4df;border-left:4px solid #d97706;padding:14px;margin:14px 0}.ok{background:#edf9f0;border-left:4px solid #198754;padding:14px;margin:14px 0}
+    code{word-break:break-word}.small{font-size:.92em;color:#4b5563}
+  </style>
+</head>
+<body>
+<main>
+  <h1>P5R2-DATA-G1 外部Historical Data承認packet</h1>
+  <div class="warn"><strong>状態：READY_FOR_DELEGATED_DECISION</strong><br>この文書は承認判断の材料であり、作成しただけではDATA-G1承認にならない。ここでは公開文書の閲覧だけを行い、Providerへの接続、login、契約、API call、Data download、Secret、費用発生を行っていない。</div>
+
+  <h2>1. このpacketで判断すること</h2>
+  <p>判断対象は、P5R2-18で実Providerからsource 1mを限定取得し、品質検査後にlocal Catalogへ昇格する範囲である。上位足をProviderから直接取得せず、取得した1m sourceからアプリ内で15m／30m／1h／4h／1dを生成する。P5R2-19以降のUI、DELETE-G1、H2、P6の承認はこのpacketの対象外である。</p>
+
+  <h2>2. 推奨する承認範囲</h2>
+  <p>既存P5のProvider方針転換履歴と、今回のP5R2要件をつなぐ最小の受入範囲として、次を推奨する。これは「全銘柄・全期間」の無制限承認ではなく、動作と停止条件を確認するbounded pilotである。</p>
+  <table>
+    <tr><th>項目</th><th>推奨値</th><th>理由・制限</th></tr>
+    <tr><td>Provider</td><td>Binance Data Vision public archive</td><td>P5で採用した現行方針の継承候補。P5R2では新しいRunと新しいEvidenceで再確認する。</td></tr>
+    <tr><td>公式host</td><td><code>data.binance.vision:443</code></td><td>HTTPSのみ。DNS、redirect、proxyの挙動がallowlist外になったら停止する。</td></tr>
+    <tr><td>市場</td><td>Crypto Spotのみ</td><td>Futures、Funding、Liquidation、Tick、Order Book、Broker、Liveは対象外。</td></tr>
+    <tr><td>銘柄</td><td><code>BTCUSDT</code>、<code>ETHUSDT</code></td><td>2銘柄だけ。別銘柄の要求は別の範囲判断へ送る。</td></tr>
+    <tr><td>取得対象</td><td>Spot klineのsource <code>1m</code>だけ</td><td>15m／30m／1h／4h／1dはlocal generationで作る。Providerの上位足を混ぜない。</td></tr>
+    <tr><td>UTC期間</td><td><code>2025-02-24T00:00:00Z</code> 以上、<code>2025-03-01T00:00:00Z</code> 未満</td><td>月次アーカイブ2か月分を対象にした小さな受入。全期間取得ではない。</td></tr>
+    <tr><td>アーカイブURL形</td><td><code>https://data.binance.vision/data/spot/monthly/klines/{symbol}/1m/{symbol}-1m-{YYYY-MM}.zip</code> と同じURLの<code>.CHECKSUM</code></td><td>許可されたパス以外を拒否する。REST API endpointは使わない。</td></tr>
+    <tr><td>保存先</td><td><code>E:\strategy_test_data\autotrade\historical\spot\klines\1m</code> のstaging→atomic promotion</td><td>staging中はusableにしない。既存P5R履歴、Run、CSV、Audit、Evidenceを上書き・削除しない。</td></tr>
+    <tr><td>外部受入Run</td><td><code>RUN-P5R2-18-EXTERNAL-001</code></td><td>local fake providerとは別Run、別Evidence rootにする。</td></tr>
+    <tr><td>費用上限</td><td>Provider fee <code>0 USD</code>を上限とし、課金表示・契約要求・有料redirectが出たら開始前でも停止</td><td>現時点で料金の無発生を公式文書から確定していないため、実行時に支払情報へ進まない。</td></tr>
+  </table>
+
+  <h2>3. 外部I/Oの境界</h2>
+  <table>
+    <tr><th>許可</th><th>禁止</th></tr>
+    <tr><td>allowlistに一致するHTTPS GET、対象2銘柄、対象2か月、zipとCHECKSUM、最大4 archive object、bounded retry。</td><td>ログイン、API key／Secret、Authorization header、REST API、WebSocket、注文、Futures、未知のredirect、proxy、cloud upload、任意URL。</td></tr>
+    <tr><td>process-level egress guard、redirect拒否、proxy無効、最大archive size、cancel、staging、schema／UTC／重複／欠損／timestamp検査。</td><td>host isolationを確認できないまま「隔離済み」と表示すること、検査前のusable昇格、欠損の推測補完、値競合の自動上書き。</td></tr>
+  </table>
+  <p class="small">外部Runのhost-level isolationが独立に確認できない場合は、process-level allowlistをhost isolationと読み替えず、Evidenceを<code>NOT_VERIFIED</code>として停止する。P5R2-18の実行可否はこの停止条件を含む。</p>
+
+  <h2>4. 取得後の昇格条件</h2>
+  <ol>
+    <li>download jobをSTAGEDで受理し、対象URL、symbol、market、interval、UTC範囲、Run、Evidence rootを記録する。</li>
+    <li>zipをstagingへ排他的に保存し、CHECKSUMが存在する場合はsource-data integrityのために検査する。これは管理用hashやreceipt hashではない。</li>
+    <li>CSVを展開し、schema、timestamp unit、UTC昇順、重複、始端・終端、欠損、OHLC／Volume品質を検査する。欠損を勝手に埋めない。</li>
+    <li>検査に合格したsourceだけをCatalog previewへ束縛し、promotionをatomicに行う。失敗・cancel・再起動・途中停止はRECOVERY_REQUIREDまたはusable=falseにする。</li>
+    <li>source 1mからだけ上位5時間足を生成し、provenance、期間、quality、source identityをCatalogへ表示する。競合値は利用者の明示replaceなしに上書きしない。</li>
+  </ol>
+
+  <h2>5. 公式一次情報のread-only調査（2026-08-23確認）</h2>
+  <table>
+    <tr><th>URL</th><th>確認できたこと</th><th>確認できなかったこと</th></tr>
+    <tr><td><a href="https://github.com/binance/binance-public-data/blob/master/README.md">Binance Public Data README</a></td><td>Public Data Collection、daily／monthly archive、Spot kline、kline interval、download URL例、CHECKSUM手順、archive updateの記載を確認した。</td><td>本アプリの利用者が取得Dataを再配布できるという許諾、今回の費用上限、特定symbolの完全期間は確認していない。</td></tr>
+    <tr><td><a href="https://data.binance.vision/">Binance Data Collection</a></td><td>公開アーカイブの一覧入口を確認した。</td><td>一覧表示だけでは、対象期間の完全性、redirect、可用性、料金、規約承認を確定できない。</td></tr>
+    <tr><td><a href="https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md">Binance Spot API docs</a></td><td>REST klinesの仕様、interval、UTCの扱いを確認した。</td><td>P5R2ではREST APIを使わないため、REST endpointの採用根拠にはしない。</td></tr>
+    <tr><td><a href="https://www.binance.com/en/terms">Binance Terms entry</a></td><td>地域によりterms pageが変わり得ること、Historical Market Dataへの導線を確認した。</td><td>この環境・利用地域・local保持・再配布への適用条件を確定していない。</td></tr>
+  </table>
+
+  <h2>6. Unknownと承認後も残る条件</h2>
+  <table>
+    <tr><th>ID</th><th>Unknown</th><th>扱い</th></tr>
+    <tr><td><code>P5R2-UNK-HD-005</code></td><td>Binanceの市場Dataの保持・再配布条件、地域別terms、社内利用条件。</td><td>raw provider dataの再配布を禁止し、local retentionだけに限定する。明確な禁止が判明したら即時停止し、usableへ昇格しない。</td></tr>
+    <tr><td><code>P5R2-UNK-HD-006</code></td><td>対象symbolのarchive最古時点、archive update、月次ファイルの完全性。</td><td>実Runで対象URLを確認し、欠落・404・checksum不一致は停止。全期間を推測しない。</td></tr>
+    <tr><td><code>P5R2-UNK-QG-003</code></td><td>外部Runのhost-level isolation。</td><td>process guardとhost証拠を分離記録し、host未確認ならNOT_VERIFIEDのまま止める。</td></tr>
+    <tr><td><code>P5R2-UNK-HD-004</code></td><td>管理用hashを追加しない境界。</td><td>既存trusted fixtureの保護対象identity以外に、管理hash／manifest／fingerprint／stale／hash retry／receipt hashを作らない。</td></tr>
+  </table>
+
+  <h2>7. P5R2-18の停止・rollback</h2>
+  <ul>
+    <li>承認外host、symbol、期間、interval、URL、redirect、proxy、Secret、課金表示が一つでも出たら、そのHTTP requestを継続せず停止する。</li>
+    <li>partial downloadはstagingのままにし、Catalog current／usableへ公開しない。復旧不能ならstagingを隔離し、DELETE-G1未承認の既存保存物を削除しない。</li>
+    <li>値競合、重複、欠損、timestamp unit不一致、schema不一致、source integrity不一致はSTOP／UNUSABLEとする。補間はP5R2-CREQ-TF-002のlocal derived規則に限る。</li>
+    <li>外部RunのEvidenceはlocal fixed GateのEvidenceと混ぜない。完了後もprovider termsがUnknownなら、Unknownを解消済みと書かない。</li>
+  </ul>
+
+  <h2>8. 人の判断欄</h2>
+  <table>
+    <tr><th>判断項目</th><th>状態</th></tr>
+    <tr><td>上記のProvider、host、market、symbol、期間、source interval、保存先、allowlist、Secret境界、費用上限、停止条件</td><td><code>UNAPPROVED</code></td></tr>
+    <tr><td>承認後の許可</td><td>上記bounded pilotのP5R2-18だけ。上位足直接取得、REST API、他銘柄、他期間、再配布、Live、Brokerへ拡張しない。</td></tr>
+    <tr><td>承認後の禁止</td><td>login、契約、Secret保存、課金操作、allowlist外通信、physical delete、P6開始。</td></tr>
+  </table>
+  <p><strong>承認文の例：</strong>「P5R2-DATA-G1を、上記bounded pilotの範囲で承認する。承認外の外部I/O、Secret、費用、Data再配布、実削除、P6開始は承認しない。」</p>
+
+  <h2>9. 追跡</h2>
+  <p><code>P5R2-CREQ-HD-001</code>、<code>P5R2-CREQ-HD-002</code>、<code>P5R2-UNK-HD-004</code>、<code>P5R2-UNK-QG-001</code>、<code>P5R2-UNK-QG-002</code>、<code>P5R2-UNK-HD-005/006</code>、<code>P5R2-UNK-QG-003</code>を、P5R2-18のrequest、runner、Job、Catalog、quality、Evidenceへ追跡する。P5R2-17の完了はDATA-G1の承認やP5R2-18の実行を意味しない。</p>
+
+  <h2>10. 関連成果物</h2>
+  <ul>
+    <li><a href="../../requirements/01_自動トレードシステム要件定義書_v4.html">AT-REQ-004 v4</a></li>
+    <li><a href="../05_H1/06_P5R2-H1承認packet.html">P5R2-H1承認packet</a></li>
+    <li><a href="../../../plan/phase5R2/ログ/P5R2-17_DATA-G1_packet作成_2026-08-22.md">P5R2-17実行ログ</a></li>
+    <li><a href="../../../plan/phase5R2/quality/runtime-receipt-P5R2-17.json">P5R2-17 runtime receipt</a></li>
+    <li><a href="../../../tests/evidence/phase5R2/RUN-P5R2-17-PACKET-001/packet-evidence.json">P5R2-17 packet Evidence</a></li>
+  </ul>
+</main>
+</body>
+</html>

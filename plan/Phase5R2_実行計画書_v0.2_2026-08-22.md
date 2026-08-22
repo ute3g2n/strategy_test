@@ -3,7 +3,7 @@
 > Artifact ID: `P5R2-PLAN-002`
 > Version: `v0.2`
 > 作成日: `2026-08-22`
-> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_GREEN_CONFIRMED / P5R2-14_GREEN_CONFIRMED / P5R2-15_GREEN_CONFIRMED / P5R2-16_GREEN_CONFIRMED / P5R2-17_READY / P5R2-DATA-G1_UNAPPROVED / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
+> 状態: `CURRENT_PLAN / P5R2-HREQ_APPROVED / P5R2-06A_COMPLETE / P5R2-H1_APPROVED_LOCAL_ONLY / P5R2-12_RED_CONFIRMED / P5R2-13_GREEN_CONFIRMED / P5R2-14_GREEN_CONFIRMED / P5R2-15_GREEN_CONFIRMED / P5R2-16_GREEN_CONFIRMED / P5R2-17_PACKET_READY / P5R2-DATA-G1_UNAPPROVED / P5R2-DELETE-G1_UNAPPROVED / P5R2-H2_UNAPPROVED / P6_PAUSED`
 > 旧計画: [`Phase5R2_実行計画書_v0.1_2026-08-21.md`](./Phase5R2_実行計画書_v0.1_2026-08-21.md)（要件確定前の履歴。上書きしない）
 
 ## 1. この計画の結論
@@ -537,6 +537,14 @@ Acceptance:
 - packetだけで人が外部I/Oの対象、費用、Secret、保存先、停止条件を判断できる。
 - HREQ承認、P5R2-17完了、公式公開文書の閲覧をDATA-G1承認と読み替えない。
 ```
+
+実績（P5R2-17、2026-08-23）:
+- `P5R2-17_PACKET_READY`。Binance Data Vision public archiveを推奨候補とし、Spot BTCUSDT／ETHUSDT、source 1m、UTCのbounded pilot（2025-02-24以上2025-03-01未満）、allowlist、保存先、費用上限、Secret境界、停止／rollback、usable昇格条件をpacketへ集約した。
+- 公式一次情報は、Binance Public Data README、Data Collection入口、Spot API docs、Terms entryをread-only閲覧した。公式READMEのコードライセンスを市場Dataの再配布許諾へ拡張せず、保持・再配布条件、対象期間の完全性、外部host-level isolationはUnknownとして残した。
+- 外部host、login、契約、API call、Data download、Secret、費用は0。P5R2-DATA-G1は未承認のままで、packet作成や公式文書閲覧を承認と読み替えていない。
+- 証拠: [`DATA-G1 packet`](../doc/phase5R2/07_DATA-G1/07_P5R2-DATA-G1承認packet.html)、[`packet Evidence`](../tests/evidence/phase5R2/RUN-P5R2-17-PACKET-001/packet-evidence.json)、[`runtime receipt`](./phase5R2/quality/runtime-receipt-P5R2-17.json)。
+
+P5R2-17は完了し、次はP5R2-DATA-G1の承認判断である。承認範囲外の外部I/O、Secret、費用、Data再配布、実削除、P6開始は引き続き禁止する。
 
 ### P5R2-DATA-G1 — 実Provider／外部Data境界を人が承認する
 

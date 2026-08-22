@@ -1,0 +1,23 @@
+{
+  "schema_version": "P5R2-A95-static-policy-v1",
+  "step_id": "P5R2-17",
+  "run_id": "RUN-P5R2-17-PACKET-001",
+  "mode": "STATIC_FALLBACK",
+  "runtime_agent_dispatched": false,
+  "decision": "ALLOW",
+  "targets": [
+    "doc/phase5R2/07_DATA-G1/07_P5R2-DATA-G1承認packet.html",
+    "plan/phase5R2/ログ/P5R2-17_DATA-G1_packet作成_2026-08-22.md",
+    "plan/phase5R2/quality/runtime-receipt-P5R2-17.json",
+    "tests/evidence/phase5R2/RUN-P5R2-17-PACKET-001/packet-evidence.json"
+  ],
+  "findings": [],
+  "policy_result": {
+    "new_management_hash": false,
+    "new_management_manifest": false,
+    "new_fingerprint_or_stale_gate": false,
+    "new_hash_retry_or_receipt_hash": false,
+    "existing_protected_hash_value": "not calculated, stored, or compared"
+  },
+  "truthfulness_note": "A95 runtime agent was not independently dispatched; this is a static fallback only."
+}
