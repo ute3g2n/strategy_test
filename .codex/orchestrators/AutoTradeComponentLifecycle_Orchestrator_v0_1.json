@@ -2,7 +2,8 @@
   "name": "AutoTradeComponentLifecycle_Orchestrator_v0_1",
   "display_name": "Auto Trade Component Lifecycle Orchestrator v0.1",
   "model": "gpt-5.6-terra",
-  "purpose": "Coordinate creation and modification of project AI components by enforcing reuse survey, explicit component changes, and synchronized document updates.",
+  "operating_policy_ref": "settings/ai_component_rules.md#共通PRODUCT_ONLY部品契約",
+  "purpose": "Coordinate creation and modification of project AI components with automatic component selection and the PRODUCT_ONLY contract.",
   "trigger_examples": [
     "AI部品の作成・変更基盤で対応して",
     "SkillとAgentを増やすので、関連仕様も含めて更新して",
@@ -11,42 +12,27 @@
   "global_constraints": {
     "language": "ja",
     "must_survey_existing_components_first": true,
-    "must_update_foundation_docs_after_component_changes": true,
-    "must_name_orchestrator_agents_skills_explicitly": true,
+    "must_update_foundation_docs_after_component_changes": false,
+    "must_name_orchestrator_agents_skills_explicitly": false,
+    "automatic_component_selection": true,
+    "management_artifacts_default": "disabled",
+    "product_only_contract_precedence": true,
     "formal_design_outputs_must_be_html": true,
     "html_outputs_must_be_under_doc": true,
-    "plans_and_logs_must_be_under_plan": true,
-    "doc_index_must_be_updated": true,
+    "plans_and_logs_must_be_under_plan": false,
+    "doc_index_must_be_updated": false,
    "unknown_must_not_pass": true,
     "do_not_change_default_orchestrator": true,
     "future_hash_policy": "protected_safety_data_reproducibility_only"
   },
   "runtime_dispatch_contract": {
     "version": "RDC-AI-COMPONENT-0.2",
-    "preferred_backend": "multi_agent_v1",
-    "required_tools": [
-      "multi_agent_v1__spawn_agent",
-      "multi_agent_v1__wait_agent"
-    ],
-    "root_dispatch": "ルートAgentは、対象ファイルを変更する前に本OrchestratorのJSON path、model=gpt-5.6-terra、change_scope、入力、出力、Agents、Skillsを渡してCoordinatorを実spawnし、orchestrator_agent_idと受付statusを保存する。",
-    "coordinator_dispatch": "CoordinatorはPromptで明示された全Agentを一体ずつspawnし、Agent JSON pathと定義JSONのmodelをmodel引数に明示する。定義JSONにreasoning_effortがある場合だけ同引数へ渡し、未定義の場合は推論努力量を勝手に上書きせずreceiptへnullを記録する。Orchestrator JSONのagents map外でも省略せず起動試行し、全件をwaitして完了statusと出力参照を保存する。",
-    "fallback_policy": "spawn／wait、固定model受理、または子出力取得ができない場合はRUNTIME_DISPATCH_FALLBACK_REQUIRED、未起動Agent、理由、agent_id=N/A、independent=false、review_mode=SELF_REVIEW_FALLBACKを先に記録する。起動不能は単独停止条件にせず、ルートが責務チェックリストを適用して継続する。ただしUnknownのPass、仕様追従欠落、default変更、Critical／High未解決は停止する。",
-    "receipt_required": [
-      "runtime_backend",
-      "dispatch_mode",
-      "orchestrator_agent_id",
-      "agent_name",
-      "agent_json_path",
-      "agent_model",
-      "agent_reasoning_effort",
-      "skills",
-      "agent_id",
-      "accepted_status",
-      "completion_status",
-      "output_reference",
-      "independent",
-      "review_mode"
-    ]
+    "preferred_backend": "local_direct",
+    "required_tools": [],
+    "root_dispatch": "通常は単一Agentの直接実行を優先する。独立作業が製品品質または安全上必要な場合だけ、AIが子部品を自動選択してspawn／waitを使う。runtime receiptを通常の完了条件にしない。",
+    "coordinator_dispatch": "必要な場合だけ、責務と入力範囲に応じてagents mapから最小限のAgentを自動選択して実行する。ユーザーに完全名の指定を求めず、管理用の起動一覧や子run台帳を作成しない。",
+    "fallback_policy": "spawn／waitが不要または利用できない場合は、直接実行へ縮退する。起動不能を独立実行済みと表現しない。安全上必要な停止条件だけは維持する。",
+    "receipt_required": []
   },
   "agents": {
     "A06": {
@@ -92,24 +78,23 @@
   ],
   "workflow_policy": [
     "Survey existing reusable generic components before proposing any new component.",
-    "Apply the runtime dispatch contract before any component or document mutation and persist the dispatch receipt.",
-    "Do not treat a component name, JSON read, or root self-review as a spawn receipt or independent review.",
+    "Apply the PRODUCT_ONLY component contract before any component or document mutation.",
+    "Automatically select the smallest set of components needed for the requested responsibility; do not require user-supplied component names.",
     "Decide whether the request is create, modify, or create-by-composition.",
-    "Create or modify only the explicitly named skill, agent, orchestrator, and config entries.",
-   "Update AI foundation HTML docs, rules, and doc/index.html in the same run.",
+    "Create or modify only the component and product-facing artifacts required by the request.",
+   "Update AI foundation HTML docs, rules, and doc/index.html only when requested or when a user-facing component contract actually changes.",
     "For ordinary new-document and major-document-change handoffs, do not dispatch management-hash maintenance; use non-hash metadata, schema, link, path, Secret, and state checks.",
     "Use AutoTrade_A08_ContextRouter_v0_1 only with non-hash schema/state/path checks; do not make it a body-reading agent or a hash router.",
-    "For new or substantially changed artifacts, invoke AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1 as a static policy guard. It must not calculate hashes, write manifests, compare hashes, or retry on hash mismatch.",
-   "Run a review for over-creation, missing sync updates, and name-control mistakes.",
-    "Record residual risks and any blocked collisions.",
-    "Continue with the declared fallback checklist when nested child dispatch is unavailable; never hide the fallback."
+    "Automatically select AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1 only when management-hash reintroduction is a direct risk. It must not calculate hashes, write manifests, compare hashes, or retry on hash mismatch.",
+   "Review for over-creation, unnecessary management artifacts, safety regressions, and name-control mistakes.",
+    "Report residual product risks in chat without creating a management ledger.",
+    "Do not automatically start a subsequent Phase, Step, Gate, or review."
   ],
   "stop_conditions": [
     "The request would require overwriting an existing component name during creation.",
     "A requested modification target does not exist.",
     "The change would require treating Unknown as Pass.",
     "The change would require default_orchestrator modification without explicit approval.",
-    "Foundation document sync cannot be completed for the same change set.",
-    "The change request cannot preserve a verifiable dispatch receipt or fallback disclosure."
+    "The change would weaken product safety, Secret protection, external-I/O boundaries, or fail-closed behavior."
   ]
 }

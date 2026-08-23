@@ -2,6 +2,7 @@
   "name": "AutoTrade_A91_ImplementationDetailReviewer_v0_1",
   "display_name": "Auto Trade Implementation Detail Reviewer",
   "model": "gpt-5.6-luna",
+  "operating_policy_ref": "settings/ai_component_rules.md#共通PRODUCT_ONLY部品契約",
   "skill": "autotrade_skill_implementation_detail_review_v0_1",
   "skills": [
     "autotrade_skill_implementation_detail_review_v0_1",
@@ -11,7 +12,7 @@
   ],
   "role": "Audit whether a detailed design is directly implementable, testable, and understandable by non-specialists, with special focus on AF-D16 compliance, Japanese explanations, Mermaid diagrams with explicit data handoffs, module ownership, typed I/O, persistence, failure behavior, exhaustive tests, and revision closure.",
   "inputs": {
-    "detailed_design_html": "Target implementation-ready design documents, their coverage matrix, and their AF-D16 template-compliance evidence.",
+    "detailed_design_html": "Target implementation-ready design documents and their coverage matrix; template-compliance evidence is optional unless the requested review requires it.",
     "design_standard": "Detailed design standard, review rubric, requirements, and phase boundary.",
     "repository_context": "Target language, source tree, tests, and implementation constraints.",
     "revision_evidence": "Findings, adoption decisions, and revised documents for re-review."

@@ -2,18 +2,21 @@
   "name": "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1",
   "display_name": "Auto Trade Project Implementation Quality Orchestrator v0.1",
   "model": "gpt-5.6-terra",
+  "operating_policy_ref": "settings/ai_component_rules.md#共通PRODUCT_ONLY部品契約",
   "purpose": "Run one approved implementation unit through test-first design, minimal implementation, local verification, bounded debugging, independent review, and a Human Gate without replacing existing project or implementation-design orchestrators.",
   "ecc_source_revision": "historical metadata; not used as a current integrity check",
   "bootstrap_quality_gate_scope": "scripts/quality_gate and tests/quality_gate only; extending the allowlist to a Phase implementation unit requires a separately approved component update.",
   "trusted_scope_registry": "scripts/quality_gate/trusted_scopes.json",
-  "phase_scope_policy": "A Run ID must be registered before execution; the registry fixes scope_mode, target paths, excluded paths, protected fixture checksum, baseline ref, and four command templates. For scope_mode=target_only, unrelated HEAD/worktree paths are not used to decide the test target; only registered target paths are inspected. The manifest is scope metadata, not a file-integrity comparison policy.",
+  "phase_scope_policy": "Use changed target paths and relevant tests directly by default. A Run ID, registry, or manifest is used only when the user requests reproducible evidence or a high-risk isolated run.",
   "trigger_examples": [
     "Run Manifest を入力として Phase 2 の一機能をテスト先行で実装して",
     "AutoTradeProject_ImplementationQuality_Orchestrator_v0_1 で品質ゲートを実行して"
   ],
   "global_constraints": {
     "language": "ja",
-    "must_name_orchestrator_agents_skills_explicitly": true,
+    "must_name_orchestrator_agents_skills_explicitly": false,
+    "automatic_component_selection": true,
+    "product_only_contract_precedence": true,
     "must_survey_existing_components_first": true,
     "unknown_must_not_pass": true,
     "do_not_change_default_orchestrator": true,
@@ -21,20 +24,22 @@
     "must_not_connect_broker": true,
     "must_not_read_or_write_secrets": true,
     "must_not_enable_live_trading": true,
-    "must_write_evidence_under_test_evidence": true
+    "must_write_evidence_under_test_evidence": false,
+    "run_manifest_required_by_default": false,
+    "human_gate_required_by_default": false
   },
   "runtime_dispatch_contract": {
     "version": "RDC-GENERIC-0.2",
-    "preferred_backend": "multi_agent_v1",
-    "required_tools": ["multi_agent_v1__spawn_agent", "multi_agent_v1__wait_agent"],
-    "root_dispatch": "The root runtime must spawn the named Orchestrator from its exact JSON path with the fixed model, wait for completion, and persist the root receipt before any work is accepted.",
-    "coordinator_dispatch": "The Orchestrator must spawn every explicitly named Agent one by one, including Agents outside its static map, using the model declared by each Agent JSON, wait for every child, and persist each child receipt.",
+    "preferred_backend": "local_direct",
+    "required_tools": [],
+    "root_dispatch": "Use direct local execution by default. Select child components automatically only when independent verification is needed for product quality or safety; do not require or persist a root receipt.",
+    "coordinator_dispatch": "When child work is needed, automatically select the smallest set of components by responsibility and input boundary. Do not require user-supplied names or persist child receipts.",
     "fixed_model_policy": "Prompt model labels are constraints: the runtime must resolve the exact Orchestrator and Agent JSON and reject silent model substitution.",
-    "fallback_policy": "If spawn or wait is unavailable, record RUNTIME_DISPATCH_FALLBACK_REQUIRED and LOCAL_FALLBACK_NO_SUBAGENTS with every unstarted Agent, reason, timestamp, agent_id=N/A, independent=false, and review_mode=SELF_REVIEW_FALLBACK; continue only with the explicit responsibility checklist and never claim independent execution.",
-    "receipt_required": ["orchestrator_name", "orchestrator_json_path", "orchestrator_model", "orchestrator_agent_id", "agent_name", "agent_json_path", "agent_model", "agent_id", "spawn_status", "wait_status", "output_ref", "fallback_reason", "independent", "review_mode"]
+    "fallback_policy": "If child dispatch is unnecessary or unavailable, continue with direct local verification. Never claim independent execution that did not occur. Do not create fallback packets for ordinary verification.",
+    "receipt_required": []
   },
   "run_manifest_schema": {
-    "required_fields": [
+    "required_fields_when_requested": [
       "run_id",
       "phase_id",
       "step_id",
@@ -78,21 +83,19 @@
     "autotrade_skill_protected_hash_policy_guard_v0_1"
   ],
   "workflow_policy": [
-    "Require an approved design and a complete Run Manifest before any implementation.",
-    "Pass new or substantially changed implementation plans, source, tests, and receipts through A95 as a static management-hash reintroduction check; A95 never calculates hashes, writes manifests, or retries.",
-    "Run A110 before A120 and require a valid RED result before implementation.",
-    "Run only the local command templates in the trusted scope registry; never use a shell or network command.",
-    "Require host outbound isolation confirmation before a phase test subprocess; otherwise return BLOCKED.",
-    "On a failed local gate, use A140 and allow at most two attempts for the same root-cause hypothesis.",
-    "Require A150 and A160 reviews after local gates pass; Critical or High findings return the unit.",
-    "Require an explicit user approval declaration matching the run_id before PASS or Phase handoff; do not require signature keys or an external approval channel.",
-    "Persist sanitized evidence only below tests/evidence/{phase_id}/{run_id}/."
+    "Use direct implementation and relevant local tests by default; require an approved design, Run Manifest, or child Agent only when the request or product risk needs it.",
+    "Select A95 only for a direct management-hash reintroduction concern; A95 never calculates hashes, writes manifests, or retries.",
+    "Automatically select test-first, verification, debugging, code review, or security review components according to change risk; do not require every component for every change.",
+    "Use local fixtures and local commands by default; never use a shell or network command that violates the task boundary.",
+    "Require host outbound isolation, reproducible evidence, Human Gate, or an isolated Run only when external I/O, destructive data, high-risk execution, or a user-requested evidence package makes it necessary.",
+    "On a failed relevant local check, perform bounded debugging and report the result; do not create a management packet for ordinary verification.",
+    "Persist evidence only when the user requests reproducible evidence or the product safety boundary requires it; otherwise report test results in chat."
   ],
   "stop_conditions": [
-    "Missing required Run Manifest fields or an evidence path outside tests/evidence.",
+    "A requested reproducible Run is missing required Run Manifest fields or has an evidence path outside tests/evidence.",
     "Unknown, Secret, Broker, Live-trading, external network, or project-external path detection.",
     "Test deletion, skip-based pass, quality-threshold weakening, or an allowlist violation.",
     "A repeated root-cause hypothesis exceeds two attempts.",
-    "Critical or High review finding remains, or the user has not explicitly approved the Run."
+    "Critical or High product-safety finding remains, or an explicitly required Human Gate has not been approved."
   ]
 }

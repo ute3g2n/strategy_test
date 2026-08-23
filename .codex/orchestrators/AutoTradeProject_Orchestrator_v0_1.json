@@ -2,7 +2,8 @@
   "name": "AutoTradeProject_Orchestrator_v0_1",
   "display_name": "Auto Trade Project Orchestrator v0.1",
   "model": "gpt-5.6-terra",
-  "purpose": "Coordinate project-wide design, review, and documentation workflows across phases using explicit runbooks and named AI components.",
+  "operating_policy_ref": "settings/ai_component_rules.md#共通PRODUCT_ONLY部品契約",
+  "purpose": "Coordinate project work with automatic component selection while preserving product quality and the PRODUCT_ONLY contract.",
   "trigger_examples": [
     "AF-03を実行して",
     "Phase 2の設計をAutoTradeProject_Orchestrator_v0_1で進めて",
@@ -13,30 +14,34 @@
     "formal_design_outputs_must_be_html": true,
     "must_not_be_investment_advice": true,
     "unknown_must_not_pass": true,
-    "do_not_use_existing_agents_skills_or_orchestrators_by_guess": true,
+    "do_not_use_existing_agents_skills_or_orchestrators_by_guess": false,
+    "automatic_component_selection": true,
+    "product_only_contract_precedence": true,
     "allowed_agent_prefix": "AutoTrade_A",
     "allowed_skill_prefix": "autotrade_skill_",
     "do_not_change_default_orchestrator": true,
-    "doc_index_must_be_updated": true,
+    "doc_index_must_be_updated": false,
     "phase_specific_components_require_reason": true
   },
   "runtime_dispatch_contract": {
     "version": "RDC-GENERIC-0.2",
-    "preferred_backend": "multi_agent_v1",
-    "required_tools": ["multi_agent_v1__spawn_agent", "multi_agent_v1__wait_agent"],
-    "root_dispatch": "The root runtime must spawn the named Orchestrator from its exact JSON path with the fixed model, wait for completion, and persist the root receipt before any work is accepted.",
-    "coordinator_dispatch": "The Orchestrator must spawn every explicitly named Agent one by one, including Agents outside its static map, using the model declared by each Agent JSON, wait for every child, and persist each child receipt.",
+    "preferred_backend": "local_direct",
+    "required_tools": [],
+    "root_dispatch": "Use direct local execution by default. Select child components automatically only when independent work is needed for product quality or safety; do not require or persist a root receipt.",
+    "coordinator_dispatch": "When child work is necessary, automatically select the smallest set of mapped components by responsibility and input boundary. Do not require user-supplied names or persist child receipts.",
     "fixed_model_policy": "Prompt model labels are constraints: the runtime must resolve the exact Orchestrator and Agent JSON and reject silent model substitution.",
-    "fallback_policy": "If spawn or wait is unavailable, record RUNTIME_DISPATCH_FALLBACK_REQUIRED and LOCAL_FALLBACK_NO_SUBAGENTS with every unstarted Agent, reason, timestamp, agent_id=N/A, independent=false, and review_mode=SELF_REVIEW_FALLBACK; continue only with the explicit responsibility checklist and never claim independent execution.",
-    "receipt_required": ["orchestrator_name", "orchestrator_json_path", "orchestrator_model", "orchestrator_agent_id", "agent_name", "agent_json_path", "agent_model", "agent_id", "spawn_status", "wait_status", "output_ref", "fallback_reason", "independent", "review_mode"]
+    "fallback_policy": "If child dispatch is unnecessary or unavailable, continue with direct execution. Never claim independent execution that did not occur. Do not create fallback packets for ordinary work.",
+    "receipt_required": []
   },
   "runbook_schema": {
     "required_fields": [
       "phase_id",
       "step_id",
       "output_root",
+      "detail_boundary"
+    ],
+    "optional_when_requested": [
       "log_root",
-      "detail_boundary",
       "human_gate_policy"
     ]
   },
@@ -52,16 +57,16 @@
     "A90": { "file": ".codex/agents/AutoTrade_A90_DesignReviewer_v0_1.json", "primary_skill": "autotrade_skill_design_review_v0_1" }
   },
   "workflow_policy": [
-    "Validate explicit component names.",
-    "Load the phase runbook and confirm required inputs.",
-    "Run source reading and draft generation.",
-    "Run design review and red-team review.",
-    "Integrate accepted changes and update doc/index.html.",
-    "Stop at human gates and record approval status.",
-    "Record unresolved unknowns with IDs and target decision timing."
+    "Validate only the relevant components and inputs; do not require user-supplied component names.",
+    "Load the minimum source, specification, and test inputs needed for the requested product work.",
+    "Automatically select source reading, design, implementation, testing, or review components when their responsibility is directly useful.",
+    "Run design or red-team review only when the requested scope or product safety risk warrants it.",
+    "Update formal documents or doc/index.html only when the requested product-facing document changes its reachability.",
+    "Stop for external I/O, Secret, destructive data, unresolved safety findings, or an explicitly required Human Gate; do not create management records for ordinary work.",
+    "Report necessary Unknowns and residual product risks in the requested deliverable or chat."
   ],
   "stop_conditions": [
-    "A named component does not exist and the current step is not a creation step.",
+    "No suitable component exists for a responsibility that is directly required by the requested product work.",
     "A human gate is required and not yet approved.",
     "An unknown would need to be treated as pass.",
     "A name collision would require overwriting an existing component.",

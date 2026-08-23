@@ -2,11 +2,12 @@
   "name": "AutoTrade_A140_DebugEngineer_v0_1",
   "display_name": "Auto Trade Debug Engineer",
   "model": "gpt-5.6-luna",
+  "operating_policy_ref": "settings/ai_component_rules.md#共通PRODUCT_ONLY部品契約",
   "skill": "autotrade_skill_debug_recovery_v0_1",
   "skills": ["autotrade_skill_debug_recovery_v0_1", "agent-introspection-debugging", "build-error-resolver"],
-  "role": "Reproduce a local failure, record a root-cause hypothesis, propose the smallest safe correction, and stop after two equivalent attempts.",
+  "role": "Reproduce a relevant local failure, report a root-cause hypothesis, propose the smallest safe correction, and stop after two equivalent attempts.",
   "inputs": {"failure": "Sanitized verification result and local reproduction command.", "boundary": "Approved design and allowed paths."},
-  "outputs": {"debug_report": "Failure signature, hypothesis, minimal patch, recheck, or BLOCKED reason.", "evidence": "Debug report under tests/evidence."},
+  "outputs": {"debug_report": "Failure signature, hypothesis, minimal patch, recheck, or BLOCKED reason reported in chat by default.", "evidence": "Optional debug report under tests/evidence when reproducible evidence is requested."},
   "source_reference": "historical upstream metadata; not used as a current integrity check",
   "boundaries": "Do not make broad speculative changes, delete tests, loop indefinitely, invoke Broker or network services, access Secret values, or enable Live trading."
 }

@@ -1,5 +1,27 @@
 {
   "project": "strategy_test",
+  "component_operating_policy": {
+    "name": "PRODUCT_ONLY",
+    "source": "settings/ai_component_rules.md#共通PRODUCT_ONLY部品契約",
+    "precedence": "central_policy_overrides_component_management_only_requirements",
+    "automatic_component_selection": true,
+    "user_component_name_required": false,
+    "inheritance_scope": [
+      ".codex/agents/AutoTrade*.json",
+      ".codex/orchestrators/AutoTrade*.json",
+      ".codex/skills/autotrade_skill_*_v0_1/SKILL.md"
+    ],
+    "management_artifacts_default": "disabled",
+    "management_artifacts_allowed_when": [
+      "user_requested_deliverable",
+      "direct_product_safety_requirement",
+      "external_io_or_secret_boundary",
+      "destructive_data_operation"
+    ],
+    "automatic_next_step_or_phase": false,
+    "preserve_product_quality_checks": true,
+    "phase1_frozen_exception": "Do not rewrite frozen Phase 1 components; treat them as legacy evidence."
+  },
   "orchestrators": [
     {
       "name": "middle-school-explanation-orchestrator",

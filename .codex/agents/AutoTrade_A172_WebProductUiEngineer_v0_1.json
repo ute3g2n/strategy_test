@@ -2,6 +2,7 @@
   "name": "AutoTrade_A172_WebProductUiEngineer_v0_1",
   "display_name": "Auto Trade Web Product UI Engineer",
   "model": "gpt-5.6-luna",
+  "operating_policy_ref": "settings/ai_component_rules.md#共通PRODUCT_ONLY部品契約",
   "skill": "autotrade_skill_web_product_ui_implementation_v0_1",
   "skills": [
     "autotrade_skill_web_product_ui_implementation_v0_1",
@@ -15,12 +16,12 @@
     "design": "承認済みP5R実装詳細設計とUI契約",
     "application_api": "型付きローカルApplication APIの入力・出力・失敗契約",
     "ui_source": "既存ui/mockの画面構造とPlaywright設定",
-    "run_manifest": "P5R trusted scope、fixture、Evidence root、固定コマンド"
+    "run_manifest": "任意の再現可能なUI検証を依頼された場合だけ使用するRun Manifest。通常は対象パス、fixture、関連テストを直接確認する。"
   },
   "outputs": {
     "ui": "API接続済みのReact/TypeScript UIとaccessible state表示",
     "e2e": "@playwright/testのPage Object、正常/異常journey、assert後PNG capture",
-    "traceability": "AC、Screen、API、Evidenceの参照"
+    "traceability": "AC、Screen、API、関連テストの参照。Evidenceは依頼または安全上必要な場合だけ作成する。"
   },
   "boundaries": [
     "Backtest計算、Data取得、指標生成、投資判断をUIに実装しない",
@@ -31,8 +32,8 @@
     "Unknown、Critical、High、未確認viewportをPassにしない"
   ],
   "runtime_dispatch_contract": {
-    "required_tools": ["multi_agent_v1__spawn_agent", "multi_agent_v1__wait_agent"],
+    "required_tools": [],
     "fixed_model_policy": "gpt-5.6-luna",
-    "fallback": "RUNTIME_DISPATCH_FALLBACK_REQUIRED、agent_id=N/A、independent=false、review_mode=SELF_REVIEW_FALLBACKを記録し、独立完了と表現しない"
+    "fallback": "子部品が不要または利用できない場合は直接実行する。実行していない独立レビューを実施済みと表現しない。"
   }
 }

@@ -6,15 +6,17 @@ source_reference: historical upstream metadata; not used as a current integrity 
 
 # Python テストと品質
 
+このSkillは `settings/ai_component_rules.md#共通PRODUCT_ONLY部品契約` を継承する。関連テストによる製品品質は維持するが、Run Manifest、evidence、receipt、Gate packetは依頼または安全上必要な場合だけ作成する。
+
 ## 入力
 
-- 受入条件、DD-ID、fixture契約、Run Manifest、coverage方針。
+- 受入条件、DD-ID、fixture契約、coverage方針。Run Manifestは再現可能な実行を依頼された場合だけ入力する。
 
 ## 実行
 
-1. 正常・境界・異常・回帰のpytestを実装前に作り、REDを確認する。
-2. formatter、lint、type、testをRun Manifestの許可順でローカル実行する。
-3. コマンド、終了コード、fixture checksum、判定を `tests/evidence/{phase_id}/{run_id}/` に保存する。
+1. 変更リスクに応じて正常・境界・異常・回帰のpytestを作成または実行し、必要な場合はREDを確認する。
+2. formatter、lint、type、testを関連範囲に合わせてローカル実行する。Run Manifestは存在する場合だけその許可順に従う。
+3. コマンド、終了コード、fixture条件、判定は通常チャットで報告し、再現可能な証跡を依頼された場合だけ `tests/evidence/{phase_id}/{run_id}/` に保存する。
 
 ## 禁止事項と停止条件
 

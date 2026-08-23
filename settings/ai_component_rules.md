@@ -2,13 +2,29 @@
 
 ## 通常発火モード（PRODUCT_ONLY）
 
-通常の機能追加、不具合修正、調査、関連テスト、利用者向け仕様書・マニュアルの更新では、AI部品を自動発火させない。Agent、Skill、Orchestratorを使用するのは、ユーザーが完全名を指定した場合、または単一AIでは扱えない大規模作業や独立した安全レビューが実質的に必要な場合だけとする。
+通常の機能追加、不具合修正、調査、関連テスト、利用者向け仕様書・マニュアルの更新では、AIが依頼内容から適切なAgent、Skill、Orchestratorを自動選択してよい。ユーザーに完全名の指定を求めない。選択したAI部品は、下記の共通PRODUCT_ONLY部品契約を継承する。
 
-- AI部品を使用しない通常タスクでは、Agent起動、runtime receipt、fallback記録、Human Gate packet、実行ログ、hash管理、manifest、台帳更新を作成しない。
+- AI部品を使用した場合も、Agent起動、runtime receipt、fallback記録、Human Gate packet、実行ログ、hash管理、manifest、台帳更新を、管理のためだけに作成しない。
 - ユーザーが成果物や変更対象を指定した場合は、その指定範囲だけを扱い、AI部品や管理用成果物を追加しない。
-- 既存のAI部品定義、モデル割当、Phase専用部品の履歴は保持する。ただし、存在していることだけを理由に起動しない。
+- 既存のAI部品定義、モデル割当、Phase専用部品の履歴は保持する。依頼内容に合う部品は、ユーザーの名前指定なしに自動選択してよい。
 - 外部I/O、Secret、費用、実取引、重要データの物理削除に関する安全停止は、AI部品を使わない場合も維持する。
-- この節と後続の既存ルールが通常タスクについて矛盾する場合は、この節を優先する。後続ルールは、ユーザーが該当する専門作業を明示した場合にだけ適用する。
+- この節と後続の既存ルールが通常タスクについて矛盾する場合は、この節を優先する。後続ルールにある部品名の列挙、明示起動、証跡保存、文書同期は、共通契約の範囲で読み替える。
+
+## 共通PRODUCT_ONLY部品契約
+
+この契約は、`.codex/agents/AutoTrade*.json`、`.codex/orchestrators/AutoTrade*.json`、`.codex/skills/autotrade_skill_*_v0_1/`の全AutoTrade系部品へ継承する。Phase 1の凍結部品は履歴・凍結条件を優先し、新規の通常作業へ自動適用しない。
+
+対象部品の実体JSONや`SKILL.md`に過去の管理運用向け必須項目が残っていても、通常タスクではこの契約の自動選択、管理成果物無効、製品品質優先を先に適用する。個別定義は、依頼された正式成果物または製品安全上の直接要件に必要な範囲でだけ有効になる。
+
+- ルートAIは依頼内容、変更対象、必要な品質確認から、利用する部品と組み合わせを自動選択する。ユーザーへ完全名の指定を求めない。
+- 部品は、自分の責務に必要な最小限の入力だけを読み、全Phase成果物、全台帳、全AI基盤文書を一括で読み込まない。
+- 部品は、直接の製品成果物、関連テスト、製品安全上必要な判断だけを出力する。ユーザーが指定していない計画書、設計書セット、ログ、receipt、証跡、Gate packet、台帳、index同期を追加しない。
+- 部品が定義上管理用成果物を出力候補に持つ場合でも、通常タスクでは出力を省略し、チャットの最終報告へ必要な結論だけを返す。
+- 部品は、自分の作業を完了するためだけに別のAgent、Skill、Orchestrator、Human Gateを連鎖起動しない。独立作業が製品品質または安全上必要な場合だけ、最小限の部品を選択する。
+- 部品は、次のStep、Phase、レビュー、Gateを自動開始しない。必要な次の行動は提案として返し、実行は現在の依頼範囲に限定する。
+- 外部API、Broker、実取引、Secret、費用、重要データの物理削除は、部品の自動選択によって許可されたことにしない。実行前にユーザー確認を求める。
+- 管理用hash、manifest、stale判定、fingerprint、hash retry、runtime receiptは、製品の安全・データ・再現性に直接必要な場合を除き作成しない。管理目的だけなら作成せず、ユーザー向け成果物の品質確認で代替する。
+- 部品の個別定義にある「明示された部品だけ」「必須receipt」「必須evidence」「必須Human Gate」「必須doc/index更新」は、ユーザー依頼または製品安全上の直接的な必要性がない通常タスクでは必須条件にしない。
 
 ## 目的
 
@@ -39,25 +55,24 @@
 
 ## 発火ルール
 
-- ユーザーが使用を指定した場合だけ、プロンプトにOrchestrator、Agent、Skillの完全名を明記する。
-- AI部品タスクでも、既存部品を推測起動しない。指定部品が明示されていない場合は、通常の単一AI作業として処理する。
-- 指定部品が存在しない場合は、ユーザーへ不足部品名と代替可否を報告して停止する。既存部品を勝手に代替起動しない。
+- 依頼内容から利用部品を自動選択する。ユーザーが完全名を指定していなくても、既存定義と責務境界に基づき適切な部品を選ぶ。
+- 指定部品が存在しない場合は、既存定義から責務の近い部品を自動選択できる。ただし、責務、入力、出力、安全境界が大きく変わる場合はチャットで説明してから進める。
 - `default_orchestrator` は明示承認なしに変更しない。
-- AI部品を利用した事実を証明するためのreceipt、Agent一覧、runtime fallback記録を、明示依頼なしに作成しない。
+- AI部品を利用した事実を証明するためだけのreceipt、Agent一覧、runtime fallback記録を作成しない。
 
 ### 資料・コード参照効率化の専用部品
 
-- 新規・大幅変更のMarkdown／HTMLは、ユーザーが文書管理を依頼した場合だけ、A07相当のmetadata-only判定へ1ファイル単位で渡せる。管理用hash、manifest hash、stale判定、hash mismatch retryは要求しない。
+- 新規・大幅変更のMarkdown／HTMLは、依頼内容から必要な場合だけ、A07相当のmetadata-only判定へ1ファイル単位で渡せる。ただし、文書管理だけを目的に自動起動せず、管理用hash、manifest hash、stale判定、hash mismatch retryは要求しない。
 - A07はpath、artifact_id、title、見出し、目的、関係、変更種別、状態をstrict JSONで返し、manifestを直接書き換えない。schema、link、Secret、path、状態の非hash確認または理由付きBLOCKEDを受け取る。
 - A08はschema、状態、path境界、関係、見出しを使ってprimary 1〜3件、supporting 0〜6件、JIT範囲、不足情報を返す。snapshot hash、stale hash、manifest hashを入力・出力・判定条件にしない。
 - A07/A08はネットワーク、外部MCP、Secret、任意path、Git stage／commit／push、本文全量保存を禁止する。入力不整合、Secret疑い、状態不明、境界不明は`blocked`またはfail-closedとする。
 - CTXMAPのA07、A08、A80を使用する場合は、Agent JSONの `model` と `reasoning_effort` を正本とする。通常タスクではruntime dispatch、sanitized receipt、管理用hash receiptを作成しない。
 - 文書作成、設計書セット作成、Python実装、AI部品変更でこれらの専用部品を使う場合は、path、schema、link、Secret、状態、要件追跡の非hash確認だけを行う。validatorのhash PASSを通常タスクの完了条件にしない。
-- この専用部品は、ユーザーが利用を明示した場合だけ起動する。保存のたびにOrchestratorを起動しない。
+- この専用部品は、依頼内容から参照範囲の絞り込みが必要な場合だけ自動選択する。保存のたびにOrchestratorを起動しない。
 
 ### 保護hash限定ガード（Step 07以降）
 
-- ユーザーがAI部品、運用ルール、保護対象hashの変更レビューを明示した場合だけ、新規・大幅変更の文書、計画、ソース、テスト、受入条件、receipt、AI部品に対して `AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1` を静的判定として発火できる。
+- AI部品、運用ルール、保護対象hashの変更に管理用hash再導入の疑いがある場合だけ、`AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1`を自動選択して静的判定を行える。A95実行自体を証明するreceiptや台帳は作成しない。
 - A95と`autotrade_skill_protected_hash_policy_guard_v0_1`はhash値を計算・取得・保存・比較せず、manifest、stale、fingerprint、hash retryも作らない。出力は対象、候補、`ALLOW`／`NEEDS_HUMAN_GATE`／`BLOCKED`、理由、修正提案だけとする。
 - `ALLOW`は安全・データ・再現性への直接因果、保護対象、失敗時停止範囲が明記された既存のprotected hashだけに限定する。用途不明は`NEEDS_HUMAN_GATE`、管理目的の再導入は`BLOCKED`とする。
 - A95はA07/A08の文章manifest責務を代替・復活させず、A07/A08を起動してmanifestを追加しない。新規・大幅変更の通常確認はpath、schema、link、Secret、状態、要件追跡で行う。
@@ -84,8 +99,8 @@
 
 ### 実ランタイム起動・待機・Fallback契約
 
-- ユーザーがOrchestratorやAgentの利用を明示した場合だけ、完全名、JSON、model、必要な `reasoning_effort` を確認し、利用可能なら `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` を使う。
-- 明示利用時の独立レビューを説明する場合は、起動状況を正確に報告する。起動不能を独立実行済みと表現しない。
+- AIが独立作業の必要性を判断してOrchestratorやAgentを選択した場合は、完全名、JSON、model、必要な `reasoning_effort` を確認し、必要な場合だけ `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` を使う。
+- AI部品を利用した独立レビューを説明する場合は、起動状況を正確に報告する。起動不能を独立実行済みと表現しない。
 - 通常タスクでは、spawn／wait、runtime receipt、fallback記録、Agentごとのstatus記録を要求しない。
 - Human Gate未承認、外部I/O／Secret／費用／実資金の範囲逸脱、UnknownのPass、Critical／High未解決、`default_orchestrator`変更は、AI部品利用の有無にかかわらず安全上必要な場合はFail-closedで停止する。
 
@@ -130,32 +145,32 @@
 
 ## Phase実行計画ルール
 
-- ユーザーがPhase実行計画書を明示的に依頼した場合だけ、そのPhaseの実行計画書を作成する。
+- Phase実行計画書の作成が依頼内容に含まれる場合だけ、そのPhaseの実行計画書を作成する。計画用AI部品は、ユーザーの名前指定なしにAIが自動選択する。
 - 作成する場合の保存先、Step分割、プロンプト記載、補助HTMLの扱いは、ユーザーの指定範囲に限定する。
-- 計画書作成でAI部品を使用する場合だけ、`AutoTradePhasePlanning_Orchestrator_v0_1`、`AutoTrade_A05_PhaseExecutionPlanner_v0_1`、`autotrade_skill_phase_execution_planning_v0_1`を指定する。
+- 計画書作成では、`AutoTradePhasePlanning_Orchestrator_v0_1`、`AutoTrade_A05_PhaseExecutionPlanner_v0_1`、`autotrade_skill_phase_execution_planning_v0_1`を必要に応じて自動選択する。部品名の明示は要求しない。
 - 通常タスクではPhase計画書、複数Step、後続プロンプト、doc/index導線を自動作成しない。
 
 ## AI部品作成変更ルール
 
-- ユーザーがSkill、サブエージェント、オーケストレータの作成または変更を明示的に依頼した場合だけ、既存の汎用部品を調査し、必要な実体を更新する。
-- AI部品の作成または変更でAI部品を使用する場合だけ、`AutoTradeComponentLifecycle_Orchestrator_v0_1`、`AutoTrade_A06_AiComponentEngineer_v0_1`、`autotrade_skill_ai_component_lifecycle_v0_1`を指定する。
-- 関連仕様書や導線の更新は、ユーザーが正式仕様の更新まで依頼した場合だけ行う。通常のコード変更でAI基盤仕様書を更新しない。
+- AI部品の作成または変更と判断した場合は、既存の汎用部品を調査し、必要な実体を更新する部品を自動選択する。
+- AI部品の作成または変更では、`AutoTradeComponentLifecycle_Orchestrator_v0_1`、`AutoTrade_A06_AiComponentEngineer_v0_1`、`autotrade_skill_ai_component_lifecycle_v0_1`を必要に応じて自動選択する。部品名の明示は要求しない。
+- 関連仕様書や導線の更新は、ユーザーが正式仕様の更新を依頼した場合、または利用者向けのAI部品契約が実際に変わる場合だけ行う。通常のコード変更でAI基盤仕様書を更新しない。
 
 ## 設計書セット作成ルール
 
-設計書セットの作成、レビュー、`doc/index.html`導線更新は、ユーザーが正式な設計書セットを明示的に依頼した場合だけ行う。通常の機能修正では、必要な設計判断をコードまたは既存仕様へ最小限反映し、設計書セット用のAI部品や管理成果物を起動しない。
+設計書セットの作成、レビュー、`doc/index.html`導線更新は、依頼内容に正式な設計書セットが含まれる場合だけ行う。その場合のAI部品は、ユーザーの名前指定なしに自動選択する。通常の機能修正では、必要な設計判断をコードまたは既存仕様へ最小限反映し、設計書セット用の管理成果物を起動しない。
 
 ## UIモック専用部品ルール
 
-- UIモックの生成では、まず `autotrade_skill_ui_mock_generation_v0_1`、`AutoTrade_A170_UiMockEngineer_v0_1`、`AutoTradeProject_UiMock_Orchestrator_v0_1` を完全名で指定する。
+- UIモックの生成では、`autotrade_skill_ui_mock_generation_v0_1`、`AutoTrade_A170_UiMockEngineer_v0_1`、`AutoTradeProject_UiMock_Orchestrator_v0_1`から必要な部品をAIが自動選択する。ユーザーに完全名の指定を求めない。
 - 視覚・アクセシビリティの確認は生成担当と分離し、`AutoTrade_A171_UiVisualQaReviewer_v0_1` と `autotrade_skill_ui_visual_validation_v0_1`、`autotrade_skill_ui_accessibility_validation_v0_1` を使う。
 - UI部品は固定Seed・固定基準日時の匿名ダミーデータだけで動かし、Broker、実市場データ、実口座、Secret、外部AIサービス、実注文へ接続しない。
 - 正式合否は固定された `@playwright/test`、Storybook、Vitest/axe、受入確認表で判定する。AI向け `playwright-cli` は匿名ローカルモックの探索補助に限り、探索結果をPassへ変換しない。
 - UIソース、Storybook、スクリーンショットは正式要件HTML、追跡表、機械Gate証跡の代替ではない。Unknown、未確認viewport、未確認状態、Critical/High指摘を残したまま合格にしない。
 - 生成・レビュー部品は、単一運用者・認証不要という要件を変更せず、認証、ユーザー管理、権限管理を追加しない。
 
-- ユーザーが正式な設計書セットを明示した場合だけ、`AutoTradeProject_DesignDocSet_Orchestrator_v0_1`、`AutoTrade_A81_DesignDocSetWriter_v0_1`、`autotrade_skill_design_doc_set_writer_v0_1`を使用できる。
-- 単体HTML、相互リンク、Unknown、レビュー履歴、`doc/index.html`導線の整合は、ユーザーがその品質確認を依頼した範囲だけで扱う。
+- 依頼内容に正式な設計書セットが含まれる場合は、`AutoTradeProject_DesignDocSet_Orchestrator_v0_1`、`AutoTrade_A81_DesignDocSetWriter_v0_1`、`autotrade_skill_design_doc_set_writer_v0_1`から必要な部品をAIが自動選択する。
+- 単体HTML、相互リンク、Unknown、レビュー履歴、`doc/index.html`導線の整合は、依頼内容と製品利用に必要な範囲だけで扱う。
 - 通常の機能修正では、設計書セット、正式HTML、doc/index更新、レビュー履歴を自動作成しない。
 
 ## 実装詳細設計書ルール
@@ -171,8 +186,8 @@
 - 構造図と受渡し表には、APIキー、認証値、口座情報などの秘密を載せない。固定の型名を示す場合も、受け渡す値の意味と、欠落・不明時に先へ進めない条件を表で説明する。
 - 8章以降などの詳細契約表には、各表の前に「何を説明し、読者が何を判断できる表か」を平易な日本語で記す。テスト表の各セルは単語のみで済ませず、技術者以外にも条件・操作・期待結果・合否が分かる文章にする。
 - `doc/phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html` v0.5は上記読解順・日本語表現・Mermaid図・試験記述の具体的な書式参照とする。ただし、Phase 2固有の技術判断、外部仕様、Unknownを他の設計書へ自動適用してはならない。
-- ユーザーが実装可能な詳細設計書セットを明示した場合だけ、`AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、`AutoTrade_A82_ImplementationDetailDesigner_v0_1`、`AutoTrade_A91_ImplementationDetailReviewer_v0_1`、関連Skillを使用する。
-- A91、A90、A80、A81によるレビュー閉ループは、ユーザーがそのレビューを依頼した場合だけ完了条件にする。
+- 依頼内容に実装可能な詳細設計書セットが含まれる場合は、`AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、`AutoTrade_A82_ImplementationDetailDesigner_v0_1`、`AutoTrade_A91_ImplementationDetailReviewer_v0_1`、関連Skillから必要な部品をAIが自動選択する。
+- A91、A90、A80、A81によるレビュー閉ループは、設計書セットの品質に直接必要な範囲でAIが選択する。通常の機能修正では完了条件にしない。
 - 通常の機能修正では、設計書の不足を理由に実装を停止しない。安全や製品仕様に関わる未確定事項だけは、実装前にユーザーへ確認する。
 
 ## 安全ルール

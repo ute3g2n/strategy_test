@@ -4,13 +4,13 @@
 
 この節は、ユーザーが別の運用を明示しない限り、通常の機能追加、不具合修正、調査、仕様書・マニュアルの更新に適用する標準ルールである。通常タスクは、関連箇所の調査、必要な実装、変更リスクに応じた関連テスト、必要な利用者向け文書の更新、チャット報告だけで完了できる。
 
-- Phase実行計画、Agent、Skill、Orchestrator、Human Gate、runtime receipt、実行ログ、完了packet、管理用hash、manifest、stale判定、管理用台帳同期は、ユーザーが明示的に要求した場合または外部接続、実取引、費用、Secret、重要データの物理削除など実害があり得る操作に必要な場合だけ実行する。
+- Phase実行計画、Agent、Skill、Orchestratorは、依頼内容に応じてAIが自動選択してよい。Human Gate、runtime receipt、実行ログ、完了packet、管理用hash、manifest、stale判定、管理用台帳同期は、製品安全に直接必要な場合またはユーザーが成果物として求めた場合だけ実行する。
 - ユーザーが成果物や変更対象を指定した場合は、指定された範囲だけを変更し、追加の計画書、証跡、台帳、Git操作を行わない。
-- Agent、Skill、Orchestratorの定義は利用可能な道具として保持するが、通常タスクでは自動起動しない。
+- Agent、Skill、Orchestratorの定義は利用可能な道具として保持し、依頼内容に合うものをAIが自動選択できる。自動選択した部品もPRODUCT_ONLY部品契約を継承し、管理専用成果物を増やさない。
 - 仕様書・計画書・マニュアル・総合台帳は、ユーザーの依頼、製品仕様の変更、ユーザー操作の変更、または実用上の一元管理が必要な場合だけ更新する。
 - 外部接続、Secret、費用、実取引、重要データの物理削除は、通常モードでも実行前にユーザー確認を必要とする。
 - 無関係な既存変更を上書きしない、Secretを保存しない、破壊的操作を安全に扱う、変更リスクに応じたテストを行う、という製品・データ安全上の制約は常に維持する。
-- この節と後続の既存ルールが通常タスクについて矛盾する場合は、この節を優先し、後続ルールはユーザーが明示した高度な運用または該当する専門作業にだけ適用する。
+- この節と後続の既存ルールが通常タスクについて矛盾する場合は、この節を優先し、後続ルールはPRODUCT_ONLY部品契約の範囲で読み替える。
 
 ## 入口
 
@@ -90,11 +90,11 @@ WSL隔離品質ゲートは、ユーザーが明示的に隔離実行を依頼�
   `AutoTrade_A172_WebProductUiEngineer_v0_1`
 - 汎用Skills:
   `.codex/skills/autotrade_skill_*_v0_1/`
-  Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を、ユーザーが計画書を依頼した場合だけ使う。
-  AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を、実際にAI部品を作成・変更するときだけ使う。
-  A95と `autotrade_skill_protected_hash_policy_guard_v0_1` は、ユーザーがAI部品や管理ルールの変更レビューを明示した場合だけ使う。通常のコード、テスト、仕様書、マニュアル変更では起動しない。
-  UI、Web製品UI、実装詳細設計、Python品質ループ用の専用部品は、該当作業でユーザーが利用を求めた場合または独立レビューが実質的に必要な場合だけ使う。
-  実行証跡、Run Manifest、固定Gate、A95判定、hash receiptは、明示的にその運用を指定された場合だけ作成する。通常の関連テストでは、結果をチャットで報告し、証跡ファイルを作成しない。
+  Phase実行計画作成では、計画書が依頼内容に含まれる場合に `autotrade_skill_phase_execution_planning_v0_1` を自動選択できる。ユーザーがSkill名を指定する必要はない。
+  AI部品作成・変更では、該当するとAIが判断した場合に `autotrade_skill_ai_component_lifecycle_v0_1` を自動選択できる。通常のコード変更でAI部品の管理処理を追加しない。
+  A95と `autotrade_skill_protected_hash_policy_guard_v0_1` は、管理用hash再導入の疑いなど直接の判定理由がある場合だけ自動選択する。A95実行のreceiptや台帳は作成しない。
+  UI、Web製品UI、実装詳細設計、Python品質ループ用の専用部品は、該当作業と品質リスクに応じてAIが自動選択する。選択した部品も、関連テストと製品成果物以外を通常タスクへ追加しない。
+  実行証跡、Run Manifest、固定Gate、A95判定、hash receiptは、ユーザーが指定した場合または製品・データ安全上の直接的な必要性がある場合だけ作成する。通常の関連テストでは、結果をチャットで報告し、証跡ファイルを作成しない。
 - CTXMAPの旧commit／watch／validatorによる管理hash経路は通常経路から廃止した。`scripts/context_index/auto-commit.sh`、watcher、context Gateは管理用hashを計算・照合・retryせず、現行成果物の完了条件にも使わない。必要な保護対象hash、Secret、外部I/O、Human Gate、Unknown、対象範囲、権限境界は別途維持する。
 - `npm run watch-start`、`npm run watch-commit` は旧運用の履歴入口として扱い、現行の新規文書・大幅変更・ソース変更では起動しない。A95の静的ポリシー判定とpath、schema、link、Secret、状態確認を使用する。
 - Phase 1専用部品:
@@ -103,11 +103,11 @@ WSL隔離品質ゲートは、ユーザーが明示的に隔離実行を依頼�
   これらは `frozen / legacy / phase1証跡` として扱い、新規Phase実行の標準部品には使わない。
 
 - 実ランタイム起動契約:
-  ユーザーがOrchestratorやAgentの利用を明示した場合だけ、`multi_agent_v1__spawn_agent`／`multi_agent_v1__wait_agent`による実起動、指定Agentのwait、定義JSONのmodel確認を行う。起動不能時のfallback記録も、その明示依頼に含まれる場合だけ作成する。通常タスクでは、Agent一覧、runtime receipt、独立実行証跡を要求しない。外部I/O、Secret、費用、実取引、重要データ削除に関する安全停止は常に維持する。
+  AIが独立作業の必要性を判断してOrchestratorやAgentを自動選択する場合でも、直接実行または最小限の子部品起動を優先する。`multi_agent_v1__spawn_agent`／`multi_agent_v1__wait_agent`、Agent一覧、runtime receipt、fallback記録は、独立実行の証明が製品品質または安全上必要な場合だけ使用する。外部I/O、Secret、費用、実取引、重要データ削除に関する安全停止は常に維持する。
 
 ## 読み取り順の目安
 
-AI部品の作成、設計、レビュー、Phase実行をユーザーから明示的に依頼された場合は、次の順で確認する。通常の機能修正では、依頼に関係するソースコード、テスト、仕様だけを読む。
+AI部品の作成、設計、レビュー、Phase実行に入る場合は、依頼内容に応じて次の資料を必要な範囲だけ確認する。通常の機能修正では、依頼に関係するソースコード、テスト、仕様だけを読む。ユーザーに部品名の指定を求めない。
 
 1. `README.md`
 2. `settings/language.md`
@@ -118,15 +118,15 @@ AI部品の作成、設計、レビュー、Phase実行をユーザーから明�
 
 ## Phase実行計画
 
-ユーザーがPhase実行計画書の作成を明示的に依頼した場合だけ、`doc/ai_foundation/10_Phase実行計画書作成依頼プロンプト.html`を参照して計画書を作成する。通常の機能追加や不具合修正では、Phase計画書、Step分割、後続プロンプトを作成しない。
+Phase実行計画書の作成が依頼内容に含まれる場合は、`doc/ai_foundation/10_Phase実行計画書作成依頼プロンプト.html`を必要な範囲で参照し、適切な計画用部品をAIが自動選択する。通常の機能追加や不具合修正では、Phase計画書、Step分割、後続プロンプトを作成しない。
 
 ## AI部品作成・変更
 
-ユーザーがAI部品の作成または変更を明示的に依頼した場合だけ、既存再利用の調査、実体更新、仕様更新を行う。必要に応じて `doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html` を参照する。AI部品の変更に対するA95確認も、ユーザーがそのレビューを求めた場合だけ行う。通常の製品コード、テスト、仕様書、マニュアル変更では、AI部品のライフサイクル処理を起動しない。
+AI部品の作成または変更と判断した場合は、既存再利用の調査、必要な実体更新、必要な仕様更新を行う。必要に応じて `doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html` を参照し、ライフサイクル部品をAIが自動選択する。AI部品の変更に管理用hash再導入の疑いがある場合だけA95を自動選択する。通常の製品コード、テスト、仕様書、マニュアル変更では、AI部品の管理成果物を追加しない。
 
 ## 実装詳細設計
 
-ユーザーが実装詳細設計書を明示的に依頼した場合だけ、`AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、`AutoTrade_A82_ImplementationDetailDesigner_v0_1`、`AutoTrade_A91_ImplementationDetailReviewer_v0_1`と関連テンプレートを使用する。通常の機能修正では、必要な設計判断をチャットまたは該当仕様へ最小限記載し、設計書セット、専門レビュー、改訂、再レビューを必須にしない。
+実装詳細設計書が依頼内容に含まれる場合は、`AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、`AutoTrade_A82_ImplementationDetailDesigner_v0_1`、`AutoTrade_A91_ImplementationDetailReviewer_v0_1`と関連テンプレートから必要な部品をAIが自動選択する。通常の機能修正では、必要な設計判断をチャットまたは該当仕様へ最小限記載し、設計書セット、専門レビュー、改訂、再レビューを必須にしない。
 
 ## 品質確認ルール（PRODUCT_ONLY）
 

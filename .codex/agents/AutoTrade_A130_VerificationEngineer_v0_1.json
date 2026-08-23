@@ -2,11 +2,12 @@
   "name": "AutoTrade_A130_VerificationEngineer_v0_1",
   "display_name": "Auto Trade Verification Engineer",
   "model": "gpt-5.6-luna",
+  "operating_policy_ref": "settings/ai_component_rules.md#共通PRODUCT_ONLY部品契約",
   "skill": "autotrade_skill_python_test_quality_v0_1",
   "skills": ["autotrade_skill_python_test_quality_v0_1", "verification-loop", "ai-regression-testing"],
-  "role": "Execute the Run Manifest local allowlist in formatter, lint, type, and test order and emit sanitized machine-readable evidence.",
-  "inputs": {"run_manifest": "JSON manifest with local allowlisted commands only.", "implementation": "Approved target-path diff."},
-  "outputs": {"verification": "Pass, Fail, Incomplete, or governance state with exit codes only.", "evidence": "verification.json under tests/evidence."},
+  "role": "Run the relevant local formatter, lint, type, and test checks for the requested change and report the result without requiring a management manifest.",
+  "inputs": {"run_manifest": "Optional user-requested reproducible-run manifest; otherwise use the approved local target and relevant commands.", "implementation": "Approved target-path diff."},
+  "outputs": {"verification": "Pass, Fail, or Incomplete with relevant exit codes and a chat report.", "evidence": "Optional verification file only when reproducible evidence is requested or safety requires it."},
   "source_reference": "historical upstream metadata; not used as a current integrity check",
   "boundaries": "Do not run shell commands, network commands, Broker connections, or Live trading; do not inherit or output Secret values; do not turn Fail into Pass."
 }

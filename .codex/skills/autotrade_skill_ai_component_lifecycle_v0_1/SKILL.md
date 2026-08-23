@@ -6,13 +6,22 @@ description: Skill、サブエージェント、オーケストレータの作�
 # autotrade_skill_ai_component_lifecycle_v0_1
 
 ## 目的
-AI実行基盤の部品追加や変更を、実体ファイルだけで終わらせず、再利用調査、実装、仕様更新、検証まで一貫して進める。
+AI実行基盤の部品追加や変更を、PRODUCT_ONLY部品契約に従って必要最小限に進める。部品名は依頼内容から自動選択でき、実体変更、必要な仕様更新、関連確認だけを行う。
+
+## PRODUCT_ONLY部品契約
+
+- ユーザーにAgent、Skill、Orchestratorの完全名を指定させない。依頼内容、変更範囲、品質リスクから適切な既存部品を自動選択する。
+- 部品変更そのもの、関連する製品仕様、必要なテストだけを対象にする。AI部品の利用を証明するためのreceipt、Agent一覧、runtime記録、Gate packet、台帳、index同期を自動作成しない。
+- AI基盤HTML仕様書は、ユーザーが正式な仕様書更新を依頼した場合、またはAI部品の利用者向け契約が実際に変わる場合だけ更新する。
+- A95は管理用hash再導入の直接的な疑いがある場合だけ自動選択する。hash値、manifest、stale、fingerprint、retry、hash receiptを作成しない。
+- `multi_agent_v1__spawn_agent`／`multi_agent_v1__wait_agent`は独立作業が製品品質または安全上必要な場合だけ使う。通常は単一Agentの直接実行を優先し、spawn/waitの証跡を作成しない。
+- 次のPhase、Step、Gate、レビューをこのSkillだけで自動開始しない。必要な提案はチャットで返す。
 
 ## 入力
 - 変更対象または新設対象の要件
 - `.codex/skills/`, `.codex/agents/`, `.codex/orchestrators/`, `.codex/config.json`
 - `settings/ai_component_rules.md`
-- `doc/ai_foundation/03` から `08`
+- `doc/ai_foundation/03` から `08`（正式なAI基盤仕様書の更新または参照が依頼に含まれる場合だけ）
 - `AGENTS.md`, `README.md`, `doc/index.html`
 
 ## 出力
@@ -24,8 +33,8 @@ AI実行基盤の部品追加や変更を、実体ファイルだけで終わら
 1. 既存の汎用Skill、汎用Agent、汎用Orchestratorを調査し、再利用候補と不足責務を分ける。
 2. 新設か変更かを明示し、対象の完全名、責務、境界条件、使用Skillを確定する。
 3. Skill、Agent、Orchestratorの実体を作成または更新する。
-4. `doc/ai_foundation/03` から `08`、`doc/index.html`、必要に応じて `AGENTS.md` と `README.md` を追従更新する。
-5. JSON整合、リンク整合、参照整合を確認し、残課題があれば明記する。
+4. ユーザーが正式仕様書更新を依頼した場合だけ、該当するAI基盤仕様書、`doc/index.html`、共通ルールを必要最小限で更新する。
+5. 変更対象のJSON整合、必要な参照整合、Secret・path・状態を確認し、結果をチャットで報告する。
 
 ## 保護hash限定ルール（HASH-FUTURE-01〜08）
 
@@ -36,17 +45,17 @@ AI実行基盤の部品追加や変更を、実体ファイルだけで終わら
 - 実行receiptはruntime backend、dispatch、ID、JSON path、model、Skill、status、入出力参照、independent、review_mode、fallbackを正本とし、管理hash fieldsを含めない。
 - 新規・大幅変更の成果物は`autotrade_skill_protected_hash_policy_guard_v0_1`と`AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1`へ静的判定を渡す。A95はhash値、manifest、fingerprint、stale、retryを生成しない。
 
-## 実ランタイム起動契約（RDC-AI-COMPONENT-0.2）
+## 実ランタイム起動契約（任意）
 
-AI部品の作成・変更依頼も、完全名を列挙するだけでは実行証拠にならない。ルート実行Agentは変更前に `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` を確認し、`AutoTradeComponentLifecycle_Orchestrator_v0_1` のJSON path、`model=gpt-5.6-terra`、変更範囲、入力、出力、明示されたAgents／Skillsを渡してCoordinatorを実spawnする。CoordinatorはPromptの全Agentを一体ずつspawnし、Agent JSONの固定modelをmodel引数へ渡してwaitする。
+独立作業が製品品質または安全上必要な場合に限り、ルート実行Agentは適切なOrchestrator、Agent、Skillを自動選択し、`multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` を使える。通常の部品変更では単一Agentの直接実行を優先し、runtime receiptやfallback記録を作成しない。
 
-Orchestratorの `agents` map外でもPromptで完全名指定されたAgentを省略しない。各起動について、runtime backend、dispatch mode、親／子ID、JSON path、model、Skills、受付／完了status、出力参照、`independent`、`review_mode`をログへ保存する。spawn／waitや固定model受理ができない場合は、`RUNTIME_DISPATCH_FALLBACK_REQUIRED`、未起動Agent、理由、`agent_id=N/A`、`independent=false`、`review_mode=SELF_REVIEW_FALLBACK`を先に記録し、ルートが責務チェックリストを適用して継続する。起動不能を独立実行済みと表現しない。UnknownのPass、仕様追従欠落、Secret、default変更、Critical／High未解決は別のFail-closed停止条件である。
+spawn/waitを使用した場合も、起動状況はチャットで正直に報告する。起動不能を独立実行済みと表現しない。receipt、fallback packet、子run台帳はユーザーが成果物として求めた場合だけ保存する。UnknownのPass、Secret、default変更、Critical／High未解決は、部品の自動選択とは無関係にFail-closedで扱う。
 
 ## 禁止事項
 - 既存部品を推測で流用しない。
 - 明示されていない部品名へ勝手にリネームしない。
 - 新規作成時に既存名と衝突したまま上書きしない。
-- 仕様書更新を省略しない。
+- ユーザーが依頼していない仕様書更新を追加しない。利用者向け契約が変わる場合だけ必要な正本を更新する。
 - `default_orchestrator` を変更しない。
 - UnknownをPassにしない。
 - A95を文章manifest管理へ拡張しない。管理目的hashの候補は`BLOCKED`、用途不明は`NEEDS_HUMAN_GATE`、直接の保護対象hashだけを目的・停止範囲付きで`ALLOW`とする。
@@ -54,10 +63,9 @@ Orchestratorの `agents` map外でもPromptで完全名指定されたAgentを�
 ## 品質チェック
 - 再利用した既存部品と新設した部品の境界が説明されている。
 - Skill、Agent、Orchestratorの完全名が全成果物で一致している。
-- `doc/ai_foundation/03` から `06` が実体と整合している。
-- `07` と `settings/ai_component_rules.md` が運用ルールを反映している。
-- `08` に今回の追補検証結果が残っている。
-- `doc/index.html` から新規HTMLへ到達できる。
+- `settings/ai_component_rules.md`のPRODUCT_ONLY部品契約と実体変更が整合している。
+- ユーザーが仕様書更新を依頼した場合だけ、該当HTMLと`doc/index.html`の導線を確認する。
+- 実行結果はチャットで報告し、追補検証HTML、receipt、台帳を自動作成しない。
 
 ## Phase依存パラメータ
 - `step_id`

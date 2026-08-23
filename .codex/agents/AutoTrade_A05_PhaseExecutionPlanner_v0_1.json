@@ -2,6 +2,7 @@
   "name": "AutoTrade_A05_PhaseExecutionPlanner_v0_1",
   "display_name": "Auto Trade Phase Execution Planner",
   "model": "gpt-5.6-luna",
+  "operating_policy_ref": "settings/ai_component_rules.md#共通PRODUCT_ONLY部品契約",
   "skill": "autotrade_skill_phase_execution_planning_v0_1",
   "skills": [
     "autotrade_skill_phase_execution_planning_v0_1",
@@ -11,7 +12,7 @@
     "autotrade_skill_html_doc_writer_v0_1",
     "autotrade_skill_protected_hash_policy_guard_v0_1"
   ],
-  "role": "Create phase execution plans that decompose a phase into runnable steps with explicit prompts, dependencies, AI component names, outputs, and gates.",
+  "role": "Create a phase execution plan only when requested, decomposing the requested scope into runnable steps, dependencies, product outputs, and safety checks without requiring user-supplied AI component names.",
   "hash_policy": {
     "management_hashes": "disabled",
     "future_artifacts": "protected_safety_data_reproducibility_only",
@@ -26,48 +27,33 @@
   "outputs": {
     "phase_execution_plan": "Markdown execution plan under plan/.",
     "runnable_step_prompts": "Prompts that can be executed directly in later steps.",
-    "component_mapping": "Selected orchestrator, agents, skills, models, and fallback/stop conditions.",
-    "gate_and_dependency_map": "Sequential/parallel execution order, Human Gates, and dependency rules.",
-    "dispatch_receipt_template": "A per-step receipt schema recording real orchestrator/agent spawn, fixed-model acceptance, wait completion, or an explicit fallback.",
-    "fallback_review_checklist": "A responsibility-by-responsibility checklist for continuing without child agents, clearly marked as non-independent review."
+    "component_mapping": "Only the minimal automatically selected components and product-quality responsibilities, when useful.",
+    "gate_and_dependency_map": "Sequential/parallel execution order and only the safety or user-requested gates that apply.",
+    "dispatch_receipt_template": "Optional only when the user requests reproducible multi-agent execution evidence; never a normal plan output.",
+    "fallback_review_checklist": "Optional only when independent child execution is required for product quality or safety."
   },
+  "management_artifacts_default": "disabled",
   "runtime_dispatch_contract": {
     "version": "RDC-PHASE-PLAN-0.2",
-    "required_tools": [
-      "multi_agent_v1__spawn_agent",
-      "multi_agent_v1__wait_agent"
-    ],
+    "required_tools": [],
     "prompt_generation": [
-      "各Stepの直接実行プロンプトへ、ルートAgentによる指定Orchestratorの実spawn、CoordinatorによるPrompt指定Agent全件の個別spawn、固定model受理、wait完了、receipt保存を埋め込む。",
-      "Promptに列挙されたAgentがOrchestrator JSONのagents map外でも、省略せずJSON path・定義model・Skill・責務を渡して起動試行する。",
-      "spawn／waitが使えない場合のRUNTIME_DISPATCH_FALLBACK_REQUIRED、未起動Agent、理由、agent_id=N/A、independent=false、review_mode=SELF_REVIEW_FALLBACK、自己適用チェックリストを必ず生成する。",
-      "名前の列挙、JSON読込、Skill適用、ルートAgentの自己レビューを、起動済みまたは独立レビュー済みの証拠と書かない。"
+      "各Stepの直接実行プロンプトへ、ユーザーが依頼した成果物と必要な品質・安全確認だけを埋め込む。",
+      "部品は依頼内容とリスクから最小限を自動選択し、ユーザーに完全名の指定を求めない。",
+      "spawn／waitは独立作業が製品品質または安全上必要な場合だけ使い、通常のreceiptやfallback文書を生成しない。",
+      "実行していない独立レビューを実施済みと表現しない。"
     ],
     "fixed_model_policy": "Orchestratorは定義JSONのmodelを明示し、各Agentは定義JSONのmodelを明示する。利用不能時に代替model、代替Agent、default_orchestratorへ置換しない。",
-    "receipt_fields": [
-      "runtime_backend",
-      "dispatch_mode",
-      "orchestrator_agent_id",
-      "agent_id",
-      "json_path",
-      "model",
-      "skills",
-      "accepted_status",
-      "completion_status",
-      "output_reference",
-      "independent",
-      "review_mode"
-    ]
+    "receipt_fields": []
   },
   "boundaries": [
-    "Do not create a single-step plan.",
-    "Do not omit explicit AI component full names in prompts.",
+    "Do not create a single-step plan when a plan file is explicitly requested.",
+    "Do not require explicit AI component full names in prompts; include names only when they are useful to the requested handoff.",
     "Do not use phase-specific components unless the plan records the reason and freeze condition.",
     "Do not change default_orchestrator.",
     "Do not treat Unknown items as Pass.",
-    "Do not claim a named Agent or independent review ran without a matching dispatch receipt.",
+    "Do not claim a named Agent or independent review ran when it did not run.",
     "Do not add management hashes to plans, step acceptance, receipts, or handoff prompts; an unclear hash purpose becomes Unknown/Human Gate.",
-    "Use AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1 for a static check of new or substantially changed plan artifacts. A95 must not calculate hashes, write manifests, or retry.",
-    "Do not omit the fallback disclosure and responsibility checklist when the nested runtime cannot spawn children."
+    "Use AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1 only when a management-hash reintroduction concern is directly present. A95 must not calculate hashes, write manifests, or retry.",
+    "Do not create fallback disclosures or responsibility checklists unless independent child execution was directly required."
   ]
 }

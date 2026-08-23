@@ -5,13 +5,15 @@ description: UIモックの名前、役割、キーボード操作、focus、コ
 
 # autotrade_skill_ui_accessibility_validation_v0_1
 
+このSkillは `settings/ai_component_rules.md#共通PRODUCT_ONLY部品契約` を継承する。アクセシビリティ上必要な確認は維持するが、run_id、evidence_root、Human Gate、台帳、証跡ファイルは依頼または安全上必要な場合だけ使う。
+
 ## 目的
 
 画面を色だけに頼らず読めて、キーボードでも操作でき、Dialog・Form・Tableの名前と役割が伝わることを機械検査と実ブラウザ操作で確認する。axeの結果は重要な入力と結合し、運用者が安全状態を理解できるかを別途確認する。
 
 ## 入力
 
-- `phase_id`、`step_id`、`evidence_root`、`human_gate_policy`
+- 画面、状態、重要操作、期待されるfocus順。`phase_id`、`step_id`、`evidence_root`、`human_gate_policy`は依頼または安全上必要な場合だけ使う。
 - 画面ID、UI状態ID、テストID、重要操作、警告・停止・復旧の文言
 - Storybook、Vitest、`@storybook/addon-a11y`、`axe-core`の設定
 - PC・スマートフォンviewport、キーボード操作表、期待されるfocus順
@@ -43,7 +45,7 @@ description: UIモックの名前、役割、キーボード操作、focus、コ
 - axeのCritical/Serious（またはプロジェクト重大度でCritical/High）違反が0件。
 - 主要操作がキーボードだけで到達・実行・取消でき、focusが視認できる。
 - `aria`属性やroleを追加した場合、実際の画面名・役割・状態と一致している。
-- 実Chromiumの証跡があり、jsdomのみの成功を正式合否にしない。
+- 実Chromiumで確認し、jsdomのみの成功を正式合否にしない。ファイル証跡は依頼または再現可能な検証時だけ残す。
 - 未確認viewport・未確認状態・警告をUnknownに残し、決定時期・開始条件・停止条件・証拠先を付ける。
 
 ## Phase依存パラメータ

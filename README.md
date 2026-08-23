@@ -46,9 +46,9 @@
 
 ## AI実行基盤
 
-### 任意利用のAI部品
+### 自動選択するAI部品
 
-以下のAI部品は、ユーザーが完全名を指定した場合、または独立した大規模作業・安全レビューが実質的に必要な場合だけ使用します。通常の機能追加、不具合修正、関連テストでは自動起動しません。
+以下のAI部品は、依頼内容、変更範囲、品質リスクに応じてAIが自動選択します。ユーザーが完全名を指定する必要はありません。選択した部品はPRODUCT_ONLY部品契約に従い、管理専用成果物を増やしません。
 
 - Orchestrator:
   `AutoTradeProject_Orchestrator_v0_1`
@@ -87,28 +87,28 @@
   `AutoTrade_A172_WebProductUiEngineer_v0_1`
 - Skills:
   `.codex/skills/autotrade_skill_*_v0_1/`
-  Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を、計画書を明示依頼された場合だけ使います。
-  AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を、AI部品そのものの変更を明示依頼された場合だけ使います。
-  A95と `autotrade_skill_protected_hash_policy_guard_v0_1` は、AI部品・運用ルール・保護対象hashの変更レビューを明示依頼された場合だけ使います。管理用hash、manifest、stale、fingerprint、hash retry、receiptを通常タスクで作成しません。
-  UI、Web製品UI、実装詳細設計、Python品質ループの専用部品は、該当する専門作業で明示指定された場合だけ使います。通常の関連テストでは、結果をチャットで報告し、証跡ファイルを自動生成しません。
+  Phase実行計画作成では、計画書が必要な依頼の場合に `autotrade_skill_phase_execution_planning_v0_1` を自動選択します。
+  AI部品作成・変更では、該当すると判断した場合に `autotrade_skill_ai_component_lifecycle_v0_1` を自動選択します。
+  A95と `autotrade_skill_protected_hash_policy_guard_v0_1` は、管理用hash再導入の疑いなど直接の判定理由がある場合だけ自動選択します。管理用hash、manifest、stale、fingerprint、hash retry、receiptを通常タスクで作成しません。
+  UI、Web製品UI、実装詳細設計、Python品質ループの専用部品は、該当する作業と品質リスクに応じて自動選択します。関連テストの結果はチャットで報告し、証跡ファイルを自動生成しません。
 
 ### Phase実行計画
 
-Phase実行計画書は、ユーザーが明示的に依頼した場合だけ作成します。通常の機能追加や不具合修正では、Phase計画書、複数Step、後続プロンプトを作成しません。
+Phase実行計画書は、依頼内容に計画書作成が含まれる場合だけ作成します。その場合の計画用AI部品は、AIが自動選択します。通常の機能追加や不具合修正では、Phase計画書、複数Step、後続プロンプトを作成しません。
 
 標準の依頼プロンプトは [Phase実行計画書作成依頼プロンプト](./doc/ai_foundation/10_Phase実行計画書作成依頼プロンプト.html) を参照してください。
 
 ### AI部品作成・変更
 
-AI部品の作成または変更を明示的に依頼された場合だけ、既存再利用を調査し、必要な実体と指定された仕様を更新します。必要に応じて [AI部品作成更新依頼プロンプト](./doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html) を参照します。通常の製品コード、テスト、仕様書、マニュアル変更ではAI部品のライフサイクル処理を起動しません。
+AI部品の作成または変更と判断した場合は、既存再利用を調査し、必要な実体と指定された仕様を更新します。必要に応じて [AI部品作成更新依頼プロンプト](./doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html) を参照し、適切なライフサイクル部品を自動選択します。通常の製品コード、テスト、仕様書、マニュアル変更ではAI部品の管理成果物を追加しません。
 
 ### 資料・コード参照効率化
 
-新しいMarkdown／HTML文書、既存文書の大幅変更、ソース・テスト・計画・AI部品の変更では、ユーザーが文書管理やAI部品レビューを明示した場合だけ、必要な非hash確認やA95判定を行います。通常タスクでは管理用manifest、hash取得、stale判定、hash照合、hash retry、hash receipt、Orchestratorを使用しません。詳細な説明資料を追加する場合も、ユーザーが成果物を指定した場合だけ作成します。
+新しいMarkdown／HTML文書、既存文書の大幅変更、ソース・テスト・計画・AI部品の変更では、必要な非hash確認やA95判定をAIが作業内容に応じて選択します。通常タスクでは管理用manifest、hash取得、stale判定、hash照合、hash retry、hash receiptを作成しません。詳細な説明資料を追加する場合も、ユーザーが成果物を指定した場合だけ作成します。
 
 ### 実装詳細設計
 
-実装詳細設計書は、ユーザーが明示的に依頼した場合だけ作成します。その場合は [実装詳細設計書構成標準](./doc/ai_foundation/14_実装詳細設計書構成標準.html)、[実装詳細設計書HTMLテンプレート](./doc/ai_foundation/16_実装詳細設計書HTMLテンプレート.html)、[実装詳細設計書作成依頼プロンプト](./doc/ai_foundation/17_実装詳細設計書作成依頼プロンプト.html) を必要な範囲で参照します。通常の機能修正では、設計書セット、専門レビュー、改訂、再レビュー、実装詳細設計用Orchestratorを必須にしません。
+実装詳細設計書が依頼内容に含まれる場合は、[実装詳細設計書構成標準](./doc/ai_foundation/14_実装詳細設計書構成標準.html)、[実装詳細設計書HTMLテンプレート](./doc/ai_foundation/16_実装詳細設計書HTMLテンプレート.html)、[実装詳細設計書作成依頼プロンプト](./doc/ai_foundation/17_実装詳細設計書作成依頼プロンプト.html)から必要な部品をAIが自動選択します。通常の機能修正では、設計書セット、専門レビュー、改訂、再レビュー、実装詳細設計用Orchestratorを必須にしません。
 
 ### 証跡として残す部品
 

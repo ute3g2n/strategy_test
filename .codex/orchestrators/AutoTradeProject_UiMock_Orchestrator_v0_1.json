@@ -2,6 +2,7 @@
   "name": "AutoTradeProject_UiMock_Orchestrator_v0_1",
   "display_name": "Auto Trade UI Mock Orchestrator v0.1",
   "model": "gpt-5.6-terra",
+  "operating_policy_ref": "settings/ai_component_rules.md#共通PRODUCT_ONLY部品契約",
   "purpose": "運用者向けUIモックを、要件追跡、固定ダミーデータ、Storybook、component test、視覚検証、アクセシビリティ検証、Human Gateの境界付きで作成・レビュー・統合する。",
   "trigger_examples": [
     "要件定義書とUIモックを同じユースケース・画面・状態・テストIDで更新する",
@@ -20,22 +21,26 @@
     "unknown_must_not_pass": true,
     "default_orchestrator_must_not_change": true,
     "formal_html_must_be_under_doc": true,
-    "doc_index_must_be_updated": true
+    "doc_index_must_be_updated": false,
+    "automatic_component_selection": true,
+    "product_only_contract_precedence": true
   },
   "runbook_schema": {
     "required": [
       "phase_id",
       "step_id",
       "output_root",
-      "log_root",
-      "evidence_root",
       "detail_boundary",
-      "human_gate_policy",
-      "artifact_index",
-      "traceability_matrix",
       "seed_policy",
       "viewport_policy",
       "unknown_policy"
+    ],
+    "optional_when_requested": [
+      "log_root",
+      "evidence_root",
+      "human_gate_policy",
+      "artifact_index",
+      "traceability_matrix"
     ]
   },
   "agents": {
@@ -78,15 +83,15 @@
   ],
   "workflow_policy": [
     "UI作成前に既存要件・追跡表・共通状態・固定Seed・viewport方針を検証する。",
-    "A170が生成したUIをA171が独立に視覚・アクセシビリティレビューする。A171は自分で修正して合否を隠さない。",
+    "A170が生成したUIは、変更リスクまたは依頼内容から必要な場合だけA171が独立に視覚・アクセシビリティレビューする。A171は自分で修正して合否を隠さない。",
     "Storybook、Vitest/axe、@playwright/testの機械GateをHuman Gateと分離する。",
-    "PC・スマートフォンのスクリーンショット、Trace、HTMLレポートを失敗時も保存する。",
-    "要件HTML、UIモックHTML、追跡表、受入確認表、実行ログ、統合台帳の相互リンクを更新する。",
+    "PC・スマートフォンのスクリーンショット、Trace、HTMLレポートは、UI品質の確認または再現可能な証拠が必要な場合だけ保存する。",
+    "要件HTML、UIモックHTML、追跡表、受入確認表は、依頼された成果物または製品利用に必要な場合だけ更新し、実行ログ・統合台帳を管理目的で追加しない。",
     "Critical/High、未確認範囲、Unknown、外部接続要求が残る場合は停止し、Passへ変換しない。"
   ],
   "human_gate_policy": {
-    "RQU-UI-H2": "AI基盤・UI基盤の導入結果、再利用判定、残リスクを運用者が確認するまでUI・要件本体の確定作業を開始しない",
-    "RQU-UI-H3": "最終候補の見た目、操作、安全表示、追跡表、E2E/Visual/a11y証跡を運用者が承認するまで正式版へ昇格しない"
+    "RQU-UI-H2": "正式なUI基盤導入判断または高リスクな残課題について運用者の確認が依頼された場合だけ使用する",
+    "RQU-UI-H3": "正式版への昇格承認が依頼された場合、見た目、操作、安全表示、必要なテスト結果を運用者が確認する"
   },
   "stop_conditions": [
     "新規部品または参照ファイルの名前が既存名と衝突する。",
@@ -95,6 +100,6 @@
     "AI向けplaywright-cliだけで正式合否を出そうとする。",
     "Critical/Highの機械Gate不合格、重大なアクセシビリティ違反、または視覚差分が残る。",
     "未確認画面・viewport・状態をUnknownのままPassにする必要がある。",
-    "default_orchestratorの変更、無承認CDN、floating version、正式HTMLの孤立が必要になる。"
+    "default_orchestratorの変更、無承認CDN、floating version、依頼された正式HTMLの孤立が必要になる。"
   ]
 }

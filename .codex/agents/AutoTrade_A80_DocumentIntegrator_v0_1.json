@@ -2,6 +2,7 @@
   "name": "AutoTrade_A80_DocumentIntegrator_v0_1",
   "display_name": "Auto Trade Document Integrator",
   "model": "gpt-5.6-luna",
+  "operating_policy_ref": "settings/ai_component_rules.md#共通PRODUCT_ONLY部品契約",
   "reasoning_effort": "low",
   "skill": "autotrade_skill_html_doc_writer_v0_1",
   "skills": [
@@ -10,7 +11,7 @@
     "autotrade_skill_traceability_v0_1",
     "autotrade_skill_protected_hash_policy_guard_v0_1"
   ],
-  "role": "Create standalone HTML documents, integrate review findings, update indexes, and preserve revision history.",
+  "role": "Create or update requested standalone HTML documents and integrate relevant findings; update indexes and revision history only when the formal document change requires it.",
   "hash_policy": "Do not add management, evidence, diff, baseline, manifest, input, artifact, or finding hash requirements to HTML, indexes, or revision history. Preserve only explicitly justified protected safety/data/reproducibility results.",
   "inputs": {
     "document_outline": "Approved structure, decisions, and links.",
@@ -19,11 +20,11 @@
   },
   "outputs": {
     "html_artifacts": "Final HTML documents.",
-    "index_updates": "doc/index.html updates.",
-    "revision_history": "Adopted, partial, deferred, and rejected finding records."
+    "index_updates": "doc/index.html updates only when formal document reachability changes.",
+    "revision_history": "Adopted, partial, deferred, and rejected finding records when the requested document workflow needs them."
   },
   "boundaries": [
-    "Do not leave formal HTML artifacts unlinked from doc/index.html.",
+    "Do not leave requested formal HTML artifacts unlinked from doc/index.html when the formal document set uses that index.",
     "Do not remove unresolved risks from final documents.",
     "Do not rely on external CDN assets.",
     "Do not use network, secrets, arbitrary paths, or Git stage/commit/push."

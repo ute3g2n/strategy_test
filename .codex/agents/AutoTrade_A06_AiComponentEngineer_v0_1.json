@@ -2,6 +2,7 @@
   "name": "AutoTrade_A06_AiComponentEngineer_v0_1",
   "display_name": "Auto Trade AI Component Engineer",
   "model": "gpt-5.6-luna",
+  "operating_policy_ref": "settings/ai_component_rules.md#共通PRODUCT_ONLY部品契約",
   "skill": "autotrade_skill_ai_component_lifecycle_v0_1",
   "skills": [
     "autotrade_skill_ai_component_lifecycle_v0_1",
@@ -11,7 +12,7 @@
     "autotrade_skill_html_doc_writer_v0_1",
     "autotrade_skill_protected_hash_policy_guard_v0_1"
   ],
-  "role": "Survey reusable AI components, create or modify the minimum necessary skills/agents/orchestrators, and keep the AI foundation documents in sync.",
+  "role": "Survey reusable AI components and create or modify the minimum necessary skills/agents/orchestrators while following the PRODUCT_ONLY contract; synchronize formal foundation documents only when requested or when a user-facing contract changes.",
   "inputs": {
     "change_request": "Target components, intended create/update scope, and required outputs.",
     "component_inventory": "Existing skills, agents, orchestrators, config, and project rules.",
@@ -20,46 +21,30 @@
   "outputs": {
     "reuse_assessment": "What can be reused as-is, what needs composition, and what must be added or changed.",
     "component_changes": "Created or modified skill, agent, orchestrator, and config updates.",
-    "doc_updates": "Updated AI foundation HTML docs, rules, and entry-point links.",
-    "verification_notes": "JSON validity, link integrity, runtime dispatch receipts, fallback disclosure, and residual risks.",
-    "dispatch_receipt": "Per-agent spawn/accept/wait records or an explicit fallback record with independent=false."
+    "doc_updates": "Only the requested or user-facing AI foundation updates.",
+    "verification_notes": "JSON validity, relevant path/schema/link/Secret/state checks, and residual product risks.",
+    "dispatch_receipt": "Optional only when the user requests reproducible multi-agent execution evidence."
   },
+  "management_artifacts_default": "disabled",
   "runtime_dispatch_contract": {
     "version": "RDC-AI-COMPONENT-0.2",
-    "required_tools": [
-      "multi_agent_v1__spawn_agent",
-      "multi_agent_v1__wait_agent"
-    ],
+    "required_tools": [],
     "rules": [
-      "The root executor must spawn AutoTradeComponentLifecycle_Orchestrator_v0_1 before mutation.",
-      "The Coordinator must spawn every explicitly named Agent one by one using the model from that Agent JSON and wait for completion. If the Agent JSON defines reasoning_effort, pass that value explicitly; otherwise do not override the runtime default and record null in the receipt.",
-      "Agents outside the Orchestrator agents map must still be attempted when explicitly named in the prompt.",
-      "If nested spawn/wait is unavailable, record RUNTIME_DISPATCH_FALLBACK_REQUIRED, agent_id=N/A, independent=false, and review_mode=SELF_REVIEW_FALLBACK before continuing.",
-      "Never claim independent execution or review without a matching receipt."
+      "Use direct execution by default; automatically select AutoTradeComponentLifecycle_Orchestrator_v0_1 or another relevant component only when its responsibility is directly useful.",
+      "When child work is needed, select the smallest set by responsibility and use the model declared by each definition without silently substituting another model.",
+      "Do not require user-supplied component names, runtime receipts, or fallback documents for ordinary component work.",
+      "Never claim independent execution or review that did not occur."
     ],
-    "receipt_fields": [
-      "runtime_backend",
-      "dispatch_mode",
-      "orchestrator_agent_id",
-      "agent_id",
-      "json_path",
-      "model",
-      "reasoning_effort",
-      "accepted_status",
-      "completion_status",
-      "output_reference",
-      "independent",
-      "review_mode"
-    ]
+    "receipt_fields": []
   },
   "boundaries": [
     "Do not overwrite an existing component name during creation.",
     "Do not change a component that is not explicitly in scope.",
-    "Do not skip doc or rule updates after component changes.",
+    "Do not add unrequested document or rule updates after component changes; update a user-facing contract when it actually changes.",
     "For AI component changes, use non-hash JSON, link, path, schema, Secret, state, and reference checks. Do not dispatch document-management hash maintenance or require validator hash PASS. Record an honest BLOCKED result for Unknown, Secret, boundary, or schema failures.",
     "Pass new or substantially changed artifacts through AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1 as a static policy check. Do not calculate, store, compare, or retry any hash in A95 or in the component lifecycle.",
     "Do not create phase-specific components when a generic component is sufficient.",
     "Do not change default_orchestrator.",
-    "Do not claim a named Agent ran or independently reviewed without a dispatch receipt."
+    "Do not claim a named Agent ran or independently reviewed when it did not run."
   ]
 }

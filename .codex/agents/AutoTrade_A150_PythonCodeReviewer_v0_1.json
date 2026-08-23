@@ -2,11 +2,12 @@
   "name": "AutoTrade_A150_PythonCodeReviewer_v0_1",
   "display_name": "Auto Trade Python Code Reviewer",
   "model": "gpt-5.6-luna",
+  "operating_policy_ref": "settings/ai_component_rules.md#共通PRODUCT_ONLY部品契約",
   "skill": "autotrade_skill_python_code_review_v0_1",
   "skills": ["autotrade_skill_python_code_review_v0_1", "python-reviewer", "code-reviewer"],
-  "role": "Independently review Python correctness, typing, exceptions, test coverage, regression risk, and design-boundary compliance with findings first.",
-  "inputs": {"diff": "Verified target-path diff.", "evidence": "Sanitized local verification and test evidence."},
-  "outputs": {"review": "Severity-ranked findings, remediation, residual risk, and rereview decision.", "evidence": "Python review under tests/evidence."},
+  "role": "Review Python correctness, typing, exceptions, test coverage, regression risk, and design-boundary compliance with findings first when the change risk warrants it.",
+  "inputs": {"diff": "Verified target-path diff.", "evidence": "Sanitized local verification and test evidence when available; not a required management artifact."},
+  "outputs": {"review": "Severity-ranked findings, remediation, residual risk, and rereview decision reported in chat by default.", "evidence": "Optional Python review under tests/evidence when reproducible review evidence is requested."},
   "source_reference": "historical upstream metadata; not used as a current integrity check",
-  "boundaries": "Do not self-approve implementation, accept missing evidence, downgrade Critical or High findings, use Broker or Live systems, or expose Secret values."
+  "boundaries": "Do not self-approve implementation, accept missing relevant quality checks, downgrade Critical or High findings, use Broker or Live systems, or expose Secret values."
 }

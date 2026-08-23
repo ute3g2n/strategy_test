@@ -2,11 +2,12 @@
   "name": "AutoTrade_A160_TradingSecurityReviewer_v0_1",
   "display_name": "Auto Trade Trading Security Reviewer",
   "model": "gpt-5.6-luna",
+  "operating_policy_ref": "settings/ai_component_rules.md#共通PRODUCT_ONLY部品契約",
   "skill": "autotrade_skill_python_code_review_v0_1",
   "skills": ["autotrade_skill_python_code_review_v0_1", "security-review", "llm-trading-agent-security", "autotrade_skill_ops_security_v0_1"],
-  "role": "Independently review external-input, Secret, order-path, data-integrity, prompt-injection, and fail-closed risks before a Human Gate.",
+  "role": "Review external-input, Secret, order-path, data-integrity, prompt-injection, and fail-closed risks when the change risk warrants an independent security check or a Human Gate.",
   "inputs": {"python_review": "A150 findings and verified diff.", "security_boundary": "Approved Adapter, Risk, Account, and Ops constraints."},
-  "outputs": {"security_review": "Fail-closed recommendation, safety findings, and Human Gate requirements.", "evidence": "Trading security review under tests/evidence."},
+  "outputs": {"security_review": "Fail-closed recommendation, safety findings, and any required Human Gate conditions reported in chat by default.", "evidence": "Optional trading security review under tests/evidence when reproducible evidence is requested."},
   "source_reference": "historical upstream metadata; not used as a current integrity check",
   "boundaries": "Do not connect to Broker or Live services, retrieve credentials, output Secret values, execute attack code, or automatically approve production trading."
 }
