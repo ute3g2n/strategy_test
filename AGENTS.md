@@ -1,5 +1,17 @@
 # Project Codex Configuration
 
+## 通常開発モード（PRODUCT_ONLY）
+
+この節は、ユーザーが別の運用を明示しない限り、通常の機能追加、不具合修正、調査、仕様書・マニュアルの更新に適用する標準ルールである。通常タスクは、関連箇所の調査、必要な実装、変更リスクに応じた関連テスト、必要な利用者向け文書の更新、チャット報告だけで完了できる。
+
+- Phase実行計画、Agent、Skill、Orchestrator、Human Gate、runtime receipt、実行ログ、完了packet、管理用hash、manifest、stale判定、管理用台帳同期は、ユーザーが明示的に要求した場合または外部接続、実取引、費用、Secret、重要データの物理削除など実害があり得る操作に必要な場合だけ実行する。
+- ユーザーが成果物や変更対象を指定した場合は、指定された範囲だけを変更し、追加の計画書、証跡、台帳、Git操作を行わない。
+- Agent、Skill、Orchestratorの定義は利用可能な道具として保持するが、通常タスクでは自動起動しない。
+- 仕様書・計画書・マニュアル・総合台帳は、ユーザーの依頼、製品仕様の変更、ユーザー操作の変更、または実用上の一元管理が必要な場合だけ更新する。
+- 外部接続、Secret、費用、実取引、重要データの物理削除は、通常モードでも実行前にユーザー確認を必要とする。
+- 無関係な既存変更を上書きしない、Secretを保存しない、破壊的操作を安全に扱う、変更リスクに応じたテストを行う、という製品・データ安全上の制約は常に維持する。
+- この節と後続の既存ルールが通常タスクについて矛盾する場合は、この節を優先し、後続ルールはユーザーが明示した高度な運用または該当する専門作業にだけ適用する。
+
 ## 入口
 
 このプロジェクトでAIエージェントが最初に把握すべき場所は次のとおり。
@@ -11,16 +23,16 @@
 - `settings/ai_component_rules.md`
   AI部品の命名、発火制御、保存先、Phase専用部品の作成条件。
 - `doc/index.html`
-  正式なHTML成果物の総合インデックス。
+  正式なHTML成果物を一覧化する場合の入口。通常タスクでは、正式文書の追加・削除・移動がある場合だけ更新する。
 - `doc/00_全Phase残課題Blocked統合台帳.html`
-  Phase 0以降のBlocked、Unknown、残リスク、Human Gate待ちを根本原因でまとめる唯一の正本。新規発見、再オープン、解消はこの台帳へ反映し、旧台帳は履歴・証拠として参照する。
-  人間の承認・認証・利用許可が必要な事項（H1/H2/Human Gate、外部接続、Secret、費用、権限を含む）は、未承認の段階から必ずこの台帳にID、対象、期限、再開条件、証拠先を登録する。台帳にない承認待ちを作業文書だけで管理してはならない。状態確認はこのHTMLだけで完結できるようにする。
+  Phase全体のBlocked、Unknown、残リスク、Human Gate待ちを一元管理する必要がある場合の正本。通常タスクでは、ユーザーが更新を求めた場合または現在状態の一元管理が実用上必要な場合だけ参照・更新する。
+  人間の承認・認証・利用許可が必要な事項は、外部接続、Secret、費用、実取引、重要データの物理削除など、実害があり得る場合に限り、対象と再開条件を確認する。通常タスクで未承認事項を自動的に台帳へ登録しない。
 - `doc/ai_foundation/`
-  AI実行基盤の棚卸し、移行方針、汎用Skill仕様、汎用Agent仕様、汎用Orchestrator仕様、作成ルール、検証結果。
+  AI実行基盤の過去仕様と任意利用の参考資料。通常タスクでは、該当作業を明示的に依頼された場合だけ読む。
 - `doc/phase1/`
   Phase 1の正式HTML成果物。
 - `plan/`
-  計画書、実行プロンプト、ログ、台帳。
+  ユーザーが指定した計画書や実行プロンプトを保存する場所。通常タスクのログ、receipt、証跡、台帳を自動生成しない。
 
 ## Windows・WSLの作業ツリー規則
 
@@ -37,7 +49,7 @@
 - `.codex/skills/`
   実行可能なSkill定義。
 
-WSL隔離品質ゲートの実行入口は `scripts/wsl_quality_gate/run_test.ps1` だけとする。`run_test.ps1` が内部で `run_isolated_p2.ps1` を呼び出す。native Windowsから実行する場合、対象Runが終了済みであることを確認し、必要なら `-AllowRunningDistro` を付ける。Run ID、固定4 Gate、対象範囲、fixture hashは `scripts/quality_gate/trusted_scopes.json` を正本とし、実行証跡は `tests/evidence/{phase_id}/<RunId>/` に置く。通常WSL NAT、Windows用 `.venv/Scripts/python.exe`、隔離後のpip、markerだけの隔離証明、外部接続を禁止する。ユーザーが対象Runについて「承認します」と明示した場合は、署名なしでHuman Gateを承認済みとして扱う。
+WSL隔離品質ゲートは、ユーザーが明示的に隔離実行を依頼した場合、または外部接続・実取引・Secret・費用などの高リスク検証に必要な場合だけ使用する。使用する場合の実行入口は `scripts/wsl_quality_gate/run_test.ps1` とし、対象Run、対象範囲、fixture、外部接続境界を確認する。通常のローカル機能修正では、WSL隔離、固定Gate、Run証跡、Human Gateを要求しない。
 
 ## AI実行基盤の現状
 
@@ -78,15 +90,11 @@ WSL隔離品質ゲートの実行入口は `scripts/wsl_quality_gate/run_test.ps
   `AutoTrade_A172_WebProductUiEngineer_v0_1`
 - 汎用Skills:
   `.codex/skills/autotrade_skill_*_v0_1/`
-  Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を標準で使う。
-  AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を標準で使う。
-  新規／大幅変更文書、計画、ソース、テスト、AI部品の管理hash再導入判定では `autotrade_skill_protected_hash_policy_guard_v0_1` と `AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1` を使う。A95はhash値、manifest、stale、fingerprint、hash retryを作らず、管理hashはBLOCKED、用途不明はNEEDS_HUMAN_GATE、直接の保護対象hashだけを目的・停止範囲付きでALLOWとする。A07/A08は文章manifest管理の通常経路から起動しない。
-  UIモック作成では `AutoTradeProject_UiMock_Orchestrator_v0_1`、`AutoTrade_A170_UiMockEngineer_v0_1`、`AutoTrade_A171_UiVisualQaReviewer_v0_1` とUI専用Skill 3件を完全名で指定する。正式合否は固定 `@playwright/test`、Storybook、Vitest/axeで判定し、AI向けCLIは匿名ローカル探索に限定する。
-  実Application APIへ接続するWeb製品UIでは `AutoTradeProject_ImplementationQuality_Orchestrator_v0_1`、`AutoTrade_A172_WebProductUiEngineer_v0_1`、`autotrade_skill_web_product_ui_implementation_v0_1` を使い、固定ダミーUIの責務と混ぜない。
-  実装詳細設計では `autotrade_skill_implementation_detail_design_v0_1` と `autotrade_skill_implementation_detail_review_v0_1` を標準で使う。
-  Python本実装の品質ループでは `autotrade_skill_python_implementation_v0_1`、`autotrade_skill_python_test_quality_v0_1`、`autotrade_skill_debug_recovery_v0_1`、`autotrade_skill_python_code_review_v0_1` を明示指定で使う。
-  実行証跡は `tests/evidence/{phase_id}/{run_id}/` に保存し、`scripts/quality_gate/` は `trusted_scopes.json` に登録されたRun IDの固定コマンドだけを実行する。`scope_mode=target_only` のRunは登録済みtarget_pathsだけを試験対象とし、対象外のHEAD/worktree差分では止めない。Phaseのtest subprocessはhost outbound isolation確認がない場合にBLOCKEDとする。
-  新規文書、大幅変更文書、構造変更コードは、完了前にpath、schema、link、Secret、状態、要件追跡の非hash確認とA95の静的ポリシー判定へ渡す。管理用hashのvalidator PASS、manifest更新、stale判定、hash retry、hash receiptは完了条件にしない。A95の未起動を実行済みと偽らず、用途不明はHuman Gateへ送る。
+  Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を、ユーザーが計画書を依頼した場合だけ使う。
+  AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を、実際にAI部品を作成・変更するときだけ使う。
+  A95と `autotrade_skill_protected_hash_policy_guard_v0_1` は、ユーザーがAI部品や管理ルールの変更レビューを明示した場合だけ使う。通常のコード、テスト、仕様書、マニュアル変更では起動しない。
+  UI、Web製品UI、実装詳細設計、Python品質ループ用の専用部品は、該当作業でユーザーが利用を求めた場合または独立レビューが実質的に必要な場合だけ使う。
+  実行証跡、Run Manifest、固定Gate、A95判定、hash receiptは、明示的にその運用を指定された場合だけ作成する。通常の関連テストでは、結果をチャットで報告し、証跡ファイルを作成しない。
 - CTXMAPの旧commit／watch／validatorによる管理hash経路は通常経路から廃止した。`scripts/context_index/auto-commit.sh`、watcher、context Gateは管理用hashを計算・照合・retryせず、現行成果物の完了条件にも使わない。必要な保護対象hash、Secret、外部I/O、Human Gate、Unknown、対象範囲、権限境界は別途維持する。
 - `npm run watch-start`、`npm run watch-commit` は旧運用の履歴入口として扱い、現行の新規文書・大幅変更・ソース変更では起動しない。A95の静的ポリシー判定とpath、schema、link、Secret、状態確認を使用する。
 - Phase 1専用部品:
@@ -95,11 +103,11 @@ WSL隔離品質ゲートの実行入口は `scripts/wsl_quality_gate/run_test.ps
   これらは `frozen / legacy / phase1証跡` として扱い、新規Phase実行の標準部品には使わない。
 
 - 実ランタイム起動契約:
-  Phase計画とAI部品変更の直接プロンプトは、完全名の列挙だけで完了扱いにせず、`multi_agent_v1__spawn_agent`／`multi_agent_v1__wait_agent` によるOrchestrator実起動、指定Agent全件の個別起動、定義JSON固定model、wait完了、受領証跡を要求する。起動不能時は `RUNTIME_DISPATCH_FALLBACK_REQUIRED`、未起動Agent、`agent_id=N/A`、`independent=false`、`review_mode=SELF_REVIEW_FALLBACK`を記録し、ルート責務チェックリストで継続する。未起動を独立実行済みと偽らない。Human Gate、外部I/O、Secret、UnknownのPass、Critical／Highは従来どおり停止する。
+  ユーザーがOrchestratorやAgentの利用を明示した場合だけ、`multi_agent_v1__spawn_agent`／`multi_agent_v1__wait_agent`による実起動、指定Agentのwait、定義JSONのmodel確認を行う。起動不能時のfallback記録も、その明示依頼に含まれる場合だけ作成する。通常タスクでは、Agent一覧、runtime receipt、独立実行証跡を要求しない。外部I/O、Secret、費用、実取引、重要データ削除に関する安全停止は常に維持する。
 
 ## 読み取り順の目安
 
-AI部品の作成、設計、レビュー、Phase実行に入る前は、原則として次の順で確認する。
+AI部品の作成、設計、レビュー、Phase実行をユーザーから明示的に依頼された場合は、次の順で確認する。通常の機能修正では、依頼に関係するソースコード、テスト、仕様だけを読む。
 
 1. `README.md`
 2. `settings/language.md`
@@ -110,16 +118,28 @@ AI部品の作成、設計、レビュー、Phase実行に入る前は、原則�
 
 ## Phase実行計画
 
-各Phaseを開始する前に、まず実行計画書を作成する。標準の依頼プロンプトは `doc/ai_foundation/10_Phase実行計画書作成依頼プロンプト.html` を参照する。計画書は `plan/` 配下へ保存し、複数ステップに分割し、各ステップにそのまま実行できるプロンプトを含める。
+ユーザーがPhase実行計画書の作成を明示的に依頼した場合だけ、`doc/ai_foundation/10_Phase実行計画書作成依頼プロンプト.html`を参照して計画書を作成する。通常の機能追加や不具合修正では、Phase計画書、Step分割、後続プロンプトを作成しない。
 
 ## AI部品作成・変更
 
-Skill、サブエージェント、オーケストレータの作成または変更では、まず既存再利用を調査し、その後に実体更新、最後に仕様と導線を更新する。標準の依頼プロンプトは `doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html` を参照する。
-新しいAI部品または既存AI部品の大幅変更では、`AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1`を静的に発火させる。A95はhashを計算せず、manifestを作らず、管理hashのretryを要求しない。
+ユーザーがAI部品の作成または変更を明示的に依頼した場合だけ、既存再利用の調査、実体更新、仕様更新を行う。必要に応じて `doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html` を参照する。AI部品の変更に対するA95確認も、ユーザーがそのレビューを求めた場合だけ行う。通常の製品コード、テスト、仕様書、マニュアル変更では、AI部品のライフサイクル処理を起動しない。
 
 ## 実装詳細設計
 
-モジュール構成、型付き入出力、永続化、正常・異常系シーケンス、コード例または擬似コード、テストまでを必要とする設計書は、`AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、`AutoTrade_A82_ImplementationDetailDesigner_v0_1`、`AutoTrade_A91_ImplementationDetailReviewer_v0_1` を使用する。構成標準は `doc/ai_foundation/14_実装詳細設計書構成標準.html` を正本、HTML構成は `doc/ai_foundation/16_実装詳細設計書HTMLテンプレート.html`、依頼文は `doc/ai_foundation/17_実装詳細設計書作成依頼プロンプト.html` を使う。最初にドメイン概要、ファイル構成、Mermaidによる構造図、モジュール入出力、Mermaidによる処理フロー、全テストケース表を読める順で置く。コード・固有名詞以外は日本語で説明し、各表の目的を先に示す。専門レビュー、改訂、再レビューを完了してから実装へ引き渡す。
+ユーザーが実装詳細設計書を明示的に依頼した場合だけ、`AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、`AutoTrade_A82_ImplementationDetailDesigner_v0_1`、`AutoTrade_A91_ImplementationDetailReviewer_v0_1`と関連テンプレートを使用する。通常の機能修正では、必要な設計判断をチャットまたは該当仕様へ最小限記載し、設計書セット、専門レビュー、改訂、再レビューを必須にしない。
+
+## 品質確認ルール（PRODUCT_ONLY）
+
+通常タスクの品質確認は、変更内容とリスクに応じて必要な範囲だけ実行する。管理文書、Agent、Gate、receiptの存在を品質確認の代わりにしない。
+
+- 通常のコード変更では、変更したコードと直接関係する自動テストを実行する。
+- 不具合修正では、可能な限り再現条件を固定したテストを追加または実行する。
+- 共通基盤、永続化、注文、ポジション、金額計算、ヒストリカルデータ、削除処理を変更した場合は、主要正常系、重大な異常系、境界値、再実行、データ整合性を変更範囲に応じて確認する。
+- UI変更では、主要操作、処理中状態、成功・失敗表示、二重送信防止、必要なキーボード操作とアクセシビリティを確認する。
+- 外部API境界は、通常はmockまたはlocal fixtureで検証する。実接続、実データ取得、実注文はユーザーの明示許可なしに実行しない。
+- 全テスト、全HTMLリンク検査、全設計レビュー、WSL隔離品質Gateは、共通基盤への変更、広い影響範囲、リリース前確認、またはユーザー指定がある場合だけ実行する。
+- テスト結果は最終チャットへ簡潔に報告する。テスト結果を転載した証跡ファイル、品質Gate票、receiptは通常作成しない。
+- 品質確認の縮小によって、Secret保護、fail-closed、実取引防止、データ削除安全、入力検証を弱めてはならない。
 
 ## 更新ルール
 
@@ -129,17 +149,17 @@ Skill、サブエージェント、オーケストレータの作成または変
 - `doc/`、`plan/`、`.codex/`、`settings/` の役割や保存ルールが変わったとき
 - 新しい入口文書や、最初に読むべき重要ドキュメントが増えたとき
 - 人間やAIが最初に見て迷いやすい構成変更が入ったとき
-- 残課題、Unknown、Blocked、Human Gate、承認状態、再開条件のいずれかを更新したときは、更新対象の行だけで終わらせず、統合台帳全体を検索する。関連するHuman Gate行、Blocked行、Unknown行、最新状態欄、履歴リンクの矛盾を同時に点検し、現在状態をすべて整合させる。古い事実は履歴として残すが、履歴であることを明記する。
+- 残課題、Unknown、Blocked、Human Gate、承認状態、再開条件を総合台帳で管理する必要がある場合は、ユーザーが更新を依頼したときだけ、関連行と現在状態を一度に確認する。通常タスクでは、管理専用の台帳更新や履歴リンク同期を行わない。
 
 軽微な文言修正、ログ増加、成果物追加だけでは毎回更新しなくてよい。
 
 ## タスク完了時のGit処理
 
-- タスク完了判定の直前に、`git status --short`でGit管理下の変更を確認する。
-- Git管理下の変更がある場合は、変更範囲・差分・機械検証結果を確認したうえで、意味のある単位でコミットし、現在のブランチの追跡先へプッシュする。
-- ユーザーが明示的にコミットまたはプッシュを禁止した場合、認証・接続・追跡先が利用できない場合、または差分に意図しない変更・Secret・鍵・個人情報が含まれる場合は、コミット／プッシュせず理由を実行ログと最終報告へ残す。
-- 既存のユーザー変更を混ぜない。コミット前に対象ファイルを一覧化し、今回のタスクで作成・変更したものだけをステージ対象にする。`reset --hard`、`checkout`、force push、履歴書換えは行わない。
-- コミットまたはプッシュが成功した場合は、最終報告に成功したブランチ・コミット・プッシュ先を明記する。失敗した場合は変更を保持したまま停止理由を報告する。
+- commitとpushは、ユーザーが明示的に依頼した場合、または依頼範囲に機能完了時のGit処理が明確に含まれる場合だけ行う。通常のタスク完了時に自動実行しない。
+- ユーザーがcommitまたはpushを依頼した場合は、実行前に対象ファイル、差分、必要な機械検証結果を確認する。
+- ユーザーが「指定ファイルの生成・変更のみ」と指定した場合は、Git操作を行わない。
+- commitする場合も、既存のユーザー変更を混ぜない。`reset --hard`、`checkout`、force push、履歴書換えは行わない。
+- commitまたはpushを行わなかったことを理由に、実行ログ、receipt、管理用台帳を作成しない。必要な説明は最終チャットで簡潔に行う。
 
 @./settings/language.md
 @./settings/ai_component_rules.md

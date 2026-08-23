@@ -13,24 +13,24 @@
 1. `README.md`
 2. `settings/language.md`
 3. `settings/ai_component_rules.md`
-4. `doc/index.html`
-5. `doc/00_全Phase残課題Blocked統合台帳.html`
-6. 必要に応じて `plan/` 配下の計画書
+4. 依頼に関係するソースコードとテスト
+5. 必要に応じて該当する仕様書・操作マニュアル
+6. ユーザーが指定した場合だけ `doc/index.html`、総合台帳、`plan/` 配下の計画書
 
 ## どこに何があるか
 
 - `doc/`
   正式なHTML成果物の保存先。
 - `doc/index.html`
-  すべての正式HTML成果物の入口。
+  正式HTML成果物を一覧化する場合の入口。正式文書の追加・削除・移動がある場合だけ更新する。
 - `doc/00_全Phase残課題Blocked統合台帳.html`
-  Phase 0以降のBlocked、Unknown、残リスク、Human Gate待ちを管理する唯一の正本。旧台帳は履歴として残し、現在の状態はここだけで更新する。
+  Phase全体のBlocked、Unknown、残リスク、Human Gate待ちを一元管理する場合の正本。通常タスクでは自動更新しない。
 - `doc/ai_foundation/`
   AI実行基盤の棚卸し、移行方針、仕様、作成ルール、検証結果。
 - `doc/phase1/`
   Phase 1の正式HTML成果物。
 - `plan/`
-  計画書、実行プロンプト、ログ、台帳。
+  ユーザーが指定した計画書や実行プロンプトの保存先。通常タスクのログ、receipt、証跡、台帳は自動生成しない。
 - `settings/`
   言語ルール、AI部品ルールなどのプロジェクト共通設定。
 - `.codex/skills/`
@@ -46,7 +46,9 @@
 
 ## AI実行基盤
 
-### 標準で使う部品
+### 任意利用のAI部品
+
+以下のAI部品は、ユーザーが完全名を指定した場合、または独立した大規模作業・安全レビューが実質的に必要な場合だけ使用します。通常の機能追加、不具合修正、関連テストでは自動起動しません。
 
 - Orchestrator:
   `AutoTradeProject_Orchestrator_v0_1`
@@ -85,31 +87,28 @@
   `AutoTrade_A172_WebProductUiEngineer_v0_1`
 - Skills:
   `.codex/skills/autotrade_skill_*_v0_1/`
-  Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を使います。
-  AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を使います。
-  新規／大幅変更文書、計画、ソース、テスト、AI部品の管理hash再導入判定では `autotrade_skill_protected_hash_policy_guard_v0_1` と `AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1` を使います。A95はhash値、manifest、stale、fingerprint、hash retryを作らず、管理hashはBLOCKED、用途不明はNEEDS_HUMAN_GATE、直接の保護対象hashだけを目的・停止範囲付きでALLOWとします。A07/A08は文章manifest管理の通常経路から起動しません。
-  UIモック作成では `AutoTradeProject_UiMock_Orchestrator_v0_1`、`AutoTrade_A170_UiMockEngineer_v0_1`、`AutoTrade_A171_UiVisualQaReviewer_v0_1` とUI専用Skill 3件を完全名で指定します。正式合否は固定 `@playwright/test`、Storybook、Vitest/axeで判定し、AI向けCLIは匿名ローカル探索に限定します。
-  実Application APIへ接続するWeb製品UIでは `AutoTradeProject_ImplementationQuality_Orchestrator_v0_1`、`AutoTrade_A172_WebProductUiEngineer_v0_1`、`autotrade_skill_web_product_ui_implementation_v0_1` を使い、固定ダミーUIと実結果UIの境界を維持します。
-  実装詳細設計では `autotrade_skill_implementation_detail_design_v0_1` と `autotrade_skill_implementation_detail_review_v0_1` を使います。
-  Python本実装の品質ループでは `autotrade_skill_python_implementation_v0_1`、`autotrade_skill_python_test_quality_v0_1`、`autotrade_skill_debug_recovery_v0_1`、`autotrade_skill_python_code_review_v0_1` を明示指定します。実行証跡は `tests/evidence/{phase_id}/{run_id}/` に保存し、`scripts/quality_gate/` は `trusted_scopes.json` に登録されたRun IDの固定コマンドだけを実行します。`scope_mode=target_only` のRunは登録済みtarget_pathsだけを試験対象とし、対象外のHEAD/worktree差分では止めません。Phaseのtest subprocessはhost outbound isolation確認がない場合にBLOCKEDとします。
+  Phase実行計画作成では `autotrade_skill_phase_execution_planning_v0_1` を、計画書を明示依頼された場合だけ使います。
+  AI部品作成・変更では `autotrade_skill_ai_component_lifecycle_v0_1` を、AI部品そのものの変更を明示依頼された場合だけ使います。
+  A95と `autotrade_skill_protected_hash_policy_guard_v0_1` は、AI部品・運用ルール・保護対象hashの変更レビューを明示依頼された場合だけ使います。管理用hash、manifest、stale、fingerprint、hash retry、receiptを通常タスクで作成しません。
+  UI、Web製品UI、実装詳細設計、Python品質ループの専用部品は、該当する専門作業で明示指定された場合だけ使います。通常の関連テストでは、結果をチャットで報告し、証跡ファイルを自動生成しません。
 
 ### Phase実行計画
 
-各Phaseを開始する前に、まずそのPhaseの実行計画書を作成します。実行計画書は `plan/` 配下に保存し、必ず複数ステップに分割し、各ステップにそのまま実行できるプロンプトを含めます。
+Phase実行計画書は、ユーザーが明示的に依頼した場合だけ作成します。通常の機能追加や不具合修正では、Phase計画書、複数Step、後続プロンプトを作成しません。
 
 標準の依頼プロンプトは [Phase実行計画書作成依頼プロンプト](./doc/ai_foundation/10_Phase実行計画書作成依頼プロンプト.html) を参照してください。
 
 ### AI部品作成・変更
 
-Skill、サブエージェント、オーケストレータの作成または変更では、まず既存再利用を調査し、その後に実体更新、最後に仕様と導線を更新します。標準の依頼プロンプトは [AI部品作成更新依頼プロンプト](./doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html) を参照してください。
+AI部品の作成または変更を明示的に依頼された場合だけ、既存再利用を調査し、必要な実体と指定された仕様を更新します。必要に応じて [AI部品作成更新依頼プロンプト](./doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html) を参照します。通常の製品コード、テスト、仕様書、マニュアル変更ではAI部品のライフサイクル処理を起動しません。
 
 ### 資料・コード参照効率化
 
-新しいMarkdown／HTML文書、既存文書の大幅変更、ソース・テスト・計画・AI部品の変更は、path、schema、link、Secret、状態、要件追跡の非hash確認とA95の静的ポリシー判定へ渡します。管理用manifest、hash取得、stale判定、hash照合、hash retry、hash receiptは完了条件にしません。日常保守では常時Orchestratorを起動せず、AI部品そのものの作成・変更だけをComponentLifecycleへ渡します。詳細な最終説明資料は、システム完成後に正式HTMLとして追加します。
+新しいMarkdown／HTML文書、既存文書の大幅変更、ソース・テスト・計画・AI部品の変更では、ユーザーが文書管理やAI部品レビューを明示した場合だけ、必要な非hash確認やA95判定を行います。通常タスクでは管理用manifest、hash取得、stale判定、hash照合、hash retry、hash receipt、Orchestratorを使用しません。詳細な説明資料を追加する場合も、ユーザーが成果物を指定した場合だけ作成します。
 
 ### 実装詳細設計
 
-実装者がそのまま着手するための設計書は、まず誰にでも分かるドメイン概要、ファイル構成、Mermaidによる構造図、モジュールごとの入出力、Mermaidによる処理フロー、全テストケース表を示し、その後に型付き契約、永続化、異常系、コード例または擬似コードを続けます。コード・固有名詞以外は日本語で説明し、表の前には何を判断する表かを記します。標準は [実装詳細設計書構成標準](./doc/ai_foundation/14_実装詳細設計書構成標準.html)、HTML構成は [実装詳細設計書HTMLテンプレート](./doc/ai_foundation/16_実装詳細設計書HTMLテンプレート.html)、依頼文は [実装詳細設計書作成依頼プロンプト](./doc/ai_foundation/17_実装詳細設計書作成依頼プロンプト.html) です。作成から専門レビュー、改訂、再レビューまでは `AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、`AutoTrade_A82_ImplementationDetailDesigner_v0_1`、`AutoTrade_A91_ImplementationDetailReviewer_v0_1` を使います。
+実装詳細設計書は、ユーザーが明示的に依頼した場合だけ作成します。その場合は [実装詳細設計書構成標準](./doc/ai_foundation/14_実装詳細設計書構成標準.html)、[実装詳細設計書HTMLテンプレート](./doc/ai_foundation/16_実装詳細設計書HTMLテンプレート.html)、[実装詳細設計書作成依頼プロンプト](./doc/ai_foundation/17_実装詳細設計書作成依頼プロンプト.html) を必要な範囲で参照します。通常の機能修正では、設計書セット、専門レビュー、改訂、再レビュー、実装詳細設計用Orchestratorを必須にしません。
 
 ### 証跡として残す部品
 
@@ -165,7 +164,9 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\wsl_quality_ga
 
 軽微な成果物追加やログ増加だけでは、毎回更新しなくてよいです。
 
-## 自動コミット監視
+## 自動コミット監視（旧運用・通常は使用しない）
+
+この節は過去のCTXMAP運用を参照するために残している。PRODUCT_ONLYでは、監視、Gate、manifest更新、自動commit、pushを起動しない。ユーザーがこの旧運用の調査・復旧・移行を明示的に依頼した場合だけ、対象範囲を限定して参照する。
 
 このリポジトリの自動コミット経路は、CTXMAP-H1の承認後だけ有効になるローカル監視です。監視の前段で
 `scripts.context_index.context_watch` が変更をまとめ、`check_context_gate.py` が文書・ソースのマニフェスト整合性、Secret、
@@ -235,7 +236,7 @@ Gateは `context/artifact_manifest.json`、`context/manifest_state.json`、`cont
 イベントログと復旧状態は `plan/context_index/runtime/`、前面／起動経路の標準ログは `watch-commit.log` と `watch-commit.err.log` に保存します。
 外部ネットワーク、外部MCP、永続サービス、Secret本文の送信はこの経路では行いません。
 
-## 自動コミットの注意
+## 自動コミットの注意（旧運用の履歴）
 
 - `.git`、`node_modules`、`.env`、`.env.*`、`*.log` と、Context Index自身の生成物は監視対象外です。
 - 連続変更はdebounce後にまとめますが、A07未起動・timeout・validator不合格は自動再試行せずpendingで閉じます。

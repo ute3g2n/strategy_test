@@ -1,5 +1,15 @@
 # AI部品ルール
 
+## 通常発火モード（PRODUCT_ONLY）
+
+通常の機能追加、不具合修正、調査、関連テスト、利用者向け仕様書・マニュアルの更新では、AI部品を自動発火させない。Agent、Skill、Orchestratorを使用するのは、ユーザーが完全名を指定した場合、または単一AIでは扱えない大規模作業や独立した安全レビューが実質的に必要な場合だけとする。
+
+- AI部品を使用しない通常タスクでは、Agent起動、runtime receipt、fallback記録、Human Gate packet、実行ログ、hash管理、manifest、台帳更新を作成しない。
+- ユーザーが成果物や変更対象を指定した場合は、その指定範囲だけを扱い、AI部品や管理用成果物を追加しない。
+- 既存のAI部品定義、モデル割当、Phase専用部品の履歴は保持する。ただし、存在していることだけを理由に起動しない。
+- 外部I/O、Secret、費用、実取引、重要データの物理削除に関する安全停止は、AI部品を使わない場合も維持する。
+- この節と後続の既存ルールが通常タスクについて矛盾する場合は、この節を優先する。後続ルールは、ユーザーが該当する専門作業を明示した場合にだけ適用する。
+
 ## 目的
 
 このプロジェクトでは、AI部品の命名、発火制御、保存先、Phase専用部品の扱いを明示的に管理する。
@@ -29,33 +39,33 @@
 
 ## 発火ルール
 
-- プロンプトには、使用するOrchestrator、Agent、Skillの完全名を明記する。
-- AI部品タスクでは、既存部品を推測起動しない。
-- 指定部品が存在しない場合は、現在のステップが作成ステップかどうかを確認する。
-- 作成ステップでない場合は、既存部品で代替せず、不足部品名を報告して停止する。
+- ユーザーが使用を指定した場合だけ、プロンプトにOrchestrator、Agent、Skillの完全名を明記する。
+- AI部品タスクでも、既存部品を推測起動しない。指定部品が明示されていない場合は、通常の単一AI作業として処理する。
+- 指定部品が存在しない場合は、ユーザーへ不足部品名と代替可否を報告して停止する。既存部品を勝手に代替起動しない。
 - `default_orchestrator` は明示承認なしに変更しない。
+- AI部品を利用した事実を証明するためのreceipt、Agent一覧、runtime fallback記録を、明示依頼なしに作成しない。
 
 ### 資料・コード参照効率化の専用部品
 
-- 新規・大幅変更のMarkdown／HTMLは、A07相当のmetadata-only判定へ1ファイル単位で渡せる。ただし、管理用hash、manifest hash、stale判定、hash mismatch retryは要求しない。
+- 新規・大幅変更のMarkdown／HTMLは、ユーザーが文書管理を依頼した場合だけ、A07相当のmetadata-only判定へ1ファイル単位で渡せる。管理用hash、manifest hash、stale判定、hash mismatch retryは要求しない。
 - A07はpath、artifact_id、title、見出し、目的、関係、変更種別、状態をstrict JSONで返し、manifestを直接書き換えない。schema、link、Secret、path、状態の非hash確認または理由付きBLOCKEDを受け取る。
 - A08はschema、状態、path境界、関係、見出しを使ってprimary 1〜3件、supporting 0〜6件、JIT範囲、不足情報を返す。snapshot hash、stale hash、manifest hashを入力・出力・判定条件にしない。
 - A07/A08はネットワーク、外部MCP、Secret、任意path、Git stage／commit／push、本文全量保存を禁止する。入力不整合、Secret疑い、状態不明、境界不明は`blocked`またはfail-closedとする。
-- CTXMAPのA07、A08、A80は、Agent JSONの `model=gpt-5.6-luna`、`reasoning_effort=low` を正本とし、runtime dispatchとsanitized receiptにも同じ値を記録する。管理用hash receipt項目は追加しない。
-- 文書作成、設計書セット作成、Python実装、AI部品変更の導線は、path、schema、link、Secret、状態、要件追跡の非hash確認へ渡す。validatorのhash PASSは完了条件にしない。
-- この専用部品は日常の軽量保守用であり、保存のたびに常時Orchestratorを起動しない。AI部品自体の作成・変更だけは`AutoTradeComponentLifecycle_Orchestrator_v0_1`で統制する。
+- CTXMAPのA07、A08、A80を使用する場合は、Agent JSONの `model` と `reasoning_effort` を正本とする。通常タスクではruntime dispatch、sanitized receipt、管理用hash receiptを作成しない。
+- 文書作成、設計書セット作成、Python実装、AI部品変更でこれらの専用部品を使う場合は、path、schema、link、Secret、状態、要件追跡の非hash確認だけを行う。validatorのhash PASSを通常タスクの完了条件にしない。
+- この専用部品は、ユーザーが利用を明示した場合だけ起動する。保存のたびにOrchestratorを起動しない。
 
 ### 保護hash限定ガード（Step 07以降）
 
-- 新規・大幅変更の文書、計画、ソース、テスト、受入条件、receipt、AI部品には、`AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1`を超軽量の静的判定として発火できる。
+- ユーザーがAI部品、運用ルール、保護対象hashの変更レビューを明示した場合だけ、新規・大幅変更の文書、計画、ソース、テスト、受入条件、receipt、AI部品に対して `AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1` を静的判定として発火できる。
 - A95と`autotrade_skill_protected_hash_policy_guard_v0_1`はhash値を計算・取得・保存・比較せず、manifest、stale、fingerprint、hash retryも作らない。出力は対象、候補、`ALLOW`／`NEEDS_HUMAN_GATE`／`BLOCKED`、理由、修正提案だけとする。
 - `ALLOW`は安全・データ・再現性への直接因果、保護対象、失敗時停止範囲が明記された既存のprotected hashだけに限定する。用途不明は`NEEDS_HUMAN_GATE`、管理目的の再導入は`BLOCKED`とする。
 - A95はA07/A08の文章manifest責務を代替・復活させず、A07/A08を起動してmanifestを追加しない。新規・大幅変更の通常確認はpath、schema、link、Secret、状態、要件追跡で行う。
-- 新設・変更スクリプトには、管理用hashを強制スキップしprotected hashだけを維持する権限文を冒頭コメントまたは実行ログへ記載する。
+- 新設・変更スクリプトでprotected hashを扱う場合は、目的とfail-closed境界を明記する。通常タスクでは、管理用hashの説明文や実行ログを追加しない。
 
 ### 管理用hash廃止移行モード（Step 00）
 
-- CTXMAP_MANAGEMENT_HASH_POLICY の既定値は disabled とし、文章管理のwatcher、daily validator、A07/A08の管理用hash判定、context Gate、auto-commitを通常経路から起動しない。
+- CTXMAP_MANAGEMENT_HASH_POLICY の既定値は disabled とし、文章管理のwatcher、daily validator、A07/A08の管理用hash判定、context Gate、auto-commitを通常経路から起動しない。ユーザーが管理用hashの調査を明示した場合も、必要な最小範囲だけを扱う。
 - 移行中は、文章管理・参照効率化・実行証跡・ファイル同一性・差分許可だけを目的とするhashの取得、照合、stale判定、不一致再試行を強制スキップしてよい。スクリプトにも同じ権限を適用する。
 - 安全・データ・再現性に直結するprotected hash、Secret、外部I/O、Human Gate、Unknown、Critical/High、対象範囲、権限境界、既存ユーザー変更保護はスキップしない。
 - CTXMAP_MANAGEMENT_HASH_POLICY=legacy は移行rollback調査以外で使用しない。legacy経路は後続Stepで廃止し、通常の新規計画・成果物・ソースコードから参照してはならない。
@@ -74,11 +84,10 @@
 
 ### 実ランタイム起動・待機・Fallback契約
 
-- 完全名の列挙、JSONの読込、Skillの適用、ルートAgentの自己レビューは、Orchestrator／Agentの起動証跡ではない。
-- 直接実行プロンプトは、変更前に `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` の利用可否を確認し、指定Orchestratorを固定modelで実spawnする。CoordinatorはPromptで明示された全Agentを一体ずつ、各Agent JSONの固定modelを `model` 引数へ渡してspawnし、`reasoning_effort` が定義されている場合だけ同引数へ渡してwaitする。未定義のeffortはruntime既定値を勝手に上書きせず、receiptへ `null` を記録する。Orchestratorの `agents` map外の明示Agentも省略しない。
-- 起動証跡には `runtime_backend`、`dispatch_mode`、`orchestrator_agent_id`、AgentごとのJSON path、model、`reasoning_effort`、Skills、`agent_id`、受付／完了status、出力参照、`independent`、`review_mode`を含める。
-- spawn／wait、固定model受理、子出力取得ができない場合は `RUNTIME_DISPATCH_FALLBACK_REQUIRED`、未起動Agent、理由、`agent_id=N/A`、`independent=false`、`review_mode=SELF_REVIEW_FALLBACK`を先に記録し、ルートの責務チェックリストで継続する。起動不能は単独の停止条件にしないが、未起動を独立実行済みと偽らない。
-- Human Gate未承認、外部I/O／Secret／費用／実資金の範囲逸脱、UnknownのPass、Critical／High未解決、必須Evidence欠落、`default_orchestrator`変更はFallback中もFail-closedで停止する。
+- ユーザーがOrchestratorやAgentの利用を明示した場合だけ、完全名、JSON、model、必要な `reasoning_effort` を確認し、利用可能なら `multi_agent_v1__spawn_agent` と `multi_agent_v1__wait_agent` を使う。
+- 明示利用時の独立レビューを説明する場合は、起動状況を正確に報告する。起動不能を独立実行済みと表現しない。
+- 通常タスクでは、spawn／wait、runtime receipt、fallback記録、Agentごとのstatus記録を要求しない。
+- Human Gate未承認、外部I/O／Secret／費用／実資金の範囲逸脱、UnknownのPass、Critical／High未解決、`default_orchestrator`変更は、AI部品利用の有無にかかわらず安全上必要な場合はFail-closedで停止する。
 
 ## モデル割当ルール
 
@@ -90,14 +99,14 @@
 
 ### Blocked・残課題の正本
 
-- Phase 0以降のBlocked、Unknown、残リスク、Human Gate待ちの現在状態は、`doc/00_全Phase残課題Blocked統合台帳.html` だけで管理する。
-- 人間の承認・認証・利用許可が必要な事項は、H1/H2、RunのHuman Gate、外部API・Broker接続、Secret投入、entitlement、費用上限、環境変更を含め、発見時点で必ず統合台帳へ登録する。承認記録が見つからない場合も「未承認」として台帳に載せ、対象、期限、再開条件、必要証拠、関連Runを明記する。計画書・レビュー・実装ログにだけ承認待ちを残してはならない。
-- 新しい作業を開始する前に統合台帳を確認し、対象作業に必要な承認が台帳で `解決済み` と確認できない限り、外部I/O、Secret、費用発生、本線への引渡しを実行しない。台帳の行と証拠リンクを更新してから、作業成果物へ反映する。
+- Phase 0以降のBlocked、Unknown、残リスク、Human Gate待ちを一元管理する必要がある場合は、`doc/00_全Phase残課題Blocked統合台帳.html`を正本として使う。通常タスクでは、ユーザーが台帳更新を依頼した場合だけ参照・更新する。
+- 人間の承認・認証・利用許可が必要な事項は、外部API・Broker接続、Secret投入、entitlement、費用、実取引、重要な環境変更など、実害があり得る場合に対象と再開条件を確認する。通常タスクで発見事項を自動的に統合台帳へ登録しない。
+- 外部I/O、Secret、費用発生、実取引、重要データ削除を行う場合は、台帳の有無にかかわらず、ユーザーの明示許可と対象範囲を確認してから実行する。
 - 新しい課題は、既存の根本原因と同じか確認してから追加する。同じ原因なら新しい行を作らず、元のFinding IDと証拠リンクを既存行へ足す。
-- 旧台帳、計画書、レビュー、Run証跡は削除せず、発見時点の履歴・生の証拠として保持する。ただし、現在状態の正本にはしない。
-- 解消した行は削除せず、解消日、確認者、テスト、レビュー、Human Gateの証拠を付けて `解決済み` にする。
-- 残課題、Unknown、Blocked、Human Gate、承認状態、再開条件のいずれかを更新したときは、統合台帳全体を点検する。主表の該当行だけでなく、Human Gate一覧、Unknown一覧、最新状態欄、件数表示、履歴リンク、関連Runの状態を検索し、現在状態の矛盾を同じ更新で直す。過去の事実は履歴として残すが、現在状態と混同しない表示にする。
-- Run固有の生のテスト・レビュー証跡は `tests/evidence/{phase_id}/{run_id}/` に置き、統合台帳には短い説明とリンクだけを記録する。
+- 旧台帳、計画書、レビュー、Run証跡は履歴として保持する。通常タスクで現在状態へ同期しない。
+- 台帳を更新する場合の解消行、件数、履歴リンクの扱いは、ユーザーが指定した範囲だけを対象にする。
+- 統合台帳を更新するとユーザーが明示した場合は、関連する現在状態と履歴リンクを一度に確認する。通常タスクでは、台帳全体の点検、件数同期、履歴リンク同期を行わない。
+- Run固有のテスト・レビュー証跡は、ユーザーが再実行可能な証跡の保存を依頼した場合だけ `tests/evidence/{phase_id}/{run_id}/` に置く。通常のテスト結果はチャットで報告する。
 
 ### Windows・WSLの作業ツリー規則
 
@@ -109,35 +118,32 @@
 
 ### Human Gateの承認ルール
 
-- ユーザーがチャットで対象Runについて明示的に「承認します」と伝えた場合、その意思表示をHuman Gateの正式な承認として扱う。
-- 作業Agentは承認を推測してはならないが、明示された承認をRun ID、HEAD、fixtureのprotected hashとともに `human-gate-user-declaration.md` へ記録してよい。管理用change hashは記録しない。
+- Human Gateは、ユーザーがGate運用を明示した場合、または外部接続、実取引、費用、Secret、重要データ削除などの実害があり得る操作で、事前の意思確認が必要な場合だけ使用する。
+- ユーザーが明示的に承認した場合は、その意思を会話上の承認として扱える。承認をファイルへ記録するかどうかはユーザー指定時だけ判断する。
 - 秘密鍵、公開鍵、署名JSON、worktree外の承認チャネルは要求しない。
-- 機械Gate、レビュー、Unknown、scope、hash、Secret、外部接続の停止条件は、ユーザー承認があっても省略しない。
+- Human Gateを使用する場合も、機械的な安全確認と対象範囲確認は省略しない。ただし通常タスクではGate packetや承認ログを作成しない。
 
-- 正式な仕様書、設計書、検証結果はHTMLで `doc/` 配下に保存する。
-- 計画書、実行プロンプト、ログ、台帳は `plan/` 配下に保存する。
-- `doc/` 配下のHTML成果物は、すべて `doc/index.html` から到達できるようにする。
-- Phase別HTMLは `doc/phaseX/` に保存する。
-- AI実行基盤関連HTMLは `doc/ai_foundation/` に保存する。
+- 正式な仕様書、設計書、検証結果をHTMLで保存するかどうかは、ユーザーの指定または既存の利用者向け導線の維持に必要な場合だけ判断する。
+- 計画書や実行プロンプトは、ユーザーがファイル生成を依頼した場合だけ `plan/` 配下へ保存する。通常の実行ログ、receipt、証跡、台帳は保存しない。
+- `doc/` 配下のHTML成果物を `doc/index.html` へ追加するのは、正式文書の追加・削除・移動が実際に発生した場合だけとする。
+- Phase別HTML、AI実行基盤関連HTMLは、ユーザーが正式文書の更新を依頼した場合だけ変更する。
 
 ## Phase実行計画ルール
 
-- 各Phaseを開始する前に、必ずそのPhaseの実行計画書を作成する。
-- 実行計画書は `plan/PhaseX_実行計画書_v0.1_YYYY-MM-DD.md` の形式で `plan/` 配下に保存する。
-- 実行計画書は必ず複数ステップに分割し、各ステップにそのまま実行できるプロンプトを含める。
-- Phase実行計画書を作成するときは、標準として `AutoTradePhasePlanning_Orchestrator_v0_1`、`AutoTrade_A05_PhaseExecutionPlanner_v0_1`、`autotrade_skill_phase_execution_planning_v0_1` を使用する。
-- 依頼プロンプトの標準雛形は `doc/ai_foundation/10_Phase実行計画書作成依頼プロンプト.html` を参照する。
-- 実行計画の補助HTMLを作る場合は `doc/phaseX/00_実行計画/` 配下に保存し、`doc/index.html` から到達できるようにする。
+- ユーザーがPhase実行計画書を明示的に依頼した場合だけ、そのPhaseの実行計画書を作成する。
+- 作成する場合の保存先、Step分割、プロンプト記載、補助HTMLの扱いは、ユーザーの指定範囲に限定する。
+- 計画書作成でAI部品を使用する場合だけ、`AutoTradePhasePlanning_Orchestrator_v0_1`、`AutoTrade_A05_PhaseExecutionPlanner_v0_1`、`autotrade_skill_phase_execution_planning_v0_1`を指定する。
+- 通常タスクではPhase計画書、複数Step、後続プロンプト、doc/index導線を自動作成しない。
 
 ## AI部品作成変更ルール
 
-- Skill、サブエージェント、オーケストレータの作成または変更では、まず既存の汎用部品の再利用可否を調査する。
-- その後に、必要な実体ファイルを作成または変更し、最後に対象ドキュメントを更新する。
-- AI部品の作成または変更では、標準として `AutoTradeComponentLifecycle_Orchestrator_v0_1`、`AutoTrade_A06_AiComponentEngineer_v0_1`、`autotrade_skill_ai_component_lifecycle_v0_1` を使用する。
-- 依頼プロンプトの標準雛形は `doc/ai_foundation/12_AI部品作成更新依頼プロンプト.html` を参照する。
-- 実体更新だけで終わらせず、`doc/ai_foundation/03` から `08`、`doc/index.html`、必要に応じて `AGENTS.md` と `README.md` を同じ変更セットで更新する。
+- ユーザーがSkill、サブエージェント、オーケストレータの作成または変更を明示的に依頼した場合だけ、既存の汎用部品を調査し、必要な実体を更新する。
+- AI部品の作成または変更でAI部品を使用する場合だけ、`AutoTradeComponentLifecycle_Orchestrator_v0_1`、`AutoTrade_A06_AiComponentEngineer_v0_1`、`autotrade_skill_ai_component_lifecycle_v0_1`を指定する。
+- 関連仕様書や導線の更新は、ユーザーが正式仕様の更新まで依頼した場合だけ行う。通常のコード変更でAI基盤仕様書を更新しない。
 
 ## 設計書セット作成ルール
+
+設計書セットの作成、レビュー、`doc/index.html`導線更新は、ユーザーが正式な設計書セットを明示的に依頼した場合だけ行う。通常の機能修正では、必要な設計判断をコードまたは既存仕様へ最小限反映し、設計書セット用のAI部品や管理成果物を起動しない。
 
 ## UIモック専用部品ルール
 
@@ -148,10 +154,9 @@
 - UIソース、Storybook、スクリーンショットは正式要件HTML、追跡表、機械Gate証跡の代替ではない。Unknown、未確認viewport、未確認状態、Critical/High指摘を残したまま合格にしない。
 - 生成・レビュー部品は、単一運用者・認証不要という要件を変更せず、認証、ユーザー管理、権限管理を追加しない。
 
-- Phase内で複数の正式HTML設計書をセットとして作成または更新する場合は、標準として `AutoTradeProject_DesignDocSet_Orchestrator_v0_1`、`AutoTrade_A81_DesignDocSetWriter_v0_1`、`autotrade_skill_design_doc_set_writer_v0_1` を使用する。
-- 単体HTML作成とレビュー反映には `AutoTrade_A80_DocumentIntegrator_v0_1` を使い、設計書セット全体の共通メタ、相互リンク、Unknown、レビュー履歴、`doc/index.html` 導線の整合は `AutoTrade_A81_DesignDocSetWriter_v0_1` が主担当する。
-- 技術領域の設計判断は、Adapter、Architecture、Execution、QAなどの領域Agentが担当し、A81は承認済み内容の文書セット統合を担当する。
-- 正式HTML成果物は `doc/index.html` から到達できるようにし、UnknownをPassにせず、レビュー指摘の採否を記録する。
+- ユーザーが正式な設計書セットを明示した場合だけ、`AutoTradeProject_DesignDocSet_Orchestrator_v0_1`、`AutoTrade_A81_DesignDocSetWriter_v0_1`、`autotrade_skill_design_doc_set_writer_v0_1`を使用できる。
+- 単体HTML、相互リンク、Unknown、レビュー履歴、`doc/index.html`導線の整合は、ユーザーがその品質確認を依頼した範囲だけで扱う。
+- 通常の機能修正では、設計書セット、正式HTML、doc/index更新、レビュー履歴を自動作成しない。
 
 ## 実装詳細設計書ルール
 
@@ -166,10 +171,9 @@
 - 構造図と受渡し表には、APIキー、認証値、口座情報などの秘密を載せない。固定の型名を示す場合も、受け渡す値の意味と、欠落・不明時に先へ進めない条件を表で説明する。
 - 8章以降などの詳細契約表には、各表の前に「何を説明し、読者が何を判断できる表か」を平易な日本語で記す。テスト表の各セルは単語のみで済ませず、技術者以外にも条件・操作・期待結果・合否が分かる文章にする。
 - `doc/phase2/03_市場データ詳細設計/05_Market_Data_Adapter詳細設計書.html` v0.5は上記読解順・日本語表現・Mermaid図・試験記述の具体的な書式参照とする。ただし、Phase 2固有の技術判断、外部仕様、Unknownを他の設計書へ自動適用してはならない。
-- 実装可能な詳細設計書セットを作成・改訂する場合は、標準として `AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、`AutoTrade_A82_ImplementationDetailDesigner_v0_1`、`AutoTrade_A91_ImplementationDetailReviewer_v0_1`、`autotrade_skill_implementation_detail_design_v0_1`、`autotrade_skill_implementation_detail_review_v0_1` を使用する。
-- A91の初回レビュー、A90の横断/Red Teamレビュー、A80/A81の改訂統合、A91の再レビューを完了するまで、実装詳細設計完了を宣言しない。
-- A91のCriticalまたはHigh指摘が残る、必須構成要素が理由なく欠ける、UnknownをPassにする場合は、実装着手へ進めない。
-- 実装言語、パッケージ配置、永続化基盤、外部依存が未確定の場合は、実在しない実装を作らず、UnknownとHuman Gateまたは縮退方針を記録する。
+- ユーザーが実装可能な詳細設計書セットを明示した場合だけ、`AutoTradeProject_ImplementationDesign_Orchestrator_v0_1`、`AutoTrade_A82_ImplementationDetailDesigner_v0_1`、`AutoTrade_A91_ImplementationDetailReviewer_v0_1`、関連Skillを使用する。
+- A91、A90、A80、A81によるレビュー閉ループは、ユーザーがそのレビューを依頼した場合だけ完了条件にする。
+- 通常の機能修正では、設計書の不足を理由に実装を停止しない。安全や製品仕様に関わる未確定事項だけは、実装前にユーザーへ確認する。
 
 ## 安全ルール
 
@@ -192,7 +196,7 @@
 
 ## AI基盤仕様書の追従更新ルール
 
-汎用Skill、汎用サブエージェント、汎用オーケストレータに追加・変更・廃止が発生した場合は、実体ファイルだけで終わらせず、対応するAI基盤仕様書も同じ作業内で更新する。
+汎用Skill、汎用サブエージェント、汎用オーケストレータに追加・変更・廃止が発生し、ユーザーが正式なAI基盤仕様書の更新まで依頼した場合だけ、対応するAI基盤仕様書を更新する。通常の製品コード、テスト、仕様書、マニュアル変更では、この追従更新を行わない。
 
 - Skillに変更があった場合:
   `doc/ai_foundation/03_プロジェクト汎用Skill仕様.html`
