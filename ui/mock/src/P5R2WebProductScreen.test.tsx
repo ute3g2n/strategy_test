@@ -144,6 +144,7 @@ describe('P5R2 Web Product UI', () => {
     const validBody = JSON.parse(String(preflightCalls()[0]?.[1]?.body)) as { spec: { start: string; end: string } }
     expect(validBody.spec.start).toBe('2025-02-24T00:00:00Z')
     expect(validBody.spec.end).toBe('2025-02-24T01:00:00Z')
+    await user.click(screen.getByRole('button', { name: '取消' }))
 
     fireEvent.change(start, { target: { value: '2025-02-24T02:00' } })
     await user.click(screen.getByRole('button', { name: '事前確認' }))
@@ -163,7 +164,7 @@ describe('P5R2 Web Product UI', () => {
     await user.click(screen.getByRole('button', { name: '時間足を生成する' }))
 
     expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith('/api/p5r2/timeframe-generation-jobs'))).toBe(false)
-    expect(screen.getByText('生成期間は、現在利用可能な1m sourceの範囲内で指定してください。')).toBeVisible()
+    expect(screen.getAllByText('生成期間は、現在利用可能な1m sourceの範囲内で指定してください。').length).toBeGreaterThan(0)
   })
 
   it('shows the approved bounded DELETE-G1 boundary and has no automated axe violations in the actual-result screen shell', async () => {

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
+import { UtcDateTimePicker } from './UtcDateTimePicker'
 import { ConfirmDialog, EmptyState, ErrorState, HelpTip, ProgressBar, StateAlert, StateBadge, type ScreenDefinition, type UiState } from './ui'
+import { isUtcRangeWithin, validateUtcRange } from './utcDateTime'
 import {
   defaultP5R2BacktestSpec,
   isP5R2StrategyTimeframe,
@@ -181,6 +183,8 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
   const [generationJob, setGenerationJob] = useState<P5R2GenerationJob | null>(null)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [conditionRangeError, setConditionRangeError] = useState('')
+  const [generationRangeError, setGenerationRangeError] = useState('')
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [cancellingRunId, setCancellingRunId] = useState<string | null>(null)
@@ -229,6 +233,7 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
 
   const updateSpec = <Key extends keyof P5R2BacktestSpec>(key: Key, value: P5R2BacktestSpec[Key]) => {
     setSpec((current) => ({ ...current, [key]: value }))
+    if (key === 'start' || key === 'end') setConditionRangeError('')
     setPreflight('条件が変わりました。事前確認を実行してください。')
     setMessage('')
     setError('')
@@ -244,7 +249,9 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
       timeframes: [initialTimeframe],
       range: defaultRange ?? { start: '', end: '' },
     })
+    setGenerationRangeError('')
     setMissingData(null)
+    setError('')
     setMessage(defaultRange
       ? '必要な時間足を生成する画面を開きました。現在利用可能な1m sourceの全期間を初期表示しています。'
       : '必要な時間足を生成する画面を開きました。現在利用可能な1m sourceがないため、期間の既定値は設定していません。')
@@ -258,6 +265,14 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
   }
 
   const submitPreflight = async () => {
+    const validation = validateUtcRange(spec.start, spec.end)
+    if (!validation.valid) {
+      setConditionRangeError(validation.message)
+      setError('')
+      setPreflight('STOPPED: UTC_RANGE_INVALID')
+      return
+    }
+    setConditionRangeError('')
     setBusy(true)
     setError('')
     setMessage('')
@@ -283,6 +298,13 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
   }
 
   const submitRun = async () => {
+    const validation = validateUtcRange(spec.start, spec.end)
+    if (!validation.valid) {
+      setConditionRangeError(validation.message)
+      setError('')
+      return
+    }
+    setConditionRangeError('')
     setBusy(true)
     setError('')
     setMessage('')
@@ -309,10 +331,20 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
       setError('生成元となる現在利用可能な1m sourceを選択してください。外部Dataの取得は開始しません。')
       return
     }
-    if (!generation.range.start || !generation.range.end) {
-      setError('生成する期間をUTCで入力してください。')
+    const validation = validateUtcRange(generation.range.start, generation.range.end)
+    if (!validation.valid) {
+      setGenerationRangeError(validation.message)
+      setError('')
       return
     }
+    const sourceRange = rangeFor(activeSource)
+    if (!sourceRange || !isUtcRangeWithin(generation.range.start, generation.range.end, sourceRange.start, sourceRange.end)) {
+      const message = '生成期間は、現在利用可能な1m sourceの範囲内で指定してください。'
+      setGenerationRangeError(message)
+      setError('')
+      return
+    }
+    setGenerationRangeError('')
     setBusy(true)
     setError('')
     setMessage('')
@@ -406,8 +438,8 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
       <div className="field-grid p5r2-field-grid">
         <label className="field-label" htmlFor="p5r2-generation-symbol"><span>生成する銘柄</span><select id="p5r2-generation-symbol" value={generation.symbol} onChange={(event) => setGeneration((current) => current && { ...current, symbol: event.target.value, sourceDatasetId: '' })}><option>BTCUSDT</option><option>ETHUSDT</option></select></label>
         <label className="field-label" htmlFor="p5r2-source-dataset"><span>元の1m source</span><select id="p5r2-source-dataset" value={activeSource?.dataset_id ?? ''} onChange={(event) => setGeneration((current) => current && { ...current, sourceDatasetId: event.target.value })}><option value="">選択してください</option>{generationSources.map((candidate) => <option value={candidate.dataset_id} key={candidate.dataset_id}>{candidate.dataset_id} / {rangeFor(candidate)?.start ?? '期間未登録'} 〜 {rangeFor(candidate)?.end ?? ''}</option>)}</select></label>
-        <label className="field-label" htmlFor="p5r2-generation-start"><span>生成開始（UTC）</span><input id="p5r2-generation-start" value={generation.range.start} onChange={(event) => setGeneration((current) => current && { ...current, range: { ...current.range, start: event.target.value } })} placeholder="2025-02-24T00:00:00Z" /></label>
-        <label className="field-label" htmlFor="p5r2-generation-end"><span>生成終了（UTC）</span><input id="p5r2-generation-end" value={generation.range.end} onChange={(event) => setGeneration((current) => current && { ...current, range: { ...current.range, end: event.target.value } })} placeholder="2025-02-24T01:00:00Z" /></label>
+        <UtcDateTimePicker id="p5r2-generation-start" label="生成開始日時（UTC）" value={generation.range.start} onChange={(value) => { setGenerationRangeError(''); setGeneration((current) => current && { ...current, range: { ...current.range, start: value } }) }} description="カレンダーと時刻をUTCで選択します。" />
+        <UtcDateTimePicker id="p5r2-generation-end" label="生成終了日時（UTC）" value={generation.range.end} onChange={(value) => { setGenerationRangeError(''); setGeneration((current) => current && { ...current, range: { ...current.range, end: value } }) }} description="カレンダーと時刻をUTCで選択します。" error={generationRangeError} />
       </div>
       <fieldset className="p5r2-timeframe-checks"><legend>生成する時間足（複数選択可）</legend>{P5R2_STRATEGY_TIMEFRAMES.map((timeframe) => <label key={timeframe}><input type="checkbox" checked={generation.timeframes.includes(timeframe)} onChange={(event) => setGeneration((current) => {
         if (!current) return current
@@ -431,8 +463,8 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
           <div className="field-grid p5r2-field-grid">
             <label className="field-label" htmlFor="p5r2-symbol"><span>銘柄</span><select id="p5r2-symbol" value={spec.symbol} onChange={(event) => updateSpec('symbol', event.target.value as P5R2BacktestSpec['symbol'])}><option>BTCUSDT</option><option>ETHUSDT</option></select></label>
             <label className="field-label" htmlFor="p5r2-timeframe"><span>戦略時間足</span><select id="p5r2-timeframe" aria-label="戦略時間足" value={spec.timeframe} onChange={(event) => updateSpec('timeframe', event.target.value as P5R2StrategyTimeframe)}>{P5R2_STRATEGY_TIMEFRAMES.map((timeframe) => <option key={timeframe}>{timeframe}</option>)}</select></label>
-            <label className="field-label" htmlFor="p5r2-start"><span>開始（UTC）</span><input id="p5r2-start" value={spec.start} onChange={(event) => updateSpec('start', event.target.value)} /></label>
-            <label className="field-label" htmlFor="p5r2-end"><span>終了（UTC）</span><input id="p5r2-end" value={spec.end} onChange={(event) => updateSpec('end', event.target.value)} /></label>
+            <UtcDateTimePicker id="p5r2-start" label="開始日時（UTC）" value={spec.start} onChange={(value) => updateSpec('start', value)} description="カレンダーと時刻をUTCで選択します。" />
+            <UtcDateTimePicker id="p5r2-end" label="終了日時（UTC）" value={spec.end} onChange={(value) => updateSpec('end', value)} description="カレンダーと時刻をUTCで選択します。" error={conditionRangeError} />
             <label className="field-label" htmlFor="p5r2-strategy"><span>Backtest Strategy</span><select id="p5r2-strategy" value={spec.strategy} onChange={(event) => updateSpec('strategy', event.target.value as P5R2BacktestSpec['strategy'])}><option value="TURTLE_SYS1">TURTLE_SYS1</option><option value="TURTLE_SYS2">TURTLE_SYS2</option></select></label>
             <div className="field-label"><span>1m source</span><p className="p5r2-source-note">1mは生成元Dataの説明です。戦略時間足としては選択できません。</p></div>
           </div>

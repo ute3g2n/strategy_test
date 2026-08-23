@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   dateTimeLocalToUtcIso,
+  isUtcRangeWithin,
   isValidDateTimeLocal,
   utcIsoToDateTimeLocal,
   validateUtcRange,
@@ -48,5 +49,20 @@ describe('UTC日時変換', () => {
       valid: false,
       message: '開始日時は終了日時より前にしてください。',
     })
+  })
+
+  it('要求範囲が使用可能範囲を超えた場合に拒否する', () => {
+    expect(isUtcRangeWithin(
+      '2025-02-24T00:30:00Z',
+      '2025-02-24T02:30:00Z',
+      '2025-02-24T00:00:00Z',
+      '2025-02-24T03:00:00Z',
+    )).toBe(true)
+    expect(isUtcRangeWithin(
+      '2025-02-24T00:30:00Z',
+      '2025-02-24T03:30:00Z',
+      '2025-02-24T00:00:00Z',
+      '2025-02-24T03:00:00Z',
+    )).toBe(false)
   })
 })

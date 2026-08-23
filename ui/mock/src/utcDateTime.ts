@@ -79,3 +79,22 @@ export function validateUtcRange(start: string, end: string): UtcRangeValidation
   }
   return { valid: true }
 }
+
+export function isUtcRangeWithin(start: string, end: string, outerStart: string, outerEnd: string) {
+  const requested = validateUtcRange(start, end)
+  if (!requested.valid) return false
+  const outer = validateUtcRange(outerStart, outerEnd)
+  if (!outer.valid) return false
+
+  try {
+    const requestedStart = parseDateTimeLocal(utcIsoToDateTimeLocal(start))
+    const requestedEnd = parseDateTimeLocal(utcIsoToDateTimeLocal(end))
+    const availableStart = parseDateTimeLocal(utcIsoToDateTimeLocal(outerStart))
+    const availableEnd = parseDateTimeLocal(utcIsoToDateTimeLocal(outerEnd))
+    if (!requestedStart || !requestedEnd || !availableStart || !availableEnd) return false
+    return toComparableMinutes(availableStart) <= toComparableMinutes(requestedStart)
+      && toComparableMinutes(requestedEnd) <= toComparableMinutes(availableEnd)
+  } catch {
+    return false
+  }
+}
