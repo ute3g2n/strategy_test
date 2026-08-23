@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'vitest-axe'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -107,8 +107,10 @@ describe('P5R2 Web Product UI', () => {
     await user.click(screen.getByRole('button', { name: '時間足を生成する' }))
 
     expect(screen.getByTestId('p5r2-generation-form')).toBeInTheDocument()
-    expect(screen.getByLabelText('生成開始（UTC）')).toHaveValue('2025-02-24T00:00:00Z')
-    expect(screen.getByLabelText('生成終了（UTC）')).toHaveValue('2025-02-24T03:00:00Z')
+    expect(screen.getByLabelText('生成開始日時（UTC）')).toHaveAttribute('type', 'datetime-local')
+    expect(screen.getByLabelText('生成終了日時（UTC）')).toHaveAttribute('type', 'datetime-local')
+    expect(screen.getByLabelText('生成開始日時（UTC）')).toHaveValue('2025-02-24T00:00')
+    expect(screen.getByLabelText('生成終了日時（UTC）')).toHaveValue('2025-02-24T03:00')
     expect(screen.getByRole('checkbox', { name: '30m' })).toBeChecked()
     await user.click(screen.getByRole('button', { name: '時間足を生成する' }))
 
@@ -123,6 +125,45 @@ describe('P5R2 Web Product UI', () => {
       external_io_allowed: false,
     })
     expect(body).not.toHaveProperty('source_dataset')
+  })
+
+  it('serializes P5R2 condition datetime pickers as UTC and blocks a reversed range', async () => {
+    const user = userEvent.setup()
+    const fetchMock = installApiMock()
+    render(<P5R2WebProductScreen screen={screen08} onOpenLegacy={() => undefined} />)
+
+    await waitFor(() => expect(screen.getByTestId('p5r2-catalog-table')).toBeInTheDocument())
+    const start = screen.getByLabelText('開始日時（UTC）')
+    const end = screen.getByLabelText('終了日時（UTC）')
+    expect(start).toHaveAttribute('type', 'datetime-local')
+    expect(end).toHaveAttribute('type', 'datetime-local')
+
+    await user.click(screen.getByRole('button', { name: '事前確認' }))
+    const preflightCalls = () => fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/api/p5r2/backtest/preflight'))
+    expect(preflightCalls()).toHaveLength(1)
+    const validBody = JSON.parse(String(preflightCalls()[0]?.[1]?.body)) as { spec: { start: string; end: string } }
+    expect(validBody.spec.start).toBe('2025-02-24T00:00:00Z')
+    expect(validBody.spec.end).toBe('2025-02-24T01:00:00Z')
+
+    fireEvent.change(start, { target: { value: '2025-02-24T02:00' } })
+    await user.click(screen.getByRole('button', { name: '事前確認' }))
+    expect(preflightCalls()).toHaveLength(1)
+    expect(screen.getByText('開始日時は終了日時より前にしてください。')).toBeVisible()
+  })
+
+  it('does not create a generation job when the selected range exceeds source coverage', async () => {
+    const user = userEvent.setup()
+    const fetchMock = installApiMock()
+    render(<P5R2WebProductScreen screen={screen08} onOpenLegacy={() => undefined} />)
+
+    await waitFor(() => expect(screen.getByTestId('p5r2-catalog-table')).toBeInTheDocument())
+    await user.click(screen.getByRole('button', { name: '時間足生成画面を開く' }))
+    const end = screen.getByLabelText('生成終了日時（UTC）')
+    fireEvent.change(end, { target: { value: '2025-02-24T04:00' } })
+    await user.click(screen.getByRole('button', { name: '時間足を生成する' }))
+
+    expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith('/api/p5r2/timeframe-generation-jobs'))).toBe(false)
+    expect(screen.getByText('生成期間は、現在利用可能な1m sourceの範囲内で指定してください。')).toBeVisible()
   })
 
   it('shows the approved bounded DELETE-G1 boundary and has no automated axe violations in the actual-result screen shell', async () => {
