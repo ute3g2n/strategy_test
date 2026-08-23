@@ -20,7 +20,7 @@ const response = (payload: unknown, status = 200) => ({
 }) as Response
 
 function installApiMock() {
-  const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+  const fetchMock = vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
     const url = String(input)
     if (url.endsWith('/api/backtest/runs/history')) return response({ items: [] })
     if (url.endsWith('/api/backtest/recovery')) return response({ status: 'CLEAN', issues: [], recovery_required_run_ids: [], restored_run_count: 0 })

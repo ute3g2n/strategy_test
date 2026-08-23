@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { HelpTip, MetricCard, StateAlert, StateBadge, type ScreenDefinition, type UiState } from './ui'
+import { UtcDateTimePicker } from './UtcDateTimePicker'
+import { validateUtcRange } from './utcDateTime'
 import {
   backtestApi,
   defaultBacktestSpec,
@@ -130,12 +132,27 @@ export function P5RBacktestScreen({ screen, demoState, onStateChange }: P5RBackt
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [rangeError, setRangeError] = useState('')
   const [partialFailure, setPartialFailure] = useState(false)
 
   const selectedRun = useMemo(() => activeRun ?? history.find((run) => run.run_id === selectedCompareRun) ?? null, [activeRun, history, selectedCompareRun])
 
   const setParameter = (key: keyof BacktestSpec['parameters'], value: string) => setSpec((current) => ({ ...current, parameters: { ...current.parameters, [key]: value } }))
   const clearFeedback = () => { setError(''); setMessage('') }
+  const updateDateTime = (key: 'start' | 'end', value: string) => {
+    setRangeError('')
+    setSpec((current) => ({ ...current, [key]: value }))
+  }
+  const validateSpecRange = () => {
+    const validation = validateUtcRange(spec.start, spec.end)
+    if (!validation.valid) {
+      setRangeError(validation.message)
+      setError('')
+      return false
+    }
+    setRangeError('')
+    return true
+  }
 
   const refreshHistory = async () => {
     try {
@@ -161,10 +178,12 @@ export function P5RBacktestScreen({ screen, demoState, onStateChange }: P5RBackt
 
   const submitPreflight = async (event?: FormEvent) => {
     event?.preventDefault()
+    if (!validateSpecRange()) return
     await runRequest(() => backtestApi.preflight(spec), (result) => { setPreflight(result); setMessage(result.status === 'PASS' ? 'Preflight PASS。実Runを開始できます。' : 'Preflight STOPPED。停止理由を直してから再実行してください。') })
   }
 
   const submitSingle = async () => {
+    if (!validateSpecRange()) return
     await runRequest(() => backtestApi.createRun(spec), (run) => { setActiveRun(run); setSelectedCompareRun(run.run_id); setTab('single'); setMessage('Single Backtestを受付しました。進捗は自動更新されます。') })
   }
 
@@ -271,8 +290,8 @@ export function P5RBacktestScreen({ screen, demoState, onStateChange }: P5RBackt
               <label className="field-label"><span>市場</span><input value="Spot" readOnly /></label>
               <label className="field-label"><span>時間足</span><input value="1m" readOnly /></label>
               <label className="field-label"><span>タイムゾーン</span><input value="UTC" readOnly /></label>
-              <label className="field-label"><span>開始（UTC）</span><input aria-label="開始（UTC）" value={spec.start} onChange={(event) => setSpec((current) => ({ ...current, start: event.target.value }))} /></label>
-              <label className="field-label"><span>終了（UTC）</span><input aria-label="終了（UTC）" value={spec.end} onChange={(event) => setSpec((current) => ({ ...current, end: event.target.value }))} /></label>
+              <UtcDateTimePicker id="p5r-legacy-start" label="開始日時（UTC）" value={spec.start} onChange={(value) => updateDateTime('start', value)} description="カレンダーと時刻をUTCで選択します。" error={rangeError.startsWith('開始日時（UTC）を入力') ? rangeError : undefined} />
+              <UtcDateTimePicker id="p5r-legacy-end" label="終了日時（UTC）" value={spec.end} onChange={(value) => updateDateTime('end', value)} description="カレンダーと時刻をUTCで選択します。" error={rangeError && !rangeError.startsWith('開始日時（UTC）を入力') ? rangeError : undefined} />
               <label className="field-label"><span>Strategy</span><select aria-label="Backtest Strategy" value={spec.strategy} onChange={(event) => setSpec((current) => ({ ...current, strategy: event.target.value }))}><option value="TURTLE_SYS1">TURTLE_SYS1</option><option value="TURTLE_SYS2">TURTLE_SYS2</option></select></label>
               <label className="field-label"><span>初期残高（USDT）</span><input aria-label="初期残高" value={spec.parameters.initial_balance} onChange={(event) => setParameter('initial_balance', event.target.value)} /></label>
               <label className="field-label"><span>Entry lookback</span><input aria-label="Entry lookback" value={spec.parameters.entry_lookback} onChange={(event) => setParameter('entry_lookback', event.target.value)} /></label>

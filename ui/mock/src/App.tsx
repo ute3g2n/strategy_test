@@ -4,6 +4,7 @@ import { allScreens, ConfirmDialog, EmptyState, ErrorState, HelpTip, MetricCard,
 import { p4ScreenContracts, type P4ScreenContract } from './p4Contract'
 import { P5RBacktestScreen } from './P5RBacktestScreen'
 import { P5R2WebProductScreen } from './P5R2WebProductScreen'
+import { UtcDateTimePicker } from './UtcDateTimePicker'
 import './App.css'
 
 function BaseDialogPilot() {
@@ -151,6 +152,8 @@ function CoreScreen({ screen, demoState, onStateChange, onNavigate }: { screen: 
   const [strategy, setStrategy] = useState('Turtle System 1')
   const [risk, setRisk] = useState('')
   const [configFile, setConfigFile] = useState('未選択')
+  const [backtestStart, setBacktestStart] = useState('2020-01-01T00:00:00Z')
+  const [backtestEnd, setBacktestEnd] = useState('2026-08-10T00:00:00Z')
   const [parameterBounds, setParameterBounds] = useState({ entryLower: '20', entryUpper: '60', entryStep: '5', atrLower: '1.0', atrUpper: '3.0', atrStep: '0.5' })
   const [notice, setNotice] = useState('')
   const [runStarted, setRunStarted] = useState(false)
@@ -203,7 +206,8 @@ function CoreScreen({ screen, demoState, onStateChange, onNavigate }: { screen: 
             {formField('銘柄', <select value={symbol} onChange={(event) => setSymbol(event.target.value)}>{seedData.symbols.map((item) => <option key={item}>{item}</option>)}</select>)}
             {formField('時間足', <select value={timeframe} onChange={(event) => setTimeframe(event.target.value)}>{seedData.timeframes.map((item) => <option key={item}>{item}</option>)}</select>)}
             {formField('売買ルール', <select value={strategy} onChange={(event) => setStrategy(event.target.value)}><option>Turtle System 1</option><option>Turtle System 2</option></select>)}
-            {formField('期間', <input type="text" defaultValue="2020-01-01〜2026-08-10" aria-label="期間" />)}
+            <UtcDateTimePicker id="app-backtest-start" label="期間の開始日時（UTC）" value={backtestStart} onChange={setBacktestStart} description="カレンダーと時刻をUTCで選択します。" />
+            <UtcDateTimePicker id="app-backtest-end" label="期間の終了日時（UTC）" value={backtestEnd} onChange={setBacktestEnd} description="カレンダーと時刻をUTCで選択します。" />
             {formField('Risk', <input type="number" min="0" step="0.1" value={risk} onChange={(event) => setRisk(event.target.value)} placeholder="入力必須" aria-label="Risk" />)}
             {formField('コスト', <input type="text" defaultValue="固定ダミー" aria-label="コスト" />)}
           </div>
