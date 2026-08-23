@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P5R2-H2完了・P6再引渡し packet</title>
+  <style>
+    :root{color-scheme:light;--ink:#172033;--muted:#526075;--line:#cbd5e1;--paper:#fff;--bg:#f4f7fb;--green:#067647;--green-bg:#ecfdf3;--amber:#9a6700;--amber-bg:#fff8db;--red:#b42318;--red-bg:#fff1f0;--blue:#175cd3;--blue-bg:#eff8ff}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic UI",sans-serif;line-height:1.75}main{max-width:1500px;margin:24px auto;padding:28px;background:var(--paper);border:1px solid #d9e2ec}h1{margin-top:0;border-bottom:4px solid var(--ink);padding-bottom:10px}h2{margin-top:38px;border-bottom:2px solid var(--line);padding-bottom:7px}h3{margin-top:25px}a{color:var(--blue)}code{background:#eef2f6;padding:1px 5px;border-radius:4px}table{border-collapse:collapse;width:100%;margin:14px 0 24px;font-size:13px}th,td{border:1px solid var(--line);padding:8px 9px;text-align:left;vertical-align:top}th{background:#eaf0f7}.hero{padding:18px;background:linear-gradient(135deg,#fff8e6,#fff);border:1px solid #e2b84c;border-left:7px solid var(--amber);border-radius:10px}.note{padding:14px 16px;background:var(--blue-bg);border-left:6px solid var(--blue);margin:16px 0}.ok{color:var(--green);font-weight:700}.wait{color:var(--amber);font-weight:700}.danger{color:var(--red);font-weight:700}.muted{color:var(--muted);font-size:.92rem}.small{font-size:.9rem;color:var(--muted)}ul{margin-top:8px}li{margin:4px 0}
+  </style>
+</head>
+<body>
+<main>
+  <h1>P5R2-H2完了・P6再引渡し packet</h1>
+  <p class="small">文書ID: <code>P5R2-H2-PACKET-001</code> ／ Step: <code>P5R2-24</code> ／ 作成日: 2026-08-23 ／ Version: <code>v0.1</code></p>
+  <div class="hero">
+    <p><strong>現在状態：<span class="wait">P5R2-24_PACKET_READY / P5R2-H2_UNAPPROVED</span></strong></p>
+    <p>このページは、P5R2の完了とP6への再引渡しを判断するための資料を1か所へ集めたものです。資料を作ったこと自体は承認ではありません。P5R2-H2の承認判断が記録されるまで、P5R2完了宣言とP6開始は行いません。</p>
+  </div>
+
+  <section>
+    <h2>1. 運用者向けの短い説明</h2>
+    <p>P5R2では、Backtest画面で使える時間足を15分、30分、1時間、4時間、1日に直しました。1分足は利用者が選ぶ時間足ではなく、上位の時間足を作るための元データです。銘柄ごとのData一覧を見たり、必要な時間足を作ったり、期間が足りないときに作成画面へ移動したりできます。</p>
+    <p>Backtestの実行一覧・進捗・結果summaryでは、処理中なら取消できます。終わった処理の結果を画面から消す機能は、terminal ResultArtifactだけに限定しています。保存したCSV、Historical Data、Run本体、監査記録、Evidenceは削除しません。実際の削除受入も、承認済みの新規一時fixtureだけで確認しています。</p>
+    <p>今回の確認はローカルの固定データと固定テストが中心です。外部Providerへのログイン、契約、API call、外部Data download、Secret、費用は行っていません。P5R2-H2を承認しても、P6-H0を自動承認することにはなりません。</p>
+  </section>
+
+  <section>
+    <h2>2. H2で判断する対象と、判断しない対象</h2>
+    <table>
+      <thead><tr><th>H2で判断する対象</th><th>このpacketで確認すること</th><th>判断しない／承認範囲外</th></tr></thead>
+      <tbody>
+        <tr><td>P5R2の4領域・8 atomic Requirement</td><td>各Requirementが実装、Test、Manual、Evidence、残境界まで追跡できる。</td><td>4領域を8件の代わりに扱うこと、旧P5Rの完了記録をP5R2の証拠にすること。</td></tr>
+        <tr><td>local／bounded acceptance</td><td>P5R2-13〜23のlocal実装・固定fixture・UI・手順書・再試験の結果を確認する。</td><td>local Evidenceを外部Providerの受入、実Dataの一般利用、費用承認へ読み替えること。</td></tr>
+        <tr><td>Open Unknownの扱い</td><td>未解消の項目を一覧に残し、Pass扱いにせず、次のGateと再開条件を明記する。</td><td>Unknownを理由なく解消済みとすること、管理hash経路を再導入すること。</td></tr>
+        <tr><td>P6再引渡し</td><td>P5R2の成果物と停止条件をP6-H0の入力として渡せる状態かを確認する。</td><td>P6-H0承認、P6実装、P6テスト、Provider接続、Paper／Liveの開始。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>3. P5RとP5R2の分離</h2>
+    <table>
+      <thead><tr><th>区分</th><th>扱い</th><th>現在の証拠</th></tr></thead>
+      <tbody>
+        <tr><td>P5R旧完了範囲</td><td>旧仕様・旧手順書・旧完了判定を履歴として保持する。1m固定の旧説明をP5R2の現行仕様にしない。</td><td><a href="../../phase5R/06_完了/01_P5R完了判定・P6引渡し.html">P5R完了判定</a> ／ <a href="../../phase5R/07_運用手順/01_バックテスト手順書.html">同じ手順書内の旧P5R履歴</a></td></tr>
+        <tr><td>P5R2現行要件</td><td>AT-REQ-004 v4の4領域・8件を現在正本とする。旧candidate、v3、旧Manualは入力・履歴であり、Currentではない。</td><td><a href="../../requirements/01_自動トレードシステム要件定義書_v4.html">要件v4</a> ／ <a href="../../index.html">doc/index</a></td></tr>
+        <tr><td>P5R2-H2</td><td class="wait">このpacket作成時点では未承認。承認判断を別ログへ記録するまでP5R2完了を宣言しない。</td><td><a href="../../../plan/phase5R2/ログ/P5R2-24_H2_packet作成_2026-08-23.md">P5R2-24ログ</a></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>4. 4領域と8 atomic Requirementの最終coverage</h2>
+    <p class="note"><strong>重要：</strong>4領域は分類の軸、8件は受入判断の単位です。下表は4領域を4件へ圧縮せず、8行を維持しています。</p>
+    <table>
+      <thead><tr><th>領域</th><th>atomic Requirement</th><th>実装・Test</th><th>Manual／Evidence</th><th>現在状態とH2で残す境界</th></tr></thead>
+      <tbody>
+        <tr><td>時間足</td><td><code>P5R2-CREQ-TF-001</code><br>Single Backtestは15m／30m／1h／4h／1d。1mはsource。</td><td>時間足選択の許可／1m拒否／30m受理、UTC・closed barのPreflight。P5R2-13、P5R2-19、P5R2-22。</td><td>Manual <code>P5R2-MAN-01</code>、SCREEN-08。<a href="../../../tests/evidence/phase5R2/RUN-P5R2-23-FINAL-LOCAL-001/P5R2-23_final/verification.md">P5R2-23 verification</a></td><td class="ok">LOCAL_COVERED／H1承認済み。P6は未開始。</td></tr>
+        <tr><td>時間足</td><td><code>P5R2-CREQ-TF-002</code><br>1m sourceから上位足を生成し、不足時は生成画面へ移動する。</td><td>Generation Job、quality／provenance、STAGED／PROMOTED、不足Data Dialog、生成画面、default range。P5R2-13／14／16／19／22。</td><td>Manual <code>P5R2-MAN-03/04</code>、P5R2-13／14 GREEN、P5R2-22画像。</td><td class="wait">LOCAL_COVERED／<code>P5R2-UNK-TF-004/006</code>はH1判断・local Evidence済み、H2で残Unknown扱いを確認。</td></tr>
+        <tr><td>時間足</td><td><code>P5R2-CREQ-TF-003</code><br>legacy、UTC、指定期間と有効期間を新規Run入力から分離する。</td><td>legacy read-only、UTC半開区間、closed bar、指定／有効期間の分離。P5R2-13／16／22。</td><td>Manual <code>P5R2-MAN-01/06</code>、現行／旧P5R分離。</td><td class="ok">LOCAL_COVERED／H2でCurrent追跡を確認。旧P5R入力への自動流用なし。</td></tr>
+        <tr><td>Historical Data</td><td><code>P5R2-CREQ-HD-001</code><br>UIのDownload Jobとlocal Generation Jobを分離する。</td><td>Download Jobは外部通信なしでDATA-G1境界を返す。Generation Jobはlocal sourceで動く。P5R2-14／18／22。</td><td>Catalog／generation画面、P5R2-18 external preflight、Manual <code>P5R2-MAN-02/04</code>。</td><td class="wait">LOCAL_COVERED_EXTERNAL_BLOCKED。host-level isolation未確認のため外部Data取得・promotionは未実施。</td></tr>
+        <tr><td>Historical Data</td><td><code>P5R2-CREQ-HD-002</code><br>銘柄ごとの使用可能Data一覧、identity、coverage、quality、mergeを管理する。</td><td>Catalog、STAGED／PROMOTED、non-overlap merge、dedupe、conflict／replace、Run固定Dataset。P5R2-14／16／22。</td><td>Catalog画面、Manual <code>P5R2-MAN-02/04</code>、P5R2-14／16 Evidence。</td><td class="wait">LOCAL_COVERED_WITH_H2_UNKNOWN_REVIEW。外部Providerのretention／redistribution／archive completenessは未確定。</td></tr>
+        <tr><td>Backtest Run操作</td><td><code>P5R2-CREQ-RUN-001</code><br>実行一覧・進捗・結果summaryで取消できる。</td><td>QUEUED／RUNNINGのみ取消、terminal不変、二重押下抑止、OperationGuard、restart復元。P5R2-15／16／19／22。</td><td>SCREEN-09／Manual <code>P5R2-MAN-05</code>、P5R2-19／22 Playwright。</td><td class="ok">LOCAL_COVERED／H2でCurrent追跡を確認。Provider実行は対象外。</td></tr>
+        <tr><td>Backtest Run操作</td><td><code>P5R2-CREQ-RUN-002</code><br>結果画面から不要terminal ResultArtifactを削除できる。</td><td>logical ID、固定root、path安全、確認Dialog、physical delete、Audit／tombstone、protected artifact保護。P5R2-21。</td><td>SCREEN-10／Manual <code>P5R2-MAN-06</code>、P5R2-21 bounded fixture Evidence。</td><td class="wait">BOUNDED_DELETE_COVERED。既存Data／Run／CSV／Audit／Evidence、一括purge、restoreは対象外。</td></tr>
+        <tr><td>手順書</td><td><code>P5R2-CREQ-DOC-001</code><br>実装済み・検証済み操作だけを初心者向け手順書へ反映し、失敗時の監査文脈を残す。</td><td>現行Manual、実画像、Capture Registry、a11y、local link、fail-closed UI契約 <code>render_preflight_and_operation_view</code>。P5R2-22／23。</td><td><a href="../../phase5R/07_運用手順/01_バックテスト手順書.html">現行Manual</a>、P5R2-22／23 Evidence、HTML 882 refs。</td><td class="wait">LOCAL_COVERED／H2_REVIEW。Manualの正式完了表示はH2判定後に更新する。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>5. Gateの状態</h2>
+    <table>
+      <thead><tr><th>Gate</th><th>状態</th><th>承認・確認の範囲</th><th>範囲外／停止条件</th><th>証拠</th></tr></thead>
+      <tbody>
+        <tr><td><code>P5R2-HREQ</code></td><td class="ok">APPROVED</td><td>要件v4正式化と後続計画再作成。</td><td>H1、DATA-G1、DELETE-G1、H2、P6を自動承認しない。</td><td><a href="../../phase5R2/03_HREQ/05_P5R2-HREQ承認packet.html">HREQ packet</a></td></tr>
+        <tr><td><code>P5R2-H1</code></td><td class="ok">APPROVED_BY_DELEGATED_AUTHORITY</td><td>詳細設計、対象path、local RED／GREEN、Quality scope、local UI等。</td><td>外部Data、既存物理削除、H2、P6。</td><td><a href="../../phase5R2/05_H1/06_P5R2-H1承認packet.html">H1 packet</a> ／ <a href="../../../plan/phase5R2/ログ/P5R2-H1_承認判断_2026-08-22.md">判断ログ</a></td></tr>
+        <tr><td><code>P5R2-DATA-G1</code></td><td class="ok">APPROVED_BOUNDED_P5R2-18</td><td>指定公開archive、指定銘柄・期間・source 1m、P5R2-18 pilotのpacket範囲。</td><td>host-level isolation未確認のためExternal execute／download／promotionはBlocked。login、契約、API call、Secret、費用、再配布は禁止。</td><td><a href="../../phase5R2/07_DATA-G1/07_P5R2-DATA-G1承認packet.html">DATA-G1 packet</a> ／ <a href="../../../plan/phase5R2/ログ/P5R2-DATA-G1_承認判断_2026-08-23.md">判断ログ</a></td></tr>
+        <tr><td><code>P5R2-DELETE-G1</code></td><td class="ok">APPROVED_BOUNDED_P5R2-21_FIXTURE_ONLY</td><td>terminal ResultArtifactの物理削除実装と新規一時fixtureの受入。</td><td>既存Data／Run／CSV／Audit／Evidence、cascade、一括purge、restore、P6は禁止。</td><td><a href="../../phase5R2/08_DELETE-G1/08_P5R2-DELETE-G1承認packet.html">DELETE-G1 packet</a> ／ <a href="../../../plan/phase5R2/ログ/P5R2-21_物理削除受入_2026-08-23.md">P5R2-21ログ</a></td></tr>
+        <tr><td><code>P5R2-H2</code></td><td class="wait">UNAPPROVED</td><td>このpacketで、全Acceptance、Manual、Open Unknown、P6再引渡しを判断する。</td><td>この行が未承認の間はP5R2完了宣言、P6開始、P6-H0承認を行わない。</td><td><a href="../../../plan/phase5R2/ログ/P5R2-24_H2_packet作成_2026-08-23.md">P5R2-24ログ</a> ／ <a href="../../../plan/phase5R2/ログ/P5R2-HumanGate権限移譲_2026-08-22.md">権限移譲記録</a></td></tr>
+        <tr><td><code>P6-H0</code></td><td class="wait">NOT_STARTED / NOT_APPROVED</td><td>P5R2-H2後に、P6の別packetで判断する。</td><td>P5R2-H2の承認だけを理由にP6の設計・実装・Test・外部I/Oを開始しない。</td><td><a href="../../index.html">doc/index</a> ／ P5R2-25引渡し欄</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>6. Open Unknownと再開条件</h2>
+    <table>
+      <thead><tr><th>ID</th><th>現在状態</th><th>H2での扱い</th><th>再開条件・証拠先</th></tr></thead>
+      <tbody>
+        <tr><td><code>P5R2-UNK-TF-004</code></td><td>H1_DECISION_CONFIRMED／LOCAL_EVIDENCE</td><td>H1で決めた「内部欠損1本だけを条件付きで扱う」境界を確認する。条件外Dataをusableにしない。</td><td>追加方式を勝手に採用せず、必要なら別Requirement／Gateで明文化する。<a href="../../../plan/phase5R2/requirements/P5R2-08_requirement-coverage.md">coverage</a></td></tr>
+        <tr><td><code>P5R2-UNK-TF-006</code></td><td>H1_DECISION_CONFIRMED／LOCAL_EVIDENCE</td><td>sourceのclosed・quality承認済み最小〜最大をdefault rangeにする境界を確認する。推測期間は表示・送信しない。</td><td>外部Dataの期間を自動拡張しない。<a href="../../../plan/phase5R2/requirements/P5R2-09_design-coverage-matrix.md">design coverage</a></td></tr>
+        <tr><td><code>P5R2-UNK-QG-003</code></td><td class="wait">OPEN／EXTERNAL_HOST_ISOLATION_NOT_VERIFIED</td><td>process-level allowlistをhost-level isolationの証拠とみなさず、P5R2-18 ExternalをBlockedのまま保持する。</td><td>host outbound isolation、固定Run、fixture、対象範囲を別の外部受入Gateで確認するまで、外部Data取得・promotionを開始しない。<a href="../../../plan/phase5R2/ログ/P5R2-18_外部Data受入・専用Runner_2026-08-23.md">P5R2-18ログ</a></td></tr>
+        <tr><td><code>P5R2-UNK-HD-004</code></td><td class="wait">USER_APPROVED_LIMITED／NO_HASH_FLOW</td><td>管理用hash、manifest、fingerprint、stale、retry、hash receiptを作らない方針を維持する。</td><td>保護対象hashが必要になった場合だけ、目的・対象・停止範囲を別Gateで定義する。<a href="../../../plan/phase5R2/ログ/P5R2-UNK-HD-004_HumanGate承認_2026-08-22.md">限定承認記録</a></td></tr>
+        <tr><td><code>P5R2-DATA-G1</code>境界</td><td class="wait">BOUNDED／EXTERNAL_BLOCKED</td><td>指定Provider・host・銘柄・期間・sourceだけのpilot承認を、一般のDownload機能の完成とは扱わない。</td><td>公開文書のread-only閲覧を除き、login、契約、API call、Data download、再配布、費用を別判断なしに行わない。</td></tr>
+        <tr><td><code>P5R2-DELETE-G1</code>境界</td><td class="wait">BOUNDED_FIXTURE_ONLY</td><td>新規一時fixtureのResultArtifact削除受入を、既存利用者Dataの削除許可へ広げない。</td><td>既存Data／Run／CSV／Audit／Evidence、purge、restoreは実施しない。復元機能を追加で約束しない。</td></tr>
+      </tbody>
+    </table>
+    <p class="note"><strong>Runtimeの事実：</strong>指定nested Agent dispatchは成立していない。P5R2-23／24はroot fallbackとして実施し、未起動Agentを独立完了扱いにしていない。<code>RUNTIME_DISPATCH_FALLBACK_REQUIRED</code>、<code>agent_id=N/A</code>、<code>independent=false</code>、<code>SELF_REVIEW_FALLBACK</code>を受領証跡に残す。</p>
+  </section>
+
+  <section>
+    <h2>7. P5R2-23の統合レビューと品質結果</h2>
+    <table>
+      <thead><tr><th>確認項目</th><th>結果</th><th>証拠</th></tr></thead>
+      <tbody>
+        <tr><td>Findings first</td><td class="ok">Critical 0／High 0／Medium open 0。Current文書の同期とfail-closed UI契約の追加を完了。</td><td><a href="../../../plan/phase5R2/ログ/P5R2-23_最終統合レビュー・再試験_2026-08-23.md">P5R2-23ログ</a></td></tr>
+        <tr><td>P5R2対象pytest</td><td class="ok">112 passed</td><td><a href="../../../tests/evidence/phase5R2/RUN-P5R2-23-FINAL-LOCAL-001/P5R2-23_final/verification.md">verification</a></td></tr>
+        <tr><td>UI quality</td><td class="ok">build PASS、Vitest 14 passed、lint PASS（既存Fast Refresh warningのみ）</td><td><a href="../../../tests/evidence/phase5R2/RUN-P5R2-23-FINAL-LOCAL-001/P5R2-23_final/verification.md">verification</a></td></tr>
+        <tr><td>Playwright／a11y</td><td class="ok">P5R2-19／21／22は各desktop／mobile 2 passed。P5R2-22 axe serious／critical 0。</td><td><a href="../../../tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/verification.md">P5R2-22 verification</a></td></tr>
+        <tr><td>HTML／Evidence link</td><td class="ok">対象6文書、882 local references、missing 0、duplicate id 0。</td><td><a href="../../../plan/phase5R2/quality/runtime-receipt-P5R2-23.json">runtime receipt</a></td></tr>
+        <tr><td>External／Secret／費用</td><td class="ok">external request 0、Secret false、cost false。既存Artifactの破壊的削除なし。</td><td><a href="../../../tests/evidence/phase5R2/RUN-P5R2-23-FINAL-LOCAL-001/P5R2-23_final/P5R2-23_GREEN.json">GREEN Evidence</a></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>8. H2承認後にだけ行うP5R2-25と、行わないこと</h2>
+    <ul>
+      <li>H2承認後、P5R2-25で承認判断、P5R2完了状態、Manualの承認状態、統合台帳、index、最終Evidenceを同期する。</li>
+      <li>最終判定は、Unknownを解消済みと偽らず、必要に応じて <code>P5R2-COMPLETE_WITH_OPEN_UNKNOWN</code> とする。</li>
+      <li>P6へ渡すのは、成果物、8件coverage、残Unknown、禁止境界、再開条件、P6-H0が別Gateであることだけである。</li>
+      <li>外部Providerへの接続、外部Data download、Secret、費用、既存Artifactの削除、P6実装、P6テストは開始しない。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>9. 参照先</h2>
+    <ul>
+      <li><a href="../../requirements/01_自動トレードシステム要件定義書_v4.html">AT-REQ-004 要件v4</a> ／ <a href="../../../plan/Phase5R2_実行計画書_v0.2_2026-08-22.md">P5R2計画v0.2</a></li>
+      <li><a href="../04_実装詳細設計/01_P5R2時間足・Preflight設計書.html">時間足・Preflight設計</a> ／ <a href="../04_実装詳細設計/02_P5R2HistoricalDataJob・Catalog設計書.html">Historical Data Job・Catalog設計</a> ／ <a href="../04_実装詳細設計/03_P5R2Run操作・ResultArtifact設計書.html">Run・ResultArtifact設計</a></li>
+      <li><a href="../04_実装詳細設計/04_P5R2Persistence・Migration・Recovery設計書.html">Persistence・Migration・Recovery設計</a> ／ <a href="../04_実装詳細設計/05_P5R2UI・Manual・Evidence接続設計書.html">UI・Manual・Evidence接続設計</a></li>
+      <li><a href="../../phase5R/07_運用手順/01_バックテスト手順書.html">現行Backtest手順書（P5R2改訂候補）</a> ／ <a href="../../00_全Phase残課題Blocked統合台帳.html">統合台帳</a> ／ <a href="../../index.html">doc/index</a></li>
+      <li><a href="../../../plan/phase5R2/ログ/P5R2-22_バックテスト手順書改訂・実画像_2026-08-23.md">P5R2-22 Manualログ</a> ／ <a href="../../../plan/phase5R2/ログ/P5R2-23_最終統合レビュー・再試験_2026-08-23.md">P5R2-23統合レビュー</a> ／ <a href="../../../plan/phase5R2/quality/runtime-receipt-P5R2-24.json">P5R2-24 runtime receipt</a></li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

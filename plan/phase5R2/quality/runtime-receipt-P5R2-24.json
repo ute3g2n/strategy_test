@@ -1,0 +1,69 @@
+{
+  "schema_version": "P5R2-runtime-receipt-v1",
+  "step_id": "P5R2-24",
+  "run_id": "RUN-P5R2-24-H2-PACKET-LOCAL-001",
+  "date": "2026-08-23",
+  "coordinator": "AutoTradePhasePlanning_Orchestrator_v0_1",
+  "requested_agents": [
+    "AutoTrade_A05_PhaseExecutionPlanner_v0_1",
+    "AutoTrade_A10_RequirementsCurator_v0_1",
+    "AutoTrade_A80_DocumentIntegrator_v0_1",
+    "AutoTrade_A90_DesignReviewer_v0_1",
+    "AutoTrade_A95_ProtectedHashPolicyGuardian_v0_1"
+  ],
+  "requested_skills": [
+    "autotrade_skill_phase_execution_planning_v0_1",
+    "autotrade_skill_source_reader_v0_1",
+    "autotrade_skill_traceability_v0_1",
+    "autotrade_skill_orchestration_v0_1",
+    "autotrade_skill_design_review_v0_1",
+    "autotrade_skill_red_team_review_v0_1",
+    "autotrade_skill_revision_integration_v0_1",
+    "autotrade_skill_protected_hash_policy_guard_v0_1"
+  ],
+  "dispatch": {
+    "status": "RUNTIME_DISPATCH_FALLBACK_REQUIRED",
+    "agent_id": "N/A",
+    "independent": false,
+    "review_mode": "SELF_REVIEW_FALLBACK",
+    "reason": "この環境では指定nested named Agent dispatchを起動できず、rootがH2 packetを集約・自己点検した。"
+  },
+  "scope": {
+    "requirements": "AT-REQ-004 4 domains / 8 atomic requirements",
+    "artifact": "doc/phase5R2/06_完了/09_P5R2-H2完了・P6再引渡しpacket.html",
+    "mode": "read_only_packet_composition",
+    "external_io": false,
+    "provider_login": false,
+    "provider_api_call": false,
+    "external_data_download": false,
+    "secrets": false,
+    "cost": false,
+    "physical_delete": false,
+    "p6": "NOT_STARTED"
+  },
+  "packet_checks": {
+    "four_domains_distinguished_from_eight_atomic_requirements": true,
+    "gate_scope_and_stop_conditions_present": true,
+    "open_unknowns_retained": true,
+    "p6_h0_separate": true,
+    "h2": "UNAPPROVED",
+    "html_local_references": {
+      "references": 944,
+      "missing": 0,
+      "duplicate_ids": 0,
+      "self_check_pending": false
+    }
+  },
+  "results": {
+    "status": "P5R2-24_PACKET_READY",
+    "a95_static_policy": "ALLOW",
+    "p5r2_h2": "UNAPPROVED",
+    "p6": "NOT_STARTED / NOT_APPROVED"
+  },
+  "evidence": [
+    "doc/phase5R2/06_完了/09_P5R2-H2完了・P6再引渡しpacket.html",
+    "plan/phase5R2/ログ/P5R2-24_H2_packet作成_2026-08-23.md",
+    "tests/evidence/phase5R2/RUN-P5R2-24-H2-PACKET-LOCAL-001/P5R2-24_h2/P5R2-24_H2_PACKET_READY.json",
+    "tests/evidence/phase5R2/RUN-P5R2-24-H2-PACKET-LOCAL-001/P5R2-24_h2/verification.md"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": "P5R2-A95-static-policy-v1",
+  "step_id": "P5R2-24",
+  "run_id": "RUN-P5R2-24-H2-PACKET-LOCAL-001",
+  "policy": "ALLOW",
+  "scope": "packet path/schema/link/secret/state/traceability review only",
+  "management_hash": false,
+  "manifest": false,
+  "stale_or_fingerprint": false,
+  "hash_retry": false,
+  "hash_receipt": false,
+  "reason": "H2 packetの集約と静的境界確認だけを行い、管理hash経路、外部I/O、P6開始、H2承認を追加していない。"
+}

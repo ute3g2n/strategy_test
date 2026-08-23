@@ -1,0 +1,54 @@
+{
+  "schema_version": "P5R2-24-h2-packet-ready-v1",
+  "step_id": "P5R2-24",
+  "run_id": "RUN-P5R2-24-H2-PACKET-LOCAL-001",
+  "status": "P5R2-24_PACKET_READY",
+  "h2": "UNAPPROVED",
+  "p6_h0": "NOT_STARTED / NOT_APPROVED",
+  "coverage": {
+    "domains": 4,
+    "atomic_requirements": 8,
+    "all_eight_have_rows": true,
+    "old_p5r_separated": true
+  },
+  "gate_state": {
+    "hreq": "APPROVED",
+    "h1": "APPROVED_BY_DELEGATED_AUTHORITY",
+    "data_g1": "APPROVED_BOUNDED_P5R2_18_EXTERNAL_BLOCKED",
+    "delete_g1": "APPROVED_BOUNDED_P5R2_21_FIXTURE_ONLY",
+    "h2": "UNAPPROVED",
+    "p6_h0": "NOT_STARTED / NOT_APPROVED"
+  },
+  "open_unknowns": [
+    "P5R2-UNK-TF-004",
+    "P5R2-UNK-TF-006",
+    "P5R2-UNK-QG-003",
+    "P5R2-UNK-HD-004",
+    "DATA-G1 bounded external boundary",
+    "DELETE-G1 bounded fixture boundary"
+  ],
+  "p5r2_23_inheritance": {
+    "pytest": "112 passed",
+    "ui_build": "PASS",
+    "ui_vitest": "14 passed",
+    "playwright": "P5R2-19/21/22 desktop and mobile each 2 passed",
+    "axe_serious_or_critical": 0,
+    "external_requests": 0,
+    "critical_open": 0,
+    "high_open": 0
+  },
+  "html_local_references": {
+    "documents": 7,
+    "references": 944,
+    "missing": 0,
+    "duplicate_ids": 0
+  },
+  "boundaries": {
+    "external_io": false,
+    "provider_login": false,
+    "secrets": false,
+    "cost": false,
+    "physical_delete": false,
+    "management_hash_flow": false
+  }
+}
