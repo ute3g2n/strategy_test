@@ -1,0 +1,13 @@
+{
+  "schema_version": "P5R2-25-complete-with-open-unknown-v1",
+  "step_id": "P5R2-25",
+  "run_id": "RUN-P5R2-25-FINAL-HANDOFF-LOCAL-001",
+  "status": "P5R2-COMPLETE_WITH_OPEN_UNKNOWN",
+  "h2": "APPROVED_BY_DELEGATED_AUTHORITY",
+  "p6_h0": "NOT_APPROVED",
+  "coverage": {"domains": 4, "atomic_requirements": 8, "all_eight_have_rows": true, "old_p5r_separated": true},
+  "quality": {"pytest": "112 passed", "ui_build": "PASS", "ui_vitest": "14 passed", "playwright": "P5R2-19/21/22 desktop and mobile each 2 passed", "axe_serious_or_critical": 0, "external_requests": 0, "critical_open": 0, "high_open": 0},
+  "html_local_references": {"documents": 11, "references": 1139, "missing": 0, "duplicate_ids": 0, "self_check_pending": false},
+  "open_unknowns": ["P5R2-UNK-TF-004", "P5R2-UNK-TF-006", "P5R2-UNK-QG-003", "P5R2-UNK-HD-004", "DATA-G1 bounded external boundary", "DELETE-G1 bounded fixture boundary"],
+  "boundaries": {"provider_login": false, "external_data_download": false, "secrets": false, "cost": false, "physical_delete": false, "management_hash_flow": false, "p6_implementation": false}
+}

@@ -53,7 +53,7 @@
 </head>
 <body>
 <main>
-  <p class="meta">文書ID: <code>P5R-MAN-01</code> ／ 版: <code>v0.6-P5R2-candidate</code> ／ 改訂日: <code>2026-08-23</code> ／ 状態: <strong>P5R2-22改訂候補・H2未承認・現行P5R2と旧P5R履歴を分離</strong></p>
+  <p class="meta">文書ID: <code>P5R-MAN-01</code> ／ 版: <code>v0.6-P5R2-approved</code> ／ 改訂日: <code>2026-08-23</code> ／ 状態: <strong>P5R2-H2承認済み・P5R2-25完了・現行P5R2と旧P5R履歴を分離</strong></p>
   <h1>バックテスト手順書</h1>
   <div class="note"><strong>最初に結論：</strong>この画面では、保存されている過去の市場Dataに、売買ルール（Strategy）を仮想的に当てはめて、「もし過去にこのルールを使っていたら、どんな結果になったか」を調べられます。実際の注文は出ません。将来の利益も保証しません。<strong>現在のP5R2では、戦略時間足は15m／30m／1h／4h／1dです。1mは生成元Dataであり、戦略時間足としては選べません。</strong></div>
   <p>この手順書は、投資を始めたばかりの人でも読めるように書いています。画面に出る英語や数字は残し、そのすぐ近くに意味を説明します。まず「できること一覧」から目的の機能を選び、その行のリンクから操作へ進んでください。</p>
@@ -937,14 +937,14 @@
   <table>
     <thead><tr><th>日付</th><th>版</th><th>変更</th></tr></thead>
     <tbody>
-      <tr><td>2026-08-23</td><td>v0.6-P5R2-candidate</td><td>P5R2-22候補として、現行の15m／30m／1h／4h／1d、1m source、UTC半開区間、Data Catalog、生成Job、不足Data確認、Run取消、terminal状態、CSV先行Export、ResultArtifact物理削除、保護対象、復旧境界、desktop／mobile画像とCapture Registryを追加。旧P5Rの1m手順は履歴として明示分離。H2未承認。</td></tr>
+      <tr><td>2026-08-23</td><td>v0.6-P5R2-approved</td><td>P5R2-22で、現行の15m／30m／1h／4h／1d、1m source、UTC半開区間、Data Catalog、生成Job、不足Data確認、Run取消、terminal状態、CSV先行Export、ResultArtifact物理削除、保護対象、復旧境界、desktop／mobile画像とCapture Registryを追加し、P5R2-H2承認およびP5R2-25完了同期を反映。旧P5Rの1m手順は履歴として明示分離。</td></tr>
       <tr><td>2026-08-16</td><td>v0.5</td><td>完了Runの履歴カタログをEドライブへ保存し、API／Windows再起動後に履歴・詳細・Ledgerを復元するBT-F-17／BT-MAN-17を追加。旧形式、破損、不一致、未完了の表示、DBサーバを使わない保存方式、Playwrightの実再起動証跡を追記。</td></tr>
       <tr><td>2026-08-16</td><td>v0.4</td><td>通常のヒストリカルデータ、Backtest結果、CSV、起動ログの保存先をEドライブのアプリ専用領域へ統一。Cドライブや一時フォルダーへフォールバックしないこと、既存のテストfixtureを通常実行と分離することを追記。</td></tr>
       <tr><td>2026-08-16</td><td>v0.2</td><td>ユーザー指摘を反映。機能一覧、機能→操作リンク、初心者向け最短コース、平易な操作、専門用語集、失敗・復旧、結果の限界、Web出典、Sweep取消BT-MAN-16を追加。</td></tr>
       <tr><td>2026-08-16</td><td>v0.1</td><td>P5R-09の実画面撮影とBT-MAN-01〜15の初版。</td></tr>
     </tbody>
   </table>
-  <div class="warn"><strong>P5R2-22時点の状態：</strong>この文書はP5R2-H2前の改訂候補です。P5R2現行操作、旧P5R履歴、local-only証跡、外部Data未承認、P6未開始を分けて記載しています。H2承認まではP5R2完了宣言やP6開始の根拠にしません。</div>
+  <div class="warn"><strong>P5R2-25現在の状態：</strong>この文書はP5R2-H2承認済みの現行手順書です。P5R2現行操作、旧P5R履歴、local／bounded証跡、外部Dataの未検証境界、P6-H0未承認を分けて記載しています。P5R2完了はP6開始の許可ではなく、P6はP6-H0承認まで停止します。</div>
   <div class="good"><strong>この手順書の完了条件：</strong>機能一覧の現行行から操作へ移動でき、各操作に成功・失敗・復旧があり、専門語が説明され、画像がPlaywrightのassert成功後に撮影され、Backtestを本番運用や利益保証と誤解しないこと。P5R2現行行は実装・検証済み範囲だけを利用可能として説明します。</div>
 </main>
 </body>

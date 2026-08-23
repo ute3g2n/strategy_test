@@ -1,0 +1,13 @@
+{
+  "schema_version": "P5R2-A95-static-policy-v1",
+  "step_id": "P5R2-25",
+  "run_id": "RUN-P5R2-25-FINAL-HANDOFF-LOCAL-001",
+  "policy": "ALLOW",
+  "scope": "final path/schema/link/secret/state/traceability review only",
+  "management_hash": false,
+  "manifest": false,
+  "stale_or_fingerprint": false,
+  "hash_retry": false,
+  "hash_receipt": false,
+  "reason": "P5R2完了とP6-H0引渡しの文書同期だけを行い、Open Unknown、外部I/O境界、P6-H0未承認、管理hash禁止を維持した。"
+}

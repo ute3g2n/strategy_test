@@ -191,15 +191,15 @@
       <thead><tr><th>ID</th><th>状態</th><th>決めること／再開条件</th><th>未承認中の禁止</th></tr></thead>
       <tbody>
         <tr><td><code>P5R2-H1</code></td><td><span class="badge approved">APPROVED_BY_DELEGATED_AUTHORITY</span></td><td>詳細設計、RED、対象path、fixture、固定command、local実装範囲、Quality Gateをlocal範囲に限り承認済み。</td><td>DATA-G1範囲外の外部Data、DELETE-G1範囲外の物理削除、H2前の完了宣言、P6開始。</td></tr>
-        <tr><td><code>P5R2-UNK-TF-004</code></td><td><span class="badge future">H1_DECISION_CONFIRMED / LOCAL_EVIDENCE / H2_REVIEW</span></td><td>単一内部欠損の補間条件をH1で確定し、P5R2-13のlocal実装・negative test・provenanceへ写像した。候補外Dataはusable／Run入力へ渡さない。</td><td>候補条件外、始端・終端欠損、2本以上、provenance欠落をusable／Run入力へ昇格しない。</td></tr>
-        <tr><td><code>P5R2-UNK-TF-006</code></td><td><span class="badge future">H1_DECISION_CONFIRMED / LOCAL_EVIDENCE / H2_REVIEW</span></td><td>Catalog時点のclosedかつquality承認済みsourceの最小時刻から最大時刻までを既定値とし、P5R2-13／14／22でlocal実装・表示・停止条件を確認した。</td><td>sourceなし、品質未承認、欠損条件不明の期間を推測して表示・送信・Run入力へ渡さない。</td></tr>
+        <tr><td><code>P5R2-UNK-TF-004</code></td><td><span class="badge future">H1_DECISION_CONFIRMED / LOCAL_EVIDENCE / OPEN_UNKNOWN</span></td><td>単一内部欠損の補間条件をH1で確定し、P5R2-13のlocal実装・negative test・provenanceへ写像した。P5R2-H2承認後も候補外Dataはusable／Run入力へ渡さない。</td><td>候補条件外、始端・終端欠損、2本以上、provenance欠落をusable／Run入力へ昇格しない。</td></tr>
+        <tr><td><code>P5R2-UNK-TF-006</code></td><td><span class="badge future">H1_DECISION_CONFIRMED / LOCAL_EVIDENCE / OPEN_UNKNOWN</span></td><td>Catalog時点のclosedかつquality承認済みsourceの最小時刻から最大時刻までを既定値とし、P5R2-13／14／22でlocal実装・表示・停止条件を確認した。P5R2-H2承認後もsourceなしの期間を推測しない。</td><td>sourceなし、品質未承認、欠損条件不明の期間を推測して表示・送信・Run入力へ渡さない。</td></tr>
         <tr><td><code>P5R2-DATA-G1</code></td><td><span class="badge approved">APPROVED_BOUNDED_P5R2_18 / EXTERNAL_BLOCKED</span></td><td>Provider、host、market、symbol、期間、source interval、保存先のbounded pilot範囲を承認済み。ただしhost-level isolation未確認のため実受入は未完了。</td><td>host-level isolation確認なしのlogin、契約、API call、外部Data download、Secret、費用、promotion。</td></tr>
         <tr><td><code>P5R2-DELETE-G1</code></td><td><span class="badge approved">APPROVED_BOUNDED_P5R2_21_FIXTURE_ONLY</span></td><td>terminal ResultArtifactの新規一時fixture限定の物理削除受入を承認済み。protected artifactは維持し、P5R2-21で確認した。</td><td>既存実Data、既存Run、Export済みCSV、Evidence、監査記録、一括purge、restoreの削除。</td></tr>
-        <tr><td><code>P5R2-H2</code></td><td><span class="badge approved">APPROVED_BY_DELEGATED_AUTHORITY</span></td><td>全Acceptance、Data境界、取消／削除、改訂手順書、Open Unknown、P6再引渡しを承認した。P5R2-25でCurrent状態と完了判定を同期する。</td><td>P6開始、P6-H0承認、外部Provider接続、Secret、費用、既存Artifactの破壊的削除は承認しない。</td></tr>
+        <tr><td><code>P5R2-H2</code></td><td><span class="badge approved">APPROVED_BY_DELEGATED_AUTHORITY</span></td><td>全Acceptance、Data境界、取消／削除、改訂手順書、Open Unknown、P6再引渡しを承認し、P5R2-25で<code>P5R2-COMPLETE_WITH_OPEN_UNKNOWN</code>へCurrent状態と完了判定を同期済み。</td><td>P6開始、P6-H0承認、外部Provider接続、Secret、費用、既存Artifactの破壊的削除は承認しない。</td></tr>
         <tr><td><code>P5R2-UNK-HD-004</code></td><td><span class="badge approved">USER_APPROVED_LIMITED / NO_HASH_FLOW</span></td><td>管理用hash経路を追加しない境界は承認済み。将来の保護対象hashは別の目的・対象・比較時点・停止範囲が明文化されるまで保留。</td><td>管理hash、manifest、checksum receipt、fingerprint、stale、hash retryを作成・要求・完了条件にしない。</td></tr>
       </tbody>
     </table>
-    <div class="danger"><strong>現在の停止：</strong>P5R2-H1はlocal範囲、P5R2-DATA-G1はbounded pilot、P5R2-DELETE-G1は新規一時fixture限定、P5R2-H2はP5R2-25でCurrent同期を行う条件付きで承認済みである。DATA-G1の外部受入はhost-level isolation未確認でBlocked。P6-H0は未承認であり、P6は停止中である。承認範囲外の外部Data取得・Secret・費用・既存Artifactの破壊的削除・P6開始を行わない。local test subprocessとPlaywrightは各承認範囲内で既に実行済みである。</div>
+    <div class="danger"><strong>現在の停止：</strong>P5R2-H1はlocal範囲、P5R2-DATA-G1はbounded pilot、P5R2-DELETE-G1は新規一時fixture限定、P5R2-H2は委譲権限で承認済み、P5R2-25でP5R2完了状態を同期済みである。P5R2はOpen Unknownを残して完了し、DATA-G1の外部受入はhost-level isolation未確認でBlocked。P6-H0は未承認であり、P6は停止中である。承認範囲外の外部Data取得・Secret・費用・既存Artifactの破壊的削除・P6開始を行わない。local test subprocessとPlaywrightは各承認範囲内で既に実行済みである。</div>
   </section>
 
   <section id="traceability">

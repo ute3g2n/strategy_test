@@ -1,17 +1,17 @@
 # P5R2-09 詳細設計書セット coverage matrix
 
-状態: `DESIGN_COMPLETE / P5R2-H1_APPROVED_BY_DELEGATED_AUTHORITY / LOCAL_IMPLEMENTATION_EVIDENCE_AVAILABLE`。作成時点のH1未承認という履歴はP5R2-09ログへ保持する。これは設計coverageの現在同期であり、P5R2-13〜22の実装・試験・Manual Evidenceへの入口を示す。P5Rの既存Evidence/Test/Manualは履歴参照だけであり、P5R2の合否証拠へ昇格しない。
+状態: `DESIGN_COMPLETE / P5R2-H1_APPROVED_BY_DELEGATED_AUTHORITY / P5R2-H2_APPROVED_BY_DELEGATED_AUTHORITY / P5R2-COMPLETE_WITH_OPEN_UNKNOWN / LOCAL_IMPLEMENTATION_EVIDENCE_AVAILABLE`。作成時点のH1未承認という履歴はP5R2-09ログへ保持する。これは設計coverageの現在同期であり、P5R2-13〜25の実装・試験・Manual Evidenceへの入口を示す。P5Rの既存Evidence/Test/Manualは履歴参照だけであり、P5R2の合否証拠へ昇格しない。
 
 | atomic Requirement | 下位Requirement | 主設計書 | 実装前に固定する契約 | Test雛形の責務 | Gate / Unknown |
 |---|---|---|---|---|---|
 | P5R2-CREQ-TF-001 | TF-001, TF-004 | 01 | 5戦略足、UTC anchor、closed bar、有効終了 | 選択肢、1m拒否、30m、partial拒否 | H1承認済み、P5R2-13 local GREEN |
-| P5R2-CREQ-TF-002 | TF-002, TF-005, TF-006 | 01, 02, 05 | 1m source/derived分離、補間、生成遷移 | 補間の正負例、生成入力引継ぎ | H1判断済み、P5R2-13／14／22 local、H2 review |
+| P5R2-CREQ-TF-002 | TF-002, TF-005, TF-006 | 01, 02, 05 | 1m source/derived分離、補間、生成遷移 | 補間の正負例、生成入力引継ぎ | H1判断済み、P5R2-13／14／22 local、H2承認済み・Open Unknown保持 |
 | P5R2-CREQ-TF-003 | TF-003, TF-004 | 01, 04, 05 | legacyを閲覧専用に分離 | legacyを新規Runへ渡さない | H1承認済み、P5R2-16／22 local |
 | P5R2-CREQ-HD-001 | HD-001, HD-002 | 02, 04, 05 | Download/Generationの別ID・別状態 | Gate前無通信、Job/DataSet分離 | H1承認済み、DATA-G1 bounded／External blocked |
-| P5R2-CREQ-HD-002 | HD-003～HD-007 | 02, 04, 05 | identity、coverage、quality、promotion | dedupe/conflict/merge/replace/recovery | H1判断済み、P5R2-14／16／22 local、H2 review |
+| P5R2-CREQ-HD-002 | HD-003～HD-007 | 02, 04, 05 | identity、coverage、quality、promotion | dedupe/conflict/merge/replace/recovery | H1判断済み、P5R2-14／16／22 local、H2承認済み・Open Unknown保持 |
 | P5R2-CREQ-RUN-001 | RUN-001, RUN-002 | 03, 04, 05 | 3画面共通cancel、OperationGuard、terminal不変 | 二重押下、再送、別tab、再起動 | H1承認済み、P5R2-15／16／19 local |
 | P5R2-CREQ-RUN-002 | RUN-003, RUN-004 | 03, 04, 05 | Artifact状態、論理ID、安全な許可root | traversal/symlink/reparse/TOCTOU/CSV保護 | H1承認済み、DELETE-G1 bounded／P5R2-21 local |
-| P5R2-CREQ-DOC-001 | AUDIT-001, DOC-001, GATE-001 | 05（横断01～04） | DTO、dialog、a11y、Manual/Evidence registry | UI/Manualの未実証拒否 | H1承認済み、P5R2-22 local candidate、H2 review |
+| P5R2-CREQ-DOC-001 | AUDIT-001, DOC-001, GATE-001 | 05（横断01～04） | DTO、dialog、a11y、Manual/Evidence registry | UI/Manualの未実証拒否 | H1／H2承認済み、P5R2-22 local、P5R2-25 Current同期 |
 
 ## 設計判断とUnknown
 
@@ -24,13 +24,13 @@
 | DD-05 | cancelはRun専用OperationGuardで直列化する | 03 | 設計契約 |
 | DD-06 | terminal cancelは状態不変で監査する | 03 | 設計契約 |
 | DD-07 | 削除入力は論理Artifact IDだけ | 03, 04 | 設計契約 |
-| DD-08 | DELETE-G1前は物理削除をfail-closedにする | 03, 04 | Gate待ち |
+| DD-08 | DELETE-G1前は物理削除をfail-closedにする | 03, 04 | DELETE-G1 bounded fixture受入済み、範囲外はfail-closed |
 | DD-09 | SQLite/file操作はintent→commit→recoveryで扱う | 04 | 設計契約 |
 | DD-10 | legacyは読取専用、暗黙移行しない | 01, 04, 05 | 設計契約 |
 | DD-11 | UIはDTO/error codeで画面差をなくす | 05 | 設計契約 |
-| DD-12 | ManualはP5R2-22で実証済み操作だけ更新する | 05 | Gate待ち |
-| P5R2-UNK-TF-004 | H1で確定した補間候補のAPI/Persistence/negative testへの写像 | 01, 02 | P5R2-13 local Evidence済み。候補外Dataをusable/Run入力へしない。H2で残Unknown扱いを確認 |
-| P5R2-UNK-TF-006 | H1で確定した「現在生成可能な全期間」の算出規則 | 01, 02, 05 | P5R2-13／14／22 local Evidence済み。sourceなしの既定期間を表示・実装しない。H2で残Unknown扱いを確認 |
+| DD-12 | ManualはP5R2-22で実証済み操作だけ更新する | 05 | P5R2-H2承認済み、P5R2-25でCurrent同期 |
+| P5R2-UNK-TF-004 | H1で確定した補間候補のAPI/Persistence/negative testへの写像 | 01, 02 | P5R2-13 local Evidence済み。P5R2-H2承認後も候補外Dataをusable/Run入力へしないOpen Unknown |
+| P5R2-UNK-TF-006 | H1で確定した「現在生成可能な全期間」の算出規則 | 01, 02, 05 | P5R2-13／14／22 local Evidence済み。P5R2-H2承認後もsourceなしの既定期間を表示・実装しないOpen Unknown |
 | P5R2-UNK-QG-001 | P5R2 Quality namespaceと固定入口 | 05 | P5R2-12／18 local Evidenceで解消。External Runのhost-level isolationへ読み替えない |
 | P5R2-UNK-QG-002 | fixtureと保護境界 | 04, 05 | P5R2-12／18でread-only確認済み。管理目的の同一性照合経路を新設しない |
 
@@ -40,7 +40,7 @@
 - schema: HTMLはUTF-8、local Mermaid asset参照、文書ID・状態・入力・追跡・レビューを持つ。
 - link: `doc/index.html` と5冊の相互リンクを更新する。
 - Secret: Secret、実Provider認証値、口座情報、実Dataは含めない。
-- 状態: H1/DATA-G1/DELETE-G1/H2を未承認のまま保持する。
+- 状態: H1、DATA-G1 bounded pilot、DELETE-G1 bounded fixture、H2は各承認範囲を正確に保持し、P5R2-COMPLETE_WITH_OPEN_UNKNOWNとP6-H0未承認を分離する。
 - A95静的判定: 管理目的の同一性照合経路を追加していないため `ALLOW`（候補なし）。
 +
 ## P5R2-10 レビュー・改訂・再レビュー（2026-08-22）
@@ -67,4 +67,4 @@
 | P5R旧Test/Evidence/ManualをP5R2合否へ昇格しない | Pass | Pass | Pass | Pass | Pass | Pass |
 | 管理目的の同一性照合経路を追加しない | Pass | Pass | Pass | Pass | Pass | Pass |
 
-再レビュー判定: `Critical=0 / High=0 / Medium=0 / Low=0`。P5R2-UNK-TF-004／006はH1判断とlocal Evidenceを得たが、H2で残Unknownとしての扱いを最終確認する。P5R2-UNK-QG-001／002はlocal scopeでは解消済みで、P5R2-UNK-QG-003（External host-level isolation）、DATA-G1外部受入、DELETE-G1のbounded範囲外、H2はOpenのままであり、Passとは扱わない。
+再レビュー判定: `Critical=0 / High=0 / Medium=0 / Low=0`。P5R2-UNK-TF-004／006はH1判断とlocal Evidenceを得て、P5R2-H2承認後もOpen Unknownとして保持する。P5R2-UNK-QG-001／002はlocal scopeでは解消済みで、P5R2-UNK-QG-003（External host-level isolation）、DATA-G1外部受入の未検証境界、DELETE-G1のbounded範囲外はOpenのままであり、Passとは扱わない。P6-H0は別Gateとして未承認である。
