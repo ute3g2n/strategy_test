@@ -3,21 +3,21 @@ import { UtcDateTimePicker } from './UtcDateTimePicker'
 import { ConfirmDialog, EmptyState, ErrorState, HelpTip, ProgressBar, StateAlert, StateBadge, type ScreenDefinition, type UiState } from './ui'
 import { isUtcRangeWithin, validateUtcRange } from './utcDateTime'
 import {
-  defaultP5R2BacktestSpec,
-  isP5R2StrategyTimeframe,
-  P5R2_STRATEGY_TIMEFRAMES,
-  p5r2Api,
-  type P5R2BacktestSpec,
-  type P5R2CatalogItem,
-  type P5R2CatalogResponse,
-  type P5R2DataRequirement,
-  type P5R2GenerationJob,
-  type P5R2RequestedRange,
-  type P5R2RunView,
-  type P5R2StrategyTimeframe,
-} from './p5r2Api'
+  defaultBacktestProductSpec,
+  isSupportedStrategyTimeframe,
+  BACKTEST_PRODUCT_STRATEGY_TIMEFRAMES,
+  backtestProductApi,
+  type BacktestProductSpec,
+  type BacktestProductCatalogItem,
+  type BacktestProductCatalogResponse,
+  type BacktestProductDataRequirement,
+  type BacktestProductGenerationJob,
+  type BacktestProductRequestedRange,
+  type BacktestProductRunView,
+  type BacktestProductStrategyTimeframe,
+} from './backtestProductApi'
 
-type P5R2WebProductScreenProps = {
+type BacktestProductScreenProps = {
   screen: ScreenDefinition
   onOpenLegacy: () => void
 }
@@ -25,13 +25,13 @@ type P5R2WebProductScreenProps = {
 type GenerationForm = {
   symbol: string
   sourceDatasetId: string
-  timeframes: P5R2StrategyTimeframe[]
-  range: P5R2RequestedRange
+  timeframes: BacktestProductStrategyTimeframe[]
+  range: BacktestProductRequestedRange
 }
 
 const isCancellable = (status: string) => status === 'QUEUED' || status === 'RUNNING'
 
-const uiStateForRun = (run: P5R2RunView): UiState => {
+const uiStateForRun = (run: BacktestProductRunView): UiState => {
   if (run.status === 'SUCCEEDED') return 'NORMAL'
   if (isCancellable(run.status)) return 'LOADING'
   if (run.status === 'CANCELLED') return 'STOPPED'
@@ -40,7 +40,7 @@ const uiStateForRun = (run: P5R2RunView): UiState => {
   return 'WARNING'
 }
 
-const uiStateForJob = (job: P5R2GenerationJob | null): UiState => {
+const uiStateForJob = (job: BacktestProductGenerationJob | null): UiState => {
   if (!job) return 'EMPTY'
   if (job.state === 'STAGED' || job.state === 'QUEUED' || job.state === 'RUNNING') return 'LOADING'
   if (job.state === 'CANCELLED' || job.state === 'REJECTED') return 'STOPPED'
@@ -53,13 +53,13 @@ function text(value: unknown, fallback = '—') {
   return typeof value === 'string' && value.length > 0 ? value : fallback
 }
 
-function rangeFor(item: P5R2CatalogItem | undefined): P5R2RequestedRange | null {
+function rangeFor(item: BacktestProductCatalogItem | undefined): BacktestProductRequestedRange | null {
   const candidate = item?.coverage ?? item?.period
   if (!candidate || typeof candidate.start !== 'string' || typeof candidate.end !== 'string') return null
   return { start: candidate.start, end: candidate.end }
 }
 
-function sourceCandidates(catalog: P5R2CatalogResponse | null, symbol: string) {
+function sourceCandidates(catalog: BacktestProductCatalogResponse | null, symbol: string) {
   return (catalog?.items ?? []).filter((item) => (
     item.symbol === symbol
     && item.source_timeframe === '1m'
@@ -69,7 +69,7 @@ function sourceCandidates(catalog: P5R2CatalogResponse | null, symbol: string) {
   ))
 }
 
-function cancellationReason(run: P5R2RunView) {
+function cancellationReason(run: BacktestProductRunView) {
   if (isCancellable(run.status)) return '取消できます。処理中は同じRunへの二重操作を防ぎます。'
   if (run.status === 'CANCELLED') return 'すでに取消済みです。'
   if (run.status === 'SUCCEEDED') return '完了済みのRunは取消できません。不要な結果表示だけ削除できます。'
@@ -77,13 +77,13 @@ function cancellationReason(run: P5R2RunView) {
   return '現在のRun状態では取消できません。'
 }
 
-function SourceCatalogTable({ catalog, jobStates }: { catalog: P5R2CatalogResponse; jobStates: Record<string, string> }) {
+function SourceCatalogTable({ catalog, jobStates }: { catalog: BacktestProductCatalogResponse; jobStates: Record<string, string> }) {
   if (catalog.items.length === 0) {
     return <EmptyState title="現在使用可能なヒストリカルDataはありません" />
   }
   return (
-    <div className="table-scroll" data-testid="p5r2-catalog-table" tabIndex={0} aria-label="ヒストリカルData Catalog表。横にスクロールできます。">
-      <table className="data-table p5r2-catalog-table">
+    <div className="table-scroll" data-testid="backtest-product-catalog-table" tabIndex={0} aria-label="ヒストリカルData Catalog表。横にスクロールできます。">
+      <table className="data-table backtest-product-catalog-table">
         <caption>Application APIのCatalog。実データの内容や絶対pathは表示しません。</caption>
         <thead>
           <tr><th scope="col">銘柄</th><th scope="col">時間足</th><th scope="col">期間</th><th scope="col">品質</th><th scope="col">利用可</th><th scope="col">旧Data</th><th scope="col">Job状態</th><th scope="col">由来</th></tr>
@@ -117,10 +117,10 @@ function RunStateCard({
   onDelete,
   deleteBusy,
 }: {
-  run: P5R2RunView
-  onCancel: (run: P5R2RunView) => void
+  run: BacktestProductRunView
+  onCancel: (run: BacktestProductRunView) => void
   busy: boolean
-  onDelete: (run: P5R2RunView) => void
+  onDelete: (run: BacktestProductRunView) => void
   deleteBusy: boolean
 }) {
   const canCancel = isCancellable(run.status)
@@ -133,12 +133,12 @@ function RunStateCard({
         ? '結果表示を削除'
         : '結果表示を削除（完了後）'
   return (
-    <article className="run-card" data-testid={`p5r2-run-${run.run_id}`}>
+    <article className="run-card" data-testid={`backtest-product-run-${run.run_id}`}>
       <div className="section-heading">
         <div><p className="card-kicker">Application API / {run.kind}</p><h3>{run.run_id}</h3></div>
         <StateBadge state={uiStateForRun(run)} compact />
       </div>
-      <dl className="definition-list p5r2-run-definition">
+      <dl className="definition-list backtest-product-run-definition">
         <div><dt>Run状態</dt><dd>{run.status}</dd></div>
         <div><dt>進捗</dt><dd>{run.progress_percent}% / {run.progress} of {run.total}</dd></div>
         <div><dt>条件</dt><dd>{text(run.spec.symbol)} / {text(run.spec.timeframe)} / {text(run.spec.strategy)}</dd></div>
@@ -154,33 +154,33 @@ function RunStateCard({
           type="button"
           disabled={!canDelete || deleteBusy}
           onClick={() => onDelete(run)}
-          aria-describedby={`p5r2-delete-result-${run.run_id}`}
+          aria-describedby={`backtest-product-delete-result-${run.run_id}`}
         >{deleteLabel}</button>
       </div>
-      <p id={`p5r2-delete-result-${run.run_id}`} className="muted">結果表示の削除は、完了済みのResultArtifactだけを対象にします。CSV、Historical Data、Run本体、Audit、Evidenceは削除しません。</p>
+      <p id={`backtest-product-delete-result-${run.run_id}`} className="muted">結果表示の削除は、完了済みのResultArtifactだけを対象にします。CSV、Historical Data、Run本体、Audit、Evidenceは削除しません。</p>
     </article>
   )
 }
 
 function ResultProtectionPanel() {
   return (
-    <section className="panel-card" aria-labelledby="p5r2-delete-gate-title" data-testid="p5r2-delete-gate">
-      <div className="section-heading"><div><p className="card-kicker">ResultArtifact 保護</p><h3 id="p5r2-delete-gate-title">結果表示の削除は承認済み範囲で実行できます</h3></div><StateBadge state="NORMAL" compact /></div>
+    <section className="panel-card" aria-labelledby="backtest-product-delete-gate-title" data-testid="backtest-product-delete-gate">
+      <div className="section-heading"><div><p className="card-kicker">ResultArtifact 保護</p><h3 id="backtest-product-delete-gate-title">結果表示の削除は承認済み範囲で実行できます</h3></div><StateBadge state="NORMAL" compact /></div>
       <p className="muted">DELETE-G1は、完了済みのResultArtifactだけを対象に承認済みです。削除前にCSVをExportしてください。CSV、Historical Data、Run本体、Audit、Evidenceは保護され、復元APIはありません。</p>
-      <p id="p5r2-delete-gate-reason" className="inline-notice" role="status">削除対象のRunカードで確認ダイアログを開き、明示的に確定した場合だけ削除APIを呼び出します。</p>
+      <p id="backtest-product-delete-gate-reason" className="inline-notice" role="status">削除対象のRunカードで確認ダイアログを開き、明示的に確定した場合だけ削除APIを呼び出します。</p>
     </section>
   )
 }
 
-export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScreenProps) {
-  const [catalog, setCatalog] = useState<P5R2CatalogResponse | null>(null)
+export function BacktestProductScreen({ screen, onOpenLegacy }: BacktestProductScreenProps) {
+  const [catalog, setCatalog] = useState<BacktestProductCatalogResponse | null>(null)
   const [jobStates, setJobStates] = useState<Record<string, string>>({})
-  const [runs, setRuns] = useState<P5R2RunView[]>([])
-  const [spec, setSpec] = useState<P5R2BacktestSpec>(defaultP5R2BacktestSpec)
+  const [runs, setRuns] = useState<BacktestProductRunView[]>([])
+  const [spec, setSpec] = useState<BacktestProductSpec>(defaultBacktestProductSpec)
   const [preflight, setPreflight] = useState<string>('まだ事前確認していません。')
-  const [missingData, setMissingData] = useState<P5R2DataRequirement | null>(null)
+  const [missingData, setMissingData] = useState<BacktestProductDataRequirement | null>(null)
   const [generation, setGeneration] = useState<GenerationForm | null>(null)
-  const [generationJob, setGenerationJob] = useState<P5R2GenerationJob | null>(null)
+  const [generationJob, setGenerationJob] = useState<BacktestProductGenerationJob | null>(null)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [conditionRangeError, setConditionRangeError] = useState('')
@@ -189,10 +189,10 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
   const [busy, setBusy] = useState(false)
   const [cancellingRunId, setCancellingRunId] = useState<string | null>(null)
   const [deletingRunId, setDeletingRunId] = useState<string | null>(null)
-  const [deleteCandidate, setDeleteCandidate] = useState<P5R2RunView | null>(null)
+  const [deleteCandidate, setDeleteCandidate] = useState<BacktestProductRunView | null>(null)
 
-  const p5r2Runs = useMemo(
-    () => runs.filter((run) => isP5R2StrategyTimeframe(run.spec.timeframe)),
+  const backtestProductRuns = useMemo(
+    () => runs.filter((run) => isSupportedStrategyTimeframe(run.spec.timeframe)),
     [runs],
   )
   const generationSources = useMemo(
@@ -205,7 +205,7 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
     setLoading(true)
     setError('')
     try {
-      const [nextCatalog, nextRuns] = await Promise.all([p5r2Api.catalog(), p5r2Api.listRuns()])
+      const [nextCatalog, nextRuns] = await Promise.all([backtestProductApi.catalog(), backtestProductApi.listRuns()])
       setCatalog(nextCatalog)
       setRuns(nextRuns.items)
       const sourceJobIds = nextCatalog.items
@@ -213,7 +213,7 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
         .filter((value): value is string => typeof value === 'string')
       const states = await Promise.all(sourceJobIds.map(async (jobId) => {
         try {
-          const job = await p5r2Api.getTimeframeGenerationJob(jobId)
+          const job = await backtestProductApi.getTimeframeGenerationJob(jobId)
           return [jobId, job.state] as const
         } catch {
           return [jobId, '履歴未読込'] as const
@@ -231,7 +231,7 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
     void refresh()
   }, [screen.id])
 
-  const updateSpec = <Key extends keyof P5R2BacktestSpec>(key: Key, value: P5R2BacktestSpec[Key]) => {
+  const updateSpec = <Key extends keyof BacktestProductSpec>(key: Key, value: BacktestProductSpec[Key]) => {
     setSpec((current) => ({ ...current, [key]: value }))
     if (key === 'start' || key === 'end') setConditionRangeError('')
     setPreflight('条件が変わりました。事前確認を実行してください。')
@@ -239,7 +239,7 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
     setError('')
   }
 
-  const openGenerationForSymbol = (symbol: string, initialTimeframe: P5R2StrategyTimeframe = '30m') => {
+  const openGenerationForSymbol = (symbol: string, initialTimeframe: BacktestProductStrategyTimeframe = '30m') => {
     const candidates = sourceCandidates(catalog, symbol)
     const candidate = candidates[0]
     const defaultRange = rangeFor(candidate)
@@ -257,10 +257,10 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
       : '必要な時間足を生成する画面を開きました。現在利用可能な1m sourceがないため、期間の既定値は設定していません。')
   }
 
-  const openGenerationFromRequirement = (requirement: P5R2DataRequirement) => {
+  const openGenerationFromRequirement = (requirement: BacktestProductDataRequirement) => {
     openGenerationForSymbol(
       requirement.symbol,
-      isP5R2StrategyTimeframe(requirement.timeframe) ? requirement.timeframe : '30m',
+      isSupportedStrategyTimeframe(requirement.timeframe) ? requirement.timeframe : '30m',
     )
   }
 
@@ -277,7 +277,7 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
     setError('')
     setMessage('')
     try {
-      const response = await p5r2Api.preflight(spec)
+      const response = await backtestProductApi.preflight(spec)
       if (response.status === 'PASS') {
         setPreflight('PASS。現在利用可能な指定時間足Dataが確認できました。')
         setMessage('事前確認が完了しました。Backtestを開始できます。')
@@ -309,7 +309,7 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
     setError('')
     setMessage('')
     try {
-      const response = await p5r2Api.createRun(spec)
+      const response = await backtestProductApi.createRun(spec)
       if ('run_id' in response) {
         setMessage(`${response.run_id}をApplication APIへ登録しました。`)
         await refresh()
@@ -349,14 +349,14 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
     setError('')
     setMessage('')
     try {
-      const requestId = `p5r2-ui-generation-${activeSource.dataset_id}-${generation.timeframes.join('-')}-${generation.range.start.replace(/[^0-9]/g, '')}`
-      const job = await p5r2Api.createTimeframeGenerationJob({
+      const requestId = `backtest-product-ui-generation-${activeSource.dataset_id}-${generation.timeframes.join('-')}-${generation.range.start.replace(/[^0-9]/g, '')}`
+      const job = await backtestProductApi.createTimeframeGenerationJob({
         source_dataset_id: activeSource.dataset_id,
         symbol: generation.symbol,
         timeframes: generation.timeframes,
         requested_range: generation.range,
         request_id: requestId,
-        reason: 'USER_REQUESTED_FROM_P5R2_UI',
+        reason: 'USER_REQUESTED_FROM_BacktestProduct_UI',
         retry_of: null,
         external_io_allowed: false,
       })
@@ -378,7 +378,7 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
     setBusy(true)
     setError('')
     try {
-      const nextJob = await p5r2Api.transitionTimeframeGenerationJob(generationJob, action)
+      const nextJob = await backtestProductApi.transitionTimeframeGenerationJob(generationJob, action)
       setGenerationJob(nextJob)
       setMessage(`${nextJob.job_id} の状態: ${nextJob.state} / ${text(nextJob.reason)}`)
       await refresh()
@@ -389,12 +389,12 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
     }
   }
 
-  const cancelRun = async (run: P5R2RunView) => {
+  const cancelRun = async (run: BacktestProductRunView) => {
     if (!isCancellable(run.status) || cancellingRunId) return
     setCancellingRunId(run.run_id)
     setError('')
     try {
-      const response = await p5r2Api.cancelRun(run.run_id)
+      const response = await backtestProductApi.cancelRun(run.run_id)
       setMessage(`${run.run_id} の取消要求: ${text(response.operation?.status, response.status)} / ${text(response.operation?.reason, 'Application APIで処理しました。')}`)
       await refresh()
     } catch (cause) {
@@ -404,7 +404,7 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
     }
   }
 
-  const requestResultDelete = (run: P5R2RunView) => {
+  const requestResultDelete = (run: BacktestProductRunView) => {
     if (run.status !== 'SUCCEEDED' || run.result_deleted === true || deletingRunId) return
     setDeleteCandidate(run)
   }
@@ -417,7 +417,7 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
     setError('')
     setMessage('')
     try {
-      const response = await p5r2Api.deleteResultArtifact(candidate.run_id)
+      const response = await backtestProductApi.deleteResultArtifact(candidate.run_id)
       await refresh()
       if (response.accepted === true) {
         setMessage(`${candidate.run_id}の結果表示を削除しました。CSV、Historical Data、Run本体、Audit、Evidenceは保持されています。`)
@@ -432,79 +432,79 @@ export function P5R2WebProductScreen({ screen, onOpenLegacy }: P5R2WebProductScr
   }
 
   const generationPanel = generation && (
-    <section className="panel-card" aria-labelledby="p5r2-generation-title" data-testid="p5r2-generation-form">
-      <div className="section-heading"><div><p className="card-kicker">時間足生成 / local-only</p><h3 id="p5r2-generation-title">指定時間足を生成する</h3></div><StateBadge state={uiStateForJob(generationJob)} compact /></div>
+    <section className="panel-card" aria-labelledby="backtest-product-generation-title" data-testid="backtest-product-generation-form">
+      <div className="section-heading"><div><p className="card-kicker">時間足生成 / local-only</p><h3 id="backtest-product-generation-title">指定時間足を生成する</h3></div><StateBadge state={uiStateForJob(generationJob)} compact /></div>
       <p className="muted">銘柄、複数の生成対象時間足、期間を選びます。元Dataは現在利用可能な1m sourceだけを使い、外部取得は行いません。</p>
-      <div className="field-grid p5r2-field-grid">
-        <label className="field-label" htmlFor="p5r2-generation-symbol"><span>生成する銘柄</span><select id="p5r2-generation-symbol" value={generation.symbol} onChange={(event) => setGeneration((current) => current && { ...current, symbol: event.target.value, sourceDatasetId: '' })}><option>BTCUSDT</option><option>ETHUSDT</option></select></label>
-        <label className="field-label" htmlFor="p5r2-source-dataset"><span>元の1m source</span><select id="p5r2-source-dataset" value={activeSource?.dataset_id ?? ''} onChange={(event) => setGeneration((current) => current && { ...current, sourceDatasetId: event.target.value })}><option value="">選択してください</option>{generationSources.map((candidate) => <option value={candidate.dataset_id} key={candidate.dataset_id}>{candidate.dataset_id} / {rangeFor(candidate)?.start ?? '期間未登録'} 〜 {rangeFor(candidate)?.end ?? ''}</option>)}</select></label>
-        <UtcDateTimePicker id="p5r2-generation-start" label="生成開始日時（UTC）" value={generation.range.start} onChange={(value) => { setGenerationRangeError(''); setGeneration((current) => current && { ...current, range: { ...current.range, start: value } }) }} description="カレンダーと時刻をUTCで選択します。" />
-        <UtcDateTimePicker id="p5r2-generation-end" label="生成終了日時（UTC）" value={generation.range.end} onChange={(value) => { setGenerationRangeError(''); setGeneration((current) => current && { ...current, range: { ...current.range, end: value } }) }} description="カレンダーと時刻をUTCで選択します。" error={generationRangeError} />
+      <div className="field-grid backtest-product-field-grid">
+        <label className="field-label" htmlFor="backtest-product-generation-symbol"><span>生成する銘柄</span><select id="backtest-product-generation-symbol" value={generation.symbol} onChange={(event) => setGeneration((current) => current && { ...current, symbol: event.target.value, sourceDatasetId: '' })}><option>BTCUSDT</option><option>ETHUSDT</option></select></label>
+        <label className="field-label" htmlFor="backtest-product-source-dataset"><span>元の1m source</span><select id="backtest-product-source-dataset" value={activeSource?.dataset_id ?? ''} onChange={(event) => setGeneration((current) => current && { ...current, sourceDatasetId: event.target.value })}><option value="">選択してください</option>{generationSources.map((candidate) => <option value={candidate.dataset_id} key={candidate.dataset_id}>{candidate.dataset_id} / {rangeFor(candidate)?.start ?? '期間未登録'} 〜 {rangeFor(candidate)?.end ?? ''}</option>)}</select></label>
+        <UtcDateTimePicker id="backtest-product-generation-start" label="生成開始日時（UTC）" value={generation.range.start} onChange={(value) => { setGenerationRangeError(''); setGeneration((current) => current && { ...current, range: { ...current.range, start: value } }) }} description="カレンダーと時刻をUTCで選択します。" />
+        <UtcDateTimePicker id="backtest-product-generation-end" label="生成終了日時（UTC）" value={generation.range.end} onChange={(value) => { setGenerationRangeError(''); setGeneration((current) => current && { ...current, range: { ...current.range, end: value } }) }} description="カレンダーと時刻をUTCで選択します。" error={generationRangeError} />
       </div>
-      <fieldset className="p5r2-timeframe-checks"><legend>生成する時間足（複数選択可）</legend>{P5R2_STRATEGY_TIMEFRAMES.map((timeframe) => <label key={timeframe}><input type="checkbox" checked={generation.timeframes.includes(timeframe)} onChange={(event) => setGeneration((current) => {
+      <fieldset className="backtest-product-timeframe-checks"><legend>生成する時間足（複数選択可）</legend>{BACKTEST_PRODUCT_STRATEGY_TIMEFRAMES.map((timeframe) => <label key={timeframe}><input type="checkbox" checked={generation.timeframes.includes(timeframe)} onChange={(event) => setGeneration((current) => {
         if (!current) return current
         const timeframes = event.target.checked ? [...current.timeframes, timeframe] : current.timeframes.filter((item) => item !== timeframe)
         return { ...current, timeframes }
       })} /> {timeframe}</label>)}</fieldset>
       {generationSources.length === 0 && <StateAlert state="REQUIRED" title="1m sourceが必要です">現在利用可能な1m sourceがないため、全期間の既定値は設定せず、生成要求も送信しません。</StateAlert>}
       <div className="button-row"><button className="primary-button" type="button" disabled={busy || generation.timeframes.length === 0 || !activeSource} onClick={() => void submitGeneration()}>時間足を生成する</button></div>
-      {generationJob && <div className="p5r2-job-status" role="status"><strong>生成Job</strong><span>{generationJob.job_id ?? '未発行'} / {generationJob.state} / {text(generationJob.reason)}</span><div className="button-row compact-buttons">{generationJob.state === 'STAGED' && <button className="secondary-button" type="button" disabled={busy} onClick={() => void transitionGeneration('advance')}>生成を開始</button>}{['STAGED', 'QUEUED', 'RUNNING'].includes(generationJob.state) && <button className="secondary-button" type="button" disabled={busy} onClick={() => void transitionGeneration('cancel')}>生成を取消</button>}{generationJob.state === 'RECOVERY_REQUIRED' && <button className="secondary-button" type="button" disabled={busy} onClick={() => void transitionGeneration('restart')}>再開確認</button>}{generationJob.state === 'FAILED' && <button className="secondary-button" type="button" disabled={busy} onClick={() => void transitionGeneration('retry')}>再試行</button>}</div></div>}
+      {generationJob && <div className="backtest-product-job-status" role="status"><strong>生成Job</strong><span>{generationJob.job_id ?? '未発行'} / {generationJob.state} / {text(generationJob.reason)}</span><div className="button-row compact-buttons">{generationJob.state === 'STAGED' && <button className="secondary-button" type="button" disabled={busy} onClick={() => void transitionGeneration('advance')}>生成を開始</button>}{['STAGED', 'QUEUED', 'RUNNING'].includes(generationJob.state) && <button className="secondary-button" type="button" disabled={busy} onClick={() => void transitionGeneration('cancel')}>生成を取消</button>}{generationJob.state === 'RECOVERY_REQUIRED' && <button className="secondary-button" type="button" disabled={busy} onClick={() => void transitionGeneration('restart')}>再開確認</button>}{generationJob.state === 'FAILED' && <button className="secondary-button" type="button" disabled={busy} onClick={() => void transitionGeneration('retry')}>再試行</button>}</div></div>}
     </section>
   )
 
   const conditionScreen = (
     <>
-      <section className="p5r2-scope-strip" aria-label="P5R2 Web Product API契約" data-testid="p5r2-api-scope">
-        <strong>P5R2 Web Product / 実Application API</strong><span>API: /api/p5r2/catalog・preflight・runs・timeframe-generation-jobs</span><span>戦略時間足: 15m / 30m / 1h / 4h / 1d</span><span>1m: source説明のみ</span>
+      <section className="backtest-product-scope-strip" aria-label="Backtest Web画面のApplication API契約" data-testid="backtest-product-api-scope">
+        <strong>Backtest Web画面 / 実Application API</strong><span>API: /api/backtest-product/catalog・preflight・runs・timeframe-generation-jobs</span><span>戦略時間足: 15m / 30m / 1h / 4h / 1d</span><span>1m: source説明のみ</span>
       </section>
       <section className="two-column-grid">
-        <section className="panel-card" aria-labelledby="p5r2-condition-title">
-          <div className="section-heading"><div><p className="card-kicker">Single Backtest条件</p><h2 id="p5r2-condition-title">現在のCatalogを使って実行条件を確認</h2></div><StateBadge state={loading ? 'LOADING' : 'REQUIRED'} compact /></div>
-          <div className="field-grid p5r2-field-grid">
-            <label className="field-label" htmlFor="p5r2-symbol"><span>銘柄</span><select id="p5r2-symbol" value={spec.symbol} onChange={(event) => updateSpec('symbol', event.target.value as P5R2BacktestSpec['symbol'])}><option>BTCUSDT</option><option>ETHUSDT</option></select></label>
-            <label className="field-label" htmlFor="p5r2-timeframe"><span>戦略時間足</span><select id="p5r2-timeframe" aria-label="戦略時間足" value={spec.timeframe} onChange={(event) => updateSpec('timeframe', event.target.value as P5R2StrategyTimeframe)}>{P5R2_STRATEGY_TIMEFRAMES.map((timeframe) => <option key={timeframe}>{timeframe}</option>)}</select></label>
-            <UtcDateTimePicker id="p5r2-start" label="開始日時（UTC）" value={spec.start} onChange={(value) => updateSpec('start', value)} description="カレンダーと時刻をUTCで選択します。" />
-            <UtcDateTimePicker id="p5r2-end" label="終了日時（UTC）" value={spec.end} onChange={(value) => updateSpec('end', value)} description="カレンダーと時刻をUTCで選択します。" error={conditionRangeError} />
-            <label className="field-label" htmlFor="p5r2-strategy"><span>Backtest Strategy</span><select id="p5r2-strategy" value={spec.strategy} onChange={(event) => updateSpec('strategy', event.target.value as P5R2BacktestSpec['strategy'])}><option value="TURTLE_SYS1">TURTLE_SYS1</option><option value="TURTLE_SYS2">TURTLE_SYS2</option></select></label>
-            <div className="field-label"><span>1m source</span><p className="p5r2-source-note">1mは生成元Dataの説明です。戦略時間足としては選択できません。</p></div>
+        <section className="panel-card" aria-labelledby="backtest-product-condition-title">
+          <div className="section-heading"><div><p className="card-kicker">Single Backtest条件</p><h2 id="backtest-product-condition-title">現在のCatalogを使って実行条件を確認</h2></div><StateBadge state={loading ? 'LOADING' : 'REQUIRED'} compact /></div>
+          <div className="field-grid backtest-product-field-grid">
+            <label className="field-label" htmlFor="backtest-product-symbol"><span>銘柄</span><select id="backtest-product-symbol" value={spec.symbol} onChange={(event) => updateSpec('symbol', event.target.value as BacktestProductSpec['symbol'])}><option>BTCUSDT</option><option>ETHUSDT</option></select></label>
+            <label className="field-label" htmlFor="backtest-product-timeframe"><span>戦略時間足</span><select id="backtest-product-timeframe" aria-label="戦略時間足" value={spec.timeframe} onChange={(event) => updateSpec('timeframe', event.target.value as BacktestProductStrategyTimeframe)}>{BACKTEST_PRODUCT_STRATEGY_TIMEFRAMES.map((timeframe) => <option key={timeframe}>{timeframe}</option>)}</select></label>
+            <UtcDateTimePicker id="backtest-product-start" label="開始日時（UTC）" value={spec.start} onChange={(value) => updateSpec('start', value)} description="カレンダーと時刻をUTCで選択します。" />
+            <UtcDateTimePicker id="backtest-product-end" label="終了日時（UTC）" value={spec.end} onChange={(value) => updateSpec('end', value)} description="カレンダーと時刻をUTCで選択します。" error={conditionRangeError} />
+            <label className="field-label" htmlFor="backtest-product-strategy"><span>Backtest Strategy</span><select id="backtest-product-strategy" value={spec.strategy} onChange={(event) => updateSpec('strategy', event.target.value as BacktestProductSpec['strategy'])}><option value="TURTLE_SYS1">TURTLE_SYS1</option><option value="TURTLE_SYS2">TURTLE_SYS2</option></select></label>
+            <div className="field-label"><span>1m source</span><p className="backtest-product-source-note">1mは生成元Dataの説明です。戦略時間足としては選択できません。</p></div>
           </div>
           <div className="button-row"><button className="secondary-button" type="button" disabled={busy} onClick={() => void submitPreflight()}>事前確認</button><button className="primary-button" type="button" disabled={busy} onClick={() => void submitRun()}>Single Backtest開始</button></div>
-          <p className="inline-notice" role="status" data-testid="p5r2-preflight-status">{preflight}</p>
+          <p className="inline-notice" role="status" data-testid="backtest-product-preflight-status">{preflight}</p>
         </section>
-        <section className="panel-card" aria-labelledby="p5r2-boundary-title">
-          <div className="section-heading"><div><p className="card-kicker">外部Data境界</p><h2 id="p5r2-boundary-title">ヒストリカルData取得は停止中</h2></div><StateBadge state="UNAPPROVED" compact /></div>
-          <p className="muted">P5R2-18 externalはHOST_LEVEL_ISOLATION_NOT_VERIFIEDです。Provider接続、Secret、費用、外部Data取得は行いません。</p>
-          <button className="secondary-button" type="button" disabled aria-describedby="p5r2-download-reason">ヒストリカルDataをダウンロード（外部境界未検証）</button>
-          <p id="p5r2-download-reason" className="inline-notice error-notice" role="status">HOST_LEVEL_ISOLATION_NOT_VERIFIED。download APIは呼び出していません。</p>
+        <section className="panel-card" aria-labelledby="backtest-product-boundary-title">
+          <div className="section-heading"><div><p className="card-kicker">外部Data境界</p><h2 id="backtest-product-boundary-title">ヒストリカルData取得は停止中</h2></div><StateBadge state="UNAPPROVED" compact /></div>
+          <p className="muted">外部Data取得はHOST_LEVEL_ISOLATION_NOT_VERIFIEDです。Provider接続、Secret、費用、外部Data取得は行いません。</p>
+          <button className="secondary-button" type="button" disabled aria-describedby="backtest-product-download-reason">ヒストリカルDataをダウンロード（外部境界未検証）</button>
+          <p id="backtest-product-download-reason" className="inline-notice error-notice" role="status">HOST_LEVEL_ISOLATION_NOT_VERIFIED。download APIは呼び出していません。</p>
         </section>
       </section>
-      <section className="panel-card" aria-labelledby="p5r2-catalog-title">
-        <div className="section-heading"><div><p className="card-kicker">Data Catalog</p><h2 id="p5r2-catalog-title">現在使用可能なヒストリカルData</h2></div><div className="button-row compact-buttons"><button className="secondary-button" type="button" disabled={loading} onClick={() => void refresh()}>Catalogを更新</button><button className="secondary-button" type="button" onClick={() => openGenerationForSymbol(spec.symbol)}>時間足生成画面を開く</button></div></div>
+      <section className="panel-card" aria-labelledby="backtest-product-catalog-title">
+        <div className="section-heading"><div><p className="card-kicker">Data Catalog</p><h2 id="backtest-product-catalog-title">現在使用可能なヒストリカルData</h2></div><div className="button-row compact-buttons"><button className="secondary-button" type="button" disabled={loading} onClick={() => void refresh()}>Catalogを更新</button><button className="secondary-button" type="button" onClick={() => openGenerationForSymbol(spec.symbol)}>時間足生成画面を開く</button></div></div>
         {catalog ? <SourceCatalogTable catalog={catalog} jobStates={jobStates} /> : loading ? <p className="muted">Application APIからCatalogを読み込んでいます。</p> : <ErrorState title="Catalogを読み込めません" detail="local Application APIの状態を確認してください。" />}
       </section>
       {generationPanel}
-      <section className="panel-card p5r2-legacy-panel"><p className="muted">P5Rの旧1m画面は履歴確認だけのため、現在のP5R2機能とは分離しています。</p><button className="secondary-button" type="button" onClick={onOpenLegacy}>P5R旧履歴表示を開く</button></section>
+      <section className="panel-card backtest-product-legacy-panel"><p className="muted">旧Backtestの1m画面は履歴確認だけのため、現在のBacktest機能とは分離しています。</p><button className="secondary-button" type="button" onClick={onOpenLegacy}>旧Backtest履歴表示を開く</button></section>
     </>
   )
 
   const runScreen = (
     <>
-      <section className="p5r2-scope-strip"><strong>実行一覧・進捗 / 実Application API</strong><span>Run state、進捗、取消可否・理由を同じAPI状態から表示</span></section>
-      <section className="panel-card"><div className="section-heading"><div><p className="card-kicker">Backtest実行一覧・進捗</p><h2>現在のP5R2 Backtest Run</h2></div><button className="secondary-button" type="button" disabled={loading} onClick={() => void refresh()}>実行一覧を更新</button></div>{p5r2Runs.length > 0 ? <div className="run-list">{p5r2Runs.map((run) => <RunStateCard key={run.run_id} run={run} busy={cancellingRunId === run.run_id} onCancel={(candidate) => void cancelRun(candidate)} onDelete={requestResultDelete} deleteBusy={deletingRunId === run.run_id} />)}</div> : <EmptyState title="P5R2のBacktest Runはありません" />}</section>
+      <section className="backtest-product-scope-strip"><strong>実行一覧・進捗 / 実Application API</strong><span>Run state、進捗、取消可否・理由を同じAPI状態から表示</span></section>
+      <section className="panel-card"><div className="section-heading"><div><p className="card-kicker">Backtest実行一覧・進捗</p><h2>現在のBacktest Run</h2></div><button className="secondary-button" type="button" disabled={loading} onClick={() => void refresh()}>実行一覧を更新</button></div>{backtestProductRuns.length > 0 ? <div className="run-list">{backtestProductRuns.map((run) => <RunStateCard key={run.run_id} run={run} busy={cancellingRunId === run.run_id} onCancel={(candidate) => void cancelRun(candidate)} onDelete={requestResultDelete} deleteBusy={deletingRunId === run.run_id} />)}</div> : <EmptyState title="Backtest Runはありません" />}</section>
     </>
   )
 
   const resultScreen = (
     <>
-      <section className="p5r2-scope-strip"><strong>Backtest結果サマリー / 実Application API</strong><span>Run state、取消可否・理由は実行一覧と同一</span></section>
-      <section className="panel-card"><div className="section-heading"><div><p className="card-kicker">Backtest結果サマリー</p><h2>結果の表示対象</h2></div><button className="secondary-button" type="button" disabled={loading} onClick={() => void refresh()}>結果一覧を更新</button></div>{p5r2Runs.length > 0 ? <div className="run-list">{p5r2Runs.map((run) => <RunStateCard key={run.run_id} run={run} busy={cancellingRunId === run.run_id} onCancel={(candidate) => void cancelRun(candidate)} onDelete={requestResultDelete} deleteBusy={deletingRunId === run.run_id} />)}</div> : <EmptyState title="表示できるP5R2結果はありません" />}</section>
+      <section className="backtest-product-scope-strip"><strong>Backtest結果サマリー / 実Application API</strong><span>Run state、取消可否・理由は実行一覧と同一</span></section>
+      <section className="panel-card"><div className="section-heading"><div><p className="card-kicker">Backtest結果サマリー</p><h2>結果の表示対象</h2></div><button className="secondary-button" type="button" disabled={loading} onClick={() => void refresh()}>結果一覧を更新</button></div>{backtestProductRuns.length > 0 ? <div className="run-list">{backtestProductRuns.map((run) => <RunStateCard key={run.run_id} run={run} busy={cancellingRunId === run.run_id} onCancel={(candidate) => void cancelRun(candidate)} onDelete={requestResultDelete} deleteBusy={deletingRunId === run.run_id} />)}</div> : <EmptyState title="表示できるBacktest結果はありません" />}</section>
       <ResultProtectionPanel />
     </>
   )
 
   return (
-    <div className="screen-stack p5r2-web-product" data-testid={`screen-${screen.id}`} data-p5r2-real-api="true" data-reason-id="P5R2_APPLICATION_API">
-      <section className="welcome-panel compact-panel"><div><p className="eyebrow">P5R2-19 / {screen.id} / 実Application API</p><h1>{screen.title}</h1><p className="lead">固定ダミーではなく、loopback-onlyのApplication APIから現在の状態を表示します。</p></div><StateBadge state={loading ? 'LOADING' : error ? 'FAILED' : 'NORMAL'} /></section>
+    <div className="screen-stack backtest-product-screen" data-testid={`screen-${screen.id}`} data-backtest-product-real-api="true" data-reason-id="BACKTEST_PRODUCT_APPLICATION_API">
+      <section className="welcome-panel compact-panel"><div><p className="eyebrow">Backtest Web画面 / {screen.id} / 実Application API</p><h1>{screen.title}</h1><p className="lead">固定ダミーではなく、loopback-onlyのApplication APIから現在の状態を表示します。</p></div><StateBadge state={loading ? 'LOADING' : error ? 'FAILED' : 'NORMAL'} /></section>
       {error && <StateAlert state="FAILED" title="Application APIの応答を確認してください">{error}</StateAlert>}
       {message && <p className="inline-notice" role="status">{message}</p>}
       {screen.id === 'SCREEN-08' ? conditionScreen : screen.id === 'SCREEN-09' ? runScreen : resultScreen}

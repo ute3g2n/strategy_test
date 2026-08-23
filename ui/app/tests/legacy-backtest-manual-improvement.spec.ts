@@ -11,8 +11,8 @@ async function openBacktest(page: Page) {
     if (await menu.isVisible()) await menu.click()
   }
   await page.getByTestId('nav-SCREEN-08').click()
-  await page.getByRole('button', { name: 'P5R旧履歴表示を開く' }).click()
-  await expect(page.getByTestId('screen-SCREEN-08')).toHaveAttribute('data-p5r-real-api', 'true')
+  await page.getByRole('button', { name: '旧Backtest履歴表示を開く' }).click()
+  await expect(page.getByTestId('screen-SCREEN-08')).toHaveAttribute('data-legacy-backtest-real-api', 'true')
 }
 
 test('P5R-MANUAL-16: capture Sweep cancellation after DOM assertions', async ({ page }, testInfo) => {
@@ -27,7 +27,7 @@ test('P5R-MANUAL-16: capture Sweep cancellation after DOM assertions', async ({ 
   expect(reset.ok()).toBeTruthy()
   await page.goto('/')
   await openBacktest(page)
-  await page.getByTestId('p5r-tab-sweep').click()
+  await page.getByTestId('legacy-backtest-tab-sweep').click()
   await expect(page.getByRole('button', { name: 'Sweep開始' })).toBeVisible()
   await page.getByRole('button', { name: 'Sweep開始' }).click()
   await expect(page.getByRole('button', { name: 'Sweep取消' })).toBeVisible({ timeout: 10_000 })
@@ -40,7 +40,7 @@ test('P5R-MANUAL-16: capture Sweep cancellation after DOM assertions', async ({ 
   await page.addScriptTag({ content: axe.source })
   const axeResults = await page.evaluate(async () => (window as unknown as { axe: typeof axe }).axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa'] } }))
   const blocking = axeResults.violations.filter((violation) => violation.impact === 'critical' || violation.impact === 'serious')
-  expect(blocking, 'P5R manual improvement critical/serious axe violations').toEqual([])
+  expect(blocking, 'legacy Backtest manual improvement critical/serious axe violations').toEqual([])
   expect(externalRequests).toEqual([])
 
   const projectRoot = join(evidenceRoot, testInfo.project.name)
@@ -51,7 +51,7 @@ test('P5R-MANUAL-16: capture Sweep cancellation after DOM assertions', async ({ 
   await writeFile(join(projectRoot, 'capture-registry.json'), JSON.stringify({
     run_id: 'RUN-P5R-MANUAL-20260816-001',
     project: testInfo.project.name,
-    test: 'p5r-backtest-manual-improvement.spec.ts',
+    test: 'legacy-backtest-backtest-manual-improvement.spec.ts',
     manual_id: 'BT-MAN-16',
     description: 'Sweepを途中で取消し、親Jobと子Runの状態を確認する',
     screenshot: `tests/evidence/phase5R/RUN-P5R-MANUAL-20260816-001/manual-capture/${testInfo.project.name}/${fileName}`,

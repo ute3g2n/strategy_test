@@ -5,14 +5,14 @@ import { join, resolve } from 'node:path'
 
 const evidenceRoot = resolve(process.cwd(), '../../tests/evidence/phase5R2/RUN-P5R2-19-LOCAL-001/ui')
 
-async function openP5R2Condition(page: Page): Promise<void> {
+async function openBacktestCondition(page: Page): Promise<void> {
   if ((page.viewportSize()?.width ?? 0) < 820) {
     const menu = page.getByRole('button', { name: 'メニューを開く' })
     if (await menu.isVisible()) await menu.click()
   }
   await page.getByTestId('nav-SCREEN-08').click()
-  await expect(page.getByTestId('screen-SCREEN-08')).toHaveAttribute('data-p5r2-real-api', 'true')
-  await expect(page.getByText('P5R2 Web Product / 実Application API')).toBeVisible()
+  await expect(page.getByTestId('screen-SCREEN-08')).toHaveAttribute('data-backtest-product-real-api', 'true')
+  await expect(page.getByText('Backtest Web画面 / 実Application API')).toBeVisible()
 }
 
 async function runAxe(page: Page): Promise<axe.AxeResults> {
@@ -22,7 +22,7 @@ async function runAxe(page: Page): Promise<axe.AxeResults> {
   }))
 }
 
-test('P5R2-19: local Web Product journey remains bounded and fail-closed', async ({ page }, testInfo) => {
+test('Backtest Web: local journey remains bounded and fail-closed', async ({ page }, testInfo) => {
   test.setTimeout(120_000)
   const externalRequests: string[] = []
   const axeResults: Array<{ screen: string; blocking: unknown[] }> = []
@@ -39,7 +39,7 @@ test('P5R2-19: local Web Product journey remains bounded and fail-closed', async
   })
 
   await page.goto('/')
-  await openP5R2Condition(page)
+  await openBacktestCondition(page)
 
   const timeframeOptions = await page.getByLabel('戦略時間足').locator('option').allTextContents()
   expect(timeframeOptions).toEqual(['15m', '30m', '1h', '4h', '1d'])
@@ -74,7 +74,7 @@ test('P5R2-19: local Web Product journey remains bounded and fail-closed', async
   await expect(missingDataDialog).toBeVisible()
   await expect(missingDataDialog).toContainText('BTCUSDT / 30m')
   await missingDataDialog.getByRole('button', { name: '時間足を生成する' }).click()
-  const generationForm = page.getByTestId('p5r2-generation-form')
+  const generationForm = page.getByTestId('backtest-product-generation-form')
   await expect(generationForm).toBeVisible()
   await expect(generationForm.getByText('現在利用可能な1m sourceがないため、全期間の既定値は設定せず、生成要求も送信しません。')).toBeVisible()
   await expect(generationForm.getByRole('button', { name: '時間足を生成する' })).toBeDisabled()
@@ -84,8 +84,8 @@ test('P5R2-19: local Web Product journey remains bounded and fail-closed', async
     if (await menu.isVisible()) await menu.click()
   }
   await page.getByTestId('nav-SCREEN-09').click()
-  await expect(page.getByTestId('screen-SCREEN-09')).toHaveAttribute('data-p5r2-real-api', 'true')
-  await expect(page.getByText('P5R2のBacktest Runはありません')).toBeVisible()
+  await expect(page.getByTestId('screen-SCREEN-09')).toHaveAttribute('data-backtest-product-real-api', 'true')
+  await expect(page.getByText('Backtest Runはありません')).toBeVisible()
   const runAxeResults = await runAxe(page)
   axeResults.push({
     screen: 'SCREEN-09',
@@ -101,8 +101,8 @@ test('P5R2-19: local Web Product journey remains bounded and fail-closed', async
     if (await menu.isVisible()) await menu.click()
   }
   await page.getByTestId('nav-SCREEN-10').click()
-  await expect(page.getByTestId('screen-SCREEN-10')).toHaveAttribute('data-p5r2-real-api', 'true')
-  await expect(page.getByText('表示できるP5R2結果はありません')).toBeVisible()
+  await expect(page.getByTestId('screen-SCREEN-10')).toHaveAttribute('data-backtest-product-real-api', 'true')
+  await expect(page.getByText('表示できるBacktest結果はありません')).toBeVisible()
   await expect(page.getByText('結果表示の削除は承認済み範囲で実行できます')).toBeVisible()
   await expect(page.getByText(/削除対象のRunカードで確認ダイアログ/)).toBeVisible()
   const resultAxe = await runAxe(page)
@@ -116,7 +116,7 @@ test('P5R2-19: local Web Product journey remains bounded and fail-closed', async
   screenshots.push(`tests/evidence/phase5R2/RUN-P5R2-19-LOCAL-001/ui/${testInfo.project.name}/P5R2-19-SCREEN-10-results.png`)
 
   expect(externalRequests).toEqual([])
-  await writeFile(join(evidenceRoot, testInfo.project.name, 'p5r2-ui-capture.json'), JSON.stringify({
+  await writeFile(join(evidenceRoot, testInfo.project.name, 'backtest-product-ui-capture.json'), JSON.stringify({
     schema_version: 'P5R2-19-ui-capture-v1',
     run_id: 'RUN-P5R2-19-LOCAL-001',
     project: testInfo.project.name,

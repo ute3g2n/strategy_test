@@ -5,7 +5,7 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   reporter: [['list']],
-  outputDir: 'test-results/p5r2-manual-artifacts',
+  outputDir: 'test-results/backtest-product-delete-artifacts',
   use: {
     baseURL: 'http://127.0.0.1:4173',
     trace: 'retain-on-failure',
@@ -13,7 +13,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: 'py -3 scripts/application_server/web_product_fixture_server.py --port 8765',
+      command: 'py -3 scripts/application_server/web_product_fixture_server.py --port 8765 --seed-completed-results',
       url: 'http://127.0.0.1:8765/health',
       cwd: '../..',
       reuseExistingServer: false,
@@ -22,7 +22,6 @@ export default defineConfig({
     {
       command: 'npm run preview -- --host 127.0.0.1',
       url: 'http://127.0.0.1:4173',
-      cwd: '.',
       reuseExistingServer: false,
       timeout: 120_000,
     },

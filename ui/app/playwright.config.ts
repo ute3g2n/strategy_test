@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
   testDir: './tests',
-  // P5R's manual journey exercises one stateful local Application API.
+  // The current manual journey exercises one stateful local Application API.
   // Keep desktop/mobile capture sequential so one-time Holdout state cannot race.
   fullyParallel: false,
   workers: 1,

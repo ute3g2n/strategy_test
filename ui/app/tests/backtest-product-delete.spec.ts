@@ -18,10 +18,10 @@ async function openResultScreen(page: Page): Promise<void> {
     if (await menu.isVisible()) await menu.click()
   }
   await page.getByTestId('nav-SCREEN-10').click()
-  await expect(page.getByTestId('screen-SCREEN-10')).toHaveAttribute('data-p5r2-real-api', 'true')
+  await expect(page.getByTestId('screen-SCREEN-10')).toHaveAttribute('data-backtest-product-real-api', 'true')
 }
 
-test('P5R2-21: completed result can be confirmed and physically deleted without cascading', async ({ page }, testInfo) => {
+test('Backtest result display: completed result can be confirmed and physically deleted without cascading', async ({ page }, testInfo) => {
   test.setTimeout(120_000)
   const externalRequests: string[] = []
   let deletePayload: Record<string, unknown> | null = null
@@ -34,7 +34,7 @@ test('P5R2-21: completed result can be confirmed and physically deleted without 
       && !url.startsWith('about:')) {
       externalRequests.push(url)
     }
-    if (url.endsWith('/api/p5r2/result-artifacts/delete')) {
+    if (url.endsWith('/api/backtest-product/result-artifacts/delete')) {
       deletePayload = request.postDataJSON() as Record<string, unknown>
     }
   })
@@ -47,11 +47,11 @@ test('P5R2-21: completed result can be confirmed and physically deleted without 
   }
   await expect.poll(findSeeded, { timeout: 60_000 }).toBeTruthy()
   const created = await findSeeded()
-  if (!created) throw new Error('P5R2-21 seeded ResultArtifact was not found')
-  expect(created.run_id).toMatch(/^RUN-P5R2-21-UI-SEED-/)
+  if (!created) throw new Error('Seeded ResultArtifact for the deletion journey was not found')
+  expect(created.run_id).toMatch(/^RUN-BACKTEST-UI-SEED-/)
 
   await openResultScreen(page)
-  const runCard = page.getByTestId(`p5r2-run-${created.run_id}`)
+  const runCard = page.getByTestId(`backtest-product-run-${created.run_id}`)
   await expect(runCard).toBeVisible()
   await expect(runCard.getByRole('button', { name: '結果表示を削除' })).toBeEnabled()
   await runCard.getByRole('button', { name: '結果表示を削除' }).click()
@@ -79,7 +79,7 @@ test('P5R2-21: completed result can be confirmed and physically deleted without 
   await mkdir(projectRoot, { recursive: true })
   const screenshot = join(projectRoot, 'P5R2-21-SCREEN-10-result-deleted.png')
   await page.screenshot({ path: screenshot, fullPage: true })
-  await writeFile(join(projectRoot, 'p5r2-delete-ui-capture.json'), JSON.stringify({
+  await writeFile(join(projectRoot, 'backtest-product-delete-ui-capture.json'), JSON.stringify({
     schema_version: 'P5R2-21-delete-ui-capture-v1',
     run_id: 'RUN-P5R2-21-DELETE-LOCAL-001',
     created_run_id: created.run_id,

@@ -1,16 +1,16 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { P5RBacktestScreen } from './P5RBacktestScreen'
+import { LegacyBacktestScreen } from './LegacyBacktestScreen'
 import type { ScreenDefinition } from './ui'
 
 const screen08: ScreenDefinition = {
   id: 'SCREEN-08',
   title: 'Backtest条件設定',
   navId: 'NAV-02',
-  description: 'P5Rの旧Backtest条件',
+  description: 'LegacyBacktestの旧Backtest条件',
   defaultState: 'REQUIRED',
-  e2eId: 'P5R-UI-01',
+  e2eId: 'LegacyBacktest-UI-01',
 }
 
 const response = (payload: unknown, status = 200) => ({
@@ -35,11 +35,11 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe('P5R legacy Backtest datetime inputs', () => {
+describe('LegacyBacktest legacy Backtest datetime inputs', () => {
   it('uses UTC datetime pickers and preserves the existing API UTC payload', async () => {
     const user = userEvent.setup()
     const fetchMock = installApiMock()
-    render(<P5RBacktestScreen screen={screen08} demoState="REQUIRED" onStateChange={() => undefined} />)
+    render(<LegacyBacktestScreen screen={screen08} demoState="REQUIRED" onStateChange={() => undefined} />)
 
     const start = screen.getByLabelText('開始日時（UTC）')
     const end = screen.getByLabelText('終了日時（UTC）')

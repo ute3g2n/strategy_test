@@ -16,7 +16,7 @@ import {
   type WalkForwardView,
 } from './backtestApi'
 
-type P5RBacktestScreenProps = {
+type LegacyBacktestScreenProps = {
   screen: ScreenDefinition
   demoState: UiState
   onStateChange: (state: UiState) => void
@@ -45,10 +45,10 @@ const windows = [
   { id: 'W3', train_start: '2025-02-24T00:30:00Z', train_end: '2025-02-24T01:30:00Z', validation_end: '2025-02-24T02:00:00Z', evaluation_end: '2025-02-24T02:30:00Z' },
 ]
 
-function P5RStateControls({ demoState, onStateChange }: { demoState: UiState; onStateChange: (state: UiState) => void }) {
+function LegacyBacktestStateControls({ demoState, onStateChange }: { demoState: UiState; onStateChange: (state: UiState) => void }) {
   return (
-    <section className="panel-card" aria-labelledby="p5r-state-title">
-      <div className="section-heading"><div><p className="card-kicker">共通状態</p><h3 id="p5r-state-title">画面の状態を確認</h3></div><StateBadge state={demoState} compact /></div>
+    <section className="panel-card" aria-labelledby="legacy-backtest-state-title">
+      <div className="section-heading"><div><p className="card-kicker">共通状態</p><h3 id="legacy-backtest-state-title">画面の状態を確認</h3></div><StateBadge state={demoState} compact /></div>
       <p className="muted">これは表示状態の確認です。Backtestの実Run状態は上のApplication APIの値を表示します。</p>
       <div className="state-switcher" aria-label="状態切替">
         {stateIds.map((state) => <button className={demoState === state ? 'state-choice active' : 'state-choice'} type="button" key={state} onClick={() => onStateChange(state)}>{state}</button>)}
@@ -60,7 +60,7 @@ function P5RStateControls({ demoState, onStateChange }: { demoState: UiState; on
 function CheckList({ preflight }: { preflight: PreflightResponse | null }) {
   if (!preflight) return <p className="muted">まだPreflightを実行していません。開始前に入力・範囲・UTC・品質・先読みを確認します。</p>
   return (
-    <div className="check-list" data-testid="p5r-preflight-result">
+    <div className="check-list" data-testid="legacy-backtest-preflight-result">
       {preflight.checks.map((check) => <div key={check.id}><StateBadge state={check.status === 'PASS' ? 'NORMAL' : 'FAILED'} compact /> <strong>{check.id}</strong> — {check.message}</div>)}
       {preflight.failure && <p className="inline-notice" role="alert">停止理由: {preflight.failure.code}</p>}
     </div>
@@ -70,7 +70,7 @@ function CheckList({ preflight }: { preflight: PreflightResponse | null }) {
 function RunStatusCard({ run, onCancel, onResume, onDetails }: { run: RunView; onCancel: () => void; onResume: () => void; onDetails: () => void }) {
   const terminal = ['SUCCEEDED', 'FAILED', 'CANCELLED'].includes(run.status)
   return (
-    <section className="panel-card" data-testid="p5r-run-status" aria-live="polite">
+    <section className="panel-card" data-testid="legacy-backtest-run-status" aria-live="polite">
       <div className="section-heading"><div><p className="card-kicker">実Run</p><h3>{run.run_id}</h3></div><StateBadge state={stateForRun(run)} compact /></div>
       <div className="run-progress-grid">
         <div><span className="small-label">状態</span><strong>{run.status}</strong></div>
@@ -92,7 +92,7 @@ function RunStatusCard({ run, onCancel, onResume, onDetails }: { run: RunView; o
 function Metrics({ run }: { run: RunView }) {
   const metrics = run.metrics ?? {}
   return (
-    <section className="metric-grid five-metrics" aria-label="Backtestの5指標" data-testid="p5r-five-metrics">
+    <section className="metric-grid five-metrics" aria-label="Backtestの5指標" data-testid="legacy-backtest-five-metrics">
       <MetricCard label="総損益" value={formatValue(metrics.total_pnl)} detail="Decimal / USDT" tone={String(metrics.total_pnl ?? '').startsWith('-') ? 'warning' : 'positive'} />
       <MetricCard label="最大ドローダウン" value={formatValue(metrics.maximum_drawdown)} detail="最大の落ち込み" tone="warning" />
       <MetricCard label="勝率" value={`${formatValue(metrics.win_rate, '0')}%`} detail="決済済み取引ベース" />
@@ -104,7 +104,7 @@ function Metrics({ run }: { run: RunView }) {
 
 function LedgerTable({ rows }: { rows: BacktestRow[] }) {
   return (
-    <div className="table-scroll" data-testid="p5r-ledger-table">
+    <div className="table-scroll" data-testid="legacy-backtest-ledger-table">
       <table className="data-table">
         <caption>同じRunから得たSignal・Virtual Fill・残高Ledger</caption>
         <thead><tr><th scope="col">種類</th><th scope="col">時刻（UTC）</th><th scope="col">銘柄</th><th scope="col">Signal</th><th scope="col">方向</th><th scope="col">価格</th><th scope="col">残高／Equity</th><th scope="col">理由</th></tr></thead>
@@ -115,7 +115,7 @@ function LedgerTable({ rows }: { rows: BacktestRow[] }) {
   )
 }
 
-export function P5RBacktestScreen({ screen, demoState, onStateChange }: P5RBacktestScreenProps) {
+export function LegacyBacktestScreen({ screen, demoState, onStateChange }: LegacyBacktestScreenProps) {
   const [tab, setTab] = useState<TabId>('single')
   const [spec, setSpec] = useState<BacktestSpec>(() => defaultBacktestSpec())
   const [preflight, setPreflight] = useState<PreflightResponse | null>(null)
@@ -272,26 +272,26 @@ export function P5RBacktestScreen({ screen, demoState, onStateChange }: P5RBackt
   const runForDisplay = selectedRun ?? activeRun
 
   return (
-    <div className="screen-stack" data-testid={`screen-${screen.id}`} data-p5r-real-api="true" data-reason-id="P5R_APPLICATION_API">
-      <section className="welcome-panel compact-panel"><div><p className="eyebrow">{screen.navId} / {screen.id} / {screen.e2eId}</p><h2>Backtest製品機能（P5R実API）</h2><p className="lead">P5で品質確認済みのローカル市場データだけを使い、条件確認から結果・証跡・CSV・評価までを実際に操作します。</p></div><StateBadge state={stateForRun(activeRun)} /></section>
+    <div className="screen-stack" data-testid={`screen-${screen.id}`} data-legacy-backtest-real-api="true" data-reason-id="LegacyBacktest_APPLICATION_API">
+      <section className="welcome-panel compact-panel"><div><p className="eyebrow">{screen.navId} / {screen.id} / {screen.e2eId}</p><h2>旧Backtest（実Application API）</h2><p className="lead">品質確認済みのローカル市場データだけを使い、条件確認から結果・証跡・CSV・評価までを実際に操作します。</p></div><StateBadge state={stateForRun(activeRun)} /></section>
       <StateAlert state="WARNING" title="この画面の安全境界">外部市場データ、Broker、Secret、実注文、Paper／Liveには接続しません。利益が出ることを保証する画面でもありません。</StateAlert>
-      <section className="p5r-scope-strip" aria-label="P5Rの実行範囲"><strong>P5R実行範囲</strong><span>BTCUSDT / ETHUSDT</span><span>Spot / 1m / UTC</span><span>期間: 2025-02-24〜2026-08-01</span><span>Data: P5 local read-only</span></section>
+      <section className="legacy-backtest-scope-strip" aria-label="旧Backtestの実行範囲"><strong>旧Backtest実行範囲</strong><span>BTCUSDT / ETHUSDT</span><span>Spot / 1m / UTC</span><span>期間: 2025-02-24〜2026-08-01</span><span>Data: local read-only</span></section>
 
-      <div className="tab-list" role="tablist" aria-label="P5R Backtest機能">
-        {([['single', 'Single Run'], ['sweep', 'Sweep'], ['history', '履歴・比較'], ['evaluation', 'Holdout・Walk-forward']] as const).map(([id, label]) => <button className={tab === id ? 'tab-button active' : 'tab-button'} type="button" role="tab" aria-selected={tab === id} key={id} data-testid={`p5r-tab-${id}`} onClick={() => { setTab(id); if (id === 'history') void refreshHistory() }}>{label}</button>)}
+      <div className="tab-list" role="tablist" aria-label="旧Backtest機能">
+        {([['single', 'Single Run'], ['sweep', 'Sweep'], ['history', '履歴・比較'], ['evaluation', 'Holdout・Walk-forward']] as const).map(([id, label]) => <button className={tab === id ? 'tab-button active' : 'tab-button'} type="button" role="tab" aria-selected={tab === id} key={id} data-testid={`legacy-backtest-tab-${id}`} onClick={() => { setTab(id); if (id === 'history') void refreshHistory() }}>{label}</button>)}
       </div>
 
       {tab === 'single' && <>
         <form className="two-column-grid" onSubmit={submitPreflight}>
-          <section className="sub-panel" aria-labelledby="p5r-condition-title">
-            <div className="section-heading"><div><p className="card-kicker">BT-MAN-01 / BT-MAN-02</p><h3 id="p5r-condition-title">Single Backtest条件</h3></div><StateBadge state={preflight?.status === 'PASS' ? 'NORMAL' : 'REQUIRED'} compact /></div>
+          <section className="sub-panel" aria-labelledby="legacy-backtest-condition-title">
+            <div className="section-heading"><div><p className="card-kicker">BT-MAN-01 / BT-MAN-02</p><h3 id="legacy-backtest-condition-title">Single Backtest条件</h3></div><StateBadge state={preflight?.status === 'PASS' ? 'NORMAL' : 'REQUIRED'} compact /></div>
             <div className="field-grid">
               <label className="field-label"><span>銘柄</span><select aria-label="Backtest銘柄" value={spec.symbol} onChange={(event) => setSpec((current) => ({ ...current, symbol: event.target.value as BacktestSpec['symbol'] }))}><option value="BTCUSDT">BTCUSDT</option><option value="ETHUSDT">ETHUSDT</option></select></label>
               <label className="field-label"><span>市場</span><input value="Spot" readOnly /></label>
               <label className="field-label"><span>時間足</span><input value="1m" readOnly /></label>
               <label className="field-label"><span>タイムゾーン</span><input value="UTC" readOnly /></label>
-              <UtcDateTimePicker id="p5r-legacy-start" label="開始日時（UTC）" value={spec.start} onChange={(value) => updateDateTime('start', value)} description="カレンダーと時刻をUTCで選択します。" error={rangeError.startsWith('開始日時（UTC）を入力') ? rangeError : undefined} />
-              <UtcDateTimePicker id="p5r-legacy-end" label="終了日時（UTC）" value={spec.end} onChange={(value) => updateDateTime('end', value)} description="カレンダーと時刻をUTCで選択します。" error={rangeError && !rangeError.startsWith('開始日時（UTC）を入力') ? rangeError : undefined} />
+              <UtcDateTimePicker id="legacy-backtest-legacy-start" label="開始日時（UTC）" value={spec.start} onChange={(value) => updateDateTime('start', value)} description="カレンダーと時刻をUTCで選択します。" error={rangeError.startsWith('開始日時（UTC）を入力') ? rangeError : undefined} />
+              <UtcDateTimePicker id="legacy-backtest-legacy-end" label="終了日時（UTC）" value={spec.end} onChange={(value) => updateDateTime('end', value)} description="カレンダーと時刻をUTCで選択します。" error={rangeError && !rangeError.startsWith('開始日時（UTC）を入力') ? rangeError : undefined} />
               <label className="field-label"><span>Strategy</span><select aria-label="Backtest Strategy" value={spec.strategy} onChange={(event) => setSpec((current) => ({ ...current, strategy: event.target.value }))}><option value="TURTLE_SYS1">TURTLE_SYS1</option><option value="TURTLE_SYS2">TURTLE_SYS2</option></select></label>
               <label className="field-label"><span>初期残高（USDT）</span><input aria-label="初期残高" value={spec.parameters.initial_balance} onChange={(event) => setParameter('initial_balance', event.target.value)} /></label>
               <label className="field-label"><span>Entry lookback</span><input aria-label="Entry lookback" value={spec.parameters.entry_lookback} onChange={(event) => setParameter('entry_lookback', event.target.value)} /></label>
@@ -302,7 +302,7 @@ export function P5RBacktestScreen({ screen, demoState, onStateChange }: P5RBackt
             <div className="button-row"><button className="secondary-button" type="submit" disabled={busy}>Preflight実行</button><button className="primary-button" type="button" disabled={busy || preflight?.status !== 'PASS'} onClick={() => void submitSingle()}>Single Run開始</button></div>
             <p className="muted">費用は手数料・Slippageの想定値です。市場で実際にその価格で約定することを意味しません。</p>
           </section>
-          <section className="sub-panel" aria-labelledby="p5r-preflight-title"><div className="section-heading"><div><p className="card-kicker">停止条件</p><h3 id="p5r-preflight-title">開始前Preflight</h3></div><StateBadge state={preflight?.status === 'PASS' ? 'NORMAL' : 'REQUIRED'} compact /></div><CheckList preflight={preflight} /><p className="muted">品質PASSの既存ローカルDataだけを読み、P5R範囲外の銘柄・期間・単位は停止します。</p></section>
+          <section className="sub-panel" aria-labelledby="legacy-backtest-preflight-title"><div className="section-heading"><div><p className="card-kicker">停止条件</p><h3 id="legacy-backtest-preflight-title">開始前Preflight</h3></div><StateBadge state={preflight?.status === 'PASS' ? 'NORMAL' : 'REQUIRED'} compact /></div><CheckList preflight={preflight} /><p className="muted">品質PASSの既存ローカルDataだけを読み、旧Backtest範囲外の銘柄・期間・単位は停止します。</p></section>
         </form>
         {activeRun && <RunStatusCard run={activeRun} onCancel={() => void cancelRun()} onResume={() => void resumeRun()} onDetails={() => void loadDetails(activeRun.run_id)} />}
         {activeRun?.status === 'SUCCEEDED' && <><Metrics run={activeRun} /><section className="panel-card"><div className="section-heading"><div><p className="card-kicker">BT-MAN-08 / BT-MAN-09</p><h3>結果Ledgerと由来</h3></div><button className="secondary-button" type="button" onClick={() => void loadDetails(activeRun.run_id)}>Detailsを読込</button></div><dl className="definition-list"><div><dt>Data由来</dt><dd>{formatValue(activeRun.provenance.source_mode)}</dd></div><div><dt>期間</dt><dd>{formatValue(activeRun.provenance.period_start_utc)} 〜 {formatValue(activeRun.provenance.period_end_utc)}</dd></div><div><dt>Data範囲</dt><dd>{formatValue(activeRun.provenance.fixture_scope)}</dd></div><div><dt>Core検証</dt><dd>{formatValue((activeRun.provenance.core_validation as Record<string, unknown> | undefined)?.status)}</dd></div><div><dt>利益の意味</dt><dd>{formatValue(activeRun.provenance.profitability_claim)}</dd></div></dl>{rows.length > 0 && <LedgerTable rows={rows} />}</section></>}
@@ -313,7 +313,7 @@ export function P5RBacktestScreen({ screen, demoState, onStateChange }: P5RBackt
       </>}
 
       {tab === 'history' && <>
-        <section className="panel-card"><div className="section-heading"><div><p className="card-kicker">BT-MAN-10 / BT-MAN-11</p><h3>履歴・比較</h3></div><button className="secondary-button" type="button" onClick={() => void refreshHistory()}>履歴を更新</button></div>{recovery?.status === 'RECOVERY_REQUIRED' && <div className="inline-notice error-notice" role="alert" data-testid="p5r-recovery-warning">保存済み履歴の一部で復旧確認が必要です。該当Runは成功扱いにせず、原因を確認してから再実行してください（{recovery.issues.length}件の問題 / 復旧確認 {recovery.recovery_required_run_ids.length}件）。</div>}{recovery?.status === 'CLEAN' && <p className="muted" role="status" data-testid="p5r-recovery-clean">保存済み履歴を読み込みました（{recovery.restored_run_count}件）。</p>}<div className="table-scroll"><table className="data-table"><caption>このApplication APIで作成したRunの履歴</caption><thead><tr><th scope="col">選択</th><th scope="col">Run ID</th><th scope="col">条件</th><th scope="col">状態</th><th scope="col">進捗</th><th scope="col">操作</th></tr></thead><tbody>{history.map((run) => <tr key={run.run_id}><th scope="row"><input type="radio" name="compare-run" aria-label={`比較対象 ${run.run_id}`} checked={selectedCompareRun === run.run_id} onChange={() => setSelectedCompareRun(run.run_id)} /></th><td>{run.run_id}</td><td>{run.spec.symbol} / {run.spec.strategy} / {run.spec.start}〜{run.spec.end}</td><td><StateBadge state={stateForRun(run)} compact /></td><td>{run.progress_percent}%</td><td><button className="secondary-button" type="button" onClick={() => { setActiveRun(run); setSelectedCompareRun(run.run_id); void loadDetails(run.run_id) }}>結果を開く</button></td></tr>)}</tbody></table></div><div className="button-row"><button className="secondary-button" type="button" onClick={() => void submitCompare()}>選択Runと比較</button><button className="primary-button" type="button" disabled={!selectedRun || selectedRun.status !== 'SUCCEEDED'} onClick={() => void submitCsv()}>CSV生成</button></div>{compareResult && <div className="inline-notice" role="status">比較結果: comparable={String(compareResult.comparable)} / 理由={formatValue(compareResult.reason, 'なし')}</div>}{csvJob && <div className="inline-notice" role="status">CSV Job: {csvJob.status} / {csvJob.progress}% {csvJob.download_url && <a href={backtestApi.downloadCsv(csvJob.job_id)} download>CSVダウンロード</a>}</div>}</section>
+        <section className="panel-card"><div className="section-heading"><div><p className="card-kicker">BT-MAN-10 / BT-MAN-11</p><h3>履歴・比較</h3></div><button className="secondary-button" type="button" onClick={() => void refreshHistory()}>履歴を更新</button></div>{recovery?.status === 'RECOVERY_REQUIRED' && <div className="inline-notice error-notice" role="alert" data-testid="legacy-backtest-recovery-warning">保存済み履歴の一部で復旧確認が必要です。該当Runは成功扱いにせず、原因を確認してから再実行してください（{recovery.issues.length}件の問題 / 復旧確認 {recovery.recovery_required_run_ids.length}件）。</div>}{recovery?.status === 'CLEAN' && <p className="muted" role="status" data-testid="legacy-backtest-recovery-clean">保存済み履歴を読み込みました（{recovery.restored_run_count}件）。</p>}<div className="table-scroll"><table className="data-table"><caption>このApplication APIで作成したRunの履歴</caption><thead><tr><th scope="col">選択</th><th scope="col">Run ID</th><th scope="col">条件</th><th scope="col">状態</th><th scope="col">進捗</th><th scope="col">操作</th></tr></thead><tbody>{history.map((run) => <tr key={run.run_id}><th scope="row"><input type="radio" name="compare-run" aria-label={`比較対象 ${run.run_id}`} checked={selectedCompareRun === run.run_id} onChange={() => setSelectedCompareRun(run.run_id)} /></th><td>{run.run_id}</td><td>{run.spec.symbol} / {run.spec.strategy} / {run.spec.start}〜{run.spec.end}</td><td><StateBadge state={stateForRun(run)} compact /></td><td>{run.progress_percent}%</td><td><button className="secondary-button" type="button" onClick={() => { setActiveRun(run); setSelectedCompareRun(run.run_id); void loadDetails(run.run_id) }}>結果を開く</button></td></tr>)}</tbody></table></div><div className="button-row"><button className="secondary-button" type="button" onClick={() => void submitCompare()}>選択Runと比較</button><button className="primary-button" type="button" disabled={!selectedRun || selectedRun.status !== 'SUCCEEDED'} onClick={() => void submitCsv()}>CSV生成</button></div>{compareResult && <div className="inline-notice" role="status">比較結果: comparable={String(compareResult.comparable)} / 理由={formatValue(compareResult.reason, 'なし')}</div>}{csvJob && <div className="inline-notice" role="status">CSV Job: {csvJob.status} / {csvJob.progress}% {csvJob.download_url && <a href={backtestApi.downloadCsv(csvJob.job_id)} download>CSVダウンロード</a>}</div>}</section>
         {runForDisplay?.status === 'SUCCEEDED' && <><Metrics run={runForDisplay} />{rows.length > 0 && <section className="panel-card"><LedgerTable rows={rows} /></section>}</>}
       </>}
 
@@ -322,8 +322,8 @@ export function P5RBacktestScreen({ screen, demoState, onStateChange }: P5RBackt
       </>}
 
       {(message || error) && <p className={error ? 'inline-notice error-notice' : 'inline-notice'} role={error ? 'alert' : 'status'}>{error || message}</p>}
-      <HelpTip title="P5Rの完了条件">UI操作がApplication APIへ届き、Preflight、実Run、結果5指標、Ledger、取消／再開、Sweep、履歴／比較、CSV、Holdout、Walk-forwardの結果と停止理由を確認できること。実データの外部取得や実注文はP5Rの完了条件に含めません。</HelpTip>
-      <P5RStateControls demoState={demoState} onStateChange={onStateChange} />
+      <HelpTip title="旧Backtestの完了条件">UI操作がApplication APIへ届き、Preflight、実Run、結果5指標、Ledger、取消／再開、Sweep、履歴／比較、CSV、Holdout、Walk-forwardの結果と停止理由を確認できること。実データの外部取得や実注文は旧Backtestの完了条件に含めません。</HelpTip>
+      <LegacyBacktestStateControls demoState={demoState} onStateChange={onStateChange} />
     </div>
   )
 }

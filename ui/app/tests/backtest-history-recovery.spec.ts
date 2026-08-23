@@ -42,8 +42,8 @@ async function stopApi(child: ChildProcess): Promise<void> {
 
 async function openBacktest(page: Page): Promise<void> {
   await page.getByTestId('nav-SCREEN-08').click()
-  await page.getByRole('button', { name: 'P5R旧履歴表示を開く' }).click()
-  await expect(page.getByTestId('screen-SCREEN-08')).toHaveAttribute('data-p5r-real-api', 'true')
+  await page.getByRole('button', { name: '旧Backtest履歴表示を開く' }).click()
+  await expect(page.getByTestId('screen-SCREEN-08')).toHaveAttribute('data-legacy-backtest-real-api', 'true')
 }
 
 test('completed Backtest history survives a controlled API process restart', async ({ page }) => {
@@ -65,8 +65,8 @@ test('completed Backtest history survives a controlled API process restart', asy
     await page.getByRole('button', { name: 'Preflight実行' }).click()
     await expect(page.getByText('Preflight PASS。実Runを開始できます。')).toBeVisible()
     await page.getByRole('button', { name: 'Single Run開始' }).click()
-    await expect(page.getByTestId('p5r-run-status')).toContainText('SUCCEEDED', { timeout: 60_000 })
-    const runId = await page.getByTestId('p5r-run-status').locator('h3').innerText()
+    await expect(page.getByTestId('legacy-backtest-run-status')).toContainText('SUCCEEDED', { timeout: 60_000 })
+    const runId = await page.getByTestId('legacy-backtest-run-status').locator('h3').innerText()
 
     const beforeRestart = await page.request.get(`http://127.0.0.1:${recoveryApiPort}/api/backtest/runs/${encodeURIComponent(runId)}`)
     expect(beforeRestart.ok()).toBeTruthy()
@@ -74,7 +74,7 @@ test('completed Backtest history survives a controlled API process restart', asy
     const beforeRowsResponse = await page.request.get(`http://127.0.0.1:${recoveryApiPort}/api/backtest/runs/${encodeURIComponent(runId)}/rows`)
     expect(beforeRowsResponse.ok()).toBeTruthy()
     const beforeRowsPayload = await beforeRowsResponse.json() as { items: unknown[] }
-    await expect(page.getByTestId('p5r-run-status')).toContainText(runId)
+    await expect(page.getByTestId('legacy-backtest-run-status')).toContainText(runId)
 
     await stopApi(api)
     api = startApi()
@@ -90,13 +90,13 @@ test('completed Backtest history survives a controlled API process restart', asy
     expect(afterPayload.metrics).toEqual(beforePayload.metrics)
     expect(afterPayload.provenance).toEqual(beforePayload.provenance)
     expect(afterRowsPayload.items).toEqual(beforeRowsPayload.items)
-    await page.getByTestId('p5r-tab-history').click()
+    await page.getByTestId('legacy-backtest-tab-history').click()
     await expect(page.getByText('保存済み履歴を読み込みました')).toBeVisible({ timeout: 15_000 })
     const restoredRow = page.getByRole('row').filter({ hasText: runId })
     await expect(restoredRow).toBeVisible()
     await restoredRow.getByRole('button', { name: '結果を開く' }).click()
-    await expect(page.getByTestId('p5r-ledger-table')).toBeVisible()
-    await expect(page.getByTestId('p5r-five-metrics')).toContainText('最終残高')
+    await expect(page.getByTestId('legacy-backtest-ledger-table')).toBeVisible()
+    await expect(page.getByTestId('legacy-backtest-five-metrics')).toContainText('最終残高')
     const evidenceDirectory = resolve(process.cwd(), '../../tests/evidence/AUTOTRADE-BACKTEST-RECOVERY/RUN-20260816-001')
     await mkdir(evidenceDirectory, { recursive: true })
     await page.screenshot({ path: resolve(evidenceDirectory, 'backtest-history-after-api-restart.png'), fullPage: true })

@@ -10,7 +10,7 @@ afterEach(() => {
 })
 
 describe('RQU-UI-03 component pilot', () => {
-  it('renders deterministic mock data and required controls', () => {
+  it('renders deterministic sample data and required controls', () => {
     render(<App />)
 
     expect(screen.getByTestId('pilot-screen')).toBeInTheDocument()
@@ -86,11 +86,11 @@ describe('RQU-UI-07 common UI skeleton', () => {
 })
 
 describe('RQU-UI-08 core operation journeys', () => {
-  it('exposes the current P5R2 Web Product condition screen with only supported strategy timeframes', async () => {
+  it('exposes the current Backtest Web画面 condition screen with only supported strategy timeframes', async () => {
     const user = userEvent.setup()
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input)
-      const payload = url.endsWith('/api/p5r2/catalog')
+      const payload = url.endsWith('/api/backtest-product/catalog')
         ? { items: [], available_items: [], strategy_timeframes: ['15m', '30m', '1h', '4h', '1d'], source_timeframe: '1m' }
         : { items: [] }
       return { ok: true, status: 200, json: async () => payload } as Response
@@ -98,7 +98,7 @@ describe('RQU-UI-08 core operation journeys', () => {
     render(<App />)
 
     await user.click(screen.getByTestId('nav-SCREEN-08'))
-    expect(screen.getByTestId('screen-SCREEN-08')).toHaveAttribute('data-p5r2-real-api', 'true')
+    expect(screen.getByTestId('screen-SCREEN-08')).toHaveAttribute('data-backtest-product-real-api', 'true')
     const timeframe = screen.getByLabelText('戦略時間足')
     expect(timeframe).toHaveTextContent('15m')
     expect(timeframe).toHaveTextContent('30m')
@@ -109,14 +109,14 @@ describe('RQU-UI-08 core operation journeys', () => {
     expect(screen.getByRole('button', { name: '事前確認' })).toBeEnabled()
   })
 
-  it('keeps the completed P5R 1m view behind the explicit legacy-history entry', async () => {
+  it('keeps the completed legacy 1m view behind the explicit legacy-history entry', async () => {
     const user = userEvent.setup()
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ items: [], available_items: [], strategy_timeframes: ['15m', '30m', '1h', '4h', '1d'], source_timeframe: '1m' }) }) as Response))
     render(<App />)
 
     await user.click(screen.getByTestId('nav-SCREEN-08'))
-    await user.click(screen.getByRole('button', { name: 'P5R旧履歴表示を開く' }))
-    expect(screen.getByTestId('screen-SCREEN-08')).toHaveAttribute('data-p5r-real-api', 'true')
+    await user.click(screen.getByRole('button', { name: '旧Backtest履歴表示を開く' }))
+    expect(screen.getByTestId('screen-SCREEN-08')).toHaveAttribute('data-legacy-backtest-real-api', 'true')
     expect(screen.getByRole('tab', { name: 'Single Run' })).toBeInTheDocument()
   })
 

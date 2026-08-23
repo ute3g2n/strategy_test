@@ -98,7 +98,7 @@ export type WalkForwardView = {
 
 type ApiErrorPayload = { error?: { code?: string; message?: string } }
 
-const API_BASE = import.meta.env.VITE_P5R_API_BASE ?? 'http://127.0.0.1:8765'
+const API_BASE = import.meta.env.VITE_BACKTEST_API_BASE ?? 'http://127.0.0.1:8765'
 
 async function request<T>(path: string, init?: RequestInit, acceptedStatusCodes: number[] = []): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {

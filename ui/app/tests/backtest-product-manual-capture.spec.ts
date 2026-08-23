@@ -18,10 +18,10 @@ async function openScreen(page: Page, screenId: 'SCREEN-08' | 'SCREEN-09' | 'SCR
     if (await menu.isVisible()) await menu.click()
   }
   await page.getByTestId(`nav-${screenId}`).click()
-  await expect(page.getByTestId(`screen-${screenId}`)).toHaveAttribute('data-p5r2-real-api', 'true')
+  await expect(page.getByTestId(`screen-${screenId}`)).toHaveAttribute('data-backtest-product-real-api', 'true')
 }
 
-test('P5R2-22: current manual journey is assert-first and bounded', async ({ page }, testInfo) => {
+test('Backtest Web manual journey is assert-first and bounded', async ({ page }, testInfo) => {
   test.setTimeout(120_000)
   const externalRequests: string[] = []
   const axeResults: Array<{ screen: string; blocking: unknown[] }> = []
@@ -45,8 +45,8 @@ test('P5R2-22: current manual journey is assert-first and bounded', async ({ pag
   await expect(page.getByText('1mは生成元Dataの説明です。戦略時間足としては選択できません。')).toBeVisible()
   await expect(page.getByRole('button', { name: /ヒストリカルDataをダウンロード/ })).toBeDisabled()
   await expect(page.getByText('HOST_LEVEL_ISOLATION_NOT_VERIFIED。download APIは呼び出していません。')).toBeVisible()
-  await expect(page.getByTestId('p5r2-catalog-table')).toBeVisible()
-  await expect(page.getByTestId('p5r2-catalog-table')).toContainText('JOB-TIMEFRAME_GENERATION-p5r2-19-fixture-source-job')
+  await expect(page.getByTestId('backtest-product-catalog-table')).toBeVisible()
+  await expect(page.getByTestId('backtest-product-catalog-table')).toContainText('JOB-TIMEFRAME_GENERATION-backtest-ui-fixture-source-job')
 
   const conditionAxe = await runAxe(page)
   axeResults.push({ screen: 'SCREEN-08-condition', blocking: conditionAxe.violations.filter((violation) => violation.impact === 'critical' || violation.impact === 'serious') })
@@ -57,10 +57,10 @@ test('P5R2-22: current manual journey is assert-first and bounded', async ({ pag
   await expect(missingDataDialog).toBeVisible()
   await expect(missingDataDialog).toContainText('BTCUSDT / 30m')
   await missingDataDialog.getByRole('button', { name: '時間足を生成する' }).click()
-  const generationForm = page.getByTestId('p5r2-generation-form')
+  const generationForm = page.getByTestId('backtest-product-generation-form')
   await expect(generationForm).toBeVisible()
-  const generationStart = generationForm.locator('#p5r2-generation-start')
-  const generationEnd = generationForm.locator('#p5r2-generation-end')
+  const generationStart = generationForm.locator('#backtest-product-generation-start')
+  const generationEnd = generationForm.locator('#backtest-product-generation-end')
   await expect(generationStart).toHaveAttribute('type', 'datetime-local')
   await expect(generationEnd).toHaveAttribute('type', 'datetime-local')
   await expect(generationStart).toHaveAttribute('step', '60')
@@ -68,7 +68,7 @@ test('P5R2-22: current manual journey is assert-first and bounded', async ({ pag
   await expect(generationEnd).toHaveValue('2025-02-24T03:00')
   await generationStart.focus()
   await expect(generationStart).toBeFocused()
-  await expect(generationEnd).toHaveAttribute('aria-describedby', /p5r2-generation-end-description/)
+  await expect(generationEnd).toHaveAttribute('aria-describedby', /backtest-product-generation-end-description/)
   await expect(generationForm.getByRole('button', { name: '時間足を生成する' })).toBeEnabled()
   await generationForm.getByRole('button', { name: '時間足を生成する' }).click()
   await expect(generationForm.getByText(/生成Job/)).toBeVisible()
@@ -84,7 +84,7 @@ test('P5R2-22: current manual journey is assert-first and bounded', async ({ pag
   screenshots.push(`tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/${testInfo.project.name}/P5R2-22-SCREEN-08-generation.png`)
 
   await openScreen(page, 'SCREEN-09')
-  await expect(page.getByText('P5R2のBacktest Runはありません')).toBeVisible()
+  await expect(page.getByText('Backtest Runはありません')).toBeVisible()
   const runAxeResult = await runAxe(page)
   axeResults.push({ screen: 'SCREEN-09', blocking: runAxeResult.violations.filter((violation) => violation.impact === 'critical' || violation.impact === 'serious') })
   expect(axeResults.at(-1)?.blocking).toEqual([])
@@ -93,7 +93,7 @@ test('P5R2-22: current manual journey is assert-first and bounded', async ({ pag
   screenshots.push(`tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/${testInfo.project.name}/P5R2-22-SCREEN-09-runs.png`)
 
   await openScreen(page, 'SCREEN-10')
-  await expect(page.getByText('表示できるP5R2結果はありません')).toBeVisible()
+  await expect(page.getByText('表示できるBacktest結果はありません')).toBeVisible()
   await expect(page.getByText('結果表示の削除は承認済み範囲で実行できます')).toBeVisible()
   const resultAxe = await runAxe(page)
   axeResults.push({ screen: 'SCREEN-10', blocking: resultAxe.violations.filter((violation) => violation.impact === 'critical' || violation.impact === 'serious') })
@@ -103,7 +103,7 @@ test('P5R2-22: current manual journey is assert-first and bounded', async ({ pag
   screenshots.push(`tests/evidence/phase5R2/RUN-P5R2-22-MANUAL-LOCAL-001/P5R2-22_manual/ui/${testInfo.project.name}/P5R2-22-SCREEN-10-results.png`)
 
   expect(externalRequests).toEqual([])
-  await writeFile(join(projectRoot, 'p5r2-manual-capture.json'), JSON.stringify({
+  await writeFile(join(projectRoot, 'backtest-product-manual-capture.json'), JSON.stringify({
     schema_version: 'P5R2-22-manual-ui-capture-v1',
     run_id: 'RUN-P5R2-22-MANUAL-LOCAL-001',
     project: testInfo.project.name,
@@ -118,6 +118,6 @@ test('P5R2-22: current manual journey is assert-first and bounded', async ({ pag
       default_range_without_source: 'NOT_SET',
       external_download: 'DISABLED_HOST_LEVEL_ISOLATION_NOT_VERIFIED',
     },
-    boundaries: { p5r2: 'LOCAL_ONLY', provider: 'NOT_CALLED', p6: 'NOT_STARTED' },
+    boundaries: { backtest_product: 'LOCAL_ONLY', provider: 'NOT_CALLED', p6: 'NOT_STARTED' },
   }, null, 2), 'utf-8')
 })

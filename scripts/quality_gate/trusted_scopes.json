@@ -687,7 +687,7 @@
       "ui_checks": {
         "build": ["npm", "--prefix", "ui/app", "run", "build"],
         "unit": ["npm", "--prefix", "ui/app", "run", "test"],
-        "playwright": ["npm", "--prefix", "ui/app", "exec", "playwright", "test", "tests/p5r-backtest.spec.ts", "--config", "playwright.config.ts"],
+        "playwright": ["npm", "--prefix", "ui/app", "exec", "playwright", "test", "tests/legacy-backtest.spec.ts", "--config", "playwright.config.ts"],
         "projects": ["chromium-desktop", "chromium-mobile"],
         "viewports": [[1280, 900], [390, 844]],
         "external_request_policy": "zero"
