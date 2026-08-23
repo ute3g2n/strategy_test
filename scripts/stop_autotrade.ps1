@@ -5,7 +5,7 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $storageRoot = 'E:\strategy_test_data\autotrade'
 $runtimeRoot = Join-Path $storageRoot 'logs'
-$uiRoot = Join-Path $projectRoot 'ui\mock'
+$uiRoot = Join-Path $projectRoot 'ui\app'
 $stopLog = Join-Path $runtimeRoot 'stop.log'
 
 function Write-StopMessage {

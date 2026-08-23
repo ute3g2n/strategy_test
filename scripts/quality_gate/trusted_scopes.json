@@ -520,7 +520,7 @@
         "tests/application",
         "tests/phase4",
         "tests/fixtures/phase4",
-        "ui/mock"
+        "ui/app"
       ],
       "excluded_paths": [
         "src/autotrade/backtest",
@@ -650,12 +650,12 @@
       "target_paths": [
         "src/autotrade/application",
         "src/autotrade/backtest",
-        "scripts/phase5r",
+        "scripts/application_server",
         "scripts/quality_gate",
         "tests/application",
         "tests/backtest",
         "tests/phase5R",
-        "ui/mock"
+        "ui/app"
       ],
       "excluded_paths": [".env", "doc", "plan", "research", "third_party", "tests/evidence/phase5", "broker", "cloud"],
       "fixture": {
@@ -679,15 +679,15 @@
         "evidence": "tests/evidence/phase5R/RUN-P5R-00-20260816-001/h1-decision.json"
       },
       "checks": [
-        {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/application", "src/autotrade/backtest", "scripts/phase5r", "tests/application", "tests/backtest"]},
-        {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/application", "src/autotrade/backtest", "scripts/phase5r", "tests/application", "tests/backtest"]},
-        {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/application", "src/autotrade/backtest", "scripts/phase5r"]},
+        {"gate": "formatter", "command": [".venv/Scripts/python.exe", "-m", "ruff", "format", "--check", "src/autotrade/application", "src/autotrade/backtest", "scripts/application_server", "tests/application", "tests/backtest"]},
+        {"gate": "lint", "command": [".venv/Scripts/python.exe", "-m", "ruff", "check", "src/autotrade/application", "src/autotrade/backtest", "scripts/application_server", "tests/application", "tests/backtest"]},
+        {"gate": "type", "command": [".venv/Scripts/python.exe", "-m", "mypy", "src/autotrade/application", "src/autotrade/backtest", "scripts/application_server"]},
         {"gate": "test", "command": [".venv/Scripts/python.exe", "-m", "scripts.quality_gate.local_p5r_pytest"]}
       ],
       "ui_checks": {
-        "build": ["npm", "--prefix", "ui/mock", "run", "build"],
-        "unit": ["npm", "--prefix", "ui/mock", "run", "test"],
-        "playwright": ["npm", "--prefix", "ui/mock", "exec", "playwright", "test", "tests/p5r-backtest.spec.ts", "--config", "playwright.config.ts"],
+        "build": ["npm", "--prefix", "ui/app", "run", "build"],
+        "unit": ["npm", "--prefix", "ui/app", "run", "test"],
+        "playwright": ["npm", "--prefix", "ui/app", "exec", "playwright", "test", "tests/p5r-backtest.spec.ts", "--config", "playwright.config.ts"],
         "projects": ["chromium-desktop", "chromium-mobile"],
         "viewports": [[1280, 900], [390, 844]],
         "external_request_policy": "zero"
@@ -714,12 +714,12 @@
         "src/autotrade/backtest",
         "src/autotrade/market_data",
         "src/autotrade/strategy",
-        "ui/mock/src",
+        "ui/app/src",
         "tests/application",
         "tests/backtest",
         "tests/phase5R",
         "tests/market_data",
-        "ui/mock/tests",
+        "ui/app/tests",
         "scripts/quality_gate",
         "scripts/wsl_quality_gate"
       ],
@@ -800,7 +800,7 @@
       ],
       "ui_checks": {
         "status": "P5R2-19_SEPARATE_STEP_NOT_RUN",
-        "target": "ui/mock/src and ui/mock/tests",
+        "target": "ui/app/src and ui/app/tests",
         "external_request_policy": "zero"
       }
     },
@@ -893,7 +893,7 @@
       ],
       "ui_checks": {
         "status": "P5R2-19_SEPARATE_STEP_NOT_RUN",
-        "target": "ui/mock/src and ui/mock/tests",
+        "target": "ui/app/src and ui/app/tests",
         "external_request_policy": "zero"
       }
     },
@@ -984,7 +984,7 @@
       ],
       "ui_checks": {
         "status": "P5R2-19_SEPARATE_STEP_NOT_RUN",
-        "target": "ui/mock/src and ui/mock/tests",
+        "target": "ui/app/src and ui/app/tests",
         "external_request_policy": "zero"
       }
     },
@@ -1015,7 +1015,7 @@
         "broker",
         "cloud",
         "secrets",
-        "ui/mock",
+        "ui/app",
         "tests/evidence/phase5",
         "tests/evidence/phase5R",
         "tests/evidence/phase5R2"
@@ -1080,7 +1080,7 @@
       ],
       "ui_checks": {
         "status": "P5R2-19_SEPARATE_STEP_NOT_RUN",
-        "target": "ui/mock/src and ui/mock/tests",
+        "target": "ui/app/src and ui/app/tests",
         "external_request_policy": "zero"
       }
     },
@@ -1119,7 +1119,7 @@
         "broker",
         "cloud",
         "secrets",
-        "ui/mock",
+        "ui/app",
         "tests/evidence/phase5",
         "tests/evidence/phase5R",
         "tests/evidence/phase5R2"
@@ -1185,7 +1185,7 @@
       ],
       "ui_checks": {
         "status": "P5R2-19_SEPARATE_STEP_NOT_RUN",
-        "target": "ui/mock/src and ui/mock/tests",
+        "target": "ui/app/src and ui/app/tests",
         "external_request_policy": "zero"
       }
     },
@@ -1219,7 +1219,7 @@
         "cloud",
         "secrets",
         "src/autotrade",
-        "ui/mock",
+        "ui/app",
         "tests/evidence/phase5",
         "tests/evidence/phase5R",
         "tests/evidence/phase5R2"
@@ -1290,7 +1290,7 @@
       ],
       "ui_checks": {
         "status": "P5R2-19_SEPARATE_STEP_NOT_RUN",
-        "target": "ui/mock/src and ui/mock/tests",
+        "target": "ui/app/src and ui/app/tests",
         "external_request_policy": "zero"
       }
     }

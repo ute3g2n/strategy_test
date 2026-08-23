@@ -13,7 +13,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: 'py -3 scripts/phase5r/p5r2_web_product_api_server.py --port 8765 --seed-completed-results',
+      command: 'py -3 scripts/application_server/web_product_fixture_server.py --port 8765 --seed-completed-results',
       url: 'http://127.0.0.1:8765/health',
       cwd: '../..',
       reuseExistingServer: false,

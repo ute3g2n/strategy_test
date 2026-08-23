@@ -4,7 +4,7 @@ import { mkdir } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
 const recoveryApiPort = 8766
-const repositoryRoot = process.cwd().replace(/\\ui\\mock$/, '')
+const repositoryRoot = process.cwd().replace(/\\ui\\app$/, '')
 
 async function waitForHealth(): Promise<void> {
   const deadline = Date.now() + 30_000
@@ -21,7 +21,7 @@ async function waitForHealth(): Promise<void> {
 }
 
 function startApi(): ChildProcess {
-  return spawn('py', ['-3', 'scripts/phase5r/backtest_api_server.py', '--port', String(recoveryApiPort)], {
+  return spawn('py', ['-3', 'scripts/application_server/application_api_server.py', '--port', String(recoveryApiPort)], {
     cwd: repositoryRoot,
     stdio: 'ignore',
     windowsHide: true,

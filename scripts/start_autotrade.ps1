@@ -8,8 +8,8 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $projectRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
-$uiRoot = Join-Path $projectRoot 'ui\mock'
-$apiScript = Join-Path $projectRoot 'scripts\phase5r\backtest_api_server.py'
+$uiRoot = Join-Path $projectRoot 'ui\app'
+$apiScript = Join-Path $projectRoot 'scripts\application_server\application_api_server.py'
 $storageRoot = 'E:\strategy_test_data\autotrade'
 $runtimeRoot = Join-Path $storageRoot 'logs'
 $startupLog = Join-Path $runtimeRoot 'startup.log'

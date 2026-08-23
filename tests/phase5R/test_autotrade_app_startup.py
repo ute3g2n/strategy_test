@@ -25,7 +25,7 @@ def test_start_script_has_loopback_build_health_and_failure_boundaries() -> None
     required_fragments = (
         "127.0.0.1:8765",
         "127.0.0.1:4173",
-        "backtest_api_server.py",
+        "application_api_server.py",
         "npm ci",
         "'run', 'build'",
         "'run', 'preview'",
@@ -54,7 +54,7 @@ def test_stop_script_only_targets_local_autotrade_start_commands() -> None:
     script = read_text("scripts/stop_autotrade.ps1")
 
     assert "backtest_api_server" in script
-    assert "ui\\mock" in script
+    assert "ui\\app" in script
     assert "npm.*preview|vite.*preview" in script
     assert "--port\\s+8765" in script
     assert "--port\\s+4173" in script
