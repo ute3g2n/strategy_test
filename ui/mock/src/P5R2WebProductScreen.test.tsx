@@ -152,6 +152,20 @@ describe('P5R2 Web Product UI', () => {
     expect(screen.getByText('開始日時は終了日時より前にしてください。')).toBeVisible()
   })
 
+  it('does not call the preflight API when a condition endpoint is empty', async () => {
+    const user = userEvent.setup()
+    const fetchMock = installApiMock()
+    render(<P5R2WebProductScreen screen={screen08} onOpenLegacy={() => undefined} />)
+
+    await waitFor(() => expect(screen.getByTestId('p5r2-catalog-table')).toBeInTheDocument())
+    const end = screen.getByLabelText('終了日時（UTC）')
+    fireEvent.change(end, { target: { value: '' } })
+    await user.click(screen.getByRole('button', { name: '事前確認' }))
+
+    expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith('/api/p5r2/backtest/preflight'))).toBe(false)
+    expect(screen.getByText('終了日時（UTC）を入力してください。')).toBeVisible()
+  })
+
   it('does not create a generation job when the selected range exceeds source coverage', async () => {
     const user = userEvent.setup()
     const fetchMock = installApiMock()

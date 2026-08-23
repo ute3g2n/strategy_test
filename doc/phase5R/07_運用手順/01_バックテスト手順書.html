@@ -295,7 +295,7 @@
       <li>画面上部の「P5R2 Web Product / 実Application API」を確認します。これは固定画像ではなく、loopback-onlyのApplication APIから状態を読んでいる表示です。</li>
       <li>「戦略時間足」の選択肢が<code>15m</code>、<code>30m</code>、<code>1h</code>、<code>4h</code>、<code>1d</code>の5つであることを確認します。<code>30m</code>は選択対象です。</li>
       <li><code>1m source</code>の説明を読みます。1mは上位時間足を生成する元Dataで、戦略時間足としては選択できません。旧P5Rの1m画面を現行画面と読み替えません。</li>
-      <li>開始と終了をUTCの<code>2025-02-24T00:00:00Z</code>のように入力します。P5R2の期間は、開始を含み、終了を含まない半開区間<code>[開始, 終了)</code>です。開始と終了が同じ、逆順、許可範囲外、末尾の<code>Z</code>がない場合は開始しません。</li>
+      <li>開始日時と終了日時は、画面のカレンダーと時刻の選択欄でUTCとして指定します。P5R2の期間は、開始を含み、終了を含まない半開区間<code>[開始, 終了)</code>です。開始と終了が同じ、逆順、空欄、許可範囲外の場合は開始しません。画面で選んだ日時は、APIへUTCのISO文字列として送られます。</li>
       <li>Backtest Strategyと銘柄を選び、Data Catalogの対象Dataと同じ銘柄・時間足・期間になっていることを確認します。</li>
       <li>外部Data取得ボタンが無効で、<code>HOST_LEVEL_ISOLATION_NOT_VERIFIED</code>と表示される場合は、そのまま停止します。Download APIは呼び出しません。</li>
     </ol>
@@ -467,7 +467,7 @@
     <ol>
       <li>「銘柄」で<code>BTCUSDT</code>または<code>ETHUSDT</code>を選びます。</li>
       <li>「市場」「時間足」「タイムゾーン」は、<code>Spot</code>、<code>1m</code>、<code>UTC</code>になっていることを読みます。<code>1m</code>は1分ごとの値動き、UTCは世界共通の時刻です。</li>
-      <li>「開始（UTC）」と「終了（UTC）」を、例のように<code>2025-02-24T00:00:00Z</code>の形式で入力します。末尾の<code>Z</code>はUTCであることを示します。</li>
+      <li>「開始日時（UTC）」と「終了日時（UTC）」のカレンダーと時刻の選択欄を使います。表示されたUTCラベル、開始と終了の順序、指定した分単位を確認します。APIへは選択値がUTCのISO文字列として送られます。</li>
       <li>「Strategy」で<code>TURTLE_SYS1</code>または<code>TURTLE_SYS2</code>を選びます。Strategyは、買う・売る・手仕舞いを決めるルールです。</li>
       <li>「初期残高（USDT）」、Entry lookback、Exit lookback、Fee（bps）、Slippage（bps）を確認します。入力語の意味は<a href="#terms">用語集</a>で確認できます。</li>
       <li>「Preflight実行」をクリックします。</li>
@@ -482,21 +482,21 @@
   </section>
 
   <section class="procedure" id="BT-MAN-03">
-    <h3>BT-MAN-03：UTCではない日時を安全に止める</h3>
-    <p class="goal"><strong>この操作でできること：</strong>時刻の意味が決められない入力を、計算開始前に止められることを確認できます。時刻がずれると、別のDataを読んでしまう危険があります。</p>
-    <p><strong>いつ使う？</strong>入力間違いを安全に止める機能を確認するときに使います。通常の実験では、正しいUTC形式を入力してください。</p>
-    <p class="where"><strong>画面の場所：</strong>「Single Backtest条件」→「開始（UTC）」→「Preflight実行」。</p>
+    <h3>BT-MAN-03：開始が終了以降の期間を安全に止める</h3>
+    <p class="goal"><strong>この操作でできること：</strong>開始日時が終了日時より後になる入力を、計算開始前に止められることを確認できます。期間の順序を誤ると、別のData範囲や空の範囲を読んでしまう危険があります。</p>
+    <p><strong>いつ使う？</strong>カレンダーと時刻の選択欄で指定した期間を安全に検証するときに使います。通常の実験では、UTCラベルを確認し、開始を終了より前にしてください。</p>
+    <p class="where"><strong>画面の場所：</strong>「Single Backtest条件」→「開始日時（UTC）」／「終了日時（UTC）」→「Preflight実行」。</p>
     <ol>
-      <li>「開始（UTC）」を<code>2025-02-24T00:00:00</code>に変更します。最後の<code>Z</code>をわざと外します。</li>
+      <li>「開始日時（UTC）」をカレンダーと時刻の選択欄で、終了日時より後の<code>2025-02-24 03:00 UTC</code>に変更します。</li>
       <li>「Preflight実行」をクリックします。</li>
-      <li>「Preflight STOPPED。停止理由を直してから再実行してください。」と表示されることを確認します。</li>
+      <li>「開始日時は終了日時より前にしてください。」と表示されることを確認します。</li>
       <li>検査結果の<code>UTC_AND_CALENDAR</code>と、停止理由を読みます。</li>
-      <li>開始時刻を<code>2025-02-24T00:00:00Z</code>に戻し、再度「Preflight実行」をクリックします。</li>
+      <li>開始日時をカレンダーと時刻の選択欄で<code>2025-02-24 00:00 UTC</code>に戻し、再度「Preflight実行」をクリックします。</li>
     </ol>
-    <p class="check"><strong>確認できれば成功：</strong>UTCを示す<code>Z</code>がない入力が、Run開始前にSTOPPEDになる。</p>
-    <p class="failure"><strong>止まったままのとき：</strong>開始・終了の両方がUTC形式か、開始が終了より前か、P5R範囲内かを確認します。</p>
+    <p class="check"><strong>確認できれば成功：</strong>開始が終了以降の入力が、Run開始前に停止し、正しい順序へ戻すとPreflightへ進める。</p>
+    <p class="failure"><strong>止まったままのとき：</strong>開始・終了のUTCラベル、開始が終了より前か、P5R範囲内かを確認します。</p>
     <p class="limit"><strong>この結果から言ってはいけないこと：</strong>STOPPEDは、システムが壊れたという意味ではありません。意味の決められない入力から計算を守るために止めた状態です。</p>
-    <figure><img src="assets/backtest_manual/BT-MAN-03.png" alt="開始日時にUTCを示すZがなく、PreflightがSTOPPEDになった画面" loading="lazy"><figcaption>BT-MAN-03：入力を直すまで、あいまいな時刻の計算を始めない。</figcaption></figure>
+    <figure><img src="assets/backtest_manual/BT-MAN-03.png" alt="開始日時が終了日時より後になり、期間エラーが表示された画面" loading="lazy"><figcaption>BT-MAN-03：期間の順序を直すまで、計算を始めない。</figcaption></figure>
     <p class="small">関係する用語：<a href="#term-utc">UTC</a>、<a href="#term-stopped">STOPPED</a> ／ 受入条件: <code>P5R-AC-01</code>、<code>P5R-AC-16</code></p>
     <p class="back"><a href="#feature-catalog">機能一覧へ戻る</a></p>
   </section>
@@ -811,7 +811,7 @@
       <tr><td><code>DELETE_FAILED</code>／<code>RESULT_DELETE_PENDING</code></td><td>ResultArtifact削除が処理中または完了していない。</td><td>Auditと対象を記録し、cascadeや任意path操作をせず停止する。</td><td>Data、CSV、Audit、Evidenceまで削除する、復元を試す。</td></tr>
       <tr><td><code>TYPE_AND_UNIT</code></td><td>入力の種類や単位が合わない。</td><td>数値、単位、日時形式を確認してPreflightをやり直す。</td><td>数字を想像で置き換える。</td></tr>
       <tr><td><code>P5_DATA_SCOPE</code></td><td>銘柄・期間がP5Rの範囲外。</td><td>BTCUSDT／ETHUSDTと許可期間へ戻す。</td><td>範囲外Dataを勝手に追加する。</td></tr>
-      <tr><td><code>UTC_AND_CALENDAR</code></td><td>UTCやカレンダーが確認できない。</td><td>日時の末尾<code>Z</code>と順序を確認する。</td><td>ローカル時刻のまま計算する。</td></tr>
+      <tr><td><code>UTC_AND_CALENDAR</code></td><td>UTCラベル、カレンダー、日時の順序が確認できない。</td><td>UTCラベル、開始と終了の順序、APIへUTCとして送られることを確認する。</td><td>ローカル時刻のまま計算する。</td></tr>
       <tr><td><code>QUALITY</code></td><td>Data品質が条件を満たさない。</td><td>表示された理由を記録し、品質確認済みDataを使う。</td><td>欠けたDataを想像で補う。</td></tr>
       <tr><td><code>LOOKAHEAD</code></td><td>未来のDataを先に使う可能性がある。</td><td>条件と時間窓を見直し、未来参照なしを確認する。</td><td>結果が良いから無視する。</td></tr>
       <tr><td><code>CORE_VALIDATION_...</code></td><td>Strategy Coreが条件を受け付けなかった。</td><td>Coreの停止理由を記録し、成功扱いにしない。</td><td>結果を手入力して完成にする。</td></tr>
@@ -841,7 +841,7 @@
     <dt id="term-readonly">read-only</dt><dd>読むだけで、元のDataを書き換えないこと。</dd>
     <dt id="term-symbol">銘柄（symbol）</dt><dd>どの取引対象を調べるかを表す名前。この画面ではBTCUSDTまたはETHUSDT。</dd>
     <dt id="term-strategy">Strategy</dt><dd>いつ買うか、いつ売るか、いつ手仕舞いするかを決めるルール。TURTLE_SYS1とTURTLE_SYS2がある。</dd>
-    <dt id="term-utc">UTC</dt><dd>世界で共通に使う時刻の基準。入力の末尾に<code>Z</code>を付け、別の地域の時刻と混同しない。</dd>
+    <dt id="term-utc">UTC</dt><dd>世界で共通に使う時刻の基準。画面ではUTCと表示されたカレンダー・時刻欄から選び、APIへはUTCのISO文字列として送る。別の地域の時刻へ自動変換しない。</dd>
     <dt id="term-lookback">Entry／Exit lookback</dt><dd>Entry（入り口）やExit（出口）を判断するときに、過去の何本のBarを見るかを表す設定。</dd>
     <dt id="term-bps">bps</dt><dd>FeeやSlippageの割合を細かく表す単位。画面の想定値を、実際の市場費用と混同しない。</dd>
     <dt id="term-fee">Fee</dt><dd>取引を想定したときの手数料。このP5Rでは入力した想定値。</dd>

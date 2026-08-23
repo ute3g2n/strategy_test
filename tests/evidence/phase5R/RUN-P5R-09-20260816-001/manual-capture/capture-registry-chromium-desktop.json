@@ -29,7 +29,7 @@
     },
     {
       "manual_id": "BT-MAN-03",
-      "description": "UTC表記がない入力を停止する",
+      "description": "開始が終了以降の期間を停止する",
       "project": "chromium-desktop",
       "screenshot": "tests/evidence/phase5R/RUN-P5R-09-20260816-001/manual-capture/chromium-desktop/BT-MAN-03.png",
       "viewport": {

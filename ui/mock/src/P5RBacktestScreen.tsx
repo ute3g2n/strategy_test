@@ -238,7 +238,7 @@ export function P5RBacktestScreen({ screen, demoState, onStateChange }: P5RBackt
   useEffect(() => {
     const runId = activeRun?.run_id
     const runStatus = activeRun?.status
-    if (typeof runId !== 'string' || !['QUEUED', 'RUNNING'].includes(runStatus ?? '')) return
+    if (typeof runId !== 'string' || !['QUEUED', 'RUNNING', 'STOP_REQUESTED'].includes(runStatus ?? '')) return
     const timer = window.setInterval(() => {
       void backtestApi.getRun(runId).then(setActiveRun).catch((caught: unknown) => setError(toErrorMessage(caught)))
     }, 100)
