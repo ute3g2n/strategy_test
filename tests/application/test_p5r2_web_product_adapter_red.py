@@ -122,7 +122,7 @@ def _spec(timeframe: str = "15m") -> dict[str, object]:
 def test_p5r2_preflight_reports_missing_derived_data_for_ui_dialog(tmp_path: Path) -> None:
     service = BacktestProductService(data_root=tmp_path / "data", runtime_root=tmp_path / "runtime")
 
-    result = service.p5r2_preflight(_spec("30m"))
+    result = service.backtest_product_preflight(_spec("30m"))
 
     assert result["status"] == "STOPPED"
     assert result["failure"]["code"] == "DATA_INSUFFICIENT"
@@ -197,7 +197,7 @@ def test_p5r2_http_routes_expose_local_catalog_and_blocked_download(tmp_path: Pa
     thread.start()
     try:
         connection = HTTPConnection("127.0.0.1", server.server_address[1], timeout=2)
-        connection.request("GET", "/api/p5r2/catalog")
+        connection.request("GET", "/api/backtest-product/catalog")
         catalog_response = connection.getresponse()
         catalog = json.loads(catalog_response.read().decode("utf-8"))
         assert catalog_response.status == 200
@@ -217,7 +217,7 @@ def test_p5r2_http_routes_expose_local_catalog_and_blocked_download(tmp_path: Pa
         )
         connection.request(
             "POST",
-            "/api/p5r2/historical-download-jobs",
+            "/api/backtest-product/historical-download-jobs",
             body=payload,
             headers={"Content-Type": "application/json"},
         )
@@ -248,7 +248,7 @@ def test_p5r2_http_generation_uses_a_server_owned_catalog_source_and_hides_bars(
         connection = HTTPConnection("127.0.0.1", server.server_address[1], timeout=2)
         connection.request(
             "POST",
-            "/api/p5r2/timeframe-generation-jobs",
+            "/api/backtest-product/timeframe-generation-jobs",
             body=json.dumps(request),
             headers={"Content-Type": "application/json"},
         )
@@ -259,7 +259,7 @@ def test_p5r2_http_generation_uses_a_server_owned_catalog_source_and_hides_bars(
         assert "source_dataset" not in created["input"]
         assert created["external_io_performed"] is False
 
-        connection.request("GET", f"/api/p5r2/timeframe-generation-jobs/{created['job_id']}")
+        connection.request("GET", f"/api/backtest-product/timeframe-generation-jobs/{created['job_id']}")
         loaded_response = connection.getresponse()
         loaded = json.loads(loaded_response.read().decode("utf-8"))
         assert loaded_response.status == 200

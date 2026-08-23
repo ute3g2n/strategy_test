@@ -95,8 +95,8 @@ class DataReference:
     fixture_sha256: Sha256
     input_sequence_sha256: Sha256
     source_mode: Literal["fixture_only", "local_published"] = "fixture_only"
-    # P5R2 catalog identity.  Legacy P4 callers may omit these fields; the
-    # canonical P5R2 Run boundary requires them before persistence.
+    # Catalog identity for the current Backtest Product. Legacy callers may
+    # omit these fields; the current Run boundary requires them before persistence.
     dataset_id: str | None = None
     record_id: str | None = None
 
@@ -170,7 +170,7 @@ class CreateRunCommand:
     # Legacy input accepted for deserialisation only.  The active path checks
     # the preflight status and never stores or compares this management hash.
     preflight_report_sha256: Sha256 | None = None
-    # P5R2 canonical runs carry the exact local input that was preflighted.
+    # Current Backtest Product runs carry the exact local input that was preflighted.
     # It is revalidated at the Run/Sweep persistence boundary and is never
     # treated as a caller-owned PASS report.
     preflight_input: Mapping[str, object] | None = None

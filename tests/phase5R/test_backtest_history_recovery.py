@@ -263,7 +263,7 @@ def test_catalog_path_is_application_scoped_and_never_phase_named() -> None:
         assert catalog_root.drive.upper() == "E:"
     else:
         assert filesystem_catalog_root.as_posix().startswith("/mnt/e/")
-    assert "phase5r" not in str(catalog_root).casefold()
+    assert catalog_root.parts[-2:] == ("backtest", "catalog")
     assert "temp" not in {part.casefold() for part in catalog_root.parts}
 
 

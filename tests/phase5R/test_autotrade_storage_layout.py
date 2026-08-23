@@ -33,7 +33,6 @@ def test_default_storage_layout_is_on_e_drive_and_application_scoped() -> None:
             filesystem_path = filesystem_storage_path(path)
             assert filesystem_path.as_posix().startswith("/mnt/e/"), filesystem_path
         assert "temp" not in normalized
-        assert "phase5r" not in normalized
         assert "autotrade" in normalized
 
 
@@ -42,11 +41,11 @@ def test_default_storage_layout_is_on_e_drive_and_application_scoped() -> None:
     (
         Path(r"C:\project\strategy_test\runtime"),
         Path(r"E:\strategy_test_data\temp"),
-        Path(r"E:\strategy_test_data\phase5r"),
-        Path(r"E:\strategy_test_data\autotrade\backtest\phase5r"),
+        Path(r"E:\strategy_test_data\unsupported"),
+        Path(r"E:\strategy_test_data\autotrade\unsupported"),
     ),
 )
-def test_storage_path_validation_rejects_c_drive_temp_and_phase_names(candidate: Path) -> None:
+def test_storage_path_validation_rejects_c_drive_temp_and_unrecognized_areas(candidate: Path) -> None:
     with pytest.raises(StoragePathError):
         validate_storage_path(candidate, purpose="test")
 

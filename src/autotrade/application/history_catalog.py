@@ -26,6 +26,8 @@ JsonObject = dict[str, Any]
 
 CATALOG_SCHEMA = "autotrade-backtest-history/v1"
 DATASET_SCHEMA = "autotrade-historical-dataset/v1"
+# Persisted legacy records use this fixed migration ticket; changing it would
+# invalidate the compatibility path for already stored catalog entries.
 LEGACY_IMPORT_TICKET = "P5R-LEGACY-MIGRATION-V1"
 _RUN_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
 _CATALOG_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")

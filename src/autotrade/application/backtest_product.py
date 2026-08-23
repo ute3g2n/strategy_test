@@ -423,7 +423,7 @@ class BacktestProductService:
             checks.append({"id": "INPUT", "status": "FAIL", "message": str(error)})
             return {"status": "STOPPED", "checks": checks, "failure": {"code": str(error), "retryable": False}}
 
-    def p5r2_preflight(self, raw_spec: Mapping[str, Any]) -> JsonObject:
+    def backtest_product_preflight(self, raw_spec: Mapping[str, Any]) -> JsonObject:
         """Bind the Web Product preflight to a currently usable derived dataset."""
 
         result = self.preflight(raw_spec)
@@ -1437,16 +1437,16 @@ class BacktestProductService:
             catalog_sha256=data_identity,
             calendar_version="CRYPTO_24_7_UTC",
             calendar_sha256=data_identity,
-            timeframe_rule_version="P5R-1M-V1",
+            timeframe_rule_version="BACKTEST-PRODUCT-1M-V1",
             ordering_rule_version="UTC-TIME-V1",
             strategy_config_sha256=canonical_hash(vars(strategy)),
-            code_revision="P5R-local",
+            code_revision="BACKTEST-PRODUCT-LOCAL",
             quality_policy_version="P5-QUALITY-PASS-WITH-OPEN-UNKNOWN",
             quality_report_sha256="P5-09-quality-report",
             split_plan_sha256="P5-09-period-split",
             cost_profile_sha256=data_identity,
-            adapter_version="P5R-LOCAL-READONLY",
-            adapter_artifact_sha256="P5R-LOCAL-READONLY",
+            adapter_version="BACKTEST-PRODUCT-LOCAL-READONLY",
+            adapter_artifact_sha256="BACKTEST-PRODUCT-LOCAL-READONLY",
             engine_identity=EngineIdentity(),
             fixture_manifest_sha256=data_identity,
             input_sha256=data_identity,
@@ -1456,7 +1456,7 @@ class BacktestProductService:
         data_manifest = DataVersionManifest(
             data_version=manifest.data_version,
             raw_sha256s=(data_identity,),
-            normalization_rule_version="P5R-1M-READONLY",
+            normalization_rule_version="BACKTEST-PRODUCT-1M-READONLY",
             catalog_version=manifest.catalog_version,
             catalog_sha256=data_identity,
             quality_report_sha256=manifest.quality_report_sha256,

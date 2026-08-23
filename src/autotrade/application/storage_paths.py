@@ -25,6 +25,7 @@ BACKTEST_CATALOG_ROOT = BACKTEST_STORAGE_ROOT / "catalog"
 APPLICATION_LOG_ROOT = APPLICATION_STORAGE_ROOT / "logs"
 
 _FORBIDDEN_COMPONENTS = frozenset({"temp", "tmp"})
+_ALLOWED_STORAGE_AREAS = frozenset({"historical", "backtest", "logs"})
 _WSL_E_DRIVE_ROOT = Path("/mnt/e")
 _REPARSE_POINT_ATTRIBUTE = 0x0400
 
@@ -109,13 +110,16 @@ def validate_storage_path(path: Path, *, purpose: str, create: bool = True) -> P
         raise StoragePathError(f"{purpose} contains parent traversal")
 
     normalized_parts = tuple(part.casefold() for part in logical_candidate.parts)
-    if any(part in _FORBIDDEN_COMPONENTS or "phase5r" in part for part in normalized_parts):
-        raise StoragePathError(f"{purpose} uses a forbidden temporary or phase-specific path")
+    if any(part in _FORBIDDEN_COMPONENTS for part in normalized_parts):
+        raise StoragePathError(f"{purpose} uses a forbidden temporary path")
 
     try:
-        logical_candidate.relative_to(logical_root)
+        relative_candidate = logical_candidate.relative_to(logical_root)
     except ValueError as error:
         raise StoragePathError(f"{purpose} must be under {APPLICATION_STORAGE_ROOT}") from error
+
+    if not relative_candidate.parts or relative_candidate.parts[0].casefold() not in _ALLOWED_STORAGE_AREAS:
+        raise StoragePathError(f"{purpose} uses an unsupported application storage area")
 
     filesystem_candidate = filesystem_storage_path(candidate)
     filesystem_root = filesystem_storage_path(APPLICATION_STORAGE_ROOT)

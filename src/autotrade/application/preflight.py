@@ -452,7 +452,7 @@ def _canonical_config_timeframe(config: BacktestConfig) -> str | None:
 
 
 def preflight_run_for_command(config: BacktestConfig, input_value: Mapping[str, object] | None) -> PreflightResult:
-    """Revalidate and bind a canonical P5R2 input immediately before Run persistence."""
+    """Revalidate and bind the current Backtest Product input before Run persistence."""
 
     if _canonical_config_timeframe(config) is None:
         return _reject(["PREFLIGHT_REQUIRED"])
@@ -632,14 +632,14 @@ def preflight_run(config: BacktestConfig) -> PreflightReport:
     )
     checks.append(
         PreflightCheck(
-            "P5R2-PREFLIGHT-TIMEFRAME",
+            "BACKTEST-PRODUCT-PREFLIGHT-TIMEFRAME",
             "FAIL" if "STRATEGY_TIMEFRAME_INVALID" in errors else "PASS",
             "STRATEGY_TIMEFRAME_INVALID" if "STRATEGY_TIMEFRAME_INVALID" in errors else None,
         )
     )
     checks.append(
         PreflightCheck(
-            "P5R2-PREFLIGHT-UTC-RANGE",
+            "BACKTEST-PRODUCT-PREFLIGHT-UTC-RANGE",
             "FAIL" if "UTC_RANGE_INVALID" in errors else "PASS",
             "UTC_RANGE_INVALID" if "UTC_RANGE_INVALID" in errors else None,
         )

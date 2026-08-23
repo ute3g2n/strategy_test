@@ -1,4 +1,4 @@
-"""Local-only HTTP adapter for the P5R Application API."""
+"""Local-only HTTP adapter for the Backtest Product Application API."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ MAX_JSON_BODY_BYTES = 1_000_000
 ALLOWED_UI_ORIGIN = "http://127.0.0.1:4173"
 
 
-def _p5r2_generation_job_view(value: object) -> dict[str, Any]:
+def _generation_job_view(value: object) -> dict[str, Any]:
     """Project a job for the browser without disclosing source OHLCV bars."""
 
     if not isinstance(value, dict):
@@ -76,13 +76,13 @@ class _Handler(BaseHTTPRequestHandler):
                 self._send(
                     200,
                     {
-                        "contract_version": "P5R-APPLICATION-API-V1",
+                        "contract_version": "BACKTEST-PRODUCT-APPLICATION-API-V1",
                         "backtest": "SUPPORTED_LOCAL_P5_READ_ONLY",
                         "paper": "OUT_OF_SCOPE",
                         "live": "OUT_OF_SCOPE",
                     },
                 )
-            elif path == ["api", "p5r2", "catalog"]:
+            elif path == ["api", "backtest-product", "catalog"]:
                 self._send(
                     200,
                     {
@@ -92,8 +92,8 @@ class _Handler(BaseHTTPRequestHandler):
                         "source_timeframe": "1m",
                     },
                 )
-            elif len(path) == 4 and path[:3] == ["api", "p5r2", "timeframe-generation-jobs"]:
-                self._send(200, _p5r2_generation_job_view(self.service.get_timeframe_generation_job(path[3])))
+            elif len(path) == 4 and path[:3] == ["api", "backtest-product", "timeframe-generation-jobs"]:
+                self._send(200, _generation_job_view(self.service.get_timeframe_generation_job(path[3])))
             elif path == ["api", "backtest", "runs"]:
                 self._send(200, {"items": self.service.list_runs()})
             elif path == ["api", "backtest", "runs", "history"]:
@@ -121,22 +121,22 @@ class _Handler(BaseHTTPRequestHandler):
         path = [unquote(part) for part in urlparse(self.path).path.split("/") if part]
         try:
             body = self._body()
-            if path == ["api", "p5r2", "backtest", "preflight"]:
-                result = self.service.p5r2_preflight(body.get("spec", body))
+            if path == ["api", "backtest-product", "backtest", "preflight"]:
+                result = self.service.backtest_product_preflight(body.get("spec", body))
                 self._send(200 if result["status"] == "PASS" else 422, result)
-            elif path == ["api", "p5r2", "backtest", "runs"]:
-                result = self.service.p5r2_preflight(body.get("spec", body))
+            elif path == ["api", "backtest-product", "backtest", "runs"]:
+                result = self.service.backtest_product_preflight(body.get("spec", body))
                 if result["status"] != "PASS":
                     self._send(422, result)
                 else:
                     self._send(201, self.service.create_run(body.get("spec", body)))
-            elif path == ["api", "p5r2", "historical-download-jobs"]:
+            elif path == ["api", "backtest-product", "historical-download-jobs"]:
                 result = self.service.create_historical_download_job(body)
                 self._send(409, result)
-            elif path == ["api", "p5r2", "timeframe-generation-jobs"]:
+            elif path == ["api", "backtest-product", "timeframe-generation-jobs"]:
                 result = self.service.create_timeframe_generation_job(body)
-                self._send(201 if result.get("state") == "STAGED" else 422, _p5r2_generation_job_view(result))
-            elif len(path) == 5 and path[:3] == ["api", "p5r2", "timeframe-generation-jobs"]:
+                self._send(201 if result.get("state") == "STAGED" else 422, _generation_job_view(result))
+            elif len(path) == 5 and path[:3] == ["api", "backtest-product", "timeframe-generation-jobs"]:
                 snapshot = dict(body)
                 snapshot.setdefault("job_id", path[3])
                 if path[4] == "advance":
@@ -152,8 +152,8 @@ class _Handler(BaseHTTPRequestHandler):
                 else:
                     self._error(404, "NOT_FOUND")
                     return
-                self._send(200 if result.get("state") != "REJECTED" else 409, _p5r2_generation_job_view(result))
-            elif path == ["api", "p5r2", "result-artifacts", "delete"]:
+                self._send(200 if result.get("state") != "REJECTED" else 409, _generation_job_view(result))
+            elif path == ["api", "backtest-product", "result-artifacts", "delete"]:
                 result = self.service.delete_result_artifact(body)
                 self._send(200 if result.get("accepted") is True else 409, result)
             elif path == ["api", "backtest", "preflight"]:

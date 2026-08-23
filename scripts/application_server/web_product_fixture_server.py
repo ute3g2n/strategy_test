@@ -1,7 +1,7 @@
-"""Fixed local fixture server for the P5R2-19/P5R2-21 Web Product journey.
+"""Fixed local fixture server for the Backtest Web Product browser journey.
 
 It seeds a small, server-owned LOCAL_FAKE 1m Catalog source so browser tests
-can exercise the real P5R2 adapter without receiving OHLCV bars or contacting
+can exercise the real Backtest Product adapter without receiving OHLCV bars or contacting
 an external provider.
 """
 
@@ -37,7 +37,7 @@ def _source_dataset() -> dict[str, object]:
     start = datetime(2025, 2, 24, tzinfo=UTC)
     bars = [_bar(start + timedelta(minutes=index), f"100.{index:02d}") for index in range(181)]
     return {
-        "dataset_id": "P5R2-19-SOURCE-BTCUSDT-1m",
+        "dataset_id": "BACKTEST-UI-SOURCE-BTCUSDT-1m",
         "identity": {
             "provider": "LOCAL_FAKE",
             "market": "SPOT",
@@ -53,7 +53,7 @@ def _source_dataset() -> dict[str, object]:
         "promotion_state": "PROMOTED",
         "bar_count": len(bars),
         "bars": bars,
-        "provenance": {"source_job_id": "P5R2-19-FIXTURE-SOURCE", "source_mode": "LOCAL_FAKE"},
+        "provenance": {"source_job_id": "BACKTEST-UI-FIXTURE-SOURCE", "source_mode": "LOCAL_FAKE"},
     }
 
 
@@ -68,15 +68,15 @@ def _seed_source(service: BacktestProductService) -> None:
             "symbol": "BTCUSDT",
             "timeframes": ["15m"],
             "requested_range": {"start": "2025-02-24T00:00:00Z", "end": "2025-02-24T01:00:00Z"},
-            "request_id": "p5r2-19-fixture-source-job",
-            "reason": "P5R2-19 fixed local Web Product fixture",
+            "request_id": "backtest-ui-fixture-source-job",
+            "reason": "Backtest Web Product fixed local fixture",
             "retry_of": None,
             "external_io_allowed": False,
             "source_dataset": source,
         }
     )
     if source_job.get("state") != "STAGED":
-        raise RuntimeError("P5R2_19_FIXTURE_SOURCE_JOB_FAILED")
+        raise RuntimeError("BACKTEST_UI_FIXTURE_SOURCE_JOB_FAILED")
     request: dict[str, object] = {
         "identity": source["identity"],
         "existing_bars": [],
@@ -85,8 +85,8 @@ def _seed_source(service: BacktestProductService) -> None:
         "expected_revision": 0,
         "impact_confirmed": True,
         "provenance": {"source_job_id": source_job["job_id"], "source_mode": "LOCAL_FAKE"},
-        "request_id": "p5r2-19-fixture-source-catalog",
-        "staging_id": "p5r2-19-fixture-source-staging",
+        "request_id": "backtest-ui-fixture-source-catalog",
+        "staging_id": "backtest-ui-fixture-source-staging",
         "staging_state": "STAGED",
         "promotion_state": "VALIDATING",
         "quality": "PENDING_CATALOG_VALIDATION",
@@ -98,11 +98,11 @@ def _seed_source(service: BacktestProductService) -> None:
     request["preview_token"] = preview["operation_token"]
     promoted = catalog.promote_merge(request)
     if promoted.get("state") != "PROMOTED":
-        raise RuntimeError("P5R2_19_FIXTURE_SOURCE_PROMOTION_FAILED")
+        raise RuntimeError("BACKTEST_UI_FIXTURE_SOURCE_PROMOTION_FAILED")
 
 
 def _seed_completed_results(service: BacktestProductService) -> None:
-    """Create only new local result fixtures for the bounded P5R2-21 browser run."""
+    """Create only new local result fixtures for the bounded browser run."""
 
     spec = {
         "symbol": "BTCUSDT",
@@ -122,7 +122,7 @@ def _seed_completed_results(service: BacktestProductService) -> None:
         },
     }
     for index in range(1, 3):
-        run_id = f"RUN-P5R2-21-UI-SEED-{index:03d}"
+        run_id = f"RUN-BACKTEST-UI-SEED-{index:03d}"
         run = _Run(
             run_id=run_id,
             spec=dict(spec),
@@ -142,7 +142,7 @@ def _seed_completed_results(service: BacktestProductService) -> None:
             },
             provenance={
                 "source_mode": "LOCAL_FAKE",
-                "fixture_scope": "P5R2-21 new temporary browser ResultArtifact fixture",
+                "fixture_scope": "new temporary browser ResultArtifact fixture",
                 "period_start_utc": spec["start"],
                 "period_end_utc": spec["end"],
             },
@@ -172,7 +172,7 @@ def main() -> None:
     args = parser.parse_args()
     if args.host not in {"127.0.0.1", "localhost"}:
         raise ValueError("LOOPBACK_ONLY")
-    runtime_root = args.runtime_root or Path(tempfile.mkdtemp(prefix="autotrade-p5r2-19-runtime-"))
+    runtime_root = args.runtime_root or Path(tempfile.mkdtemp(prefix="autotrade-backtest-ui-runtime-"))
     data_root = args.data_root or runtime_root / "data"
     service = BacktestProductService(
         data_root=data_root,

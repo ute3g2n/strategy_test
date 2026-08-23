@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 UI_ROOT = ROOT / "ui" / "app"
 SERVER_ROOT = ROOT / "scripts" / "application_server"
 FORBIDDEN = re.compile(r"p5r2|p5r|phase5r|ui[\\/]mock", re.IGNORECASE)
+FIXED_COMPATIBILITY_TOKENS = ("P5R-LEGACY-MIGRATION-V1",)
 ACTIVE_FILE_SUFFIXES = {".py", ".ps1", ".js", ".ts", ".tsx", ".css", ".html", ".json"}
 
 
@@ -39,6 +40,8 @@ def test_active_source_does_not_contain_phase_names_or_old_ui_path() -> None:
             content = path.read_text(encoding="utf-8")
         except UnicodeDecodeError:
             continue
+        for token in FIXED_COMPATIBILITY_TOKENS:
+            content = content.replace(token, "")
         if FORBIDDEN.search(content):
             violations.append(f"content: {relative}")
     assert not violations, "現行実行ソースに旧配置またはフェーズ名が残っています: " + ", ".join(violations)

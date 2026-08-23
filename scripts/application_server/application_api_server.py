@@ -1,4 +1,4 @@
-"""Playwright entrypoint for the loopback-only P5R API."""
+"""Playwright entrypoint for the loopback-only Application API."""
 
 from __future__ import annotations
 

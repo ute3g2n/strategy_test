@@ -309,7 +309,8 @@ class JobService:
 def create_historical_download_job(value: object) -> JsonObject:
     """Return a gate rejection without creating a job or touching a provider.
 
-    P5R2-14 is deliberately limited to local generation.  Keeping this
+    The current local generation boundary is deliberately limited to local
+    generation. Keeping this
     boundary as a public operation makes a future DATA-G1 implementation
     explicit instead of silently converting a download request into a local
     generation request.
