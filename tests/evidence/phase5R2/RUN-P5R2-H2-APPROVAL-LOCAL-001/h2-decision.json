@@ -1,0 +1,15 @@
+{
+  "schema_version": "P5R2-h2-decision-v1",
+  "gate": "P5R2-H2",
+  "run_id": "RUN-P5R2-H2-APPROVAL-LOCAL-001",
+  "date": "2026-08-23",
+  "decision": "P5R2-H2_APPROVED_BY_DELEGATED_AUTHORITY",
+  "authority": "root Codex",
+  "authority_source": "plan/phase5R2/ログ/P5R2-HumanGate権限移譲_2026-08-22.md",
+  "scope": "P5R2 completion with open unknowns and P6-H0 input handoff",
+  "requirements": {"domains": 4, "atomic_requirements": 8, "coverage_complete": true},
+  "quality": {"pytest": "112 passed", "critical_open": 0, "high_open": 0, "html_references": 956, "html_missing": 0, "html_duplicate_ids": 0},
+  "open_unknowns_retained": ["P5R2-UNK-TF-004", "P5R2-UNK-TF-006", "P5R2-UNK-QG-003", "P5R2-UNK-HD-004", "DATA-G1 bounded external boundary", "DELETE-G1 bounded fixture boundary"],
+  "not_approved": ["P6-H0", "Provider login/API/Data download", "Secret", "cost", "existing artifact physical delete", "management hash flow"],
+  "next_step": "P5R2-25"
+}

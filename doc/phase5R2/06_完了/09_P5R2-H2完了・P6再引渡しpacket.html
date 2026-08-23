@@ -14,8 +14,8 @@
   <h1>P5R2-H2完了・P6再引渡し packet</h1>
   <p class="small">文書ID: <code>P5R2-H2-PACKET-001</code> ／ Step: <code>P5R2-24</code> ／ 作成日: 2026-08-23 ／ Version: <code>v0.1</code></p>
   <div class="hero">
-    <p><strong>現在状態：<span class="wait">P5R2-24_PACKET_READY / P5R2-H2_UNAPPROVED</span></strong></p>
-    <p>このページは、P5R2の完了とP6への再引渡しを判断するための資料を1か所へ集めたものです。資料を作ったこと自体は承認ではありません。P5R2-H2の承認判断が記録されるまで、P5R2完了宣言とP6開始は行いません。</p>
+    <p><strong>現在状態：<span class="ok">P5R2-H2_APPROVED_BY_DELEGATED_AUTHORITY / P5R2-25_PENDING</span></strong></p>
+    <p>このページは、P5R2の完了とP6への再引渡しを判断するための資料です。P5R2-24でpacketを作成した時点ではH2未承認でしたが、2026-08-23にユーザーから移譲された権限に基づくH2承認判断を記録しました。P5R2-25でCurrent状態と最終完了判定を同期します。P6-H0は未承認です。</p>
   </div>
 
   <section>
@@ -45,7 +45,7 @@
       <tbody>
         <tr><td>P5R旧完了範囲</td><td>旧仕様・旧手順書・旧完了判定を履歴として保持する。1m固定の旧説明をP5R2の現行仕様にしない。</td><td><a href="../../phase5R/06_完了/01_P5R完了判定・P6引渡し.html">P5R完了判定</a> ／ <a href="../../phase5R/07_運用手順/01_バックテスト手順書.html">同じ手順書内の旧P5R履歴</a></td></tr>
         <tr><td>P5R2現行要件</td><td>AT-REQ-004 v4の4領域・8件を現在正本とする。旧candidate、v3、旧Manualは入力・履歴であり、Currentではない。</td><td><a href="../../requirements/01_自動トレードシステム要件定義書_v4.html">要件v4</a> ／ <a href="../../index.html">doc/index</a></td></tr>
-        <tr><td>P5R2-H2</td><td class="wait">このpacket作成時点では未承認。承認判断を別ログへ記録するまでP5R2完了を宣言しない。</td><td><a href="../../../plan/phase5R2/ログ/P5R2-24_H2_packet作成_2026-08-23.md">P5R2-24ログ</a></td></tr>
+        <tr><td>P5R2-H2</td><td class="ok">P5R2-24作成時は未承認。現在は委譲権限で承認済み。</td><td><a href="../../../plan/phase5R2/ログ/P5R2-24_H2_packet作成_2026-08-23.md">P5R2-24ログ</a> ／ <a href="../../../plan/phase5R2/ログ/P5R2-H2_承認判断_2026-08-23.md">H2承認判断</a></td></tr>
       </tbody>
     </table>
   </section>
@@ -77,7 +77,7 @@
         <tr><td><code>P5R2-H1</code></td><td class="ok">APPROVED_BY_DELEGATED_AUTHORITY</td><td>詳細設計、対象path、local RED／GREEN、Quality scope、local UI等。</td><td>外部Data、既存物理削除、H2、P6。</td><td><a href="../../phase5R2/05_H1/06_P5R2-H1承認packet.html">H1 packet</a> ／ <a href="../../../plan/phase5R2/ログ/P5R2-H1_承認判断_2026-08-22.md">判断ログ</a></td></tr>
         <tr><td><code>P5R2-DATA-G1</code></td><td class="ok">APPROVED_BOUNDED_P5R2-18</td><td>指定公開archive、指定銘柄・期間・source 1m、P5R2-18 pilotのpacket範囲。</td><td>host-level isolation未確認のためExternal execute／download／promotionはBlocked。login、契約、API call、Secret、費用、再配布は禁止。</td><td><a href="../../phase5R2/07_DATA-G1/07_P5R2-DATA-G1承認packet.html">DATA-G1 packet</a> ／ <a href="../../../plan/phase5R2/ログ/P5R2-DATA-G1_承認判断_2026-08-23.md">判断ログ</a></td></tr>
         <tr><td><code>P5R2-DELETE-G1</code></td><td class="ok">APPROVED_BOUNDED_P5R2-21_FIXTURE_ONLY</td><td>terminal ResultArtifactの物理削除実装と新規一時fixtureの受入。</td><td>既存Data／Run／CSV／Audit／Evidence、cascade、一括purge、restore、P6は禁止。</td><td><a href="../../phase5R2/08_DELETE-G1/08_P5R2-DELETE-G1承認packet.html">DELETE-G1 packet</a> ／ <a href="../../../plan/phase5R2/ログ/P5R2-21_物理削除受入_2026-08-23.md">P5R2-21ログ</a></td></tr>
-        <tr><td><code>P5R2-H2</code></td><td class="wait">UNAPPROVED</td><td>このpacketで、全Acceptance、Manual、Open Unknown、P6再引渡しを判断する。</td><td>この行が未承認の間はP5R2完了宣言、P6開始、P6-H0承認を行わない。</td><td><a href="../../../plan/phase5R2/ログ/P5R2-24_H2_packet作成_2026-08-23.md">P5R2-24ログ</a> ／ <a href="../../../plan/phase5R2/ログ/P5R2-HumanGate権限移譲_2026-08-22.md">権限移譲記録</a></td></tr>
+        <tr><td><code>P5R2-H2</code></td><td class="ok">APPROVED_BY_DELEGATED_AUTHORITY</td><td>全Acceptance、Data境界、取消／削除、改訂手順書、Open Unknown、P6再引渡し入力を、P5R2-24 packetで確認し承認した。P5R2-25でCurrent状態を同期する。</td><td>P6-H0、外部Provider、Secret、費用、既存Artifactの破壊的削除は承認しない。</td><td><a href="../../../plan/phase5R2/ログ/P5R2-H2_承認判断_2026-08-23.md">承認判断</a> ／ <a href="../../../plan/phase5R2/quality/runtime-receipt-P5R2-H2.json">runtime receipt</a> ／ <a href="../../../tests/evidence/phase5R2/RUN-P5R2-H2-APPROVAL-LOCAL-001/h2-decision.json">H2 Evidence</a></td></tr>
         <tr><td><code>P6-H0</code></td><td class="wait">NOT_STARTED / NOT_APPROVED</td><td>P5R2-H2後に、P6の別packetで判断する。</td><td>P5R2-H2の承認だけを理由にP6の設計・実装・Test・外部I/Oを開始しない。</td><td><a href="../../index.html">doc/index</a> ／ P5R2-25引渡し欄</td></tr>
       </tbody>
     </table>
@@ -125,7 +125,14 @@
   </section>
 
   <section>
-    <h2>9. 参照先</h2>
+    <h2>10. H2承認同期</h2>
+    <p class="ok"><strong>P5R2-H2_APPROVED_BY_DELEGATED_AUTHORITY（2026-08-23）</strong></p>
+    <p>ユーザーからP5R2-25完了までHuman Gate承認権限を移譲されたroot Codexが、Open Unknownを残すP5R2完了とP6再引渡し入力の範囲で承認した。P5R2-25では、この判断を統合台帳、doc/index、要件v4、Manual、完了HTML、最終Evidenceへ同期し、最終状態を<code>P5R2-COMPLETE_WITH_OPEN_UNKNOWN</code>として記録する。P6-H0は未承認のまま保持する。</p>
+    <p><a href="../../../plan/phase5R2/ログ/P5R2-H2_承認判断_2026-08-23.md">H2承認判断ログ</a> ／ <a href="../../../plan/phase5R2/quality/runtime-receipt-P5R2-H2.json">H2 runtime receipt</a> ／ <a href="../../../tests/evidence/phase5R2/RUN-P5R2-H2-APPROVAL-LOCAL-001/verification.md">H2 verification</a></p>
+  </section>
+
+  <section>
+    <h2>11. 参照先</h2>
     <ul>
       <li><a href="../../requirements/01_自動トレードシステム要件定義書_v4.html">AT-REQ-004 要件v4</a> ／ <a href="../../../plan/Phase5R2_実行計画書_v0.2_2026-08-22.md">P5R2計画v0.2</a></li>
       <li><a href="../04_実装詳細設計/01_P5R2時間足・Preflight設計書.html">時間足・Preflight設計</a> ／ <a href="../04_実装詳細設計/02_P5R2HistoricalDataJob・Catalog設計書.html">Historical Data Job・Catalog設計</a> ／ <a href="../04_実装詳細設計/03_P5R2Run操作・ResultArtifact設計書.html">Run・ResultArtifact設計</a></li>
